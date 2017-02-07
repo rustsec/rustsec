@@ -1,0 +1,11 @@
+[package]
+name = "cargo-audit"
+description = "Audit Cargo.lock for crates with security vulnerabilities"
+version = "0.0.0"
+authors = ["Tony Arcieri <bascule@gmail.com>"]
+license = "MIT/Apache-2.0"
+repository = "https://github.com/rustsec/cargo-audit"
+documentation = "https://github.com/rustsec/cargo-audit"
+keywords = ["security", "audit", "vulnerability"]
+
+[dependencies]
