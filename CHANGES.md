@@ -1,3 +1,9 @@
+## 0.3.0 (2017-02-26)
+
+* [#4](https://github.com/RustSec/rustsec-client/pull/4)
+  Rename `crate_name` TOML attribute back to `package`.
+  ([@tarcieri])
+
 ## 0.2.0 (2017-02-25)
 
 * [#3](https://github.com/RustSec/rustsec-client/pull/3)
