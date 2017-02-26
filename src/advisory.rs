@@ -6,7 +6,7 @@ use toml;
 #[derive(Debug, PartialEq)]
 pub struct Advisory {
     pub id: String,
-    pub crate_name: String,
+    pub package: String,
     pub patched_versions: Vec<VersionReq>,
     pub date: Option<String>,
     pub url: Option<String>,
@@ -19,7 +19,7 @@ impl Advisory {
     pub fn from_toml_value(value: &toml::Value) -> Result<Advisory> {
         Ok(Advisory {
             id: String::from(try!(value["id"].as_str().ok_or(Error::MissingAttribute))),
-            crate_name: String::from(try!(value["crate_name"].as_str().ok_or(Error::MissingAttribute))),
+            package: String::from(try!(value["package"].as_str().ok_or(Error::MissingAttribute))),
             patched_versions: try!(parse_versions(&value["patched_versions"])),
             date: value["date"].as_str().map(String::from),
             url: value["url"].as_str().map(String::from),
