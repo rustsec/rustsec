@@ -9,3 +9,6 @@ documentation = "https://github.com/rustsec/rustsec"
 keywords = ["rustsec", "security", "advisory", "vulnerability"]
 
 [dependencies]
+reqwest = "^0.4"
+semver = "^0"
+toml = "^0.3"
