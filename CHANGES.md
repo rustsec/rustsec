@@ -1,3 +1,9 @@
+## 0.4.0 (2017-02-26)
+
+* [#5](https://github.com/RustSec/rustsec-client/pull/5)
+  Add `AdvisoryDatabase::find_vulns_for_crate()`.
+  ([@tarcieri])
+
 ## 0.3.0 (2017-02-26)
 
 * [#4](https://github.com/RustSec/rustsec-client/pull/4)
