@@ -18,6 +18,7 @@ use advisory::Advisory;
 use error::{Error, Result};
 use std::collections::HashMap;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
+use std::collections::hash_map::Iter;
 use std::io::Read;
 use std::str;
 
@@ -95,6 +96,11 @@ impl AdvisoryDatabase {
         }
 
         result
+    }
+
+    /// Iterate over all of the advisories in the database
+    pub fn iter(&self) -> Iter<String, Advisory> {
+        self.advisories.iter()
     }
 }
 
