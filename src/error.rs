@@ -7,6 +7,7 @@ pub enum Error {
     Response,
     Parse,
     MissingAttribute,
+    InvalidAttribute,
     MalformedVersion,
 }
 
@@ -23,6 +24,7 @@ impl StdError for Error {
             Error::Response => "invalid response",
             Error::Parse => "couldn't parse data",
             Error::MissingAttribute => "expected attribute missing",
+            Error::InvalidAttribute => "attribute is not the expected type/format",
             Error::MalformedVersion => "malformatted version requirement",
         }
     }
