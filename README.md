@@ -1,7 +1,7 @@
 # rustsec client [![Latest Version][crate-image]][crate-link] [![Build Status][build-image]][build-link] ![MIT/Apache 2 licensed][license-image]
 
 [crate-image]: https://img.shields.io/crates/v/rustsec.svg
-[crate-link]: https://crates.io/crates/rustsec-client
+[crate-link]: https://crates.io/crates/rustsec
 [build-image]: https://travis-ci.org/rustsec/rustsec-client.svg?branch=master
 [build-link]: https://travis-ci.org/rustsec/rustsec-client
 [license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
