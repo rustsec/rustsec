@@ -16,19 +16,29 @@ pub struct Advisory {
 
 impl Advisory {
     /// Parse an Advisory from a TOML value object
-    pub fn from_toml_value(value: &toml::Value) -> Result<Advisory> {
+    pub fn from_toml_table(value: &toml::value::Table) -> Result<Advisory> {
         Ok(Advisory {
-            id: String::from(try!(value["id"].as_str().ok_or(Error::MissingAttribute))),
-            package: String::from(try!(value["package"].as_str().ok_or(Error::MissingAttribute))),
+            id: try!(parse_mandatory_string(value, "id")),
+            package: try!(parse_mandatory_string(value, "package")),
             patched_versions: try!(parse_versions(&value["patched_versions"])),
-            date: value["date"].as_str().map(String::from),
-            url: value["url"].as_str().map(String::from),
-            title: String::from(try!(value["title"].as_str().ok_or(Error::MissingAttribute))),
-            description: String::from(try!(value["description"]
-                .as_str()
-                .ok_or(Error::MissingAttribute))),
+            date: try!(parse_optional_string(value, "date")),
+            url: try!(parse_optional_string(value, "url")),
+            title: try!(parse_mandatory_string(value, "title")),
+            description: try!(parse_mandatory_string(value, "description")),
         })
     }
+}
+
+fn parse_optional_string(table: &toml::value::Table, attribute: &str) -> Result<Option<String>> {
+    match table.get(attribute) {
+        Some(v) => Ok(Some(String::from(try!(v.as_str().ok_or(Error::InvalidAttribute))))),
+        None => Ok(None),
+    }
+}
+
+fn parse_mandatory_string(table: &toml::value::Table, attribute: &str) -> Result<String> {
+    let str = try!(parse_optional_string(table, attribute));
+    str.ok_or(Error::MissingAttribute)
 }
 
 fn parse_versions(value: &toml::Value) -> Result<Vec<VersionReq>> {
