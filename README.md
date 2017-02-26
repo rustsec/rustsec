@@ -2,8 +2,8 @@
 
 [crate-image]: https://img.shields.io/crates/v/rustsec.svg
 [crate-link]: https://crates.io/crates/rustsec
-[build-image]: https://travis-ci.org/rustsec/rustsec-client.svg?branch=master
-[build-link]: https://travis-ci.org/rustsec/rustsec-client
+[build-image]: https://travis-ci.org/RustSec/rustsec-client.svg?branch=master
+[build-link]: https://travis-ci.org/RustSec/rustsec-client
 [license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
 
 Client library for accessing the RustSec security advisory database
@@ -17,8 +17,8 @@ Licensed under either of:
 
 at your option.
 
-[LICENSE-APACHE]: https://github.com/rustsec/rustsec-client/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/rustsec/rustsec-client/blob/master/LICENSE-MIT
+[LICENSE-APACHE]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-MIT
 
 ### Contribution
 
