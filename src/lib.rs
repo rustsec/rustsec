@@ -64,7 +64,7 @@ impl AdvisoryDatabase {
         for advisory_toml in advisories_toml.iter() {
             let advisory = try!(Advisory::from_toml_value(advisory_toml));
 
-            let mut crate_vec = match crates.entry(advisory.crate_name.clone()) {
+            let mut crate_vec = match crates.entry(advisory.package.clone()) {
                 Vacant(entry) => entry.insert(Vec::new()),
                 Occupied(entry) => entry.into_mut(),
             };
@@ -115,7 +115,7 @@ mod tests {
         let ref example_advisory = db.find("RUSTSEC-2017-0001").unwrap();
 
         assert_eq!(example_advisory.id, "RUSTSEC-2017-0001");
-        assert_eq!(example_advisory.crate_name, "sodiumoxide");
+        assert_eq!(example_advisory.package, "sodiumoxide");
         assert_eq!(example_advisory.patched_versions[0],
                    VersionReq::parse(">= 0.0.14").unwrap());
         assert_eq!(example_advisory.date, Some(String::from("2017-01-26")));
