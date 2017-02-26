@@ -2,6 +2,7 @@ use error::{Error, Result};
 use semver::VersionReq;
 use toml;
 
+/// An individual security advisory pertaining to a single vulnerability
 #[derive(Debug, PartialEq)]
 pub struct Advisory {
     pub id: String,
@@ -14,6 +15,7 @@ pub struct Advisory {
 }
 
 impl Advisory {
+    /// Parse an Advisory from a TOML value object
     pub fn from_toml_value(value: &toml::Value) -> Result<Advisory> {
         Ok(Advisory {
             id: String::from(try!(value["id"].as_str().ok_or(Error::MissingAttribute))),
