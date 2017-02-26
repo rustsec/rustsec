@@ -1,11 +1,12 @@
 [package]
 name = "rustsec"
 description = "Client library for the RustSec security advisory database"
-version = "0.0.0"
+version = "0.1.0"
 authors = ["Tony Arcieri <bascule@gmail.com>"]
 license = "MIT/Apache-2.0"
 repository = "https://github.com/rustsec/rustsec"
 documentation = "https://github.com/rustsec/rustsec"
+categories = ["api-bindings", "development-tools"]
 keywords = ["rustsec", "security", "advisory", "vulnerability"]
 
 [dependencies]
