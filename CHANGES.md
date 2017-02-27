@@ -1,3 +1,9 @@
+## 0.5.0 (2017-02-26)
+
+* [#6](https://github.com/RustSec/rustsec-client/pull/6)
+  Use str version param for `AdvisoryDatabase::find_vulns_for_crate()`.
+  ([@tarcieri])
+
 ## 0.4.0 (2017-02-26)
 
 * [#5](https://github.com/RustSec/rustsec-client/pull/5)
