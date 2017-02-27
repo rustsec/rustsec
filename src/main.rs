@@ -20,9 +20,6 @@ use std::io::Read;
 use std::path::Path;
 use std::process;
 
-const APP_NAME: &'static str = "cargo-audit";
-const VERSION: &'static str = "0.0.0";
-
 // TODO: Use serde
 #[derive(Debug, PartialEq)]
 struct Package {
@@ -118,14 +115,21 @@ fn display_advisory<T>(terminal: &mut Box<T>, package: &Package, advisory: &Advi
 fn main() {
     let mut stdout = term::stdout().unwrap();
 
-    let matches = clap::App::new(APP_NAME)
-        .version(VERSION)
-        .arg_from_usage("-f, --file=[NAME] 'Cargo lockfile to inspect (default: Cargo.lock)'")
-        .arg_from_usage("-u, --url=[URL] 'URL from which to fetch advisory database'")
+    let matches = clap::App::new("cargo")
+        .subcommand(clap::SubCommand::with_name("audit")
+            .version(env!("CARGO_PKG_VERSION"))
+            .author("Tony Arcieri <bascule@gmail.com>")
+            .about("Audit Cargo.lock for crates with security vulnerabilities.")
+            .arg_from_usage("-f, --file=[NAME] 'Cargo lockfile to inspect (default: Cargo.lock)'")
+            .arg_from_usage("-u, --url=[URL] 'URL from which to fetch advisory database'"))
         .get_matches();
 
-    let filename = matches.value_of("file").unwrap_or("Cargo.lock");
-    let url = matches.value_of("url").unwrap_or(rustsec::ADVISORY_DB_URL);
+    let (filename, url) = if let Some(audit_matches) = matches.subcommand_matches("audit") {
+        (audit_matches.value_of("file").unwrap_or("Cargo.lock"),
+         audit_matches.value_of("url").unwrap_or(rustsec::ADVISORY_DB_URL))
+    } else {
+        panic!("cargo-audit is intended to be invoked as a cargo subcommand");
+    };
 
     let dependencies = load_lockfile(filename);
 

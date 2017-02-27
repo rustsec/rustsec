@@ -7,7 +7,7 @@ license = "MIT/Apache-2.0"
 repository = "https://github.com/rustsec/cargo-audit"
 documentation = "https://github.com/rustsec/cargo-audit"
 categories = ["development-tools"]
-keywords = ["security", "audit", "vulnerability"]
+keywords = ["cargo-subcommand", "security", "audit", "vulnerability"]
 
 [[bin]]
 name = "cargo-audit"
