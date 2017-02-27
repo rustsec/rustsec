@@ -13,12 +13,13 @@ extern crate semver;
 extern crate term;
 extern crate toml;
 
+use clap::{App, SubCommand};
 use rustsec::AdvisoryDatabase;
 use rustsec::advisory::Advisory;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use std::process;
+use std::process::exit;
 
 // TODO: Use serde
 #[derive(Debug, PartialEq)]
@@ -115,8 +116,8 @@ fn display_advisory<T>(terminal: &mut Box<T>, package: &Package, advisory: &Advi
 fn main() {
     let mut stdout = term::stdout().unwrap();
 
-    let matches = clap::App::new("cargo")
-        .subcommand(clap::SubCommand::with_name("audit")
+    let matches = App::new("cargo")
+        .subcommand(SubCommand::with_name("audit")
             .version(env!("CARGO_PKG_VERSION"))
             .author("Tony Arcieri <bascule@gmail.com>")
             .about("Audit Cargo.lock for crates with security vulnerabilities.")
@@ -174,7 +175,7 @@ fn main() {
                "Success",
                "No vulnerable packages found");
 
-        process::exit(0);
+        exit(0);
     } else {
         stdout.attr(term::Attr::Bold).unwrap();
         stdout.fg(term::color::RED).unwrap();
@@ -186,7 +187,7 @@ fn main() {
         }
 
         stdout.reset().unwrap();
-        process::exit(1);
+        exit(1);
     }
 }
 
