@@ -12,6 +12,20 @@ This implements an idea originally proposed in this (closed) RFC:
 
 https://github.com/rust-lang/rfcs/pull/1752
 
+### Installation
+
+`cargo audit` is a Cargo subcommand and can be installed with `cargo install`:
+
+```
+$ cargo install cargo-audit
+```
+
+Once installed, it can be run on the toplevel of any Cargo project.
+
+### Example output
+
+![Example output](output_example.png)
+
 ## License
 
 Licensed under either of:
