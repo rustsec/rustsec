@@ -11,8 +11,8 @@ extern crate reqwest;
 extern crate semver;
 extern crate toml;
 
-mod advisory;
-mod error;
+pub mod advisory;
+pub mod error;
 
 use advisory::Advisory;
 use error::{Error, Result};
