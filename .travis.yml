@@ -1,0 +1,17 @@
+language: rust
+
+branches:
+  only:
+    - master
+
+rust:
+  - stable
+  - beta
+  - nightly
+
+os:
+  - linux
+  - osx
+
+notifications:
+  irc: 'irc.mozilla.org#rustsec'

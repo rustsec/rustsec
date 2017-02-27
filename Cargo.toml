@@ -8,4 +8,12 @@ repository = "https://github.com/rustsec/cargo-audit"
 documentation = "https://github.com/rustsec/cargo-audit"
 keywords = ["security", "audit", "vulnerability"]
 
+[[bin]]
+name = "cargo-audit"
+
 [dependencies]
+clap = "^2"
+rustsec = "^0.5.2"
+semver = "^0.6"
+term = "^0.4"
+toml = "^0.3"
