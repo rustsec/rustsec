@@ -108,16 +108,20 @@ impl AdvisoryDatabase {
     }
 
     /// Find advisories that are unpatched and impact a given crate and version
-    pub fn find_vulns_for_crate(&self, crate_name: &str, version: &Version) -> Vec<&Advisory> {
+    pub fn find_vulns_for_crate(&self,
+                                crate_name: &str,
+                                version_str: &str)
+                                -> Result<Vec<&Advisory>> {
+        let version = try!(Version::parse(version_str).map_err(|_| Error::MalformedVersion));
         let mut result = Vec::new();
 
         for advisory in self.find_by_crate(crate_name) {
-            if !advisory.patched_versions.iter().any(|req| req.matches(version)) {
+            if !advisory.patched_versions.iter().any(|req| req.matches(&version)) {
                 result.push(advisory);
             }
         }
 
-        result
+        Ok(result)
     }
 
     /// Iterate over all of the advisories in the database
@@ -129,7 +133,7 @@ impl AdvisoryDatabase {
 #[cfg(test)]
 mod tests {
     use AdvisoryDatabase;
-    use semver::{Version, VersionReq};
+    use semver::VersionReq;
 
     pub const EXAMPLE_PACKAGE: &'static str = "heffalump";
     pub const EXAMPLE_VERSION: &'static str = "1.0.0";
@@ -157,8 +161,7 @@ mod tests {
     #[test]
     fn test_find_vulns_for_crate() {
         let db = example_advisory_db();
-        let advisories =
-            db.find_vulns_for_crate(EXAMPLE_PACKAGE, &Version::parse(EXAMPLE_VERSION).unwrap());
+        let advisories = db.find_vulns_for_crate(EXAMPLE_PACKAGE, EXAMPLE_VERSION).unwrap();
 
         assert_eq!(advisories[0], db.find(EXAMPLE_ADVISORY).unwrap());
     }
