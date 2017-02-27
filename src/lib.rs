@@ -37,7 +37,12 @@ pub struct AdvisoryDatabase {
 impl AdvisoryDatabase {
     /// Fetch the advisory database from the server where it is stored
     pub fn fetch() -> Result<Self> {
-        let mut response = try!(reqwest::get(ADVISORY_DB_URL).map_err(|_| Error::Request));
+        Self::fetch_from_url(ADVISORY_DB_URL)
+    }
+
+    /// Fetch advisory database from a custom URL
+    pub fn fetch_from_url(url: &str) -> Result<Self> {
+        let mut response = try!(reqwest::get(url).map_err(|_| Error::Request));
 
         if !response.status().is_success() {
             return Err(Error::Response);
@@ -47,7 +52,7 @@ impl AdvisoryDatabase {
         try!(response.read_to_end(&mut body).map_err(|_| Error::Response));
         let response_str = try!(str::from_utf8(&body).map_err(|_| Error::Parse));
 
-        AdvisoryDatabase::from_toml(response_str)
+        Self::from_toml(response_str)
     }
 
     /// Parse the advisory database from a TOML serialization of it
