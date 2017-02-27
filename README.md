@@ -2,8 +2,8 @@
 
 [crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
 [crate-link]: https://crates.io/crates/cargo-audit
-[build-image]: https://travis-ci.org/rustsec/cargo-audit.svg?branch=master
-[build-link]: https://travis-ci.org/rustsec/cargo-audit
+[build-image]: https://travis-ci.org/RustSec/cargo-audit.svg?branch=master
+[build-link]: https://travis-ci.org/RustSec/cargo-audit
 [license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
 
 Audit Cargo.lock for crates with security vulnerabilities.
@@ -21,8 +21,8 @@ Licensed under either of:
 
 at your option.
 
-[LICENSE-APACHE]: https://github.com/rustsec/cargo-audit/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/rustsec/cargo-audit/blob/master/LICENSE-MIT
+[LICENSE-APACHE]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-MIT
 
 ### Contribution
 

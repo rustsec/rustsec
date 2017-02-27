@@ -1,6 +1,6 @@
 [root]
 name = "cargo-audit"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "clap 2.20.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustsec 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
