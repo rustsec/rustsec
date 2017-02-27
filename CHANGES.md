@@ -1,3 +1,9 @@
+## 0.5.2 (2017-02-26)
+
+* [#8](https://github.com/RustSec/rustsec-client/pull/8)
+  Add `AdvisoryDatabase::fetch_from_url()`.
+  ([@tarcieri])
+
 ## 0.5.1 (2017-02-26)
 
 * [#7](https://github.com/RustSec/rustsec-client/pull/7)
