@@ -1,3 +1,9 @@
+## 0.5.1 (2017-02-26)
+
+* [#7](https://github.com/RustSec/rustsec-client/pull/7)
+  Make `advisory` and `error` modules public.
+  ([@tarcieri])
+
 ## 0.5.0 (2017-02-26)
 
 * [#6](https://github.com/RustSec/rustsec-client/pull/6)
