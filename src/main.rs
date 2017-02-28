@@ -28,9 +28,9 @@ struct Package {
     version: String,
 }
 
-fn load_lockfile(filename: &str) -> Vec<Package> {
+fn load_lockfile(filename: &str) -> Result <Vec<Package>, std::io::Error> {
     let path = Path::new(filename);
-    let mut file = File::open(&path).expect("Couldn't open the lockfile!");
+    let mut file = File::open(&path)?;
     let mut body = String::new();
 
     file.read_to_string(&mut body).expect("Error reading lockfile!");
@@ -41,7 +41,7 @@ fn load_lockfile(filename: &str) -> Vec<Package> {
         _ => panic!("lockfile is malformed!"),
     };
 
-    packages.iter()
+    Ok(packages.iter()
         .map(|package| {
             Package {
                 name: String::from(package["name"].as_str().expect("missing package name!")),
@@ -50,7 +50,7 @@ fn load_lockfile(filename: &str) -> Vec<Package> {
                     .expect("missing package version!")),
             }
         })
-        .collect()
+        .collect())
 }
 
 // TODO: Macros, cleaner API, support for disabling colors (possibly using Cargo settings?)
@@ -132,7 +132,14 @@ fn main() {
         panic!("cargo-audit is intended to be invoked as a cargo subcommand");
     };
 
-    let dependencies = load_lockfile(filename);
+    let dependencies = match load_lockfile(filename){
+        Ok(v) => v,
+        Err(_) => {
+            notify(&mut stdout, term::color::RED,"Error",
+            "Run \"Cargo build\" to generate lockfile before running audit"); 
+            exit(1);
+            }
+    };
 
     notify(&mut stdout,
            term::color::GREEN,
