@@ -42,7 +42,7 @@ fn main() {
     let dependencies_result = lockfile::load(filename);
 
     if !dependencies_result.is_ok() {
-        display::not_found(&mut stdout, &filename);
+        display::not_found(&mut stdout, filename).unwrap();
         exit(1);
     };
 
@@ -51,7 +51,8 @@ fn main() {
     display::notify(&mut stdout,
                     term::color::GREEN,
                     "Fetching",
-                    &format!("advisories `{}`", url));
+                    &format!("advisories `{}`", url))
+        .unwrap();
 
     let advisory_db = AdvisoryDatabase::fetch_from_url(url)
         .expect("Couldn't fetch advisory database");
@@ -61,7 +62,8 @@ fn main() {
                     "Scanning",
                     &format!("{} crates for vulnerabilities ({} advisories in database)",
                              dependencies.len(),
-                             advisory_db.iter().len()));
+                             advisory_db.iter().len()))
+        .unwrap();
 
     let mut vuln_count: usize = 0;
 
@@ -74,12 +76,13 @@ fn main() {
                             term::color::RED,
                             "Warning",
                             "Vulnerable crates found!")
+                .unwrap()
         }
 
         vuln_count += advisories.len();
 
         for advisory in advisories {
-            display::advisory(&mut stdout, &package, advisory);
+            display::advisory(&mut stdout, &package, advisory).unwrap();
         }
     }
 
@@ -87,20 +90,12 @@ fn main() {
         display::notify(&mut stdout,
                         term::color::GREEN,
                         "Success",
-                        "No vulnerable packages found");
+                        "No vulnerable packages found")
+            .unwrap();
 
         exit(0);
     } else {
-        stdout.attr(term::Attr::Bold).unwrap();
-        stdout.fg(term::color::RED).unwrap();
-
-        if vuln_count == 1 {
-            write!(stdout, "\n1 vulnerability found!\n").unwrap();
-        } else {
-            write!(stdout, "\n{} vulnerabilities found!\n", vuln_count).unwrap();
-        }
-
-        stdout.reset().unwrap();
+        display::vulns_found(&mut stdout, vuln_count).unwrap();
         exit(1);
     }
 }
