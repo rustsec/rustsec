@@ -6,7 +6,8 @@
 [build-link]: https://travis-ci.org/RustSec/cargo-audit
 [license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
 
-Audit Cargo.lock for crates with security vulnerabilities.
+Audit Cargo.lock for crates with security vulnerabilities reported to the
+[RustSec Advisory Database](https://github.com/RustSec/advisory-db).
 
 This implements an idea originally proposed in this (closed) RFC:
 
