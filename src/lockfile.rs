@@ -19,9 +19,9 @@ pub fn load(filename: &str) -> Result<Vec<Package>, io::Error> {
     file.read_to_string(&mut body).expect("Error reading lockfile!");
 
     let toml = body.parse::<toml::Value>().expect("Couldn't parse the lockfile!");
-    let packages = match toml["package"] {
-        toml::Value::Array(ref arr) => arr,
-        _ => panic!("lockfile is malformed!"),
+    let packages = match toml.get("package") {
+        Some(&toml::Value::Array(ref arr)) => arr,
+        _ => return Ok(Vec::new())
     };
 
     Ok(packages.iter()
