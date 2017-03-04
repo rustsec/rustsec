@@ -21,7 +21,7 @@ pub fn load(filename: &str) -> Result<Vec<Package>, io::Error> {
     let toml = body.parse::<toml::Value>().expect("Couldn't parse the lockfile!");
     let packages = match toml.get("package") {
         Some(&toml::Value::Array(ref arr)) => arr,
-        _ => return Ok(Vec::new())
+        _ => return Ok(Vec::new()),
     };
 
     Ok(packages.iter()

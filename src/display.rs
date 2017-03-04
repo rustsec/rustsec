@@ -1,57 +1,85 @@
 use lockfile::Package;
 use rustsec::advisory::Advisory;
-use term::Attr;
-use term::Terminal;
+use term::{self, Attr, Terminal};
 use term::color::{self, Color};
 
 // TODO: Macros, cleaner API, support for disabling colors (possibly using Cargo settings?)
 // Cargo's `Shell` type may be useful here
-pub fn notify<T>(terminal: &mut Box<T>, color: Color, status: &str, message: &str)
+pub fn notify<T>(terminal: &mut Box<T>,
+                 color: Color,
+                 status: &str,
+                 message: &str)
+                 -> term::Result<()>
     where T: Terminal + ?Sized
 {
-    terminal.attr(Attr::Bold).unwrap();
-    terminal.fg(color).unwrap();
-    write!(terminal, "{:>12}", status).unwrap();
+    terminal.attr(Attr::Bold)?;
+    terminal.fg(color)?;
+    write!(terminal, "{:>12}", status)?;
 
-    terminal.reset().unwrap();
-    write!(terminal, " {}\n", message).unwrap();
+    terminal.reset()?;
+    write!(terminal, " {}\n", message)?;
+
+    terminal.flush()?;
+    Ok(())
 }
 
-pub fn not_found<T>(terminal: &mut Box<T>, filename: &str)
+pub fn not_found<T>(terminal: &mut Box<T>, filename: &str) -> term::Result<()>
     where T: Terminal + ?Sized
 {
-    terminal.attr(Attr::Bold).unwrap();
-    terminal.fg(color::RED).unwrap();
-    write!(terminal, "error: ").unwrap();
+    terminal.attr(Attr::Bold)?;
+    terminal.fg(color::RED)?;
+    write!(terminal, "error: ")?;
 
-    terminal.reset().unwrap();
-    terminal.attr(Attr::Bold).unwrap();
-    writeln!(terminal, "Couldn't find '{}'!", filename).unwrap();
+    terminal.reset()?;
+    terminal.attr(Attr::Bold)?;
+    writeln!(terminal, "Couldn't find '{}'!", filename)?;
 
-    terminal.reset().unwrap();
+    terminal.reset()?;
     writeln!(terminal,
-             "\nRun \"cargo build\" to generate lockfile before running audit")
-        .unwrap();
+             "\nRun \"cargo build\" to generate lockfile before running audit")?;
+
+    terminal.flush()?;
+    Ok(())
 }
 
-pub fn advisory<T>(terminal: &mut Box<T>, package: &Package, advisory: &Advisory)
+pub fn vulns_found<T>(terminal: &mut Box<T>, vuln_count: usize) -> term::Result<()>
     where T: Terminal + ?Sized
 {
-    write!(terminal, "\n").unwrap();
+    terminal.attr(Attr::Bold)?;
+    terminal.fg(color::RED)?;
 
-    attribute(terminal, "ID", &advisory.id);
-    attribute(terminal, "Crate", &package.name);
-    attribute(terminal, "Version", &package.version);
+    if vuln_count == 1 {
+        write!(terminal, "\n1 vulnerability found!\n")?;
+    } else {
+        write!(terminal, "\n{} vulnerabilities found!\n", vuln_count)?;
+    }
+
+    terminal.reset()?;
+    terminal.flush()?;
+    Ok(())
+}
+
+pub fn advisory<T>(terminal: &mut Box<T>,
+                   package: &Package,
+                   advisory: &Advisory)
+                   -> term::Result<()>
+    where T: Terminal + ?Sized
+{
+    write!(terminal, "\n")?;
+
+    attribute(terminal, "ID", &advisory.id)?;
+    attribute(terminal, "Crate", &package.name)?;
+    attribute(terminal, "Version", &package.version)?;
 
     if let Some(ref date) = advisory.date {
-        attribute(terminal, "Date", date);
+        attribute(terminal, "Date", date)?;
     }
 
     if let Some(ref url) = advisory.url {
-        attribute(terminal, "URL", url);
+        attribute(terminal, "URL", url)?;
     }
 
-    attribute(terminal, "Title", &advisory.title);
+    attribute(terminal, "Title", &advisory.title)?;
 
     let mut fixed_versions = String::new();
     let version_count = advisory.patched_versions.len();
@@ -64,21 +92,26 @@ pub fn advisory<T>(terminal: &mut Box<T>, package: &Package, advisory: &Advisory
         }
     }
 
-    attribute(terminal, "Solution: upgrade to", &fixed_versions);
+    attribute(terminal, "Solution: upgrade to", &fixed_versions)?;
 
-    terminal.reset().unwrap();
+    terminal.reset()?;
+    terminal.flush()?;
+
+    Ok(())
 }
 
-fn attribute<T>(terminal: &mut Box<T>, name: &str, value: &str)
+fn attribute<T>(terminal: &mut Box<T>, name: &str, value: &str) -> term::Result<()>
     where T: Terminal + ?Sized
 {
-    terminal.attr(Attr::Bold).unwrap();
-    terminal.fg(color::RED).unwrap();
-    write!(terminal, "{}: ", name).unwrap();
+    terminal.attr(Attr::Bold)?;
+    terminal.fg(color::RED)?;
+    write!(terminal, "{}: ", name)?;
 
-    terminal.reset().unwrap();
-    terminal.attr(Attr::Bold).unwrap();
-    write!(terminal, "{}\n", value).unwrap();
+    terminal.reset()?;
+    terminal.attr(Attr::Bold)?;
+    write!(terminal, "{}\n", value)?;
 
-    terminal.reset().unwrap();
+    terminal.reset()?;
+
+    Ok(())
 }
