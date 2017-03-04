@@ -28,7 +28,7 @@ struct Package {
     version: String,
 }
 
-fn load_lockfile(filename: &str) -> Result <Vec<Package>, std::io::Error> {
+fn load_lockfile(filename: &str) -> Result<Vec<Package>, std::io::Error> {
     let path = Path::new(filename);
     let mut file = File::open(&path)?;
     let mut body = String::new();
@@ -76,6 +76,8 @@ fn display_attribute<T>(terminal: &mut Box<T>, name: &str, value: &str)
     terminal.reset().unwrap();
     terminal.attr(term::Attr::Bold).unwrap();
     write!(terminal, "{}\n", value).unwrap();
+
+    terminal.reset().unwrap();
 }
 
 fn display_advisory<T>(terminal: &mut Box<T>, package: &Package, advisory: &Advisory)
@@ -132,14 +134,26 @@ fn main() {
         panic!("cargo-audit is intended to be invoked as a cargo subcommand");
     };
 
-    let dependencies = match load_lockfile(filename){
-        Ok(v) => v,
-        Err(_) => {
-            notify(&mut stdout, term::color::RED,"Error",
-            "Run \"Cargo build\" to generate lockfile before running audit"); 
-            exit(1);
-            }
+    let dependencies_result = load_lockfile(filename);
+
+    if !dependencies_result.is_ok() {
+        stdout.attr(term::Attr::Bold).unwrap();
+        stdout.fg(term::color::RED).unwrap();
+        write!(stdout, "error: ").unwrap();
+
+        stdout.reset().unwrap();
+        stdout.attr(term::Attr::Bold).unwrap();
+        writeln!(stdout, "Couldn't find '{}'!", filename).unwrap();
+
+        stdout.reset().unwrap();
+        writeln!(stdout,
+                 "\nRun \"cargo build\" to generate lockfile before running audit")
+            .unwrap();
+
+        exit(1);
     };
+
+    let dependencies = dependencies_result.unwrap();
 
     notify(&mut stdout,
            term::color::GREEN,
