@@ -4,14 +4,26 @@
 //! These portions are redistributed under the same license as Cargo (shared by cargo-audit itself)
 
 use libc;
-use lockfile::Package;
-use rustsec::advisory::Advisory;
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
 use term::{self, TerminfoTerminal, Attr};
 use term::Terminal as RawTerminal;
-use term::color::{Color, BLACK, WHITE, RED};
+use term::color::{Color, BLACK};
+
+pub fn create(color_config: ColorConfig) -> Shell {
+    let config = ShellConfig {
+        color_config: color_config,
+        tty: isatty(),
+    };
+    Shell::create(|| Box::new(io::stdout()), config)
+}
+
+#[cfg(unix)]
+#[allow(unsafe_code)]
+fn isatty() -> bool {
+    unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 }
+}
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum ColorConfig {
@@ -202,87 +214,4 @@ impl Write for Shell {
             Terminal::NoColor(ref mut n) => n.flush(),
         }
     }
-}
-
-pub fn shell(color_config: ColorConfig) -> Shell {
-    let config = ShellConfig {
-        color_config: color_config,
-        tty: isatty(),
-    };
-    Shell::create(|| Box::new(io::stdout()), config)
-}
-
-pub fn not_found(shell: &mut Shell, filename: &str) -> term::Result<()> {
-    shell.say_status("error:",
-                    format!("Couldn't find '{}'!", filename),
-                    RED,
-                    false)?;
-    shell.say("\nRun \"cargo build\" to generate lockfile before running audit",
-             WHITE)?;
-
-    Ok(())
-}
-
-pub fn vulns_found(shell: &mut Shell, vuln_count: usize) -> term::Result<()> {
-    shell.fg(RED)?;
-    shell.attr(Attr::Bold)?;
-
-    if vuln_count == 1 {
-        write!(shell, "\n1 vulnerability found!\n")?;
-    } else {
-        write!(shell, "\n{} vulnerabilities found!\n", vuln_count)?;
-    }
-
-    Ok(())
-}
-
-pub fn advisory(shell: &mut Shell, package: &Package, advisory: &Advisory) -> term::Result<()> {
-    attribute(shell, "\nID", &advisory.id)?;
-    attribute(shell, "Crate", &package.name)?;
-    attribute(shell, "Version", &package.version)?;
-
-    if let Some(ref date) = advisory.date {
-        attribute(shell, "Date", date)?;
-    }
-
-    if let Some(ref url) = advisory.url {
-        attribute(shell, "URL", url)?;
-    }
-
-    attribute(shell, "Title", &advisory.title)?;
-
-    let mut fixed_versions = String::new();
-    let version_count = advisory.patched_versions.len();
-
-    for (i, version) in advisory.patched_versions.iter().enumerate() {
-        fixed_versions.push_str(&version.to_string());
-
-        if i < version_count - 1 {
-            fixed_versions.push_str(", ");
-        }
-    }
-
-    attribute(shell, "Solution: upgrade to", &fixed_versions)?;
-
-    Ok(())
-}
-
-#[cfg(unix)]
-#[allow(unsafe_code)]
-fn isatty() -> bool {
-    unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 }
-}
-
-fn attribute(shell: &mut Shell, name: &str, value: &str) -> term::Result<()> {
-    shell.attr(Attr::Bold)?;
-    shell.fg(RED)?;
-    write!(shell, "{}: ", name)?;
-
-    shell.reset()?;
-    shell.attr(Attr::Bold)?;
-    write!(shell, "{}\n", value)?;
-
-    shell.reset()?;
-
-    Ok(())
 }
