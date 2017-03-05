@@ -7,8 +7,8 @@
 #![deny(trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unstable_features, unused_import_braces, unused_qualifications)]
 
-mod display;
 mod lockfile;
+mod shell;
 
 extern crate clap;
 extern crate libc;
@@ -18,10 +18,12 @@ extern crate term;
 extern crate toml;
 
 use clap::{App, Arg, SubCommand};
-use display::ColorConfig;
+use lockfile::Package;
 use rustsec::AdvisoryDatabase;
+use rustsec::advisory::Advisory;
+use shell::{ColorConfig, Shell};
 use std::process::exit;
-use term::color::{RED, GREEN};
+use term::color::{RED, GREEN, WHITE};
 
 fn main() {
     let matches = App::new("cargo")
@@ -44,7 +46,7 @@ fn main() {
         panic!("cargo-audit is intended to be invoked as a cargo subcommand");
     };
 
-    let mut shell = display::shell(match color_config {
+    let mut shell = shell::create(match color_config {
         "always" => ColorConfig::Always,
         "never" => ColorConfig::Never,
         _ => ColorConfig::Auto,
@@ -53,7 +55,7 @@ fn main() {
     let dependencies_result = lockfile::load(filename);
 
     if !dependencies_result.is_ok() {
-        display::not_found(&mut shell, filename).unwrap();
+        not_found(&mut shell, filename).unwrap();
         exit(1);
     };
 
@@ -86,7 +88,7 @@ fn main() {
         vuln_count += advisories.len();
 
         for advisory in advisories {
-            display::advisory(&mut shell, &package, advisory).unwrap();
+            display_advisory(&mut shell, &package, advisory).unwrap();
         }
     }
 
@@ -96,7 +98,66 @@ fn main() {
 
         exit(0);
     } else {
-        display::vulns_found(&mut shell, vuln_count).unwrap();
+        vulns_found(&mut shell, vuln_count).unwrap();
         exit(1);
     }
+}
+
+fn not_found(shell: &mut Shell, filename: &str) -> term::Result<()> {
+    shell.say_status("error:",
+                    format!("Couldn't find '{}'!", filename),
+                    RED,
+                    false)?;
+    shell.say("\nRun \"cargo build\" to generate lockfile before running audit",
+             WHITE)?;
+
+    Ok(())
+}
+
+fn vulns_found(shell: &mut Shell, vuln_count: usize) -> term::Result<()> {
+    if vuln_count == 1 {
+        shell.say_status("\nerror:", "1 vulnerability found!", RED, false)?;
+    } else {
+        shell.say_status("\nerror:",
+                        format!("{} vulnerabilities found!", vuln_count),
+                        RED,
+                        false)?;
+    }
+
+    Ok(())
+}
+
+fn display_advisory(shell: &mut Shell, package: &Package, advisory: &Advisory) -> term::Result<()> {
+    attribute(shell, "\nID", &advisory.id)?;
+    attribute(shell, "Crate", &package.name)?;
+    attribute(shell, "Version", &package.version)?;
+
+    if let Some(ref date) = advisory.date {
+        attribute(shell, "Date", date)?;
+    }
+
+    if let Some(ref url) = advisory.url {
+        attribute(shell, "URL", url)?;
+    }
+
+    attribute(shell, "Title", &advisory.title)?;
+
+    let mut fixed_versions = String::new();
+    let version_count = advisory.patched_versions.len();
+
+    for (i, version) in advisory.patched_versions.iter().enumerate() {
+        fixed_versions.push_str(&version.to_string());
+
+        if i < version_count - 1 {
+            fixed_versions.push_str(", ");
+        }
+    }
+
+    attribute(shell, "Solution: upgrade to", &fixed_versions)?;
+
+    Ok(())
+}
+
+fn attribute(shell: &mut Shell, name: &str, value: &str) -> term::Result<()> {
+    shell.say_status(format!("{}:", name), value, RED, false)
 }
