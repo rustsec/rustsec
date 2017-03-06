@@ -7,12 +7,14 @@
 #![deny(trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unstable_features, unused_import_braces, unused_qualifications)]
 
+pub mod advisory;
+pub mod error;
+pub mod lockfile;
+mod util;
+
 extern crate reqwest;
 extern crate semver;
 extern crate toml;
-
-pub mod advisory;
-pub mod error;
 
 use advisory::Advisory;
 use error::{Error, Result};
@@ -42,26 +44,26 @@ impl AdvisoryDatabase {
 
     /// Fetch advisory database from a custom URL
     pub fn fetch_from_url(url: &str) -> Result<Self> {
-        let mut response = try!(reqwest::get(url).map_err(|_| Error::Request));
+        let mut response = reqwest::get(url).or(Err(Error::IO))?;
 
         if !response.status().is_success() {
-            return Err(Error::Response);
+            return Err(Error::ServerResponse);
         }
 
         let mut body = Vec::new();
-        try!(response.read_to_end(&mut body).map_err(|_| Error::Response));
-        let response_str = try!(str::from_utf8(&body).map_err(|_| Error::Parse));
+        response.read_to_end(&mut body).or(Err(Error::ServerResponse))?;
+        let response_str = str::from_utf8(&body).or(Err(Error::Parse))?;
 
         Self::from_toml(response_str)
     }
 
     /// Parse the advisory database from a TOML serialization of it
     pub fn from_toml(data: &str) -> Result<Self> {
-        let db_toml = try!(data.parse::<toml::Value>().map_err(|_| Error::Parse));
+        let db_toml = data.parse::<toml::Value>().or(Err(Error::Parse))?;
 
         let advisories_toml = match db_toml {
             toml::Value::Table(ref table) => {
-                match *try!(table.get("advisory").ok_or(Error::MissingAttribute)) {
+                match *table.get("advisory").ok_or(Error::MissingAttribute)? {
                     toml::Value::Array(ref arr) => arr,
                     _ => return Err(Error::InvalidAttribute),
                 }
@@ -74,7 +76,7 @@ impl AdvisoryDatabase {
 
         for advisory_toml in advisories_toml.iter() {
             let advisory = match *advisory_toml {
-                toml::Value::Table(ref table) => try!(Advisory::from_toml_table(table)),
+                toml::Value::Table(ref table) => Advisory::from_toml_table(table)?,
                 _ => return Err(Error::InvalidAttribute),
             };
 
@@ -117,7 +119,7 @@ impl AdvisoryDatabase {
                                 crate_name: &str,
                                 version_str: &str)
                                 -> Result<Vec<&Advisory>> {
-        let version = try!(Version::parse(version_str).map_err(|_| Error::MalformedVersion));
+        let version = Version::parse(version_str).or(Err(Error::MalformedVersion))?;
         let mut result = Vec::new();
 
         for advisory in self.find_by_crate(crate_name) {
@@ -138,6 +140,7 @@ impl AdvisoryDatabase {
 #[cfg(test)]
 mod tests {
     use AdvisoryDatabase;
+    use lockfile::Lockfile;
     use semver::VersionReq;
 
     pub const EXAMPLE_PACKAGE: &'static str = "heffalump";
@@ -173,7 +176,7 @@ mod tests {
 
     // End-to-end integration test (has online dependency on GitHub)
     #[test]
-    fn test_fetch() {
+    fn test_integration() {
         let db = AdvisoryDatabase::fetch().unwrap();
         let ref example_advisory = db.find("RUSTSEC-2017-0001").unwrap();
 
@@ -190,6 +193,9 @@ mod tests {
                    "The `scalarmult()` function in");
 
         let ref crate_advisories = db.find_by_crate("sodiumoxide");
-        assert_eq!(*example_advisory, crate_advisories[0])
+        assert_eq!(*example_advisory, crate_advisories[0]);
+
+        let lockfile = Lockfile::load("Cargo.toml").unwrap();
+        lockfile.vulnerabilities(&db).unwrap();
     }
 }
