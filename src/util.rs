@@ -1,3 +1,5 @@
+//! Utility functions for parsing TOML files
+
 use error::{Error, Result};
 use semver::VersionReq;
 use toml::value::Table;
@@ -15,7 +17,7 @@ pub fn parse_mandatory_string(table: &Table, attribute: &str) -> Result<String> 
     str.ok_or(Error::MissingAttribute)
 }
 
-pub fn parse_versions(table: &Table, attribute: &str) -> Result<Vec<VersionReq>> {
+pub fn parse_version_reqs(table: &Table, attribute: &str) -> Result<Vec<VersionReq>> {
     match table.get(attribute) {
         Some(&Value::Array(ref arr)) => {
             let mut result = Vec::new();

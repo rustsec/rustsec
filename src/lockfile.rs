@@ -1,6 +1,6 @@
 //! Types for representing Cargo.lock files
 
-use AdvisoryDatabase;
+use db::AdvisoryDatabase;
 use advisory::Advisory;
 use error::{Error, Result};
 use std::fs::File;

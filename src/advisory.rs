@@ -36,7 +36,7 @@ impl Advisory {
         Ok(Advisory {
             id: util::parse_mandatory_string(value, "id")?,
             package: util::parse_mandatory_string(value, "package")?,
-            patched_versions: util::parse_versions(value, "patched_versions")?,
+            patched_versions: util::parse_version_reqs(value, "patched_versions")?,
             date: util::parse_optional_string(value, "date")?,
             url: util::parse_optional_string(value, "url")?,
             title: util::parse_mandatory_string(value, "title")?,
