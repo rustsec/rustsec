@@ -1,7 +1,7 @@
 //! Utility functions for parsing TOML files
 
 use error::{Error, Result};
-use semver::VersionReq;
+use semver::{Version, VersionReq};
 use toml::value::Table;
 use toml::Value;
 
@@ -15,6 +15,11 @@ pub fn parse_optional_string(table: &Table, attribute: &str) -> Result<Option<St
 pub fn parse_mandatory_string(table: &Table, attribute: &str) -> Result<String> {
     let str = parse_optional_string(table, attribute)?;
     str.ok_or(Error::MissingAttribute)
+}
+
+pub fn parse_version(table: &Table, attribute: &str) -> Result<Version> {
+    let version = parse_mandatory_string(table, attribute)?;
+    Version::parse(&version).or(Err(Error::MalformedVersion))
 }
 
 pub fn parse_version_reqs(table: &Table, attribute: &str) -> Result<Vec<VersionReq>> {

@@ -51,7 +51,7 @@ mod tests {
         let ref crate_advisories = db.find_by_crate("sodiumoxide");
         assert_eq!(*example_advisory, crate_advisories[0]);
 
-        let lockfile = Lockfile::load("Cargo.toml").unwrap();
-        lockfile.vulnerabilities(&db).unwrap();
+        let lockfile = Lockfile::load("Cargo.lock").unwrap();
+        lockfile.vulnerabilities(&db);
     }
 }
