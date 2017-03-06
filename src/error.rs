@@ -6,11 +6,11 @@ use std::error::Error as StdError;
 /// Custom error type for this library
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum Error {
-    /// An error occurred while making a request to the advisory database
-    Request,
+    /// An error occurred performing an I/O operation (e.g. network, file)
+    IO,
 
     /// Advisory database server responded with an error
-    Response,
+    ServerResponse,
 
     /// Couldn't parse response data
     Parse,
@@ -34,8 +34,8 @@ impl fmt::Display for Error {
 impl StdError for Error {
     fn description(&self) -> &str {
         match *self {
-            Error::Request => "network request failed",
-            Error::Response => "invalid response",
+            Error::IO => "I/O operation failed",
+            Error::ServerResponse => "invalid response",
             Error::Parse => "couldn't parse data",
             Error::MissingAttribute => "expected attribute missing",
             Error::InvalidAttribute => "attribute is not the expected type/format",
