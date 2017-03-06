@@ -1,3 +1,17 @@
+## 0.6.0 (2017-03-05)
+
+* [#11](https://github.com/RustSec/rustsec-client/pull/11)
+  Use semver::Version for lockfile::Package versions.
+  ([@tarcieri])
+
+* [#10](https://github.com/RustSec/rustsec-client/pull/10)
+  Move AdvisoryDatabase under the ::db module.
+  ([@tarcieri])
+ 
+* [#9](https://github.com/RustSec/rustsec-client/pull/9)
+  Lockfile support.
+  ([@tarcieri])
+
 ## 0.5.2 (2017-02-26)
 
 * [#8](https://github.com/RustSec/rustsec-client/pull/8)
