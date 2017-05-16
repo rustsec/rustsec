@@ -12,7 +12,7 @@ Client library for accessing the RustSec security advisory database
 
 ## About
 
-[Documentation](https://docs.rs/rustsec/)
+[Documentation]
 
 The `rustsec` crate is primarily intended to be used by the [cargo-audit] crate for
 the purposes of identifying vulnerable crates in Cargo.lock files.
