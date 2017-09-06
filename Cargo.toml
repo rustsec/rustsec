@@ -14,8 +14,9 @@ name = "cargo-audit"
 
 [dependencies]
 clap = "^2"
-libc = "^0.2"
 rustsec = "^0.6"
-semver = "^0.6"
 term = "^0.4"
-toml = "^0.3"
+[target.'cfg(not(windows))'.dependencies]
+libc = "^0.2"
+[target.'cfg(windows)'.dependencies]
+isatty = "^0.1"

@@ -2,14 +2,16 @@
 //!
 //! Some portions borrowed from the Cargo project: https://github.com/rust-lang/cargo
 //! These portions are redistributed under the same license as Cargo (shared by cargo-audit itself)
-
-use libc;
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
 use term::{self, TerminfoTerminal, Attr};
 use term::Terminal as RawTerminal;
 use term::color::{Color, BLACK};
+#[cfg(not(windows))]
+use libc;
+#[cfg(windows)]
+use isatty::stdout_isatty;
 
 pub fn create(color_config: ColorConfig) -> Shell {
     let config = ShellConfig {
@@ -19,7 +21,12 @@ pub fn create(color_config: ColorConfig) -> Shell {
     Shell::create(|| Box::new(io::stdout()), config)
 }
 
-#[cfg(unix)]
+#[cfg(windows)]
+fn isatty() -> bool {
+    stdout_isatty()
+}
+
+#[cfg(not(windows))]
 #[allow(unsafe_code)]
 fn isatty() -> bool {
     unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 }
@@ -72,15 +79,15 @@ impl Shell {
         }
     }
 
-    #[cfg(any(windows))]
+    #[cfg(windows)]
     fn get_term(out: Box<Write + Send>) -> term::Result<Terminal> {
         // Check if the creation of a console will succeed
         if ::term::WinConsole::new(vec![0u8; 0]).is_ok() {
             let t = ::term::WinConsole::new(out)?;
             if !t.supports_color() {
-                Ok(NoColor(Box::new(t)))
+                Ok(Terminal::NoColor(Box::new(t)))
             } else {
-                Ok(Colored(Box::new(t)))
+                Ok(Terminal::Colored(Box::new(t)))
             }
         } else {
             // If we fail to get a windows console, we try to get a `TermInfo` one
@@ -88,7 +95,7 @@ impl Shell {
         }
     }
 
-    #[cfg(any(unix))]
+    #[cfg(not(windows))]
     fn get_term(out: Box<Write + Send>) -> term::Result<Terminal> {
         Ok(Shell::get_terminfo_term(out))
     }
