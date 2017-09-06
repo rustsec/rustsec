@@ -16,20 +16,9 @@ use isatty::stdout_isatty;
 pub fn create(color_config: ColorConfig) -> Shell {
     let config = ShellConfig {
         color_config: color_config,
-        tty: isatty(),
+        tty: stdout_isatty(),
     };
     Shell::create(|| Box::new(io::stdout()), config)
-}
-
-#[cfg(windows)]
-fn isatty() -> bool {
-    stdout_isatty()
-}
-
-#[cfg(not(windows))]
-#[allow(unsafe_code)]
-fn isatty() -> bool {
-    unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 }
 }
 
 #[derive(Clone, Copy, PartialEq)]

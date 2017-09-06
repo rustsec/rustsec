@@ -12,9 +12,6 @@ mod shell;
 extern crate clap;
 extern crate rustsec;
 extern crate term;
-#[cfg(not(windows))]
-extern crate libc;
-#[cfg(windows)]
 extern crate isatty;
 
 use clap::{App, Arg, SubCommand};
