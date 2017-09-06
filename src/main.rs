@@ -10,11 +10,9 @@
 mod shell;
 
 extern crate clap;
-extern crate libc;
 extern crate rustsec;
-extern crate semver;
 extern crate term;
-extern crate toml;
+extern crate isatty;
 
 use clap::{App, Arg, SubCommand};
 use rustsec::{AdvisoryDatabase, Lockfile};
