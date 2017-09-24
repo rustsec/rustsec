@@ -2,7 +2,6 @@
 
 #![crate_name = "cargo_audit"]
 #![crate_type = "bin"]
-
 #![deny(missing_docs, missing_debug_implementations, missing_copy_implementations)]
 #![deny(trivial_casts, trivial_numeric_casts)]
 #![deny(unsafe_code, unstable_features, unused_import_braces, unused_qualifications)]
@@ -10,9 +9,9 @@
 mod shell;
 
 extern crate clap;
+extern crate isatty;
 extern crate rustsec;
 extern crate term;
-extern crate isatty;
 
 use clap::{App, Arg, SubCommand};
 use rustsec::{AdvisoryDatabase, Lockfile};
@@ -21,7 +20,7 @@ use rustsec::error::Error as RustSecError;
 use rustsec::lockfile::Package;
 use shell::{ColorConfig, Shell};
 use std::process::exit;
-use term::color::{RED, GREEN, WHITE};
+use term::color::{GREEN, RED, WHITE};
 
 fn main() {
     let matches = App::new("cargo")
@@ -33,9 +32,7 @@ fn main() {
                 .arg_from_usage(
                     "-f, --file=[NAME] 'Cargo lockfile to inspect (default: Cargo.lock)'",
                 )
-                .arg_from_usage(
-                    "-u, --url=[URL] 'URL from which to fetch advisory database'",
-                )
+                .arg_from_usage("-u, --url=[URL] 'URL from which to fetch advisory database'")
                 .arg(
                     Arg::from_usage("--color=[COLOR] Colored output")
                         .possible_values(&["auto", "always", "never"]),
@@ -47,9 +44,9 @@ fn main() {
         if let Some(audit_matches) = matches.subcommand_matches("audit") {
             (
                 audit_matches.value_of("file").unwrap_or("Cargo.lock"),
-                audit_matches.value_of("url").unwrap_or(
-                    rustsec::ADVISORY_DB_URL,
-                ),
+                audit_matches
+                    .value_of("url")
+                    .unwrap_or(rustsec::ADVISORY_DB_URL),
                 audit_matches.value_of("color").unwrap_or("auto"),
             )
         } else {
@@ -130,12 +127,7 @@ fn not_found(shell: &mut Shell, filename: &str) -> term::Result<()> {
 
 fn vulns_found(shell: &mut Shell, vuln_count: usize) -> term::Result<()> {
     if vuln_count == 1 {
-        shell.say_status(
-            "\nerror:",
-            "1 vulnerability found!",
-            RED,
-            false,
-        )?;
+        shell.say_status("\nerror:", "1 vulnerability found!", RED, false)?;
     } else {
         shell.say_status(
             "\nerror:",

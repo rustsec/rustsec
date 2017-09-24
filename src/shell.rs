@@ -7,7 +7,7 @@ use isatty::stdout_isatty;
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
-use term::{self, TerminfoTerminal, Attr};
+use term::{self, Attr, TerminfoTerminal};
 use term::Terminal as RawTerminal;
 use term::color::{Color, BLACK};
 
@@ -190,8 +190,8 @@ impl Shell {
     }
 
     fn colored(&self) -> bool {
-        self.config.tty && ColorConfig::Auto == self.config.color_config ||
-            ColorConfig::Always == self.config.color_config
+        self.config.tty && ColorConfig::Auto == self.config.color_config
+            || ColorConfig::Always == self.config.color_config
     }
 }
 
