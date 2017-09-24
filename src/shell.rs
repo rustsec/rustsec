@@ -3,26 +3,20 @@
 //! Some portions borrowed from the Cargo project: https://github.com/rust-lang/cargo
 //! These portions are redistributed under the same license as Cargo (shared by cargo-audit itself)
 
-use libc;
+use isatty::stdout_isatty;
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
-use term::{self, TerminfoTerminal, Attr};
+use term::{self, Attr, TerminfoTerminal};
 use term::Terminal as RawTerminal;
 use term::color::{Color, BLACK};
 
 pub fn create(color_config: ColorConfig) -> Shell {
     let config = ShellConfig {
         color_config: color_config,
-        tty: isatty(),
+        tty: stdout_isatty(),
     };
     Shell::create(|| Box::new(io::stdout()), config)
-}
-
-#[cfg(unix)]
-#[allow(unsafe_code)]
-fn isatty() -> bool {
-    unsafe { libc::isatty(libc::STDOUT_FILENO) != 0 }
 }
 
 #[derive(Clone, Copy, PartialEq)]
@@ -35,11 +29,10 @@ pub enum ColorConfig {
 impl fmt::Display for ColorConfig {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-                ColorConfig::Auto => "auto",
-                ColorConfig::Always => "always",
-                ColorConfig::Never => "never",
-            }
-            .fmt(f)
+            ColorConfig::Auto => "auto",
+            ColorConfig::Always => "always",
+            ColorConfig::Never => "never",
+        }.fmt(f)
     }
 }
 
@@ -72,15 +65,15 @@ impl Shell {
         }
     }
 
-    #[cfg(any(windows))]
+    #[cfg(windows)]
     fn get_term(out: Box<Write + Send>) -> term::Result<Terminal> {
         // Check if the creation of a console will succeed
         if ::term::WinConsole::new(vec![0u8; 0]).is_ok() {
             let t = ::term::WinConsole::new(out)?;
             if !t.supports_color() {
-                Ok(NoColor(Box::new(t)))
+                Ok(Terminal::NoColor(Box::new(t)))
             } else {
-                Ok(Colored(Box::new(t)))
+                Ok(Terminal::Colored(Box::new(t)))
             }
         } else {
             // If we fail to get a windows console, we try to get a `TermInfo` one
@@ -88,7 +81,7 @@ impl Shell {
         }
     }
 
-    #[cfg(any(unix))]
+    #[cfg(not(windows))]
     fn get_term(out: Box<Write + Send>) -> term::Result<Terminal> {
         Ok(Shell::get_terminfo_term(out))
     }
@@ -128,14 +121,16 @@ impl Shell {
         Ok(())
     }
 
-    pub fn say_status<T, U>(&mut self,
-                            status: T,
-                            message: U,
-                            color: Color,
-                            justified: bool)
-                            -> term::Result<()>
-        where T: fmt::Display,
-              U: fmt::Display
+    pub fn say_status<T, U>(
+        &mut self,
+        status: T,
+        message: U,
+        color: Color,
+        justified: bool,
+    ) -> term::Result<()>
+    where
+        T: fmt::Display,
+        U: fmt::Display,
     {
         self.reset()?;
         if color != BLACK {
@@ -195,8 +190,8 @@ impl Shell {
     }
 
     fn colored(&self) -> bool {
-        self.config.tty && ColorConfig::Auto == self.config.color_config ||
-        ColorConfig::Always == self.config.color_config
+        self.config.tty && ColorConfig::Auto == self.config.color_config
+            || ColorConfig::Always == self.config.color_config
     }
 }
 
