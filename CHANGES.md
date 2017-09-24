@@ -1,3 +1,9 @@
+## 0.2.1 (2017-09-24)
+
+* [#14](https://github.com/RustSec/cargo-audit/pull/14)
+  Use crate isatty to resolve Windows build errors.
+  ([@unv-annihilator])
+
 ## 0.2.0 (2017-03-05)
 
 * [#12](https://github.com/RustSec/cargo-audit/pull/12)
@@ -27,4 +33,5 @@
 * Initial release
 
 [@tarcieri]: https://github.com/tarcieri
-[@tarcieri]: https://github.com/zmanian
+[@zmanian]: https://github.com/zmanian
+[@unv-annihilator]: https://github.com/unv-annihilator
