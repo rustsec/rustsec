@@ -29,8 +29,8 @@ pub use db::AdvisoryDatabase;
 pub use lockfile::Lockfile;
 
 /// URL where the TOML file containing the advisory database is located
-pub const ADVISORY_DB_URL: &'static str = "https://raw.githubusercontent.\
-                                           com/RustSec/advisory-db/master/Advisories.toml";
+pub const ADVISORY_DB_URL: &str =
+    "https://raw.githubusercontent.com/RustSec/advisory-db/master/Advisories.toml";
 
 #[cfg(test)]
 mod tests {

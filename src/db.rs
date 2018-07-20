@@ -74,10 +74,7 @@ impl AdvisoryDatabase {
             advisories.insert(advisory.id.clone(), advisory);
         }
 
-        Ok(AdvisoryDatabase {
-            advisories: advisories,
-            crates: crates,
-        })
+        Ok(AdvisoryDatabase { advisories, crates })
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")

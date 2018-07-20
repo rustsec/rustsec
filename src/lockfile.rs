@@ -75,7 +75,7 @@ impl Lockfile {
             }
         }
 
-        Ok(Lockfile { packages: packages })
+        Ok(Lockfile { packages })
     }
 
     /// Find all relevant vulnerabilities for this lockfile using the given database
@@ -84,10 +84,7 @@ impl Lockfile {
 
         for package in &self.packages {
             for advisory in db.find_vulns_for_crate(&package.name, &package.version) {
-                result.push(Vulnerability {
-                    advisory: advisory,
-                    package: package,
-                })
+                result.push(Vulnerability { advisory, package })
             }
         }
 
