@@ -1,15 +1,15 @@
 [package]
 name = "rustsec"
 description = "Client library for the RustSec security advisory database"
-version = "0.6.0"
+version = "0.6.0" # Also update html_root_url in lib.rs when bumping this
 authors = ["Tony Arcieri <bascule@gmail.com>"]
-license = "MIT/Apache-2.0"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/rustsec/rustsec"
 documentation = "https://github.com/rustsec/rustsec"
 categories = ["api-bindings", "development-tools"]
 keywords = ["rustsec", "security", "advisory", "vulnerability"]
 
 [dependencies]
-reqwest = "^0.4"
-semver = "^0"
-toml = "^0.3"
+reqwest = "0.8"
+semver = "0.9"
+toml = "0.4"
