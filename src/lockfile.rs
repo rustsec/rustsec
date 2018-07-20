@@ -2,7 +2,7 @@
 
 use advisory::Advisory;
 use db::AdvisoryDatabase;
-use error::{Error, Result};
+use error::{Error, ErrorKind};
 use semver::Version;
 use std::fs::File;
 use std::io::Read;
@@ -40,30 +40,29 @@ pub struct Vulnerability<'a> {
 
 impl Lockfile {
     /// Load lockfile from disk
-    pub fn load(filename: &str) -> Result<Self> {
-        let path = Path::new(filename);
-        let mut file = File::open(&path).or(Err(Error::IO))?;
-        let mut toml = String::new();
+    pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+        let mut file = File::open(path.as_ref())?;
 
-        file.read_to_string(&mut toml).or(Err(Error::IO))?;
+        let mut toml = String::new();
+        file.read_to_string(&mut toml)?;
+
         Self::from_toml(&toml)
     }
 
     /// Load lockfile from a TOML string
-    pub fn from_toml(string: &str) -> Result<Self> {
-        let toml = string.parse::<toml::Value>().or(Err(Error::Parse))?;
+    pub fn from_toml(string: &str) -> Result<Self, Error> {
+        let toml = string.parse::<toml::Value>()?;
 
         let packages_toml = match toml.get("package") {
             Some(&toml::Value::Array(ref arr)) => arr,
-            None => {
-                return Ok(Lockfile {
-                    packages: Vec::new(),
-                })
-            }
-            _ => return Err(Error::InvalidAttribute),
+            None => return Ok(Lockfile { packages: vec![] }),
+            _ => fail!(
+                ErrorKind::InvalidAttribute,
+                "expected 'package' to be an array"
+            ),
         };
 
-        let mut packages = Vec::new();
+        let mut packages = vec![];
 
         for package in packages_toml {
             match *package {
@@ -71,7 +70,7 @@ impl Lockfile {
                     name: util::parse_mandatory_string(table, "name")?,
                     version: util::parse_version(table, "version")?,
                 }),
-                _ => return Err(Error::InvalidAttribute),
+                _ => fail!(ErrorKind::InvalidAttribute, "expected advisory table"),
             }
         }
 
