@@ -1,7 +1,7 @@
 //! Error types used by this crate
 
-use std::{fmt, result};
 use std::error::Error as StdError;
+use std::{fmt, result};
 
 /// Custom error type for this library
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
