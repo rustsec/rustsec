@@ -4,28 +4,6 @@ use semver::VersionReq;
 
 use package::PackageName;
 
-/// An identifier for an individual advisory
-#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
-pub struct AdvisoryId(pub String);
-
-impl AsRef<str> for AdvisoryId {
-    fn as_ref(&self) -> &str {
-        &self.0
-    }
-}
-
-impl<'a> From<&'a str> for AdvisoryId {
-    fn from(string: &'a str) -> AdvisoryId {
-        AdvisoryId(string.into())
-    }
-}
-
-impl Into<String> for AdvisoryId {
-    fn into(self) -> String {
-        self.0
-    }
-}
-
 /// An individual security advisory pertaining to a single vulnerability
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Advisory {
@@ -49,6 +27,28 @@ pub struct Advisory {
 
     /// Extended description of a vulnerability
     pub description: String,
+}
+
+/// An identifier for an individual advisory
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+pub struct AdvisoryId(pub String);
+
+impl AsRef<str> for AdvisoryId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl<'a> From<&'a str> for AdvisoryId {
+    fn from(string: &'a str) -> AdvisoryId {
+        AdvisoryId(string.into())
+    }
+}
+
+impl Into<String> for AdvisoryId {
+    fn into(self) -> String {
+        self.0
+    }
 }
 
 /// Dates on advisories
