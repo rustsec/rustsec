@@ -1,24 +1,45 @@
-//! Advisory type and related parsing code
+//! Security advisories in the RustSec database
 
-use error::Error;
 use semver::VersionReq;
-use toml;
-use util;
+
+use package::PackageName;
+
+/// An identifier for an individual advisory
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+pub struct AdvisoryId(pub String);
+
+impl AsRef<str> for AdvisoryId {
+    fn as_ref(&self) -> &str {
+        &self.0
+    }
+}
+
+impl<'a> From<&'a str> for AdvisoryId {
+    fn from(string: &'a str) -> AdvisoryId {
+        AdvisoryId(string.into())
+    }
+}
+
+impl Into<String> for AdvisoryId {
+    fn into(self) -> String {
+        self.0
+    }
+}
 
 /// An individual security advisory pertaining to a single vulnerability
-#[derive(Debug, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Advisory {
     /// Security advisory ID (e.g. RUSTSEC-YYYY-NNNN)
-    pub id: String,
+    pub id: AdvisoryId,
 
     /// Name of affected crate
-    pub package: String,
+    pub package: PackageName,
 
     /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
     pub patched_versions: Vec<VersionReq>,
 
     /// Date vulnerability was originally disclosed (optional)
-    pub date: Option<String>,
+    pub date: Option<Date>,
 
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<String>,
@@ -30,17 +51,20 @@ pub struct Advisory {
     pub description: String,
 }
 
-impl Advisory {
-    /// Parse an Advisory from a TOML table object
-    pub fn from_toml_table(value: &toml::value::Table) -> Result<Advisory, Error> {
-        Ok(Advisory {
-            id: util::parse_mandatory_string(value, "id")?,
-            package: util::parse_mandatory_string(value, "package")?,
-            patched_versions: util::parse_version_reqs(value, "patched_versions")?,
-            date: util::parse_optional_string(value, "date")?,
-            url: util::parse_optional_string(value, "url")?,
-            title: util::parse_mandatory_string(value, "title")?,
-            description: util::parse_mandatory_string(value, "description")?,
-        })
+/// Dates on advisories
+// TODO: better validate how these are formed
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+pub struct Date(pub String);
+
+impl Into<String> for Date {
+    fn into(self) -> String {
+        self.0
+    }
+}
+
+impl<'a> From<&'a str> for Date {
+    // TODO: validate inputs
+    fn from(string: &'a str) -> Date {
+        Date(string.into())
     }
 }

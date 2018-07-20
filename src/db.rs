@@ -1,22 +1,35 @@
 //! Database containing `RustSec` security advisories
 
-use advisory::Advisory;
-use error::{Error, ErrorKind};
 use reqwest;
 use semver::Version;
-use std::collections::hash_map::Entry::{Occupied, Vacant};
-use std::collections::hash_map::Iter;
-use std::collections::HashMap;
-use std::io::Read;
-use std::str;
+use std::{
+    collections::{
+        btree_map::{Entry, Iter as BTMapIter},
+        BTreeMap,
+    },
+    io::Read,
+    str,
+};
 use toml;
+
+use advisory::{Advisory, AdvisoryId};
+use error::{Error, ErrorKind};
+use lockfile::Lockfile;
+use package::PackageName;
+use vulnerability::Vulnerability;
 use ADVISORY_DB_URL;
 
 /// A collection of security advisories, indexed both by ID and crate
 #[derive(Debug)]
 pub struct AdvisoryDatabase {
-    advisories: HashMap<String, Advisory>,
-    crates: HashMap<String, Vec<String>>,
+    advisories: BTreeMap<AdvisoryId, Advisory>,
+    crates: BTreeMap<PackageName, Vec<AdvisoryId>>,
+}
+
+#[derive(Deserialize)]
+struct AdvisoryList {
+    #[serde(rename = "advisory")]
+    advisories: Vec<Advisory>,
 }
 
 impl AdvisoryDatabase {
@@ -45,80 +58,103 @@ impl AdvisoryDatabase {
     }
 
     /// Parse the advisory database from a TOML serialization of it
-    pub fn from_toml(data: &str) -> Result<Self, Error> {
-        let db_toml = data.parse::<toml::Value>()?;
+    pub fn from_toml(toml_string: &str) -> Result<Self, Error> {
+        let advisory_list: AdvisoryList = toml::from_str(toml_string)?;
 
-        let advisories_toml = match db_toml {
-            toml::Value::Table(ref table) => match *table
-                .get("advisory")
-                .ok_or_else(|| err!(ErrorKind::MissingAttribute, "missing 'advisory' attribute"))?
-            {
-                toml::Value::Array(ref arr) => arr,
-                _ => fail!(
-                    ErrorKind::InvalidAttribute,
-                    "expected an array of advisories"
-                ),
-            },
-            _ => fail!(ErrorKind::InvalidAttribute, "no toplevel table in document"),
-        };
+        let mut advisories = BTreeMap::new();
+        let mut crates = BTreeMap::new();
 
-        let mut advisories = HashMap::new();
-        let mut crates = HashMap::<String, Vec<String>>::new();
-
-        for advisory_toml in advisories_toml.iter() {
-            let advisory = match *advisory_toml {
-                toml::Value::Table(ref table) => Advisory::from_toml_table(table)?,
-                _ => fail!(ErrorKind::InvalidAttribute, "expect an advisory table"),
+        for advisory in &advisory_list.advisories {
+            let mut crate_advisories = match crates.entry(advisory.package.clone()) {
+                Entry::Vacant(entry) => entry.insert(vec![]),
+                Entry::Occupied(entry) => entry.into_mut(),
             };
 
-            let mut crate_vec = match crates.entry(advisory.package.clone()) {
-                Vacant(entry) => entry.insert(Vec::new()),
-                Occupied(entry) => entry.into_mut(),
-            };
-
-            crate_vec.push(advisory.id.clone());
-            advisories.insert(advisory.id.clone(), advisory);
+            crate_advisories.push(advisory.id.clone());
+            advisories.insert(advisory.id.clone(), advisory.clone());
         }
 
-        Ok(AdvisoryDatabase { advisories, crates })
+        Ok(Self { advisories, crates })
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
-    pub fn find(&self, id: &str) -> Option<&Advisory> {
-        self.advisories.get(id)
+    pub fn find<I: Into<AdvisoryId>>(&self, id: I) -> Option<&Advisory> {
+        self.advisories.get(&id.into())
     }
 
     /// Look up advisories relevant to a particular crate
-    pub fn find_by_crate(&self, crate_name: &str) -> Vec<&Advisory> {
-        let ids = self.crates.get(crate_name);
-        let mut result = Vec::new();
-
-        if ids.is_some() {
-            for id in ids.unwrap() {
-                result.push(self.find(id).unwrap())
-            }
+    pub fn find_by_crate<N: Into<PackageName>>(&self, crate_name: N) -> Vec<&Advisory> {
+        if let Some(ids) = self.crates.get(&crate_name.into()) {
+            ids.iter()
+                .map(|id| self.find(id.clone()).unwrap())
+                .collect()
+        } else {
+            vec![]
         }
-
-        result
     }
 
     /// Find advisories that are unpatched and impact a given crate and version
-    pub fn find_vulns_for_crate(&self, crate_name: &str, version: &Version) -> Vec<&Advisory> {
+    pub fn advisories_for_crate<N: Into<PackageName>>(
+        &self,
+        crate_name: N,
+        version: &Version,
+    ) -> Vec<&Advisory> {
         let mut results = self.find_by_crate(crate_name);
-
         results.retain(|advisory| {
             !advisory
                 .patched_versions
                 .iter()
                 .any(|req| req.matches(version))
         });
-
         results
     }
 
+    /// Find all vulnerabilities for a given `AdvisoryDatabase` and `Lockfile`
+    pub fn vulns_for_lockfile(&self, lockfile: &Lockfile) -> Vec<Vulnerability> {
+        let mut result = Vec::new();
+
+        for package in &lockfile.packages {
+            for advisory in self.advisories_for_crate(package.name.clone(), &package.version) {
+                result.push(Vulnerability::new(advisory, &package))
+            }
+        }
+
+        result
+    }
+
     /// Iterate over all of the advisories in the database
-    pub fn iter(&self) -> Iter<String, Advisory> {
-        self.advisories.iter()
+    pub fn iter(&self) -> Iter {
+        Iter(self.advisories.iter())
+    }
+}
+
+impl<'a> IntoIterator for &'a AdvisoryDatabase {
+    type Item = (&'a AdvisoryId, &'a Advisory);
+    type IntoIter = Iter<'a>;
+
+    fn into_iter(self) -> Iter<'a> {
+        self.iter()
+    }
+}
+
+/// Iterator over the advisory database
+pub struct Iter<'a>(BTMapIter<'a, AdvisoryId, Advisory>);
+
+impl<'a> Iterator for Iter<'a> {
+    type Item = (&'a AdvisoryId, &'a Advisory);
+
+    fn next(&mut self) -> Option<(&'a AdvisoryId, &'a Advisory)> {
+        self.0.next()
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        self.0.size_hint()
+    }
+}
+
+impl<'a> ExactSizeIterator for Iter<'a> {
+    fn len(&self) -> usize {
+        self.0.len()
     }
 }
 
@@ -151,10 +187,10 @@ mod tests {
     }
 
     #[test]
-    fn test_find_vulns_for_crate() {
+    fn test_advisories_for_crate() {
         let db = example_advisory_db();
         let version = Version::parse(EXAMPLE_VERSION).unwrap();
-        let advisories = db.find_vulns_for_crate(EXAMPLE_PACKAGE, &version);
+        let advisories = db.advisories_for_crate(EXAMPLE_PACKAGE, &version);
 
         assert_eq!(advisories[0], db.find(EXAMPLE_ADVISORY).unwrap());
     }
