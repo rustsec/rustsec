@@ -7,9 +7,9 @@ use isatty::stdout_isatty;
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
-use term::{self, Attr, TerminfoTerminal};
-use term::Terminal as RawTerminal;
 use term::color::{Color, BLACK};
+use term::Terminal as RawTerminal;
+use term::{self, Attr, TerminfoTerminal};
 
 pub fn create(color_config: ColorConfig) -> Shell {
     let config = ShellConfig {
