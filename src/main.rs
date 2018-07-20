@@ -2,9 +2,18 @@
 
 #![crate_name = "cargo_audit"]
 #![crate_type = "bin"]
-#![deny(missing_docs, missing_debug_implementations, missing_copy_implementations)]
+#![deny(
+    missing_docs,
+    missing_debug_implementations,
+    missing_copy_implementations
+)]
 #![deny(trivial_casts, trivial_numeric_casts)]
-#![deny(unsafe_code, unstable_features, unused_import_braces, unused_qualifications)]
+#![deny(
+    unsafe_code,
+    unstable_features,
+    unused_import_braces,
+    unused_qualifications
+)]
 
 mod shell;
 
@@ -14,10 +23,10 @@ extern crate rustsec;
 extern crate term;
 
 use clap::{App, Arg, SubCommand};
-use rustsec::{AdvisoryDatabase, Lockfile};
 use rustsec::advisory::Advisory;
 use rustsec::error::Error as RustSecError;
 use rustsec::lockfile::Package;
+use rustsec::{AdvisoryDatabase, Lockfile};
 use shell::{ColorConfig, Shell};
 use std::process::exit;
 use term::color::{GREEN, RED, WHITE};
