@@ -7,15 +7,13 @@ use isatty::stdout_isatty;
 use std::fmt;
 use std::io;
 use std::io::prelude::*;
-use term::{self, Attr, TerminfoTerminal};
-use term::Terminal as RawTerminal;
 use term::color::{Color, BLACK};
+use term::Terminal as RawTerminal;
+use term::{self, Attr, TerminfoTerminal};
 
 pub fn create(color_config: ColorConfig) -> Shell {
-    let config = ShellConfig {
-        color_config: color_config,
-        tty: stdout_isatty(),
-    };
+    let tty = stdout_isatty();
+    let config = ShellConfig { color_config, tty };
     Shell::create(|| Box::new(io::stdout()), config)
 }
 
@@ -54,15 +52,12 @@ pub struct Shell {
 
 impl Shell {
     pub fn create<T: FnMut() -> Box<Write + Send>>(mut out_fn: T, config: ShellConfig) -> Shell {
-        let term = match Shell::get_term(out_fn()) {
+        let terminal = match Shell::get_term(out_fn()) {
             Ok(t) => t,
             Err(_) => Terminal::NoColor(out_fn()),
         };
 
-        Shell {
-            terminal: term,
-            config: config,
-        }
+        Shell { terminal, config }
     }
 
     #[cfg(windows)]
@@ -107,14 +102,14 @@ impl Shell {
         }
     }
 
-    pub fn say<T: ToString>(&mut self, message: T, color: Color) -> term::Result<()> {
+    pub fn say<T: AsRef<str>>(&mut self, message: T, color: Color) -> term::Result<()> {
         self.reset()?;
 
         if color != BLACK {
             self.fg(color)?;
         }
 
-        write!(self, "{}\n", message.to_string())?;
+        writeln!(self, "{}", message.as_ref())?;
         self.reset()?;
         self.flush()?;
 
@@ -145,7 +140,7 @@ impl Shell {
             write!(self, "{}", status)?;
         }
         self.reset()?;
-        write!(self, " {}\n", message)?;
+        writeln!(self, " {}", message)?;
         self.flush()?;
         Ok(())
     }
