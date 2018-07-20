@@ -19,15 +19,20 @@
     unused_qualifications
 )]
 
-pub mod advisory;
-pub mod db;
-pub mod error;
-pub mod lockfile;
-mod util;
-
+extern crate failure;
+#[macro_use]
+extern crate failure_derive;
 extern crate reqwest;
 extern crate semver;
 extern crate toml;
+
+#[macro_use]
+pub mod error;
+
+pub mod advisory;
+pub mod db;
+pub mod lockfile;
+mod util;
 
 pub use db::AdvisoryDatabase;
 pub use lockfile::Lockfile;

@@ -1,6 +1,6 @@
 //! Advisory type and related parsing code
 
-use error::Result;
+use error::Error;
 use semver::VersionReq;
 use toml;
 use util;
@@ -32,7 +32,7 @@ pub struct Advisory {
 
 impl Advisory {
     /// Parse an Advisory from a TOML table object
-    pub fn from_toml_table(value: &toml::value::Table) -> Result<Advisory> {
+    pub fn from_toml_table(value: &toml::value::Table) -> Result<Advisory, Error> {
         Ok(Advisory {
             id: util::parse_mandatory_string(value, "id")?,
             package: util::parse_mandatory_string(value, "package")?,
