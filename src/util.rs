@@ -7,7 +7,9 @@ use toml::Value;
 
 pub fn parse_optional_string(table: &Table, attribute: &str) -> Result<Option<String>> {
     match table.get(attribute) {
-        Some(v) => Ok(Some(String::from(v.as_str().ok_or(Error::InvalidAttribute)?))),
+        Some(v) => Ok(Some(String::from(
+            v.as_str().ok_or(Error::InvalidAttribute)?,
+        ))),
         None => Ok(None),
     }
 }

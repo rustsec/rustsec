@@ -1,16 +1,16 @@
 //! Database containing `RustSec` security advisories
 
-use ADVISORY_DB_URL;
 use advisory::Advisory;
 use error::{Error, Result};
 use reqwest;
 use semver::Version;
-use std::collections::HashMap;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
 use std::collections::hash_map::Iter;
+use std::collections::HashMap;
 use std::io::Read;
 use std::str;
 use toml;
+use ADVISORY_DB_URL;
 
 /// A collection of security advisories, indexed both by ID and crate
 #[derive(Debug)]
@@ -34,7 +34,9 @@ impl AdvisoryDatabase {
         }
 
         let mut body = Vec::new();
-        response.read_to_end(&mut body).or(Err(Error::ServerResponse))?;
+        response
+            .read_to_end(&mut body)
+            .or(Err(Error::ServerResponse))?;
         let response_str = str::from_utf8(&body).or(Err(Error::Parse))?;
 
         Self::from_toml(response_str)
@@ -72,10 +74,7 @@ impl AdvisoryDatabase {
             advisories.insert(advisory.id.clone(), advisory);
         }
 
-        Ok(AdvisoryDatabase {
-            advisories: advisories,
-            crates: crates,
-        })
+        Ok(AdvisoryDatabase { advisories, crates })
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
@@ -102,7 +101,10 @@ impl AdvisoryDatabase {
         let mut results = self.find_by_crate(crate_name);
 
         results.retain(|advisory| {
-            !advisory.patched_versions.iter().any(|req| req.matches(version))
+            !advisory
+                .patched_versions
+                .iter()
+                .any(|req| req.matches(version))
         });
 
         results
