@@ -10,6 +10,8 @@ categories = ["api-bindings", "development-tools"]
 keywords = ["rustsec", "security", "advisory", "vulnerability"]
 
 [dependencies]
+failure = "0.1"
+failure_derive = "0.1"
 reqwest = "0.8"
 semver = "0.9"
 toml = "0.4"

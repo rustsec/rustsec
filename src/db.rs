@@ -1,7 +1,7 @@
 //! Database containing `RustSec` security advisories
 
 use advisory::Advisory;
-use error::{Error, Result};
+use error::{Error, ErrorKind};
 use reqwest;
 use semver::Version;
 use std::collections::hash_map::Entry::{Occupied, Vacant};
@@ -21,39 +21,45 @@ pub struct AdvisoryDatabase {
 
 impl AdvisoryDatabase {
     /// Fetch the advisory database from the server where it is stored
-    pub fn fetch() -> Result<Self> {
+    pub fn fetch() -> Result<Self, Error> {
         Self::fetch_from_url(ADVISORY_DB_URL)
     }
 
     /// Fetch advisory database from a custom URL
-    pub fn fetch_from_url(url: &str) -> Result<Self> {
-        let mut response = reqwest::get(url).or(Err(Error::IO))?;
+    pub fn fetch_from_url(url: &str) -> Result<Self, Error> {
+        let mut response = reqwest::get(url)?;
 
         if !response.status().is_success() {
-            return Err(Error::ServerResponse);
+            fail!(
+                ErrorKind::ServerResponse,
+                "bad response status: {}",
+                response.status()
+            );
         }
 
         let mut body = Vec::new();
-        response
-            .read_to_end(&mut body)
-            .or(Err(Error::ServerResponse))?;
-        let response_str = str::from_utf8(&body).or(Err(Error::Parse))?;
+        response.read_to_end(&mut body)?;
+        let response_str = str::from_utf8(&body)?;
 
         Self::from_toml(response_str)
     }
 
     /// Parse the advisory database from a TOML serialization of it
-    pub fn from_toml(data: &str) -> Result<Self> {
-        let db_toml = data.parse::<toml::Value>().or(Err(Error::Parse))?;
+    pub fn from_toml(data: &str) -> Result<Self, Error> {
+        let db_toml = data.parse::<toml::Value>()?;
 
         let advisories_toml = match db_toml {
-            toml::Value::Table(ref table) => {
-                match *table.get("advisory").ok_or(Error::MissingAttribute)? {
-                    toml::Value::Array(ref arr) => arr,
-                    _ => return Err(Error::InvalidAttribute),
-                }
-            }
-            _ => return Err(Error::InvalidAttribute),
+            toml::Value::Table(ref table) => match *table
+                .get("advisory")
+                .ok_or_else(|| err!(ErrorKind::MissingAttribute, "missing 'advisory' attribute"))?
+            {
+                toml::Value::Array(ref arr) => arr,
+                _ => fail!(
+                    ErrorKind::InvalidAttribute,
+                    "expected an array of advisories"
+                ),
+            },
+            _ => fail!(ErrorKind::InvalidAttribute, "no toplevel table in document"),
         };
 
         let mut advisories = HashMap::new();
@@ -62,7 +68,7 @@ impl AdvisoryDatabase {
         for advisory_toml in advisories_toml.iter() {
             let advisory = match *advisory_toml {
                 toml::Value::Table(ref table) => Advisory::from_toml_table(table)?,
-                _ => return Err(Error::InvalidAttribute),
+                _ => fail!(ErrorKind::InvalidAttribute, "expect an advisory table"),
             };
 
             let mut crate_vec = match crates.entry(advisory.package.clone()) {
