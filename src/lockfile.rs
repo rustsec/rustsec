@@ -1,7 +1,7 @@
 //! Types for representing Cargo.lock files
 
-use db::AdvisoryDatabase;
 use advisory::Advisory;
+use db::AdvisoryDatabase;
 use error::{Error, Result};
 use semver::Version;
 use std::fs::File;
@@ -55,7 +55,11 @@ impl Lockfile {
 
         let packages_toml = match toml.get("package") {
             Some(&toml::Value::Array(ref arr)) => arr,
-            None => return Ok(Lockfile { packages: Vec::new() }),
+            None => {
+                return Ok(Lockfile {
+                    packages: Vec::new(),
+                })
+            }
             _ => return Err(Error::InvalidAttribute),
         };
 
@@ -63,12 +67,10 @@ impl Lockfile {
 
         for package in packages_toml {
             match *package {
-                toml::Value::Table(ref table) => {
-                    packages.push(Package {
-                        name: util::parse_mandatory_string(table, "name")?,
-                        version: util::parse_version(table, "version")?,
-                    })
-                }
+                toml::Value::Table(ref table) => packages.push(Package {
+                    name: util::parse_mandatory_string(table, "name")?,
+                    version: util::parse_version(table, "version")?,
+                }),
                 _ => return Err(Error::InvalidAttribute),
             }
         }
