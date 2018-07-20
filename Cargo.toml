@@ -13,5 +13,7 @@ keywords = ["rustsec", "security", "advisory", "vulnerability"]
 failure = "0.1"
 failure_derive = "0.1"
 reqwest = "0.8"
-semver = "0.9"
+semver = { version = "0.9", features = ["serde"] }
+serde = "1"
+serde_derive = "1"
 toml = "0.4"

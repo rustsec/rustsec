@@ -1,93 +1,38 @@
-//! Types for representing Cargo.lock files
+//! Parser for `Cargo.lock` files
 
-use advisory::Advisory;
-use db::AdvisoryDatabase;
-use error::{Error, ErrorKind};
-use semver::Version;
-use std::fs::File;
-use std::io::Read;
-use std::path::Path;
+use std::{fs::File, io::Read, path::Path};
 use toml;
-use util;
 
-/// Entry from Cargo.lock's `[[package]]` array
-/// TODO: serde macros or switch to cargo's builtin types
-#[derive(Debug, PartialEq, Clone)]
-pub struct Package {
-    /// Name of a dependent crate
-    pub name: String,
-
-    /// Version of dependent crate
-    pub version: Version,
-}
+use db::AdvisoryDatabase;
+use error::Error;
+use package::Package;
+use vulnerability::Vulnerability;
 
 /// Parsed Cargo.lock file containing dependencies
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
 pub struct Lockfile {
     /// Dependencies enumerated in the lockfile
+    #[serde(rename = "package")]
     pub packages: Vec<Package>,
 }
 
-/// A vulnerable package and the associated advisory
-#[derive(Debug, PartialEq, Clone)]
-pub struct Vulnerability<'a> {
-    /// A security advisory for which the package is vulnerable
-    pub advisory: &'a Advisory,
-
-    /// A vulnerable package
-    pub package: &'a Package,
-}
-
 impl Lockfile {
-    /// Load lockfile from disk
+    /// Load lock data from a `Cargo.lock` file
     pub fn load<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let mut file = File::open(path.as_ref())?;
-
         let mut toml = String::new();
         file.read_to_string(&mut toml)?;
-
         Self::from_toml(&toml)
     }
 
-    /// Load lockfile from a TOML string
-    pub fn from_toml(string: &str) -> Result<Self, Error> {
-        let toml = string.parse::<toml::Value>()?;
-
-        let packages_toml = match toml.get("package") {
-            Some(&toml::Value::Array(ref arr)) => arr,
-            None => return Ok(Lockfile { packages: vec![] }),
-            _ => fail!(
-                ErrorKind::InvalidAttribute,
-                "expected 'package' to be an array"
-            ),
-        };
-
-        let mut packages = vec![];
-
-        for package in packages_toml {
-            match *package {
-                toml::Value::Table(ref table) => packages.push(Package {
-                    name: util::parse_mandatory_string(table, "name")?,
-                    version: util::parse_version(table, "version")?,
-                }),
-                _ => fail!(ErrorKind::InvalidAttribute, "expected advisory table"),
-            }
-        }
-
-        Ok(Lockfile { packages })
+    /// Parse the TOML data from the `Cargo.lock` file
+    pub fn from_toml(toml_string: &str) -> Result<Self, Error> {
+        Ok(toml::from_str(toml_string)?)
     }
 
     /// Find all relevant vulnerabilities for this lockfile using the given database
-    pub fn vulnerabilities<'a>(&'a self, db: &'a AdvisoryDatabase) -> Vec<Vulnerability<'a>> {
-        let mut result = Vec::new();
-
-        for package in &self.packages {
-            for advisory in db.find_vulns_for_crate(&package.name, &package.version) {
-                result.push(Vulnerability { advisory, package })
-            }
-        }
-
-        result
+    pub fn vulnerabilities(&self, db: &AdvisoryDatabase) -> Vec<Vulnerability> {
+        db.vulns_for_lockfile(self)
     }
 }
 
