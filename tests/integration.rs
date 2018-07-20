@@ -1,22 +1,23 @@
 extern crate rustsec;
 extern crate semver;
 
-use rustsec::{AdvisoryDatabase, Lockfile};
+use rustsec::{AdvisoryDatabase, AdvisoryId, Date, Lockfile, PackageName};
 use semver::VersionReq;
 
 // End-to-end integration test (has online dependency on GitHub)
 #[test]
 fn test_integration() {
     let db = AdvisoryDatabase::fetch().unwrap();
-    let ref example_advisory = db.find("RUSTSEC-2017-0001").unwrap();
+    let example_advisory = db.find("RUSTSEC-2017-0001").unwrap();
+    let example_package = PackageName::from("sodiumoxide");
 
-    assert_eq!(example_advisory.id, "RUSTSEC-2017-0001");
-    assert_eq!(example_advisory.package, "sodiumoxide");
+    assert_eq!(example_advisory.id, AdvisoryId::from("RUSTSEC-2017-0001"));
+    assert_eq!(example_advisory.package, example_package);
     assert_eq!(
         example_advisory.patched_versions[0],
         VersionReq::parse(">= 0.0.14").unwrap()
     );
-    assert_eq!(example_advisory.date, Some(String::from("2017-01-26")));
+    assert_eq!(example_advisory.date, Some(Date::from("2017-01-26")));
     assert_eq!(
         example_advisory.url,
         Some(String::from(
@@ -32,8 +33,8 @@ fn test_integration() {
         "The `scalarmult()` function in"
     );
 
-    let ref crate_advisories = db.find_by_crate("sodiumoxide");
-    assert_eq!(*example_advisory, crate_advisories[0]);
+    let ref crate_advisories = db.find_by_crate(example_package);
+    assert_eq!(example_advisory, crate_advisories[0]);
 
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
     lockfile.vulnerabilities(&db);
