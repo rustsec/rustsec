@@ -10,10 +10,14 @@ categories = ["api-bindings", "development-tools"]
 keywords = ["rustsec", "security", "advisory", "vulnerability"]
 
 [dependencies]
+chrono = { version = "0.4", optional = true }
 failure = "0.1"
 failure_derive = "0.1"
-reqwest = "0.8"
+git2 = "0.7"
 semver = { version = "0.9", features = ["serde"] }
 serde = "1"
 serde_derive = "1"
 toml = "0.4"
+
+[features]
+default = ["chrono"]

@@ -32,7 +32,7 @@ impl Lockfile {
 
     /// Find all relevant vulnerabilities for this lockfile using the given database
     pub fn vulnerabilities(&self, db: &AdvisoryDatabase) -> Vec<Vulnerability> {
-        db.vulns_for_lockfile(self)
+        Vulnerability::find_all(db, self)
     }
 }
 
