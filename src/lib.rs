@@ -11,10 +11,12 @@
 #![forbid(unsafe_code)]
 #![doc(html_root_url = "https://docs.rs/rustsec/0.6.0")]
 
+#[cfg(feature = "chrono")]
+extern crate chrono;
 extern crate failure;
 #[macro_use]
 extern crate failure_derive;
-extern crate reqwest;
+extern crate git2;
 extern crate semver;
 extern crate serde;
 #[macro_use]
@@ -28,6 +30,7 @@ pub mod advisory;
 pub mod db;
 pub mod lockfile;
 pub mod package;
+pub mod repository;
 pub mod vulnerability;
 
 pub use advisory::*;
@@ -36,7 +39,3 @@ pub use error::*;
 pub use lockfile::*;
 pub use package::*;
 pub use vulnerability::*;
-
-/// URL where the TOML file containing the advisory database is located
-pub const ADVISORY_DB_URL: &str =
-    "https://raw.githubusercontent.com/RustSec/advisory-db/master/Advisories.toml";
