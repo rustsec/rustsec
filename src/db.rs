@@ -1,23 +1,16 @@
 //! Database containing `RustSec` security advisories
 
-use reqwest;
 use semver::Version;
-use std::{
-    collections::{
-        btree_map::{Entry, Iter as BTMapIter},
-        BTreeMap,
-    },
-    io::Read,
-    str,
+use std::collections::{
+    btree_map::{Entry, Iter as BTMapIter},
+    BTreeMap,
 };
 use toml;
 
 use advisory::{Advisory, AdvisoryId};
-use error::{Error, ErrorKind};
-use lockfile::Lockfile;
+use error::Error;
 use package::PackageName;
-use vulnerability::Vulnerability;
-use ADVISORY_DB_URL;
+use repository::Repository;
 
 /// A collection of security advisories, indexed both by ID and crate
 #[derive(Debug)]
@@ -33,28 +26,17 @@ struct AdvisoryList {
 }
 
 impl AdvisoryDatabase {
-    /// Fetch the advisory database from the server where it is stored
+    /// Fetch the default advisory database from GitHub
+    #[cfg(feature = "chrono")]
     pub fn fetch() -> Result<Self, Error> {
-        Self::fetch_from_url(ADVISORY_DB_URL)
+        let repo = Repository::fetch_default_repo()?;
+        Self::from_repository(&repo)
     }
 
-    /// Fetch advisory database from a custom URL
-    pub fn fetch_from_url(url: &str) -> Result<Self, Error> {
-        let mut response = reqwest::get(url)?;
-
-        if !response.status().is_success() {
-            fail!(
-                ErrorKind::ServerResponse,
-                "bad response status: {}",
-                response.status()
-            );
-        }
-
-        let mut body = Vec::new();
-        response.read_to_end(&mut body)?;
-        let response_str = str::from_utf8(&body)?;
-
-        Self::from_toml(response_str)
+    /// Create a new `AdvisoryDatabase` from the given `Repository`
+    pub fn from_repository(repo: &Repository) -> Result<Self, Error> {
+        let advisories_toml = repo.read_file("Advisories.toml")?;
+        Self::from_toml(advisories_toml.as_ref())
     }
 
     /// Parse the advisory database from a TOML serialization of it
@@ -107,19 +89,6 @@ impl AdvisoryDatabase {
                 .any(|req| req.matches(version))
         });
         results
-    }
-
-    /// Find all vulnerabilities for a given `AdvisoryDatabase` and `Lockfile`
-    pub fn vulns_for_lockfile(&self, lockfile: &Lockfile) -> Vec<Vulnerability> {
-        let mut result = Vec::new();
-
-        for package in &lockfile.packages {
-            for advisory in self.advisories_for_crate(package.name.clone(), &package.version) {
-                result.push(Vulnerability::new(advisory, &package))
-            }
-        }
-
-        result
     }
 
     /// Iterate over all of the advisories in the database
