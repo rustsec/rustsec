@@ -1,8 +1,11 @@
 //! Security advisories in the RustSec database
 
+#[cfg(feature = "chrono")]
+use chrono::{Date as ChronoDate, DateTime, Utc};
 use semver::VersionReq;
 use std::fmt;
 
+use error::Error;
 use package::PackageName;
 
 /// An individual security advisory pertaining to a single vulnerability
@@ -80,6 +83,15 @@ pub(crate) struct AdvisoryWrapper {
 // TODO: better validate how these are formed
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
 pub struct Date(pub String);
+
+impl Date {
+    /// Convert an advisory RFC 3339 date into a `chrono::Date`
+    #[cfg(feature = "chrono")]
+    pub fn into_chrono_date(&self) -> Result<ChronoDate<Utc>, Error> {
+        let datetime = DateTime::parse_from_rfc3339(self.0.as_ref())?;
+        Ok(ChronoDate::from_utc(datetime.naive_utc().date(), Utc))
+    }
+}
 
 impl Into<String> for Date {
     fn into(self) -> String {
