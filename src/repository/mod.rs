@@ -1,19 +1,19 @@
 //! Git repository handling for the RustSec advisory DB
 
 #[cfg(feature = "chrono")]
-use chrono::{DateTime, Duration, NaiveDateTime, Utc};
-#[cfg(feature = "chrono")]
-use git2::{AutotagOption, FetchOptions, Oid, ResetType};
-use git2::{ObjectType, Repository as GitRepository, RepositoryState};
-use std::{
-    env,
-    fs::{self, File},
-    io::Read,
-    path::{Path, PathBuf},
-    vec,
-};
+use git2::{AutotagOption, FetchOptions};
+use git2::{Repository as GitRepository, RepositoryState};
+use std::{env, fs, path::PathBuf, vec};
 
 use error::{Error, ErrorKind};
+
+mod commit;
+mod file;
+mod signature;
+
+pub use self::commit::Commit;
+pub(crate) use self::file::RepoFile;
+pub use self::signature::Signature;
 
 /// Location of the RustSec advisory database for crates.io
 pub const ADVISORY_DB_REPO_URL: &str = "https://github.com/RustSec/advisory-db.git";
@@ -150,8 +150,8 @@ impl Repository {
     }
 
     /// Get information about the latest commit to the repo
-    pub fn latest_commit(&self) -> Result<CommitInfo, Error> {
-        CommitInfo::from_repo_head(self)
+    pub fn latest_commit(&self) -> Result<Commit, Error> {
+        Commit::from_repo_head(self)
     }
 
     /// Iterate over all of the crate advisories in this repo
@@ -166,162 +166,6 @@ impl Repository {
         }
 
         Ok(Iter(advisory_files.into_iter()))
-    }
-}
-
-/// Information about a commit to the Git repository
-#[derive(Debug)]
-pub struct CommitInfo {
-    /// ID (i.e. SHA-1 hash) of the latest commit
-    pub commit_id: String,
-
-    /// Information about the author of a commit
-    pub author: String,
-
-    /// Summary message for the commit
-    pub summary: String,
-
-    /// Commit time in number of seconds since the UNIX epoch
-    #[cfg(feature = "chrono")]
-    pub time: DateTime<Utc>,
-
-    /// Signature on the commit (mandatory)
-    // TODO: actually verify signatures
-    pub signature: Option<Signature>,
-
-    /// Signed data to verify along with this commit
-    signed_data: Option<String>,
-}
-
-impl CommitInfo {
-    /// Get information about HEAD
-    pub fn from_repo_head(repo: &Repository) -> Result<Self, Error> {
-        let head = repo.repo.head()?;
-
-        let oid = head.target().ok_or_else(|| {
-            err!(
-                ErrorKind::Repo,
-                "no ref target for: {}",
-                repo.path.display()
-            )
-        })?;
-
-        let commit_id = oid.to_string();
-        let commit_object = repo.repo.find_object(oid, Some(ObjectType::Commit))?;
-        let commit = commit_object.as_commit().unwrap();
-        let author = commit.author().to_string();
-
-        let summary = commit
-            .summary()
-            .ok_or_else(|| err!(ErrorKind::Repo, "no commit summary for {}", commit_id))?
-            .to_owned();
-
-        let (signature, signed_data) = match repo.repo.extract_signature(&oid, None) {
-            Ok((sig, data)) => (
-                sig.as_str().and_then(|s| Signature::new(s).ok()),
-                data.as_str().map(|s| s.to_owned()),
-            ),
-            _ => (None, None),
-        };
-
-        #[cfg(feature = "chrono")]
-        let time = DateTime::from_utc(
-            NaiveDateTime::from_timestamp(commit.time().seconds(), 0),
-            Utc,
-        );
-
-        Ok(CommitInfo {
-            commit_id,
-            author,
-            summary,
-            #[cfg(feature = "chrono")]
-            time,
-            signature,
-            signed_data,
-        })
-    }
-
-    /// Get the raw bytes to be verified when verifying a commit signature
-    pub fn raw_signed_bytes(&self) -> &[u8] {
-        match self.signed_data {
-            Some(ref s) => s.as_bytes(),
-            None => b"",
-        }
-    }
-
-    /// Reset the repository's state to match this commit
-    #[cfg(feature = "chrono")]
-    fn reset(&self, repo: &Repository) -> Result<(), Error> {
-        let commit_object = repo.repo.find_object(
-            Oid::from_str(&self.commit_id).unwrap(),
-            Some(ObjectType::Commit),
-        )?;
-
-        // Reset the state of the repository to the latest commit
-        repo.repo.reset(&commit_object, ResetType::Hard, None)?;
-
-        Ok(())
-    }
-
-    /// Determine if the repository is fresh or stale (i.e. has it recently been committed to)
-    #[cfg(feature = "chrono")]
-    fn ensure_fresh(&self) -> Result<(), Error> {
-        let fresh_after_date = Utc::now()
-            .checked_sub_signed(Duration::days(DAYS_UNTIL_STALE as i64))
-            .unwrap();
-
-        if self.time > fresh_after_date {
-            Ok(())
-        } else {
-            fail!(
-                ErrorKind::Repo,
-                "stale repo: not updated for {} days (last commit: {:?})",
-                DAYS_UNTIL_STALE,
-                self.time
-            )
-        }
-    }
-}
-
-/// Signatures on commits to the repository
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Signature(String);
-
-impl Signature {
-    /// Parse a signature from a Git commit
-    // TODO: actually verify the signature is well-structured
-    pub fn new<T: Into<String>>(into_string: T) -> Result<Self, Error> {
-        Ok(Signature(into_string.into()))
-    }
-}
-
-impl AsRef<[u8]> for Signature {
-    fn as_ref(&self) -> &[u8] {
-        self.0.as_ref()
-    }
-}
-
-/// File stored in the repository
-#[derive(Debug)]
-pub(crate) struct RepoFile(PathBuf);
-
-impl RepoFile {
-    /// Create a RepoFile from a relative repo `Path` and a `File`
-    pub fn new<P: Into<PathBuf>>(path: P) -> Result<RepoFile, Error> {
-        Ok(RepoFile(path.into()))
-    }
-
-    /// Path to this file on disk
-    pub fn path(&self) -> &Path {
-        self.0.as_ref()
-    }
-
-    /// Read the file to a string
-    pub fn read_to_string(&self) -> Result<String, Error> {
-        let mut file = File::open(&self.0)?;
-        let mut string = String::new();
-        file.read_to_string(&mut string)?;
-        Ok(string)
     }
 }
 
