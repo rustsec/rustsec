@@ -5,24 +5,22 @@ use std::collections::{
     btree_map::{Entry, Iter as BTMapIter},
     BTreeMap,
 };
+use std::ffi::{OsStr, OsString};
 use toml;
 
-use advisory::{Advisory, AdvisoryId};
-use error::Error;
+use advisory::{Advisory, AdvisoryId, AdvisoryWrapper};
+use error::{Error, ErrorKind};
 use package::PackageName;
 use repository::Repository;
+
+/// Placeholder advisory name: shouldn't be used until an ID is assigned
+pub const PLACEHOLDER_ADVISORY_ID: &str = "RUSTSEC-0000-0000";
 
 /// A collection of security advisories, indexed both by ID and crate
 #[derive(Debug)]
 pub struct AdvisoryDatabase {
     advisories: BTreeMap<AdvisoryId, Advisory>,
     crates: BTreeMap<PackageName, Vec<AdvisoryId>>,
-}
-
-#[derive(Deserialize)]
-struct AdvisoryList {
-    #[serde(rename = "advisory")]
-    advisories: Vec<Advisory>,
 }
 
 impl AdvisoryDatabase {
@@ -35,25 +33,49 @@ impl AdvisoryDatabase {
 
     /// Create a new `AdvisoryDatabase` from the given `Repository`
     pub fn from_repository(repo: &Repository) -> Result<Self, Error> {
-        let advisories_toml = repo.read_file("Advisories.toml")?;
-        Self::from_toml(advisories_toml.as_ref())
-    }
-
-    /// Parse the advisory database from a TOML serialization of it
-    pub fn from_toml(toml_string: &str) -> Result<Self, Error> {
-        let advisory_list: AdvisoryList = toml::from_str(toml_string)?;
-
         let mut advisories = BTreeMap::new();
         let mut crates = BTreeMap::new();
 
-        for advisory in &advisory_list.advisories {
-            let mut crate_advisories = match crates.entry(advisory.package.clone()) {
-                Entry::Vacant(entry) => entry.insert(vec![]),
-                Entry::Occupied(entry) => entry.into_mut(),
-            };
+        for advisory_file in repo.crate_advisories()? {
+            let AdvisoryWrapper { advisory } = toml::from_str(&advisory_file.read_to_string()?)?;
 
-            crate_advisories.push(advisory.id.clone());
-            advisories.insert(advisory.id.clone(), advisory.clone());
+            let advisory_path = advisory_file.path().to_owned();
+            let expected_filename = OsString::from(format!("{}.toml", advisory.id));
+
+            // Ensure advisory has the correct filename
+            if advisory_path.file_name().unwrap() != expected_filename {
+                fail!(
+                    ErrorKind::Repo,
+                    "expected {} to be named {:?}",
+                    advisory_file.path().display(),
+                    expected_filename
+                );
+            }
+
+            // Ensure advisory is in the correct directory
+            let advisory_parent_dir = advisory_path.parent().unwrap().file_name().unwrap();
+
+            if advisory_parent_dir != OsStr::new(advisory.package.as_ref()) {
+                fail!(
+                    ErrorKind::Repo,
+                    "expected {} to be in {} directory (instead of \"{:?}\")",
+                    advisory.id,
+                    advisory.package,
+                    advisory_parent_dir
+                );
+            }
+
+            // Ensure placeholder advisories load and parse correctly, but
+            // don't actually insert them into the advisory database
+            if advisory.id.as_ref() != PLACEHOLDER_ADVISORY_ID {
+                let mut crate_advisories = match crates.entry(advisory.package.clone()) {
+                    Entry::Vacant(entry) => entry.insert(vec![]),
+                    Entry::Occupied(entry) => entry.into_mut(),
+                };
+
+                crate_advisories.push(advisory.id.clone());
+                advisories.insert(advisory.id.clone(), advisory.clone());
+            }
         }
 
         Ok(Self { advisories, crates })
@@ -124,43 +146,5 @@ impl<'a> Iterator for Iter<'a> {
 impl<'a> ExactSizeIterator for Iter<'a> {
     fn len(&self) -> usize {
         self.0.len()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use db::AdvisoryDatabase;
-    use semver::Version;
-
-    pub const EXAMPLE_PACKAGE: &'static str = "heffalump";
-    pub const EXAMPLE_VERSION: &'static str = "1.0.0";
-    pub const EXAMPLE_ADVISORY: &'static str = "RUSTSEC-1234-0001";
-
-    pub const EXAMPLE_ADVISORIES: &'static str = r#"
-        [[advisory]]
-        id = "RUSTSEC-1234-0001"
-        package = "heffalump"
-        patched_versions = [">= 1.1.0"]
-        date = "2017-01-01"
-        title = "Remote code execution vulnerability in heffalump service"
-        description = """
-        The heffalump service contained a shell escaping vulnerability which could
-        be exploited by an attacker to perform arbitrary code execution.
-
-        The issue was corrected by use of proper shell escaping.
-        """
-    "#;
-
-    fn example_advisory_db() -> AdvisoryDatabase {
-        AdvisoryDatabase::from_toml(EXAMPLE_ADVISORIES).unwrap()
-    }
-
-    #[test]
-    fn test_advisories_for_crate() {
-        let db = example_advisory_db();
-        let version = Version::parse(EXAMPLE_VERSION).unwrap();
-        let advisories = db.advisories_for_crate(EXAMPLE_PACKAGE, &version);
-
-        assert_eq!(advisories[0], db.find(EXAMPLE_ADVISORY).unwrap());
     }
 }
