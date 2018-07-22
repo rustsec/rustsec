@@ -38,4 +38,5 @@ pub use db::*;
 pub use error::*;
 pub use lockfile::*;
 pub use package::*;
+pub use repository::*;
 pub use vulnerability::*;
