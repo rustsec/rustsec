@@ -1,14 +1,11 @@
 //! Database containing `RustSec` security advisories
 
 use semver::Version;
-use std::collections::{
-    btree_map::{Entry, Iter as BTMapIter},
-    BTreeMap,
-};
+use std::collections::{btree_map, BTreeMap};
 use std::ffi::{OsStr, OsString};
 use toml;
 
-use advisory::{Advisory, AdvisoryId, AdvisoryWrapper};
+use advisory::{self, Advisory, AdvisoryId, AdvisoryWrapper};
 use error::{Error, ErrorKind};
 use lockfile::Lockfile;
 use package::PackageName;
@@ -79,8 +76,8 @@ impl AdvisoryDatabase {
             // don't actually insert them into the advisory database
             if advisory.id.as_str() != PLACEHOLDER_ADVISORY_ID {
                 let mut crate_advisories = match crates.entry(advisory.package.clone()) {
-                    Entry::Vacant(entry) => entry.insert(vec![]),
-                    Entry::Occupied(entry) => entry.into_mut(),
+                    btree_map::Entry::Vacant(entry) => entry.insert(vec![]),
+                    btree_map::Entry::Occupied(entry) => entry.into_mut(),
                 };
 
                 crate_advisories.push(advisory.id.clone());
@@ -129,37 +126,7 @@ impl AdvisoryDatabase {
     }
 
     /// Iterate over all of the advisories in the database
-    pub fn iter(&self) -> Iter {
-        Iter(self.advisories.iter())
-    }
-}
-
-impl<'a> IntoIterator for &'a AdvisoryDatabase {
-    type Item = (&'a AdvisoryId, &'a Advisory);
-    type IntoIter = Iter<'a>;
-
-    fn into_iter(self) -> Iter<'a> {
-        self.iter()
-    }
-}
-
-/// Iterator over the advisory database
-pub struct Iter<'a>(BTMapIter<'a, AdvisoryId, Advisory>);
-
-impl<'a> Iterator for Iter<'a> {
-    type Item = (&'a AdvisoryId, &'a Advisory);
-
-    fn next(&mut self) -> Option<(&'a AdvisoryId, &'a Advisory)> {
-        self.0.next()
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        self.0.size_hint()
-    }
-}
-
-impl<'a> ExactSizeIterator for Iter<'a> {
-    fn len(&self) -> usize {
-        self.0.len()
+    pub fn advisories(&self) -> advisory::Iter {
+        advisory::Iter(self.advisories.iter())
     }
 }

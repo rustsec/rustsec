@@ -6,9 +6,11 @@ use package::PackageName;
 
 mod date;
 mod id;
+mod iter;
 
 pub use self::date::*;
 pub use self::id::*;
+pub use self::iter::Iter;
 
 /// An individual security advisory pertaining to a single vulnerability
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
