@@ -190,7 +190,7 @@ pub struct CommitInfo {
     pub signature: Option<Signature>,
 
     /// Signed data to verify along with this commit
-    raw_signed_bytes: Vec<u8>,
+    signed_data: Option<String>,
 }
 
 impl CommitInfo {
@@ -216,9 +216,12 @@ impl CommitInfo {
             .ok_or_else(|| err!(ErrorKind::Repo, "no commit summary for {}", commit_id))?
             .to_owned();
 
-        let (signature, raw_signed_bytes) = match repo.repo.extract_signature(&oid, None) {
-            Ok((s, b)) => (Some(Signature::new(&*s)?), Vec::from(&*b)),
-            _ => (None, vec![]),
+        let (signature, signed_data) = match repo.repo.extract_signature(&oid, None) {
+            Ok((sig, data)) => (
+                sig.as_str().and_then(|s| Signature::new(s).ok()),
+                data.as_str().map(|s| s.to_owned()),
+            ),
+            _ => (None, None),
         };
 
         #[cfg(feature = "chrono")]
@@ -234,13 +237,16 @@ impl CommitInfo {
             #[cfg(feature = "chrono")]
             time,
             signature,
-            raw_signed_bytes,
+            signed_data,
         })
     }
 
     /// Get the raw bytes to be verified when verifying a commit signature
     pub fn raw_signed_bytes(&self) -> &[u8] {
-        self.raw_signed_bytes.as_ref()
+        match self.signed_data {
+            Some(ref s) => s.as_bytes(),
+            None => b"",
+        }
     }
 
     /// Reset the repository's state to match this commit
@@ -279,13 +285,13 @@ impl CommitInfo {
 
 /// Signatures on commits to the repository
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Signature(Vec<u8>);
+pub struct Signature(String);
 
 impl Signature {
     /// Parse a signature from a Git commit
     // TODO: actually verify the signature is well-structured
-    pub fn new<T: Into<Vec<u8>>>(into_bytes: T) -> Result<Self, Error> {
-        Ok(Signature(into_bytes.into()))
+    pub fn new<T: Into<String>>(into_string: T) -> Result<Self, Error> {
+        Ok(Signature(into_string.into()))
     }
 }
 
