@@ -17,6 +17,9 @@ pub struct Advisory {
     /// Name of affected crate
     pub package: PackageName,
 
+    /// Date this advisory was officially issued
+    pub date: Date,
+
     /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
     pub patched_versions: Vec<VersionReq>,
 
@@ -31,9 +34,6 @@ pub struct Advisory {
     /// Advisory IDs which are related to this advisory
     #[serde(default)]
     pub references: Vec<AdvisoryId>,
-
-    /// Date this advisory was officially issued
-    pub date: Date,
 
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<String>,

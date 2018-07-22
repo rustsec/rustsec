@@ -36,6 +36,8 @@ fn test_integration() {
     let ref crate_advisories = db.find_by_crate(example_package);
     assert_eq!(example_advisory, crate_advisories[0]);
 
+    // TODO: test vulnerability finding code
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
-    lockfile.vulnerabilities(&db);
+    let vulns = db.vulnerabilities(&lockfile);
+    assert!(vulns.is_empty());
 }
