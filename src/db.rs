@@ -10,8 +10,10 @@ use toml;
 
 use advisory::{Advisory, AdvisoryId, AdvisoryWrapper};
 use error::{Error, ErrorKind};
+use lockfile::Lockfile;
 use package::PackageName;
 use repository::Repository;
+use vulnerability::Vulnerabilities;
 
 /// Placeholder advisory name: shouldn't be used until an ID is assigned
 pub const PLACEHOLDER_ADVISORY_ID: &str = "RUSTSEC-0000-0000";
@@ -55,7 +57,7 @@ impl AdvisoryDatabase {
             // Ensure advisory is in the correct directory
             let advisory_parent_dir = advisory_path.parent().unwrap().file_name().unwrap();
 
-            if advisory_parent_dir != OsStr::new(advisory.package.as_ref()) {
+            if advisory_parent_dir != OsStr::new(advisory.package.as_str()) {
                 fail!(
                     ErrorKind::Repo,
                     "expected {} to be in {} directory (instead of \"{:?}\")",
@@ -87,8 +89,8 @@ impl AdvisoryDatabase {
     }
 
     /// Look up advisories relevant to a particular crate
-    pub fn find_by_crate<N: Into<PackageName>>(&self, crate_name: N) -> Vec<&Advisory> {
-        if let Some(ids) = self.crates.get(&crate_name.into()) {
+    pub fn find_by_crate<N: AsRef<PackageName>>(&self, crate_name: N) -> Vec<&Advisory> {
+        if let Some(ids) = self.crates.get(crate_name.as_ref()) {
             ids.iter()
                 .map(|id| self.find(id.clone()).unwrap())
                 .collect()
@@ -98,19 +100,26 @@ impl AdvisoryDatabase {
     }
 
     /// Find advisories that are unpatched and impact a given crate and version
-    pub fn advisories_for_crate<N: Into<PackageName>>(
+    pub fn advisories_for_crate<N: AsRef<PackageName>>(
         &self,
         crate_name: N,
         version: &Version,
     ) -> Vec<&Advisory> {
-        let mut results = self.find_by_crate(crate_name);
-        results.retain(|advisory| {
-            !advisory
-                .patched_versions
-                .iter()
-                .any(|req| req.matches(version))
-        });
-        results
+        self.find_by_crate(crate_name)
+            .iter()
+            .filter(|advisory| {
+                !advisory
+                    .patched_versions
+                    .iter()
+                    .any(|req| req.matches(version))
+            })
+            .map(|a| *a)
+            .collect()
+    }
+
+    /// Return a collection of vulnerabilities for the given lockfile
+    pub fn vulnerabilities(&self, lockfile: &Lockfile) -> Vulnerabilities {
+        Vulnerabilities::find(self, lockfile)
     }
 
     /// Iterate over all of the advisories in the database
