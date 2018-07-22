@@ -2,184 +2,208 @@
 
 #![crate_name = "cargo_audit"]
 #![crate_type = "bin"]
-#![deny(
-    missing_docs,
-    missing_debug_implementations,
-    missing_copy_implementations
-)]
-#![deny(trivial_casts, trivial_numeric_casts)]
-#![deny(
-    unsafe_code,
-    unstable_features,
-    unused_import_braces,
-    unused_qualifications
-)]
+#![deny(unsafe_code, warnings, missing_docs, trivial_numeric_casts)]
+#![deny(trivial_casts, unused_import_braces, unused_qualifications)]
 
+#[macro_use]
 mod shell;
 
-extern crate clap;
+extern crate gumdrop;
+#[macro_use]
+extern crate gumdrop_derive;
 extern crate isatty;
+#[macro_use]
+extern crate lazy_static;
 extern crate rustsec;
 extern crate term;
 
-use clap::{App, Arg, SubCommand};
-use rustsec::advisory::Advisory;
-use rustsec::error::Error as RustSecError;
-use rustsec::lockfile::Package;
-use rustsec::{AdvisoryDatabase, Lockfile};
-use shell::{ColorConfig, Shell};
-use std::process::exit;
-use term::color::{GREEN, RED, WHITE};
+use gumdrop::Options;
+use rustsec::{
+    Advisory, AdvisoryDatabase, ErrorKind, Lockfile, Package, Repository, Vulnerabilities,
+    ADVISORY_DB_REPO_URL,
+};
+use std::{env, path::PathBuf, process::exit};
 
-fn main() {
-    let matches = App::new("cargo")
-        .subcommand(
-            SubCommand::with_name("audit")
-                .version(env!("CARGO_PKG_VERSION"))
-                .author("Tony Arcieri <bascule@gmail.com>")
-                .about("Audit Cargo.lock for crates with security vulnerabilities.")
-                .arg_from_usage(
-                    "-f, --file=[NAME] 'Cargo lockfile to inspect (default: Cargo.lock)'",
-                )
-                .arg_from_usage("-u, --url=[URL] 'URL from which to fetch advisory database'")
-                .arg(
-                    Arg::from_usage("--color=[COLOR] Colored output")
-                        .possible_values(&["auto", "always", "never"]),
-                ),
-        )
-        .get_matches();
+/// Command line arguments (parsed by gumdrop)
+#[derive(Debug, Options)]
+enum Opts {
+    #[options(help = "Audit Cargo.lock files for vulnerable crates")]
+    Audit(AuditOpts),
+}
 
-    let (filename, url, color_config) =
-        if let Some(audit_matches) = matches.subcommand_matches("audit") {
-            (
-                audit_matches.value_of("file").unwrap_or("Cargo.lock"),
-                audit_matches
-                    .value_of("url")
-                    .unwrap_or(rustsec::ADVISORY_DB_URL),
-                audit_matches.value_of("color").unwrap_or("auto"),
-            )
-        } else {
-            panic!("cargo-audit is intended to be invoked as a cargo subcommand");
-        };
+/// Options for the `cargo audit` subcommand
+#[derive(Debug, Options)]
+struct AuditOpts {
+    /// Colored output configuration
+    #[options(
+        short = "c",
+        long = "color",
+        help = "color configuration: always, never (default: auto)"
+    )]
+    color: String,
 
-    let mut shell = shell::create(match color_config {
-        "always" => ColorConfig::Always,
-        "never" => ColorConfig::Never,
-        _ => ColorConfig::Auto,
-    });
+    /// Path to the advisory database git repository
+    #[options(
+        short = "D",
+        long = "db",
+        help = "advisory database git repo path (default: ~/.cargo/advisory-db)"
+    )]
+    db: Option<String>,
 
-    let lockfile = match Lockfile::load(filename) {
-        Ok(lf) => lf,
-        Err(RustSecError::IO) => {
-            not_found(&mut shell, filename).unwrap();
+    /// Path to the advisory database git repository
+    #[options(
+        short = "f",
+        long = "file",
+        help = "Cargo lockfile to inspect (default: Cargo.lock)"
+    )]
+    file: String,
+
+    /// Allow stale advisory databases that haven't been recently updated
+    #[options(no_short, long = "stale", help = "allow stale database")]
+    stale: bool,
+
+    /// URL to the advisory database git repository
+    #[options(
+        short = "u",
+        long = "url",
+        help = "URL for advisory database git repo"
+    )]
+    url: String,
+}
+
+/// Options for the `help` command
+#[derive(Debug, Default, Options)]
+struct HelpOpts {
+    #[options(free)]
+    commands: Vec<String>,
+}
+
+impl Default for AuditOpts {
+    fn default() -> AuditOpts {
+        AuditOpts {
+            color: "auto".into(),
+            db: None,
+            file: "Cargo.lock".into(),
+            stale: false,
+            url: ADVISORY_DB_REPO_URL.into(),
+        }
+    }
+}
+
+impl AuditOpts {
+    /// Run the audit operation
+    fn call(&self) {
+        shell::init(&self.color);
+
+        let lockfile = Lockfile::load(&self.file).unwrap_or_else(|e| match e.kind() {
+            ErrorKind::Io => {
+                not_found(&self.file);
+                exit(1);
+            }
+            _ => panic!("Couldn't load {}: {}", &self.file, e),
+        });
+
+        status_ok!("Fetching", "advisory database from `{}`", &self.url);
+
+        let advisory_db = self
+            .db
+            .as_ref()
+            .map(PathBuf::from)
+            .unwrap_or_else(Repository::default_path);
+
+        let repo = Repository::fetch(&self.url, &advisory_db, !self.stale).unwrap_or_else(|e| {
+            status_error!("couldn't fetch advisory database: {}", e);
+            exit(1);
+        });
+
+        let advisory_db = AdvisoryDatabase::from_repository(&repo).unwrap_or_else(|e| {
+            status_error!("error loading advisory database: {}", e);
+            exit(1);
+        });
+
+        status_ok!(
+            "Scanning",
+            "{} crates for vulnerabilities ({} advisories in database)",
+            lockfile.packages.len(),
+            advisory_db.advisories().count()
+        );
+
+        let vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
+
+        if vulnerabilities.is_empty() {
+            status_ok!("Success", "No vulnerable packages found");
+            exit(0);
+        }
+
+        status_error!("Vulnerable crates found!");
+
+        for vuln in &vulnerabilities {
+            display_advisory(&vuln.package, &vuln.advisory);
+        }
+
+        if !vulnerabilities.is_empty() {
+            vulns_found(vulnerabilities.len());
             exit(1);
         }
-        Err(ex) => panic!("Couldn't load {}: {}", filename, ex),
-    };
-
-    shell
-        .say_status("Fetching", &format!("advisories `{}`", url), GREEN, true)
-        .unwrap();
-
-    let advisory_db =
-        AdvisoryDatabase::fetch_from_url(url).expect("Couldn't fetch advisory database");
-
-    shell
-        .say_status(
-            "Scanning",
-            &format!(
-                "{} crates for vulnerabilities ({} advisories in database)",
-                lockfile.packages.len(),
-                advisory_db.iter().len()
-            ),
-            GREEN,
-            true,
-        )
-        .unwrap();
-
-    let vulnerabilities = lockfile.vulnerabilities(&advisory_db);
-
-    if vulnerabilities.is_empty() {
-        shell
-            .say_status("Success", "No vulnerable packages found", GREEN, true)
-            .unwrap();
-    } else {
-        shell
-            .say_status("Warning", "Vulnerable crates found!", RED, true)
-            .unwrap()
-    }
-
-    for vuln in &vulnerabilities {
-        display_advisory(&mut shell, vuln.package, vuln.advisory).unwrap();
-    }
-
-    if !vulnerabilities.is_empty() {
-        vulns_found(&mut shell, vulnerabilities.len()).unwrap();
-        exit(1);
     }
 }
 
-fn not_found(shell: &mut Shell, filename: &str) -> term::Result<()> {
-    shell.say_status(
-        "error:",
-        format!("Couldn't find '{}'!", filename),
-        RED,
-        false,
-    )?;
-    shell.say(
-        "\nRun \"cargo build\" to generate lockfile before running audit",
-        WHITE,
-    )?;
+fn main() {
+    let args: Vec<_> = env::args().collect();
 
-    Ok(())
+    if args.len() > 2 && args[1] == "help" || args[1] == "--help" {
+        help();
+    }
+
+    let Opts::Audit(opts) = Opts::parse_args_default(&args[1..]).unwrap_or_else(|_| {
+        help();
+    });
+
+    opts.call();
 }
 
-fn vulns_found(shell: &mut Shell, vuln_count: usize) -> term::Result<()> {
+/// Print help message
+fn help() -> ! {
+    println!("Usage: cargo audit [OPTIONS]");
+    println!();
+    println!("{}", Opts::command_usage("audit").unwrap());
+
+    exit(2);
+}
+
+fn not_found(filename: &str) {
+    status_error!("Couldn't find '{}'!", filename);
+    println!("\nRun \"cargo build\" to generate lockfile before running audit");
+}
+
+fn vulns_found(vuln_count: usize) {
+    println!();
+
     if vuln_count == 1 {
-        shell.say_status("\nerror:", "1 vulnerability found!", RED, false)?;
+        status_error!("1 vulnerability found!");
     } else {
-        shell.say_status(
-            "\nerror:",
-            format!("{} vulnerabilities found!", vuln_count),
-            RED,
-            false,
-        )?;
+        status_error!("{} vulnerabilities found!", vuln_count);
     }
-
-    Ok(())
 }
 
-fn display_advisory(shell: &mut Shell, package: &Package, advisory: &Advisory) -> term::Result<()> {
-    attribute(shell, "\nID", &advisory.id)?;
-    attribute(shell, "Crate", &package.name)?;
-    attribute(shell, "Version", &package.version.to_string())?;
+fn display_advisory(package: &Package, advisory: &Advisory) {
+    attribute!("\nID", advisory.id.as_str());
+    attribute!("Crate", package.name.as_str());
+    attribute!("Version", &package.version.to_string());
+    attribute!("Date", advisory.date.as_str());
 
-    if let Some(ref date) = advisory.date {
-        attribute(shell, "Date", date)?;
+    if let Some(url) = advisory.url.as_ref() {
+        attribute!("URL", url);
     }
 
-    if let Some(ref url) = advisory.url {
-        attribute(shell, "URL", url)?;
+    attribute!("Title", &advisory.title);
+
+    let mut versions_iter = advisory.patched_versions.iter();
+    let mut patched_versions = versions_iter.next().unwrap().to_string();
+
+    for version in versions_iter {
+        patched_versions = patched_versions + ", " + &version.to_string();
     }
 
-    attribute(shell, "Title", &advisory.title)?;
-
-    let mut fixed_versions = String::new();
-    let version_count = advisory.patched_versions.len();
-
-    for (i, version) in advisory.patched_versions.iter().enumerate() {
-        fixed_versions.push_str(&version.to_string());
-
-        if i < version_count - 1 {
-            fixed_versions.push_str(", ");
-        }
-    }
-
-    attribute(shell, "Solution: upgrade to", &fixed_versions)?;
-
-    Ok(())
-}
-
-fn attribute(shell: &mut Shell, name: &str, value: &str) -> term::Result<()> {
-    shell.say_status(format!("{}:", name), value, RED, false)
+    attribute!("Solution: upgrade to", &patched_versions);
 }
