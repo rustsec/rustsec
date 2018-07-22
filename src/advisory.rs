@@ -17,8 +17,20 @@ pub struct Advisory {
     /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
     pub patched_versions: Vec<VersionReq>,
 
-    /// Date vulnerability was originally disclosed (optional)
-    pub date: Option<Date>,
+    /// Versions which were never affected in the first place
+    #[serde(default)]
+    pub unaffected_versions: Vec<VersionReq>,
+
+    /// Advisory IDs in other databases which point to the same advisory
+    #[serde(default)]
+    pub aliases: Vec<AdvisoryId>,
+
+    /// Advisory IDs which are related to this advisory
+    #[serde(default)]
+    pub references: Vec<AdvisoryId>,
+
+    /// Date this advisory was officially issued
+    pub date: Date,
 
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<String>,

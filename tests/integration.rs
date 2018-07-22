@@ -17,7 +17,7 @@ fn test_integration() {
         example_advisory.patched_versions[0],
         VersionReq::parse(">= 0.0.14").unwrap()
     );
-    assert_eq!(example_advisory.date, Some(Date::from("2017-01-26")));
+    assert_eq!(example_advisory.date, Date::from("2017-01-26"));
     assert_eq!(
         example_advisory.url,
         Some(String::from(
