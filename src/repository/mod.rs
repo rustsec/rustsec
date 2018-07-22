@@ -1,8 +1,8 @@
 //! Git repository handling for the RustSec advisory DB
 
+use git2::{self, RepositoryState};
 #[cfg(feature = "chrono")]
 use git2::{AutotagOption, FetchOptions};
-use git2::{Repository as GitRepository, RepositoryState};
 use std::{env, fs, path::PathBuf, vec};
 
 use error::{Error, ErrorKind};
@@ -41,7 +41,7 @@ pub struct Repository {
     path: PathBuf,
 
     /// Repository object
-    repo: GitRepository,
+    repo: git2::Repository,
 }
 
 impl Repository {
@@ -86,7 +86,7 @@ impl Repository {
         }
 
         if path.exists() {
-            let repo = GitRepository::open(&path)?;
+            let repo = git2::Repository::open(&path)?;
             let refspec = LOCAL_MASTER_REF.to_owned() + ":" + REMOTE_MASTER_REF;
 
             let mut fetch_opts = FetchOptions::new();
@@ -110,7 +110,7 @@ impl Repository {
                 ),
             )?;
         } else {
-            GitRepository::clone(url, &path)?;
+            git2::Repository::clone(url, &path)?;
         }
 
         let repo = Self::open(path)?;
@@ -140,7 +140,7 @@ impl Repository {
     /// Open a repository at the given path
     pub fn open<P: Into<PathBuf>>(into_path: P) -> Result<Self, Error> {
         let path = into_path.into();
-        let repo = GitRepository::open(&path)?;
+        let repo = git2::Repository::open(&path)?;
 
         // Ensure the repo is in a clean state
         match repo.state() {

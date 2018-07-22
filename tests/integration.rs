@@ -8,10 +8,11 @@ use semver::VersionReq;
 #[test]
 fn test_integration() {
     let db = AdvisoryDatabase::fetch().unwrap();
-    let example_advisory = db.find("RUSTSEC-2017-0001").unwrap();
+    let example_advisory_id = AdvisoryId::new("RUSTSEC-2017-0001").unwrap();
+    let example_advisory = db.find(&example_advisory_id).unwrap();
     let example_package = PackageName::from("sodiumoxide");
 
-    assert_eq!(example_advisory.id, AdvisoryId::from("RUSTSEC-2017-0001"));
+    assert_eq!(example_advisory.id, example_advisory_id);
     assert_eq!(example_advisory.package, example_package);
     assert_eq!(
         example_advisory.patched_versions[0],
