@@ -2,13 +2,11 @@
 
 #[cfg(feature = "chrono")]
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
-use git2::{
-    AutotagOption, FetchOptions, ObjectType, Oid, Repository as GitRepository, RepositoryState,
-    ResetType,
-};
+#[cfg(feature = "chrono")]
+use git2::{AutotagOption, FetchOptions, Oid, ResetType};
+use git2::{ObjectType, Repository as GitRepository, RepositoryState};
 use std::{
     env,
-    fmt::Write,
     fs::{self, File},
     io::Read,
     path::{Path, PathBuf},
@@ -101,7 +99,6 @@ impl Repository {
             // Get the current remote tip (as an updated local reference)
             let remote_master_ref = repo.find_reference(REMOTE_MASTER_REF)?;
             let remote_target = remote_master_ref.target().unwrap();
-            let remote_target_hex = oid_to_hex(remote_target);
 
             // Set the local master ref to match the remote
             let mut local_master_ref = repo.find_reference(LOCAL_MASTER_REF)?;
@@ -109,7 +106,7 @@ impl Repository {
                 remote_target,
                 &format!(
                     "rustsec: moving master to {}: {}",
-                    REMOTE_MASTER_REF, &remote_target_hex
+                    REMOTE_MASTER_REF, &remote_target
                 ),
             )?;
         } else {
@@ -119,6 +116,18 @@ impl Repository {
         let repo = Self::open(path)?;
         let latest_commit = repo.latest_commit()?;
         latest_commit.reset(&repo)?;
+
+        // Any commits we fetch should always be signed
+        // TODO: verify signatures against GitHub's public key
+        if latest_commit.signature.is_none() {
+            fail!(
+                ErrorKind::Repo,
+                "no signature on commit {}: {} ({})",
+                latest_commit.commit_id,
+                latest_commit.summary,
+                latest_commit.author
+            );
+        }
 
         // Ensure that the upstream repository hasn't gone stale
         if ensure_fresh {
@@ -163,14 +172,11 @@ impl Repository {
 /// Information about a commit to the Git repository
 #[derive(Debug)]
 pub struct CommitInfo {
-    /// git2 object identifier
-    pub oid: Oid,
-
     /// ID (i.e. SHA-1 hash) of the latest commit
     pub commit_id: String,
 
-    /// Name of the current ref
-    pub ref_name: String,
+    /// Information about the author of a commit
+    pub author: String,
 
     /// Summary message for the commit
     pub summary: String,
@@ -178,23 +184,19 @@ pub struct CommitInfo {
     /// Commit time in number of seconds since the UNIX epoch
     #[cfg(feature = "chrono")]
     pub time: DateTime<Utc>,
+
+    /// Signature on the commit (mandatory)
+    // TODO: actually verify signatures
+    pub signature: Option<Signature>,
+
+    /// Signed data to verify along with this commit
+    raw_signed_bytes: Vec<u8>,
 }
 
 impl CommitInfo {
     /// Get information about HEAD
     pub fn from_repo_head(repo: &Repository) -> Result<Self, Error> {
         let head = repo.repo.head()?;
-
-        let ref_name = head
-            .name()
-            .ok_or_else(|| {
-                err!(
-                    ErrorKind::Repo,
-                    "no current ref name for: {}",
-                    repo.path.display()
-                )
-            })?
-            .to_owned();
 
         let oid = head.target().ok_or_else(|| {
             err!(
@@ -204,14 +206,20 @@ impl CommitInfo {
             )
         })?;
 
-        let commit_id = oid_to_hex(oid);
+        let commit_id = oid.to_string();
         let commit_object = repo.repo.find_object(oid, Some(ObjectType::Commit))?;
         let commit = commit_object.as_commit().unwrap();
+        let author = commit.author().to_string();
 
         let summary = commit
             .summary()
             .ok_or_else(|| err!(ErrorKind::Repo, "no commit summary for {}", commit_id))?
             .to_owned();
+
+        let (signature, raw_signed_bytes) = match repo.repo.extract_signature(&oid, None) {
+            Ok((s, b)) => (Some(Signature::new(&*s)?), Vec::from(&*b)),
+            _ => (None, vec![]),
+        };
 
         #[cfg(feature = "chrono")]
         let time = DateTime::from_utc(
@@ -220,18 +228,28 @@ impl CommitInfo {
         );
 
         Ok(CommitInfo {
-            oid,
             commit_id,
-            ref_name,
+            author,
             summary,
             #[cfg(feature = "chrono")]
             time,
+            signature,
+            raw_signed_bytes,
         })
     }
 
+    /// Get the raw bytes to be verified when verifying a commit signature
+    pub fn raw_signed_bytes(&self) -> &[u8] {
+        self.raw_signed_bytes.as_ref()
+    }
+
     /// Reset the repository's state to match this commit
+    #[cfg(feature = "chrono")]
     fn reset(&self, repo: &Repository) -> Result<(), Error> {
-        let commit_object = repo.repo.find_object(self.oid, Some(ObjectType::Commit))?;
+        let commit_object = repo.repo.find_object(
+            Oid::from_str(&self.commit_id).unwrap(),
+            Some(ObjectType::Commit),
+        )?;
 
         // Reset the state of the repository to the latest commit
         repo.repo.reset(&commit_object, ResetType::Hard, None)?;
@@ -256,6 +274,24 @@ impl CommitInfo {
                 self.time
             )
         }
+    }
+}
+
+/// Signatures on commits to the repository
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct Signature(Vec<u8>);
+
+impl Signature {
+    /// Parse a signature from a Git commit
+    // TODO: actually verify the signature is well-structured
+    pub fn new<T: Into<Vec<u8>>>(into_bytes: T) -> Result<Self, Error> {
+        Ok(Signature(into_bytes.into()))
+    }
+}
+
+impl AsRef<[u8]> for Signature {
+    fn as_ref(&self) -> &[u8] {
+        self.0.as_ref()
     }
 }
 
@@ -302,14 +338,4 @@ impl ExactSizeIterator for Iter {
     fn len(&self) -> usize {
         self.0.len()
     }
-}
-
-fn oid_to_hex(oid: Oid) -> String {
-    let mut hex = String::new();
-
-    for byte in oid.as_bytes().iter() {
-        write!(hex, "{:02x}", byte).unwrap();
-    }
-
-    hex
 }
