@@ -23,9 +23,16 @@ pub struct Package {
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
 pub struct PackageName(pub String);
 
-impl AsRef<str> for PackageName {
-    fn as_ref(&self) -> &str {
+impl PackageName {
+    /// Get string reference to this package name
+    pub fn as_str(&self) -> &str {
         &self.0
+    }
+}
+
+impl AsRef<PackageName> for PackageName {
+    fn as_ref(&self) -> &PackageName {
+        self
     }
 }
 
