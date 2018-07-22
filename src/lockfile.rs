@@ -3,10 +3,8 @@
 use std::{fs::File, io::Read, path::Path};
 use toml;
 
-use db::AdvisoryDatabase;
 use error::Error;
 use package::Package;
-use vulnerability::Vulnerability;
 
 /// Parsed Cargo.lock file containing dependencies
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
@@ -28,11 +26,6 @@ impl Lockfile {
     /// Parse the TOML data from the `Cargo.lock` file
     pub fn from_toml(toml_string: &str) -> Result<Self, Error> {
         Ok(toml::from_str(toml_string)?)
-    }
-
-    /// Find all relevant vulnerabilities for this lockfile using the given database
-    pub fn vulnerabilities(&self, db: &AdvisoryDatabase) -> Vec<Vulnerability> {
-        Vulnerability::find_all(db, self)
     }
 }
 
