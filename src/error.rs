@@ -1,5 +1,7 @@
 //! Error types used by this crate
 
+#[cfg(feature = "chrono")]
+use chrono;
 use failure::{Backtrace, Context, Fail};
 use git2;
 use std::fmt::{self, Display};
@@ -93,6 +95,13 @@ macro_rules! fail {
 
 impl From<Utf8Error> for Error {
     fn from(other: Utf8Error) -> Self {
+        err!(ErrorKind::Parse, &other)
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl From<chrono::ParseError> for Error {
+    fn from(other: chrono::ParseError) -> Self {
         err!(ErrorKind::Parse, &other)
     }
 }
