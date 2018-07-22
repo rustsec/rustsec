@@ -4,23 +4,99 @@
 //! These portions are redistributed under the same license as Cargo (shared by cargo-audit itself)
 
 use isatty::stdout_isatty;
-use std::fmt;
-use std::io;
-use std::io::prelude::*;
-use term::color::{Color, BLACK};
-use term::Terminal as RawTerminal;
-use term::{self, Attr, TerminfoTerminal};
+use std::{
+    cell::RefCell,
+    fmt,
+    io::{self, prelude::*},
+    sync::Mutex,
+};
+use term::{
+    self,
+    color::{Color, BLACK},
+    Attr, Terminal as TermTerminal, TerminfoTerminal,
+};
 
-pub fn create(color_config: ColorConfig) -> Shell {
-    let tty = stdout_isatty();
-    let config = ShellConfig { color_config, tty };
-    Shell::create(|| Box::new(io::stdout()), config)
+lazy_static! {
+    static ref SHELL: Mutex<RefCell<Option<Shell>>> = Mutex::new(RefCell::new(None));
 }
 
+/// Initialize the shell
+pub fn init(color_config: &str) {
+    let config = ShellConfig {
+        color_config: match color_config {
+            "always" => ColorConfig::Always,
+            "never" => ColorConfig::Never,
+            _ => ColorConfig::Auto,
+        },
+        tty: stdout_isatty(),
+    };
+
+    let shell = Shell::new(|| Box::new(io::stdout()), config);
+    SHELL.lock().unwrap().replace(Some(shell));
+}
+
+/// Say a status message with the given color
+pub fn status<T, U>(color: Color, status: T, message: U, justified: bool)
+where
+    T: fmt::Display,
+    U: fmt::Display,
+{
+    let shell = SHELL.lock().unwrap();
+    shell
+        .borrow_mut()
+        .as_mut()
+        .expect("shell not configured!")
+        .status(color, status, message, justified)
+        .unwrap();
+}
+
+/// Print an attribute of an advisory
+macro_rules! attribute {
+    ($attr:expr, $value:expr) => {
+        ::shell::status(
+            ::term::color::RED,
+            // HAX!
+            if $attr == "Version" || $attr == "Solution: upgrade to" {
+                format!("{}:", $attr)
+            } else {
+                format!("{}:\t", $attr)
+            },
+            $value,
+            false,
+        );
+    };
+}
+
+/// Print a success status message (in green if colors are enabled)
+macro_rules! status_ok {
+    ($status:expr, $msg:expr) => {
+        ::shell::status(::term::color::GREEN, $status, $msg, true);
+    };
+    ($status:expr, $fmt:expr, $($arg:tt)+) => {
+        status_ok!($status, format!($fmt, $($arg)+));
+    };
+}
+
+/// Print an error message (in red if colors are enabled)
+macro_rules! status_error {
+    ($msg:expr) => {
+        ::shell::status(::term::color::RED, "error:", $msg, false);
+    };
+    ($fmt:expr, $($arg:tt)+) => {
+        status_error!(format!($fmt, $($arg)+));
+    };
+}
+
+/// Color configuration
 #[derive(Clone, Copy, PartialEq)]
-pub enum ColorConfig {
+enum ColorConfig {
+    /// Pick colors automatically based on whether we're using a TTY
     Auto,
+
+    /// Always use colors
     Always,
+
+    /// Never use colors
     Never,
 }
 
@@ -34,93 +110,59 @@ impl fmt::Display for ColorConfig {
     }
 }
 
+/// Shell configuration options
 #[derive(Clone, Copy)]
-pub struct ShellConfig {
+struct ShellConfig {
+    /// Color configuration
     pub color_config: ColorConfig,
+
+    /// Are we using a TTY?
     pub tty: bool,
 }
-
 enum Terminal {
     NoColor(Box<Write + Send>),
-    Colored(Box<RawTerminal<Output = Box<Write + Send>> + Send>),
+    Colored(Box<term::Terminal<Output = Box<Write + Send>> + Send>),
 }
 
-pub struct Shell {
+/// Terminal shell we interact with
+struct Shell {
     terminal: Terminal,
     config: ShellConfig,
 }
 
 impl Shell {
-    pub fn create<T: FnMut() -> Box<Write + Send>>(mut out_fn: T, config: ShellConfig) -> Shell {
-        let terminal = match Shell::get_term(out_fn()) {
-            Ok(t) => t,
-            Err(_) => Terminal::NoColor(out_fn()),
-        };
-
+    /// Create a new shell
+    pub fn new<T: FnMut() -> Box<Write + Send>>(mut out_fn: T, config: ShellConfig) -> Shell {
+        let terminal = Shell::get_term(out_fn()).unwrap_or_else(|_| Terminal::NoColor(out_fn()));
         Shell { terminal, config }
     }
 
-    #[cfg(windows)]
-    fn get_term(out: Box<Write + Send>) -> term::Result<Terminal> {
-        // Check if the creation of a console will succeed
-        if ::term::WinConsole::new(vec![0u8; 0]).is_ok() {
-            let t = ::term::WinConsole::new(out)?;
-            if !t.supports_color() {
-                Ok(Terminal::NoColor(Box::new(t)))
-            } else {
-                Ok(Terminal::Colored(Box::new(t)))
-            }
-        } else {
-            // If we fail to get a windows console, we try to get a `TermInfo` one
-            Ok(Shell::get_terminfo_term(out))
-        }
-    }
-
-    #[cfg(not(windows))]
+    /// Get the shell's Terminal
     fn get_term(out: Box<Write + Send>) -> term::Result<Terminal> {
         Ok(Shell::get_terminfo_term(out))
     }
 
+    /// Get the terminfo Terminal
     fn get_terminfo_term(out: Box<Write + Send>) -> Terminal {
-        // Use `TermInfo::from_env()` and `TerminfoTerminal::supports_color()`
-        // to determine if creation of a TerminfoTerminal is possible regardless
-        // of the tty status. --color options are parsed after Shell creation so
-        // always try to create a terminal that supports color output. Fall back
-        // to a no-color terminal regardless of whether or not a tty is present
-        // and if color output is not possible.
         match ::term::terminfo::TermInfo::from_env() {
             Ok(ti) => {
                 let term = TerminfoTerminal::new_with_terminfo(out, ti);
-                if !term.supports_color() {
-                    Terminal::NoColor(term.into_inner())
-                } else {
-                    // Color output is possible.
+                if term.supports_color() {
                     Terminal::Colored(Box::new(term))
+                } else {
+                    Terminal::NoColor(term.into_inner())
                 }
             }
             Err(_) => Terminal::NoColor(out),
         }
     }
 
-    pub fn say<T: AsRef<str>>(&mut self, message: T, color: Color) -> term::Result<()> {
-        self.reset()?;
-
-        if color != BLACK {
-            self.fg(color)?;
-        }
-
-        writeln!(self, "{}", message.as_ref())?;
-        self.reset()?;
-        self.flush()?;
-
-        Ok(())
-    }
-
-    pub fn say_status<T, U>(
+    /// Say a status message with the given color
+    pub fn status<T, U>(
         &mut self,
+        color: Color,
         status: T,
         message: U,
-        color: Color,
         justified: bool,
     ) -> term::Result<()>
     where
@@ -128,20 +170,25 @@ impl Shell {
         U: fmt::Display,
     {
         self.reset()?;
+
         if color != BLACK {
             self.fg(color)?;
         }
+
         if self.supports_attr(Attr::Bold) {
             self.attr(Attr::Bold)?;
         }
+
         if justified {
             write!(self, "{:>12}", status.to_string())?;
         } else {
             write!(self, "{}", status)?;
         }
+
         self.reset()?;
         writeln!(self, " {}", message)?;
         self.flush()?;
+
         Ok(())
     }
 
@@ -152,6 +199,7 @@ impl Shell {
             Terminal::Colored(ref mut c) if colored => c.fg(color)?,
             _ => return Ok(false),
         }
+
         Ok(true)
     }
 
@@ -162,6 +210,7 @@ impl Shell {
             Terminal::Colored(ref mut c) if colored => c.attr(attr)?,
             _ => return Ok(false),
         }
+
         Ok(true)
     }
 
@@ -181,6 +230,7 @@ impl Shell {
             Terminal::Colored(ref mut c) if colored => c.reset()?,
             _ => (),
         }
+
         Ok(())
     }
 
