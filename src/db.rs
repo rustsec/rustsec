@@ -69,7 +69,7 @@ impl AdvisoryDatabase {
 
             // Ensure placeholder advisories load and parse correctly, but
             // don't actually insert them into the advisory database
-            if advisory.id.as_ref() != PLACEHOLDER_ADVISORY_ID {
+            if advisory.id.as_str() != PLACEHOLDER_ADVISORY_ID {
                 let mut crate_advisories = match crates.entry(advisory.package.clone()) {
                     Entry::Vacant(entry) => entry.insert(vec![]),
                     Entry::Occupied(entry) => entry.into_mut(),
@@ -84,16 +84,14 @@ impl AdvisoryDatabase {
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
-    pub fn find<I: Into<AdvisoryId>>(&self, id: I) -> Option<&Advisory> {
-        self.advisories.get(&id.into())
+    pub fn find<A: AsRef<AdvisoryId>>(&self, id: A) -> Option<&Advisory> {
+        self.advisories.get(id.as_ref())
     }
 
     /// Look up advisories relevant to a particular crate
     pub fn find_by_crate<N: AsRef<PackageName>>(&self, crate_name: N) -> Vec<&Advisory> {
         if let Some(ids) = self.crates.get(crate_name.as_ref()) {
-            ids.iter()
-                .map(|id| self.find(id.clone()).unwrap())
-                .collect()
+            ids.iter().map(|id| self.find(&id).unwrap()).collect()
         } else {
             vec![]
         }
