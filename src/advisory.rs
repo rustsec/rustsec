@@ -87,7 +87,7 @@ pub struct Date(pub String);
 impl Date {
     /// Convert an advisory RFC 3339 date into a `chrono::Date`
     #[cfg(feature = "chrono")]
-    pub fn into_chrono_date(&self) -> Result<ChronoDate<Utc>, Error> {
+    pub fn to_chrono_date(&self) -> Result<ChronoDate<Utc>, Error> {
         let datetime = DateTime::parse_from_rfc3339(self.0.as_ref())?;
         Ok(ChronoDate::from_utc(datetime.naive_utc().date(), Utc))
     }
