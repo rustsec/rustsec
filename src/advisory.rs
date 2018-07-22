@@ -1,6 +1,7 @@
 //! Security advisories in the RustSec database
 
 use semver::VersionReq;
+use std::fmt;
 
 use package::PackageName;
 
@@ -39,6 +40,12 @@ impl AsRef<str> for AdvisoryId {
     }
 }
 
+impl fmt::Display for AdvisoryId {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
 impl<'a> From<&'a str> for AdvisoryId {
     fn from(string: &'a str) -> AdvisoryId {
         AdvisoryId(string.into())
@@ -49,6 +56,12 @@ impl Into<String> for AdvisoryId {
     fn into(self) -> String {
         self.0
     }
+}
+
+/// Wrapper struct around advisories since they're each in a table
+#[derive(Serialize, Deserialize)]
+pub(crate) struct AdvisoryWrapper {
+    pub(crate) advisory: Advisory,
 }
 
 /// Dates on advisories

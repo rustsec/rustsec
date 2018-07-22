@@ -1,6 +1,7 @@
 //! Crate metadata as parsed from `Cargo.lock`
 
 use semver::Version;
+use std::fmt;
 
 /// A Rust package (i.e. crate) as structured in `Cargo.lock`
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
@@ -25,6 +26,12 @@ pub struct PackageName(pub String);
 impl AsRef<str> for PackageName {
     fn as_ref(&self) -> &str {
         &self.0
+    }
+}
+
+impl fmt::Display for PackageName {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        self.0.fmt(f)
     }
 }
 
