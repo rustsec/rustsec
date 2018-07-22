@@ -1,6 +1,7 @@
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 
+use super::date::{YEAR_MAX, YEAR_MIN};
 use error::{Error, ErrorKind};
 
 /// An identifier for an individual advisory
@@ -160,7 +161,7 @@ fn parse_year(advisory_id: &str) -> Result<u32, Error> {
 
     let year = match parts.next().unwrap().parse::<u32>() {
         Ok(n) => match n {
-            2000...2100 => n,
+            YEAR_MIN...YEAR_MAX => n,
             _ => fail!(
                 ErrorKind::Parse,
                 "out-of-range year in advisory ID: {}",

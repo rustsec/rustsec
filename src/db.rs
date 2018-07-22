@@ -41,6 +41,14 @@ impl AdvisoryDatabase {
         for advisory_file in repo.crate_advisories()? {
             let AdvisoryWrapper { advisory } = toml::from_str(&advisory_file.read_to_string()?)?;
 
+            if !advisory.id.is_rustsec() {
+                fail!(
+                    ErrorKind::Parse,
+                    "expected a RUSTSEC advisory ID: {}",
+                    advisory.id
+                );
+            }
+
             let advisory_path = advisory_file.path().to_owned();
             let expected_filename = OsString::from(format!("{}.toml", advisory.id));
 

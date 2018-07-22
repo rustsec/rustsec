@@ -1,7 +1,7 @@
 extern crate rustsec;
 extern crate semver;
 
-use rustsec::{AdvisoryDatabase, AdvisoryId, Date, Lockfile, PackageName};
+use rustsec::{AdvisoryDatabase, AdvisoryId, Lockfile, PackageName};
 use semver::VersionReq;
 
 // End-to-end integration test (has online dependency on GitHub)
@@ -18,12 +18,10 @@ fn test_integration() {
         example_advisory.patched_versions[0],
         VersionReq::parse(">= 0.0.14").unwrap()
     );
-    assert_eq!(example_advisory.date, Date::from("2017-01-26"));
+    assert_eq!(example_advisory.date.as_str(), "2017-01-26");
     assert_eq!(
-        example_advisory.url,
-        Some(String::from(
-            "https://github.com/dnaq/sodiumoxide/issues/154"
-        ))
+        example_advisory.url.as_ref().unwrap(),
+        "https://github.com/dnaq/sodiumoxide/issues/154"
     );
     assert_eq!(
         example_advisory.title,
