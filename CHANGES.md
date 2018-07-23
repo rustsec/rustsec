@@ -1,3 +1,14 @@
+## [0.3.0] (2018-07-23)
+
+[0.3.0]: https://github.com/tendermint/yubihsm-rs/compare/v0.2.1...v0.3.0
+
+* [#22](https://github.com/RustSec/cargo-audit/pull/22)
+  Near rewrite of cargo-audit (upgrades to rustsec 0.7.0).
+  See also the [rustsec 0.7.0 release notes].
+  ([@tarcieri])
+
+[rustsec 0.7.0 release notes]: https://github.com/RustSec/rustsec-client/blob/master/CHANGES.md#070-2018-07-22
+
 ## 0.2.1 (2017-09-24)
 
 * [#14](https://github.com/RustSec/cargo-audit/pull/14)
