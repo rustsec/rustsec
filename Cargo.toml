@@ -1,13 +1,13 @@
 [package]
-name = "rustsec"
-description = "Client library for the RustSec security advisory database"
-version = "0.7.0" # Also update html_root_url in lib.rs when bumping this
-authors = ["Tony Arcieri <bascule@gmail.com>"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/rustsec/rustsec"
-documentation = "https://github.com/rustsec/rustsec"
-categories = ["api-bindings", "development-tools"]
-keywords = ["rustsec", "security", "advisory", "vulnerability"]
+name          = "rustsec"
+description   = "Client library for the RustSec security advisory database"
+version       = "0.7.0" # Also update html_root_url in lib.rs when bumping this
+authors       = ["Tony Arcieri <bascule@gmail.com>"]
+license       = "MIT OR Apache-2.0"
+homepage      = "https://github.com/rustsec/rustsec-client/"
+readme        = "README.md"
+categories    = ["api-bindings", "development-tools"]
+keywords      = ["rustsec", "security", "advisory", "vulnerability"]
 
 [dependencies]
 chrono = { version = "0.4", optional = true }
