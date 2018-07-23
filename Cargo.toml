@@ -1,13 +1,14 @@
 [package]
-name = "cargo-audit"
-description = "Audit Cargo.lock for crates with security vulnerabilities"
-version = "0.3.0"
-authors = ["Tony Arcieri <bascule@gmail.com>"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/rustsec/cargo-audit"
+name          = "cargo-audit"
+description   = "Audit Cargo.lock for crates with security vulnerabilities"
+version       = "0.3.0"
+authors       = ["Tony Arcieri <bascule@gmail.com>"]
+license       = "MIT OR Apache-2.0"
+repository    = "https://github.com/rustsec/cargo-audit"
 documentation = "https://github.com/rustsec/cargo-audit"
-categories = ["development-tools"]
-keywords = ["cargo-subcommand", "security", "audit", "vulnerability"]
+readme        = "README.md"
+categories    = ["development-tools"]
+keywords      = ["cargo-subcommand", "security", "audit", "vulnerability"]
 
 [[bin]]
 name = "cargo-audit"
@@ -19,3 +20,4 @@ isatty = "0.1"
 lazy_static = "1"
 rustsec = "0.7"
 term = "0.4"
+tar = "= 0.4.5"

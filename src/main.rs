@@ -151,8 +151,18 @@ impl AuditOpts {
 fn main() {
     let args: Vec<_> = env::args().collect();
 
-    if args.len() > 2 && args[1] == "help" || args[1] == "--help" {
+    if args.len() < 2 {
         help();
+    }
+
+    if args.len() > 2 {
+        if args[2] == "help" || args[2] == "--help" {
+            help();
+        }
+
+        if args[2] == "version" || args[2] == "--version" {
+            version();
+        }
     }
 
     let Opts::Audit(opts) = Opts::parse_args_default(&args[1..]).unwrap_or_else(|_| {
@@ -168,6 +178,12 @@ fn help() -> ! {
     println!();
     println!("{}", Opts::command_usage("audit").unwrap());
 
+    exit(2);
+}
+
+/// Print version message
+fn version() -> ! {
+    println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
     exit(2);
 }
 
