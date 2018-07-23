@@ -52,19 +52,21 @@ where
 
 /// Print an attribute of an advisory
 macro_rules! attribute {
-    ($attr:expr, $value:expr) => {
+    ($attr:expr, $msg:expr) => {
         ::shell::status(
             ::term::color::RED,
-            // HAX!
-            if $attr == "Version" || $attr == "Solution: upgrade to" {
+            if $attr.len() >= 7 {
                 format!("{}:", $attr)
             } else {
                 format!("{}:\t", $attr)
             },
-            $value,
+            $msg,
             false,
         );
     };
+    ($attr: expr, $fmt:expr, $($arg:tt)+) => {
+        attribute!($attr, format!($fmt, $($arg)+));
+    }
 }
 
 /// Print a success status message (in green if colors are enabled)

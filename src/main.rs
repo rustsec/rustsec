@@ -213,13 +213,15 @@ fn display_advisory(package: &Package, advisory: &Advisory) {
     }
 
     attribute!("Title", &advisory.title);
-
-    let mut versions_iter = advisory.patched_versions.iter();
-    let mut patched_versions = versions_iter.next().unwrap().to_string();
-
-    for version in versions_iter {
-        patched_versions = patched_versions + ", " + &version.to_string();
-    }
-
-    attribute!("Solution: upgrade to", &patched_versions);
+    attribute!(
+        "Solution",
+        "upgrade to: {}",
+        advisory
+            .patched_versions
+            .iter()
+            .map(|v| v.to_string())
+            .collect::<Vec<_>>()
+            .as_slice()
+            .join(" OR ")
+    );
 }
