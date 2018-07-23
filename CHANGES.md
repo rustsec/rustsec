@@ -1,3 +1,10 @@
+## [0.7.2] (2018-07-23)
+
+[0.7.2]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.1...v0.7.2
+
+* [#32](https://github.com/RustSec/rustsec-client/pull/32)
+  README.md: Badge fixups, add gitter badge.
+
 ## [0.7.1] (2018-07-23)
 
 [0.7.1]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.0...v0.7.1
