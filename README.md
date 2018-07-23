@@ -25,9 +25,9 @@ $ cargo install cargo-audit
 
 Once installed, it can be run on the toplevel of any Cargo project.
 
-### Example output
+### Screenshot
 
-![Example output](output_example.png)
+![Screenshot](screenshot.png)
 
 ## License
 
