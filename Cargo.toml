@@ -3,7 +3,7 @@ name = "cargo-audit"
 description = "Audit Cargo.lock for crates with security vulnerabilities"
 version = "0.2.1"
 authors = ["Tony Arcieri <bascule@gmail.com>"]
-license = "MIT/Apache-2.0"
+license = "MIT OR Apache-2.0"
 repository = "https://github.com/rustsec/cargo-audit"
 documentation = "https://github.com/rustsec/cargo-audit"
 categories = ["development-tools"]
@@ -13,7 +13,9 @@ keywords = ["cargo-subcommand", "security", "audit", "vulnerability"]
 name = "cargo-audit"
 
 [dependencies]
-clap = "^2"
-rustsec = "^0.6"
-term = "^0.4"
-isatty = "^0.1"
+gumdrop = "0.4"
+gumdrop_derive = "0.4"
+isatty = "0.1"
+lazy_static = "1"
+rustsec = "0.7"
+term = "0.4"
