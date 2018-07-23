@@ -1,3 +1,34 @@
+## [0.7.0] (2018-07-22)
+
+[0.7.0]: https://github.com/tendermint/yubihsm-rs/compare/v0.6.0...v0.7.0
+
+* [#29](https://github.com/RustSec/rustsec-client/pull/29)
+  Validate dates are well-formed.
+
+* [#28](https://github.com/RustSec/rustsec-client/pull/28)
+  Add AdvisoryIdKind and limited support for parsing advisory IDs.
+
+* [#27](https://github.com/RustSec/rustsec-client/pull/27)
+  Add a "Vulnerabilities" collection struct.
+
+* [#23](https://github.com/RustSec/rustsec-client/pull/23)
+  Parse aliases, references, and unaffected versions.
+
+* [#22](https://github.com/RustSec/rustsec-client/pull/22)
+  Parse (but do not yet verify) signatures on advisory-db commits.
+
+* [#21](https://github.com/RustSec/rustsec-client/pull/21)
+  Parse individual advisory .toml files rather than Advisories.toml.
+
+* [#20](https://github.com/RustSec/rustsec-client/pull/20)
+  Switch to git2-based fetcher for advisory-db.
+
+* [#18](https://github.com/RustSec/rustsec-client/pull/18)
+  Use serde to parse advisories TOML and Cargo.lock files.
+
+* [#17](https://github.com/RustSec/rustsec-client/pull/17)
+  Use 'failure' crate for error handling.
+
 ## 0.6.0 (2017-03-05)
 
 * [#11](https://github.com/RustSec/rustsec-client/pull/11)
