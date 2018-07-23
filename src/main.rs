@@ -214,8 +214,8 @@ fn display_advisory(package: &Package, advisory: &Advisory) {
 
     attribute!("Title", &advisory.title);
     attribute!(
-        "Solution",
-        "upgrade to: {}",
+        "Solution: upgrade to",
+        "{}",
         advisory
             .patched_versions
             .iter()
