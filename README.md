@@ -23,7 +23,7 @@ This implements an idea originally proposed in this (closed) RFC:
 
 https://github.com/rust-lang/rfcs/pull/1752
 
-### Installation
+## Installation
 
 `cargo audit` is a Cargo subcommand and can be installed with `cargo install`:
 
@@ -33,9 +33,9 @@ $ cargo install cargo-audit
 
 Once installed, it can be run on the toplevel of any Cargo project.
 
-### Screenshot
+## Screenshot
 
-![Screenshot](screenshot.png)
+<img src="https://github.com/RustSec/cargo-audit/raw/master/screenshot.png" alt="Screenshot" style="max-width:100%;">
 
 ## License
 
