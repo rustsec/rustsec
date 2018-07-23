@@ -4,7 +4,9 @@ use git2::ObjectType;
 #[cfg(feature = "chrono")]
 use git2::{Oid, ResetType};
 
-use super::{signature::Signature, Repository, DAYS_UNTIL_STALE};
+#[cfg(feature = "chrono")]
+use super::DAYS_UNTIL_STALE;
+use super::{signature::Signature, Repository};
 use error::{Error, ErrorKind};
 
 /// Information about a commit to the Git repository
