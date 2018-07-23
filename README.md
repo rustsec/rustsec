@@ -1,4 +1,10 @@
-# cargo audit [![Latest Version][crate-image]][crate-link] [![Build Status][build-image]][build-link] [![Appveyor Status][appveyor-image]][appveyor-link] ![MIT/Apache 2 licensed][license-image]
+# cargo audit
+
+[![Latest Version][crate-image]][crate-link]
+[![Build Status][build-image]][build-link]
+[![Appveyor Status][appveyor-image]][appveyor-link]
+![MIT/Apache 2 licensed][license-image]
+[![Gitter Chat][gitter-image]][gitter-link]
 
 [crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
 [crate-link]: https://crates.io/crates/cargo-audit
@@ -7,6 +13,8 @@
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/oa39c0in9qkxpoiv?svg=true
 [appveyor-link]: https://ci.appveyor.com/project/tarcieri/cargo-audit
 [license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
+[gitter-image]: https://badges.gitter.im/badge.svg
+[gitter-link]: https://gitter.im/RustSec/Lobby
 
 Audit Cargo.lock for crates with security vulnerabilities reported to the
 [RustSec Advisory Database](https://github.com/RustSec/advisory-db).
