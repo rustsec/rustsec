@@ -1,3 +1,10 @@
+## [0.7.1] (2018-07-23)
+
+[0.7.1]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.0...v0.7.1
+
+* [#31](https://github.com/RustSec/rustsec-client/pull/31)
+  Cargo.toml: Formatting fixups, add "readme" attribute.
+
 ## [0.7.0] (2018-07-22)
 
 [0.7.0]: https://github.com/tendermint/yubihsm-rs/compare/v0.6.0...v0.7.0
