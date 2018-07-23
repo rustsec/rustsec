@@ -1,3 +1,10 @@
+## [0.7.4] (2018-07-23)
+
+[0.7.4]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.3...v0.7.4
+
+* [#35](https://github.com/RustSec/rustsec-client/pull/35)
+  Add link to logo image for docs.rs.
+
 ## [0.7.3] (2018-07-23)
 
 [0.7.3]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.2...v0.7.3
