@@ -1,3 +1,11 @@
+## [0.3.2] (2018-07-23)
+
+[0.3.2]: https://github.com/tendermint/yubihsm-rs/compare/v0.3.1...v0.3.2
+
+* [#28](https://github.com/RustSec/cargo-audit/pull/28)
+  README.md: Use `<img>` tag for screenshot so it renders on crates.io.
+  ([@tarcieri])
+
 ## [0.3.1] (2018-07-23)
 
 [0.3.1]: https://github.com/tendermint/yubihsm-rs/compare/v0.3.0...v0.3.1
