@@ -1,3 +1,15 @@
+## [0.3.1] (2018-07-23)
+
+[0.3.1]: https://github.com/tendermint/yubihsm-rs/compare/v0.3.0...v0.3.1
+
+* [#25](https://github.com/RustSec/cargo-audit/pull/25)
+  Use ` OR ` delimiter to display patched versions (fixes #18).
+  ([@tarcieri])
+
+* [#24](https://github.com/RustSec/cargo-audit/pull/24)
+  Fix `cargo audit --version`.
+  ([@tarcieri])
+
 ## [0.3.0] (2018-07-23)
 
 [0.3.0]: https://github.com/tendermint/yubihsm-rs/compare/v0.2.1...v0.3.0
