@@ -17,11 +17,13 @@
 [gitter-link]: https://gitter.im/RustSec/Lobby
 
 Audit Cargo.lock for crates with security vulnerabilities reported to the
-[RustSec Advisory Database](https://github.com/RustSec/advisory-db).
+[RustSec Advisory Database].
 
 This implements an idea originally proposed in this (closed) RFC:
 
 https://github.com/rust-lang/rfcs/pull/1752
+
+[RustSec Advisory Database]: https://github.com/RustSec/advisory-db/
 
 ## Installation
 
@@ -32,6 +34,15 @@ $ cargo install cargo-audit
 ```
 
 Once installed, it can be run on the toplevel of any Cargo project.
+
+## Reporting Vulnerabilities
+
+Vulneraties can be reported by opening pull requests against the
+[RustSec Advisory Database] GitHub repo:
+
+<a href="https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md">
+  <img alt="Report Vulnerability" width="250px" height="60px" src="https://rustsec.org/assets/img/report-vuln-button.png">
+</a>
 
 ## Screenshot
 
