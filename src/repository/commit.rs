@@ -23,7 +23,7 @@ pub struct Commit {
     #[cfg(feature = "chrono")]
     pub time: DateTime<Utc>,
 
-    /// Signature on the commit (mandatory)
+    /// Signature on the commit (mandatory for Repository::fetch)
     // TODO: actually verify signatures
     pub signature: Option<Signature>,
 
