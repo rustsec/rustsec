@@ -1,3 +1,10 @@
+## [0.7.3] (2018-07-23)
+
+[0.7.3]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.2...v0.7.3
+
+* [#34](https://github.com/RustSec/rustsec-client/pull/34)
+  Fix builds with --no-default-features.
+
 ## [0.7.2] (2018-07-23)
 
 [0.7.2]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.1...v0.7.2
