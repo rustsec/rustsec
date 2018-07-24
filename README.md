@@ -41,7 +41,7 @@ Vulneraties can be reported by opening pull requests against the
 [RustSec Advisory Database] GitHub repo:
 
 <a href="https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md">
-  <img alt="Report Vulnerability" width="250px" height="60px" src="https://rustsec.org/assets/img/report-vuln-button.png">
+  <img alt="Report Vulnerability" width="250px" height="60px" src="https://rustsec.org/assets/img/report-vuln-button.svg">
 </a>
 
 ## Screenshot
