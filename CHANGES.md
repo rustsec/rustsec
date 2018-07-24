@@ -1,41 +1,41 @@
 ## [0.7.5] (2018-07-24)
 
-[0.7.5]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.4...v0.7.5
+[0.7.5]: https://github.com/RustSec/rustsec-client/compare/v0.7.4...v0.7.5
 
 * [#36](https://github.com/RustSec/rustsec-client/pull/36)
   Allow AdvisoryId::new() to parse "RUSTSEC-0000-0000".
 
 ## [0.7.4] (2018-07-23)
 
-[0.7.4]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.3...v0.7.4
+[0.7.4]: https://github.com/RustSec/rustsec-client/compare/v0.7.3...v0.7.4
 
 * [#35](https://github.com/RustSec/rustsec-client/pull/35)
   Add link to logo image for docs.rs.
 
 ## [0.7.3] (2018-07-23)
 
-[0.7.3]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.2...v0.7.3
+[0.7.3]: https://github.com/RustSec/rustsec-client/compare/v0.7.2...v0.7.3
 
 * [#34](https://github.com/RustSec/rustsec-client/pull/34)
   Fix builds with --no-default-features.
 
 ## [0.7.2] (2018-07-23)
 
-[0.7.2]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.1...v0.7.2
+[0.7.2]: https://github.com/RustSec/rustsec-client/compare/v0.7.1...v0.7.2
 
 * [#32](https://github.com/RustSec/rustsec-client/pull/32)
   README.md: Badge fixups, add gitter badge.
 
 ## [0.7.1] (2018-07-23)
 
-[0.7.1]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.0...v0.7.1
+[0.7.1]: https://github.com/RustSec/rustsec-client/compare/v0.7.0...v0.7.1
 
 * [#31](https://github.com/RustSec/rustsec-client/pull/31)
   Cargo.toml: Formatting fixups, add "readme" attribute.
 
 ## [0.7.0] (2018-07-22)
 
-[0.7.0]: https://github.com/tendermint/yubihsm-rs/compare/v0.6.0...v0.7.0
+[0.7.0]: https://github.com/RustSec/rustsec-client/compare/v0.6.0...v0.7.0
 
 * [#29](https://github.com/RustSec/rustsec-client/pull/29)
   Validate dates are well-formed.
