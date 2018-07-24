@@ -1,8 +1,11 @@
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt;
+use std::fmt::{self, Display};
 
 use super::date::{YEAR_MAX, YEAR_MIN};
 use error::{Error, ErrorKind};
+
+/// Placeholder advisory name: shouldn't be used until an ID is assigned
+pub const PLACEHOLDER_ADVISORY_ID: &str = "RUSTSEC-0000-0000";
 
 /// An identifier for an individual advisory
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -21,6 +24,11 @@ impl AdvisoryId {
     /// Create an `AdvisoryId` from the given string
     pub fn new<S: Into<String>>(into_string: S) -> Result<Self, Error> {
         let string = into_string.into();
+
+        if string == PLACEHOLDER_ADVISORY_ID {
+            return Ok(AdvisoryId::default());
+        }
+
         let kind = AdvisoryIdKind::detect(&string);
 
         // Ensure known advisory types are well-formed
@@ -52,6 +60,11 @@ impl AdvisoryId {
         }
     }
 
+    /// Is this advisory ID the `RUSTSEC-0000-0000` placeholder ID?
+    pub fn is_placeholder(&self) -> bool {
+        self.string == PLACEHOLDER_ADVISORY_ID
+    }
+
     /// Is this advisory ID a CVE?
     pub fn is_cve(&self) -> bool {
         match self.kind {
@@ -77,7 +90,11 @@ impl AdvisoryId {
     pub fn url(&self) -> Option<String> {
         match self.kind {
             AdvisoryIdKind::RUSTSEC => {
-                Some(format!("https://rustsec.org/advisories/{}", &self.string))
+                if self.is_placeholder() {
+                    None
+                } else {
+                    Some(format!("https://rustsec.org/advisories/{}", &self.string))
+                }
             }
             AdvisoryIdKind::CVE => Some(format!(
                 "https://cve.mitre.org/cgi-bin/cvename.cgi?name={}",
@@ -98,7 +115,17 @@ impl AsRef<AdvisoryId> for AdvisoryId {
     }
 }
 
-impl fmt::Display for AdvisoryId {
+impl Default for AdvisoryId {
+    fn default() -> AdvisoryId {
+        AdvisoryId {
+            kind: AdvisoryIdKind::RUSTSEC,
+            year: None,
+            string: PLACEHOLDER_ADVISORY_ID.into()
+        }
+    }
+}
+
+impl Display for AdvisoryId {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         self.string.fmt(f)
     }
@@ -192,7 +219,7 @@ fn parse_year(advisory_id: &str) -> Result<u32, Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{AdvisoryId, AdvisoryIdKind};
+    use super::{AdvisoryId, AdvisoryIdKind, PLACEHOLDER_ADVISORY_ID};
 
     const EXAMPLE_RUSTSEC_ID: &str = "RUSTSEC-2018-0001";
     const EXAMPLE_CVE_ID: &str = "CVE-2017-1000168";
@@ -208,6 +235,15 @@ mod tests {
             rustsec_id.url().unwrap(),
             "https://rustsec.org/advisories/RUSTSEC-2018-0001"
         );
+    }
+
+    // The RUSTSEC-0000-0000 ID is a placeholder we need to treat as valid
+    #[test]
+    fn rustsec_0000_0000_test() {
+        let rustsec_id = AdvisoryId::new(PLACEHOLDER_ADVISORY_ID).unwrap();
+        assert!(rustsec_id.is_rustsec());
+        assert!(rustsec_id.year().is_none());
+        assert!(rustsec_id.url().is_none());
     }
 
     #[test]
