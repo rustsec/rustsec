@@ -1,3 +1,13 @@
+## [0.8.0] (2018-07-24)
+
+[0.8.0]: https://github.com/RustSec/rustsec-client/compare/v0.7.5...v0.8.0
+
+* [#38](https://github.com/RustSec/rustsec-client/pull/38)
+  Advisory platform requirements.
+
+* [#37](https://github.com/RustSec/rustsec-client/pull/37)
+  Cargo-like keyword support.
+
 ## [0.7.5] (2018-07-24)
 
 [0.7.5]: https://github.com/RustSec/rustsec-client/compare/v0.7.4...v0.7.5
