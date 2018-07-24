@@ -12,9 +12,6 @@ use package::PackageName;
 use repository::Repository;
 use vulnerability::Vulnerabilities;
 
-/// Placeholder advisory name: shouldn't be used until an ID is assigned
-pub const PLACEHOLDER_ADVISORY_ID: &str = "RUSTSEC-0000-0000";
-
 /// A collection of security advisories, indexed both by ID and crate
 #[derive(Debug)]
 pub struct AdvisoryDatabase {
@@ -74,15 +71,17 @@ impl AdvisoryDatabase {
 
             // Ensure placeholder advisories load and parse correctly, but
             // don't actually insert them into the advisory database
-            if advisory.id.as_str() != PLACEHOLDER_ADVISORY_ID {
-                let mut crate_advisories = match crates.entry(advisory.package.clone()) {
-                    btree_map::Entry::Vacant(entry) => entry.insert(vec![]),
-                    btree_map::Entry::Occupied(entry) => entry.into_mut(),
-                };
-
-                crate_advisories.push(advisory.id.clone());
-                advisories.insert(advisory.id.clone(), advisory.clone());
+            if advisory.id.is_placeholder() {
+                continue;
             }
+
+            let mut crate_advisories = match crates.entry(advisory.package.clone()) {
+                btree_map::Entry::Vacant(entry) => entry.insert(vec![]),
+                btree_map::Entry::Occupied(entry) => entry.into_mut(),
+            };
+
+            crate_advisories.push(advisory.id.clone());
+            advisories.insert(advisory.id.clone(), advisory.clone());
         }
 
         Ok(Self { advisories, crates })
