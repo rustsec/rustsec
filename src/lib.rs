@@ -9,7 +9,9 @@
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unused_import_braces, unused_qualifications)]
 #![forbid(unsafe_code)]
-#![doc(html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png")]
+#![doc(
+    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png"
+)]
 #![doc(html_root_url = "https://docs.rs/rustsec/0.7.5")]
 
 #[cfg(feature = "chrono")]
