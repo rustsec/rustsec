@@ -1,6 +1,6 @@
 ## [0.3.2] (2018-07-23)
 
-[0.3.2]: https://github.com/tendermint/yubihsm-rs/compare/v0.3.1...v0.3.2
+[0.3.2]: https://github.com/RustSec/cargo-audit/compare/v0.3.1...v0.3.2
 
 * [#28](https://github.com/RustSec/cargo-audit/pull/28)
   README.md: Use `<img>` tag for screenshot so it renders on crates.io.
@@ -8,7 +8,7 @@
 
 ## [0.3.1] (2018-07-23)
 
-[0.3.1]: https://github.com/tendermint/yubihsm-rs/compare/v0.3.0...v0.3.1
+[0.3.1]: https://github.com/RustSec/cargo-audit/compare/v0.3.0...v0.3.1
 
 * [#25](https://github.com/RustSec/cargo-audit/pull/25)
   Use ` OR ` delimiter to display patched versions (fixes #18).
@@ -20,7 +20,7 @@
 
 ## [0.3.0] (2018-07-23)
 
-[0.3.0]: https://github.com/tendermint/yubihsm-rs/compare/v0.2.1...v0.3.0
+[0.3.0]: https://github.com/RustSec/cargo-audit/compare/v0.2.1...v0.3.0
 
 * [#22](https://github.com/RustSec/cargo-audit/pull/22)
   Near rewrite of cargo-audit (upgrades to rustsec 0.7.0).
