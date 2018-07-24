@@ -90,64 +90,6 @@ impl Default for AuditOpts {
     }
 }
 
-impl AuditOpts {
-    /// Run the audit operation
-    fn call(&self) {
-        shell::init(&self.color);
-
-        let lockfile = Lockfile::load(&self.file).unwrap_or_else(|e| match e.kind() {
-            ErrorKind::Io => {
-                not_found(&self.file);
-                exit(1);
-            }
-            _ => panic!("Couldn't load {}: {}", &self.file, e),
-        });
-
-        status_ok!("Fetching", "advisory database from `{}`", &self.url);
-
-        let advisory_db = self
-            .db
-            .as_ref()
-            .map(PathBuf::from)
-            .unwrap_or_else(Repository::default_path);
-
-        let repo = Repository::fetch(&self.url, &advisory_db, !self.stale).unwrap_or_else(|e| {
-            status_error!("couldn't fetch advisory database: {}", e);
-            exit(1);
-        });
-
-        let advisory_db = AdvisoryDatabase::from_repository(&repo).unwrap_or_else(|e| {
-            status_error!("error loading advisory database: {}", e);
-            exit(1);
-        });
-
-        status_ok!(
-            "Scanning",
-            "{} crates for vulnerabilities ({} advisories in database)",
-            lockfile.packages.len(),
-            advisory_db.advisories().count()
-        );
-
-        let vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
-
-        if vulnerabilities.is_empty() {
-            status_ok!("Success", "No vulnerable packages found");
-            exit(0);
-        }
-
-        status_error!("Vulnerable crates found!");
-
-        for vuln in &vulnerabilities {
-            display_advisory(&vuln.package, &vuln.advisory);
-        }
-
-        if !vulnerabilities.is_empty() {
-            vulns_found(vulnerabilities.len());
-            exit(1);
-        }
-    }
-}
-
 fn main() {
     let args: Vec<_> = env::args().collect();
 
@@ -169,7 +111,7 @@ fn main() {
         help();
     });
 
-    opts.call();
+    audit(&opts);
 }
 
 /// Print help message
@@ -185,6 +127,64 @@ fn help() -> ! {
 fn version() -> ! {
     println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
     exit(2);
+}
+
+/// Run the audit operation
+fn audit(opts: &AuditOpts) -> ! {
+    shell::init(&opts.color);
+
+    let lockfile = Lockfile::load(&opts.file).unwrap_or_else(|e| match e.kind() {
+        ErrorKind::Io => {
+            not_found(&opts.file);
+            exit(1);
+        }
+        _ => panic!("Couldn't load {}: {}", opts.file, e),
+    });
+
+    status_ok!("Fetching", "advisory database from `{}`", opts.url);
+
+    let advisory_db = opts
+        .db
+        .as_ref()
+        .map(PathBuf::from)
+        .unwrap_or_else(Repository::default_path);
+
+    let repo = Repository::fetch(&opts.url, &advisory_db, !opts.stale).unwrap_or_else(|e| {
+        status_error!("couldn't fetch advisory database: {}", e);
+        exit(1);
+    });
+
+    let advisory_db = AdvisoryDatabase::from_repository(&repo).unwrap_or_else(|e| {
+        status_error!("error loading advisory database: {}", e);
+        exit(1);
+    });
+
+    status_ok!(
+        "Scanning",
+        "{} crates for vulnerabilities ({} advisories in database)",
+        lockfile.packages.len(),
+        advisory_db.advisories().count()
+    );
+
+    let vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
+
+    if vulnerabilities.is_empty() {
+        status_ok!("Success", "No vulnerable packages found");
+        exit(0);
+    }
+
+    status_error!("Vulnerable crates found!");
+
+    for vuln in &vulnerabilities {
+        display_advisory(&vuln.package, &vuln.advisory);
+    }
+
+    if vulnerabilities.is_empty() {
+        exit(0);
+    } else {
+        vulns_found(vulnerabilities.len());
+        exit(1);
+    }
 }
 
 fn not_found(filename: &str) {
