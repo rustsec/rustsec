@@ -2,13 +2,19 @@ use serde::{de::Error as DeError, Deserialize, Deserializer};
 
 use error::{Error, ErrorKind};
 
-/// Platform requirements: matchers on Rust platform "target triple"s.
+/// Platform requirements: identifies that a particular advisory only applies
+/// to certain platforms.
 ///
-/// Supports a simple wildcard syntax:
+/// Platforms are identified by a "target triple". For a list of all valid
+/// platform "target triples", see:
 ///
-/// - Prefix: e.g. `x86_64-*`
-/// - Suffix: e.g. `*-gnu`
-/// - Contains: e.g. `*windows*`
+/// <https://forge.rust-lang.org/platform-support.html>
+///
+/// Platforms can be grouped with simple globbing rules:
+///
+/// - Start with wildcard: `*-gnu`
+/// - End with wildcard: `x86_64-*`
+/// - Start and end with wildcard: `*windows*`
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 pub struct PlatformReq(String);
 
