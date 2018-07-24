@@ -166,7 +166,19 @@ fn audit(opts: &AuditOpts) -> ! {
         advisory_db.advisories().count()
     );
 
-    let vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
+    let all_matching_vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
+
+    // TODO: factor affected platform checking upstream into `Vulnerabilities`
+    let vulnerabilities = all_matching_vulnerabilities
+        .iter()
+        .filter(|vuln| {
+            // If there is an `affected_platforms` attribute, check if we're on an affected platform
+            match vuln.advisory.affected_platforms {
+                Some(ref platforms) => platforms.iter().any(|platform| platform.matches_current()),
+                None => true,
+            }
+        })
+        .collect::<Vec<_>>();
 
     if vulnerabilities.is_empty() {
         status_ok!("Success", "No vulnerable packages found");
