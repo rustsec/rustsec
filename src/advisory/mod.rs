@@ -7,10 +7,12 @@ use package::PackageName;
 mod date;
 mod id;
 mod iter;
+mod keyword;
 
 pub use self::date::*;
 pub use self::id::*;
 pub use self::iter::Iter;
+pub use self::keyword::Keyword;
 
 /// An individual security advisory pertaining to a single vulnerability
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -38,6 +40,10 @@ pub struct Advisory {
     /// Advisory IDs which are related to this advisory
     #[serde(default)]
     pub references: Vec<AdvisoryId>,
+
+    /// Freeform keywords which succinctly describe this vulnerability (e.g. "ssl", "rce", "xss")
+    #[serde(default)]
+    pub keywords: Vec<Keyword>,
 
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<String>,
