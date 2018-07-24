@@ -1,3 +1,10 @@
+## [0.7.5] (2018-07-24)
+
+[0.7.5]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.4...v0.7.5
+
+* [#36](https://github.com/RustSec/rustsec-client/pull/36)
+  Allow AdvisoryId::new() to parse "RUSTSEC-0000-0000".
+
 ## [0.7.4] (2018-07-23)
 
 [0.7.4]: https://github.com/tendermint/yubihsm-rs/compare/v0.7.3...v0.7.4
