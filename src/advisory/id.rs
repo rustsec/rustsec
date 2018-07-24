@@ -120,7 +120,7 @@ impl Default for AdvisoryId {
         AdvisoryId {
             kind: AdvisoryIdKind::RUSTSEC,
             year: None,
-            string: PLACEHOLDER_ADVISORY_ID.into()
+            string: PLACEHOLDER_ADVISORY_ID.into(),
         }
     }
 }

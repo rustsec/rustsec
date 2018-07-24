@@ -8,11 +8,13 @@ mod date;
 mod id;
 mod iter;
 mod keyword;
+mod platform;
 
 pub use self::date::*;
 pub use self::id::*;
 pub use self::iter::Iter;
 pub use self::keyword::Keyword;
+pub use self::platform::{Platform, PlatformReq};
 
 /// An individual security advisory pertaining to a single vulnerability
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -32,6 +34,9 @@ pub struct Advisory {
     /// Versions which were never affected in the first place
     #[serde(default)]
     pub unaffected_versions: Vec<VersionReq>,
+
+    /// Platforms that this vulnerability is specific to
+    pub affected_platforms: Option<Vec<PlatformReq>>,
 
     /// Advisory IDs in other databases which point to the same advisory
     #[serde(default)]
