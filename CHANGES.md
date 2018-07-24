@@ -1,3 +1,19 @@
+## [0.4.0] (2018-07-24)
+
+[0.4.0]: https://github.com/RustSec/cargo-audit/compare/v0.3.2...v0.4.0
+
+* [#35](https://github.com/RustSec/cargo-audit/pull/35)
+  Honor the `affected_platforms` attribute.
+  ([@tarcieri])
+
+* [#34](https://github.com/RustSec/cargo-audit/pull/34)
+  Update `rustsec` crate dependency to `0.8` series.
+  ([@tarcieri])
+
+* [#31](https://github.com/RustSec/cargo-audit/pull/31)
+  Update `term` crate dependency to `0.5` series
+  ([@tarcieri])
+
 ## [0.3.2] (2018-07-23)
 
 [0.3.2]: https://github.com/RustSec/cargo-audit/compare/v0.3.1...v0.3.2
@@ -66,3 +82,4 @@
 [@tarcieri]: https://github.com/tarcieri
 [@zmanian]: https://github.com/zmanian
 [@unv-annihilator]: https://github.com/unv-annihilator
+[@branan]: https://github.com/branan
