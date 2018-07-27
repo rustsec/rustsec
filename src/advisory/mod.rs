@@ -1,5 +1,6 @@
 //! Security advisories in the RustSec database
 
+use platforms::target::{Arch, OS};
 use semver::VersionReq;
 
 use package::PackageName;
@@ -8,13 +9,11 @@ mod date;
 mod id;
 mod iter;
 mod keyword;
-mod platform;
 
 pub use self::date::*;
 pub use self::id::*;
 pub use self::iter::Iter;
 pub use self::keyword::Keyword;
-pub use self::platform::{Platform, PlatformReq};
 
 /// An individual security advisory pertaining to a single vulnerability
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -35,8 +34,11 @@ pub struct Advisory {
     #[serde(default)]
     pub unaffected_versions: Vec<VersionReq>,
 
-    /// Platforms that this vulnerability is specific to
-    pub affected_platforms: Option<Vec<PlatformReq>>,
+    /// CPU architectures that this vulnerability is specific to
+    pub affected_arch: Option<Vec<Arch>>,
+
+    /// Operating systems that this vulnerability is specific to
+    pub affected_os: Option<Vec<OS>>,
 
     /// Advisory IDs in other databases which point to the same advisory
     #[serde(default)]
