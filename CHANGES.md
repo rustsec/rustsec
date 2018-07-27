@@ -1,3 +1,10 @@
+## [0.1.2] (2018-07-27)
+
+[0.1.2]: https://github.com/RustSec/platforms-crate/compare/v0.1.1...v0.1.2
+
+* [#4](https://github.com/RustSec/platforms-crate/pull/4)
+  Add table of supported platforms to README.md (using Markdown generator).
+
 ## [0.1.1] (2018-07-27)
 
 [0.1.1]: https://github.com/RustSec/platforms-crate/compare/v0.1.0...v0.1.1
