@@ -14,13 +14,15 @@ extern crate gumdrop_derive;
 extern crate isatty;
 #[macro_use]
 extern crate lazy_static;
+extern crate platforms;
 extern crate rustsec;
 extern crate term;
 
 use gumdrop::Options;
+use platforms::target::{Arch, OS};
 use rustsec::{
     Advisory, AdvisoryDatabase, ErrorKind, Lockfile, Package, Repository, Vulnerabilities,
-    ADVISORY_DB_REPO_URL,
+    Vulnerability, ADVISORY_DB_REPO_URL,
 };
 use std::{env, path::PathBuf, process::exit};
 
@@ -42,7 +44,7 @@ struct AuditOpts {
     )]
     color: String,
 
-    /// Path to the advisory database git repository
+    /// Filesystem path to the advisory database git repository
     #[options(
         short = "D",
         long = "db",
@@ -61,6 +63,22 @@ struct AuditOpts {
     /// Allow stale advisory databases that haven't been recently updated
     #[options(no_short, long = "stale", help = "allow stale database")]
     stale: bool,
+
+    /// Target CPU architecture to find vulnerabilities for
+    #[options(
+        no_short,
+        long = "target-arch",
+        help = "filter vulnerabilities by CPU (default: no filter)"
+    )]
+    target_arch: Option<Arch>,
+
+    /// Target OS to find vulnerabilities for
+    #[options(
+        no_short,
+        long = "target-os",
+        help = "filter vulnerabilities by OS (default: no filter)"
+    )]
+    target_os: Option<OS>,
 
     /// URL to the advisory database git repository
     #[options(
@@ -85,6 +103,8 @@ impl Default for AuditOpts {
             db: None,
             file: "Cargo.lock".into(),
             stale: false,
+            target_arch: None,
+            target_os: None,
             url: ADVISORY_DB_REPO_URL.into(),
         }
     }
@@ -125,7 +145,11 @@ fn help() -> ! {
 
 /// Print version message
 fn version() -> ! {
-    println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    println!(concat!(
+        env!("CARGO_PKG_NAME"),
+        " ",
+        env!("CARGO_PKG_VERSION")
+    ));
     exit(2);
 }
 
@@ -169,16 +193,10 @@ fn audit(opts: &AuditOpts) -> ! {
     let all_matching_vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
 
     // TODO: factor affected platform checking upstream into `Vulnerabilities`
-    let vulnerabilities = all_matching_vulnerabilities
+    let vulnerabilities: Vec<&Vulnerability> = all_matching_vulnerabilities
         .iter()
-        .filter(|vuln| {
-            // If there is an `affected_platforms` attribute, check if we're on an affected platform
-            match vuln.advisory.affected_platforms {
-                Some(ref platforms) => platforms.iter().any(|platform| platform.matches_current()),
-                None => true,
-            }
-        })
-        .collect::<Vec<_>>();
+        .filter(|vuln| match_vulnerability(vuln, opts))
+        .collect();
 
     if vulnerabilities.is_empty() {
         status_ok!("Success", "No vulnerable packages found");
@@ -197,6 +215,27 @@ fn audit(opts: &AuditOpts) -> ! {
         vulns_found(vulnerabilities.len());
         exit(1);
     }
+}
+
+/// Match a vulnerability according to the given audit options
+fn match_vulnerability(vuln: &Vulnerability, opts: &AuditOpts) -> bool {
+    if let Some(ref target_arch) = opts.target_arch {
+        if let Some(ref architectures) = vuln.advisory.affected_arch {
+            if !architectures.iter().any(|arch| arch == target_arch) {
+                return false;
+            }
+        }
+    }
+
+    if let Some(ref target_os) = opts.target_os {
+        if let Some(ref operating_systems) = vuln.advisory.affected_os {
+            if !operating_systems.iter().any(|os| os == target_os) {
+                return false;
+            }
+        }
+    }
+
+    true
 }
 
 fn not_found(filename: &str) {
