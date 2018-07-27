@@ -1,3 +1,9 @@
+use core::str::FromStr;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use error::Error;
+
 /// `target_os`: Operating system of the target. This value is closely related to the second
 /// and third element of the platform target triple, though it is not identical.
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -56,6 +62,31 @@ pub enum OS {
 }
 
 impl OS {
+    /// Create a new `OS` from the given string
+    pub fn from_str<S: AsRef<str>>(env_name: S) -> Option<OS> {
+        let os = match env_name.as_ref() {
+            "android" => OS::Android,
+            "bitrig" => OS::Bitrig,
+            "cloudabi" => OS::CloudABI,
+            "dragonfly" => OS::Dragonfly,
+            "emscripten" => OS::Emscripten,
+            "freebsd" => OS::FreeBSD,
+            "fuchsia" => OS::Fuchsia,
+            "haiku" => OS::Haiku,
+            "ios" => OS::iOS,
+            "linux" => OS::Linux,
+            "macos" => OS::MacOS,
+            "netbsd" => OS::NetBSD,
+            "openbsd" => OS::OpenBSD,
+            "redox" => OS::Redox,
+            "solaris" => OS::Solaris,
+            "windows" => OS::Windows,
+            _ => return None,
+        };
+
+        Some(os)
+    }
+
     /// String representing this target OS which matches `#[cfg(target_os)]`
     pub fn as_str(self) -> &'static str {
         match self {
@@ -77,6 +108,51 @@ impl OS {
             OS::Windows => "windows",
             OS::Unknown => "unknown",
         }
+    }
+}
+
+impl FromStr for OS {
+    type Err = Error;
+
+    /// Create a new `Env` from the given string
+    fn from_str(os_name: &str) -> Result<Self, Self::Err> {
+        let os = match os_name {
+            "android" => OS::Android,
+            "bitrig" => OS::Bitrig,
+            "cloudabi" => OS::CloudABI,
+            "dragonfly" => OS::Dragonfly,
+            "emscripten" => OS::Emscripten,
+            "freebsd" => OS::FreeBSD,
+            "fuchsia" => OS::Fuchsia,
+            "haiku" => OS::Haiku,
+            "ios" => OS::iOS,
+            "linux" => OS::Linux,
+            "macos" => OS::MacOS,
+            "netbsd" => OS::NetBSD,
+            "openbsd" => OS::OpenBSD,
+            "redox" => OS::Redox,
+            "solaris" => OS::Solaris,
+            "windows" => OS::Windows,
+            _ => return Err(Error),
+        };
+
+        Ok(os)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl Serialize for OS {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+#[cfg(all(feature = "serde", feature = "std"))]
+impl<'de> Deserialize<'de> for OS {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        // TODO: no_std support
+        use std::string::String;
+        Ok(Self::from_str(&String::deserialize(deserializer)?).unwrap_or(OS::Unknown))
     }
 }
 
