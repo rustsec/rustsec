@@ -10,9 +10,9 @@
 #![deny(unused_import_braces, unused_qualifications)]
 #![forbid(unsafe_code)]
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png"
+    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
+    html_root_url = "https://docs.rs/rustsec/0.9.0"
 )]
-#![doc(html_root_url = "https://docs.rs/rustsec/0.8.0")]
 
 #[cfg(feature = "chrono")]
 extern crate chrono;
