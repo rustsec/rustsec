@@ -62,31 +62,6 @@ pub enum OS {
 }
 
 impl OS {
-    /// Create a new `OS` from the given string
-    pub fn from_str<S: AsRef<str>>(env_name: S) -> Option<OS> {
-        let os = match env_name.as_ref() {
-            "android" => OS::Android,
-            "bitrig" => OS::Bitrig,
-            "cloudabi" => OS::CloudABI,
-            "dragonfly" => OS::Dragonfly,
-            "emscripten" => OS::Emscripten,
-            "freebsd" => OS::FreeBSD,
-            "fuchsia" => OS::Fuchsia,
-            "haiku" => OS::Haiku,
-            "ios" => OS::iOS,
-            "linux" => OS::Linux,
-            "macos" => OS::MacOS,
-            "netbsd" => OS::NetBSD,
-            "openbsd" => OS::OpenBSD,
-            "redox" => OS::Redox,
-            "solaris" => OS::Solaris,
-            "windows" => OS::Windows,
-            _ => return None,
-        };
-
-        Some(os)
-    }
-
     /// String representing this target OS which matches `#[cfg(target_os)]`
     pub fn as_str(self) -> &'static str {
         match self {
