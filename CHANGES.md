@@ -1,3 +1,10 @@
+## [0.1.1] (2018-07-27)
+
+[0.1.1]: https://github.com/RustSec/platforms-crate/compare/v0.1.0...v0.1.1
+
+* [#3](https://github.com/RustSec/platforms-crate/pull/3)
+  Impl `Display` and `std::error::Error` traits for `packages::Error`.
+
 ## [0.1.0] (2018-07-26)
 
 [0.1.0]: https://github.com/RustSec/platforms-crate/compare/v0.0.1...v0.1.0
