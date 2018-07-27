@@ -10,8 +10,8 @@
 [crate-link]: https://crates.io/crates/rustsec
 [docs-image]: https://docs.rs/rustsec/badge.svg
 [docs-link]: https://docs.rs/rustsec/
-[build-image]: https://travis-ci.org/RustSec/rustsec-client.svg?branch=master
-[build-link]: https://travis-ci.org/RustSec/rustsec-client
+[build-image]: https://travis-ci.org/RustSec/rustsec-crate.svg?branch=master
+[build-link]: https://travis-ci.org/RustSec/rustsec-crate
 [license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby
@@ -44,8 +44,8 @@ Licensed under either of:
 
 at your option.
 
-[LICENSE-APACHE]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-MIT
+[LICENSE-APACHE]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-MIT
 
 ### Contribution
 
