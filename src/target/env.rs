@@ -1,3 +1,9 @@
+use core::str::FromStr;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use error::Error;
+
 /// `target_env`: Target enviroment that disambiguates the target platform by ABI / libc.
 /// This value is closely related to the fourth element of the platform target triple,
 /// though it is not identical. For example, embedded ABIs such as `gnueabihf` will simply
@@ -16,6 +22,9 @@ pub enum Env {
     /// `uclibc`: C library for developing embedded Linux systems
     #[allow(non_camel_case_types)]
     uClibc,
+
+    /// Unknown target environment
+    Unknown,
 }
 
 impl Env {
@@ -26,7 +35,41 @@ impl Env {
             Env::MSVC => "msvc",
             Env::Musl => "musl",
             Env::uClibc => "uclibc",
+            Env::Unknown => "unknown",
         }
+    }
+}
+
+impl FromStr for Env {
+    type Err = Error;
+
+    /// Create a new `Env` from the given string
+    fn from_str(env_name: &str) -> Result<Self, Self::Err> {
+        let env = match env_name {
+            "gnu" => Env::GNU,
+            "msvc" => Env::MSVC,
+            "musl" => Env::Musl,
+            "uclibc" => Env::uClibc,
+            _ => return Err(Error),
+        };
+
+        Ok(env)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl Serialize for Env {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+#[cfg(all(feature = "serde", feature = "std"))]
+impl<'de> Deserialize<'de> for Env {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        // TODO: no_std support
+        use std::string::String;
+        Ok(Self::from_str(&String::deserialize(deserializer)?).unwrap_or(Env::Unknown))
     }
 }
 
@@ -43,11 +86,11 @@ pub const TARGET_ENV: Option<Env> = Some(Env::MSVC);
 
 #[cfg(target_env = "musl")]
 /// `target_env` when building this crate: `musl`
-pub const TARGET_ENV: Option<Env> = Some(Env::MUSL);
+pub const TARGET_ENV: Option<Env> = Some(Env::Musl);
 
 #[cfg(target_env = "uclibc")]
 /// `target_env` when building this crate: `uclibc`
-pub const TARGET_ENV: Option<Env> = Some(Env::MUSL);
+pub const TARGET_ENV: Option<Env> = Some(Env::uClibc);
 
 #[cfg(
     not(
