@@ -32,11 +32,11 @@ pub struct Platform {
     /// <https://github.com/rust-lang/rust/blob/master/src/librustc_target/spec/mod.rs>
     pub target_triple: &'static str,
 
-    /// Target OS `cfg` attribute (i.e. `cfg(target_os)`).
-    pub target_os: OS,
-
     /// Target architecture `cfg` attribute (i.e. `cfg(target_arch)`)
     pub target_arch: Arch,
+
+    /// Target OS `cfg` attribute (i.e. `cfg(target_os)`).
+    pub target_os: OS,
 
     /// Target environment `cfg` attribute (i.e. `cfg(target_env)`).
     /// Only used when needed for disambiguation, e.g. on many GNU platforms
