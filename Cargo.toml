@@ -9,9 +9,15 @@ readme      = "README.md"
 categories  = ["development-tools", "no-std"]
 keywords    = ["architectures", "cpu", "platforms", "os", "targets"]
 
+[badges]
+travis-ci = { repository = "rustsec/platforms-crate" }
+
 [dependencies]
 serde = { version =  "1", optional = true }
 
 [features]
 default = ["std"]
 std = []
+
+[workspace]
+members = ["markdown-table-gen"]
