@@ -1,3 +1,10 @@
+## [0.9.0] (2018-07-26)
+
+[0.9.0]: https://github.com/RustSec/rustsec-crate/compare/v0.8.0...v0.9.0
+
+* [#39](https://github.com/RustSec/rustsec-crate/pull/39)
+  Use "platforms" crate for platform-related functionality.
+
 ## [0.8.0] (2018-07-24)
 
 [0.8.0]: https://github.com/RustSec/rustsec-crate/compare/v0.7.5...v0.8.0
