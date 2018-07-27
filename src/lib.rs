@@ -12,8 +12,13 @@
 #![doc(html_root_url = "https://docs.rs/platforms/0.0.1")]
 #![no_std]
 
+#[cfg(feature = "serde")]
+extern crate serde;
 #[cfg(feature = "std")]
 extern crate std;
+
+/// Error types
+pub(crate) mod error;
 
 /// Rust platform types
 pub mod platform;
@@ -21,6 +26,7 @@ pub mod platform;
 /// Rust target types
 pub mod target;
 
+pub use error::Error;
 #[cfg(feature = "std")]
 pub use platform::PlatformReq;
 pub use platform::{Platform, ALL_PLATFORMS};

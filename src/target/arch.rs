@@ -1,3 +1,9 @@
+use core::str::FromStr;
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+use error::Error;
+
 /// `target_arch`: Target CPU architecture
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub enum Arch {
@@ -67,6 +73,49 @@ impl Arch {
             Arch::X86_64 => "x86_64",
             Arch::Unknown => "unknown",
         }
+    }
+}
+
+impl FromStr for Arch {
+    type Err = Error;
+
+    /// Create a new `Arch` from the given string
+    fn from_str(arch_name: &str) -> Result<Self, Self::Err> {
+        let arch = match arch_name {
+            "aarch64" => Arch::AARCH64,
+            "arm" => Arch::ARM,
+            "asmjs" => Arch::ASMJS,
+            "mips" => Arch::MIPS,
+            "mips64" => Arch::MIPS64,
+            "msp430" => Arch::MSP430,
+            "powerpc" => Arch::POWERPC,
+            "powerpc64" => Arch::POWERPC64,
+            "riscv" => Arch::RISCV,
+            "s390x" => Arch::S390X,
+            "sparc64" => Arch::SPARC64,
+            "wasm32" => Arch::WASM32,
+            "x86" => Arch::X86,
+            "x86_64" => Arch::X86_64,
+            _ => return Err(Error),
+        };
+
+        Ok(arch)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl Serialize for Arch {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+#[cfg(all(feature = "serde", feature = "std"))]
+impl<'de> Deserialize<'de> for Arch {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        // TODO: no_std support
+        use std::string::String;
+        Ok(Self::from_str(&String::deserialize(deserializer)?).unwrap_or(Arch::Unknown))
     }
 }
 
