@@ -14,6 +14,7 @@ chrono = { version = "0.4", optional = true }
 failure = "0.1"
 failure_derive = "0.1"
 git2 = "0.7"
+platforms = { version = "0.1", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
 serde = "1"
 serde_derive = "1"

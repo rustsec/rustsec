@@ -20,6 +20,7 @@ extern crate failure;
 #[macro_use]
 extern crate failure_derive;
 extern crate git2;
+extern crate platforms;
 extern crate semver;
 extern crate serde;
 #[macro_use]
