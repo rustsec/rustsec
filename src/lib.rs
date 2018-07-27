@@ -9,8 +9,8 @@
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unused_import_braces, unused_qualifications)]
 #![forbid(unsafe_code)]
+#![doc(html_root_url = "https://docs.rs/platforms/0.0.1")]
 #![no_std]
-#![doc(html_root_url = "https://docs.rs/platforms/0.0.0")]
 
 #[cfg(feature = "std")]
 extern crate std;
