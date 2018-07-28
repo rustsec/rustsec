@@ -1,3 +1,9 @@
+## [0.1.3] (2018-07-28)
+
+[0.1.3]: https://github.com/RustSec/platforms-crate/compare/v0.1.2...v0.1.3
+
+* Fix Travis CI badge in Cargo.toml
+
 ## [0.1.2] (2018-07-27)
 
 [0.1.2]: https://github.com/RustSec/platforms-crate/compare/v0.1.1...v0.1.2

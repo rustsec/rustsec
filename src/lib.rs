@@ -9,7 +9,7 @@
 #![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
 #![deny(unused_import_braces, unused_qualifications)]
 #![forbid(unsafe_code)]
-#![doc(html_root_url = "https://docs.rs/platforms/0.1.2")]
+#![doc(html_root_url = "https://docs.rs/platforms/0.1.3")]
 #![no_std]
 
 #[cfg(feature = "serde")]
