@@ -1,6 +1,14 @@
+## [0.5.2] (2018-07-29)
+
+[0.5.2]: https://github.com/RustSec/cargo-audit/compare/v0.5.1...v0.5.2
+
+* [#38](https://github.com/RustSec/cargo-audit/pull/38)
+  Have 'cargo audit version' exit with status 0
+  ([@tarcieri])
+
 ## [0.5.1] (2018-07-29)
 
-[0.5.1]: https://github.com/RustSec/cargo-audit/compare/v0.4.0...v0.5.0
+[0.5.1]: https://github.com/RustSec/cargo-audit/compare/v0.5.0...v0.5.1
 
 * [#37](https://github.com/RustSec/cargo-audit/pull/37)
   Refactoring and UI improvements.
