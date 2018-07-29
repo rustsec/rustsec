@@ -50,9 +50,9 @@ pub const I686_UNKNOWN_LINUX_GNU: Platform = Platform {
     tier: Tier::One,
 };
 
-/// `x86-64-apple-darwin`: 64-bit OSX (10.7+, Lion+)
+/// `x86_64-apple-darwin`: 64-bit OSX (10.7+, Lion+)
 pub const X86_64_APPLE_DARWIN: Platform = Platform {
-    target_triple: "x86-64-apple-darwin",
+    target_triple: "x86_64-apple-darwin",
     target_arch: Arch::X86_64,
     target_os: OS::MacOS,
     target_env: None,
