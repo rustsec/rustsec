@@ -56,6 +56,9 @@ fn print_platforms_table() {
 
         print_platform_entry(platform);
     }
+
+    // Print markdown links for lowest tier
+    print_platform_links();
 }
 
 /// Print the table headers for a particular tier
@@ -63,8 +66,8 @@ fn print_table_header(tier: Tier) {
     println!("### Tier {}\n", tier.to_usize());
 
     println!(
-        "| target triple                   | target_arch | target_os  | target_env |\n\
-         |---------------------------------|-------------|------------|------------|"
+        "| target triple                     | target_arch | target_os  | target_env |\n\
+         |-----------------------------------|-------------|------------|------------|"
     );
 }
 
@@ -72,8 +75,8 @@ fn print_table_header(tier: Tier) {
 fn print_platform_entry(platform: &Platform) {
     print!(
         "| {:width$} | ",
-        platform.target_triple,
-        width = TARGET_TRIPLE_WIDTH
+        "[".to_owned() + platform.target_triple + "]",
+        width = TARGET_TRIPLE_WIDTH + 2 // add extra width for link brackets
     );
 
     print!(
@@ -94,4 +97,18 @@ fn print_platform_entry(platform: &Platform) {
         .unwrap_or("\"\"");
 
     println!("{:width$} |", target_env, width = TARGET_ENV_WIDTH);
+}
+
+/// Print Markdown links to specific platform struct definitions on docs.rs
+fn print_platform_links() {
+    println!();
+
+    for platform in ALL_PLATFORMS {
+        println!(
+            "[{}]: https://docs.rs/platforms/latest/platforms/platform/tier{}/constant.{}.html",
+            platform.target_triple,
+            platform.tier.to_usize(),
+            platform.target_triple.to_uppercase().replace('-', "_")
+        );
+    }
 }
