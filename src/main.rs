@@ -24,7 +24,14 @@ use rustsec::{
     Advisory, AdvisoryDatabase, ErrorKind, Lockfile, Package, Repository, Vulnerabilities,
     Vulnerability, ADVISORY_DB_REPO_URL,
 };
-use std::{env, path::PathBuf, process::exit};
+use std::{
+    env,
+    path::{Path, PathBuf},
+    process::exit,
+};
+
+/// Name of `Cargo.lock`
+const CARGO_LOCK_FILE: &str = "Cargo.lock";
 
 /// Command line arguments (parsed by gumdrop)
 #[derive(Debug, Options)]
@@ -58,7 +65,7 @@ struct AuditOpts {
         long = "file",
         help = "Cargo lockfile to inspect (default: Cargo.lock)"
     )]
-    file: String,
+    file: Option<String>,
 
     /// Allow stale advisory databases that haven't been recently updated
     #[options(no_short, long = "stale", help = "allow stale database")]
@@ -101,7 +108,7 @@ impl Default for AuditOpts {
         AuditOpts {
             color: "auto".into(),
             db: None,
-            file: "Cargo.lock".into(),
+            file: None,
             stale: false,
             target_arch: None,
             target_os: None,
@@ -131,7 +138,9 @@ fn main() {
         help();
     });
 
-    audit(&opts);
+    shell::init(&opts.color);
+
+    audit(&opts, &load_advisory_db(&opts));
 }
 
 /// Print help message
@@ -153,41 +162,61 @@ fn version() -> ! {
     exit(2);
 }
 
-/// Run the audit operation
-fn audit(opts: &AuditOpts) -> ! {
-    shell::init(&opts.color);
-
-    let lockfile = Lockfile::load(&opts.file).unwrap_or_else(|e| match e.kind() {
-        ErrorKind::Io => {
-            not_found(&opts.file);
-            exit(1);
-        }
-        _ => panic!("Couldn't load {}: {}", opts.file, e),
-    });
-
-    status_ok!("Fetching", "advisory database from `{}`", opts.url);
-
-    let advisory_db = opts
+/// Load the advisory database
+fn load_advisory_db(opts: &AuditOpts) -> AdvisoryDatabase {
+    let advisory_repo_path = opts
         .db
         .as_ref()
         .map(PathBuf::from)
         .unwrap_or_else(Repository::default_path);
 
-    let repo = Repository::fetch(&opts.url, &advisory_db, !opts.stale).unwrap_or_else(|e| {
-        status_error!("couldn't fetch advisory database: {}", e);
-        exit(1);
-    });
+    status_ok!("Fetching", "advisory database from `{}`", opts.url);
 
-    let advisory_db = AdvisoryDatabase::from_repository(&repo).unwrap_or_else(|e| {
+    let advisory_db_repo = Repository::fetch(&opts.url, &advisory_repo_path, !opts.stale)
+        .unwrap_or_else(|e| {
+            status_error!("couldn't fetch advisory database: {}", e);
+            exit(1);
+        });
+
+    let advisory_db = AdvisoryDatabase::from_repository(&advisory_db_repo).unwrap_or_else(|e| {
         status_error!("error loading advisory database: {}", e);
         exit(1);
     });
 
     status_ok!(
+        "Loaded",
+        "{} security advisories (from {})",
+        advisory_db.advisories().count(),
+        advisory_repo_path.display()
+    );
+
+    advisory_db
+}
+
+/// Run the audit operation
+fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
+    let lockfile_path = opts
+        .file
+        .as_ref()
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(CARGO_LOCK_FILE));
+
+    let lockfile = Lockfile::load(&lockfile_path).unwrap_or_else(|e| match e.kind() {
+        ErrorKind::Io => {
+            not_found(&lockfile_path);
+            exit(1);
+        }
+        _ => {
+            status_error!("Couldn't load {}: {}", lockfile_path.display(), e);
+            exit(1);
+        }
+    });
+
+    status_ok!(
         "Scanning",
-        "{} crates for vulnerabilities ({} advisories in database)",
+        "{} for vulnerabilities ({} crate dependencies)",
+        lockfile_path.display(),
         lockfile.packages.len(),
-        advisory_db.advisories().count()
     );
 
     let all_matching_vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
@@ -238,8 +267,8 @@ fn match_vulnerability(vuln: &Vulnerability, opts: &AuditOpts) -> bool {
     true
 }
 
-fn not_found(filename: &str) {
-    status_error!("Couldn't find '{}'!", filename);
+fn not_found(path: &Path) {
+    status_error!("Couldn't find '{}'!", path.display());
     println!("\nRun \"cargo build\" to generate lockfile before running audit");
 }
 
