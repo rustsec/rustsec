@@ -1,3 +1,10 @@
+## [0.9.1] (2018-07-29)
+
+[0.9.1]: https://github.com/RustSec/rustsec-crate/compare/v0.9.0...v0.9.1
+
+* [#40](https://github.com/RustSec/rustsec-crate/pull/40)
+  Use Cargo's git authentication helper.
+
 ## [0.9.0] (2018-07-26)
 
 [0.9.0]: https://github.com/RustSec/rustsec-crate/compare/v0.8.0...v0.9.0
