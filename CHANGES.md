@@ -1,3 +1,11 @@
+## [0.5.0] (2018-07-29)
+
+[0.5.0]: https://github.com/RustSec/cargo-audit/compare/v0.4.0...v0.5.0
+
+* [#36](https://github.com/RustSec/cargo-audit/pull/36)
+  Upgrade "rustsec" crate to 0.9.
+  ([@tarcieri])
+
 ## [0.4.0] (2018-07-24)
 
 [0.4.0]: https://github.com/RustSec/cargo-audit/compare/v0.3.2...v0.4.0
