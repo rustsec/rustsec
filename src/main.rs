@@ -159,7 +159,7 @@ fn version() -> ! {
         " ",
         env!("CARGO_PKG_VERSION")
     ));
-    exit(2);
+    exit(0);
 }
 
 /// Load the advisory database
