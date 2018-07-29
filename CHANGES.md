@@ -1,3 +1,13 @@
+## [0.1.4] (2018-07-29)
+
+[0.1.4]: https://github.com/RustSec/platforms-crate/compare/v0.1.3...v0.1.4
+
+* [#6](https://github.com/RustSec/platforms-crate/pull/6)
+  `x86_64-apple-darwin`: fix typo in target triple name.
+
+* [#5](https://github.com/RustSec/platforms-crate/pull/5)
+  Have markdown-table-gen output links to Platform structs on docs.rs.
+
 ## [0.1.3] (2018-07-28)
 
 [0.1.3]: https://github.com/RustSec/platforms-crate/compare/v0.1.2...v0.1.3
