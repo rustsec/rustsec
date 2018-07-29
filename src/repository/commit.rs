@@ -1,8 +1,6 @@
 #[cfg(feature = "chrono")]
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
-use git2::ObjectType;
-#[cfg(feature = "chrono")]
-use git2::{Oid, ResetType};
+use git2;
 
 #[cfg(feature = "chrono")]
 use super::DAYS_UNTIL_STALE;
@@ -47,7 +45,7 @@ impl Commit {
         })?;
 
         let commit_id = oid.to_string();
-        let commit_object = repo.repo.find_object(oid, Some(ObjectType::Commit))?;
+        let commit_object = repo.repo.find_object(oid, Some(git2::ObjectType::Commit))?;
         let commit = commit_object.as_commit().unwrap();
         let author = commit.author().to_string();
 
@@ -87,12 +85,13 @@ impl Commit {
     #[cfg(feature = "chrono")]
     pub(crate) fn reset(&self, repo: &Repository) -> Result<(), Error> {
         let commit_object = repo.repo.find_object(
-            Oid::from_str(&self.commit_id).unwrap(),
-            Some(ObjectType::Commit),
+            git2::Oid::from_str(&self.commit_id).unwrap(),
+            Some(git2::ObjectType::Commit),
         )?;
 
         // Reset the state of the repository to the latest commit
-        repo.repo.reset(&commit_object, ResetType::Hard, None)?;
+        repo.repo
+            .reset(&commit_object, git2::ResetType::Hard, None)?;
 
         Ok(())
     }
