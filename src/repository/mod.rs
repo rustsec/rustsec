@@ -1,12 +1,11 @@
 //! Git repository handling for the RustSec advisory DB
 
-use git2::{self, RepositoryState};
-#[cfg(feature = "chrono")]
-use git2::{AutotagOption, FetchOptions};
+use git2;
 use std::{env, fs, path::PathBuf, vec};
 
 use error::{Error, ErrorKind};
 
+mod authentication;
 mod commit;
 mod file;
 mod signature;
@@ -14,6 +13,8 @@ mod signature;
 pub use self::commit::Commit;
 pub(crate) use self::file::RepoFile;
 pub use self::signature::Signature;
+
+use self::authentication::with_authentication;
 
 /// Location of the RustSec advisory database for crates.io
 pub const ADVISORY_DB_REPO_URL: &str = "https://github.com/RustSec/advisory-db.git";
@@ -85,33 +86,44 @@ impl Repository {
             fail!(ErrorKind::BadParam, "invalid directory: {}", path.display())
         }
 
-        if path.exists() {
-            let repo = git2::Repository::open(&path)?;
-            let refspec = LOCAL_MASTER_REF.to_owned() + ":" + REMOTE_MASTER_REF;
+        let git_config = git2::Config::new()?;
 
-            let mut fetch_opts = FetchOptions::new();
-            fetch_opts.download_tags(AutotagOption::All);
+        with_authentication(url, &git_config, |f| {
+            let mut callbacks = git2::RemoteCallbacks::new();
+            callbacks.credentials(f);
 
-            // Fetch remote packfiles and update tips
-            let mut remote = repo.remote_anonymous(url)?;
-            remote.fetch(&[refspec.as_str()], Some(&mut fetch_opts), None)?;
+            let mut fetch_opts = git2::FetchOptions::new();
+            fetch_opts.remote_callbacks(callbacks);
 
-            // Get the current remote tip (as an updated local reference)
-            let remote_master_ref = repo.find_reference(REMOTE_MASTER_REF)?;
-            let remote_target = remote_master_ref.target().unwrap();
+            if path.exists() {
+                let repo = git2::Repository::open(&path)?;
+                let refspec = LOCAL_MASTER_REF.to_owned() + ":" + REMOTE_MASTER_REF;
 
-            // Set the local master ref to match the remote
-            let mut local_master_ref = repo.find_reference(LOCAL_MASTER_REF)?;
-            local_master_ref.set_target(
-                remote_target,
-                &format!(
-                    "rustsec: moving master to {}: {}",
-                    REMOTE_MASTER_REF, &remote_target
-                ),
-            )?;
-        } else {
-            git2::Repository::clone(url, &path)?;
-        }
+                // Fetch remote packfiles and update tips
+                let mut remote = repo.remote_anonymous(url)?;
+                remote.fetch(&[refspec.as_str()], Some(&mut fetch_opts), None)?;
+
+                // Get the current remote tip (as an updated local reference)
+                let remote_master_ref = repo.find_reference(REMOTE_MASTER_REF)?;
+                let remote_target = remote_master_ref.target().unwrap();
+
+                // Set the local master ref to match the remote
+                let mut local_master_ref = repo.find_reference(LOCAL_MASTER_REF)?;
+                local_master_ref.set_target(
+                    remote_target,
+                    &format!(
+                        "rustsec: moving master to {}: {}",
+                        REMOTE_MASTER_REF, &remote_target
+                    ),
+                )?;
+            } else {
+                git2::build::RepoBuilder::new()
+                    .fetch_options(fetch_opts)
+                    .clone(url, &path)?;
+            }
+
+            Ok(())
+        })?;
 
         let repo = Self::open(path)?;
         let latest_commit = repo.latest_commit()?;
@@ -144,7 +156,7 @@ impl Repository {
 
         // Ensure the repo is in a clean state
         match repo.state() {
-            RepositoryState::Clean => Ok(Repository { path, repo }),
+            git2::RepositoryState::Clean => Ok(Repository { path, repo }),
             state => fail!(ErrorKind::Repo, "bad repository state: {:?}", state),
         }
     }
