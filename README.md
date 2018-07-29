@@ -48,7 +48,7 @@ please use those for build purposes.
 | [i686-pc-windows-gnu]             | x86         | windows    | gnu        |
 | [i686-pc-windows-msvc]            | x86         | windows    | msvc       |
 | [i686-unknown-linux-gnu]          | x86         | linux      | gnu        |
-| [x86-64-apple-darwin]             | x86_64      | macos      | ""         |
+| [x86_64-apple-darwin]             | x86_64      | macos      | ""         |
 | [x86_64-pc-windows-gnu]           | x86_64      | windows    | gnu        |
 | [x86_64-pc-windows-msvc]          | x86_64      | windows    | msvc       |
 | [x86_64-unknown-linux-gnu]        | x86_64      | linux      | gnu        |
@@ -134,7 +134,7 @@ please use those for build purposes.
 [i686-pc-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.I686_PC_WINDOWS_GNU.html
 [i686-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.I686_PC_WINDOWS_MSVC.html
 [i686-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.I686_UNKNOWN_LINUX_GNU.html
-[x86-64-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_APPLE_DARWIN.html
+[x86_64-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_APPLE_DARWIN.html
 [x86_64-pc-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_PC_WINDOWS_GNU.html
 [x86_64-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_PC_WINDOWS_MSVC.html
 [x86_64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_UNKNOWN_LINUX_GNU.html
