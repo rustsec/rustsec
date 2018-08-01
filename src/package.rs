@@ -4,7 +4,7 @@ use semver::Version;
 use std::fmt;
 
 /// A Rust package (i.e. crate) as structured in `Cargo.lock`
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Package {
     /// Name of a crate
     pub name: PackageName,
