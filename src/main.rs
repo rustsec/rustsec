@@ -17,6 +17,7 @@ extern crate lazy_static;
 extern crate platforms;
 extern crate rustsec;
 extern crate term;
+#[macro_use]
 extern crate serde_json;
 
 use gumdrop::Options;
@@ -249,8 +250,25 @@ fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
     status_error!("Vulnerable crates found!");
 
     if opts.output_json {
-        let json = serde_json::to_string(&vulnerabilities).unwrap();
-        println!("{}", json);
+        let json = json!({
+            "database": {
+                // TODO: AdvisoryDatabase does not know the Repository from which it was
+                //       created. Making the Repository available in this scope would be
+                //       of questionable value unless it was easily accessible.
+                //"url": advisory_db,
+                "advisory-count": advisory_db.advisories().count(),
+            },
+            "lockfile": {
+                "path": lockfile_path,
+                "dependency-count": lockfile.packages.len(),
+            },
+            "vulnerabilities": {
+                "found": true,
+                "count": vulnerabilities.len(),
+                "list": vulnerabilities
+            },
+        });
+        println!("{}", json.to_string());
     } else {
         for vuln in &vulnerabilities {
             display_advisory(&vuln.package, &vuln.advisory);
