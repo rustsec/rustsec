@@ -148,9 +148,13 @@ fn main() {
         help();
     });
 
-    shell::init(&opts.color);
+    shell::init(&opts.color, use_stdout_for_status(&opts));
 
     audit(&opts, &load_advisory_db(&opts));
+}
+
+fn use_stdout_for_status(opts: &AuditOpts) -> bool {
+    !opts.output_json
 }
 
 /// Print help message
