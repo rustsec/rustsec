@@ -17,6 +17,7 @@ extern crate lazy_static;
 extern crate platforms;
 extern crate rustsec;
 extern crate term;
+extern crate serde_json;
 
 use gumdrop::Options;
 use platforms::target::{Arch, OS};
@@ -94,6 +95,14 @@ struct AuditOpts {
         help = "URL for advisory database git repo"
     )]
     url: String,
+
+    /// Output reports as JSON
+    #[options(
+        no_short,
+        long = "json",
+        help = "Output report in JSON format"
+    )]
+    output_json: bool,
 }
 
 /// Options for the `help` command
@@ -113,6 +122,7 @@ impl Default for AuditOpts {
             target_arch: None,
             target_os: None,
             url: ADVISORY_DB_REPO_URL.into(),
+            output_json: false,
         }
     }
 }
@@ -234,8 +244,13 @@ fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
 
     status_error!("Vulnerable crates found!");
 
-    for vuln in &vulnerabilities {
-        display_advisory(&vuln.package, &vuln.advisory);
+    if opts.output_json {
+        let json = serde_json::to_string(&vulnerabilities).unwrap();
+        println!("{}", json);
+    } else {
+        for vuln in &vulnerabilities {
+            display_advisory(&vuln.package, &vuln.advisory);
+        }
     }
 
     if vulnerabilities.is_empty() {
