@@ -50,6 +50,10 @@ impl Repository {
     pub fn default_path() -> PathBuf {
         if let Some(path) = env::var_os("CARGO_HOME") {
             PathBuf::from(path).join(ADVISORY_DB_DIRECTORY)
+        } else if let Some(path) = env::var_os("HOME") {
+            PathBuf::from(path)
+                .join(".cargo")
+                .join(ADVISORY_DB_DIRECTORY)
         } else {
             panic!("Can't locate CARGO_HOME!");
         }
