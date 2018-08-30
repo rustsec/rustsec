@@ -11,6 +11,7 @@ keywords      = ["rustsec", "security", "advisory", "vulnerability"]
 
 [dependencies]
 chrono = { version = "0.4", optional = true }
+directories = "1.0.1"
 failure = "0.1"
 failure_derive = "0.1"
 git2 = "0.7"

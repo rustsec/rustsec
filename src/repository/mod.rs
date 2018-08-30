@@ -48,10 +48,12 @@ pub struct Repository {
 impl Repository {
     /// Location of the default `advisory-db` repository for crates.io
     pub fn default_path() -> PathBuf {
+        use directories::UserDirs;
+
         if let Some(path) = env::var_os("CARGO_HOME") {
             PathBuf::from(path).join(ADVISORY_DB_DIRECTORY)
-        } else if let Some(path) = env::var_os("HOME") {
-            PathBuf::from(path)
+        } else if let Some(user_dirs) = UserDirs::new() {
+            PathBuf::from(user_dirs.home_dir())
                 .join(".cargo")
                 .join(ADVISORY_DB_DIRECTORY)
         } else {

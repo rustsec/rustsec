@@ -16,6 +16,7 @@
 
 #[cfg(feature = "chrono")]
 extern crate chrono;
+extern crate directories;
 extern crate failure;
 #[macro_use]
 extern crate failure_derive;
