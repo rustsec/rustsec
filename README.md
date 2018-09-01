@@ -20,20 +20,15 @@ Client library for accessing the RustSec security advisory database:
 fetches the [advisory-db] (or other compatible) git repository and
 audits `Cargo.lock` files against it.
 
-[advisory-db]: https://github.com/RustSec/advisory-db
+[Documentation]
 
 ## About
-
-[Documentation]
 
 The `rustsec` crate is primarily intended to be used by the [cargo-audit] crate
 for the purposes of identifying vulnerable crates in Cargo.lock files.
 
 However, it may be useful if you would like to consume the RustSec advisory
 database in other capacities.
-
-[Documentation]: https://docs.rs/rustsec/
-[cargo-audit]: https://github.com/rustsec/cargo-audit
 
 ## License
 
@@ -44,11 +39,14 @@ Licensed under either of:
 
 at your option.
 
-[LICENSE-APACHE]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-MIT
-
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you shall be dual licensed as above, without any
 additional terms or conditions.
+
+[advisory-db]: https://github.com/RustSec/advisory-db
+[Documentation]: https://docs.rs/rustsec/
+[cargo-audit]: https://github.com/rustsec/cargo-audit
+[LICENSE-APACHE]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-MIT
