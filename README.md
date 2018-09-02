@@ -23,7 +23,9 @@ This implements an idea originally proposed in this (closed) RFC:
 
 https://github.com/rust-lang/rfcs/pull/1752
 
-[RustSec Advisory Database]: https://github.com/RustSec/advisory-db/
+## Requirements
+
+`cargo audit` requires Rust **1.25** or later.
 
 ## Installation
 
@@ -33,12 +35,12 @@ https://github.com/rust-lang/rfcs/pull/1752
 $ cargo install cargo-audit
 ```
 
-Once installed, it can be run on the toplevel of any Cargo project.
+Once installed, run `cargo audit` at the toplevel of any Cargo project.
 
 ## Reporting Vulnerabilities
 
-Vulneraties can be reported by opening pull requests against the
-[RustSec Advisory Database] GitHub repo:
+Report vulnerabilities by opening pull requests against the [RustSec Advisory Database]
+GitHub repo:
 
 <a href="https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md">
   <img alt="Report Vulnerability" width="250px" height="60px" src="https://rustsec.org/assets/img/report-vuln-button.svg">
@@ -57,11 +59,12 @@ Licensed under either of:
 
 at your option.
 
-[LICENSE-APACHE]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-MIT
-
 ### Contribution
 
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you shall be dual licensed as above, without any
 additional terms or conditions.
+
+[RustSec Advisory Database]: https://github.com/RustSec/advisory-db/
+[LICENSE-APACHE]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-MIT
