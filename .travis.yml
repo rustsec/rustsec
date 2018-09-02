@@ -5,6 +5,7 @@ branches:
     - master
 
 rust:
+  - 1.25.0
   - stable
   - beta
   - nightly
@@ -16,7 +17,7 @@ os:
 matrix:
   fast_finish: true
   allow_failures:
-    - os: osx
+    - rust: nightly
 
 notifications:
   irc: 'irc.mozilla.org#rustsec'
