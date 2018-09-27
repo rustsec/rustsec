@@ -122,12 +122,10 @@ impl Serialize for OS {
     }
 }
 
-#[cfg(all(feature = "serde", feature = "std"))]
+#[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for OS {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        // TODO: no_std support
-        use std::string::String;
-        Ok(Self::from_str(&String::deserialize(deserializer)?).unwrap_or(OS::Unknown))
+        Ok(Self::from_str(<&str>::deserialize(deserializer)?).unwrap_or(OS::Unknown))
     }
 }
 

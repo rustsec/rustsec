@@ -130,7 +130,7 @@ pub const ALL_PLATFORMS: &[Platform] = &[
     tier3::X86_64_UNKNOWN_OPENBSD,
 ];
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod tests {
     use super::ALL_PLATFORMS;
     use std::collections::HashSet;
