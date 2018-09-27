@@ -18,5 +18,18 @@ matrix:
   allow_failures:
     - os: osx
 
+script:
+  - cargo build --verbose
+  - cargo test --verbose
+
+  - cargo build --verbose --features serde
+  - cargo test --verbose --features serde
+
+  - cargo build --verbose --no-default-features
+  - cargo test --verbose --no-default-features
+
+  - cargo build --verbose --no-default-features --features serde
+  - cargo test --verbose --no-default-features --features serde
+
 notifications:
   irc: 'irc.mozilla.org#rustsec'
