@@ -1,3 +1,10 @@
+## [0.9.2] (2018-10-14)
+
+[0.9.2]: https://github.com/RustSec/rustsec-crate/pull/48
+
+* [#47](https://github.com/RustSec/rustsec-crate/pull/47)
+  Handle cloning advisory DB into existing, empty dir.
+
 ## [0.9.1] (2018-07-29)
 
 [0.9.1]: https://github.com/RustSec/rustsec-crate/compare/v0.9.0...v0.9.1
