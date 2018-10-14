@@ -1,12 +1,16 @@
 extern crate rustsec;
 extern crate semver;
+extern crate tempfile;
 
-use rustsec::{AdvisoryDatabase, AdvisoryId, Lockfile, PackageName};
+use rustsec::{
+    AdvisoryDatabase, AdvisoryId, Lockfile, PackageName, Repository, ADVISORY_DB_REPO_URL,
+};
 use semver::VersionReq;
+use tempfile::tempdir;
 
-// End-to-end integration test (has online dependency on GitHub)
+/// End-to-end integration test (has online dependency on GitHub)
 #[test]
-fn test_integration() {
+fn happy_path() {
     let db = AdvisoryDatabase::fetch().unwrap();
     let example_advisory_id = AdvisoryId::new("RUSTSEC-2017-0001").unwrap();
     let example_advisory = db.find(&example_advisory_id).unwrap();
@@ -39,4 +43,14 @@ fn test_integration() {
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
     let vulns = db.vulnerabilities(&lockfile);
     assert!(vulns.is_empty());
+}
+
+/// Regression test for cloning into an existing directory
+#[test]
+fn clone_into_existing_directory() {
+    // Make an empty temporary directory
+    let tmp = tempdir().unwrap();
+
+    // Attempt to fetch into it
+    Repository::fetch(ADVISORY_DB_REPO_URL, tmp.path(), true).unwrap();
 }
