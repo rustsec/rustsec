@@ -92,6 +92,14 @@ impl Repository {
             fail!(ErrorKind::BadParam, "invalid directory: {}", path.display())
         }
 
+        // Avoid libgit2 errors in the case the directory exists but is
+        // otherwise empty.
+        //
+        // See: https://github.com/RustSec/cargo-audit/issues/32
+        if path.is_dir() && fs::read_dir(&path)?.next().is_none() {
+            fs::remove_dir(&path)?;
+        }
+
         let git_config = git2::Config::new()?;
 
         with_authentication(url, &git_config, |f| {

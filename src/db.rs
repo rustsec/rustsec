@@ -114,8 +114,7 @@ impl AdvisoryDatabase {
                     .patched_versions
                     .iter()
                     .any(|req| req.matches(version))
-            })
-            .map(|a| *a)
+            }).map(|a| *a)
             .collect()
     }
 
