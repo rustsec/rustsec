@@ -86,7 +86,7 @@ impl Repository {
 
         if let Some(parent) = path.parent() {
             if !parent.is_dir() {
-                fail!(ErrorKind::BadParam, "not a directory: {}", parent.display());
+                fs::create_dir_all(parent)?;
             }
         } else {
             fail!(ErrorKind::BadParam, "invalid directory: {}", path.display())
