@@ -9,6 +9,7 @@
 mod shell;
 
 extern crate gumdrop;
+#[allow(unused_imports)]
 #[macro_use]
 extern crate gumdrop_derive;
 extern crate isatty;
