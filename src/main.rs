@@ -18,6 +18,8 @@ extern crate lazy_static;
 extern crate platforms;
 extern crate rustsec;
 extern crate term;
+#[macro_use]
+extern crate serde_json;
 
 use gumdrop::Options;
 use platforms::target::{Arch, OS};
@@ -95,6 +97,14 @@ struct AuditOpts {
         help = "URL for advisory database git repo"
     )]
     url: String,
+
+    /// Output reports as JSON
+    #[options(
+        no_short,
+        long = "json",
+        help = "Output report in JSON format"
+    )]
+    output_json: bool,
 }
 
 /// Options for the `help` command
@@ -114,6 +124,7 @@ impl Default for AuditOpts {
             target_arch: None,
             target_os: None,
             url: ADVISORY_DB_REPO_URL.into(),
+            output_json: false,
         }
     }
 }
@@ -139,9 +150,13 @@ fn main() {
         help();
     });
 
-    shell::init(&opts.color);
+    shell::init(&opts.color, use_stdout_for_status(&opts));
 
     audit(&opts, &load_advisory_db(&opts));
+}
+
+fn use_stdout_for_status(opts: &AuditOpts) -> bool {
+    !opts.output_json
 }
 
 /// Print help message
@@ -235,8 +250,30 @@ fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
 
     status_error!("Vulnerable crates found!");
 
-    for vuln in &vulnerabilities {
-        display_advisory(&vuln.package, &vuln.advisory);
+    if opts.output_json {
+        let json = json!({
+            "database": {
+                // TODO: AdvisoryDatabase does not know the Repository from which it was
+                //       created. Making the Repository available in this scope would be
+                //       of questionable value unless it was easily accessible.
+                //"url": advisory_db,
+                "advisory-count": advisory_db.advisories().count(),
+            },
+            "lockfile": {
+                "path": lockfile_path,
+                "dependency-count": lockfile.packages.len(),
+            },
+            "vulnerabilities": {
+                "found": true,
+                "count": vulnerabilities.len(),
+                "list": vulnerabilities
+            },
+        });
+        println!("{}", json.to_string());
+    } else {
+        for vuln in &vulnerabilities {
+            display_advisory(&vuln.package, &vuln.advisory);
+        }
     }
 
     if vulnerabilities.is_empty() {
