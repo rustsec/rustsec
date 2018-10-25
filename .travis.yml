@@ -5,7 +5,7 @@ branches:
     - master
 
 rust:
-  - 1.25.0
+  - 1.26.2
   - stable
   - beta
   - nightly
