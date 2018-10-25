@@ -21,7 +21,7 @@ lazy_static! {
 }
 
 /// Initialize the shell
-pub fn init(color_config: &str) {
+pub fn init(color_config: &str, use_stdout: bool) {
     let config = ShellConfig {
         color_config: match color_config {
             "always" => ColorConfig::Always,
@@ -31,7 +31,16 @@ pub fn init(color_config: &str) {
         tty: stdout_isatty(),
     };
 
-    let shell = Shell::new(|| Box::new(io::stdout()), config);
+    let shell = Shell::new(
+        || {
+            if use_stdout {
+                Box::new(io::stdout())
+            } else {
+                Box::new(io::stderr())
+            }
+        },
+        config,
+    );
     SHELL.lock().unwrap().replace(Some(shell));
 }
 
