@@ -37,6 +37,18 @@ $ cargo install cargo-audit
 
 Once installed, run `cargo audit` at the toplevel of any Cargo project.
 
+## Using `cargo audit` on Travis CI
+
+To automaticlly run `cargo audit` on every build in Travis CI, you can add the following to your `.travis.yml`:
+
+```yaml
+language: rust
+before_script:
+  - cargo install --force cargo-audit
+script:
+  - cargo audit
+```
+
 ## Reporting Vulnerabilities
 
 Report vulnerabilities by opening pull requests against the [RustSec Advisory Database]
