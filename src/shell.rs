@@ -3,7 +3,7 @@
 //! Some portions borrowed from the Cargo project: https://github.com/rust-lang/cargo
 //! These portions are redistributed under the same license as Cargo (shared by cargo-audit itself)
 
-use isatty::stdout_isatty;
+use atty::{self, Stream};
 use std::{
     cell::RefCell,
     fmt,
@@ -28,7 +28,7 @@ pub fn init(color_config: &str, use_stdout: bool) {
             "never" => ColorConfig::Never,
             _ => ColorConfig::Auto,
         },
-        tty: stdout_isatty(),
+        tty: atty::is(Stream::Stdout),
     };
 
     let shell = Shell::new(
