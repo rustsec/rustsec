@@ -13,9 +13,9 @@ keywords      = ["cargo-subcommand", "security", "audit", "vulnerability"]
 name = "cargo-audit"
 
 [dependencies]
-gumdrop = "0.4"
-gumdrop_derive = "0.4"
-isatty = "0.1"
+atty = "0.2"
+gumdrop = "0.5"
+gumdrop_derive = "0.5"
 lazy_static = "1"
 platforms = "0.1"
 rustsec = "0.9.3"
