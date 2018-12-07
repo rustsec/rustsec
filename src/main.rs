@@ -133,14 +133,12 @@ fn main() {
     let args: Vec<_> = env::args().collect();
 
     if args.len() < 2 {
-        help();
-        exit(2);
+        help(2);
     }
 
     if args.len() > 2 {
         if args[2] == "help" || args[2] == "--help" {
-            help();
-            exit(0);
+            help(0);
         }
 
         if args[2] == "version" || args[2] == "--version" {
@@ -149,8 +147,7 @@ fn main() {
     }
 
     let Opts::Audit(opts) = Opts::parse_args_default(&args[1..]).unwrap_or_else(|_| {
-        help();
-        exit(1);
+        help(1);
     });
 
     shell::init(&opts.color, use_stdout_for_status(&opts));
@@ -163,11 +160,12 @@ fn use_stdout_for_status(opts: &AuditOpts) -> bool {
 }
 
 /// Print help message
-fn help() -> ! {
+fn help(code: i32) -> ! {
     println!("Usage: cargo audit [OPTIONS]");
     println!();
     println!("{}", Opts::command_usage("audit").unwrap());
-
+    
+    exit(code);
 }
 
 /// Print version message
