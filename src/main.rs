@@ -133,7 +133,7 @@ fn main() {
     let args: Vec<_> = env::args().collect();
 
     if args.len() < 2 {
-        help(2);
+        help(1);
     }
 
     if args.len() > 2 {
