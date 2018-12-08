@@ -164,7 +164,7 @@ fn help(code: i32) -> ! {
     println!("Usage: cargo audit [OPTIONS]");
     println!();
     println!("{}", Opts::command_usage("audit").unwrap());
-    
+ 
     exit(code);
 }
 
