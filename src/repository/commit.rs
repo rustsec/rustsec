@@ -1,11 +1,10 @@
 #[cfg(feature = "chrono")]
-use chrono::{DateTime, Duration, NaiveDateTime, Utc};
-use git2;
-
-#[cfg(feature = "chrono")]
 use super::DAYS_UNTIL_STALE;
 use super::{signature::Signature, Repository};
-use error::{Error, ErrorKind};
+use crate::error::{Error, ErrorKind};
+#[cfg(feature = "chrono")]
+use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use git2;
 
 /// Information about a commit to the Git repository
 #[derive(Debug)]
@@ -55,7 +54,10 @@ impl Commit {
             .to_owned();
 
         let (signature, signed_data) = match repo.repo.extract_signature(&oid, None) {
-            Ok((sig, data)) => (Some(Signature::new(&*sig)?), Some(Vec::from(&*data))),
+            Ok((ref sig, ref data)) => (
+                Some(Signature::from_bytes(sig)?),
+                Some(data.as_ref().into()),
+            ),
             _ => (None, None),
         };
 

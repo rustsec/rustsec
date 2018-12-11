@@ -1,10 +1,9 @@
+use crate::error::Error;
 use std::{
     fs::File,
     io::Read,
     path::{Path, PathBuf},
 };
-
-use error::Error;
 
 /// File stored in the repository
 #[derive(Debug)]
@@ -12,6 +11,7 @@ pub(crate) struct RepoFile(PathBuf);
 
 impl RepoFile {
     /// Create a RepoFile from a relative repo `Path` and a `File`
+    #[allow(clippy::new_ret_no_self)]
     pub fn new<P: Into<PathBuf>>(path: P) -> Result<RepoFile, Error> {
         Ok(RepoFile(path.into()))
     }
