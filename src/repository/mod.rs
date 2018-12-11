@@ -1,18 +1,15 @@
 //! Git repository handling for the RustSec advisory DB
 
-use git2;
-use std::{env, fs, path::PathBuf, vec};
-
-use error::{Error, ErrorKind};
-
 mod authentication;
 mod commit;
 mod file;
 mod signature;
 
-pub use self::commit::Commit;
 pub(crate) use self::file::RepoFile;
-pub use self::signature::Signature;
+pub use self::{commit::Commit, signature::Signature};
+use crate::error::{Error, ErrorKind};
+use git2;
+use std::{env, fs, path::PathBuf, vec};
 
 use self::authentication::with_authentication;
 

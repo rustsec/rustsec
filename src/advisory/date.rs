@@ -1,8 +1,8 @@
+use crate::error::{Error, ErrorKind};
 #[cfg(feature = "chrono")]
 use chrono::{self, DateTime, Utc};
 use serde::{de::Error as DeError, Deserialize, Deserializer};
-
-use error::{Error, ErrorKind};
+use std::str::FromStr;
 
 /// Minimum allowed year on advisory dates
 pub(crate) const YEAR_MIN: u32 = 2000;
@@ -15,13 +15,6 @@ pub(crate) const YEAR_MAX: u32 = YEAR_MIN + 100;
 pub struct Date(String);
 
 impl Date {
-    /// Create a `Date` from the given string (RFC 3339 date)
-    pub fn new<S: Into<String>>(into_string: S) -> Result<Self, Error> {
-        let string = into_string.into();
-        validate_date(&string)?;
-        Ok(Date(string))
-    }
-
     /// Convert an advisory RFC 3339 date into a `chrono::Date`
     #[cfg(feature = "chrono")]
     pub fn to_chrono_date(&self) -> chrono::Date<Utc> {
@@ -37,8 +30,18 @@ impl Date {
 
 impl<'de> Deserialize<'de> for Date {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Self::new(String::deserialize(deserializer)?)
+        Self::from_str(&String::deserialize(deserializer)?)
             .map_err(|e| D::Error::custom(format!("{}", e)))
+    }
+}
+
+impl FromStr for Date {
+    type Err = Error;
+
+    /// Create a `Date` from the given RFC 3339 date string
+    fn from_str(rfc3339_date: &str) -> Result<Self, Error> {
+        validate_date(rfc3339_date)?;
+        Ok(Date(rfc3339_date.into()))
     }
 }
 
@@ -84,24 +87,24 @@ fn validate_date(string: &str) -> Result<(), Error> {
 #[cfg(test)]
 mod tests {
     use super::Date;
+    use std::str::FromStr;
 
     #[test]
-    fn valid_date_test() {
-        assert!(Date::new("2000-01-01").is_ok());
-        assert!(Date::new("2017-01-01").is_ok());
-        assert!(Date::new("2099-12-31").is_ok());
-    }
+    fn from_str_test() {
+        // Valid dates
+        assert!(Date::from_str("2000-01-01").is_ok());
+        assert!(Date::from_str("2017-01-01").is_ok());
+        assert!(Date::from_str("2099-12-31").is_ok());
 
-    #[test]
-    fn invalid_date_test() {
-        assert!(Date::new("derp").is_err());
-        assert!(Date::new("1999-12-31").is_err());
-        assert!(Date::new("02017-01-01").is_err());
-        assert!(Date::new("2017-00-01").is_err());
-        assert!(Date::new("2017-01-00").is_err());
-        assert!(Date::new("2017-13-01").is_err());
-        assert!(Date::new("2017-01-32").is_err());
-        assert!(Date::new("2017-01-").is_err());
-        assert!(Date::new("2017-01-01-01").is_err());
+        // Invalid dates
+        assert!(Date::from_str("derp").is_err());
+        assert!(Date::from_str("1999-12-31").is_err());
+        assert!(Date::from_str("02017-01-01").is_err());
+        assert!(Date::from_str("2017-00-01").is_err());
+        assert!(Date::from_str("2017-01-00").is_err());
+        assert!(Date::from_str("2017-13-01").is_err());
+        assert!(Date::from_str("2017-01-32").is_err());
+        assert!(Date::from_str("2017-01-").is_err());
+        assert!(Date::from_str("2017-01-01-01").is_err());
     }
 }

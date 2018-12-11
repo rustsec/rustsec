@@ -1,19 +1,14 @@
 //! Security advisories in the RustSec database
 
-use platforms::target::{Arch, OS};
-use semver::VersionReq;
-
-use package::PackageName;
-
 mod date;
 mod id;
 mod iter;
 mod keyword;
 
-pub use self::date::*;
-pub use self::id::*;
-pub use self::iter::Iter;
-pub use self::keyword::Keyword;
+pub use self::{date::*, id::*, iter::Iter, keyword::Keyword};
+use crate::package::PackageName;
+use platforms::target::{Arch, OS};
+use semver::VersionReq;
 
 /// An individual security advisory pertaining to a single vulnerability
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]

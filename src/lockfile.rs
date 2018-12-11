@@ -1,10 +1,8 @@
 //! Parser for `Cargo.lock` files
 
+use crate::{error::Error, package::Package};
 use std::{fs::File, io::Read, path::Path};
 use toml;
-
-use error::Error;
-use package::Package;
 
 /// Parsed Cargo.lock file containing dependencies
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
@@ -31,7 +29,7 @@ impl Lockfile {
 
 #[cfg(test)]
 mod tests {
-    use lockfile::Lockfile;
+    use crate::lockfile::Lockfile;
 
     #[test]
     fn load_cargo_lockfile() {

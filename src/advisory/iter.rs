@@ -1,6 +1,5 @@
-use std::collections::btree_map;
-
 use super::{Advisory, AdvisoryId};
+use std::collections::btree_map;
 
 /// Advisory iterator
 pub struct Iter<'a>(pub(crate) btree_map::Iter<'a, AdvisoryId, Advisory>);
