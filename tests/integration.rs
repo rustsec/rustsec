@@ -1,18 +1,15 @@
-extern crate rustsec;
-extern crate semver;
-extern crate tempfile;
-
 use rustsec::{
     AdvisoryDatabase, AdvisoryId, Lockfile, PackageName, Repository, ADVISORY_DB_REPO_URL,
 };
 use semver::VersionReq;
+use std::str::FromStr;
 use tempfile::tempdir;
 
 /// End-to-end integration test (has online dependency on GitHub)
 #[test]
 fn happy_path() {
     let db = AdvisoryDatabase::fetch().unwrap();
-    let example_advisory_id = AdvisoryId::new("RUSTSEC-2017-0001").unwrap();
+    let example_advisory_id = AdvisoryId::from_str("RUSTSEC-2017-0001").unwrap();
     let example_advisory = db.find(&example_advisory_id).unwrap();
     let example_package = PackageName::from("sodiumoxide");
 

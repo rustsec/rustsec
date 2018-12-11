@@ -1,4 +1,4 @@
-use error::Error;
+use crate::error::Error;
 
 /// Digital signatures (in OpenPGP format) on commits to the repository
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -6,9 +6,9 @@ pub struct Signature(Vec<u8>);
 
 impl Signature {
     /// Parse a signature from a Git commit
-    // TODO: actually verify the signature is well-structured
-    pub fn new<T: Into<Vec<u8>>>(into_vec: T) -> Result<Self, Error> {
-        Ok(Signature(into_vec.into()))
+    pub fn from_bytes(bytes: &[u8]) -> Result<Self, Error> {
+        // TODO: actually verify the signature is well-structured
+        Ok(Signature(bytes.into()))
     }
 }
 
