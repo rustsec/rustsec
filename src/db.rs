@@ -1,16 +1,19 @@
 //! Database containing `RustSec` security advisories
 
+use crate::{
+    advisory::{self, Advisory, AdvisoryId, AdvisoryWrapper},
+    error::{Error, ErrorKind},
+    lockfile::Lockfile,
+    package::PackageName,
+    repository::Repository,
+    vulnerability::Vulnerabilities,
+};
 use semver::Version;
-use std::collections::{btree_map, BTreeMap};
-use std::ffi::{OsStr, OsString};
+use std::{
+    collections::{btree_map, BTreeMap},
+    ffi::{OsStr, OsString},
+};
 use toml;
-
-use advisory::{self, Advisory, AdvisoryId, AdvisoryWrapper};
-use error::{Error, ErrorKind};
-use lockfile::Lockfile;
-use package::PackageName;
-use repository::Repository;
-use vulnerability::Vulnerabilities;
 
 /// A collection of security advisories, indexed both by ID and crate
 #[derive(Debug)]
@@ -75,7 +78,7 @@ impl AdvisoryDatabase {
                 continue;
             }
 
-            let mut crate_advisories = match crates.entry(advisory.package.clone()) {
+            let crate_advisories = match crates.entry(advisory.package.clone()) {
                 btree_map::Entry::Vacant(entry) => entry.insert(vec![]),
                 btree_map::Entry::Occupied(entry) => entry.into_mut(),
             };
@@ -114,7 +117,8 @@ impl AdvisoryDatabase {
                     .patched_versions
                     .iter()
                     .any(|req| req.matches(version))
-            }).map(|a| *a)
+            })
+            .cloned()
             .collect()
     }
 

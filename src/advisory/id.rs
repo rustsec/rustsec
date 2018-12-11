@@ -1,8 +1,10 @@
-use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
-use std::fmt::{self, Display};
-
 use super::date::{YEAR_MAX, YEAR_MIN};
-use error::{Error, ErrorKind};
+use crate::error::{Error, ErrorKind};
+use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
+use std::{
+    fmt::{self, Display},
+    str::FromStr,
+};
 
 /// Placeholder advisory name: shouldn't be used until an ID is assigned
 pub const PLACEHOLDER_ADVISORY_ID: &str = "RUSTSEC-0000-0000";
@@ -21,27 +23,6 @@ pub struct AdvisoryId {
 }
 
 impl AdvisoryId {
-    /// Create an `AdvisoryId` from the given string
-    pub fn new<S: Into<String>>(into_string: S) -> Result<Self, Error> {
-        let string = into_string.into();
-
-        if string == PLACEHOLDER_ADVISORY_ID {
-            return Ok(AdvisoryId::default());
-        }
-
-        let kind = AdvisoryIdKind::detect(&string);
-
-        // Ensure known advisory types are well-formed
-        let year = match kind {
-            AdvisoryIdKind::RUSTSEC | AdvisoryIdKind::CVE | AdvisoryIdKind::TALOS => {
-                Some(parse_year(&string)?)
-            }
-            _ => None,
-        };
-
-        Ok(Self { kind, year, string })
-    }
-
     /// Get a string reference to this advisory ID
     pub fn as_str(&self) -> &str {
         self.string.as_ref()
@@ -131,6 +112,33 @@ impl Display for AdvisoryId {
     }
 }
 
+impl FromStr for AdvisoryId {
+    type Err = Error;
+
+    /// Create an `AdvisoryId` from the given string
+    fn from_str(advisory_id: &str) -> Result<Self, Error> {
+        if advisory_id == PLACEHOLDER_ADVISORY_ID {
+            return Ok(AdvisoryId::default());
+        }
+
+        let kind = AdvisoryIdKind::detect(advisory_id);
+
+        // Ensure known advisory types are well-formed
+        let year = match kind {
+            AdvisoryIdKind::RUSTSEC | AdvisoryIdKind::CVE | AdvisoryIdKind::TALOS => {
+                Some(parse_year(advisory_id)?)
+            }
+            _ => None,
+        };
+
+        Ok(Self {
+            kind,
+            year,
+            string: advisory_id.into(),
+        })
+    }
+}
+
 impl Into<String> for AdvisoryId {
     fn into(self) -> String {
         self.string
@@ -145,7 +153,7 @@ impl Serialize for AdvisoryId {
 
 impl<'de> Deserialize<'de> for AdvisoryId {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Self::new(String::deserialize(deserializer)?)
+        Self::from_str(&String::deserialize(deserializer)?)
             .map_err(|e| D::Error::custom(format!("{}", e)))
     }
 }
@@ -220,6 +228,7 @@ fn parse_year(advisory_id: &str) -> Result<u32, Error> {
 #[cfg(test)]
 mod tests {
     use super::{AdvisoryId, AdvisoryIdKind, PLACEHOLDER_ADVISORY_ID};
+    use std::str::FromStr;
 
     const EXAMPLE_RUSTSEC_ID: &str = "RUSTSEC-2018-0001";
     const EXAMPLE_CVE_ID: &str = "CVE-2017-1000168";
@@ -228,7 +237,7 @@ mod tests {
 
     #[test]
     fn rustsec_id_test() {
-        let rustsec_id = AdvisoryId::new(EXAMPLE_RUSTSEC_ID).unwrap();
+        let rustsec_id = AdvisoryId::from_str(EXAMPLE_RUSTSEC_ID).unwrap();
         assert!(rustsec_id.is_rustsec());
         assert_eq!(rustsec_id.year().unwrap(), 2018);
         assert_eq!(
@@ -240,7 +249,7 @@ mod tests {
     // The RUSTSEC-0000-0000 ID is a placeholder we need to treat as valid
     #[test]
     fn rustsec_0000_0000_test() {
-        let rustsec_id = AdvisoryId::new(PLACEHOLDER_ADVISORY_ID).unwrap();
+        let rustsec_id = AdvisoryId::from_str(PLACEHOLDER_ADVISORY_ID).unwrap();
         assert!(rustsec_id.is_rustsec());
         assert!(rustsec_id.year().is_none());
         assert!(rustsec_id.url().is_none());
@@ -248,7 +257,7 @@ mod tests {
 
     #[test]
     fn cve_id_test() {
-        let cve_id = AdvisoryId::new(EXAMPLE_CVE_ID).unwrap();
+        let cve_id = AdvisoryId::from_str(EXAMPLE_CVE_ID).unwrap();
         assert!(cve_id.is_cve());
         assert_eq!(cve_id.year().unwrap(), 2017);
         assert_eq!(
@@ -259,7 +268,7 @@ mod tests {
 
     #[test]
     fn talos_id_test() {
-        let talos_id = AdvisoryId::new(EXAMPLE_TALOS_ID).unwrap();
+        let talos_id = AdvisoryId::from_str(EXAMPLE_TALOS_ID).unwrap();
         assert_eq!(talos_id.kind(), AdvisoryIdKind::TALOS);
         assert_eq!(talos_id.year().unwrap(), 2017);
         assert_eq!(
@@ -270,7 +279,7 @@ mod tests {
 
     #[test]
     fn unknown_id_test() {
-        let unknown_id = AdvisoryId::new(EXAMPLE_UNKNOWN_ID).unwrap();
+        let unknown_id = AdvisoryId::from_str(EXAMPLE_UNKNOWN_ID).unwrap();
         assert!(unknown_id.is_unknown());
         assert!(unknown_id.year().is_none());
         assert!(unknown_id.url().is_none());

@@ -1,22 +1,33 @@
 language: rust
+cache: cargo
 
 branches:
   only:
     - master
 
 rust:
+  - 1.31.0
   - stable
   - beta
-  - nightly
 
 os:
   - linux
   - osx
+  - windows
 
 matrix:
   fast_finish: true
   allow_failures:
     - os: osx
+    - os: windows
 
-notifications:
-  irc: 'irc.mozilla.org#rustsec'
+install:
+  - rustup component add rustfmt
+  - rustup component add clippy-preview
+
+script:
+  - cargo fmt --all -- --check
+  - cargo clippy --all
+  - cargo build --release
+  - cargo test --release
+  - cargo doc --no-deps

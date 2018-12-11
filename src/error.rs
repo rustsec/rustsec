@@ -4,9 +4,11 @@
 use chrono;
 use failure::{Backtrace, Context, Fail};
 use git2;
-use std::fmt::{self, Display};
-use std::io;
-use std::str::Utf8Error;
+use std::{
+    fmt::{self, Display},
+    io,
+    str::Utf8Error,
+};
 use toml;
 
 /// Error type
@@ -73,7 +75,7 @@ pub enum ErrorKind {
 /// Create a new error (of a given enum variant) with a formatted message
 macro_rules! err {
     ($kind:path, $msg:expr) => {
-        ::error::Error::new(
+        crate::error::Error::new(
             $kind,
             &$msg.to_string()
         )
