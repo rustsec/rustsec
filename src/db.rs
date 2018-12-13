@@ -113,10 +113,12 @@ impl AdvisoryDatabase {
         self.find_by_crate(crate_name)
             .iter()
             .filter(|advisory| {
-                !advisory
-                    .patched_versions
-                    .iter()
-                    .any(|req| req.matches(version))
+                let patched_or_unaffected =
+                    [&advisory.patched_versions, &advisory.unaffected_versions]
+                        .iter()
+                        .any(|versions| versions.iter().any(|req| req.matches(version)));
+
+                !patched_or_unaffected
             })
             .cloned()
             .collect()
