@@ -62,7 +62,7 @@ where
 /// Print an attribute of an advisory
 macro_rules! attribute {
     ($attr:expr, $msg:expr) => {
-        ::shell::status(
+        crate::shell::status(
             ::term::color::RED,
             if $attr.len() >= 7 {
                 format!("{}:", $attr)
@@ -81,7 +81,7 @@ macro_rules! attribute {
 /// Print a success status message (in green if colors are enabled)
 macro_rules! status_ok {
     ($status:expr, $msg:expr) => {
-        ::shell::status(::term::color::GREEN, $status, $msg, true);
+        crate::shell::status(::term::color::GREEN, $status, $msg, true);
     };
     ($status:expr, $fmt:expr, $($arg:tt)+) => {
         status_ok!($status, format!($fmt, $($arg)+));
@@ -91,7 +91,7 @@ macro_rules! status_ok {
 /// Print an error message (in red if colors are enabled)
 macro_rules! status_error {
     ($msg:expr) => {
-        ::shell::status(::term::color::RED, "error:", $msg, false);
+        crate::shell::status(::term::color::RED, "error:", $msg, false);
     };
     ($fmt:expr, $($arg:tt)+) => {
         status_error!(format!($fmt, $($arg)+));
@@ -117,7 +117,8 @@ impl fmt::Display for ColorConfig {
             ColorConfig::Auto => "auto",
             ColorConfig::Always => "always",
             ColorConfig::Never => "never",
-        }.fmt(f)
+        }
+        .fmt(f)
     }
 }
 
