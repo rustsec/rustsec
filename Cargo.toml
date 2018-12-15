@@ -1,13 +1,13 @@
 [package]
-name          = "cargo-audit"
-description   = "Audit Cargo.lock for crates with security vulnerabilities"
-version       = "0.5.2"
-authors       = ["Tony Arcieri <bascule@gmail.com>"]
-license       = "MIT OR Apache-2.0"
-homepage      = "https://github.com/rustsec/cargo-audit"
-readme        = "README.md"
-categories    = ["development-tools"]
-keywords      = ["cargo-subcommand", "security", "audit", "vulnerability"]
+name        = "cargo-audit"
+description = "Audit Cargo.lock for crates with security vulnerabilities"
+version     = "0.5.2"
+authors     = ["Tony Arcieri <bascule@gmail.com>"]
+license     = "MIT OR Apache-2.0"
+homepage    = "https://github.com/rustsec/cargo-audit"
+readme      = "README.md"
+categories  = ["development-tools"]
+keywords    = ["cargo-subcommand", "security", "audit", "vulnerability"]
 
 [[bin]]
 name = "cargo-audit"
