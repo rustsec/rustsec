@@ -1,21 +1,21 @@
 [package]
-name          = "rustsec"
-description   = "Client library for the RustSec security advisory database"
-version       = "0.9.3" # Also update html_root_url in lib.rs when bumping this
-authors       = ["Tony Arcieri <bascule@gmail.com>"]
-license       = "Apache-2.0 OR MIT"
-homepage      = "https://github.com/rustsec/rustsec-crate/"
-readme        = "README.md"
-categories    = ["api-bindings", "development-tools"]
-keywords      = ["audit", "rustsec", "security", "advisory", "vulnerability"]
-edition       = "2018"
+name        = "rustsec"
+description = "Client library for the RustSec security advisory database"
+version     = "0.10.0" # Also update html_root_url in lib.rs when bumping this
+authors     = ["Tony Arcieri <bascule@gmail.com>"]
+license     = "Apache-2.0 OR MIT"
+homepage    = "https://github.com/rustsec/rustsec-crate/"
+readme      = "README.md"
+categories  = ["api-bindings", "development-tools"]
+keywords    = ["audit", "rustsec", "security", "advisory", "vulnerability"]
+edition     = "2018"
 
 [dependencies]
 chrono = { version = "0.4", optional = true }
 directories = "1"
 failure = "0.1"
 failure_derive = "0.1"
-git2 = "0.7"
+git2 = "0.8"
 platforms = { version = "0.1", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
 serde = "1"
