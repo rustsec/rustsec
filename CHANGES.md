@@ -1,3 +1,10 @@
+## [0.6.0] (2018-12-15)
+
+- Update to Rust 2018 edition ([#61])
+- Update to `rustsec` crate v0.10 ([#59])
+- Prevent `--help` from exiting with error ([#57])
+- Add `--json` flag for JSON output ([#41])
+
 ## [0.5.2] (2018-07-29)
 
 - Have `cargo audit version` exit with status `0` ([#38])
@@ -49,6 +56,11 @@
 
 - Initial release
 
+[0.6.0]: https://github.com/RustSec/cargo-audit/pull/62
+[#61]: https://github.com/RustSec/cargo-audit/pull/61
+[#59]: https://github.com/RustSec/cargo-audit/pull/59
+[#57]: https://github.com/RustSec/cargo-audit/pull/57
+[#41]: https://github.com/RustSec/cargo-audit/pull/41
 [0.5.2]: https://github.com/RustSec/cargo-audit/compare/v0.5.1...v0.5.2
 [#38]: https://github.com/RustSec/cargo-audit/pull/38
 [0.5.1]: https://github.com/RustSec/cargo-audit/compare/v0.5.0...v0.5.1
