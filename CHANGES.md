@@ -1,3 +1,9 @@
+## [0.10.0] (2018-12-14)
+
+- Implement `affected_functions` advisory attribute ([#54])
+- Fix handling of `unaffected_versions` ([#53])
+- Update to Rust 2018 edition ([#52])
+
 ## [0.9.3] (2018-10-14)
 
 - Create parents of the `advisory-db` repo dir  ([#49])
@@ -21,7 +27,7 @@
 
 ## [0.7.5] (2018-07-24)
 
-- Allow AdvisoryId::new() to parse `RUSTSEC-0000-0000` ([#36])
+- Allow `AdvisoryId::new()` to parse `RUSTSEC-0000-0000` ([#36])
 
 ## [0.7.4] (2018-07-23)
 
@@ -86,6 +92,10 @@
 
 - Initial release
 
+[0.10.0]: https://github.com/RustSec/rustsec-crate/pull/56
+[#54]: https://github.com/RustSec/rustsec-crate/pull/54
+[#53]: https://github.com/RustSec/rustsec-crate/pull/53
+[#52]: https://github.com/RustSec/rustsec-crate/pull/52
 [0.9.3]: https://github.com/RustSec/rustsec-crate/pull/50
 [#49]: https://github.com/RustSec/rustsec-crate/pull/49
 [0.9.2]: https://github.com/RustSec/rustsec-crate/pull/48
