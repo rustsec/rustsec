@@ -1,11 +1,12 @@
 //! Security advisories in the RustSec database
 
 mod date;
+mod function_path;
 mod id;
 mod iter;
 mod keyword;
 
-pub use self::{date::*, id::*, iter::Iter, keyword::Keyword};
+pub use self::{date::*, function_path::FunctionPath, id::*, iter::Iter, keyword::Keyword};
 use crate::package::PackageName;
 use platforms::target::{Arch, OS};
 use semver::VersionReq;
@@ -34,6 +35,11 @@ pub struct Advisory {
 
     /// Operating systems that this vulnerability is specific to
     pub affected_os: Option<Vec<OS>>,
+
+    /// Functions containing vulnerable code, enumerated as canonical Rust
+    /// paths (i.e. starting with the crate name), sans any path parameters.
+    /// (e.g. `mycrate::path::to::VulnerableStruct::vulnerable_func`)
+    pub affected_functions: Option<Vec<FunctionPath>>,
 
     /// Advisory IDs in other databases which point to the same advisory
     #[serde(default)]
