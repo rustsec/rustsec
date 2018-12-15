@@ -91,19 +91,11 @@ struct AuditOpts {
     target_os: Option<OS>,
 
     /// URL to the advisory database git repository
-    #[options(
-        short = "u",
-        long = "url",
-        help = "URL for advisory database git repo"
-    )]
+    #[options(short = "u", long = "url", help = "URL for advisory database git repo")]
     url: String,
 
     /// Output reports as JSON
-    #[options(
-        no_short,
-        long = "json",
-        help = "Output report in JSON format"
-    )]
+    #[options(no_short, long = "json", help = "Output report in JSON format")]
     output_json: bool,
 }
 
