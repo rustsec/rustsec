@@ -18,7 +18,7 @@ gumdrop = "0.5"
 gumdrop_derive = "0.5"
 lazy_static = "1"
 platforms = "0.1"
-rustsec = "0.9.3"
+rustsec = "0.10"
 term = "0.5"
 serde_json = "1"
 
