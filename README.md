@@ -25,7 +25,7 @@ https://github.com/rust-lang/rfcs/pull/1752
 
 ## Requirements
 
-`cargo audit` requires Rust **1.25** or later.
+`cargo audit` requires Rust **1.31** or later.
 
 ## Installation
 
