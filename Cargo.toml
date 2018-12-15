@@ -8,6 +8,7 @@ homepage    = "https://github.com/rustsec/cargo-audit"
 readme      = "README.md"
 categories  = ["development-tools"]
 keywords    = ["cargo-subcommand", "security", "audit", "vulnerability"]
+edition     = "2018"
 
 [[bin]]
 name = "cargo-audit"
