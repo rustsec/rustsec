@@ -1,3 +1,7 @@
+## [0.6.1] (2018-12-16)
+
+- Fix option parsing ([#64])
+
 ## [0.6.0] (2018-12-15)
 
 - Update to Rust 2018 edition ([#61])
@@ -56,6 +60,8 @@
 
 - Initial release
 
+[0.6.1]: https://github.com/RustSec/cargo-audit/pull/65
+[#64]: https://github.com/RustSec/cargo-audit/pull/64
 [0.6.0]: https://github.com/RustSec/cargo-audit/pull/62
 [#61]: https://github.com/RustSec/cargo-audit/pull/61
 [#59]: https://github.com/RustSec/cargo-audit/pull/59
