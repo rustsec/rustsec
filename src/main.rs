@@ -52,7 +52,7 @@ struct AuditOpts {
         long = "color",
         help = "color configuration: always, never (default: auto)"
     )]
-    color: String,
+    color: Option<String>,
 
     /// Filesystem path to the advisory database git repository
     #[options(
@@ -92,7 +92,7 @@ struct AuditOpts {
 
     /// URL to the advisory database git repository
     #[options(short = "u", long = "url", help = "URL for advisory database git repo")]
-    url: String,
+    url: Option<String>,
 
     /// Output reports as JSON
     #[options(no_short, long = "json", help = "Output report in JSON format")]
@@ -109,13 +109,13 @@ struct HelpOpts {
 impl Default for AuditOpts {
     fn default() -> AuditOpts {
         AuditOpts {
-            color: "auto".into(),
+            color: None,
             db: None,
             file: None,
             stale: false,
             target_arch: None,
             target_os: None,
-            url: ADVISORY_DB_REPO_URL.into(),
+            url: None,
             output_json: false,
         }
     }
@@ -142,13 +142,11 @@ fn main() {
         help(1);
     });
 
-    shell::init(&opts.color, use_stdout_for_status(&opts));
+    let color_config = opts.color.as_ref().map(|s| s.as_ref()).unwrap_or("auto");
+    let use_stdout = !opts.output_json;
 
+    shell::init(color_config, use_stdout);
     audit(&opts, &load_advisory_db(&opts));
-}
-
-fn use_stdout_for_status(opts: &AuditOpts) -> bool {
-    !opts.output_json
 }
 
 /// Print help message
@@ -171,15 +169,21 @@ fn version() -> ! {
 
 /// Load the advisory database
 fn load_advisory_db(opts: &AuditOpts) -> AdvisoryDatabase {
+    let advisory_repo_url = opts
+        .url
+        .as_ref()
+        .map(|url| url.as_ref())
+        .unwrap_or(ADVISORY_DB_REPO_URL);
+
     let advisory_repo_path = opts
         .db
         .as_ref()
         .map(PathBuf::from)
         .unwrap_or_else(Repository::default_path);
 
-    status_ok!("Fetching", "advisory database from `{}`", opts.url);
+    status_ok!("Fetching", "advisory database from `{}`", advisory_repo_url);
 
-    let advisory_db_repo = Repository::fetch(&opts.url, &advisory_repo_path, !opts.stale)
+    let advisory_db_repo = Repository::fetch(advisory_repo_url, &advisory_repo_path, !opts.stale)
         .unwrap_or_else(|e| {
             status_error!("couldn't fetch advisory database: {}", e);
             exit(1);
