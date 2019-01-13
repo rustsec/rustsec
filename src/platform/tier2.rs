@@ -29,11 +29,11 @@ pub const AARCH64_APPLE_IOS: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `aarch64-unknown-cloudabi`: ARM64 CloudABI
-pub const AARCH64_UNKNOWN_CLOUDABI: Platform = Platform {
-    target_triple: "aarch64-unknown-cloudabi",
+/// `aarch64-fuchsia`: ARM64 Fuchsia
+pub const AARCH64_FUCHSIA: Platform = Platform {
+    target_triple: "aarch64-fuchsia",
     target_arch: Arch::AARCH64,
-    target_os: OS::CloudABI,
+    target_os: OS::Fuchsia,
     target_env: None,
     tier: Tier::Two,
 };
@@ -43,15 +43,6 @@ pub const AARCH64_LINUX_ANDROID: Platform = Platform {
     target_triple: "aarch64-linux-android",
     target_arch: Arch::AARCH64,
     target_os: OS::Android,
-    target_env: None,
-    tier: Tier::Two,
-};
-
-/// `aarch64-unknown-fuchsia`: ARM64 Fuchsia
-pub const AARCH64_UNKNOWN_FUCHSIA: Platform = Platform {
-    target_triple: "aarch64-unknown-fuchsia",
-    target_arch: Arch::AARCH64,
-    target_os: OS::Fuchsia,
     target_env: None,
     tier: Tier::Two,
 };
@@ -146,15 +137,6 @@ pub const ARMV7_LINUX_ANDROIDEABI: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `armv7-unknown-cloudabi-eabihf`: ARMv7 CloudABI, hardfloat
-pub const ARMV7_UNKNOWN_CLOUDABI_EABIHF: Platform = Platform {
-    target_triple: "armv7-unknown-cloudabi-eabihf",
-    target_arch: Arch::ARM,
-    target_os: OS::CloudABI,
-    target_env: None,
-    tier: Tier::Two,
-};
-
 /// `armv7-unknown-linux-gnueabihf`: ARMv7 Linux
 pub const ARMV7_UNKNOWN_LINUX_GNUEABIHF: Platform = Platform {
     target_triple: "armv7-unknown-linux-gnueabihf",
@@ -233,15 +215,6 @@ pub const I686_LINUX_ANDROID: Platform = Platform {
     target_arch: Arch::X86,
     target_env: None,
     target_os: OS::Android,
-    tier: Tier::Two,
-};
-
-/// `i686-unknown-cloudabi`: 32-bit CloudABI
-pub const I686_UNKNOWN_CLOUDABI: Platform = Platform {
-    target_triple: "i686-unknown-cloudabi",
-    target_arch: Arch::X86,
-    target_os: OS::CloudABI,
-    target_env: None,
     tier: Tier::Two,
 };
 
@@ -398,6 +371,15 @@ pub const X86_64_APPLE_IOS: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// `x86_64-fuchsia`: 64-bit x86 Fuchsia
+pub const X86_64_FUCHSIA: Platform = Platform {
+    target_triple: "x86_64-fuchsia",
+    target_arch: Arch::X86_64,
+    target_os: OS::Fuchsia,
+    target_env: None,
+    tier: Tier::Two,
+};
+
 /// `x86_64-linux-android`: 64-bit x86 Android
 pub const X86_64_LINUX_ANDROID: Platform = Platform {
     target_triple: "x86_64-linux-android",
@@ -443,15 +425,6 @@ pub const X86_64_UNKNOWN_FREEBSD: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `x86_64-unknown-fuchsia`: 64-bit Fuchsia
-pub const X86_64_UNKNOWN_FUCHSIA: Platform = Platform {
-    target_triple: "x86_64-unknown-fuchsia",
-    target_arch: Arch::X86_64,
-    target_os: OS::Fuchsia,
-    target_env: None,
-    tier: Tier::Two,
-};
-
 /// `x86_64-unknown-linux-gnux32`: 64-bit Linux
 pub const X86_64_UNKNOWN_LINUX_GNUX32: Platform = Platform {
     target_triple: "x86_64-unknown-linux-gnux32",
@@ -485,5 +458,67 @@ pub const X86_64_UNKNOWN_REDOX: Platform = Platform {
     target_arch: Arch::X86_64,
     target_env: None,
     target_os: OS::Redox,
+    tier: Tier::Two,
+};
+
+//
+// Tier 2.5 platforms
+//
+// Tier 2.5 platforms can be thought of as “guaranteed to build”, but without
+// builds available through rustup. Automated tests are not run so it’s not
+// guaranteed to produce a working build, but platforms often work to quite a
+// good degree and patches are always welcome! Specifically, these platforms
+// are required to have each of the following:
+//
+// - Automated building is set up, but may not be running tests.
+// - Landing changes to the rust-lang/rust repository’s master branch is gated
+//   on platforms building. For some platforms only the standard library is
+//   compiled, but for others rustc and cargo are too.
+//
+// **This status is accidental: no new platforms should reach this state**
+//
+
+/// `aarch64-unknown-cloudabi`: ARM64 CloudABI
+pub const AARCH64_UNKNOWN_CLOUDABI: Platform = Platform {
+    target_triple: "aarch64-unknown-cloudabi",
+    target_arch: Arch::AARCH64,
+    target_os: OS::CloudABI,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `armv7-unknown-cloudabi-eabihf`: ARMv7 CloudABI, hardfloat
+pub const ARMV7_UNKNOWN_CLOUDABI_EABIHF: Platform = Platform {
+    target_triple: "armv7-unknown-cloudabi-eabihf",
+    target_arch: Arch::ARM,
+    target_os: OS::CloudABI,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `i686-unknown-cloudabi`: 32-bit CloudABI
+pub const I686_UNKNOWN_CLOUDABI: Platform = Platform {
+    target_triple: "i686-unknown-cloudabi",
+    target_arch: Arch::X86,
+    target_os: OS::CloudABI,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `powerpc-unknown-linux-gnuspe`: PowerPC SPE Linux
+pub const POWERPC_UNKNOWN_LINUX_GNUSPE: Platform = Platform {
+    target_triple: "powerpc-unknown-linux-gnuspe",
+    target_arch: Arch::POWERPC,
+    target_os: OS::Linux,
+    target_env: Some(Env::GNU),
+    tier: Tier::Two,
+};
+
+/// `sparc-unknown-linux-gnu`: 32-bit SPARC Linux
+pub const SPARC_UNKNOWN_LINUX_GNU: Platform = Platform {
+    target_triple: "sparc-unknown-linux-gnu",
+    target_arch: Arch::SPARC,
+    target_os: OS::Linux,
+    target_env: Some(Env::GNU),
     tier: Tier::Two,
 };

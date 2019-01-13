@@ -19,6 +19,9 @@ pub enum Env {
     /// `musl`: Clean, efficient, standards-conformant libc implementation.
     Musl,
 
+    /// `sgx`: Intel Software Guard Extensions (SGX) Enclave
+    SGX,
+
     /// `uclibc`: C library for developing embedded Linux systems
     #[allow(non_camel_case_types)]
     uClibc,
@@ -34,6 +37,7 @@ impl Env {
             Env::GNU => "gnu",
             Env::MSVC => "msvc",
             Env::Musl => "musl",
+            Env::SGX => "sgx",
             Env::uClibc => "uclibc",
             Env::Unknown => "unknown",
         }
@@ -49,6 +53,7 @@ impl FromStr for Env {
             "gnu" => Env::GNU,
             "msvc" => Env::MSVC,
             "musl" => Env::Musl,
+            "sgx" => Env::SGX,
             "uclibc" => Env::uClibc,
             _ => return Err(Error),
         };
@@ -86,6 +91,10 @@ pub const TARGET_ENV: Option<Env> = Some(Env::MSVC);
 /// `target_env` when building this crate: `musl`
 pub const TARGET_ENV: Option<Env> = Some(Env::Musl);
 
+#[cfg(target_env = "sgx")]
+/// `target_env` when building this crate: `sgx`
+pub const TARGET_ENV: Option<Env> = Some(Env::SGX);
+
 #[cfg(target_env = "uclibc")]
 /// `target_env` when building this crate: `uclibc`
 pub const TARGET_ENV: Option<Env> = Some(Env::uClibc);
@@ -94,6 +103,7 @@ pub const TARGET_ENV: Option<Env> = Some(Env::uClibc);
     target_env = "gnu",
     target_env = "msvc",
     target_env = "musl",
+    target_env = "sgx",
     target_env = "uclibc",
 )))]
 /// `target_env` when building this crate: none
