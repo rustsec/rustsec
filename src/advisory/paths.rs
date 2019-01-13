@@ -1,23 +1,38 @@
 use crate::error::{Error, ErrorKind};
+use semver::VersionReq;
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 use std::{
+    collections::{btree_map, BTreeMap},
     fmt::{self, Display},
     slice,
     str::FromStr,
 };
 
-/// Canonical Rust Paths (sans parameters) for cataloguing vulnerable functions.
+/// Collection of paths affected by an advisory, grouped by `VersionReq`
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub struct AffectedPaths(BTreeMap<VersionReq, Vec<AffectedPath>>);
+
+impl AffectedPaths {
+    /// Iterate over the paths to types and/or functions affected by an
+    /// advisory.
+    pub fn iter(&self) -> btree_map::Iter<VersionReq, Vec<AffectedPath>> {
+        self.0.iter()
+    }
+}
+
+/// Canonical Rust Paths (sans parameters) to vulnerable types and/or functions
+/// affected by a particular advisory.
 /// <https://doc.rust-lang.org/reference/paths.html#canonical-paths>
 // TODO: find a crate which provides a better type for representing these?
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct FunctionPath(Vec<Identifier>);
+pub struct AffectedPath(Vec<Identifier>);
 
-impl FunctionPath {
-    /// Get the crate name this function is located in
+impl AffectedPath {
+    /// Get the crate name for this path
     pub fn crate_name(&self) -> &str {
         self.iter()
             .next()
-            .expect("FunctionPath must have 2 or more segments")
+            .expect("path must have 2 or more segments")
             .as_str()
     }
 
@@ -37,13 +52,11 @@ impl FunctionPath {
     }
 }
 
-impl Display for FunctionPath {
+impl Display for AffectedPath {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut segments = self.iter();
 
-        let crate_name = segments
-            .next()
-            .expect("FunctionPath must have 2 or more segments");
+        let crate_name = segments.next().expect("path must have 2 or more segments");
 
         write!(f, "{}", crate_name.as_str())?;
 
@@ -55,23 +68,23 @@ impl Display for FunctionPath {
     }
 }
 
-impl<'de> Deserialize<'de> for FunctionPath {
+impl<'de> Deserialize<'de> for AffectedPath {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         Self::from_str(&String::deserialize(deserializer)?)
             .map_err(|e| D::Error::custom(format!("{}", e)))
     }
 }
 
-impl Serialize for FunctionPath {
+impl Serialize for AffectedPath {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.to_string())
     }
 }
 
-impl FromStr for FunctionPath {
+impl FromStr for AffectedPath {
     type Err = Error;
 
-    /// Parse a canonical, param-free function path contained in an advisory
+    /// Parse a canonical, parameter-free path contained in an advisory
     fn from_str(path: &str) -> Result<Self, Error> {
         let mut segments = vec![];
 
@@ -80,7 +93,7 @@ impl FromStr for FunctionPath {
         }
 
         if segments.len() >= 2 {
-            Ok(FunctionPath(segments))
+            Ok(AffectedPath(segments))
         } else {
             fail!(
                 ErrorKind::Parse,
@@ -91,7 +104,7 @@ impl FromStr for FunctionPath {
     }
 }
 
-/// Iterator over the segments of a `FunctionPath`
+/// Iterator over the segments of a `path`
 pub type Iter<'a> = slice::Iter<'a, Identifier>;
 
 /// Identifiers within paths. Note that the typical Rust path grammar supports
@@ -117,7 +130,7 @@ impl AsRef<str> for Identifier {
 impl FromStr for Identifier {
     type Err = Error;
 
-    /// Parse an `Identifier` within a `FunctionPath`
+    /// Parse an `Identifier` within a `path`
     fn from_str(identifier: &str) -> Result<Self, Error> {
         validate_identifier(identifier)?;
         Ok(Identifier(identifier.into()))
@@ -138,7 +151,7 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
             ),
         }
     } else {
-        fail!(ErrorKind::Parse, "empty identifier in function path");
+        fail!(ErrorKind::Parse, "empty identifier in affected path");
     }
 
     for c in chars {
@@ -146,7 +159,7 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
             'A'...'Z' | 'a'...'z' | '0'...'9' | '_' => (),
             '<' | '>' | '(' | ')' => fail!(
                 ErrorKind::Parse,
-                "omit parameters when specifying function paths: '{}'",
+                "omit parameters when specifying affected paths: '{}'",
                 identifier
             ),
             _ => fail!(
@@ -162,36 +175,36 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::FunctionPath;
+    use super::AffectedPath;
     use std::str::FromStr;
 
     const EXAMPLE_PATH_STR: &str = "foo::bar::baz";
 
     #[test]
     fn crate_name_test() {
-        let path = FunctionPath::from_str(EXAMPLE_PATH_STR).unwrap();
+        let path = AffectedPath::from_str(EXAMPLE_PATH_STR).unwrap();
         assert_eq!(path.crate_name(), "foo");
     }
 
     #[test]
     fn display_test() {
-        let path = FunctionPath::from_str(EXAMPLE_PATH_STR).unwrap();
+        let path = AffectedPath::from_str(EXAMPLE_PATH_STR).unwrap();
         assert_eq!(path.to_string(), EXAMPLE_PATH_STR)
     }
 
     #[test]
     fn from_str_test() {
-        // Valid function paths
-        assert!(FunctionPath::from_str("foo::bar").is_ok());
-        assert!(FunctionPath::from_str("foo::bar::baz").is_ok());
-        assert!(FunctionPath::from_str("foo::Bar::baz").is_ok());
-        assert!(FunctionPath::from_str("foo::Bar::_baz").is_ok());
-        assert!(FunctionPath::from_str("foo::Bar::_baz_").is_ok());
-        assert!(FunctionPath::from_str("f00::B4r::_b4z_").is_ok());
+        // Valid paths
+        assert!(AffectedPath::from_str("foo::bar").is_ok());
+        assert!(AffectedPath::from_str("foo::bar::baz").is_ok());
+        assert!(AffectedPath::from_str("foo::Bar::baz").is_ok());
+        assert!(AffectedPath::from_str("foo::Bar::_baz").is_ok());
+        assert!(AffectedPath::from_str("foo::Bar::_baz_").is_ok());
+        assert!(AffectedPath::from_str("f00::B4r::_b4z_").is_ok());
 
-        // Invalid function paths
-        assert!(FunctionPath::from_str("minimum_two_components").is_err());
-        assert!(FunctionPath::from_str("no-hyphens::foobar").is_err());
-        assert!(FunctionPath::from_str("no_leading_digits::0rly").is_err());
+        // Invalid paths
+        assert!(AffectedPath::from_str("minimum_two_components").is_err());
+        assert!(AffectedPath::from_str("no-hyphens::foobar").is_err());
+        assert!(AffectedPath::from_str("no_leading_digits::0rly").is_err());
     }
 }
