@@ -15,8 +15,10 @@
 //!   gated on platforms building. For some platforms only the standard
 //!   library is compiled, but for others rustc and cargo are too.
 
-use platform::{Platform, Tier};
-use target::{Arch, Env, OS};
+use crate::{
+    platform::{Platform, Tier},
+    target::{Arch, Env, OS},
+};
 
 /// `aarch64-apple-ios`: ARM64 iOS
 pub const AARCH64_APPLE_IOS: Platform = Platform {

@@ -2,7 +2,7 @@ use core::str::FromStr;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use error::Error;
+use crate::error::Error;
 
 /// `target_arch`: Target CPU architecture
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -176,24 +176,20 @@ pub const TARGET_ARCH: Arch = Arch::X86;
 /// `target_arch` when building this crate: `x86_64`
 pub const TARGET_ARCH: Arch = Arch::X86_64;
 
-#[cfg(
-    not(
-        any(
-            target_arch = "aarch64",
-            target_arch = "arm",
-            target_arch = "asmjs",
-            target_arch = "mips",
-            target_arch = "mips64",
-            target_arch = "powerpc",
-            target_arch = "powerpc64",
-            target_arch = "riscv",
-            target_arch = "s390x",
-            target_arch = "sparc64",
-            target_arch = "wasm32",
-            target_arch = "x86",
-            target_arch = "x86_64"
-        )
-    )
-)]
+#[cfg(not(any(
+    target_arch = "aarch64",
+    target_arch = "arm",
+    target_arch = "asmjs",
+    target_arch = "mips",
+    target_arch = "mips64",
+    target_arch = "powerpc",
+    target_arch = "powerpc64",
+    target_arch = "riscv",
+    target_arch = "s390x",
+    target_arch = "sparc64",
+    target_arch = "wasm32",
+    target_arch = "x86",
+    target_arch = "x86_64"
+)))]
 /// `target_arch` when building this crate: unknown!
 pub const TARGET_ARCH: Arch = Arch::Unknown;

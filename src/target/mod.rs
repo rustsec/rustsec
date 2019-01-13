@@ -7,6 +7,8 @@ mod arch;
 mod env;
 mod os;
 
-pub use self::arch::{Arch, TARGET_ARCH};
-pub use self::env::{Env, TARGET_ENV};
-pub use self::os::{OS, TARGET_OS};
+pub use self::{
+    arch::{Arch, TARGET_ARCH},
+    env::{Env, TARGET_ENV},
+    os::{OS, TARGET_OS},
+};
