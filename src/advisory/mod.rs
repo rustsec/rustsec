@@ -6,7 +6,7 @@ mod iter;
 mod keyword;
 mod paths;
 
-pub use self::{date::*, id::*, iter::Iter, keyword::Keyword, paths::AffectedPaths};
+pub use self::{date::*, id::*, iter::Iter, keyword::Keyword, paths::*};
 use crate::package::PackageName;
 use platforms::target::{Arch, OS};
 use semver::VersionReq;
