@@ -1,7 +1,5 @@
 //! Generates a Markdown-formatted table of all platforms known to this crate
 
-extern crate platforms;
-
 use platforms::{Platform, Tier, ALL_PLATFORMS};
 
 /// Max width for target triples

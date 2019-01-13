@@ -1,4 +1,4 @@
-use target::*;
+use crate::target::*;
 
 /// Platform requirements
 #[cfg(feature = "std")]
