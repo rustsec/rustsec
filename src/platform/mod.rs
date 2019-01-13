@@ -53,6 +53,7 @@ pub struct Platform {
 
 /// All valid Rust platforms usable from the mainline compiler
 pub const ALL_PLATFORMS: &[Platform] = &[
+    // Tier 1
     tier1::I686_APPLE_DARWIN,
     tier1::I686_PC_WINDOWS_GNU,
     tier1::I686_PC_WINDOWS_MSVC,
@@ -61,10 +62,10 @@ pub const ALL_PLATFORMS: &[Platform] = &[
     tier1::X86_64_PC_WINDOWS_GNU,
     tier1::X86_64_PC_WINDOWS_MSVC,
     tier1::X86_64_UNKNOWN_LINUX_GNU,
+    // Tier 2
     tier2::AARCH64_APPLE_IOS,
-    tier2::AARCH64_UNKNOWN_CLOUDABI,
     tier2::AARCH64_LINUX_ANDROID,
-    tier2::AARCH64_UNKNOWN_FUCHSIA,
+    tier2::AARCH64_FUCHSIA,
     tier2::AARCH64_UNKNOWN_LINUX_GNU,
     tier2::AARCH64_UNKNOWN_LINUX_MUSL,
     tier2::ARM_LINUX_ANDROIDEABI,
@@ -75,7 +76,6 @@ pub const ALL_PLATFORMS: &[Platform] = &[
     tier2::ARMV5TE_UNKNOWN_LINUX_GNUEABI,
     tier2::ARMV7_APPLE_IOS,
     tier2::ARMV7_LINUX_ANDROIDEABI,
-    tier2::ARMV7_UNKNOWN_CLOUDABI_EABIHF,
     tier2::ARMV7_UNKNOWN_LINUX_GNUEABIHF,
     tier2::ARMV7_UNKNOWN_LINUX_MUSLEABIHF,
     tier2::ARMV7S_APPLE_IOS,
@@ -85,7 +85,6 @@ pub const ALL_PLATFORMS: &[Platform] = &[
     tier2::I586_UNKNOWN_LINUX_GNU,
     tier2::I586_UNKNOWN_LINUX_MUSL,
     tier2::I686_LINUX_ANDROID,
-    tier2::I686_UNKNOWN_CLOUDABI,
     tier2::I686_UNKNOWN_FREEBSD,
     tier2::I686_UNKNOWN_LINUX_MUSL,
     tier2::MIPS_UNKNOWN_LINUX_GNU,
@@ -108,14 +107,20 @@ pub const ALL_PLATFORMS: &[Platform] = &[
     tier2::X86_64_SUN_SOLARIS,
     tier2::X86_64_UNKNOWN_CLOUDABI,
     tier2::X86_64_UNKNOWN_FREEBSD,
-    tier2::X86_64_UNKNOWN_FUCHSIA,
+    tier2::X86_64_FUCHSIA,
     tier2::X86_64_UNKNOWN_LINUX_GNUX32,
     tier2::X86_64_UNKNOWN_LINUX_MUSL,
     tier2::X86_64_UNKNOWN_NETBSD,
     tier2::X86_64_UNKNOWN_REDOX,
+    // Tier 2.5
+    tier2::AARCH64_UNKNOWN_CLOUDABI,
+    tier2::ARMV7_UNKNOWN_CLOUDABI_EABIHF,
+    tier2::I686_UNKNOWN_CLOUDABI,
+    tier2::POWERPC_UNKNOWN_LINUX_GNUSPE,
+    tier2::SPARC_UNKNOWN_LINUX_GNU,
+    // Tier 3
     tier3::I686_UNKNOWN_HAIKU,
     tier3::I686_UNKNOWN_NETBSD,
-    tier3::LE32_UNKNOWN_NACL,
     tier3::MIPS_UNKNOWN_LINUX_UCLIBC,
     tier3::MIPSEL_UNKNOWN_LINUX_UCLIBC,
     tier3::MSP430_NONE_ELF,
@@ -124,6 +129,7 @@ pub const ALL_PLATFORMS: &[Platform] = &[
     tier3::THUMBV7EM_NONE_EABI,
     tier3::THUMBV7EM_NONE_EABIHF,
     tier3::THUMBV7M_NONE_EABI,
+    tier3::X86_64_FORTANIX_UNKNOWN_SGX,
     tier3::X86_64_UNKNOWN_BITRIG,
     tier3::X86_64_UNKNOWN_DRAGONFLY,
     tier3::X86_64_UNKNOWN_HAIKU,
