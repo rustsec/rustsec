@@ -2,7 +2,7 @@ use core::str::FromStr;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use error::Error;
+use crate::error::Error;
 
 /// `target_env`: Target enviroment that disambiguates the target platform by ABI / libc.
 /// This value is closely related to the fourth element of the platform target triple,
@@ -90,15 +90,11 @@ pub const TARGET_ENV: Option<Env> = Some(Env::Musl);
 /// `target_env` when building this crate: `uclibc`
 pub const TARGET_ENV: Option<Env> = Some(Env::uClibc);
 
-#[cfg(
-    not(
-        any(
-            target_env = "gnu",
-            target_env = "msvc",
-            target_env = "musl",
-            target_env = "uclibc",
-        )
-    )
-)]
+#[cfg(not(any(
+    target_env = "gnu",
+    target_env = "msvc",
+    target_env = "musl",
+    target_env = "uclibc",
+)))]
 /// `target_env` when building this crate: none
 pub const TARGET_ENV: Option<Env> = None;

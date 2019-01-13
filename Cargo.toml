@@ -8,6 +8,7 @@ homepage    = "https://github.com/RustSec/platforms-crate"
 readme      = "README.md"
 categories  = ["development-tools", "no-std"]
 keywords    = ["architectures", "cpu", "platforms", "os", "targets"]
+edition     = "2018"
 
 [badges]
 travis-ci = { repository = "RustSec/platforms-crate" }
