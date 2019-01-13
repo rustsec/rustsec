@@ -1,3 +1,8 @@
+## [0.11.0] (2019-01-13)
+
+- Cargo.toml: Update `platforms` crate to v0.2 ([#59])
+- Redo advisory's `affected_functions` as `affected_paths` ([#58])
+
 ## [0.10.0] (2018-12-14)
 
 - Implement `affected_functions` advisory attribute ([#54])
@@ -92,6 +97,9 @@
 
 - Initial release
 
+[0.11.0]: https://github.com/RustSec/rustsec-crate/pull/60
+[#59]: https://github.com/RustSec/rustsec-crate/pull/58
+[#58]: https://github.com/RustSec/rustsec-crate/pull/59
 [0.10.0]: https://github.com/RustSec/rustsec-crate/pull/56
 [#54]: https://github.com/RustSec/rustsec-crate/pull/54
 [#53]: https://github.com/RustSec/rustsec-crate/pull/53
