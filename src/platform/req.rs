@@ -127,6 +127,7 @@ mod tests {
             [
                 "sparc64-unknown-linux-gnu",
                 "sparcv9-sun-solaris",
+                "sparc-unknown-linux-gnu",
                 "sparc64-unknown-netbsd"
             ]
         );
