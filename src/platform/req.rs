@@ -1,5 +1,5 @@
-use error::Error;
-use platform::{Platform, ALL_PLATFORMS};
+use crate::error::Error;
+use crate::platform::{Platform, ALL_PLATFORMS};
 #[cfg(feature = "serde")]
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 use std::{str::FromStr, string::String, vec::Vec};

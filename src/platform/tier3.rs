@@ -2,11 +2,14 @@
 //!
 //! <https://forge.rust-lang.org/platform-support.html>
 //!
-/// Tier 3 platforms are those which the Rust codebase has support for, but
-/// which are not built or tested automatically, and may not work.
-/// Official builds are not available.
-use platform::{Platform, Tier};
-use target::{Arch, Env, OS};
+//! Tier 3 platforms are those which the Rust codebase has support for, but
+//! which are not built or tested automatically, and may not work.
+//! Official builds are not available.
+
+use crate::{
+    platform::{Platform, Tier},
+    target::{Arch, Env, OS},
+};
 
 /// `i686-unknown-haiku`: 32-bit Haiku
 pub const I686_UNKNOWN_HAIKU: Platform = Platform {

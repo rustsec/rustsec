@@ -5,31 +5,29 @@ branches:
     - master
 
 rust:
+  - 1.31.0
   - stable
-  - beta
-  - nightly
 
 os:
   - linux
   - osx
+  - windows
 
 matrix:
   fast_finish: true
   allow_failures:
-    - os: osx
+    - os: windows
 
 script:
-  - cargo build --verbose
-  - cargo test --verbose
-
-  - cargo build --verbose --features serde
-  - cargo test --verbose --features serde
-
-  - cargo build --verbose --no-default-features
-  - cargo test --verbose --no-default-features
-
-  - cargo build --verbose --no-default-features --features serde
-  - cargo test --verbose --no-default-features --features serde
-
-notifications:
-  irc: 'irc.mozilla.org#rustsec'
+  - cargo build
+  - cargo test
+  - cargo test --release
+  - cargo build --features serde
+  - cargo test --features serde
+  - cargo test --features serde --release
+  - cargo build --no-default-features
+  - cargo test --no-default-features
+  - cargo test --no-default-features --release
+  - cargo build --no-default-features --features serde
+  - cargo test --no-default-features --features serde
+  - cargo test --no-default-features --features serde --release

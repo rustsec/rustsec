@@ -4,16 +4,18 @@
 //!
 //! <https://forge.rust-lang.org/platform-support.html>
 
-#![crate_name = "platforms"]
-#![crate_type = "lib"]
-#![deny(warnings, missing_docs, trivial_casts, trivial_numeric_casts)]
-#![deny(unused_import_braces, unused_qualifications)]
+#![no_std]
+#![deny(
+    warnings,
+    missing_docs,
+    trivial_casts,
+    trivial_numeric_casts,
+    unused_import_braces,
+    unused_qualifications
+)]
 #![forbid(unsafe_code)]
 #![doc(html_root_url = "https://docs.rs/platforms/0.1.4")]
-#![no_std]
 
-#[cfg(feature = "serde")]
-extern crate serde;
 #[cfg(feature = "std")]
 extern crate std;
 
@@ -26,11 +28,13 @@ pub mod platform;
 /// Rust target types
 pub mod target;
 
-pub use error::Error;
 #[cfg(feature = "std")]
-pub use platform::PlatformReq;
-pub use platform::{Platform, Tier, ALL_PLATFORMS};
-pub use target::{TARGET_ARCH, TARGET_ENV, TARGET_OS};
+pub use crate::platform::PlatformReq;
+pub use crate::{
+    error::Error,
+    platform::{Platform, Tier, ALL_PLATFORMS},
+    target::{TARGET_ARCH, TARGET_ENV, TARGET_OS},
+};
 
 /// Find a Rust platform by its "target triple", e.g. `i686-apple-darwin`
 pub fn find<S: AsRef<str>>(target_triple: S) -> Option<&'static Platform> {

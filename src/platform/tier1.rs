@@ -11,8 +11,10 @@
 //!   is gated on tests passing.
 //! * Documentation for how to use and how to build the platform is available.
 
-use platform::{Platform, Tier};
-use target::{Arch, Env, OS};
+use crate::{
+    platform::{Platform, Tier},
+    target::{Arch, Env, OS},
+};
 
 /// `i686-apple-darwin`: 32-bit OSX (10.7+, Lion+)
 pub const I686_APPLE_DARWIN: Platform = Platform {

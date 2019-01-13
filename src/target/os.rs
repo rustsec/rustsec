@@ -2,7 +2,7 @@ use core::str::FromStr;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-use error::Error;
+use crate::error::Error;
 
 /// `target_os`: Operating system of the target. This value is closely related to the second
 /// and third element of the platform target triple, though it is not identical.
@@ -196,27 +196,23 @@ pub const TARGET_OS: OS = OS::Solaris;
 /// `target_os` when building this crate: `windows`
 pub const TARGET_OS: OS = OS::Windows;
 
-#[cfg(
-    not(
-        any(
-            target_os = "android",
-            target_os = "bitrig",
-            target_os = "cloudabi",
-            target_os = "dragonfly",
-            target_os = "emscripten",
-            target_os = "freebsd",
-            target_os = "fuchsia",
-            target_os = "haiku",
-            target_os = "ios",
-            target_os = "linux",
-            target_os = "macos",
-            target_os = "netbsd",
-            target_os = "openbsd",
-            target_os = "redox",
-            target_os = "solaris",
-            target_os = "windows",
-        )
-    )
-)]
+#[cfg(not(any(
+    target_os = "android",
+    target_os = "bitrig",
+    target_os = "cloudabi",
+    target_os = "dragonfly",
+    target_os = "emscripten",
+    target_os = "freebsd",
+    target_os = "fuchsia",
+    target_os = "haiku",
+    target_os = "ios",
+    target_os = "linux",
+    target_os = "macos",
+    target_os = "netbsd",
+    target_os = "openbsd",
+    target_os = "redox",
+    target_os = "solaris",
+    target_os = "windows",
+)))]
 /// `target_env` when building this crate: unknown!
 pub const TARGET_ENV: OS = OS::Unknown;

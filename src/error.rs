@@ -14,7 +14,7 @@ impl Display for Error {
 }
 
 #[cfg(feature = "std")]
-impl ::std::error::Error for Error {
+impl std::error::Error for Error {
     fn description(&self) -> &'static str {
         DISPLAY_STR
     }
