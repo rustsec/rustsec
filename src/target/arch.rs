@@ -37,16 +37,25 @@ pub enum Arch {
     /// `s390x`: 64-bit IBM z/Architecture
     S390X,
 
+    /// `sparc`: 32-bit SPARC CPU architecture
+    SPARC,
+
     /// `sparc64`: 64-bit SPARC CPU architecture
     SPARC64,
+
+    /// `thumbv6`: 16-bit ARM CPU architecture subset
+    THUMBV6,
+
+    /// `thumbv7`: 16-bit ARM CPU architecture subset
+    THUMBV7,
 
     /// `wasm32`: Web Assembly (32-bit)
     WASM32,
 
-    /// `x86`: Generic x86 architecture
+    /// `x86`: Generic x86 CPU architecture
     X86,
 
-    /// `x86_64`: "AMD64" architecture
+    /// `x86_64`: "AMD64" CPU architecture
     X86_64,
 
     /// Unknown CPU architecture
@@ -67,7 +76,10 @@ impl Arch {
             Arch::POWERPC64 => "powerpc64",
             Arch::RISCV => "riscv",
             Arch::S390X => "s390x",
+            Arch::SPARC => "sparc",
             Arch::SPARC64 => "sparc64",
+            Arch::THUMBV6 => "thumbv6",
+            Arch::THUMBV7 => "thumbv7",
             Arch::WASM32 => "wasm32",
             Arch::X86 => "x86",
             Arch::X86_64 => "x86_64",
@@ -92,7 +104,10 @@ impl FromStr for Arch {
             "powerpc64" => Arch::POWERPC64,
             "riscv" => Arch::RISCV,
             "s390x" => Arch::S390X,
+            "sparc" => Arch::SPARC,
             "sparc64" => Arch::SPARC64,
+            "thumbv6" => Arch::THUMBV6,
+            "thumbv7" => Arch::THUMBV7,
             "wasm32" => Arch::WASM32,
             "x86" => Arch::X86,
             "x86_64" => Arch::X86_64,
@@ -160,6 +175,10 @@ pub const TARGET_ARCH: Arch = Arch::RISCV;
 /// `target_arch` when building this crate: `s390x`
 pub const TARGET_ARCH: Arch = Arch::S390X;
 
+#[cfg(target_arch = "sparc")]
+/// `target_arch` when building this crate: `sparc`
+pub const TARGET_ARCH: Arch = Arch::SPARC;
+
 #[cfg(target_arch = "sparc64")]
 /// `target_arch` when building this crate: `sparc64`
 pub const TARGET_ARCH: Arch = Arch::SPARC64;
@@ -186,6 +205,7 @@ pub const TARGET_ARCH: Arch = Arch::X86_64;
     target_arch = "powerpc64",
     target_arch = "riscv",
     target_arch = "s390x",
+    target_arch = "sparc",
     target_arch = "sparc64",
     target_arch = "wasm32",
     target_arch = "x86",

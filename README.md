@@ -58,9 +58,8 @@ please use those for build purposes.
 | target triple                     | target_arch | target_os  | target_env |
 |-----------------------------------|-------------|------------|------------|
 | [aarch64-apple-ios]               | aarch64     | ios        | ""         |
-| [aarch64-unknown-cloudabi]        | aarch64     | cloudabi   | ""         |
 | [aarch64-linux-android]           | aarch64     | android    | ""         |
-| [aarch64-unknown-fuchsia]         | aarch64     | fuchsia    | ""         |
+| [aarch64-fuchsia]                 | aarch64     | fuchsia    | ""         |
 | [aarch64-unknown-linux-gnu]       | aarch64     | linux      | gnu        |
 | [aarch64-unknown-linux-musl]      | aarch64     | linux      | musl       |
 | [arm-linux-androideabi]           | arm         | android    | ""         |
@@ -71,7 +70,6 @@ please use those for build purposes.
 | [armv5te-unknown-linux-gnueabi]   | arm         | linux      | gnu        |
 | [armv7-apple-ios]                 | arm         | ios        | ""         |
 | [armv7-linux-androideabi]         | arm         | android    | ""         |
-| [armv7-unknown-cloudabi-eabihf]   | arm         | cloudabi   | ""         |
 | [armv7-unknown-linux-gnueabihf]   | arm         | linux      | gnu        |
 | [armv7-unknown-linux-musleabihf]  | arm         | linux      | musl       |
 | [armv7s-apple-ios]                | arm         | ios        | ""         |
@@ -81,7 +79,6 @@ please use those for build purposes.
 | [i586-unknown-linux-gnu]          | x86         | linux      | gnu        |
 | [i586-unknown-linux-musl]         | x86         | linux      | gnu        |
 | [i686-linux-android]              | x86         | android    | ""         |
-| [i686-unknown-cloudabi]           | x86         | cloudabi   | ""         |
 | [i686-unknown-freebsd]            | x86         | freebsd    | ""         |
 | [i686-unknown-linux-musl]         | x86         | linux      | musl       |
 | [mips-unknown-linux-gnu]          | mips        | linux      | gnu        |
@@ -104,11 +101,16 @@ please use those for build purposes.
 | [x86_64-sun-solaris]              | x86_64      | solaris    | ""         |
 | [x86_64-unknown-cloudabi]         | x86_64      | cloudabi   | ""         |
 | [x86_64-unknown-freebsd]          | x86_64      | freebsd    | ""         |
-| [x86_64-unknown-fuchsia]          | x86_64      | fuchsia    | ""         |
+| [x86_64-fuchsia]                  | x86_64      | fuchsia    | ""         |
 | [x86_64-unknown-linux-gnux32]     | x86_64      | linux      | gnu        |
 | [x86_64-unknown-linux-musl]       | x86_64      | linux      | musl       |
 | [x86_64-unknown-netbsd]           | x86_64      | netbsd     | ""         |
 | [x86_64-unknown-redox]            | x86_64      | redox      | ""         |
+| [aarch64-unknown-cloudabi]        | aarch64     | cloudabi   | ""         |
+| [armv7-unknown-cloudabi-eabihf]   | arm         | cloudabi   | ""         |
+| [i686-unknown-cloudabi]           | x86         | cloudabi   | ""         |
+| [powerpc-unknown-linux-gnuspe]    | powerpc     | linux      | gnu        |
+| [sparc-unknown-linux-gnu]         | sparc       | linux      | gnu        |
 
 ### Tier 3
 
@@ -116,15 +118,15 @@ please use those for build purposes.
 |-----------------------------------|-------------|------------|------------|
 | [i686-unknown-haiku]              | x86         | haiku      | ""         |
 | [i686-unknown-netbsd]             | x86         | netbsd     | ""         |
-| [le32-unknown-nacl]               | unknown     | unknown    | ""         |
 | [mips-unknown-linux-uclibc]       | mips        | linux      | uclibc     |
 | [mipsel-unknown-linux-uclibc]     | mips        | linux      | uclibc     |
 | [msp430-none-elf]                 | msp430      | unknown    | ""         |
 | [sparc64-unknown-netbsd]          | sparc64     | netbsd     | ""         |
-| [thumbv6m-none-eabi]              | unknown     | unknown    | ""         |
-| [thumbv7em-none-eabi]             | unknown     | unknown    | ""         |
-| [thumbv7em-none-eabihf]           | unknown     | unknown    | ""         |
-| [thumbv7m-none-eabi]              | unknown     | unknown    | ""         |
+| [thumbv6m-none-eabi]              | thumbv6     | unknown    | ""         |
+| [thumbv7em-none-eabi]             | thumbv7     | unknown    | ""         |
+| [thumbv7em-none-eabihf]           | thumbv7     | unknown    | ""         |
+| [thumbv7m-none-eabi]              | thumbv7     | unknown    | ""         |
+| [x86_64-fortanix-unknown-sgx]     | x86_64      | unknown    | sgx        |
 | [x86_64-unknown-bitrig]           | x86_64      | bitrig     | ""         |
 | [x86_64-unknown-dragonfly]        | x86_64      | dragonfly  | ""         |
 | [x86_64-unknown-haiku]            | x86_64      | haiku      | ""         |
@@ -139,9 +141,8 @@ please use those for build purposes.
 [x86_64-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_PC_WINDOWS_MSVC.html
 [x86_64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_UNKNOWN_LINUX_GNU.html
 [aarch64-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_APPLE_IOS.html
-[aarch64-unknown-cloudabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_UNKNOWN_CLOUDABI.html
 [aarch64-linux-android]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_LINUX_ANDROID.html
-[aarch64-unknown-fuchsia]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_UNKNOWN_FUCHSIA.html
+[aarch64-fuchsia]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_FUCHSIA.html
 [aarch64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_UNKNOWN_LINUX_GNU.html
 [aarch64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_UNKNOWN_LINUX_MUSL.html
 [arm-linux-androideabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARM_LINUX_ANDROIDEABI.html
@@ -152,7 +153,6 @@ please use those for build purposes.
 [armv5te-unknown-linux-gnueabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV5TE_UNKNOWN_LINUX_GNUEABI.html
 [armv7-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV7_APPLE_IOS.html
 [armv7-linux-androideabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV7_LINUX_ANDROIDEABI.html
-[armv7-unknown-cloudabi-eabihf]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV7_UNKNOWN_CLOUDABI_EABIHF.html
 [armv7-unknown-linux-gnueabihf]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV7_UNKNOWN_LINUX_GNUEABIHF.html
 [armv7-unknown-linux-musleabihf]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV7_UNKNOWN_LINUX_MUSLEABIHF.html
 [armv7s-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV7S_APPLE_IOS.html
@@ -162,7 +162,6 @@ please use those for build purposes.
 [i586-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.I586_UNKNOWN_LINUX_GNU.html
 [i586-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.I586_UNKNOWN_LINUX_MUSL.html
 [i686-linux-android]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.I686_LINUX_ANDROID.html
-[i686-unknown-cloudabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.I686_UNKNOWN_CLOUDABI.html
 [i686-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.I686_UNKNOWN_FREEBSD.html
 [i686-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.I686_UNKNOWN_LINUX_MUSL.html
 [mips-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.MIPS_UNKNOWN_LINUX_GNU.html
@@ -185,14 +184,18 @@ please use those for build purposes.
 [x86_64-sun-solaris]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_SUN_SOLARIS.html
 [x86_64-unknown-cloudabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_UNKNOWN_CLOUDABI.html
 [x86_64-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_UNKNOWN_FREEBSD.html
-[x86_64-unknown-fuchsia]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_UNKNOWN_FUCHSIA.html
+[x86_64-fuchsia]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_FUCHSIA.html
 [x86_64-unknown-linux-gnux32]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_UNKNOWN_LINUX_GNUX32.html
 [x86_64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_UNKNOWN_LINUX_MUSL.html
 [x86_64-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_UNKNOWN_NETBSD.html
 [x86_64-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.X86_64_UNKNOWN_REDOX.html
+[aarch64-unknown-cloudabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_UNKNOWN_CLOUDABI.html
+[armv7-unknown-cloudabi-eabihf]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.ARMV7_UNKNOWN_CLOUDABI_EABIHF.html
+[i686-unknown-cloudabi]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.I686_UNKNOWN_CLOUDABI.html
+[powerpc-unknown-linux-gnuspe]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.POWERPC_UNKNOWN_LINUX_GNUSPE.html
+[sparc-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.SPARC_UNKNOWN_LINUX_GNU.html
 [i686-unknown-haiku]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.I686_UNKNOWN_HAIKU.html
 [i686-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.I686_UNKNOWN_NETBSD.html
-[le32-unknown-nacl]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.LE32_UNKNOWN_NACL.html
 [mips-unknown-linux-uclibc]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.MIPS_UNKNOWN_LINUX_UCLIBC.html
 [mipsel-unknown-linux-uclibc]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.MIPSEL_UNKNOWN_LINUX_UCLIBC.html
 [msp430-none-elf]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.MSP430_NONE_ELF.html
@@ -201,6 +204,7 @@ please use those for build purposes.
 [thumbv7em-none-eabi]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.THUMBV7EM_NONE_EABI.html
 [thumbv7em-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.THUMBV7EM_NONE_EABIHF.html
 [thumbv7m-none-eabi]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.THUMBV7M_NONE_EABI.html
+[x86_64-fortanix-unknown-sgx]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.X86_64_FORTANIX_UNKNOWN_SGX.html
 [x86_64-unknown-bitrig]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.X86_64_UNKNOWN_BITRIG.html
 [x86_64-unknown-dragonfly]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.X86_64_UNKNOWN_DRAGONFLY.html
 [x86_64-unknown-haiku]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.X86_64_UNKNOWN_HAIKU.html

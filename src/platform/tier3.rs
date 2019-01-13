@@ -29,15 +29,6 @@ pub const I686_UNKNOWN_NETBSD: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// `le32-unknown-nacl`: PNaCl sandbox
-pub const LE32_UNKNOWN_NACL: Platform = Platform {
-    target_triple: "le32-unknown-nacl",
-    target_arch: Arch::Unknown, // TODO: `Arch::` for le32
-    target_os: OS::Unknown,
-    target_env: None,
-    tier: Tier::Three,
-};
-
 /// `mips-unknown-linux-uclibc`: MIPS Linux with uClibc
 pub const MIPS_UNKNOWN_LINUX_UCLIBC: Platform = Platform {
     target_triple: "mips-unknown-linux-uclibc",
@@ -77,7 +68,7 @@ pub const SPARC64_UNKNOWN_NETBSD: Platform = Platform {
 /// `thumbv6m-none-eabi`: Bare Cortex-M0, M0+, M1
 pub const THUMBV6M_NONE_EABI: Platform = Platform {
     target_triple: "thumbv6m-none-eabi",
-    target_arch: Arch::Unknown, // TODO: `Arch::` for thumbv6
+    target_arch: Arch::THUMBV6,
     target_os: OS::Unknown,
     target_env: None,
     tier: Tier::Three,
@@ -86,7 +77,7 @@ pub const THUMBV6M_NONE_EABI: Platform = Platform {
 /// `thumbv7em-none-eabi`:	Bare Cortex-M4, M7
 pub const THUMBV7EM_NONE_EABI: Platform = Platform {
     target_triple: "thumbv7em-none-eabi",
-    target_arch: Arch::Unknown, // TODO: `Arch::` for thumbv7
+    target_arch: Arch::THUMBV7,
     target_os: OS::Unknown,
     target_env: None,
     tier: Tier::Three,
@@ -95,7 +86,7 @@ pub const THUMBV7EM_NONE_EABI: Platform = Platform {
 /// `thumbv7em-none-eabihf`: Bare Cortex-M4F, M7F, FPU, hardfloat
 pub const THUMBV7EM_NONE_EABIHF: Platform = Platform {
     target_triple: "thumbv7em-none-eabihf",
-    target_arch: Arch::Unknown, // TODO: `Arch::` for thumbv7
+    target_arch: Arch::THUMBV7,
     target_os: OS::Unknown,
     target_env: None,
     tier: Tier::Three,
@@ -104,9 +95,18 @@ pub const THUMBV7EM_NONE_EABIHF: Platform = Platform {
 /// `thumbv7m-none-eabi`: Bare Cortex-M3
 pub const THUMBV7M_NONE_EABI: Platform = Platform {
     target_triple: "thumbv7m-none-eabi",
-    target_arch: Arch::Unknown, // TODO: `Arch::` for thumbv7
+    target_arch: Arch::THUMBV7,
     target_os: OS::Unknown,
     target_env: None,
+    tier: Tier::Three,
+};
+
+/// `x86_64-fortanix-unknown-sgx`: 	Fortanix ABI for 64-bit Intel SGX
+pub const X86_64_FORTANIX_UNKNOWN_SGX: Platform = Platform {
+    target_triple: "x86_64-fortanix-unknown-sgx",
+    target_arch: Arch::X86_64,
+    target_os: OS::Unknown,
+    target_env: Some(Env::SGX),
     tier: Tier::Three,
 };
 
