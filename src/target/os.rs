@@ -214,5 +214,5 @@ pub const TARGET_OS: OS = OS::Windows;
     target_os = "solaris",
     target_os = "windows",
 )))]
-/// `target_env` when building this crate: unknown!
-pub const TARGET_ENV: OS = OS::Unknown;
+/// `target_os` when building this crate: unknown!
+pub const TARGET_OS: OS = OS::Unknown;
