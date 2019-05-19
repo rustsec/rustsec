@@ -1,9 +1,10 @@
 [package]
 name = "base64_vuln"
 version = "0.1.0"
-authors = ["John Sirois <john.sirois@gmail.com>"]
-edition = "2018"
 publish = false
+
+[lib]
+path = "dummy.rs"
 
 [dependencies]
 base64 = "<0.5.2"

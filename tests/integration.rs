@@ -25,7 +25,9 @@ fn cargo_audit(project: &str) -> Command {
     // Don't pollute the default DB; instead use a single DB we tear down on test suite exit.
     command.arg("--db").arg(DB_DIR.path());
 
-    let tests_data_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests-data"].iter().collect();
+    let tests_data_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "support"]
+        .iter()
+        .collect();
 
     // Point at the integration test example project's Cargo.lock file.
     command
