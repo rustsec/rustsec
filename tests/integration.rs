@@ -15,21 +15,22 @@ lazy_static! {
     static ref DB_DIR: TempDir = TempDir::new("advisory-db").unwrap();
 }
 
-fn cargo_audit() -> Command {
+fn cargo_audit(project: &str) -> Command {
     // The cargo-audit binary expects to be called in a cargo subcommand context; eg: `cargo audit`.
     let mut command = Command::new(env!("CARGO"));
     command
         .arg("audit")
         .env("PATH", cargo_bin("cargo-audit").parent().unwrap());
 
+    // Don't pollute the default DB; instead use a single DB we tear down on test suite exit.
     command.arg("--db").arg(DB_DIR.path());
 
     let tests_data_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests-data"].iter().collect();
 
-    // Point at the integration test example project Cargo.lock file.
+    // Point at the integration test example project's Cargo.lock file.
     command
         .arg("--file")
-        .arg(tests_data_dir.join("project").join("Cargo.lock"));
+        .arg(tests_data_dir.join(project).join("Cargo.lock"));
 
     command
 }
@@ -103,27 +104,28 @@ fn assert_advisories(command: &mut Command, expected_advisories: Vec<&str>) {
             .unwrap()
     );
 
-    let advisories = json
+    let vulnerabilities = json
         .pointer("/vulnerabilities/list")
         .unwrap()
         .as_array()
         .unwrap();
-    let actual: HashSet<&str> = advisories
+
+    let actual_advisories: HashSet<&str> = vulnerabilities
         .into_iter()
         .map(|value| value.pointer("/advisory/id").unwrap().as_str().unwrap())
         .collect();
-    assert_eq!(expected, actual);
+    assert_eq!(expected, actual_advisories);
 }
 
 #[test]
 fn ignore() {
-    assert_advisories(&mut cargo_audit(), vec!["RUSTSEC-2017-0004"]);
+    assert_advisories(&mut cargo_audit("base64_vuln"), vec!["RUSTSEC-2017-0004"]);
 
-    let mut ignore_typo_command = cargo_audit();
+    let mut ignore_typo_command = cargo_audit("base64_vuln");
     ignore_typo_command.arg("--ignore").arg("RUSTSEC-2017-0003");
     assert_advisories(&mut ignore_typo_command, vec!["RUSTSEC-2017-0004"]);
 
-    cargo_audit()
+    cargo_audit("base64_vuln")
         .arg("--ignore")
         .arg("RUSTSEC-2017-0004")
         .unwrap()
