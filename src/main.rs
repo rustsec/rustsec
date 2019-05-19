@@ -97,6 +97,15 @@ struct AuditOpts {
     /// Output reports as JSON
     #[options(no_short, long = "json", help = "Output report in JSON format")]
     output_json: bool,
+
+    /// Advisory ids to ignore
+    #[options(
+        no_short,
+        long = "ignore",
+        meta = "ADVISORY_ID",
+        help = "Advisory id to ignore (can be specified multiple times)"
+    )]
+    ignore: Vec<String>,
 }
 
 /// Options for the `help` command
@@ -117,6 +126,7 @@ impl Default for AuditOpts {
             target_os: None,
             url: None,
             output_json: false,
+            ignore: vec![],
         }
     }
 }
@@ -142,7 +152,7 @@ fn main() {
         help(1);
     });
 
-    let color_config = opts.color.as_ref().map(|s| s.as_ref()).unwrap_or("auto");
+    let color_config = opts.color.as_ref().map(AsRef::as_ref).unwrap_or("auto");
     let use_stdout = !opts.output_json;
 
     shell::init(color_config, use_stdout);
@@ -172,7 +182,7 @@ fn load_advisory_db(opts: &AuditOpts) -> AdvisoryDatabase {
     let advisory_repo_url = opts
         .url
         .as_ref()
-        .map(|url| url.as_ref())
+        .map(AsRef::as_ref)
         .unwrap_or(ADVISORY_DB_REPO_URL);
 
     let advisory_repo_path = opts
@@ -297,6 +307,10 @@ fn match_vulnerability(vuln: &Vulnerability, opts: &AuditOpts) -> bool {
         }
     }
 
+    if opts.ignore.contains(&vuln.advisory.id.as_str().to_owned()) {
+        return false;
+    }
+
     true
 }
 
@@ -332,7 +346,7 @@ fn display_advisory(package: &Package, advisory: &Advisory) {
         advisory
             .patched_versions
             .iter()
-            .map(|v| v.to_string())
+            .map(ToString::to_string)
             .collect::<Vec<_>>()
             .as_slice()
             .join(" OR ")
