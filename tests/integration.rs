@@ -2,17 +2,17 @@ extern crate assert_cmd;
 #[macro_use]
 extern crate lazy_static;
 extern crate serde_json;
-extern crate tempdir;
+extern crate tempfile;
 
 use assert_cmd::cargo::cargo_bin;
 use assert_cmd::prelude::*;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use std::process::Command;
-use tempdir::TempDir;
+use tempfile::TempDir;
 
 lazy_static! {
-    static ref DB_DIR: TempDir = TempDir::new("advisory-db").unwrap();
+    static ref DB_DIR: TempDir = TempDir::new().unwrap();
 }
 
 fn cargo_audit(project: &str) -> Command {
