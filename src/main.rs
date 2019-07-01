@@ -250,10 +250,9 @@ fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
 
     if vulnerabilities.is_empty() {
         status_ok!("Success", "No vulnerable packages found");
-        exit(0);
+    } else {
+        status_error!("Vulnerable crates found!");
     }
-
-    status_error!("Vulnerable crates found!");
 
     if opts.output_json {
         let json = json!({
@@ -269,7 +268,7 @@ fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
                 "dependency-count": lockfile.packages.len(),
             },
             "vulnerabilities": {
-                "found": true,
+                "found": !vulnerabilities.is_empty(),
                 "count": vulnerabilities.len(),
                 "list": vulnerabilities
             },
