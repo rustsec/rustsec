@@ -1,0 +1,7 @@
+[package]
+name = "no_vulns"
+version = "0.1.0"
+publish = false
+
+[lib]
+path = "dummy.rs"
