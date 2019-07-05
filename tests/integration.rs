@@ -6,6 +6,7 @@ extern crate tempfile;
 
 use assert_cmd::cargo::cargo_bin;
 use assert_cmd::prelude::*;
+use serial_test_derive::serial;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use std::process::Command;
@@ -37,11 +38,20 @@ fn cargo_audit(project: &str) -> Command {
     command
 }
 
+fn assert_no_advisories(command: &mut Command) {
+    let output = command.arg("--json").unwrap();
+    assert_advisory_output(&output, vec![]);
+}
+
 fn assert_advisories(command: &mut Command, expected_advisories: Vec<&str>) {
     let output = command.arg("--json").unwrap_err();
+    assert_advisory_output(output.as_output().unwrap(), expected_advisories);
+}
 
+fn assert_advisory_output(output: &std::process::Output, expected_advisories: Vec<&str>) {
     let json: serde_json::Value =
-        serde_json::from_slice(output.as_output().unwrap().stdout.as_slice()).unwrap();
+        serde_json::from_slice(output.stdout.as_slice()).unwrap();
+
     // Example JSON structure:
     //
     //{
@@ -120,6 +130,13 @@ fn assert_advisories(command: &mut Command, expected_advisories: Vec<&str>) {
 }
 
 #[test]
+#[serial]
+fn no_vulnerabilities_json_valid() {
+    assert_no_advisories(&mut cargo_audit("no_vulns"));
+}
+
+#[test]
+#[serial]
 fn ignore() {
     assert_advisories(&mut cargo_audit("base64_vuln"), vec!["RUSTSEC-2017-0004"]);
 
@@ -127,10 +144,7 @@ fn ignore() {
     ignore_typo_command.arg("--ignore").arg("RUSTSEC-2017-0003");
     assert_advisories(&mut ignore_typo_command, vec!["RUSTSEC-2017-0004"]);
 
-    cargo_audit("base64_vuln")
+    assert_no_advisories(&mut (cargo_audit("no_vulns")
         .arg("--ignore")
-        .arg("RUSTSEC-2017-0004")
-        .unwrap()
-        .assert()
-        .success();
+        .arg("RUSTSEC-2017-0004")));
 }
