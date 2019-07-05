@@ -132,8 +132,8 @@ struct ShellConfig {
     pub tty: bool,
 }
 enum Terminal {
-    NoColor(Box<Write + Send>),
-    Colored(Box<term::Terminal<Output = Box<Write + Send>> + Send>),
+    NoColor(Box<dyn Write + Send>),
+    Colored(Box<dyn term::Terminal<Output = Box<dyn Write + Send>> + Send>),
 }
 
 /// Terminal shell we interact with
@@ -144,18 +144,18 @@ struct Shell {
 
 impl Shell {
     /// Create a new shell
-    pub fn new<T: FnMut() -> Box<Write + Send>>(mut out_fn: T, config: ShellConfig) -> Shell {
+    pub fn new<T: FnMut() -> Box<dyn Write + Send>>(mut out_fn: T, config: ShellConfig) -> Shell {
         let terminal = Shell::get_term(out_fn()).unwrap_or_else(|_| Terminal::NoColor(out_fn()));
         Shell { terminal, config }
     }
 
     /// Get the shell's Terminal
-    fn get_term(out: Box<Write + Send>) -> term::Result<Terminal> {
+    fn get_term(out: Box<dyn Write + Send>) -> term::Result<Terminal> {
         Ok(Shell::get_terminfo_term(out))
     }
 
     /// Get the terminfo Terminal
-    fn get_terminfo_term(out: Box<Write + Send>) -> Terminal {
+    fn get_terminfo_term(out: Box<dyn Write + Send>) -> Terminal {
         match ::term::terminfo::TermInfo::from_env() {
             Ok(ti) => {
                 let term = TerminfoTerminal::new_with_terminfo(out, ti);
