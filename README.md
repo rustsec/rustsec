@@ -43,6 +43,7 @@ To automaticlly run `cargo audit` on every build in Travis CI, you can add the f
 
 ```yaml
 language: rust
+cache: cargo # cache cargo-audit once installed
 before_script:
   - cargo install --force cargo-audit
   - cargo generate-lockfile
