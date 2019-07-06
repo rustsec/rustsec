@@ -45,6 +45,7 @@ To automaticlly run `cargo audit` on every build in Travis CI, you can add the f
 language: rust
 before_script:
   - cargo install --force cargo-audit
+  - cargo generate-lockfile
 script:
   - cargo audit
 ```
