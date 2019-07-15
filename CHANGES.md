@@ -1,3 +1,10 @@
+## [0.7.0] (2019-07-15)
+
+- Switch from `term` to `termcolor` crate ([#83])
+- Update `gumdrop` to v0.6, `rustsec` crate to v0.12; min Rust 1.32+ ([#82])
+- Produce valid JSON when no vulnerabilities are detected ([#77])
+- Implement `--ignore` option ([#75])
+
 ## [0.6.1] (2018-12-16)
 
 - Fix option parsing ([#64])
@@ -60,6 +67,11 @@
 
 - Initial release
 
+[0.7.0]: https://github.com/RustSec/cargo-audit/pull/84
+[#83]: https://github.com/RustSec/cargo-audit/pull/83
+[#82]: https://github.com/RustSec/cargo-audit/pull/82
+[#77]: https://github.com/RustSec/cargo-audit/pull/77
+[#75]: https://github.com/RustSec/cargo-audit/pull/75
 [0.6.1]: https://github.com/RustSec/cargo-audit/pull/65
 [#64]: https://github.com/RustSec/cargo-audit/pull/64
 [0.6.0]: https://github.com/RustSec/cargo-audit/pull/62
