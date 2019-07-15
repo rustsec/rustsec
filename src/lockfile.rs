@@ -1,6 +1,7 @@
 //! Parser for `Cargo.lock` files
 
 use crate::{error::Error, package::Package};
+use serde::Deserialize;
 use std::{fs::File, io::Read, path::Path};
 use toml;
 
