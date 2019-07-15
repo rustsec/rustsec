@@ -49,8 +49,7 @@ fn assert_advisories(command: &mut Command, expected_advisories: Vec<&str>) {
 }
 
 fn assert_advisory_output(output: &std::process::Output, expected_advisories: Vec<&str>) {
-    let json: serde_json::Value =
-        serde_json::from_slice(output.stdout.as_slice()).unwrap();
+    let json: serde_json::Value = serde_json::from_slice(output.stdout.as_slice()).unwrap();
 
     // Example JSON structure:
     //
@@ -144,7 +143,9 @@ fn ignore() {
     ignore_typo_command.arg("--ignore").arg("RUSTSEC-2017-0003");
     assert_advisories(&mut ignore_typo_command, vec!["RUSTSEC-2017-0004"]);
 
-    assert_no_advisories(&mut (cargo_audit("no_vulns")
-        .arg("--ignore")
-        .arg("RUSTSEC-2017-0004")));
+    assert_no_advisories(
+        &mut (cargo_audit("no_vulns")
+            .arg("--ignore")
+            .arg("RUSTSEC-2017-0004")),
+    );
 }

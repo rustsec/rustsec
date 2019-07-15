@@ -16,11 +16,10 @@ name = "cargo-audit"
 
 [dependencies]
 atty = "0.2"
-gumdrop = "0.5"
-gumdrop_derive = "0.5"
+gumdrop = "0.6"
 lazy_static = "1"
 platforms = "0.2"
-rustsec = "0.11"
+rustsec = "0.12"
 term = "0.5"
 serde_json = "1"
 
