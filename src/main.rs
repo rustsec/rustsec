@@ -4,7 +4,7 @@
 #![forbid(unsafe_code)]
 
 #[macro_use]
-mod shell;
+mod terminal;
 
 use gumdrop::Options;
 use platforms::target::{Arch, OS};
@@ -12,12 +12,12 @@ use rustsec::{
     Advisory, AdvisoryDatabase, ErrorKind, Lockfile, Package, Repository, Vulnerabilities,
     Vulnerability, ADVISORY_DB_REPO_URL,
 };
+use serde_json::json;
 use std::{
     env,
     path::{Path, PathBuf},
     process::exit,
 };
-use serde_json::json;
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
@@ -141,7 +141,7 @@ fn main() {
     let color_config = opts.color.as_ref().map(AsRef::as_ref).unwrap_or("auto");
     let use_stdout = !opts.output_json;
 
-    shell::init(color_config, use_stdout);
+    terminal::init(color_config, use_stdout);
     audit(&opts, &load_advisory_db(&opts));
 }
 
@@ -181,12 +181,12 @@ fn load_advisory_db(opts: &AuditOpts) -> AdvisoryDatabase {
 
     let advisory_db_repo = Repository::fetch(advisory_repo_url, &advisory_repo_path, !opts.stale)
         .unwrap_or_else(|e| {
-            status_error!("couldn't fetch advisory database: {}", e);
+            status_err!("couldn't fetch advisory database: {}", e);
             exit(1);
         });
 
     let advisory_db = AdvisoryDatabase::from_repository(&advisory_db_repo).unwrap_or_else(|e| {
-        status_error!("error loading advisory database: {}", e);
+        status_err!("error loading advisory database: {}", e);
         exit(1);
     });
 
@@ -214,7 +214,7 @@ fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
             exit(1);
         }
         _ => {
-            status_error!("Couldn't load {}: {}", lockfile_path.display(), e);
+            status_err!("Couldn't load {}: {}", lockfile_path.display(), e);
             exit(1);
         }
     });
@@ -237,7 +237,7 @@ fn audit(opts: &AuditOpts, advisory_db: &AdvisoryDatabase) -> ! {
     if vulnerabilities.is_empty() {
         status_ok!("Success", "No vulnerable packages found");
     } else {
-        status_error!("Vulnerable crates found!");
+        status_err!("Vulnerable crates found!");
     }
 
     if opts.output_json {
@@ -300,7 +300,7 @@ fn match_vulnerability(vuln: &Vulnerability, opts: &AuditOpts) -> bool {
 }
 
 fn not_found(path: &Path) {
-    status_error!("Couldn't find '{}'!", path.display());
+    status_err!("Couldn't find '{}'!", path.display());
     println!("\nRun \"cargo build\" to generate lockfile before running audit");
 }
 
@@ -308,24 +308,24 @@ fn vulns_found(vuln_count: usize) {
     println!();
 
     if vuln_count == 1 {
-        status_error!("1 vulnerability found!");
+        status_err!("1 vulnerability found!");
     } else {
-        status_error!("{} vulnerabilities found!", vuln_count);
+        status_err!("{} vulnerabilities found!", vuln_count);
     }
 }
 
 fn display_advisory(package: &Package, advisory: &Advisory) {
-    attribute!("\nID", advisory.id.as_str());
-    attribute!("Crate", package.name.as_str());
-    attribute!("Version", &package.version.to_string());
-    attribute!("Date", advisory.date.as_str());
+    status_attr_err!("\nID", advisory.id.as_str());
+    status_attr_err!("Crate", package.name.as_str());
+    status_attr_err!("Version", &package.version.to_string());
+    status_attr_err!("Date", advisory.date.as_str());
 
     if let Some(url) = advisory.url.as_ref() {
-        attribute!("URL", url);
+        status_attr_err!("URL", url);
     }
 
-    attribute!("Title", &advisory.title);
-    attribute!(
+    status_attr_err!("Title", &advisory.title);
+    status_attr_err!(
         "Solution: upgrade to",
         "{}",
         advisory
