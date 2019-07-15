@@ -22,7 +22,7 @@ database in other capacities.
 
 ## Requirements
 
-- Rust 1.31+
+- Rust 1.32+
 
 ## License
 
