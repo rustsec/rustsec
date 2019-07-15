@@ -4,7 +4,7 @@
 [![Build Status][build-image]][build-link]
 [![Appveyor Status][appveyor-image]][appveyor-link]
 ![forbid(unsafe_code)][unsafe-image]
-![Rust 1.35+][rustc-image]
+![Rust 1.32+][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
