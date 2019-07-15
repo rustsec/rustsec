@@ -1,3 +1,8 @@
+## [0.12.0] (2019-07-15)
+
+- Update dependencies and use 2018 import conventions; Rust 1.32+ ([#64])
+- Re-export all types in `advisory::paths::*` ([#61])
+
 ## [0.11.0] (2019-01-13)
 
 - Cargo.toml: Update `platforms` crate to v0.2 ([#59])
@@ -97,6 +102,9 @@
 
 - Initial release
 
+[0.12.0]: https://github.com/RustSec/rustsec-crate/pull/65
+[#64]: https://github.com/RustSec/rustsec-crate/pull/64
+[#61]: https://github.com/RustSec/rustsec-crate/pull/61
 [0.11.0]: https://github.com/RustSec/rustsec-crate/pull/60
 [#59]: https://github.com/RustSec/rustsec-crate/pull/58
 [#58]: https://github.com/RustSec/rustsec-crate/pull/59
