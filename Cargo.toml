@@ -14,13 +14,11 @@ edition     = "2018"
 chrono = { version = "0.4", optional = true }
 directories = "1"
 failure = "0.1"
-failure_derive = "0.1"
 git2 = "0.8"
 platforms = { version = "0.2", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
-serde = "1"
-serde_derive = "1"
-toml = "0.4"
+serde = { version = "1", features = ["serde_derive"] }
+toml = "0.5"
 
 [dev-dependencies]
 tempfile = "3"
