@@ -1,5 +1,5 @@
 use crate::error::Error;
-use serde::{de::Error as DeError, Deserialize, Deserializer};
+use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
 
 /// Keywords on advisories, similar to Cargo keywords

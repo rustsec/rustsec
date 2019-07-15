@@ -1,7 +1,7 @@
 use crate::error::{Error, ErrorKind};
 #[cfg(feature = "chrono")]
 use chrono::{self, DateTime, Utc};
-use serde::{de::Error as DeError, Deserialize, Deserializer};
+use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
 
 /// Minimum allowed year on advisory dates
