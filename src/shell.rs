@@ -15,6 +15,7 @@ use term::{
     color::{Color, BLACK},
     Attr, Terminal as TermTerminal, TerminfoTerminal,
 };
+use lazy_static::lazy_static;
 
 lazy_static! {
     static ref SHELL: Mutex<RefCell<Option<Shell>>> = Mutex::new(RefCell::new(None));

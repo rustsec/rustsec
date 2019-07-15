@@ -3,18 +3,10 @@
 [![Latest Version][crate-image]][crate-link]
 [![Build Status][build-image]][build-link]
 [![Appveyor Status][appveyor-image]][appveyor-link]
+![forbid(unsafe_code)][unsafe-image]
+![Rust 1.35+][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
-
-[crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
-[crate-link]: https://crates.io/crates/cargo-audit
-[build-image]: https://travis-ci.org/RustSec/cargo-audit.svg?branch=master
-[build-link]: https://travis-ci.org/RustSec/cargo-audit
-[appveyor-image]: https://ci.appveyor.com/api/projects/status/oa39c0in9qkxpoiv?svg=true
-[appveyor-link]: https://ci.appveyor.com/project/tarcieri/cargo-audit
-[license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[gitter-image]: https://badges.gitter.im/badge.svg
-[gitter-link]: https://gitter.im/RustSec/Lobby
 
 Audit Cargo.lock for crates with security vulnerabilities reported to the
 [RustSec Advisory Database].
@@ -25,7 +17,7 @@ https://github.com/rust-lang/rfcs/pull/1752
 
 ## Requirements
 
-`cargo audit` requires Rust **1.31** or later.
+`cargo audit` requires Rust **1.32** or later.
 
 ## Installation
 
@@ -78,6 +70,22 @@ at your option.
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you shall be dual licensed as above, without any
 additional terms or conditions.
+
+[//]: # (badges)
+
+[crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
+[crate-link]: https://crates.io/crates/cargo-audit
+[build-image]: https://travis-ci.org/RustSec/cargo-audit.svg?branch=master
+[build-link]: https://travis-ci.org/RustSec/cargo-audit
+[appveyor-image]: https://ci.appveyor.com/api/projects/status/oa39c0in9qkxpoiv?svg=true
+[appveyor-link]: https://ci.appveyor.com/project/tarcieri/cargo-audit
+[license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.32+-blue.svg
+[unsafe-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
+[gitter-image]: https://badges.gitter.im/badge.svg
+[gitter-link]: https://gitter.im/RustSec/Lobby
+
+[//]: # (general links)
 
 [RustSec Advisory Database]: https://github.com/RustSec/advisory-db/
 [LICENSE-APACHE]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-APACHE
