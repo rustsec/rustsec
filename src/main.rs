@@ -1,25 +1,10 @@
 //! Audit Cargo.lock files for crates containing security vulnerabilities
 
-#![crate_name = "cargo_audit"]
-#![crate_type = "bin"]
-#![deny(unsafe_code, warnings, missing_docs, trivial_numeric_casts)]
-#![deny(trivial_casts, unused_import_braces, unused_qualifications)]
+#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
+#![forbid(unsafe_code)]
 
 #[macro_use]
 mod shell;
-
-extern crate gumdrop;
-#[allow(unused_imports)]
-#[macro_use]
-extern crate gumdrop_derive;
-extern crate atty;
-#[macro_use]
-extern crate lazy_static;
-extern crate platforms;
-extern crate rustsec;
-extern crate term;
-#[macro_use]
-extern crate serde_json;
 
 use gumdrop::Options;
 use platforms::target::{Arch, OS};
@@ -32,6 +17,7 @@ use std::{
     path::{Path, PathBuf},
     process::exit,
 };
+use serde_json::json;
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
