@@ -52,7 +52,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-audit"
-version = "0.6.1"
+version = "0.7.0"
 dependencies = [
  "assert_cmd 0.11.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gumdrop 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
