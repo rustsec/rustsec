@@ -11,16 +11,22 @@ categories  = ["development-tools"]
 keywords    = ["cargo-subcommand", "security", "audit", "vulnerability"]
 edition     = "2018"
 
-[[bin]]
-name = "cargo-audit"
-
 [dependencies]
+failure = "0.1"
 gumdrop = "0.6"
+home = "0.3"
 lazy_static = "1"
 platforms = "0.2"
 rustsec = "0.12"
-termcolor = "1"
+serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
+
+[dependencies.abscissa_core]
+version = "0.2.0-rc.1"
+
+[dev-dependencies.abscissa_core]
+version = "0.2.0-rc.1"
+features = ["testing"]
 
 [dev-dependencies]
 assert_cmd = "0.11"

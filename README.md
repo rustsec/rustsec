@@ -4,20 +4,16 @@
 [![Build Status][build-image]][build-link]
 [![Appveyor Status][appveyor-image]][appveyor-link]
 ![forbid(unsafe_code)][unsafe-image]
-![Rust 1.32+][rustc-image]
+![Rust 1.35+][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
-Audit Cargo.lock for crates with security vulnerabilities reported to the
+Audit `Cargo.lock` files for crates with security vulnerabilities reported to the
 [RustSec Advisory Database].
-
-This implements an idea originally proposed in this (closed) RFC:
-
-https://github.com/rust-lang/rfcs/pull/1752
 
 ## Requirements
 
-`cargo audit` requires Rust **1.32** or later.
+`cargo audit` requires Rust **1.35** or later.
 
 ## Installation
 
@@ -31,7 +27,7 @@ Once installed, run `cargo audit` at the toplevel of any Cargo project.
 
 ## Using `cargo audit` on Travis CI
 
-To automaticlly run `cargo audit` on every build in Travis CI, you can add the following to your `.travis.yml`:
+To automatically run `cargo audit` on every build in Travis CI, you can add the following to your `.travis.yml`:
 
 ```yaml
 language: rust
@@ -80,7 +76,7 @@ additional terms or conditions.
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/oa39c0in9qkxpoiv?svg=true
 [appveyor-link]: https://ci.appveyor.com/project/tarcieri/cargo-audit
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.32+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
 [unsafe-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby
