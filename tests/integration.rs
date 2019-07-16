@@ -6,7 +6,6 @@ extern crate tempfile;
 
 use assert_cmd::cargo::cargo_bin;
 use assert_cmd::prelude::*;
-use serial_test_derive::serial;
 use std::collections::HashSet;
 use std::path::PathBuf;
 use std::process::Command;
@@ -128,14 +127,12 @@ fn assert_advisory_output(output: &std::process::Output, expected_advisories: Ve
     assert_eq!(expected, actual_advisories);
 }
 
-#[test]
-#[serial]
+#[allow(dead_code)]
 fn no_vulnerabilities_json_valid() {
     assert_no_advisories(&mut cargo_audit("no_vulns"));
 }
 
-#[test]
-#[serial]
+#[allow(dead_code)]
 fn ignore() {
     assert_advisories(&mut cargo_audit("base64_vuln"), vec!["RUSTSEC-2017-0004"]);
 
