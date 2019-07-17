@@ -22,10 +22,10 @@ serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 
 [dependencies.abscissa_core]
-version = "0.2.0-rc.1"
+version = "0.2.0"
 
 [dev-dependencies.abscissa_core]
-version = "0.2.0-rc.1"
+version = "0.2.0"
 features = ["testing"]
 
 [dev-dependencies]
