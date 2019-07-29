@@ -196,7 +196,7 @@ fn parse_year(advisory_id: &str) -> Result<u32, Error> {
 
     let year = match parts.next().unwrap().parse::<u32>() {
         Ok(n) => match n {
-            YEAR_MIN...YEAR_MAX => n,
+            YEAR_MIN..=YEAR_MAX => n,
             _ => fail!(
                 ErrorKind::Parse,
                 "out-of-range year in advisory ID: {}",
