@@ -22,7 +22,7 @@ matrix:
 
 install:
   - rustup component add rustfmt
-  - rustup component add clippy-preview
+  - rustup component add clippy
 
 script:
   - cargo fmt --all -- --check
