@@ -1,3 +1,7 @@
+## [0.12.1] (2019-07-29)
+
+- Use new inclusive range syntax ([#66])
+
 ## [0.12.0] (2019-07-15)
 
 - Update dependencies and use 2018 import conventions; Rust 1.32+ ([#64])
@@ -102,6 +106,8 @@
 
 - Initial release
 
+[0.12.1]: https://github.com/RustSec/rustsec-crate/pull/67
+[#66]: https://github.com/RustSec/rustsec-crate/pull/66
 [0.12.0]: https://github.com/RustSec/rustsec-crate/pull/65
 [#64]: https://github.com/RustSec/rustsec-crate/pull/64
 [#61]: https://github.com/RustSec/rustsec-crate/pull/61
