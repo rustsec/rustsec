@@ -143,7 +143,7 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
 
     if let Some(first_char) = chars.next() {
         match first_char {
-            'A'...'Z' | 'a'...'z' | '_' => (),
+            'A'..='Z' | 'a'..='z' | '_' => (),
             _ => fail!(
                 ErrorKind::Parse,
                 "identifier must start with a letter: '{}'",
@@ -156,7 +156,7 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
 
     for c in chars {
         match c {
-            'A'...'Z' | 'a'...'z' | '0'...'9' | '_' => (),
+            'A'..='Z' | 'a'..='z' | '0'..='9' | '_' => (),
             '<' | '>' | '(' | ')' => fail!(
                 ErrorKind::Parse,
                 "omit parameters when specifying affected paths: '{}'",

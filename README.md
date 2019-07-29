@@ -3,7 +3,9 @@
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
-![MIT/Apache 2 licensed][license-image]
+[![Safety Dance][safety-image]][safety-link]
+![Rust 1.35+][rustc-image]
+![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
 Client library for accessing the [RustSec Security Advisory Database]:
@@ -39,15 +41,23 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you shall be dual licensed as above, without any
 additional terms or conditions.
 
+[//]: # (badges)
+
 [crate-image]: https://img.shields.io/crates/v/rustsec.svg
 [crate-link]: https://crates.io/crates/rustsec
 [docs-image]: https://docs.rs/rustsec/badge.svg
 [docs-link]: https://docs.rs/rustsec/
 [build-image]: https://travis-ci.org/RustSec/rustsec-crate.svg?branch=master
 [build-link]: https://travis-ci.org/RustSec/rustsec-crate
-[license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
+[safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
+[safety-link]: https://github.com/rust-secure-code/safety-dance/
+[rustc-image]: https://img.shields.io/badge/rustc-1.32+-blue.svg
+[license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby
+
+[//]: # (general links)
+
 [RustSec Security Advisory Database]: https://rustsec.org/
 [advisory-db]: https://github.com/RustSec/advisory-db
 [Documentation]: https://docs.rs/rustsec/

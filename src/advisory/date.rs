@@ -62,7 +62,7 @@ macro_rules! check_date_part {
         }
 
         match part.parse::<u32>() {
-            Ok($min...$max) => (),
+            Ok($min..=$max) => (),
             _ => fail!(ErrorKind::Parse, "malformed {}: {}", $name, $string),
         }
     };
