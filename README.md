@@ -3,7 +3,7 @@
 [![Latest Version][crate-image]][crate-link]
 [![Build Status][build-image]][build-link]
 [![Appveyor Status][appveyor-image]][appveyor-link]
-![forbid(unsafe_code)][unsafe-image]
+[![Safety Dance][safety-image]][safety-link]
 ![Rust 1.35+][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
@@ -77,6 +77,8 @@ additional terms or conditions.
 [appveyor-link]: https://ci.appveyor.com/project/tarcieri/cargo-audit
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
+[safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
+[safety-link]: https://github.com/rust-secure-code/safety-dance/
 [unsafe-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby

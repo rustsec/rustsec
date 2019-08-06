@@ -11,7 +11,12 @@ categories  = ["development-tools"]
 keywords    = ["cargo-subcommand", "security", "audit", "vulnerability"]
 edition     = "2018"
 
+[badges]
+travis-ci = { repository = "rustsec/cargo-audit" }
+maintenance = { status = "actively-developed" }
+
 [dependencies]
+abscissa_core = "0.3"
 failure = "0.1"
 gumdrop = "0.6"
 home = "0.3"
@@ -21,11 +26,8 @@ rustsec = "0.12"
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 
-[dependencies.abscissa_core]
-version = "0.2.0"
-
 [dev-dependencies.abscissa_core]
-version = "0.2.0"
+version = "0.3"
 features = ["testing"]
 
 [dev-dependencies]
