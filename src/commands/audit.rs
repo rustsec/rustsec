@@ -68,6 +68,14 @@ pub struct AuditCommand {
     #[options(short = "u", long = "url", help = "URL for advisory database git repo")]
     url: Option<String>,
 
+    /// Quiet mode - avoids printing extraneous information
+    #[options(
+        short = "q",
+        long = "quiet",
+        help = "Avoid printing unnecessary information"
+    )]
+    quiet: bool,
+
     /// Output reports as JSON
     #[options(no_short, long = "json", help = "Output report in JSON format")]
     output_json: bool,
@@ -97,6 +105,8 @@ impl Override<CargoAuditConfig> for AuditCommand {
 
 impl Runnable for AuditCommand {
     fn run(&self) {
+        let quiet = self.quiet || self.output_json;
+
         let lockfile_path = self
             .file
             .as_ref()
@@ -114,14 +124,16 @@ impl Runnable for AuditCommand {
             }
         });
 
-        let advisory_db = self.load_advisory_db();
+        let advisory_db = self.load_advisory_db(quiet);
 
-        status_ok!(
-            "Scanning",
-            "{} for vulnerabilities ({} crate dependencies)",
-            lockfile_path.display(),
-            lockfile.packages.len(),
-        );
+        if !quiet {
+            status_ok!(
+                "Scanning",
+                "{} for vulnerabilities ({} crate dependencies)",
+                lockfile_path.display(),
+                lockfile.packages.len(),
+            );
+        }
 
         let all_matching_vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
 
@@ -132,7 +144,9 @@ impl Runnable for AuditCommand {
             .collect::<Vec<_>>();
 
         if vulnerabilities.is_empty() {
-            status_ok!("Success", "No vulnerable packages found");
+            if !quiet {
+                status_ok!("Success", "No vulnerable packages found");
+            }
         } else {
             status_err!("Vulnerable crates found!");
         }
@@ -170,7 +184,7 @@ impl Runnable for AuditCommand {
 
 impl AuditCommand {
     /// Load the advisory database
-    fn load_advisory_db(&self) -> AdvisoryDatabase {
+    fn load_advisory_db(&self, quiet: bool) -> AdvisoryDatabase {
         let advisory_repo_url = self
             .url
             .as_ref()
@@ -183,7 +197,9 @@ impl AuditCommand {
             .map(PathBuf::from)
             .unwrap_or_else(Repository::default_path);
 
-        status_ok!("Fetching", "advisory database from `{}`", advisory_repo_url);
+        if !quiet {
+            status_ok!("Fetching", "advisory database from `{}`", advisory_repo_url);
+        }
 
         let advisory_db_repo =
             Repository::fetch(advisory_repo_url, &advisory_repo_path, !self.stale).unwrap_or_else(
@@ -199,12 +215,14 @@ impl AuditCommand {
                 exit(1);
             });
 
-        status_ok!(
-            "Loaded",
-            "{} security advisories (from {})",
-            advisory_db.advisories().count(),
-            advisory_repo_path.display()
-        );
+        if !quiet {
+            status_ok!(
+                "Loaded",
+                "{} security advisories (from {})",
+                advisory_db.advisories().count(),
+                advisory_repo_path.display()
+            );
+        }
 
         advisory_db
     }
