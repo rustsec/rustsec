@@ -1,14 +1,4 @@
-//! Cargo Audit Subcommands
-//!
-//! This is where you specify the subcommands of your application.
-//!
-//! The default application comes with two subcommands:
-//!
-//! - `start`: launches the application
-//! - `version`: print application version
-//!
-//! See the `impl Configurable` below for how to specify the path to the
-//! application's configuration file.
+//! `cargo audit` subcommands
 
 mod audit;
 
@@ -18,9 +8,11 @@ use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Opt
 use std::path::PathBuf;
 
 /// Name of the configuration file (located in `~/.cargo`)
+///
+/// This file allows setting some default auditing options.
 pub const CONFIG_FILE: &str = "audit.toml";
 
-/// Cargo Audit Subcommands
+/// `cargo audit` subcommands (presently only `audit`)
 #[derive(Command, Debug, Options, Runnable)]
 pub enum CargoAuditCommand {
     /// The `cargo audit` subcommand
@@ -28,9 +20,8 @@ pub enum CargoAuditCommand {
     Audit(AuditCommand),
 }
 
-/// This trait allows you to define how application configuration is loaded.
 impl Configurable<CargoAuditConfig> for CargoAuditCommand {
-    /// Location of the configuration file
+    /// Location of `audit.toml` (if it exists)
     fn config_path(&self) -> Option<PathBuf> {
         // Check if the config file exists, and if it does not, ignore it.
         let filename = home::cargo_home()
@@ -44,7 +35,7 @@ impl Configurable<CargoAuditConfig> for CargoAuditCommand {
         }
     }
 
-    /// Override loaded config using
+    /// Override loaded config with explicit command-line arguments
     fn process_config(&self, config: CargoAuditConfig) -> Result<CargoAuditConfig, FrameworkError> {
         match self {
             CargoAuditCommand::Audit(cmd) => cmd.override_config(config),
