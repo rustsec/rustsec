@@ -1,3 +1,9 @@
+## [0.8.0] (2019-08-16)
+
+- Use the Abscissa application framework ([#85], [#87], [#92], [#94])
+- Implement `--no-fetch` ([#97])
+- Add support for reading lockfiles from STDIN ([#98])
+
 ## [0.7.0] (2019-07-15)
 
 - Switch from `term` to `termcolor` crate ([#83])
@@ -67,6 +73,13 @@
 
 - Initial release
 
+[0.8.0]: https://github.com/RustSec/cargo-audit/pull/99
+[#98]: https://github.com/RustSec/cargo-audit/pull/98
+[#97]: https://github.com/RustSec/cargo-audit/pull/97
+[#94]: https://github.com/RustSec/cargo-audit/pull/94
+[#92]: https://github.com/RustSec/cargo-audit/pull/92
+[#87]: https://github.com/RustSec/cargo-audit/pull/87
+[#85]: https://github.com/RustSec/cargo-audit/pull/85
 [0.7.0]: https://github.com/RustSec/cargo-audit/pull/84
 [#83]: https://github.com/RustSec/cargo-audit/pull/83
 [#82]: https://github.com/RustSec/cargo-audit/pull/82
