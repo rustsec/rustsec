@@ -36,13 +36,21 @@ pub struct AuditCommand {
     )]
     db: Option<String>,
 
-    /// Path to the advisory database git repository
+    /// Path to the lockfile
     #[options(
         short = "f",
         long = "file",
         help = "Cargo lockfile to inspect (default: Cargo.lock)"
     )]
     file: Option<String>,
+
+    /// Skip fetching the advisory database git repository
+    #[options(
+        short = "n",
+        long = "no-fetch",
+        help = "do not perform a git fetch on the advisory DB"
+    )]
+    no_fetch: bool,
 
     /// Allow stale advisory databases that haven't been recently updated
     #[options(no_short, long = "stale", help = "allow stale database")]
@@ -105,8 +113,6 @@ impl Override<CargoAuditConfig> for AuditCommand {
 
 impl Runnable for AuditCommand {
     fn run(&self) {
-        let quiet = self.quiet || self.output_json;
-
         let lockfile_path = self
             .file
             .as_ref()
@@ -124,9 +130,9 @@ impl Runnable for AuditCommand {
             }
         });
 
-        let advisory_db = self.load_advisory_db(quiet);
+        let advisory_db = self.load_advisory_db();
 
-        if !quiet {
+        if !self.quiet() {
             status_ok!(
                 "Scanning",
                 "{} for vulnerabilities ({} crate dependencies)",
@@ -144,7 +150,7 @@ impl Runnable for AuditCommand {
             .collect::<Vec<_>>();
 
         if vulnerabilities.is_empty() {
-            if !quiet {
+            if !self.quiet() {
                 status_ok!("Success", "No vulnerable packages found");
             }
         } else {
@@ -184,7 +190,7 @@ impl Runnable for AuditCommand {
 
 impl AuditCommand {
     /// Load the advisory database
-    fn load_advisory_db(&self, quiet: bool) -> AdvisoryDatabase {
+    fn load_advisory_db(&self) -> AdvisoryDatabase {
         let advisory_repo_url = self
             .url
             .as_ref()
@@ -197,17 +203,23 @@ impl AuditCommand {
             .map(PathBuf::from)
             .unwrap_or_else(Repository::default_path);
 
-        if !quiet {
-            status_ok!("Fetching", "advisory database from `{}`", advisory_repo_url);
-        }
+        let advisory_db_repo = if self.no_fetch {
+            Repository::open(&advisory_repo_path).unwrap_or_else(|e| {
+                status_err!("couldn't open advisory database: {}", e);
+                exit(1);
+            })
+        } else {
+            if !self.quiet() {
+                status_ok!("Fetching", "advisory database from `{}`", advisory_repo_url);
+            }
 
-        let advisory_db_repo =
             Repository::fetch(advisory_repo_url, &advisory_repo_path, !self.stale).unwrap_or_else(
                 |e| {
                     status_err!("couldn't fetch advisory database: {}", e);
                     exit(1);
                 },
-            );
+            )
+        };
 
         let advisory_db =
             AdvisoryDatabase::from_repository(&advisory_db_repo).unwrap_or_else(|e| {
@@ -215,7 +227,7 @@ impl AuditCommand {
                 exit(1);
             });
 
-        if !quiet {
+        if !self.quiet() {
             status_ok!(
                 "Loaded",
                 "{} security advisories (from {})",
@@ -250,6 +262,11 @@ impl AuditCommand {
         }
 
         true
+    }
+
+    /// Should we suppress excessive output?
+    fn quiet(&self) -> bool {
+        self.quiet || self.output_json
     }
 }
 
