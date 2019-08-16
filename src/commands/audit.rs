@@ -5,11 +5,12 @@ use abscissa_core::{config::Override, Command, FrameworkError, Runnable};
 use gumdrop::Options;
 use platforms::target::{Arch, OS};
 use rustsec::{
-    Advisory, AdvisoryDatabase, ErrorKind, Lockfile, Package, Repository, Vulnerabilities,
+    Advisory, AdvisoryDatabase, Error, ErrorKind, Lockfile, Package, Repository, Vulnerabilities,
     Vulnerability, ADVISORY_DB_REPO_URL,
 };
 use serde_json::json;
 use std::{
+    io::{self, Read},
     path::{Path, PathBuf},
     process::exit,
 };
@@ -40,7 +41,7 @@ pub struct AuditCommand {
     #[options(
         short = "f",
         long = "file",
-        help = "Cargo lockfile to inspect (default: Cargo.lock)"
+        help = "Cargo lockfile to inspect (or `-` for STDIN, default: Cargo.lock)"
     )]
     file: Option<String>,
 
@@ -119,9 +120,12 @@ impl Runnable for AuditCommand {
             .map(PathBuf::from)
             .unwrap_or_else(|| PathBuf::from(CARGO_LOCK_FILE));
 
-        let lockfile = Lockfile::load(&lockfile_path).unwrap_or_else(|e| match e.kind() {
+        let lockfile = load_lockfile(&lockfile_path).unwrap_or_else(|e| match e.kind() {
             ErrorKind::Io => {
-                not_found(&lockfile_path);
+                status_err!("Couldn't find '{}'!", lockfile_path.display());
+                println!(
+                    "\nRun \"cargo generate-lockfile\" to generate lockfile before running audit"
+                );
                 exit(1);
             }
             _ => {
@@ -270,9 +274,16 @@ impl AuditCommand {
     }
 }
 
-fn not_found(path: &Path) {
-    status_err!("Couldn't find '{}'!", path.display());
-    println!("\nRun \"cargo generate-lockfile\" to generate lockfile before running audit");
+/// Load the lockfile to be audited
+fn load_lockfile(path: &Path) -> Result<Lockfile, Error> {
+    if path == Path::new("-") {
+        // Read Cargo.lock from STDIN
+        let mut lockfile_toml = String::new();
+        io::stdin().read_to_string(&mut lockfile_toml)?;
+        Lockfile::from_toml(&lockfile_toml)
+    } else {
+        Lockfile::load(path)
+    }
 }
 
 fn vulns_found(vuln_count: usize) {
