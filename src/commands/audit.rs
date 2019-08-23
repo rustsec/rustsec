@@ -1,5 +1,6 @@
 //! The `cargo audit` subcommand
 
+use super::CargoAuditCommand;
 use crate::config::CargoAuditConfig;
 use abscissa_core::{config::Override, Command, FrameworkError, Runnable};
 use gumdrop::Options;
@@ -21,6 +22,10 @@ const CARGO_LOCK_FILE: &str = "Cargo.lock";
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
 pub struct AuditCommand {
+    /// Version information
+    #[options(no_short, long = "version", help = "output version and exit")]
+    version: bool,
+
     /// Colored output configuration
     #[options(
         short = "c",
@@ -114,6 +119,15 @@ impl Override<CargoAuditConfig> for AuditCommand {
 
 impl Runnable for AuditCommand {
     fn run(&self) {
+        if self.version {
+            println!(
+                "{} {}",
+                CargoAuditCommand::name(),
+                CargoAuditCommand::version()
+            );
+            exit(0);
+        }
+
         let lockfile_path = self
             .file
             .as_ref()
