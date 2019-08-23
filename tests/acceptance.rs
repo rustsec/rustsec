@@ -128,6 +128,14 @@ fn advisories_found_json() {
 }
 
 #[test]
+fn version() {
+    let mut runner = RUNNER.clone();
+    runner.arg("--version");
+    let process = runner.run();
+    process.wait().unwrap().expect_success();
+}
+
+#[test]
 fn advisories_found_but_ignored_json() {
     let mut runner = new_cmd_runner(true);
     runner.arg("--json");
