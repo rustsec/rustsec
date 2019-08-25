@@ -70,6 +70,10 @@ pub enum ErrorKind {
     /// Git operation failed
     #[fail(display = "git operation failed")]
     Repo,
+
+    /// Errors related to versions
+    #[fail(display = "bad version")]
+    Version,
 }
 
 /// Create a new error (of a given enum variant) with a formatted message
@@ -123,6 +127,18 @@ impl From<git2::Error> for Error {
 impl From<io::Error> for Error {
     fn from(other: io::Error) -> Self {
         err!(ErrorKind::Io, &other)
+    }
+}
+
+impl From<semver::SemVerError> for Error {
+    fn from(other: semver::SemVerError) -> Self {
+        err!(ErrorKind::Version, &other)
+    }
+}
+
+impl From<semver::ReqParseError> for Error {
+    fn from(other: semver::ReqParseError) -> Self {
+        err!(ErrorKind::Version, &other)
     }
 }
 
