@@ -1,8 +1,10 @@
-use crate::error::{Error, ErrorKind};
-use semver::VersionReq;
+use crate::{
+    error::{Error, ErrorKind},
+    version::VersionReq,
+};
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 use std::{
-    collections::{btree_map, BTreeMap},
+    collections::{btree_map as map, BTreeMap as Map},
     fmt::{self, Display},
     slice,
     str::FromStr,
@@ -10,12 +12,12 @@ use std::{
 
 /// Collection of paths affected by an advisory, grouped by `VersionReq`
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct AffectedPaths(BTreeMap<VersionReq, Vec<AffectedPath>>);
+pub struct AffectedPaths(Map<VersionReq, Vec<AffectedPath>>);
 
 impl AffectedPaths {
     /// Iterate over the paths to types and/or functions affected by an
     /// advisory.
-    pub fn iter(&self) -> btree_map::Iter<VersionReq, Vec<AffectedPath>> {
+    pub fn iter(&self) -> map::Iter<VersionReq, Vec<AffectedPath>> {
         self.0.iter()
     }
 }

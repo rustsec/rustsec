@@ -1,7 +1,7 @@
 use rustsec::{
-    AdvisoryDatabase, AdvisoryId, Lockfile, PackageName, Repository, ADVISORY_DB_REPO_URL,
+    AdvisoryDatabase, AdvisoryId, Lockfile, PackageName, Repository, VersionReq,
+    ADVISORY_DB_REPO_URL,
 };
-use semver::VersionReq;
 use std::str::FromStr;
 use tempfile::tempdir;
 
