@@ -1,3 +1,7 @@
+## [0.8.1] (2019-08-25)
+
+- Fix `--version` ([#101])
+
 ## [0.8.0] (2019-08-16)
 
 - Use the Abscissa application framework ([#85], [#87], [#92], [#94])
@@ -73,6 +77,8 @@
 
 - Initial release
 
+[0.8.1]: https://github.com/RustSec/cargo-audit/pull/102
+[#101]: https://github.com/RustSec/cargo-audit/pull/101
 [0.8.0]: https://github.com/RustSec/cargo-audit/pull/99
 [#98]: https://github.com/RustSec/cargo-audit/pull/98
 [#97]: https://github.com/RustSec/cargo-audit/pull/97
