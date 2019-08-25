@@ -7,9 +7,8 @@ mod keyword;
 mod paths;
 
 pub use self::{date::*, id::*, iter::Iter, keyword::Keyword, paths::*};
-use crate::package::PackageName;
+use crate::{package::PackageName, version::VersionReq};
 use platforms::target::{Arch, OS};
-use semver::VersionReq;
 use serde::{Deserialize, Serialize};
 
 /// An individual security advisory pertaining to a single vulnerability

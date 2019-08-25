@@ -1,6 +1,6 @@
 //! Crate metadata as parsed from `Cargo.lock`
 
-use semver::Version;
+use crate::version::Version;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
