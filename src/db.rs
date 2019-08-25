@@ -6,9 +6,9 @@ use crate::{
     lockfile::Lockfile,
     package::PackageName,
     repository::Repository,
+    version::Version,
     vulnerability::Vulnerabilities,
 };
-use semver::Version;
 use std::{
     collections::{btree_map, BTreeMap},
     ffi::{OsStr, OsString},

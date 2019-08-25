@@ -19,8 +19,10 @@ pub mod db;
 pub mod lockfile;
 pub mod package;
 pub mod repository;
+pub mod version;
 pub mod vulnerability;
 
 pub use crate::{
-    advisory::*, db::*, error::*, lockfile::*, package::*, repository::*, vulnerability::*,
+    advisory::*, db::*, error::*, lockfile::*, package::*, repository::*, version::*,
+    vulnerability::*,
 };
