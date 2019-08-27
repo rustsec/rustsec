@@ -17,7 +17,7 @@ pub struct AffectedPaths(Map<VersionReq, Vec<AffectedPath>>);
 impl AffectedPaths {
     /// Iterate over the paths to types and/or functions affected by an
     /// advisory.
-    pub fn iter(&self) -> map::Iter<VersionReq, Vec<AffectedPath>> {
+    pub fn iter(&self) -> map::Iter<'_, VersionReq, Vec<AffectedPath>> {
         self.0.iter()
     }
 }
@@ -44,7 +44,7 @@ impl AffectedPath {
     }
 
     /// Iterate over the segments of this path
-    pub fn iter(&self) -> Iter {
+    pub fn iter(&self) -> Iter<'_> {
         self.0.iter()
     }
 
@@ -55,7 +55,7 @@ impl AffectedPath {
 }
 
 impl Display for AffectedPath {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut segments = self.iter();
 
         let crate_name = segments.next().expect("path must have 2 or more segments");
