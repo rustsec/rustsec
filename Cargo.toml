@@ -1,0 +1,23 @@
+[package]
+name        = "cvss"
+description = """
+Common Vulnerability Scoring System
+"""
+version     = "0.0.0" # Also update html_root_url in lib.rs when bumping this
+authors     = ["Tony Arcieri <bascule@gmail.com>"]
+license     = "Apache-2.0 OR MIT"
+homepage    = "https://github.com/rustsec/cvss/"
+readme      = "README.md"
+categories  = ["parser-implementations"]
+keywords    = ["rustsec", "security", "advisory", "vulnerability"]
+edition     = "2018"
+
+[badges]
+travis-ci = { repository = "rustsec/cvss" }
+maintenance = { status = "actively-developed" }
+
+[dependencies]
+
+[features]
+default = ["v3"]
+v3 = []
