@@ -131,7 +131,7 @@ impl AdvisoryDatabase {
     }
 
     /// Iterate over all of the advisories in the database
-    pub fn advisories(&self) -> advisory::Iter {
+    pub fn advisories(&self) -> advisory::Iter<'_> {
         advisory::Iter(self.advisories.iter())
     }
 }
