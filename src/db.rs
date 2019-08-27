@@ -32,10 +32,11 @@ impl AdvisoryDatabase {
 
     /// Create a new `AdvisoryDatabase` from the given `Repository`
     pub fn from_repository(repo: &Repository) -> Result<Self, Error> {
+        let advisory_files = repo.crate_advisories()?;
         let mut advisories = BTreeMap::new();
         let mut crates = BTreeMap::new();
 
-        for advisory_file in repo.crate_advisories()? {
+        for advisory_file in advisory_files {
             let AdvisoryWrapper { advisory } = toml::from_str(&advisory_file.read_to_string()?)?;
 
             if !advisory.id.is_rustsec() {

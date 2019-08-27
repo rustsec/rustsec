@@ -6,7 +6,7 @@ branches:
     - master
 
 rust:
-  - 1.32.0
+  - 1.35.0
   - stable
 
 os:
