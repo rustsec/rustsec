@@ -4,7 +4,7 @@
 [![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
 [![Safety Dance][safety-image]][safety-link]
-![Rust 1.35+][rustc-image]
+![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
@@ -24,7 +24,7 @@ database in other capacities.
 
 ## Requirements
 
-- Rust 1.32+
+- Rust 1.35+
 
 ## License
 
@@ -51,7 +51,7 @@ additional terms or conditions.
 [build-link]: https://travis-ci.org/RustSec/rustsec-crate
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[rustc-image]: https://img.shields.io/badge/rustc-1.32+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby
