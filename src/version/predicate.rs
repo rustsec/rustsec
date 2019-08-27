@@ -175,7 +175,7 @@ impl TryFrom<semver_parser::range::Predicate> for Predicate {
 }
 
 impl fmt::Display for Predicate {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}{}", self.op, self.major)?;
 
         if let Some(v) = self.minor {
@@ -235,7 +235,7 @@ impl TryFrom<semver_parser::range::Op> for Op {
 }
 
 impl fmt::Display for Op {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Op::Ex => write!(fmt, "= "),
             Op::Gt => write!(fmt, "> "),

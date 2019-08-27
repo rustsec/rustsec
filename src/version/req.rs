@@ -42,7 +42,7 @@ impl VersionReq {
 }
 
 impl fmt::Display for VersionReq {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         if self.predicates.is_empty() {
             write!(fmt, "*")?;
         } else {
@@ -104,7 +104,7 @@ impl<'de> Deserialize<'de> for VersionReq {
         impl<'de> de::Visitor<'de> for VersionReqVisitor {
             type Value = VersionReq;
 
-            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
                 formatter.write_str("a SemVer version requirement as a string")
             }
 

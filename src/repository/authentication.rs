@@ -35,7 +35,7 @@ use std::env;
 /// attempted and we don't try the same ones again.
 pub(crate) fn with_authentication<T, F>(url: &str, cfg: &git2::Config, mut f: F) -> Result<T, Error>
 where
-    F: FnMut(&mut git2::Credentials) -> Result<T, Error>,
+    F: FnMut(&mut git2::Credentials<'_>) -> Result<T, Error>,
 {
     let mut cred_helper = git2::CredentialHelper::new(url);
     cred_helper.config(cfg);

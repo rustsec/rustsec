@@ -107,7 +107,7 @@ impl Default for AdvisoryId {
 }
 
 impl Display for AdvisoryId {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.string.fmt(f)
     }
 }

@@ -4,11 +4,16 @@
 //!
 //! <https://crates.io/crates/cargo-audit>
 
-#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
-#![forbid(unsafe_code)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
     html_root_url = "https://docs.rs/rustsec/0.12.1"
+)]
+#![forbid(unsafe_code)]
+#![warn(
+    missing_docs,
+    rust_2018_idioms,
+    unused_lifetimes,
+    unused_qualifications
 )]
 
 #[macro_use]
