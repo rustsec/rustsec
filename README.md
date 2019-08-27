@@ -1,4 +1,4 @@
-# Common Vulnerability Scoring System (v3.1)
+# Common Vulnerability Scoring System
 
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
@@ -37,8 +37,8 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/cvss
 [docs-image]: https://docs.rs/cvss/badge.svg
 [docs-link]: https://docs.rs/cvss/
-[build-image]: https://travis-ci.org/RustSec/cvss.svg?branch=master
-[build-link]: https://travis-ci.org/RustSec/cvss
+[build-image]: https://travis-ci.org/RustSec/cvss.rs.svg?branch=master
+[build-link]: https://travis-ci.org/RustSec/cvss.rs
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
@@ -49,3 +49,5 @@ additional terms or conditions.
 [//]: # (general links)
 
 [spec]: https://www.first.org/cvss/specification-document
+[LICENSE-APACHE]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-MIT

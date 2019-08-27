@@ -11,7 +11,7 @@ keywords    = ["cvssv3", "security", "advisory", "vulnerability"]
 edition     = "2018"
 
 [badges]
-travis-ci = { repository = "rustsec/cvss" }
+travis-ci = { repository = "rustsec/cvss.rs" }
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
