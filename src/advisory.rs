@@ -7,9 +7,16 @@ mod keyword;
 mod paths;
 
 pub use self::{date::*, id::*, iter::Iter, keyword::Keyword, paths::*};
-use crate::{package::PackageName, version::VersionReq};
+pub use cvss::Severity;
+
+use crate::{
+    error::{Error, ErrorKind},
+    package::PackageName,
+    version::VersionReq,
+};
 use platforms::target::{Arch, OS};
 use serde::{Deserialize, Serialize};
+use std::{fs, path::Path, str::FromStr};
 
 /// An individual security advisory pertaining to a single vulnerability
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -47,6 +54,15 @@ pub struct Advisory {
     #[serde(default)]
     pub aliases: Vec<AdvisoryId>,
 
+    /// CVSS v3.1 Base Metrics vector string containing severity information.
+    ///
+    /// Example:
+    ///
+    /// ```text
+    /// CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
+    /// ```
+    pub cvss: Option<cvss::v3::Base>,
+
     /// Advisory IDs which are related to this advisory
     #[serde(default)]
     pub references: Vec<AdvisoryId>,
@@ -63,6 +79,30 @@ pub struct Advisory {
 
     /// Extended description of a vulnerability
     pub description: String,
+}
+
+impl Advisory {
+    /// Load an advisory from a `RUSTSEC-20XX-NNNN.toml` file
+    pub fn load_file<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+        let path = path.as_ref();
+        fs::read_to_string(path)
+            .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?
+            .parse()
+    }
+
+    /// Get the severity of this advisory if it has a CVSS v3 associated
+    pub fn severity(&self) -> Option<Severity> {
+        self.cvss.as_ref().map(|cvss| cvss.severity())
+    }
+}
+
+impl FromStr for Advisory {
+    type Err = Error;
+
+    fn from_str(toml_string: &str) -> Result<Self, Error> {
+        let wrapper: AdvisoryWrapper = toml::from_str(toml_string)?;
+        Ok(wrapper.advisory)
+    }
 }
 
 /// Wrapper struct around advisories since they're each in a table

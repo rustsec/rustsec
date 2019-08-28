@@ -12,7 +12,7 @@ pub use self::req::VersionReq;
 
 use crate::Error;
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{fmt, str::FromStr};
 
 /// Version type
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, PartialOrd, Ord, Serialize)]
@@ -52,6 +52,14 @@ impl Version {
     /// Is this version a prerelease?
     pub fn is_prerelease(&self) -> bool {
         self.0.is_prerelease()
+    }
+}
+
+impl FromStr for Version {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        Self::parse(s)
     }
 }
 
