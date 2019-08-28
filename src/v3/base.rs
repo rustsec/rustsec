@@ -30,6 +30,23 @@ pub use self::{
 ///
 /// > The Base metric group represents the intrinsic characteristics of a
 /// > vulnerability that are constant over time and across user environments.
+/// > It is composed of two sets of metrics: the Exploitability metrics and
+/// > the Impact metrics.
+/// >
+/// > The Exploitability metrics reflect the ease and technical means by which
+/// > the vulnerability can be exploited. That is, they represent characteristics
+/// > of *the thing that is vulnerable*, which we refer to formally as the
+/// > *vulnerable component*. The Impact metrics reflect the direct consequence
+/// > of a successful exploit, and represent the consequence to the
+/// > *thing that suffers the impact*, which we refer to formally as the
+/// > *impacted component*.
+/// >
+/// > While the vulnerable component is typically a software application,
+/// > module, driver, etc. (or possibly a hardware device), the impacted
+/// > component could be a software application, a hardware device or a network
+/// > resource. This potential for measuring the impact of a vulnerability other
+/// > than the vulnerable component, was a key feature introduced with
+/// > CVSS v3.0. This property is captured by the Scope metric.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Base {
     /// Attack Vector (AV)
@@ -58,55 +75,52 @@ pub struct Base {
 }
 
 impl Base {
-    /// Calculate Base CVSS score.
+    /// Calculate Base CVSS score: overall value for determining the severity
+    /// of a vulnerability, generally referred to as the "CVSS score".
     ///
-    /// Formula described in CVSS v3.1 Specification: Section 5:
-    /// <https://www.first.org/cvss/specification-document#t20>
+    /// Described in CVSS v3.1 Specification: Section 2:
+    /// <https://www.first.org/cvss/specification-document#t6>
+    ///
+    /// > When the Base metrics are assigned values by an analyst, the Base
+    /// > equation computes a score ranging from 0.0 to 10.0.
+    /// >
+    /// > Specifically, the Base equation is derived from two sub equations:
+    /// > the Exploitability sub-score equation, and the Impact sub-score
+    /// > equation. The Exploitability sub-score equation is derived from the
+    /// > Base Exploitability metrics, while the Impact sub-score equation is
+    /// > derived from the Base Impact metrics.
     pub fn score(&self) -> Score {
-        let impact = self.impact_with_scope();
-        let exploitability = self.exploitability();
+        let exploitability = self.exploitability().value();
+        let iss = self.impact().value();
 
-        let score = if impact < 0.0 {
+        let iss_scoped = if !self.is_scope_changed() {
+            6.42 * iss
+        } else {
+            (7.52 * (iss - 0.029).abs()) - (3.25 * (iss - 0.02).abs().powf(15.0))
+        };
+
+        let score = if iss_scoped < 0.0 {
             0.0
         } else if !self.is_scope_changed() {
-            (impact + exploitability).min(10.0)
+            (iss_scoped + exploitability).min(10.0)
         } else {
-            (1.08 * (impact + exploitability)).min(10.0)
+            (1.08 * (iss_scoped + exploitability)).min(10.0)
         };
 
         Score::new(score).roundup()
     }
 
-    /// Calculate Base CVSS `Severity` according to the
-    /// Qualitative Severity Rating Scale
+    /// Calculate Base Exploitability score: sub-score for measuring
+    /// ease of exploitation.
     ///
-    /// Described in CVSS v3.1 Specification: Section 5:
-    /// <https://www.first.org/cvss/specification-document#t17>
-    pub fn severity(&self) -> Severity {
-        self.score().severity()
-    }
-
-    /// Calculate Base Impact score, adjusting for Scope
-    fn impact_with_scope(&self) -> f64 {
-        let iss = self.impact();
-
-        if !self.is_scope_changed() {
-            6.42 * iss
-        } else {
-            (7.52 * (iss - 0.029).abs()) - (3.25 * (iss - 0.02).abs().powf(15.0))
-        }
-    }
-
-    /// Calculate Base Impact Score (ISS)
-    fn impact(&self) -> f64 {
-        let c_score = self.c.map(|c| c.score()).unwrap_or(0.0);
-        let i_score = self.i.map(|i| i.score()).unwrap_or(0.0);
-        let a_score = self.a.map(|a| a.score()).unwrap_or(0.0);
-        1.0 - ((1.0 - c_score) * (1.0 - i_score) * (1.0 - a_score)).abs()
-    }
-
-    /// Calculate Base Exploitability score
-    fn exploitability(&self) -> f64 {
+    /// Described in CVSS v3.1 Specification: Section 2:
+    /// <https://www.first.org/cvss/specification-document#t6>
+    ///
+    /// > The Exploitability metrics reflect the ease and technical means by which
+    /// > the vulnerability can be exploited. That is, they represent characteristics
+    /// > of *the thing that is vulnerable*, which we refer to formally as the
+    /// > *vulnerable component*.
+    pub fn exploitability(&self) -> Score {
         let av_score = self.av.map(|av| av.score()).unwrap_or(0.0);
         let ac_score = self.ac.map(|ac| ac.score()).unwrap_or(0.0);
         let ui_score = self.ui.map(|ui| ui.score()).unwrap_or(0.0);
@@ -115,7 +129,33 @@ impl Base {
             .map(|pr| pr.scoped_score(self.is_scope_changed()))
             .unwrap_or(0.0);
 
-        8.22 * av_score * ac_score * pr_score * ui_score
+        (8.22 * av_score * ac_score * pr_score * ui_score).into()
+    }
+
+    /// Calculate Base Impact Score (ISS): sub-score for measuring the
+    /// consequences of successful exploitation.
+    ///
+    /// Described in CVSS v3.1 Specification: Section 2:
+    /// <https://www.first.org/cvss/specification-document#t6>
+    ///
+    /// > The Impact metrics reflect the direct consequence
+    /// > of a successful exploit, and represent the consequence to the
+    /// > *thing that suffers the impact*, which we refer to formally as the
+    /// > *impacted component*.
+    pub fn impact(&self) -> Score {
+        let c_score = self.c.map(|c| c.score()).unwrap_or(0.0);
+        let i_score = self.i.map(|i| i.score()).unwrap_or(0.0);
+        let a_score = self.a.map(|a| a.score()).unwrap_or(0.0);
+        (1.0 - ((1.0 - c_score) * (1.0 - i_score) * (1.0 - a_score)).abs()).into()
+    }
+
+    /// Calculate Base CVSS `Severity` according to the
+    /// Qualitative Severity Rating Scale (i.e. Low / Medium / High / Critical)
+    ///
+    /// Described in CVSS v3.1 Specification: Section 5:
+    /// <https://www.first.org/cvss/specification-document#t17>
+    pub fn severity(&self) -> Severity {
+        self.score().severity()
     }
 
     /// Has the scope changed?
