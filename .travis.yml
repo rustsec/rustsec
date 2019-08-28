@@ -32,6 +32,6 @@ install:
 script:
   - cargo fmt --all -- --check
   - cargo clippy --all
-  - cargo build --release
   - cargo test --release
+  - cargo test --all-features --release
   - cargo doc --no-deps
