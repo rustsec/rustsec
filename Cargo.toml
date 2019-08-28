@@ -10,11 +10,14 @@ categories  = ["api-bindings", "development-tools"]
 keywords    = ["audit", "rustsec", "security", "advisory", "vulnerability"]
 edition     = "2018"
 
+[badges]
+travis-ci = { repository = "rustsec/rustsec-crate" }
+maintenance = { status = "actively-developed" }
+
 [dependencies]
 chrono = { version = "0.4", optional = true }
-directories = "1"
-failure = "0.1"
 git2 = "0.8"
+home = "0.5"
 platforms = { version = "0.2", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
 semver-parser = "0.7"

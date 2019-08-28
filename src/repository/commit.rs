@@ -36,7 +36,7 @@ impl Commit {
         let head = repo.repo.head()?;
 
         let oid = head.target().ok_or_else(|| {
-            err!(
+            format_err!(
                 ErrorKind::Repo,
                 "no ref target for: {}",
                 repo.path.display()
@@ -50,7 +50,7 @@ impl Commit {
 
         let summary = commit
             .summary()
-            .ok_or_else(|| err!(ErrorKind::Repo, "no commit summary for {}", commit_id))?
+            .ok_or_else(|| format_err!(ErrorKind::Repo, "no commit summary for {}", commit_id))?
             .to_owned();
 
         let (signature, signed_data) = match repo.repo.extract_signature(&oid, None) {

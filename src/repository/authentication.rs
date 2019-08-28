@@ -211,7 +211,7 @@ where
             }
         }
 
-        err!(ErrorKind::Repo, "{}", msg)
+        format_err!(ErrorKind::Repo, "{}", msg)
     })?;
 
     Ok(res)
