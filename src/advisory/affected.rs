@@ -1,35 +1,48 @@
+//! The `[affected]` subsection of an advisory: metadata specifying the scope
+//! of impacted systems/functions/usages.
+
 use crate::{
     error::{Error, ErrorKind},
     version::VersionReq,
 };
+use platforms::target::{Arch, OS};
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 use std::{
-    collections::{btree_map as map, BTreeMap as Map},
+    collections::BTreeMap as Map,
     fmt::{self, Display},
     slice,
     str::FromStr,
 };
 
-/// Collection of paths affected by an advisory, grouped by `VersionReq`
+/// The `[affected]` subsection of an advisory: additional metadata detailing
+/// the specifics of what is impacted by this advisory (e.g. operating systems,
+/// what functions in the crate)
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct AffectedPaths(Map<VersionReq, Vec<AffectedPath>>);
+pub struct Affected {
+    /// CPU architectures that this vulnerability is specific to
+    #[serde(default)]
+    pub arch: Vec<Arch>,
 
-impl AffectedPaths {
-    /// Iterate over the paths to types and/or functions affected by an
-    /// advisory.
-    pub fn iter(&self) -> map::Iter<'_, VersionReq, Vec<AffectedPath>> {
-        self.0.iter()
-    }
+    /// Operating systems that this vulnerability is specific to
+    #[serde(default)]
+    pub os: Vec<OS>,
+
+    /// Paths to types and/or functions containing vulnerable code, enumerated
+    /// as canonical Rust paths (i.e. starting with the crate name), sans any
+    /// path parameters.
+    ///
+    /// (e.g. `mycrate::path::to::VulnerableStruct::vulnerable_func`)
+    #[serde(default)]
+    pub functions: Map<FunctionPath, Vec<VersionReq>>,
 }
 
 /// Canonical Rust Paths (sans parameters) to vulnerable types and/or functions
 /// affected by a particular advisory.
 /// <https://doc.rust-lang.org/reference/paths.html#canonical-paths>
-// TODO: find a crate which provides a better type for representing these?
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct AffectedPath(Vec<Identifier>);
+pub struct FunctionPath(Vec<Identifier>);
 
-impl AffectedPath {
+impl FunctionPath {
     /// Get the crate name for this path
     pub fn crate_name(&self) -> &str {
         self.iter()
@@ -44,7 +57,7 @@ impl AffectedPath {
     }
 
     /// Iterate over the segments of this path
-    pub fn iter(&self) -> Iter<'_> {
+    pub fn iter(&self) -> slice::Iter<'_, Identifier> {
         self.0.iter()
     }
 
@@ -54,7 +67,7 @@ impl AffectedPath {
     }
 }
 
-impl Display for AffectedPath {
+impl Display for FunctionPath {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut segments = self.iter();
 
@@ -70,20 +83,7 @@ impl Display for AffectedPath {
     }
 }
 
-impl<'de> Deserialize<'de> for AffectedPath {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Self::from_str(&String::deserialize(deserializer)?)
-            .map_err(|e| D::Error::custom(format!("{}", e)))
-    }
-}
-
-impl Serialize for AffectedPath {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.serialize_str(&self.to_string())
-    }
-}
-
-impl FromStr for AffectedPath {
+impl FromStr for FunctionPath {
     type Err = Error;
 
     /// Parse a canonical, parameter-free path contained in an advisory
@@ -91,11 +91,11 @@ impl FromStr for AffectedPath {
         let mut segments = vec![];
 
         for segment in path.split("::") {
-            segments.push(Identifier::from_str(segment)?);
+            segments.push(segment.parse()?);
         }
 
         if segments.len() >= 2 {
-            Ok(AffectedPath(segments))
+            Ok(FunctionPath(segments))
         } else {
             fail!(
                 ErrorKind::Parse,
@@ -106,8 +106,20 @@ impl FromStr for AffectedPath {
     }
 }
 
-/// Iterator over the segments of a `path`
-pub type Iter<'a> = slice::Iter<'a, Identifier>;
+impl<'de> Deserialize<'de> for FunctionPath {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let string = String::deserialize(deserializer)?;
+        string
+            .parse()
+            .map_err(|e| D::Error::custom(format!("{}", e)))
+    }
+}
+
+impl Serialize for FunctionPath {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(&self.to_string())
+    }
+}
 
 /// Identifiers within paths. Note that the typical Rust path grammar supports
 /// multiple types of path segments, however for the purposes of vulnerability
@@ -177,36 +189,36 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::AffectedPath;
+    use super::FunctionPath;
     use std::str::FromStr;
 
     const EXAMPLE_PATH_STR: &str = "foo::bar::baz";
 
     #[test]
     fn crate_name_test() {
-        let path = AffectedPath::from_str(EXAMPLE_PATH_STR).unwrap();
+        let path = FunctionPath::from_str(EXAMPLE_PATH_STR).unwrap();
         assert_eq!(path.crate_name(), "foo");
     }
 
     #[test]
     fn display_test() {
-        let path = AffectedPath::from_str(EXAMPLE_PATH_STR).unwrap();
+        let path = FunctionPath::from_str(EXAMPLE_PATH_STR).unwrap();
         assert_eq!(path.to_string(), EXAMPLE_PATH_STR)
     }
 
     #[test]
     fn from_str_test() {
         // Valid paths
-        assert!(AffectedPath::from_str("foo::bar").is_ok());
-        assert!(AffectedPath::from_str("foo::bar::baz").is_ok());
-        assert!(AffectedPath::from_str("foo::Bar::baz").is_ok());
-        assert!(AffectedPath::from_str("foo::Bar::_baz").is_ok());
-        assert!(AffectedPath::from_str("foo::Bar::_baz_").is_ok());
-        assert!(AffectedPath::from_str("f00::B4r::_b4z_").is_ok());
+        assert!(FunctionPath::from_str("foo::bar").is_ok());
+        assert!(FunctionPath::from_str("foo::bar::baz").is_ok());
+        assert!(FunctionPath::from_str("foo::Bar::baz").is_ok());
+        assert!(FunctionPath::from_str("foo::Bar::_baz").is_ok());
+        assert!(FunctionPath::from_str("foo::Bar::_baz_").is_ok());
+        assert!(FunctionPath::from_str("f00::B4r::_b4z_").is_ok());
 
         // Invalid paths
-        assert!(AffectedPath::from_str("minimum_two_components").is_err());
-        assert!(AffectedPath::from_str("no-hyphens::foobar").is_err());
-        assert!(AffectedPath::from_str("no_leading_digits::0rly").is_err());
+        assert!(FunctionPath::from_str("minimum_two_components").is_err());
+        assert!(FunctionPath::from_str("no-hyphens::foobar").is_err());
+        assert!(FunctionPath::from_str("no_leading_digits::0rly").is_err());
     }
 }

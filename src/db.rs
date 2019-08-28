@@ -1,28 +1,30 @@
 //! Database containing `RustSec` security advisories
 
+mod iter;
+
+pub use self::iter::Iter;
 use crate::{
-    advisory::{self, Advisory, AdvisoryId, AdvisoryWrapper},
+    advisory::{self, Advisory},
     error::{Error, ErrorKind},
     lockfile::Lockfile,
-    package::PackageName,
+    package,
     repository::Repository,
     version::Version,
-    vulnerability::Vulnerabilities,
+    vulnerability::Collection,
 };
 use std::{
-    collections::{btree_map, BTreeMap},
+    collections::{btree_map as map, BTreeMap as Map},
     ffi::{OsStr, OsString},
 };
-use toml;
 
-/// A collection of security advisories, indexed both by ID and crate
+/// Database of RustSec security advisories, indexed both by ID and crate
 #[derive(Debug)]
-pub struct AdvisoryDatabase {
-    advisories: BTreeMap<AdvisoryId, Advisory>,
-    crates: BTreeMap<PackageName, Vec<AdvisoryId>>,
+pub struct Database {
+    advisories: Map<advisory::Id, Advisory>,
+    crates: Map<package::Name, Vec<advisory::Id>>,
 }
 
-impl AdvisoryDatabase {
+impl Database {
     /// Fetch the default advisory database from GitHub
     #[cfg(feature = "chrono")]
     pub fn fetch() -> Result<Self, Error> {
@@ -33,22 +35,22 @@ impl AdvisoryDatabase {
     /// Create a new `AdvisoryDatabase` from the given `Repository`
     pub fn from_repository(repo: &Repository) -> Result<Self, Error> {
         let advisory_files = repo.crate_advisories()?;
-        let mut advisories = BTreeMap::new();
-        let mut crates = BTreeMap::new();
+        let mut advisories = Map::new();
+        let mut crates = Map::new();
 
         for advisory_file in advisory_files {
-            let AdvisoryWrapper { advisory } = toml::from_str(&advisory_file.read_to_string()?)?;
+            let advisory = Advisory::load_file(advisory_file.path())?;
 
-            if !advisory.id.is_rustsec() {
+            if !advisory.info.id.is_rustsec() {
                 fail!(
                     ErrorKind::Parse,
                     "expected a RUSTSEC advisory ID: {}",
-                    advisory.id
+                    advisory.info.id
                 );
             }
 
             let advisory_path = advisory_file.path().to_owned();
-            let expected_filename = OsString::from(format!("{}.toml", advisory.id));
+            let expected_filename = OsString::from(format!("{}.toml", advisory.info.id));
 
             // Ensure advisory has the correct filename
             if advisory_path.file_name().unwrap() != expected_filename {
@@ -63,41 +65,41 @@ impl AdvisoryDatabase {
             // Ensure advisory is in the correct directory
             let advisory_parent_dir = advisory_path.parent().unwrap().file_name().unwrap();
 
-            if advisory_parent_dir != OsStr::new(advisory.package.as_str()) {
+            if advisory_parent_dir != OsStr::new(advisory.info.package.as_str()) {
                 fail!(
                     ErrorKind::Repo,
                     "expected {} to be in {} directory (instead of \"{:?}\")",
-                    advisory.id,
-                    advisory.package,
+                    advisory.info.id,
+                    advisory.info.package,
                     advisory_parent_dir
                 );
             }
 
             // Ensure placeholder advisories load and parse correctly, but
             // don't actually insert them into the advisory database
-            if advisory.id.is_placeholder() {
+            if advisory.info.id.is_placeholder() {
                 continue;
             }
 
-            let crate_advisories = match crates.entry(advisory.package.clone()) {
-                btree_map::Entry::Vacant(entry) => entry.insert(vec![]),
-                btree_map::Entry::Occupied(entry) => entry.into_mut(),
+            let crate_advisories = match crates.entry(advisory.info.package.clone()) {
+                map::Entry::Vacant(entry) => entry.insert(vec![]),
+                map::Entry::Occupied(entry) => entry.into_mut(),
             };
 
-            crate_advisories.push(advisory.id.clone());
-            advisories.insert(advisory.id.clone(), advisory.clone());
+            crate_advisories.push(advisory.info.id.clone());
+            advisories.insert(advisory.info.id.clone(), advisory);
         }
 
         Ok(Self { advisories, crates })
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
-    pub fn find(&self, id: &AdvisoryId) -> Option<&Advisory> {
+    pub fn find(&self, id: &advisory::Id) -> Option<&Advisory> {
         self.advisories.get(id)
     }
 
     /// Look up advisories relevant to a particular crate
-    pub fn find_by_crate<N: AsRef<PackageName>>(&self, crate_name: N) -> Vec<&Advisory> {
+    pub fn find_by_crate<N: AsRef<package::Name>>(&self, crate_name: N) -> Vec<&Advisory> {
         if let Some(ids) = self.crates.get(crate_name.as_ref()) {
             ids.iter().map(|id| self.find(&id).unwrap()).collect()
         } else {
@@ -106,7 +108,7 @@ impl AdvisoryDatabase {
     }
 
     /// Find advisories that are unpatched and impact a given crate and version
-    pub fn advisories_for_crate<N: AsRef<PackageName>>(
+    pub fn advisories_for_crate<N: AsRef<package::Name>>(
         &self,
         crate_name: N,
         version: &Version,
@@ -115,7 +117,7 @@ impl AdvisoryDatabase {
             .iter()
             .filter(|advisory| {
                 let patched_or_unaffected =
-                    [&advisory.patched_versions, &advisory.unaffected_versions]
+                    [&advisory.versions.patched, &advisory.versions.unaffected]
                         .iter()
                         .any(|versions| versions.iter().any(|req| req.matches(version)));
 
@@ -126,12 +128,12 @@ impl AdvisoryDatabase {
     }
 
     /// Return a collection of vulnerabilities for the given lockfile
-    pub fn vulnerabilities(&self, lockfile: &Lockfile) -> Vulnerabilities {
-        Vulnerabilities::find(self, lockfile)
+    pub fn vulnerabilities(&self, lockfile: &Lockfile) -> Collection {
+        Collection::find(self, lockfile)
     }
 
     /// Iterate over all of the advisories in the database
-    pub fn advisories(&self) -> advisory::Iter<'_> {
-        advisory::Iter(self.advisories.iter())
+    pub fn advisories(&self) -> Iter<'_> {
+        Iter(self.advisories.iter())
     }
 }

@@ -1,84 +1,38 @@
 //! Security advisories in the RustSec database
 
-mod date;
-mod id;
-mod iter;
-mod keyword;
-mod paths;
+pub mod affected;
+pub mod date;
+pub mod id;
+pub mod info;
+pub mod keyword;
+pub mod versions;
 
-pub use self::{date::*, id::*, iter::Iter, keyword::Keyword, paths::*};
+pub use self::{date::Date, id::Id, info::Info, keyword::Keyword, versions::Versions};
 pub use cvss::Severity;
 
-use crate::{
-    error::{Error, ErrorKind},
-    package::PackageName,
-    version::VersionReq,
-};
-use platforms::target::{Arch, OS};
+use self::affected::Affected;
+use crate::error::{Error, ErrorKind};
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path, str::FromStr};
 
-/// An individual security advisory pertaining to a single vulnerability
+/// RustSec Security Advisories
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Advisory {
-    /// Security advisory ID (e.g. RUSTSEC-YYYY-NNNN)
-    pub id: AdvisoryId,
+    /// The `[advisory]` section of a RustSec advisory
+    #[serde(rename = "advisory")]
+    pub info: Info,
 
-    /// Name of affected crate
-    pub package: PackageName,
-
-    /// Date this advisory was officially issued
-    pub date: Date,
-
-    /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
-    pub patched_versions: Vec<VersionReq>,
-
-    /// Versions which were never affected in the first place
-    #[serde(default)]
-    pub unaffected_versions: Vec<VersionReq>,
-
-    /// CPU architectures that this vulnerability is specific to
-    pub affected_arch: Option<Vec<Arch>>,
-
-    /// Operating systems that this vulnerability is specific to
-    pub affected_os: Option<Vec<OS>>,
-
-    /// Paths to types and/or functions containing vulnerable code, enumerated
-    /// as canonical Rust paths (i.e. starting with the crate name), sans any
-    /// path parameters.
+    /// Versions related to this advisory which are patched or unaffected.
     ///
-    /// (e.g. `mycrate::path::to::VulnerableStruct::vulnerable_func`)
-    pub affected_paths: Option<AffectedPaths>,
-
-    /// Advisory IDs in other databases which point to the same advisory
+    /// This maps to the `[versions]` section of an advisory, but we can't
+    /// actually start using that until clients have all updated, so for
+    /// backwards compatibility we still use `[advisory.patched_versions]`
+    /// and `[advisory.unaffected_versions]`, but load them into this section.
     #[serde(default)]
-    pub aliases: Vec<AdvisoryId>,
+    pub versions: Versions,
 
-    /// CVSS v3.1 Base Metrics vector string containing severity information.
-    ///
-    /// Example:
-    ///
-    /// ```text
-    /// CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N
-    /// ```
-    pub cvss: Option<cvss::v3::Base>,
-
-    /// Advisory IDs which are related to this advisory
-    #[serde(default)]
-    pub references: Vec<AdvisoryId>,
-
-    /// Freeform keywords which succinctly describe this vulnerability (e.g. "ssl", "rce", "xss")
-    #[serde(default)]
-    pub keywords: Vec<Keyword>,
-
-    /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
-    pub url: Option<String>,
-
-    /// One-liner description of a vulnerability
-    pub title: String,
-
-    /// Extended description of a vulnerability
-    pub description: String,
+    /// The (optional) `[affected]` section of a RustSec advisory
+    pub affected: Option<Affected>,
 }
 
 impl Advisory {
@@ -92,7 +46,36 @@ impl Advisory {
 
     /// Get the severity of this advisory if it has a CVSS v3 associated
     pub fn severity(&self) -> Option<Severity> {
-        self.cvss.as_ref().map(|cvss| cvss.severity())
+        self.info.cvss.as_ref().map(|cvss| cvss.severity())
+    }
+
+    /// Populate the new version fields from the legacy `patched_versions` and
+    /// `unaffected_versions` fields
+    // TODO(tarcieri): deprecate and remove the old version fields
+    fn fixup_versions(&mut self) -> Result<(), Error> {
+        macro_rules! populate_new_version_fields {
+            ($advisory:expr, $old_field:ident, $new_field:ident) => {
+                if $advisory.versions.$new_field != $advisory.info.$old_field {
+                    if $advisory.versions.$new_field.is_empty() {
+                        $advisory.versions.$new_field = $advisory.info.$old_field.clone();
+                    } else if !$advisory.info.$old_field.is_empty() {
+                        fail!(
+                            ErrorKind::Parse,
+                            "conflict between legacy `[advisory.{}]` \
+                             and `[versions]`: '{:?}' vs '{:?}'",
+                            stringify!($old_field),
+                            self.info.$old_field,
+                            self.versions.$new_field,
+                        );
+                    }
+                }
+            };
+        }
+
+        populate_new_version_fields!(self, patched_versions, patched);
+        populate_new_version_fields!(self, patched_versions, patched);
+
+        Ok(())
     }
 }
 
@@ -100,13 +83,11 @@ impl FromStr for Advisory {
     type Err = Error;
 
     fn from_str(toml_string: &str) -> Result<Self, Error> {
-        let wrapper: AdvisoryWrapper = toml::from_str(toml_string)?;
-        Ok(wrapper.advisory)
-    }
-}
+        let mut advisory: Self = toml::from_str(toml_string)?;
 
-/// Wrapper struct around advisories since they're each in a table
-#[derive(Serialize, Deserialize)]
-pub(crate) struct AdvisoryWrapper {
-    pub(crate) advisory: Advisory,
+        // TODO(tarcieri): deprecate and remove the old version fields
+        advisory.fixup_versions()?;
+
+        Ok(advisory)
+    }
 }

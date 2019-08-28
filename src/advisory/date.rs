@@ -1,3 +1,5 @@
+//! Advisory dates
+
 use crate::error::{Error, ErrorKind};
 #[cfg(feature = "chrono")]
 use chrono::{self, DateTime, Utc};

@@ -1,8 +1,10 @@
-use super::{Advisory, AdvisoryId};
+//! `AdvisoryDatabase` iterator
+
+use crate::advisory::{self, Advisory};
 use std::collections::btree_map;
 
-/// Advisory iterator
-pub struct Iter<'a>(pub(crate) btree_map::Iter<'a, AdvisoryId, Advisory>);
+/// `AdvisoryDatabase` iterator
+pub struct Iter<'a>(pub(crate) btree_map::Iter<'a, advisory::Id, Advisory>);
 
 impl<'a> Iterator for Iter<'a> {
     type Item = &'a Advisory;

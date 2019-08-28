@@ -1,39 +1,60 @@
 //! Tests for parsing RustSec advisories
 
-/// Example RustSec advisory to use for tests
-const ADVISORY_PATH: &str = "./tests/support/example_advisory.toml";
+/// Example RustSec Advisory (V1 format) to use for tests
+const ADVISORY_PATH_V1: &str = "./tests/support/example_advisory_v1.toml";
 
-/// Load the advisory from the filesystem
-fn load_advisory() -> rustsec::Advisory {
-    rustsec::Advisory::load_file(ADVISORY_PATH).unwrap()
+/// Example RustSec Advisory (V2 format) to use for tests
+const ADVISORY_PATH_V2: &str = "./tests/support/example_advisory_v2.toml";
+
+/// Load the V1 advisory from the filesystem
+fn load_advisory_v1() -> rustsec::Advisory {
+    rustsec::Advisory::load_file(ADVISORY_PATH_V1).unwrap()
+}
+
+/// Load the V1 advisory from the filesystem
+fn load_advisory_v2() -> rustsec::Advisory {
+    rustsec::Advisory::load_file(ADVISORY_PATH_V2).unwrap()
 }
 
 /// Basic metadata
 #[test]
 fn parse_metadata() {
-    let advisory = load_advisory();
-    assert_eq!(advisory.id.as_str(), "RUSTSEC-2001-2101");
-    assert_eq!(advisory.package.as_str(), "base");
-    assert_eq!(advisory.title, "All your base are belong to us");
+    let advisory = load_advisory_v1();
+    assert_eq!(advisory.info.id.as_str(), "RUSTSEC-2001-2101");
+    assert_eq!(advisory.info.package.as_str(), "base");
+    assert_eq!(advisory.info.title, "All your base are belong to us");
     assert_eq!(
-        advisory.description,
+        advisory.info.description,
         "You have no chance to survive. Make your time."
     );
-    assert_eq!(advisory.date.as_str(), "2001-02-03");
+    assert_eq!(advisory.info.date.as_str(), "2001-02-03");
     assert_eq!(
-        advisory.url.unwrap(),
+        advisory.info.url.unwrap(),
         "https://www.youtube.com/watch?v=jQE66WA2s-A"
     );
 
     for (i, kw) in ["how", "are", "you", "gentlemen"].iter().enumerate() {
-        assert_eq!(*kw, advisory.keywords[i].as_str());
+        assert_eq!(*kw, advisory.info.keywords[i].as_str());
     }
+}
+
+/// Parsing of impact metadata
+#[test]
+fn parse_affected() {
+    let affected = load_advisory_v1().affected.unwrap();
+    assert_eq!(affected.arch[0], platforms::target::Arch::X86);
+    assert_eq!(affected.os[0], platforms::target::OS::Windows);
+
+    let example_function = "base::belongs::All".parse().unwrap();
+    let req = &affected.functions.get(&example_function).unwrap()[0];
+    assert!(req.matches(&"1.2.2".parse().unwrap()));
+    assert!(!req.matches(&"1.2.3".parse().unwrap()));
 }
 
 /// Parsing of other aliased advisory IDs
 #[test]
 fn parse_aliases() {
-    let alias = &load_advisory().aliases[0];
+    let alias = &load_advisory_v1().info.aliases[0];
     assert!(alias.is_cve());
     assert_eq!(alias.year().unwrap(), 2001);
 }
@@ -41,13 +62,13 @@ fn parse_aliases() {
 /// Parsing of CVSS v3.1 severity vector strings
 #[test]
 fn parse_cvss_vector_string() {
-    let advisory = load_advisory();
+    let advisory = load_advisory_v1();
     assert_eq!(
         advisory.severity().unwrap(),
         rustsec::advisory::Severity::Critical
     );
 
-    let cvss = advisory.cvss.unwrap();
+    let cvss = advisory.info.cvss.unwrap();
     assert_eq!(cvss.av.unwrap(), cvss::v3::base::av::AttackVector::Network);
     assert_eq!(cvss.ac.unwrap(), cvss::v3::base::ac::AttackComplexity::Low);
     assert_eq!(
@@ -62,11 +83,20 @@ fn parse_cvss_vector_string() {
     assert_eq!(cvss.score().value(), 10.0);
 }
 
-/// Parsing of patched version reqs
+/// Parsing of patched version reqs (V1 format)
 #[test]
-fn parse_patched_version_reqs() {
-    let req = &load_advisory().patched_versions[0];
+fn parse_patched_version_reqs_v1() {
+    let req = &load_advisory_v1().versions.patched[0];
     assert!(!req.matches(&"1.2.2".parse().unwrap()));
-    assert!(req.matches(&"1.2.4".parse().unwrap()));
     assert!(req.matches(&"1.2.3".parse().unwrap()));
+    assert!(req.matches(&"1.2.4".parse().unwrap()));
+}
+
+/// Parsing of patched version reqs (V2 format)
+#[test]
+fn parse_patched_version_reqs_v2() {
+    let req = &load_advisory_v2().versions.patched[0];
+    assert!(!req.matches(&"1.2.2".parse().unwrap()));
+    assert!(req.matches(&"1.2.3".parse().unwrap()));
+    assert!(req.matches(&"1.2.4".parse().unwrap()));
 }
