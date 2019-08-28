@@ -14,6 +14,8 @@ use crate::{
     error::{Error, ErrorKind},
     Severity, PREFIX,
 };
+#[cfg(feature = "serde")]
+use serde::{de, ser, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
 pub use self::{
@@ -209,5 +211,21 @@ impl FromStr for Base {
         }
 
         Ok(metrics)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for Base {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use de::Error;
+        let string = String::deserialize(deserializer)?;
+        string.parse().map_err(D::Error::custom)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl Serialize for Base {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.to_string().serialize(serializer)
     }
 }
