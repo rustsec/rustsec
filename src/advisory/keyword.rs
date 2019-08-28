@@ -1,3 +1,5 @@
+//! Advisory keywords
+
 use crate::error::Error;
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize};
 use std::str::FromStr;

@@ -8,7 +8,7 @@ use std::fmt;
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Package {
     /// Name of a crate
-    pub name: PackageName,
+    pub name: Name,
 
     /// Crate version (using `semver`)
     pub version: Version,
@@ -17,39 +17,40 @@ pub struct Package {
     pub source: Option<String>,
 
     /// Dependencies of this crate
-    pub dependencies: Option<Vec<String>>,
+    #[serde(default)]
+    pub dependencies: Vec<String>,
 }
 
-/// Name of a crate
+/// Name of a Rust package
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
-pub struct PackageName(pub String);
+pub struct Name(pub String);
 
-impl PackageName {
+impl Name {
     /// Get string reference to this package name
     pub fn as_str(&self) -> &str {
         &self.0
     }
 }
 
-impl AsRef<PackageName> for PackageName {
-    fn as_ref(&self) -> &PackageName {
+impl AsRef<Name> for Name {
+    fn as_ref(&self) -> &Name {
         self
     }
 }
 
-impl fmt::Display for PackageName {
+impl fmt::Display for Name {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl<'a> From<&'a str> for PackageName {
-    fn from(string: &'a str) -> PackageName {
-        PackageName(string.into())
+impl<'a> From<&'a str> for Name {
+    fn from(string: &'a str) -> Name {
+        Name(string.into())
     }
 }
 
-impl Into<String> for PackageName {
+impl Into<String> for Name {
     fn into(self) -> String {
         self.0
     }
