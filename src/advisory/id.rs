@@ -90,9 +90,9 @@ impl AdvisoryId {
     }
 }
 
-impl AsRef<AdvisoryId> for AdvisoryId {
-    fn as_ref(&self) -> &AdvisoryId {
-        self
+impl AsRef<str> for AdvisoryId {
+    fn as_ref(&self) -> &str {
+        self.as_str()
     }
 }
 

@@ -16,6 +16,7 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 chrono = { version = "0.4", optional = true }
+cvss = { version = "0.2", features = ["serde"] }
 git2 = "0.8"
 home = "0.5"
 platforms = { version = "0.2", features = ["serde"] }
