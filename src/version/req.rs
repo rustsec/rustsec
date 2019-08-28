@@ -14,7 +14,7 @@
 use super::{predicate::Predicate, Version};
 use crate::{Error, ErrorKind};
 use serde::{de, ser, Deserialize, Serialize};
-use std::{convert::TryFrom, fmt};
+use std::{convert::TryFrom, fmt, str::FromStr};
 
 /// Version requirements
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
@@ -38,6 +38,14 @@ impl VersionReq {
         }
 
         self.predicates.iter().all(|p| p.matches(version))
+    }
+}
+
+impl FromStr for VersionReq {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        Self::parse(s)
     }
 }
 

@@ -24,7 +24,7 @@ database in other capacities.
 
 ## Requirements
 
-- Rust 1.35+
+- Rust **1.35+**
 
 ## License
 
