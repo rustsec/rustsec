@@ -55,7 +55,7 @@ macro_rules! check_date_part {
     ($name:expr, $string:expr, $parts:expr, $len:expr, $min:expr, $max:expr) => {
         let part = $parts
             .next()
-            .ok_or_else(|| err!(ErrorKind::Parse, "invalid date: {}", $string))?;
+            .ok_or_else(|| format_err!(ErrorKind::Parse, "invalid date: {}", $string))?;
 
         if part.len() != $len {
             fail!(ErrorKind::Parse, "malformed {}: {}", $name, $string);

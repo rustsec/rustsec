@@ -9,7 +9,7 @@ pub(crate) use self::file::RepoFile;
 pub use self::{commit::Commit, signature::Signature};
 use crate::error::{Error, ErrorKind};
 use git2;
-use std::{env, fs, path::PathBuf, vec};
+use std::{fs, path::PathBuf, vec};
 
 use self::authentication::with_authentication;
 
@@ -45,17 +45,11 @@ pub struct Repository {
 impl Repository {
     /// Location of the default `advisory-db` repository for crates.io
     pub fn default_path() -> PathBuf {
-        use directories::UserDirs;
-
-        if let Some(path) = env::var_os("CARGO_HOME") {
-            PathBuf::from(path).join(ADVISORY_DB_DIRECTORY)
-        } else if let Some(user_dirs) = UserDirs::new() {
-            PathBuf::from(user_dirs.home_dir())
-                .join(".cargo")
-                .join(ADVISORY_DB_DIRECTORY)
-        } else {
-            panic!("Can't locate CARGO_HOME!");
-        }
+        home::cargo_home()
+            .unwrap_or_else(|err| {
+                panic!("Error locating Cargo home directory: {}", err);
+            })
+            .join(ADVISORY_DB_DIRECTORY)
     }
 
     /// Fetch the default repository

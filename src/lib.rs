@@ -9,12 +9,7 @@
     html_root_url = "https://docs.rs/rustsec/0.12.1"
 )]
 #![forbid(unsafe_code)]
-#![warn(
-    missing_docs,
-    rust_2018_idioms,
-    unused_lifetimes,
-    unused_qualifications
-)]
+#![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
 #[macro_use]
 pub mod error;
