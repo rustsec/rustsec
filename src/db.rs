@@ -92,8 +92,8 @@ impl AdvisoryDatabase {
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
-    pub fn find<A: AsRef<AdvisoryId>>(&self, id: A) -> Option<&Advisory> {
-        self.advisories.get(id.as_ref())
+    pub fn find(&self, id: &AdvisoryId) -> Option<&Advisory> {
+        self.advisories.get(id)
     }
 
     /// Look up advisories relevant to a particular crate
