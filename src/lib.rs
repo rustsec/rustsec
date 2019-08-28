@@ -1,7 +1,13 @@
 //! Common Vulnerability Scoring System.
 //!
-//! This crate provides an implementation of the CVSS v3.1 Base Metric Group:
+//! The [cvss::v3::Base](v3/base/struct.Base.html) type provides the main functionality presently
+//! implemented by this crate, namely: support for parsing, serializing, and
+//! scoring `CVSS:3.1` Base Metric Group vector strings as described in
+//! the CVSS v3.1 Specification:
+//!
 //! <https://www.first.org/cvss/specification-document>
+//!
+//! Serde support is available through the optional `serde` Cargo feature.
 
 // TODO(tarcieri): other CVSS versions, CVSS v3.1 Temporal and Environmental Groups
 

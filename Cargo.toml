@@ -15,7 +15,11 @@ travis-ci = { repository = "rustsec/cvss.rs" }
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
+serde = { version = "1", optional = true }
 
 [features]
 default = ["v3"]
 v3 = []
+
+[package.metadata.docs.rs]
+all-features = true
