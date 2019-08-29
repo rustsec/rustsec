@@ -1,35 +1,33 @@
 use rustsec::{
-    AdvisoryDatabase, AdvisoryId, Lockfile, PackageName, Repository, VersionReq,
-    ADVISORY_DB_REPO_URL,
+    advisory, package, Database, Lockfile, Repository, VersionReq, ADVISORY_DB_REPO_URL,
 };
-use std::str::FromStr;
 use tempfile::tempdir;
 
 /// End-to-end integration test (has online dependency on GitHub)
 #[test]
 fn happy_path() {
-    let db = AdvisoryDatabase::fetch().unwrap();
-    let example_advisory_id = AdvisoryId::from_str("RUSTSEC-2017-0001").unwrap();
+    let db = Database::fetch().unwrap();
+    let example_advisory_id = "RUSTSEC-2017-0001".parse::<advisory::Id>().unwrap();
     let example_advisory = db.find(&example_advisory_id).unwrap();
-    let example_package = PackageName::from("sodiumoxide");
+    let example_package = package::Name::from("sodiumoxide");
 
-    assert_eq!(example_advisory.id, example_advisory_id);
-    assert_eq!(example_advisory.package, example_package);
+    assert_eq!(example_advisory.info.id, example_advisory_id);
+    assert_eq!(example_advisory.info.package, example_package);
     assert_eq!(
-        example_advisory.patched_versions[0],
+        example_advisory.versions.patched[0],
         VersionReq::parse(">= 0.0.14").unwrap()
     );
-    assert_eq!(example_advisory.date.as_str(), "2017-01-26");
+    assert_eq!(example_advisory.info.date.as_str(), "2017-01-26");
     assert_eq!(
-        example_advisory.url.as_ref().unwrap(),
+        example_advisory.info.url.as_ref().unwrap(),
         "https://github.com/dnaq/sodiumoxide/issues/154"
     );
     assert_eq!(
-        example_advisory.title,
+        example_advisory.info.title,
         "scalarmult() vulnerable to degenerate public keys"
     );
     assert_eq!(
-        &example_advisory.description[0..30],
+        &example_advisory.info.description[0..30],
         "The `scalarmult()` function in"
     );
 
