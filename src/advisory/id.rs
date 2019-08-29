@@ -1,3 +1,5 @@
+//! Advisory identifiers
+
 use super::date::{YEAR_MAX, YEAR_MIN};
 use crate::error::{Error, ErrorKind};
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
@@ -7,13 +9,13 @@ use std::{
 };
 
 /// Placeholder advisory name: shouldn't be used until an ID is assigned
-pub const PLACEHOLDER_ADVISORY_ID: &str = "RUSTSEC-0000-0000";
+pub const PLACEHOLDER: &str = "RUSTSEC-0000-0000";
 
 /// An identifier for an individual advisory
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct AdvisoryId {
+pub struct Id {
     /// An autodetected identifier kind
-    kind: AdvisoryIdKind,
+    kind: Kind,
 
     /// Year this vulnerability was published
     year: Option<u32>,
@@ -22,34 +24,34 @@ pub struct AdvisoryId {
     string: String,
 }
 
-impl AdvisoryId {
+impl Id {
     /// Get a string reference to this advisory ID
     pub fn as_str(&self) -> &str {
         self.string.as_ref()
     }
 
     /// Get the advisory kind for this advisory
-    pub fn kind(&self) -> AdvisoryIdKind {
+    pub fn kind(&self) -> Kind {
         self.kind
     }
 
     /// Is this advisory ID a RUSTSEC advisory?
     pub fn is_rustsec(&self) -> bool {
         match self.kind {
-            AdvisoryIdKind::RUSTSEC => true,
+            Kind::RUSTSEC => true,
             _ => false,
         }
     }
 
     /// Is this advisory ID the `RUSTSEC-0000-0000` placeholder ID?
     pub fn is_placeholder(&self) -> bool {
-        self.string == PLACEHOLDER_ADVISORY_ID
+        self.string == PLACEHOLDER
     }
 
     /// Is this advisory ID a CVE?
     pub fn is_cve(&self) -> bool {
         match self.kind {
-            AdvisoryIdKind::CVE => true,
+            Kind::CVE => true,
             _ => false,
         }
     }
@@ -57,7 +59,7 @@ impl AdvisoryId {
     /// Is this an unknown kind of advisory ID?
     pub fn is_unknown(&self) -> bool {
         match self.kind {
-            AdvisoryIdKind::Unknown => true,
+            Kind::Unknown => true,
             _ => false,
         }
     }
@@ -70,64 +72,62 @@ impl AdvisoryId {
     /// Get a URL to a web page with more information on this advisory
     pub fn url(&self) -> Option<String> {
         match self.kind {
-            AdvisoryIdKind::RUSTSEC => {
+            Kind::RUSTSEC => {
                 if self.is_placeholder() {
                     None
                 } else {
                     Some(format!("https://rustsec.org/advisories/{}", &self.string))
                 }
             }
-            AdvisoryIdKind::CVE => Some(format!(
+            Kind::CVE => Some(format!(
                 "https://cve.mitre.org/cgi-bin/cvename.cgi?name={}",
                 &self.string
             )),
-            AdvisoryIdKind::TALOS => Some(format!(
+            Kind::TALOS => Some(format!(
                 "https://www.talosintelligence.com/reports/{}",
                 &self.string
             )),
-            AdvisoryIdKind::Unknown => None,
+            Kind::Unknown => None,
         }
     }
 }
 
-impl AsRef<str> for AdvisoryId {
+impl AsRef<str> for Id {
     fn as_ref(&self) -> &str {
         self.as_str()
     }
 }
 
-impl Default for AdvisoryId {
-    fn default() -> AdvisoryId {
-        AdvisoryId {
-            kind: AdvisoryIdKind::RUSTSEC,
+impl Default for Id {
+    fn default() -> Id {
+        Id {
+            kind: Kind::RUSTSEC,
             year: None,
-            string: PLACEHOLDER_ADVISORY_ID.into(),
+            string: PLACEHOLDER.into(),
         }
     }
 }
 
-impl Display for AdvisoryId {
+impl Display for Id {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.string.fmt(f)
     }
 }
 
-impl FromStr for AdvisoryId {
+impl FromStr for Id {
     type Err = Error;
 
-    /// Create an `AdvisoryId` from the given string
+    /// Create an `Id` from the given string
     fn from_str(advisory_id: &str) -> Result<Self, Error> {
-        if advisory_id == PLACEHOLDER_ADVISORY_ID {
-            return Ok(AdvisoryId::default());
+        if advisory_id == PLACEHOLDER {
+            return Ok(Id::default());
         }
 
-        let kind = AdvisoryIdKind::detect(advisory_id);
+        let kind = Kind::detect(advisory_id);
 
         // Ensure known advisory types are well-formed
         let year = match kind {
-            AdvisoryIdKind::RUSTSEC | AdvisoryIdKind::CVE | AdvisoryIdKind::TALOS => {
-                Some(parse_year(advisory_id)?)
-            }
+            Kind::RUSTSEC | Kind::CVE | Kind::TALOS => Some(parse_year(advisory_id)?),
             _ => None,
         };
 
@@ -139,19 +139,19 @@ impl FromStr for AdvisoryId {
     }
 }
 
-impl Into<String> for AdvisoryId {
+impl Into<String> for Id {
     fn into(self) -> String {
         self.string
     }
 }
 
-impl Serialize for AdvisoryId {
+impl Serialize for Id {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.string)
     }
 }
 
-impl<'de> Deserialize<'de> for AdvisoryId {
+impl<'de> Deserialize<'de> for Id {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         Self::from_str(&String::deserialize(deserializer)?)
             .map_err(|e| D::Error::custom(format!("{}", e)))
@@ -160,7 +160,7 @@ impl<'de> Deserialize<'de> for AdvisoryId {
 
 /// Known kinds of advisory IDs
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub enum AdvisoryIdKind {
+pub enum Kind {
     /// Our advisory namespace
     RUSTSEC,
 
@@ -174,17 +174,17 @@ pub enum AdvisoryIdKind {
     Unknown,
 }
 
-impl AdvisoryIdKind {
+impl Kind {
     /// Detect the identifier kind for the given string
     pub fn detect(string: &str) -> Self {
         if string.starts_with("RUSTSEC-") {
-            AdvisoryIdKind::RUSTSEC
+            Kind::RUSTSEC
         } else if string.starts_with("CVE-") {
-            AdvisoryIdKind::CVE
+            Kind::CVE
         } else if string.starts_with("TALOS-") {
-            AdvisoryIdKind::TALOS
+            Kind::TALOS
         } else {
-            AdvisoryIdKind::Unknown
+            Kind::Unknown
         }
     }
 }
@@ -227,8 +227,7 @@ fn parse_year(advisory_id: &str) -> Result<u32, Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{AdvisoryId, AdvisoryIdKind, PLACEHOLDER_ADVISORY_ID};
-    use std::str::FromStr;
+    use super::{Id, Kind, PLACEHOLDER};
 
     const EXAMPLE_RUSTSEC_ID: &str = "RUSTSEC-2018-0001";
     const EXAMPLE_CVE_ID: &str = "CVE-2017-1000168";
@@ -237,7 +236,7 @@ mod tests {
 
     #[test]
     fn rustsec_id_test() {
-        let rustsec_id = AdvisoryId::from_str(EXAMPLE_RUSTSEC_ID).unwrap();
+        let rustsec_id = EXAMPLE_RUSTSEC_ID.parse::<Id>().unwrap();
         assert!(rustsec_id.is_rustsec());
         assert_eq!(rustsec_id.year().unwrap(), 2018);
         assert_eq!(
@@ -249,7 +248,7 @@ mod tests {
     // The RUSTSEC-0000-0000 ID is a placeholder we need to treat as valid
     #[test]
     fn rustsec_0000_0000_test() {
-        let rustsec_id = AdvisoryId::from_str(PLACEHOLDER_ADVISORY_ID).unwrap();
+        let rustsec_id = PLACEHOLDER.parse::<Id>().unwrap();
         assert!(rustsec_id.is_rustsec());
         assert!(rustsec_id.year().is_none());
         assert!(rustsec_id.url().is_none());
@@ -257,7 +256,7 @@ mod tests {
 
     #[test]
     fn cve_id_test() {
-        let cve_id = AdvisoryId::from_str(EXAMPLE_CVE_ID).unwrap();
+        let cve_id = EXAMPLE_CVE_ID.parse::<Id>().unwrap();
         assert!(cve_id.is_cve());
         assert_eq!(cve_id.year().unwrap(), 2017);
         assert_eq!(
@@ -268,8 +267,8 @@ mod tests {
 
     #[test]
     fn talos_id_test() {
-        let talos_id = AdvisoryId::from_str(EXAMPLE_TALOS_ID).unwrap();
-        assert_eq!(talos_id.kind(), AdvisoryIdKind::TALOS);
+        let talos_id = EXAMPLE_TALOS_ID.parse::<Id>().unwrap();
+        assert_eq!(talos_id.kind(), Kind::TALOS);
         assert_eq!(talos_id.year().unwrap(), 2017);
         assert_eq!(
             talos_id.url().unwrap(),
@@ -279,7 +278,7 @@ mod tests {
 
     #[test]
     fn unknown_id_test() {
-        let unknown_id = AdvisoryId::from_str(EXAMPLE_UNKNOWN_ID).unwrap();
+        let unknown_id = EXAMPLE_UNKNOWN_ID.parse::<Id>().unwrap();
         assert!(unknown_id.is_unknown());
         assert!(unknown_id.year().is_none());
         assert!(unknown_id.url().is_none());
