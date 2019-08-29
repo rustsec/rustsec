@@ -1,5 +1,7 @@
 //! Tests for parsing RustSec advisories
 
+use rustsec::advisory::Category;
+
 /// Example RustSec Advisory (V1 format) to use for tests
 const ADVISORY_PATH_V1: &str = "./tests/support/example_advisory_v1.toml";
 
@@ -32,6 +34,13 @@ fn parse_metadata() {
         advisory.info.url.unwrap(),
         "https://www.youtube.com/watch?v=jQE66WA2s-A"
     );
+
+    for (i, category) in [Category::PrivilegeEscalation, Category::RemoteCodeExecution]
+        .iter()
+        .enumerate()
+    {
+        assert_eq!(*category, advisory.info.categories[i]);
+    }
 
     for (i, kw) in ["how", "are", "you", "gentlemen"].iter().enumerate() {
         assert_eq!(*kw, advisory.info.keywords[i].as_str());
@@ -99,4 +108,10 @@ fn parse_patched_version_reqs_v2() {
     assert!(!req.matches(&"1.2.2".parse().unwrap()));
     assert!(req.matches(&"1.2.3".parse().unwrap()));
     assert!(req.matches(&"1.2.4".parse().unwrap()));
+}
+
+/// Ensure V1 and V2 formats parse equivalently
+#[test]
+fn advisory_v1_and_v2_equivalence() {
+    assert_eq!(load_advisory_v1(), load_advisory_v2());
 }
