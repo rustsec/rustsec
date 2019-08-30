@@ -1,6 +1,6 @@
 //! Advisory information (i.e. the `[advisory]` section)
 
-use super::{date::Date, id::Id, keyword::Keyword};
+use super::{category::Category, date::Date, id::Id, keyword::Keyword};
 use crate::{package, version::VersionReq};
 use serde::{Deserialize, Serialize};
 
@@ -32,6 +32,11 @@ pub struct Info {
     /// Advisory IDs which are related to this advisory
     #[serde(default)]
     pub references: Vec<Id>,
+
+    /// RustSec vulnerability categories: one of a fixed list of vulnerability
+    /// categorizations accepted by the project.
+    #[serde(default)]
+    pub categories: Vec<Category>,
 
     /// Freeform keywords which succinctly describe this vulnerability (e.g. "ssl", "rce", "xss")
     #[serde(default)]

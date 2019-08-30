@@ -1,13 +1,16 @@
 //! Security advisories in the RustSec database
 
 pub mod affected;
+pub mod category;
 pub mod date;
 pub mod id;
 pub mod info;
 pub mod keyword;
 pub mod versions;
 
-pub use self::{date::Date, id::Id, info::Info, keyword::Keyword, versions::Versions};
+pub use self::{
+    category::Category, date::Date, id::Id, info::Info, keyword::Keyword, versions::Versions,
+};
 pub use cvss::Severity;
 
 use self::affected::Affected;
@@ -69,6 +72,8 @@ impl Advisory {
                         );
                     }
                 }
+
+                $advisory.info.$old_field = vec![];
             };
         }
 
