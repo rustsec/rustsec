@@ -1,12 +1,14 @@
 //! Advisory information (i.e. the `[advisory]` section)
 
-use super::{category::Category, date::Date, id::Id, keyword::Keyword};
+use super::{
+    category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
+};
 use crate::{package, version::VersionReq};
 use serde::{Deserialize, Serialize};
 
 /// The `[advisory]` section of a RustSec security advisory
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct Info {
+pub struct Metadata {
     /// Security advisory ID (e.g. RUSTSEC-YYYY-NNNN)
     pub id: Id,
 
@@ -20,6 +22,20 @@ pub struct Info {
     #[serde(default)]
     pub aliases: Vec<Id>,
 
+    /// Advisory IDs which are related to this advisory (use `aliases` if it
+    /// is the same vulnerability syndicated to a different database)
+    #[serde(default)]
+    pub references: Vec<Id>,
+
+    /// Freeform keywords which succinctly describe this vulnerability (e.g. "ssl", "rce", "xss")
+    #[serde(default)]
+    pub keywords: Vec<Keyword>,
+
+    /// RustSec vulnerability categories: one of a fixed list of vulnerability
+    /// categorizations accepted by the project.
+    #[serde(default)]
+    pub categories: Vec<Category>,
+
     /// CVSS v3.1 Base Metrics vector string containing severity information.
     ///
     /// Example:
@@ -29,18 +45,13 @@ pub struct Info {
     /// ```
     pub cvss: Option<cvss::v3::Base>,
 
-    /// Advisory IDs which are related to this advisory
-    #[serde(default)]
-    pub references: Vec<Id>,
+    /// Informational advisories can be used to warn users about issues
+    /// affecting a particular crate without failing the build.
+    pub informational: Option<Informational>,
 
-    /// RustSec vulnerability categories: one of a fixed list of vulnerability
-    /// categorizations accepted by the project.
+    /// Is the advisory obsolete? Obsolete advisories will be ignored.
     #[serde(default)]
-    pub categories: Vec<Category>,
-
-    /// Freeform keywords which succinctly describe this vulnerability (e.g. "ssl", "rce", "xss")
-    #[serde(default)]
-    pub keywords: Vec<Keyword>,
+    pub obsolete: bool,
 
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<String>,

@@ -22,16 +22,16 @@ fn load_advisory_v2() -> rustsec::Advisory {
 #[test]
 fn parse_metadata() {
     let advisory = load_advisory_v1();
-    assert_eq!(advisory.info.id.as_str(), "RUSTSEC-2001-2101");
-    assert_eq!(advisory.info.package.as_str(), "base");
-    assert_eq!(advisory.info.title, "All your base are belong to us");
+    assert_eq!(advisory.metadata.id.as_str(), "RUSTSEC-2001-2101");
+    assert_eq!(advisory.metadata.package.as_str(), "base");
+    assert_eq!(advisory.metadata.title, "All your base are belong to us");
     assert_eq!(
-        advisory.info.description,
+        advisory.metadata.description,
         "You have no chance to survive. Make your time."
     );
-    assert_eq!(advisory.info.date.as_str(), "2001-02-03");
+    assert_eq!(advisory.metadata.date.as_str(), "2001-02-03");
     assert_eq!(
-        advisory.info.url.unwrap(),
+        advisory.metadata.url.unwrap(),
         "https://www.youtube.com/watch?v=jQE66WA2s-A"
     );
 
@@ -39,11 +39,11 @@ fn parse_metadata() {
         .iter()
         .enumerate()
     {
-        assert_eq!(*category, advisory.info.categories[i]);
+        assert_eq!(*category, advisory.metadata.categories[i]);
     }
 
     for (i, kw) in ["how", "are", "you", "gentlemen"].iter().enumerate() {
-        assert_eq!(*kw, advisory.info.keywords[i].as_str());
+        assert_eq!(*kw, advisory.metadata.keywords[i].as_str());
     }
 }
 
@@ -63,7 +63,7 @@ fn parse_affected() {
 /// Parsing of other aliased advisory IDs
 #[test]
 fn parse_aliases() {
-    let alias = &load_advisory_v1().info.aliases[0];
+    let alias = &load_advisory_v1().metadata.aliases[0];
     assert!(alias.is_cve());
     assert_eq!(alias.year().unwrap(), 2001);
 }
@@ -77,7 +77,7 @@ fn parse_cvss_vector_string() {
         rustsec::advisory::Severity::Critical
     );
 
-    let cvss = advisory.info.cvss.unwrap();
+    let cvss = advisory.metadata.cvss.unwrap();
     assert_eq!(cvss.av.unwrap(), cvss::v3::base::av::AttackVector::Network);
     assert_eq!(cvss.ac.unwrap(), cvss::v3::base::ac::AttackComplexity::Low);
     assert_eq!(
