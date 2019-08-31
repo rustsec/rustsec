@@ -41,16 +41,16 @@ impl Database {
         for advisory_file in advisory_files {
             let advisory = Advisory::load_file(advisory_file.path())?;
 
-            if !advisory.info.id.is_rustsec() {
+            if !advisory.metadata.id.is_rustsec() {
                 fail!(
                     ErrorKind::Parse,
                     "expected a RUSTSEC advisory ID: {}",
-                    advisory.info.id
+                    advisory.metadata.id
                 );
             }
 
             let advisory_path = advisory_file.path().to_owned();
-            let expected_filename = OsString::from(format!("{}.toml", advisory.info.id));
+            let expected_filename = OsString::from(format!("{}.toml", advisory.metadata.id));
 
             // Ensure advisory has the correct filename
             if advisory_path.file_name().unwrap() != expected_filename {
@@ -65,29 +65,29 @@ impl Database {
             // Ensure advisory is in the correct directory
             let advisory_parent_dir = advisory_path.parent().unwrap().file_name().unwrap();
 
-            if advisory_parent_dir != OsStr::new(advisory.info.package.as_str()) {
+            if advisory_parent_dir != OsStr::new(advisory.metadata.package.as_str()) {
                 fail!(
                     ErrorKind::Repo,
                     "expected {} to be in {} directory (instead of \"{:?}\")",
-                    advisory.info.id,
-                    advisory.info.package,
+                    advisory.metadata.id,
+                    advisory.metadata.package,
                     advisory_parent_dir
                 );
             }
 
             // Ensure placeholder advisories load and parse correctly, but
             // don't actually insert them into the advisory database
-            if advisory.info.id.is_placeholder() {
+            if advisory.metadata.id.is_placeholder() {
                 continue;
             }
 
-            let crate_advisories = match crates.entry(advisory.info.package.clone()) {
+            let crate_advisories = match crates.entry(advisory.metadata.package.clone()) {
                 map::Entry::Vacant(entry) => entry.insert(vec![]),
                 map::Entry::Occupied(entry) => entry.into_mut(),
             };
 
-            crate_advisories.push(advisory.info.id.clone());
-            advisories.insert(advisory.info.id.clone(), advisory);
+            crate_advisories.push(advisory.metadata.id.clone());
+            advisories.insert(advisory.metadata.id.clone(), advisory);
         }
 
         Ok(Self { advisories, crates })

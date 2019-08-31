@@ -11,23 +11,23 @@ fn happy_path() {
     let example_advisory = db.find(&example_advisory_id).unwrap();
     let example_package = package::Name::from("sodiumoxide");
 
-    assert_eq!(example_advisory.info.id, example_advisory_id);
-    assert_eq!(example_advisory.info.package, example_package);
+    assert_eq!(example_advisory.metadata.id, example_advisory_id);
+    assert_eq!(example_advisory.metadata.package, example_package);
     assert_eq!(
         example_advisory.versions.patched[0],
         VersionReq::parse(">= 0.0.14").unwrap()
     );
-    assert_eq!(example_advisory.info.date.as_str(), "2017-01-26");
+    assert_eq!(example_advisory.metadata.date.as_str(), "2017-01-26");
     assert_eq!(
-        example_advisory.info.url.as_ref().unwrap(),
+        example_advisory.metadata.url.as_ref().unwrap(),
         "https://github.com/dnaq/sodiumoxide/issues/154"
     );
     assert_eq!(
-        example_advisory.info.title,
+        example_advisory.metadata.title,
         "scalarmult() vulnerable to degenerate public keys"
     );
     assert_eq!(
-        &example_advisory.info.description[0..30],
+        &example_advisory.metadata.description[0..30],
         "The `scalarmult()` function in"
     );
 
