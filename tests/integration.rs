@@ -1,6 +1,4 @@
-use rustsec::{
-    advisory, package, Database, Lockfile, Repository, VersionReq, ADVISORY_DB_REPO_URL,
-};
+use rustsec::{advisory, package, Database, Lockfile, Repository, VersionReq, DEFAULT_REPO_URL};
 use tempfile::tempdir;
 
 /// End-to-end integration test (has online dependency on GitHub)
@@ -46,5 +44,5 @@ fn clone_into_existing_directory() {
     let tmp = tempdir().unwrap();
 
     // Attempt to fetch into it
-    Repository::fetch(ADVISORY_DB_REPO_URL, tmp.path(), true).unwrap();
+    Repository::fetch(DEFAULT_REPO_URL, tmp.path(), true).unwrap();
 }
