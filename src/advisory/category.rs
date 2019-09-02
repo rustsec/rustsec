@@ -1,6 +1,6 @@
 //! RustSec Vulnerability Categories
 
-use crate::error::{Error, ErrorKind};
+use crate::error::Error;
 use serde::{de, ser, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
@@ -13,16 +13,20 @@ use std::{fmt, str::FromStr};
 /// which we allow advisories to be filed.
 ///
 /// [1]: https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md#criteria
-#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub enum Category {
+    /// Execution of arbitrary code allowing an attacker to gain partial or
+    /// total control of an impacted computer system.
+    CodeExecution,
+
     /// Cryptography Failure (e.g. confidentiality breakage, integrity
     /// breakage, key leakage)
-    CryptographicFailure,
+    CryptoFailure,
 
-    /// Attacks that cause crashes or excess resource consumption such that
-    /// software ceases to function normally, notably panics in code that is
-    /// advertised as "panic-free" (particularly in format parsers for
-    /// untrusted data)
+    /// Vulnerabilities an attacker can leverage to cause crashes or excess
+    /// resource consumption such that software ceases to function normally,
+    /// notably panics in code that is advertised as "panic-free" (particularly
+    /// in format parsers for untrusted data)
     DenialOfService,
 
     /// Disclosure of local files (a.k.a. "directory traversal")
@@ -43,37 +47,23 @@ pub enum Category {
     /// allowing the attacker to obtain unintended privileges.
     PrivilegeEscalation,
 
-    /// Execution of arbitrary code allowing an attacker to gain partial or
-    /// total control of an impacted computer system.
-    RemoteCodeExecution,
+    /// Other types of categories: left open-ended to add more of them in the future.
+    Other(String),
 }
 
 impl Category {
     /// Get the short "kebab case" identifier for a category
-    pub fn name(self) -> &'static str {
+    pub fn name(&self) -> &str {
         match self {
-            Category::CryptographicFailure => "crypto",
-            Category::DenialOfService => "dos",
-            Category::FileDisclosure => "lfd",
+            Category::CodeExecution => "code-execution",
+            Category::CryptoFailure => "crypto-failure",
+            Category::DenialOfService => "denial-of-service",
+            Category::FileDisclosure => "file-disclosure",
             Category::FormatInjection => "format-injection",
             Category::MemoryCorruption => "memory-corruption",
             Category::MemoryExposure => "memory-exposure",
             Category::PrivilegeEscalation => "privilege-escalation",
-            Category::RemoteCodeExecution => "rce",
-        }
-    }
-
-    /// Get a brief text description of the category
-    pub fn description(self) -> &'static str {
-        match self {
-            Category::CryptographicFailure => "cryptographic failure",
-            Category::DenialOfService => "denial-of-service (DoS)",
-            Category::FileDisclosure => "file disclosure (LFD)",
-            Category::FormatInjection => "format injection",
-            Category::MemoryCorruption => "memory corruption",
-            Category::MemoryExposure => "memory exposure",
-            Category::PrivilegeEscalation => "privilege escalation",
-            Category::RemoteCodeExecution => "remote code execution (RCE)",
+            Category::Other(other) => other,
         }
     }
 }
@@ -89,15 +79,15 @@ impl FromStr for Category {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         Ok(match s {
-            "crypto" => Category::CryptographicFailure,
-            "dos" => Category::DenialOfService,
-            "lfd" => Category::FileDisclosure,
+            "code-execution" => Category::CodeExecution,
+            "crypto-failure" => Category::CryptoFailure,
+            "denial-of-service" => Category::DenialOfService,
+            "file-disclosure" => Category::FileDisclosure,
             "format-injection" => Category::FormatInjection,
             "memory-corruption" => Category::MemoryCorruption,
             "memory-exposure" => Category::MemoryExposure,
             "privilege-escalation" => Category::PrivilegeEscalation,
-            "rce" => Category::RemoteCodeExecution,
-            other => fail!(ErrorKind::Parse, "invalid category: {}", other),
+            other => Category::Other(other.to_owned()),
         })
     }
 }
