@@ -10,7 +10,7 @@ title = "All your base are belong to us"
 description = "You have no chance to survive. Make your time."
 date = "2001-02-03"
 url = "https://www.youtube.com/watch?v=jQE66WA2s-A"
-categories = ["privilege-escalation", "rce"]
+categories = ["code-execution", "privilege-escalation"]
 keywords = ["how", "are", "you", "gentlemen"]
 aliases = ["CVE-2001-2101"]
 cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
