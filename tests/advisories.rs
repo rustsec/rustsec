@@ -35,7 +35,7 @@ fn parse_metadata() {
         "https://www.youtube.com/watch?v=jQE66WA2s-A"
     );
 
-    for (i, category) in [Category::PrivilegeEscalation, Category::RemoteCodeExecution]
+    for (i, category) in [Category::CodeExecution, Category::PrivilegeEscalation]
         .iter()
         .enumerate()
     {
