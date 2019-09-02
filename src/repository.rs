@@ -4,6 +4,7 @@ mod authentication;
 mod commit;
 mod file;
 mod signature;
+pub mod support;
 
 pub(crate) use self::file::RepoFile;
 pub use self::{commit::Commit, signature::Signature};
@@ -11,10 +12,10 @@ use crate::error::{Error, ErrorKind};
 use git2;
 use std::{fs, path::PathBuf, vec};
 
-use self::authentication::with_authentication;
+use self::{authentication::with_authentication, support::Support};
 
 /// Location of the RustSec advisory database for crates.io
-pub const ADVISORY_DB_REPO_URL: &str = "https://github.com/RustSec/advisory-db.git";
+pub const DEFAULT_REPO_URL: &str = "https://github.com/RustSec/advisory-db.git";
 
 /// Number of days after which the repo will be considered stale
 pub const DAYS_UNTIL_STALE: usize = 90;
@@ -23,7 +24,10 @@ pub const DAYS_UNTIL_STALE: usize = 90;
 const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
 
 /// Directory within a repository where crate advisories are stored
-const CRATE_ADVISORY_DIRECTORY: &str = "crates";
+const CRATE_SUBDIRECTORY: &str = "crates";
+
+/// Name of version support tracking file
+const SUPPORT_FILE: &str = "support.toml";
 
 /// Ref for master in the local repository
 #[cfg(feature = "chrono")]
@@ -55,7 +59,7 @@ impl Repository {
     /// Fetch the default repository
     #[cfg(feature = "chrono")]
     pub fn fetch_default_repo() -> Result<Self, Error> {
-        Self::fetch(ADVISORY_DB_REPO_URL, Repository::default_path(), true)
+        Self::fetch(DEFAULT_REPO_URL, Repository::default_path(), true)
     }
 
     /// Create a new `Repository` with the given URL and path
@@ -157,13 +161,33 @@ impl Repository {
     /// Open a repository at the given path
     pub fn open<P: Into<PathBuf>>(into_path: P) -> Result<Self, Error> {
         let path = into_path.into();
-        let repo = git2::Repository::open(&path)?;
+        let git_repo = git2::Repository::open(&path)?;
 
         // Ensure the repo is in a clean state
-        match repo.state() {
-            git2::RepositoryState::Clean => Ok(Repository { path, repo }),
-            state => fail!(ErrorKind::Repo, "bad repository state: {:?}", state),
+        if git_repo.state() != git2::RepositoryState::Clean {
+            fail!(
+                ErrorKind::Repo,
+                "bad repository state: {:?}",
+                git_repo.state()
+            );
         }
+
+        let repository = Repository {
+            path,
+            repo: git_repo,
+        };
+
+        // TODO(tarcieri): temporarily ignores missing `support.toml`. Make it mandatory.
+        if let Ok(support) = repository.support() {
+            if !support.rustsec.is_supported() {
+                fail!(
+                    ErrorKind::Version,
+                    "end-of-life RustSec client! Please upgrade to the latest version"
+                );
+            }
+        }
+
+        Ok(repository)
     }
 
     /// Get information about the latest commit to the repo
@@ -171,12 +195,22 @@ impl Repository {
         Commit::from_repo_head(self)
     }
 
+    /// Load support information from `support.toml`
+    pub fn support(&self) -> Result<Support, Error> {
+        let path = self.path.join(SUPPORT_FILE);
+
+        let toml_string = fs::read_to_string(&path)
+            .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?;
+
+        Ok(toml::from_str(&toml_string)?)
+    }
+
     /// Iterate over all of the crate advisories in this repo
     pub(crate) fn crate_advisories(&self) -> Result<Iter, Error> {
         let mut advisory_files = vec![];
 
         // Iterate over the individual crates in the `crates/` directory
-        for crate_entry in fs::read_dir(self.path.join(CRATE_ADVISORY_DIRECTORY))? {
+        for crate_entry in fs::read_dir(self.path.join(CRATE_SUBDIRECTORY))? {
             for advisory_entry in fs::read_dir(crate_entry?.path())? {
                 advisory_files.push(RepoFile::new(advisory_entry?.path())?);
             }

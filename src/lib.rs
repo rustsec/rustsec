@@ -26,3 +26,6 @@ pub use crate::{
     advisory::*, db::*, error::*, lockfile::*, package::*, repository::*, version::*,
     vulnerability::*,
 };
+
+/// Current version of the RustSec crate
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
