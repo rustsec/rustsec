@@ -66,6 +66,8 @@ impl Id {
     }
 
     /// Get a URL to a web page with more information on this advisory
+    // TODO(tarcieri): look up GHSA URLs via the GraphQL API?
+    // <https://developer.github.com/v4/object/securityadvisory/>
     pub fn url(&self) -> Option<String> {
         match self.kind {
             Kind::RUSTSEC => {

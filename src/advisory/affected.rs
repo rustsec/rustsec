@@ -4,11 +4,11 @@
 use crate::{
     error::{Error, ErrorKind},
     version::VersionReq,
+    Map,
 };
 use platforms::target::{Arch, OS};
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 use std::{
-    collections::BTreeMap as Map,
     fmt::{self, Display},
     slice,
     str::FromStr,

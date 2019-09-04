@@ -1,10 +1,19 @@
-//! `AdvisoryDatabase` iterator
+//! Advisory [`Database`] iterator
 
-use crate::advisory::{self, Advisory};
-use std::collections::btree_map;
+use crate::{
+    advisory::{self, Advisory},
+    map,
+};
 
-/// `AdvisoryDatabase` iterator
-pub struct Iter<'a>(pub(crate) btree_map::Iter<'a, advisory::Id, Advisory>);
+/// Advisory [`Database`] iterator
+pub struct Iter<'a>(map::Iter<'a, advisory::Id, Advisory>);
+
+impl<'a> Iter<'a> {
+    /// Create a new iterator
+    pub(crate) fn new(iter: map::Iter<'a, advisory::Id, Advisory>) -> Self {
+        Iter(iter)
+    }
+}
 
 impl<'a> Iterator for Iter<'a> {
     type Item = &'a Advisory;
