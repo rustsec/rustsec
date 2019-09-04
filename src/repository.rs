@@ -2,17 +2,18 @@
 
 mod authentication;
 mod commit;
-mod file;
 mod signature;
 pub mod support;
 
-pub(crate) use self::file::RepoFile;
 pub use self::{commit::Commit, signature::Signature};
-use crate::error::{Error, ErrorKind};
-use git2;
-use std::{fs, path::PathBuf, vec};
 
 use self::{authentication::with_authentication, support::Support};
+use crate::{
+    error::{Error, ErrorKind},
+    package,
+};
+use git2;
+use std::{fs, path::PathBuf, vec};
 
 /// Location of the RustSec advisory database for crates.io
 pub const DEFAULT_REPO_URL: &str = "https://github.com/RustSec/advisory-db.git";
@@ -21,10 +22,7 @@ pub const DEFAULT_REPO_URL: &str = "https://github.com/RustSec/advisory-db.git";
 pub const DAYS_UNTIL_STALE: usize = 90;
 
 /// Directory under ~/.cargo where the advisory-db repo will be kept
-const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
-
-/// Directory within a repository where crate advisories are stored
-const CRATE_SUBDIRECTORY: &str = "crates";
+pub(crate) const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
 
 /// Name of version support tracking file
 const SUPPORT_FILE: &str = "support.toml";
@@ -205,38 +203,22 @@ impl Repository {
         Ok(toml::from_str(&toml_string)?)
     }
 
-    /// Iterate over all of the crate advisories in this repo
-    pub(crate) fn crate_advisories(&self) -> Result<Iter, Error> {
-        let mut advisory_files = vec![];
+    /// Paths to all advisories located in the database
+    pub fn advisories(&self) -> Result<Vec<PathBuf>, Error> {
+        let mut paths = vec![];
 
-        // Iterate over the individual crates in the `crates/` directory
-        for crate_entry in fs::read_dir(self.path.join(CRATE_SUBDIRECTORY))? {
-            for advisory_entry in fs::read_dir(crate_entry?.path())? {
-                advisory_files.push(RepoFile::new(advisory_entry?.path())?);
+        for collection in &[package::Collection::Crates, package::Collection::Rust] {
+            let collection_path = self.path.join(collection.as_str());
+
+            if let Ok(collection_entry) = fs::read_dir(&collection_path) {
+                for dir_entry in collection_entry {
+                    for advisory_entry in fs::read_dir(dir_entry?.path())? {
+                        paths.push(advisory_entry?.path().to_owned());
+                    }
+                }
             }
         }
 
-        Ok(Iter(advisory_files.into_iter()))
-    }
-}
-
-/// Iterator over the advisory database
-pub(crate) struct Iter(vec::IntoIter<RepoFile>);
-
-impl Iterator for Iter {
-    type Item = RepoFile;
-
-    fn next(&mut self) -> Option<RepoFile> {
-        self.0.next()
-    }
-
-    fn size_hint(&self) -> (usize, Option<usize>) {
-        self.0.size_hint()
-    }
-}
-
-impl ExactSizeIterator for Iter {
-    fn len(&self) -> usize {
-        self.0.len()
+        Ok(paths)
     }
 }
