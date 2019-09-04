@@ -21,7 +21,7 @@ pub enum Informational {
 }
 
 impl Informational {
-    /// Get a `str` representing an innformationnal category
+    /// Get a `str` representing an informational category
     pub fn as_str(&self) -> &str {
         match self {
             Informational::Notice => "notice",
@@ -75,7 +75,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_unmaintainend() {
+    fn parse_unmaintained() {
         let unmaintained = "unmaintained".parse::<Informational>().unwrap();
         assert_eq!(Informational::Unmaintained, unmaintained);
         assert_eq!("unmaintained", unmaintained.as_str());
