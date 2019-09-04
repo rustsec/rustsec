@@ -35,33 +35,29 @@ impl Id {
         self.kind
     }
 
-    /// Is this advisory ID a RUSTSEC advisory?
-    pub fn is_rustsec(&self) -> bool {
-        match self.kind {
-            Kind::RUSTSEC => true,
-            _ => false,
-        }
-    }
-
     /// Is this advisory ID the `RUSTSEC-0000-0000` placeholder ID?
     pub fn is_placeholder(&self) -> bool {
         self.string == PLACEHOLDER
     }
 
+    /// Is this advisory ID a RUSTSEC advisory?
+    pub fn is_rustsec(&self) -> bool {
+        self.kind == Kind::RUSTSEC
+    }
+
     /// Is this advisory ID a CVE?
     pub fn is_cve(&self) -> bool {
-        match self.kind {
-            Kind::CVE => true,
-            _ => false,
-        }
+        self.kind == Kind::CVE
+    }
+
+    /// Is this advisory ID a GHSA?
+    pub fn is_ghsa(&self) -> bool {
+        self.kind == Kind::GHSA
     }
 
     /// Is this an unknown kind of advisory ID?
-    pub fn is_unknown(&self) -> bool {
-        match self.kind {
-            Kind::Unknown => true,
-            _ => false,
-        }
+    pub fn is_other(&self) -> bool {
+        self.kind == Kind::Other
     }
 
     /// Get the year this vulnerability was published (if known)
@@ -87,7 +83,7 @@ impl Id {
                 "https://www.talosintelligence.com/reports/{}",
                 &self.string
             )),
-            Kind::Unknown => None,
+            _ => None,
         }
     }
 }
@@ -167,11 +163,14 @@ pub enum Kind {
     /// Common Vulnerabilities and Exposures
     CVE,
 
+    /// GitHub Security Advisory
+    GHSA,
+
     /// Cisco Talos identifiers
     TALOS,
 
     /// Other types of advisory identifiers we don't know about
-    Unknown,
+    Other,
 }
 
 impl Kind {
@@ -183,8 +182,10 @@ impl Kind {
             Kind::CVE
         } else if string.starts_with("TALOS-") {
             Kind::TALOS
+        } else if string.starts_with("GHSA-") {
+            Kind::GHSA
         } else {
-            Kind::Unknown
+            Kind::Other
         }
     }
 }
@@ -231,6 +232,7 @@ mod tests {
 
     const EXAMPLE_RUSTSEC_ID: &str = "RUSTSEC-2018-0001";
     const EXAMPLE_CVE_ID: &str = "CVE-2017-1000168";
+    const EXAMPLE_GHSA_ID: &str = "GHSA-4mmc-49vf-jmcp";
     const EXAMPLE_TALOS_ID: &str = "TALOS-2017-0468";
     const EXAMPLE_UNKNOWN_ID: &str = "Anonymous-42";
 
@@ -266,6 +268,14 @@ mod tests {
     }
 
     #[test]
+    fn ghsa_id_test() {
+        let ghsa_id = EXAMPLE_GHSA_ID.parse::<Id>().unwrap();
+        assert!(ghsa_id.is_ghsa());
+        assert!(ghsa_id.year().is_none());
+        assert!(ghsa_id.url().is_none());
+    }
+
+    #[test]
     fn talos_id_test() {
         let talos_id = EXAMPLE_TALOS_ID.parse::<Id>().unwrap();
         assert_eq!(talos_id.kind(), Kind::TALOS);
@@ -277,10 +287,10 @@ mod tests {
     }
 
     #[test]
-    fn unknown_id_test() {
-        let unknown_id = EXAMPLE_UNKNOWN_ID.parse::<Id>().unwrap();
-        assert!(unknown_id.is_unknown());
-        assert!(unknown_id.year().is_none());
-        assert!(unknown_id.url().is_none());
+    fn other_id_test() {
+        let other_id = EXAMPLE_UNKNOWN_ID.parse::<Id>().unwrap();
+        assert!(other_id.is_other());
+        assert!(other_id.year().is_none());
+        assert!(other_id.url().is_none());
     }
 }
