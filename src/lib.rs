@@ -27,5 +27,8 @@ pub use crate::{
     vulnerability::*,
 };
 
+// Use BTreeMap and BTreeSet as our map and set types
+use std::collections::{btree_map as map, btree_set as set, BTreeMap as Map, BTreeSet as Set};
+
 /// Current version of the RustSec crate
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

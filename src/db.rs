@@ -1,27 +1,33 @@
 //! Database containing `RustSec` security advisories
 
+mod entries;
+mod index;
 mod iter;
 
 pub use self::iter::Iter;
+
+use self::{entries::Entries, index::Index};
 use crate::{
     advisory::{self, Advisory},
-    error::{Error, ErrorKind},
+    error::Error,
     lockfile::Lockfile,
     package,
     repository::Repository,
     version::Version,
-    vulnerability::Collection,
-};
-use std::{
-    collections::{btree_map as map, BTreeMap as Map},
-    ffi::{OsStr, OsString},
+    vulnerability,
 };
 
 /// Database of RustSec security advisories, indexed both by ID and crate
 #[derive(Debug)]
 pub struct Database {
-    advisories: Map<advisory::Id, Advisory>,
-    crates: Map<package::Name, Vec<advisory::Id>>,
+    /// All advisories in the database
+    advisories: Entries,
+
+    /// Index of Rust core vulnerabilities
+    rust_index: Index,
+
+    /// Index of third party crates
+    crate_index: Index,
 }
 
 impl Database {
@@ -32,65 +38,32 @@ impl Database {
         Self::from_repository(&repo)
     }
 
-    /// Create a new `AdvisoryDatabase` from the given `Repository`
+    /// Create a new `Database` from the given [`Repository`]
     pub fn from_repository(repo: &Repository) -> Result<Self, Error> {
-        let advisory_files = repo.crate_advisories()?;
-        let mut advisories = Map::new();
-        let mut crates = Map::new();
+        let advisory_paths = repo.advisories()?;
 
-        for advisory_file in advisory_files {
-            let advisory = Advisory::load_file(advisory_file.path())?;
+        let mut advisories = Entries::new();
+        let mut rust_index = Index::new();
+        let mut crate_index = Index::new();
 
-            if !advisory.metadata.id.is_rustsec() {
-                fail!(
-                    ErrorKind::Parse,
-                    "expected a RUSTSEC advisory ID: {}",
-                    advisory.metadata.id
-                );
+        for path in &advisory_paths {
+            if let Some(advisory) = advisories.load_file(path)? {
+                match advisory.metadata.collection.unwrap() {
+                    package::Collection::Crates => {
+                        crate_index.insert(&advisory.metadata.package, &advisory.metadata.id);
+                    }
+                    package::Collection::Rust => {
+                        rust_index.insert(&advisory.metadata.package, &advisory.metadata.id);
+                    }
+                }
             }
-
-            let advisory_path = advisory_file.path().to_owned();
-            let expected_filename = OsString::from(format!("{}.toml", advisory.metadata.id));
-
-            // Ensure advisory has the correct filename
-            if advisory_path.file_name().unwrap() != expected_filename {
-                fail!(
-                    ErrorKind::Repo,
-                    "expected {} to be named {:?}",
-                    advisory_file.path().display(),
-                    expected_filename
-                );
-            }
-
-            // Ensure advisory is in the correct directory
-            let advisory_parent_dir = advisory_path.parent().unwrap().file_name().unwrap();
-
-            if advisory_parent_dir != OsStr::new(advisory.metadata.package.as_str()) {
-                fail!(
-                    ErrorKind::Repo,
-                    "expected {} to be in {} directory (instead of \"{:?}\")",
-                    advisory.metadata.id,
-                    advisory.metadata.package,
-                    advisory_parent_dir
-                );
-            }
-
-            // Ensure placeholder advisories load and parse correctly, but
-            // don't actually insert them into the advisory database
-            if advisory.metadata.id.is_placeholder() {
-                continue;
-            }
-
-            let crate_advisories = match crates.entry(advisory.metadata.package.clone()) {
-                map::Entry::Vacant(entry) => entry.insert(vec![]),
-                map::Entry::Occupied(entry) => entry.into_mut(),
-            };
-
-            crate_advisories.push(advisory.metadata.id.clone());
-            advisories.insert(advisory.metadata.id.clone(), advisory);
         }
 
-        Ok(Self { advisories, crates })
+        Ok(Self {
+            advisories,
+            crate_index,
+            rust_index,
+        })
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
@@ -100,8 +73,8 @@ impl Database {
 
     /// Look up advisories relevant to a particular crate
     pub fn find_by_crate<N: AsRef<package::Name>>(&self, crate_name: N) -> Vec<&Advisory> {
-        if let Some(ids) = self.crates.get(crate_name.as_ref()) {
-            ids.iter().map(|id| self.find(&id).unwrap()).collect()
+        if let Some(ids) = self.crate_index.get(crate_name.as_ref()) {
+            ids.map(|id| self.find(&id).unwrap()).collect()
         } else {
             vec![]
         }
@@ -128,12 +101,12 @@ impl Database {
     }
 
     /// Return a collection of vulnerabilities for the given lockfile
-    pub fn vulnerabilities(&self, lockfile: &Lockfile) -> Collection {
-        Collection::find(self, lockfile)
+    pub fn vulnerabilities(&self, lockfile: &Lockfile) -> vulnerability::Collection {
+        vulnerability::Collection::find(self, lockfile)
     }
 
     /// Iterate over all of the advisories in the database
-    pub fn advisories(&self) -> Iter<'_> {
-        Iter(self.advisories.iter())
+    pub fn iter(&self) -> Iter<'_> {
+        self.advisories.iter()
     }
 }

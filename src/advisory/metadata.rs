@@ -27,14 +27,19 @@ pub struct Metadata {
     #[serde(default)]
     pub references: Vec<Id>,
 
-    /// Freeform keywords which succinctly describe this vulnerability (e.g. "ssl", "rce", "xss")
-    #[serde(default)]
-    pub keywords: Vec<Keyword>,
+    /// Collection this advisory belongs to. This isn't intended to be
+    /// explicitly specified in the advisory, but rather is auto-populated
+    /// based on the location
+    pub collection: Option<package::Collection>,
 
     /// RustSec vulnerability categories: one of a fixed list of vulnerability
     /// categorizations accepted by the project.
     #[serde(default)]
     pub categories: Vec<Category>,
+
+    /// Freeform keywords which succinctly describe this vulnerability (e.g. "ssl", "rce", "xss")
+    #[serde(default)]
+    pub keywords: Vec<Keyword>,
 
     /// CVSS v3.1 Base Metrics vector string containing severity information.
     ///
