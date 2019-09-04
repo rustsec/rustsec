@@ -1,6 +1,6 @@
 //! Git authentication callbacks taken from upstream Cargo
 //!
-//! <https://github.com/rust-lang/cargo/blob/385b54b/src/cargo/sources/git/utils.rs#L409>
+//! <https://github.com/rust-lang/cargo/blob/5102de2/src/cargo/sources/git/utils.rs#L410>
 
 use crate::error::{Error, ErrorKind};
 use git2;
@@ -23,7 +23,7 @@ use std::env;
 ///
 /// * If a username/password is allowed, then we fallback to git2-rs's
 ///   implementation of the credential helper. This is what is configured
-///   with `credential.helper` in git, and is the interface for the OSX
+///   with `credential.helper` in git, and is the interface for the macOS
 ///   keychain, for example.
 ///
 /// * After the above two have failed, we just kinda grapple attempting to
@@ -78,7 +78,7 @@ where
         // ssh-agent currently.
         //
         // If we get called with this then the only way that should be possible
-        // is if a username is specified in the URL itself (e.g. `username` is
+        // is if a username is specified in the URL itself (e.g., `username` is
         // Some), hence the unwrap() here. We try custom usernames down below.
         if allowed.contains(git2::CredentialType::SSH_KEY) && !tried_sshkey {
             // If ssh-agent authentication fails, libgit2 will keep
@@ -97,7 +97,13 @@ where
         // but we currently don't! Right now the only way we support fetching a
         // plaintext password is through the `credential.helper` support, so
         // fetch that here.
-        if allowed.contains(git2::CredentialType::USER_PASS_PLAINTEXT) {
+        //
+        // If ssh-agent authentication fails, libgit2 will keep calling this
+        // callback asking for other authentication methods to try. Check
+        // cred_helper_bad to make sure we only try the git credential helper
+        // once, to avoid looping forever.
+        if allowed.contains(git2::CredentialType::USER_PASS_PLAINTEXT) && cred_helper_bad.is_none()
+        {
             let r = git2::Cred::credential_helper(cfg, url, username);
             cred_helper_bad = Some(r.is_err());
             return r;
@@ -165,7 +171,7 @@ where
             //    for another mode of authentication.
             //
             // Essentially, if `attempts == 2` then in theory the only error was
-            // that this username failed to authenticate (e.g. no other network
+            // that this username failed to authenticate (e.g., no other network
             // errors happened). Otherwise something else is funny so we bail
             // out.
             if attempts != 2 {
@@ -183,36 +189,33 @@ where
     // tried.
     let res = res.map_err(|_| {
         let mut msg = "failed to authenticate when downloading repository".to_string();
-
         if !ssh_agent_attempts.is_empty() {
             let names = ssh_agent_attempts
                 .iter()
                 .map(|s| format!("`{}`", s))
                 .collect::<Vec<_>>()
                 .join(", ");
-
             msg.push_str(&format!(
-                "\nattempted ssh-agent authentication, but none of the usernames {} succeeded",
+                "\nattempted ssh-agent authentication, but \
+                 none of the usernames {} succeeded",
                 names
             ));
         }
-
         if let Some(failed_cred_helper) = cred_helper_bad {
             if failed_cred_helper {
                 msg.push_str(
-                    "\nattempted to find username/password via git's \
-                     `credential.helper` support, but failed",
+                    "\nattempted to find username/password via \
+                     git's `credential.helper` support, but failed",
                 );
             } else {
                 msg.push_str(
-                    "\nattempted to find username/password via `credential.helper`, \
-                     but maybe the found credentials were incorrect",
+                    "\nattempted to find username/password via \
+                     `credential.helper`, but maybe the found \
+                     credentials were incorrect",
                 );
             }
         }
-
         format_err!(ErrorKind::Repo, "{}", msg)
     })?;
-
     Ok(res)
 }
