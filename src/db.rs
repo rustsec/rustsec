@@ -3,8 +3,9 @@
 mod entries;
 mod index;
 mod iter;
+mod query;
 
-pub use self::iter::Iter;
+pub use self::{iter::Iter, query::Query};
 
 use self::{entries::Entries, index::Index};
 use crate::{
@@ -71,13 +72,38 @@ impl Database {
         self.advisories.get(id)
     }
 
+    /// Query the database according to the given query object
+    pub fn query(&self, query: &Query) -> Vec<&Advisory> {
+        // Use indexes if we know a package name and collection
+        if let Some(name) = &query.package {
+            if let Some(collection) = query.collection {
+                return match collection {
+                    package::Collection::Crates => self.crate_index.get(name),
+                    package::Collection::Rust => self.rust_index.get(name),
+                }
+                .map(|ids| {
+                    ids.map(|id| self.find(id).unwrap())
+                        .filter(|advisory| query.matches(advisory))
+                        .collect()
+                })
+                .unwrap_or_else(Vec::new);
+            }
+        }
+
+        self.iter()
+            .filter(|advisory| query.matches(advisory))
+            .collect()
+    }
+
     /// Look up advisories relevant to a particular crate
     pub fn find_by_crate<N: AsRef<package::Name>>(&self, crate_name: N) -> Vec<&Advisory> {
-        if let Some(ids) = self.crate_index.get(crate_name.as_ref()) {
-            ids.map(|id| self.find(&id).unwrap()).collect()
-        } else {
-            vec![]
-        }
+        self.query(
+            &Query::new()
+                .collection(package::Collection::Crates)
+                .package(crate_name.as_ref().clone())
+                .obsolete(false)
+                .informational(false),
+        )
     }
 
     /// Find advisories that are unpatched and impact a given crate and version
