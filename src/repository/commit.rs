@@ -1,8 +1,8 @@
-#[cfg(feature = "chrono")]
+//! Commits to the advisory DB git repository
+
 use super::DAYS_UNTIL_STALE;
 use super::{signature::Signature, Repository};
 use crate::error::{Error, ErrorKind};
-#[cfg(feature = "chrono")]
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
 use git2;
 
@@ -19,7 +19,6 @@ pub struct Commit {
     pub summary: String,
 
     /// Commit time in number of seconds since the UNIX epoch
-    #[cfg(feature = "chrono")]
     pub time: DateTime<Utc>,
 
     /// Signature on the commit (mandatory for Repository::fetch)
@@ -61,7 +60,6 @@ impl Commit {
             _ => (None, None),
         };
 
-        #[cfg(feature = "chrono")]
         let time = DateTime::from_utc(
             NaiveDateTime::from_timestamp(commit.time().seconds(), 0),
             Utc,
@@ -71,7 +69,7 @@ impl Commit {
             commit_id,
             author,
             summary,
-            #[cfg(feature = "chrono")]
+
             time,
             signature,
             signed_data,
@@ -84,7 +82,7 @@ impl Commit {
     }
 
     /// Reset the repository's state to match this commit
-    #[cfg(feature = "chrono")]
+
     pub(crate) fn reset(&self, repo: &Repository) -> Result<(), Error> {
         let commit_object = repo.repo.find_object(
             git2::Oid::from_str(&self.commit_id).unwrap(),
@@ -99,7 +97,7 @@ impl Commit {
     }
 
     /// Determine if the repository is fresh or stale (i.e. has it recently been committed to)
-    #[cfg(feature = "chrono")]
+
     pub(crate) fn ensure_fresh(&self) -> Result<(), Error> {
         let fresh_after_date = Utc::now()
             .checked_sub_signed(Duration::days(DAYS_UNTIL_STALE as i64))

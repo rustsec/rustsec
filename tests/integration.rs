@@ -1,4 +1,6 @@
-use rustsec::{advisory, package, Database, Lockfile, Repository, VersionReq, DEFAULT_REPO_URL};
+use rustsec::{
+    advisory, db::Query, package, Database, Lockfile, Repository, VersionReq, DEFAULT_REPO_URL,
+};
 use tempfile::tempdir;
 
 /// Happy path integration test (has online dependency on GitHub)
@@ -40,11 +42,11 @@ fn verify_rustsec_2017_0001(db: &Database) {
         package::Collection::Crates
     );
 
-    let ref crate_advisories = db.find_by_crate(example_package);
+    let ref crate_advisories = db.query(&Query::new().package(example_package));
     assert_eq!(example_advisory, crate_advisories[0]);
 
     let lockfile = Lockfile::load_file("Cargo.lock").unwrap();
-    let vulns = db.vulnerabilities(&lockfile);
+    let vulns = lockfile.vulnerabilities(&db);
     assert!(vulns.is_empty());
 }
 
