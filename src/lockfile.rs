@@ -1,8 +1,10 @@
 //! Parser for `Cargo.lock` files
 
 use crate::{
+    db::{Database, Query},
     error::{Error, ErrorKind},
     package::Package,
+    vulnerability::Vulnerability,
 };
 use serde::Deserialize;
 use std::{fs, path::Path, str::FromStr};
@@ -23,6 +25,32 @@ impl Lockfile {
         fs::read_to_string(path)
             .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?
             .parse()
+    }
+
+    /// Find vulnerabilities for the current lockfile
+    pub fn vulnerabilities(&self, db: &Database) -> Vec<Vulnerability> {
+        self.query_vulnerabilities(db, &Query::crate_scope())
+    }
+
+    /// Find vulnerabilities for the current lockfile which match a given query
+    pub fn query_vulnerabilities(&self, db: &Database, query: &Query) -> Vec<Vulnerability> {
+        let mut vulns = vec![];
+
+        for package in &self.packages {
+            let advisories = db.query(
+                &query
+                    .clone()
+                    .package_version(package.name.clone(), package.version.clone()),
+            );
+
+            vulns.extend(
+                advisories
+                    .iter()
+                    .map(|advisory| Vulnerability::new(advisory, package)),
+            );
+        }
+
+        vulns
     }
 }
 

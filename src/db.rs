@@ -10,11 +10,8 @@ use self::{entries::Entries, index::Index};
 use crate::{
     advisory::{self, Advisory},
     error::Error,
-    lockfile::Lockfile,
     package,
-    repository::Repository,
-    version::Version,
-    vulnerability,
+    repository::{Commit, Repository},
 };
 
 /// Iterator over entries in the database
@@ -31,11 +28,13 @@ pub struct Database {
 
     /// Index of third party crates
     crate_index: Index,
+
+    /// Information about the last git commit to the database
+    latest_commit: Commit,
 }
 
 impl Database {
     /// Fetch the default advisory database from GitHub
-    #[cfg(feature = "chrono")]
     pub fn fetch() -> Result<Self, Error> {
         let repo = Repository::fetch_default_repo()?;
         Self::from_repository(&repo)
@@ -44,6 +43,7 @@ impl Database {
     /// Create a new `Database` from the given [`Repository`]
     pub fn from_repository(repo: &Repository) -> Result<Self, Error> {
         let advisory_paths = repo.advisories()?;
+        let latest_commit = repo.latest_commit()?;
 
         let mut advisories = Entries::new();
         let mut rust_index = Index::new();
@@ -67,6 +67,7 @@ impl Database {
             advisories,
             crate_index,
             rust_index,
+            latest_commit,
         })
     }
 
@@ -99,44 +100,13 @@ impl Database {
             .collect()
     }
 
-    /// Look up advisories relevant to a particular crate
-    pub fn find_by_crate<N: AsRef<package::Name>>(&self, crate_name: N) -> Vec<&Advisory> {
-        self.query(
-            &Query::new()
-                .collection(package::Collection::Crates)
-                .package(crate_name.as_ref().clone())
-                .obsolete(false)
-                .informational(false),
-        )
-    }
-
-    /// Find advisories that are unpatched and impact a given crate and version
-    pub fn advisories_for_crate<N: AsRef<package::Name>>(
-        &self,
-        crate_name: N,
-        version: &Version,
-    ) -> Vec<&Advisory> {
-        self.find_by_crate(crate_name)
-            .iter()
-            .filter(|advisory| {
-                let patched_or_unaffected =
-                    [&advisory.versions.patched, &advisory.versions.unaffected]
-                        .iter()
-                        .any(|versions| versions.iter().any(|req| req.matches(version)));
-
-                !patched_or_unaffected
-            })
-            .cloned()
-            .collect()
-    }
-
-    /// Return a collection of vulnerabilities for the given lockfile
-    pub fn vulnerabilities(&self, lockfile: &Lockfile) -> vulnerability::Collection {
-        vulnerability::Collection::find(self, lockfile)
-    }
-
     /// Iterate over all of the advisories in the database
     pub fn iter(&self) -> Iter<'_> {
         self.advisories.iter()
+    }
+
+    /// Get information about the latest commit to the repo
+    pub fn latest_commit(&self) -> &Commit {
+        &self.latest_commit
     }
 }

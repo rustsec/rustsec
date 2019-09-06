@@ -15,8 +15,8 @@ travis-ci = { repository = "rustsec/rustsec-crate" }
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-chrono = { version = "0.4", optional = true }
-cvss = { version = "0.2", features = ["serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+cvss = { version = "0.3", features = ["serde"] }
 git2 = "0.8"
 home = "0.5"
 platforms = { version = "0.2", features = ["serde"] }
@@ -27,6 +27,3 @@ toml = "0.5"
 
 [dev-dependencies]
 tempfile = "3"
-
-[features]
-default = ["chrono"]

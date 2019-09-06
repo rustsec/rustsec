@@ -18,12 +18,16 @@ pub mod advisory;
 pub mod db;
 pub mod lockfile;
 pub mod package;
+pub mod report;
 pub mod repository;
 pub mod version;
 pub mod vulnerability;
 
+// Re-export the `platforms` crate
+pub use platforms;
+
 pub use crate::{
-    advisory::*, db::*, error::*, lockfile::*, package::*, repository::*, version::*,
+    advisory::*, db::*, error::*, lockfile::*, package::*, report::*, repository::*, version::*,
     vulnerability::*,
 };
 

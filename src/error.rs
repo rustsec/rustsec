@@ -1,6 +1,5 @@
 //! Error types used by this crate
 
-#[cfg(feature = "chrono")]
 use chrono;
 use git2;
 use std::{
@@ -105,7 +104,6 @@ impl From<Utf8Error> for Error {
     }
 }
 
-#[cfg(feature = "chrono")]
 impl From<chrono::ParseError> for Error {
     fn from(other: chrono::ParseError) -> Self {
         format_err!(ErrorKind::Parse, &other)
