@@ -9,7 +9,7 @@ pub mod pr;
 pub mod s;
 pub mod ui;
 
-use super::{metric::Metric, Score, VERSION};
+use super::{metric::Metric, Score, CURRENT_VERSION, SUPPORTED_VERSIONS};
 use crate::{
     error::{Error, ErrorKind},
     Severity, PREFIX,
@@ -176,7 +176,7 @@ macro_rules! write_metrics {
 
 impl fmt::Display for Base {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", PREFIX, VERSION)?;
+        write!(f, "{}:{}", PREFIX, CURRENT_VERSION)?;
         write_metrics!(f, self.av, self.ac, self.pr, self.ui, self.s, self.c, self.i, self.a);
         Ok(())
     }
@@ -219,10 +219,14 @@ impl FromStr for Base {
                 fail!(ErrorKind::Parse, "invalid CVSS prefix: {}", id);
             }
 
-            if version != VERSION {
+            if !SUPPORTED_VERSIONS
+                .iter()
+                .any(|supported_version| supported_version == &version)
+            {
                 fail!(
                     ErrorKind::Version,
-                    "wrong CVSS version (expected 3.1): '{}'",
+                    "wrong CVSS version (expected one of {}): '{}'",
+                    SUPPORTED_VERSIONS.join(", "),
                     version
                 );
             }

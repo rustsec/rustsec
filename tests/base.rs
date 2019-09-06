@@ -20,6 +20,14 @@ fn bad_prefix() {
     assert!(cvss::v3::Base::from_str(cvss_for_cve_2013_1937e).is_err());
 }
 
+/// CVSS:3.0 prefix (parse these as for the purposes of this library they're identical)
+#[test]
+fn cvss_v3_0_prefix() {
+    let cvss_for_cve_2013_1937 = "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N";
+    let base = cvss::v3::Base::from_str(cvss_for_cve_2013_1937).unwrap();
+    assert_eq!(base.score().value(), 6.1);
+}
+
 /// CVE-2013-0375
 #[test]
 fn cve_2013_0375() {
