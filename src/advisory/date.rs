@@ -3,7 +3,7 @@
 use crate::error::{Error, ErrorKind};
 #[cfg(feature = "chrono")]
 use chrono::{self, DateTime, Utc};
-use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize};
+use serde::{de, Deserialize, Serialize};
 use std::str::FromStr;
 
 /// Minimum allowed year on advisory dates
@@ -31,9 +31,10 @@ impl Date {
 }
 
 impl<'de> Deserialize<'de> for Date {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Self::from_str(&String::deserialize(deserializer)?)
-            .map_err(|e| D::Error::custom(format!("{}", e)))
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use de::Error;
+        let string = String::deserialize(deserializer)?;
+        string.parse().map_err(D::Error::custom)
     }
 }
 
