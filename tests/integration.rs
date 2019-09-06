@@ -13,7 +13,7 @@ fn happy_path() {
 /// for the `RUSTSEC-2017-0001` vulnerability (sodiumoxide crate).
 fn verify_rustsec_2017_0001(db: &Database) {
     let example_advisory_id = "RUSTSEC-2017-0001".parse::<advisory::Id>().unwrap();
-    let example_advisory = db.find(&example_advisory_id).unwrap();
+    let example_advisory = db.get(&example_advisory_id).unwrap();
     let example_package = package::Name::from("sodiumoxide");
 
     assert_eq!(example_advisory.metadata.id, example_advisory_id);
@@ -52,7 +52,7 @@ fn verify_rustsec_2017_0001(db: &Database) {
 /// for the `CVE-2018-1000810` vulnerability (`std::str::repeat`)
 fn verify_cve_2018_1000810(db: &Database) {
     let example_advisory_id = "CVE-2018-1000810".parse::<advisory::Id>().unwrap();
-    let example_advisory = db.find(&example_advisory_id).unwrap();
+    let example_advisory = db.get(&example_advisory_id).unwrap();
     let example_package = package::Name::from("std");
 
     assert_eq!(example_advisory.metadata.id, example_advisory_id);

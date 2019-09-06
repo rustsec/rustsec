@@ -1,6 +1,6 @@
 //! Entries in the advisory database
 
-use super::iter::Iter;
+use super::Iter;
 use crate::{
     advisory::{self, Advisory},
     error::{Error, ErrorKind},
@@ -11,10 +11,20 @@ use std::{
     path::Path,
 };
 
-/// Entries in the advisory database, indexed by the advisory ID as the
-/// primary key.
+/// "Slots" identify the location in the entries table where a particular
+/// advisory is located.
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+pub(crate) struct Slot(usize);
+
+/// Entries in the advisory database
 #[derive(Debug, Default)]
-pub struct Entries(Map<advisory::Id, Advisory>);
+pub(crate) struct Entries {
+    /// Index of advisory IDs to their slots
+    index: Map<advisory::Id, Slot>,
+
+    /// Advisory collection
+    advisories: Vec<Advisory>,
+}
 
 impl Entries {
     /// Create a new database entries collection
@@ -22,10 +32,9 @@ impl Entries {
         Self::default()
     }
 
-    /// Load an advisory from a file and insert it into the database entries.
-    ///
-    /// Errors if the advisory ID is a duplicate.
-    pub fn load_file(&mut self, path: &Path) -> Result<Option<&Advisory>, Error> {
+    /// Load an advisory from a file and insert it into the database entry table
+    // TODO(tarcieri): factor more of this into `advisory.rs`?
+    pub fn load_file(&mut self, path: &Path) -> Result<Option<Slot>, Error> {
         let mut advisory = Advisory::load_file(path)?;
         let expected_filename = OsString::from(format!("{}.toml", advisory.metadata.id));
 
@@ -102,21 +111,34 @@ impl Entries {
             return Ok(None);
         }
 
-        match self.0.entry(advisory.metadata.id.clone()) {
-            map::Entry::Vacant(entry) => Ok(Some(entry.insert(advisory))),
+        let id = advisory.metadata.id.clone();
+        let slot = Slot(self.advisories.len());
+        self.advisories.push(advisory);
+
+        match self.index.entry(id) {
+            map::Entry::Vacant(entry) => {
+                entry.insert(slot);
+            }
             map::Entry::Occupied(entry) => {
                 fail!(ErrorKind::Parse, "duplicate advisory ID: {}", entry.key())
             }
         }
+
+        Ok(Some(slot))
     }
 
-    /// Get an advisory from the database by its ID
-    pub fn get(&self, id: &advisory::Id) -> Option<&Advisory> {
-        self.0.get(id)
+    /// Find an advisory by its `advisory::Id`
+    pub fn find_by_id(&self, id: &advisory::Id) -> Option<&Advisory> {
+        self.index.get(id).and_then(|slot| self.get(*slot))
+    }
+
+    /// Get an advisory from the database by its [`Slot`]
+    pub fn get(&self, slot: Slot) -> Option<&Advisory> {
+        self.advisories.get(slot.0)
     }
 
     /// Iterate over all of the entries in the database
     pub fn iter(&self) -> Iter<'_> {
-        Iter::new(self.0.iter())
+        self.advisories.iter()
     }
 }
