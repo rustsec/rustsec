@@ -1,6 +1,9 @@
 //! Qualitative Severity Rating Scale
 
-use std::fmt;
+use crate::error::{Error, ErrorKind};
+#[cfg(feature = "serde")]
+use serde::{de, ser, Deserialize, Serialize};
+use std::{fmt, str::FromStr};
 
 /// Qualitative Severity Rating Scale
 ///
@@ -40,8 +43,43 @@ impl Severity {
     }
 }
 
+impl FromStr for Severity {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        Ok(match s.to_ascii_lowercase().as_str() {
+            "none" => Severity::None,
+            "low" => Severity::Low,
+            "medium" => Severity::Medium,
+            "high" => Severity::High,
+            "critical" => Severity::Critical,
+            _ => fail!(
+                ErrorKind::Parse,
+                "invalid CVSS Qualitative Severity Rating Scale value: {}",
+                s
+            ),
+        })
+    }
+}
+
 impl fmt::Display for Severity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.as_str())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for Severity {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use de::Error;
+        let string = String::deserialize(deserializer)?;
+        string.parse().map_err(D::Error::custom)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl Serialize for Severity {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        self.to_string().serialize(serializer)
     }
 }
