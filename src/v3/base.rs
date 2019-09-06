@@ -9,7 +9,7 @@ pub mod pr;
 pub mod s;
 pub mod ui;
 
-use super::{metric::Metric, Score, CURRENT_VERSION, SUPPORTED_VERSIONS};
+use super::{metric::Metric, Score};
 use crate::{
     error::{Error, ErrorKind},
     Severity, PREFIX,
@@ -49,6 +49,9 @@ pub use self::{
 /// > CVSS v3.0. This property is captured by the Scope metric.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Base {
+    /// Minor component of the version
+    pub minor_version: usize,
+
     /// Attack Vector (AV)
     pub av: Option<AttackVector>,
 
@@ -176,7 +179,7 @@ macro_rules! write_metrics {
 
 impl fmt::Display for Base {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", PREFIX, CURRENT_VERSION)?;
+        write!(f, "{}:3.{}", PREFIX, self.minor_version)?;
         write_metrics!(f, self.av, self.ac, self.pr, self.ui, self.s, self.c, self.i, self.a);
         Ok(())
     }
@@ -212,29 +215,26 @@ impl FromStr for Base {
             Ok((id, value))
         });
 
-        if let Some(prefix) = components.next() {
-            let (id, version) = prefix?;
+        let prefix = components
+            .next()
+            .ok_or_else(|| format_err!(ErrorKind::Parse, "empty CVSS string"))?;
 
-            if id != PREFIX {
-                fail!(ErrorKind::Parse, "invalid CVSS prefix: {}", id);
-            }
+        let (id, version_string) = prefix?;
 
-            if !SUPPORTED_VERSIONS
-                .iter()
-                .any(|supported_version| supported_version == &version)
-            {
-                fail!(
-                    ErrorKind::Version,
-                    "wrong CVSS version (expected one of {}): '{}'",
-                    SUPPORTED_VERSIONS.join(", "),
-                    version
-                );
-            }
-        } else {
-            fail!(ErrorKind::Parse, "empty CVSS string")
+        if id != PREFIX {
+            fail!(ErrorKind::Parse, "invalid CVSS prefix: {}", id);
         }
 
         let mut metrics = Self::default();
+        metrics.minor_version = match version_string {
+            "3.0" => 0,
+            "3.1" => 1,
+            _ => fail!(
+                ErrorKind::Version,
+                "wrong CVSS version (expected one of '3.0' or '3.1'): '{}'",
+                version_string
+            ),
+        };
 
         for component in components {
             let component = component?;
