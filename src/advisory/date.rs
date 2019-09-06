@@ -1,7 +1,7 @@
 //! Advisory dates
 
 use crate::error::{Error, ErrorKind};
-#[cfg(feature = "chrono")]
+
 use chrono::{self, DateTime, Utc};
 use serde::{de, Deserialize, Serialize};
 use std::str::FromStr;
@@ -18,7 +18,6 @@ pub struct Date(String);
 
 impl Date {
     /// Convert an advisory RFC 3339 date into a `chrono::Date`
-    #[cfg(feature = "chrono")]
     pub fn to_chrono_date(&self) -> chrono::Date<Utc> {
         let datetime = DateTime::parse_from_rfc3339(self.0.as_ref()).unwrap();
         chrono::Date::from_utc(datetime.naive_utc().date(), Utc)

@@ -3,6 +3,8 @@
 use crate::{
     advisory::{Advisory, Severity},
     package,
+    platforms::target::{Arch, OS},
+    version::Version,
 };
 
 /// Queries against the RustSec database
@@ -14,8 +16,17 @@ pub struct Query {
     /// Package name to search for
     pub(super) package: Option<package::Name>,
 
+    /// Version of a package to search for
+    version: Option<Version>,
+
     /// Severity threshold (i.e. minimum severity)
     severity: Option<Severity>,
+
+    /// Target architecture
+    target_arch: Option<Arch>,
+
+    /// Target operating system
+    target_os: Option<OS>,
 
     /// Year associated with the advisory ID
     year: Option<u32>,
@@ -33,6 +44,18 @@ impl Query {
         Self::default()
     }
 
+    /// Create a new query which uses the default scope rules for crates:
+    ///
+    /// - Only `package::Collection::Crates`
+    /// - Ignore obsolete advisories
+    /// - Ignore informational advisories
+    pub fn crate_scope() -> Self {
+        Self::new()
+            .collection(package::Collection::Crates)
+            .obsolete(false)
+            .informational(false)
+    }
+
     /// Set collection to query against
     pub fn collection(mut self, collection: package::Collection) -> Self {
         self.collection = Some(collection);
@@ -45,6 +68,17 @@ impl Query {
         self
     }
 
+    /// Set package name to search for along with an associated version
+    pub fn package_version(
+        mut self,
+        package: impl Into<package::Name>,
+        version: impl Into<Version>,
+    ) -> Self {
+        self.package = Some(package.into());
+        self.version = Some(version.into());
+        self
+    }
+
     /// Set minimum severity threshold according to the CVSS
     /// Qualitative Severity Rating Scale.
     ///
@@ -52,6 +86,18 @@ impl Query {
     /// match regardless of what this is set to.
     pub fn severity(mut self, severity: Severity) -> Self {
         self.severity = Some(severity);
+        self
+    }
+
+    /// Set target architecture
+    pub fn target_arch(mut self, arch: Arch) -> Self {
+        self.target_arch = Some(arch);
+        self
+    }
+
+    /// Set target operating system
+    pub fn target_os(mut self, os: OS) -> Self {
+        self.target_os = Some(os);
         self
     }
 
@@ -89,9 +135,29 @@ impl Query {
             }
         }
 
-        if let Some(query_severity) = self.severity {
+        if let Some(version) = &self.version {
+            if !advisory.versions.is_vulnerable(version) {
+                return false;
+            }
+        }
+
+        if let Some(severity_threshold) = self.severity {
             if let Some(advisory_severity) = advisory.severity() {
-                if advisory_severity < query_severity {
+                if advisory_severity < severity_threshold {
+                    return false;
+                }
+            }
+        }
+
+        if let Some(affected) = &advisory.affected {
+            if let Some(target_arch) = self.target_arch {
+                if !affected.arch.is_empty() && !affected.arch.contains(&target_arch) {
+                    return false;
+                }
+            }
+
+            if let Some(target_os) = self.target_os {
+                if !affected.os.is_empty() && !affected.os.contains(&target_os) {
                     return false;
                 }
             }
