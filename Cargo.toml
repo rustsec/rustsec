@@ -1,7 +1,7 @@
 [package]
 name        = "cvss"
 description = "Common Vulnerability Scoring System parser/serializer"
-version     = "0.2.0" # Also update html_root_url in lib.rs when bumping this
+version     = "0.3.0" # Also update html_root_url in lib.rs when bumping this
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 license     = "Apache-2.0 OR MIT"
 repository  = "https://github.com/rustsec/cvss.rs/"
