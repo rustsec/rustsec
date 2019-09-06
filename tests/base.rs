@@ -25,6 +25,7 @@ fn bad_prefix() {
 fn cvss_v3_0_prefix() {
     let cvss_for_cve_2013_1937 = "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N";
     let base = cvss::v3::Base::from_str(cvss_for_cve_2013_1937).unwrap();
+    assert_eq!(&base.to_string(), cvss_for_cve_2013_1937);
     assert_eq!(base.score().value(), 6.1);
 }
 
