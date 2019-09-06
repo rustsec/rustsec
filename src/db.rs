@@ -2,10 +2,9 @@
 
 mod entries;
 mod index;
-mod iter;
 mod query;
 
-pub use self::{iter::Iter, query::Query};
+pub use self::query::Query;
 
 use self::{entries::Entries, index::Index};
 use crate::{
@@ -18,7 +17,10 @@ use crate::{
     vulnerability,
 };
 
-/// Database of RustSec security advisories, indexed both by ID and crate
+/// Iterator over entries in the database
+pub type Iter<'a> = std::slice::Iter<'a, Advisory>;
+
+/// Database of RustSec security advisories, indexed both by ID and collection
 #[derive(Debug)]
 pub struct Database {
     /// All advisories in the database
@@ -48,13 +50,14 @@ impl Database {
         let mut crate_index = Index::new();
 
         for path in &advisory_paths {
-            if let Some(advisory) = advisories.load_file(path)? {
+            if let Some(slot) = advisories.load_file(path)? {
+                let advisory = advisories.get(slot).unwrap();
                 match advisory.metadata.collection.unwrap() {
                     package::Collection::Crates => {
-                        crate_index.insert(&advisory.metadata.package, &advisory.metadata.id);
+                        crate_index.insert(&advisory.metadata.package, slot);
                     }
                     package::Collection::Rust => {
-                        rust_index.insert(&advisory.metadata.package, &advisory.metadata.id);
+                        rust_index.insert(&advisory.metadata.package, slot);
                     }
                 }
             }
@@ -68,8 +71,8 @@ impl Database {
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
-    pub fn find(&self, id: &advisory::Id) -> Option<&Advisory> {
-        self.advisories.get(id)
+    pub fn get(&self, id: &advisory::Id) -> Option<&Advisory> {
+        self.advisories.find_by_id(id)
     }
 
     /// Query the database according to the given query object
@@ -81,8 +84,9 @@ impl Database {
                     package::Collection::Crates => self.crate_index.get(name),
                     package::Collection::Rust => self.rust_index.get(name),
                 }
-                .map(|ids| {
-                    ids.map(|id| self.find(id).unwrap())
+                .map(|slots| {
+                    slots
+                        .map(|slot| self.advisories.get(*slot).unwrap())
                         .filter(|advisory| query.matches(advisory))
                         .collect()
                 })
