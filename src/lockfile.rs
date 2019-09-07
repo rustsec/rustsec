@@ -52,6 +52,19 @@ impl Lockfile {
 
         vulns
     }
+
+    /// Find all packages in the lockfile that depend on the given package
+    pub fn dependent_packages(&self, package: &Package) -> Vec<&Package> {
+        self.packages
+            .iter()
+            .filter(|other_package| {
+                other_package
+                    .dependencies
+                    .iter()
+                    .any(|dep| dep.name == package.name && dep.version == package.version)
+            })
+            .collect()
+    }
 }
 
 impl FromStr for Lockfile {
