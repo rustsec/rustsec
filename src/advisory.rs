@@ -11,8 +11,8 @@ pub mod metadata;
 pub mod versions;
 
 pub use self::{
-    category::Category, date::Date, id::Id, keyword::Keyword, linter::Linter, metadata::Metadata,
-    versions::Versions,
+    category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
+    linter::Linter, metadata::Metadata, versions::Versions,
 };
 pub use cvss::Severity;
 

@@ -70,7 +70,7 @@ impl Linter {
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: None,
-                        msg: None,
+                        message: None,
                     }),
                 }
             }
@@ -78,7 +78,7 @@ impl Linter {
             self.errors.push(Error {
                 kind: ErrorKind::Malformed,
                 section: None,
-                msg: Some("expected table"),
+                message: Some("expected table"),
             });
         }
     }
@@ -93,7 +93,7 @@ impl Linter {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("id", value.to_string()),
                                 section: Some("advisory"),
-                                msg: Some("unknown advisory ID type"),
+                                message: Some("unknown advisory ID type"),
                             });
                         }
                     }
@@ -103,7 +103,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("category", other.to_string()),
                                     section: Some("advisory"),
-                                    msg: Some("unknown category"),
+                                    message: Some("unknown category"),
                                 });
                             }
                         }
@@ -111,7 +111,7 @@ impl Linter {
                     "collection" => self.errors.push(Error {
                         kind: ErrorKind::Malformed,
                         section: Some("advisory"),
-                        msg: Some("collection shouldn't be explicit; inferred by location"),
+                        message: Some("collection shouldn't be explicit; inferred by location"),
                     }),
                     "url" => {
                         if let Some(url) = value.as_str() {
@@ -119,7 +119,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("url", value.to_string()),
                                     section: Some("advisory"),
-                                    msg: Some("URL must start with https://"),
+                                    message: Some("URL must start with https://"),
                                 });
                             }
                         }
@@ -130,7 +130,7 @@ impl Linter {
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),
-                        msg: None,
+                        message: None,
                     }),
                 }
             }
@@ -138,7 +138,7 @@ impl Linter {
             self.errors.push(Error {
                 kind: ErrorKind::Malformed,
                 section: Some("advisory"),
-                msg: Some("expected table"),
+                message: Some("expected table"),
             });
         }
     }
@@ -152,7 +152,7 @@ impl Linter {
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("versions"),
-                        msg: None,
+                        message: None,
                     }),
                 }
             }
@@ -172,7 +172,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("functions", function.to_string()),
                                     section: Some("affected"),
-                                    msg: Some("function path must start with crate name"),
+                                    message: Some("function path must start with crate name"),
                                 });
                             }
                         }
@@ -181,7 +181,7 @@ impl Linter {
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("affected"),
-                        msg: None,
+                        message: None,
                     }),
                 }
             }
@@ -199,7 +199,7 @@ pub struct Error {
     section: Option<&'static str>,
 
     /// Message about why it's invalid
-    msg: Option<&'static str>,
+    message: Option<&'static str>,
 }
 
 impl Error {
@@ -214,8 +214,8 @@ impl Error {
     }
 
     /// Get an optional message about the lint failure
-    pub fn msg(&self) -> Option<&str> {
-        self.msg.as_ref().map(AsRef::as_ref)
+    pub fn message(&self) -> Option<&str> {
+        self.message.as_ref().map(AsRef::as_ref)
     }
 }
 
@@ -229,7 +229,7 @@ impl fmt::Display for Error {
             write!(f, " in toplevel")?;
         }
 
-        if let Some(msg) = &self.msg {
+        if let Some(msg) = &self.message {
             write!(f, ": {}", msg)?
         }
 
