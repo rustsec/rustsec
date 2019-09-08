@@ -5,7 +5,7 @@
 
 use crate::{
     advisory,
-    db::{Database, Query},
+    database::{Database, Query},
     lockfile::Lockfile,
     package,
     platforms::target::{Arch, OS},
