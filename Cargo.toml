@@ -21,7 +21,6 @@ failure = "0.1"
 gumdrop = "0.6"
 home = "0.5"
 lazy_static = "1"
-platforms = "0.2"
 rustsec = "0.12"
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
@@ -32,3 +31,6 @@ tempfile = "3"
 [dev-dependencies.abscissa_core]
 version = "0.3"
 features = ["testing"]
+
+[patch.crates-io]
+rustsec = { git = "https://github.com/rustsec/rustsec-crate" }
