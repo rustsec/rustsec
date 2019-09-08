@@ -15,7 +15,7 @@
 pub mod error;
 
 pub mod advisory;
-pub mod db;
+pub mod database;
 pub mod lockfile;
 pub mod package;
 pub mod report;
@@ -27,8 +27,8 @@ pub mod vulnerability;
 pub use platforms;
 
 pub use crate::{
-    advisory::*, db::*, error::*, lockfile::*, package::*, report::*, repository::*, version::*,
-    vulnerability::*,
+    advisory::*, database::*, error::*, lockfile::*, package::*, report::*, repository::*,
+    version::*, vulnerability::*,
 };
 
 // Use BTreeMap and BTreeSet as our map and set types
