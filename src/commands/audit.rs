@@ -6,12 +6,19 @@ use crate::{
     error::{Error, ErrorKind},
     tree::Tree,
 };
-use abscissa_core::{config::Override, terminal, Command, FrameworkError, Runnable};
+use abscissa_core::{
+    config::Override,
+    terminal::{
+        self,
+        Color::{Red, Yellow},
+    },
+    Command, FrameworkError, Runnable,
+};
 use gumdrop::Options;
 use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
-    Lockfile, Vulnerability,
+    report, Lockfile, Vulnerability,
 };
 use std::{
     collections::BTreeSet as Set,
@@ -157,23 +164,7 @@ impl Runnable for AuditCommand {
             );
         }
 
-        let mut report_settings = rustsec::report::Settings::default();
-        report_settings.target_arch = self.target_arch;
-        report_settings.target_os = self.target_os;
-        report_settings.severity = Some(advisory::Severity::Low);
-        report_settings.ignore = self
-            .ignore
-            .iter()
-            .map(|id| {
-                id.parse().unwrap_or_else(|e| {
-                    status_err!("error parsing {}: {}", id, e);
-                    exit(1);
-                })
-            })
-            .collect();
-        report_settings.informational_warnings = vec![advisory::Informational::Unmaintained];
-
-        let report = rustsec::Report::generate(&advisory_db, &lockfile, &report_settings);
+        let report = rustsec::Report::generate(&advisory_db, &lockfile, &self.report_settings());
 
         if !self.quiet() {
             if report.vulnerabilities.found {
@@ -196,6 +187,23 @@ impl Runnable for AuditCommand {
                     display_vulnerability(&vulnerability, Some(&tree));
                 } else {
                     display_vulnerability(&vulnerability, None);
+                }
+            }
+
+            if !report.warnings.is_empty() {
+                println!();
+
+                status_warn!("found informational advisories for dependencies");
+
+                for warning in &report.warnings {
+                    println!();
+
+                    display_attr(Yellow, "Crate:   ", warning.package.as_str());
+                    display_attr(Red, "Message: ", warning.message.as_str());
+
+                    if let Some(url) = &warning.url {
+                        display_attr(Yellow, "URL:     ", url);
+                    }
                 }
             }
         }
@@ -291,6 +299,27 @@ impl AuditCommand {
             Ok(Lockfile::load_file(path)?)
         }
     }
+
+    /// Get the report settings to use
+    fn report_settings(&self) -> report::Settings {
+        let mut settings = rustsec::report::Settings::default();
+        settings.target_arch = self.target_arch;
+        settings.target_os = self.target_os;
+        settings.severity = Some(advisory::Severity::Low);
+        settings.informational_warnings = vec![advisory::Informational::Unmaintained];
+        settings.ignore = self
+            .ignore
+            .iter()
+            .map(|id| {
+                id.parse().unwrap_or_else(|e| {
+                    status_err!("error parsing {}: {}", id, e);
+                    exit(1);
+                })
+            })
+            .collect();
+
+        settings
+    }
 }
 
 /// Display information about a particular vulnerability
@@ -298,17 +327,18 @@ fn display_vulnerability(vulnerability: &Vulnerability, tree: Option<&Tree>) {
     let advisory = &vulnerability.advisory;
 
     println!();
-    display_attr("ID:      ", advisory.id.as_str());
-    display_attr("Crate:   ", vulnerability.package.name.as_str());
-    display_attr("Version: ", &vulnerability.package.version.to_string());
-    display_attr("Date:    ", advisory.date.as_str());
+    display_attr(Red, "ID:      ", advisory.id.as_str());
+    display_attr(Red, "Crate:   ", vulnerability.package.name.as_str());
+    display_attr(Red, "Version: ", &vulnerability.package.version.to_string());
+    display_attr(Red, "Date:    ", advisory.date.as_str());
 
     if let Some(url) = advisory.url.as_ref() {
-        display_attr("URL:     ", url);
+        display_attr(Red, "URL:     ", url);
     }
 
-    display_attr("Title:   ", &advisory.title);
+    display_attr(Red, "Title:   ", &advisory.title);
     display_attr(
+        Red,
         "Solution: upgrade to",
         &vulnerability
             .versions
@@ -323,7 +353,7 @@ fn display_vulnerability(vulnerability: &Vulnerability, tree: Option<&Tree>) {
     if let Some(t) = tree {
         terminal::status::Status::new()
             .bold()
-            .color(terminal::Color::Red)
+            .color(Red)
             .status("Dependency tree:")
             .print_stdout("")
             .unwrap();
@@ -333,10 +363,10 @@ fn display_vulnerability(vulnerability: &Vulnerability, tree: Option<&Tree>) {
 }
 
 /// Display an attribute of a particular vulnerability
-fn display_attr(attr: &str, content: &str) {
+fn display_attr(color: terminal::Color, attr: &str, content: &str) {
     terminal::status::Status::new()
         .bold()
-        .color(terminal::Color::Red)
+        .color(color)
         .status(attr)
         .print_stdout(content)
         .unwrap();
