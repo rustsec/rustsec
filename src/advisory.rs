@@ -80,7 +80,7 @@ impl Advisory {
         }
 
         populate_new_version_fields!(self, patched_versions, patched);
-        populate_new_version_fields!(self, patched_versions, patched);
+        populate_new_version_fields!(self, unaffected_versions, unaffected);
 
         Ok(())
     }
