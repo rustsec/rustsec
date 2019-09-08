@@ -17,6 +17,7 @@ cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
 
 [versions]
 patched = [">= 1.2.3"]
+unaffected = ["0.1.2"]
 
 [affected]
 arch = ["x86"]
