@@ -1,7 +1,7 @@
 //! Parser for `Cargo.lock` files
 
 use crate::{
-    db::{Database, Query},
+    database::{Database, Query},
     error::{Error, ErrorKind},
     package::Package,
     vulnerability::Vulnerability,

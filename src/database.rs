@@ -37,11 +37,11 @@ impl Database {
     /// Fetch the default advisory database from GitHub
     pub fn fetch() -> Result<Self, Error> {
         let repo = Repository::fetch_default_repo()?;
-        Self::from_repository(&repo)
+        Self::load(&repo)
     }
 
-    /// Create a new `Database` from the given [`Repository`]
-    pub fn from_repository(repo: &Repository) -> Result<Self, Error> {
+    /// Load [`Database`] from the given [`Repository`]
+    pub fn load(repo: &Repository) -> Result<Self, Error> {
         let advisory_paths = repo.advisories()?;
         let latest_commit = repo.latest_commit()?;
 
