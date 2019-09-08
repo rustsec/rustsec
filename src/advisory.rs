@@ -11,12 +11,11 @@ pub mod metadata;
 pub mod versions;
 
 pub use self::{
-    category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
-    linter::Linter, metadata::Metadata, versions::Versions,
+    affected::Affected, category::Category, date::Date, id::Id, informational::Informational,
+    keyword::Keyword, linter::Linter, metadata::Metadata, versions::Versions,
 };
 pub use cvss::Severity;
 
-use self::affected::Affected;
 use crate::error::{Error, ErrorKind};
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path, str::FromStr};
