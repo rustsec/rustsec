@@ -130,7 +130,7 @@ pub struct Identifier(String);
 
 impl Identifier {
     /// Borrow this identifier as a `str`
-    fn as_str(&self) -> &str {
+    pub fn as_str(&self) -> &str {
         &self.0
     }
 }

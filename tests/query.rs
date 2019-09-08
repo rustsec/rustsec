@@ -1,5 +1,7 @@
 //! Tests for parsing RustSec advisories
 
+#![warn(rust_2018_idioms, unused_qualifications)]
+
 use rustsec::{advisory::Severity, db::Query};
 
 /// Load the V1 advisory from the filesystem
