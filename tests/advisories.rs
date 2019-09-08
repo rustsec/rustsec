@@ -1,5 +1,7 @@
 //! Tests for parsing RustSec advisories
 
+#![warn(rust_2018_idioms, unused_qualifications)]
+
 use rustsec::advisory::Category;
 
 /// Example RustSec Advisory (V1 format) to use for tests

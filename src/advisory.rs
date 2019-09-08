@@ -6,11 +6,12 @@ pub mod date;
 pub mod id;
 pub mod informational;
 pub mod keyword;
+pub mod linter;
 pub mod metadata;
 pub mod versions;
 
 pub use self::{
-    category::Category, date::Date, id::Id, keyword::Keyword, metadata::Metadata,
+    category::Category, date::Date, id::Id, keyword::Keyword, linter::Linter, metadata::Metadata,
     versions::Versions,
 };
 pub use cvss::Severity;
@@ -42,7 +43,7 @@ pub struct Advisory {
 
 impl Advisory {
     /// Load an advisory from a `RUSTSEC-20XX-NNNN.toml` file
-    pub fn load_file<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+    pub fn load_file(path: impl AsRef<Path>) -> Result<Self, Error> {
         let path = path.as_ref();
         fs::read_to_string(path)
             .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?
