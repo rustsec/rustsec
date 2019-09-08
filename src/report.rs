@@ -7,6 +7,7 @@ use crate::{
     advisory,
     db::{Database, Query},
     lockfile::Lockfile,
+    package,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
 };
@@ -27,6 +28,9 @@ pub struct Report {
 
     /// Vulnerabilities detected in project
     pub vulnerabilities: VulnerabilityInfo,
+
+    /// Warnings about dependencies (from e.g. informational advisories)
+    pub warnings: Vec<Warning>,
 }
 
 impl Report {
@@ -34,9 +38,8 @@ impl Report {
     pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Self {
         let vulnerabilities = lockfile
             .query_vulnerabilities(db, &settings.query())
-            .iter()
+            .into_iter()
             .filter(|vuln| !settings.ignore.contains(&vuln.advisory.metadata.id))
-            .cloned()
             .collect();
 
         Self {
@@ -44,6 +47,7 @@ impl Report {
             lockfile: LockfileInfo::new(lockfile),
             settings: settings.clone(),
             vulnerabilities: VulnerabilityInfo::new(vulnerabilities),
+            warnings: Warning::generate(db, lockfile, settings),
         }
     }
 }
@@ -62,6 +66,9 @@ pub struct Settings {
 
     /// List of advisory IDs to ignore
     pub ignore: Vec<advisory::Id>,
+
+    /// Types of informational advisories to generate warnings for
+    pub informational_warnings: Vec<advisory::Informational>,
 }
 
 impl Settings {
@@ -152,5 +159,48 @@ impl VulnerabilityInfo {
             count: list.len(),
             list,
         }
+    }
+}
+
+/// Warnings about particular dependencies
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct Warning {
+    /// Name of the dependent package
+    pub package: package::Name,
+
+    /// Text of the warning
+    pub message: String,
+
+    /// URL with additional information (if available)
+    pub url: Option<String>,
+}
+
+impl Warning {
+    /// Generate a report for the given advisory database and lockfile
+    pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Vec<Self> {
+        let query = settings.query().informational(true);
+        let mut result = vec![];
+
+        for vuln in lockfile.query_vulnerabilities(db, &query) {
+            let advisory = &vuln.advisory;
+
+            if settings.ignore.contains(&advisory.metadata.id) {
+                continue;
+            }
+
+            if settings
+                .informational_warnings
+                .iter()
+                .any(|info| Some(info) == advisory.metadata.informational.as_ref())
+            {
+                result.push(Self {
+                    package: advisory.metadata.package.clone(),
+                    message: advisory.metadata.title.clone(),
+                    url: advisory.metadata.id.url(),
+                })
+            }
+        }
+
+        result
     }
 }
