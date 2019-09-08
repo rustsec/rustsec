@@ -1,15 +1,17 @@
 //! The `cargo audit` subcommand
 
 use super::CargoAuditCommand;
-use crate::config::CargoAuditConfig;
-use abscissa_core::{config::Override, Command, FrameworkError, Runnable};
-use gumdrop::Options;
-use platforms::target::{Arch, OS};
-use rustsec::{
-    Advisory, AdvisoryDatabase, Error, ErrorKind, Lockfile, Package, Repository, Vulnerabilities,
-    Vulnerability, ADVISORY_DB_REPO_URL,
+use crate::{
+    config::CargoAuditConfig,
+    error::{Error, ErrorKind},
 };
-use serde_json::json;
+use abscissa_core::{config::Override, terminal, Command, FrameworkError, Runnable};
+use gumdrop::Options;
+use rustsec::{
+    advisory,
+    platforms::target::{Arch, OS},
+    Lockfile, Vulnerability,
+};
 use std::{
     io::{self, Read},
     path::{Path, PathBuf},
@@ -128,22 +130,16 @@ impl Runnable for AuditCommand {
             exit(0);
         }
 
-        let lockfile_path = self
-            .file
-            .as_ref()
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from(CARGO_LOCK_FILE));
-
-        let lockfile = load_lockfile(&lockfile_path).unwrap_or_else(|e| match e.kind() {
+        let lockfile = self.load_lockfile().unwrap_or_else(|e| match e.kind() {
             ErrorKind::Io => {
-                status_err!("Couldn't find '{}'!", lockfile_path.display());
+                status_err!("Couldn't find '{}'!", self.lockfile_path().display());
                 println!(
                     "\nRun \"cargo generate-lockfile\" to generate lockfile before running audit"
                 );
                 exit(1);
             }
             _ => {
-                status_err!("Couldn't load {}: {}", lockfile_path.display(), e);
+                status_err!("Couldn't load {}: {}", self.lockfile_path().display(), e);
                 exit(1);
             }
         });
@@ -154,75 +150,83 @@ impl Runnable for AuditCommand {
             status_ok!(
                 "Scanning",
                 "{} for vulnerabilities ({} crate dependencies)",
-                lockfile_path.display(),
+                self.lockfile_path().display(),
                 lockfile.packages.len(),
             );
         }
 
-        let all_matching_vulnerabilities = Vulnerabilities::find(&advisory_db, &lockfile);
-
-        // TODO: factor affected platform checking upstream into `Vulnerabilities`
-        let vulnerabilities = all_matching_vulnerabilities
+        let mut report_settings = rustsec::report::Settings::default();
+        report_settings.target_arch = self.target_arch;
+        report_settings.target_os = self.target_os;
+        report_settings.severity = Some(advisory::Severity::Low);
+        report_settings.ignore = self
+            .ignore
             .iter()
-            .filter(|vuln| self.match_vulnerability(vuln))
-            .collect::<Vec<_>>();
+            .map(|id| {
+                id.parse().unwrap_or_else(|e| {
+                    status_err!("error parsing {}: {}", id, e);
+                    exit(1);
+                })
+            })
+            .collect();
+        report_settings.informational_warnings = vec![advisory::Informational::Unmaintained];
 
-        if vulnerabilities.is_empty() {
-            if !self.quiet() {
+        let report = rustsec::Report::generate(&advisory_db, &lockfile, &report_settings);
+
+        if !self.quiet() {
+            if report.vulnerabilities.found {
+                status_err!("Vulnerable crates found!");
+            } else {
                 status_ok!("Success", "No vulnerable packages found");
             }
-        } else {
-            status_err!("Vulnerable crates found!");
         }
 
         if self.output_json {
-            let json = json!({
-                "database": {
-                    "advisory-count": advisory_db.advisories().count(),
-                },
-                "lockfile": {
-                    "path": lockfile_path,
-                    "dependency-count": lockfile.packages.len(),
-                },
-                "vulnerabilities": {
-                    "found": !vulnerabilities.is_empty(),
-                    "count": vulnerabilities.len(),
-                    "list": vulnerabilities
-                },
-            });
-            println!("{}", json.to_string());
+            serde_json::to_writer(io::stdout(), &report).unwrap();
         } else {
-            for vuln in &vulnerabilities {
-                display_advisory(&vuln.package, &vuln.advisory);
+            for vulnerability in &report.vulnerabilities.list {
+                display_vulnerability(&vulnerability);
             }
         }
 
-        if vulnerabilities.is_empty() {
-            exit(0);
-        } else {
-            vulns_found(vulnerabilities.len());
+        if report.vulnerabilities.found {
+            println!();
+
+            if report.vulnerabilities.count == 1 {
+                status_err!("1 vulnerability found!");
+            } else {
+                status_err!("{} vulnerabilities found!", report.vulnerabilities.count);
+            }
+
             exit(1);
+        } else {
+            exit(0);
         }
     }
 }
 
 impl AuditCommand {
+    /// Should we suppress excessive output?
+    fn quiet(&self) -> bool {
+        self.quiet || self.output_json
+    }
+
     /// Load the advisory database
-    fn load_advisory_db(&self) -> AdvisoryDatabase {
+    fn load_advisory_db(&self) -> rustsec::Database {
         let advisory_repo_url = self
             .url
             .as_ref()
             .map(AsRef::as_ref)
-            .unwrap_or(ADVISORY_DB_REPO_URL);
+            .unwrap_or(rustsec::DEFAULT_REPO_URL);
 
         let advisory_repo_path = self
             .db
             .as_ref()
             .map(PathBuf::from)
-            .unwrap_or_else(Repository::default_path);
+            .unwrap_or_else(rustsec::Repository::default_path);
 
         let advisory_db_repo = if self.no_fetch {
-            Repository::open(&advisory_repo_path).unwrap_or_else(|e| {
+            rustsec::Repository::open(&advisory_repo_path).unwrap_or_else(|e| {
                 status_err!("couldn't open advisory database: {}", e);
                 exit(1);
             })
@@ -231,25 +235,23 @@ impl AuditCommand {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_repo_url);
             }
 
-            Repository::fetch(advisory_repo_url, &advisory_repo_path, !self.stale).unwrap_or_else(
-                |e| {
+            rustsec::Repository::fetch(advisory_repo_url, &advisory_repo_path, !self.stale)
+                .unwrap_or_else(|e| {
                     status_err!("couldn't fetch advisory database: {}", e);
                     exit(1);
-                },
-            )
+                })
         };
 
-        let advisory_db =
-            AdvisoryDatabase::from_repository(&advisory_db_repo).unwrap_or_else(|e| {
-                status_err!("error loading advisory database: {}", e);
-                exit(1);
-            });
+        let advisory_db = rustsec::Database::load(&advisory_db_repo).unwrap_or_else(|e| {
+            status_err!("error loading advisory database: {}", e);
+            exit(1);
+        });
 
         if !self.quiet() {
             status_ok!(
                 "Loaded",
                 "{} security advisories (from {})",
-                advisory_db.advisories().count(),
+                advisory_db.iter().count(),
                 advisory_repo_path.display()
             );
         }
@@ -257,79 +259,63 @@ impl AuditCommand {
         advisory_db
     }
 
-    /// Match a vulnerability according to the given audit options
-    fn match_vulnerability(&self, vuln: &Vulnerability) -> bool {
-        if let Some(ref target_arch) = self.target_arch {
-            if let Some(ref architectures) = vuln.advisory.affected_arch {
-                if !architectures.iter().any(|arch| arch == target_arch) {
-                    return false;
-                }
-            }
-        }
-
-        if let Some(ref target_os) = self.target_os {
-            if let Some(ref operating_systems) = vuln.advisory.affected_os {
-                if !operating_systems.iter().any(|os| os == target_os) {
-                    return false;
-                }
-            }
-        }
-
-        if self.ignore.contains(&vuln.advisory.id.as_str().to_owned()) {
-            return false;
-        }
-
-        true
+    /// Get the path to the lockfile
+    fn lockfile_path(&self) -> PathBuf {
+        self.file
+            .as_ref()
+            .map(PathBuf::from)
+            .unwrap_or_else(|| PathBuf::from(CARGO_LOCK_FILE))
     }
 
-    /// Should we suppress excessive output?
-    fn quiet(&self) -> bool {
-        self.quiet || self.output_json
+    /// Load the lockfile to be audited
+    fn load_lockfile(&self) -> Result<Lockfile, Error> {
+        let path = self.lockfile_path();
+
+        if path.as_path() == Path::new("-") {
+            // Read Cargo.lock from STDIN
+            let mut lockfile_toml = String::new();
+            io::stdin().read_to_string(&mut lockfile_toml)?;
+            Ok(lockfile_toml.parse()?)
+        } else {
+            Ok(Lockfile::load_file(path)?)
+        }
     }
 }
 
-/// Load the lockfile to be audited
-fn load_lockfile(path: &Path) -> Result<Lockfile, Error> {
-    if path == Path::new("-") {
-        // Read Cargo.lock from STDIN
-        let mut lockfile_toml = String::new();
-        io::stdin().read_to_string(&mut lockfile_toml)?;
-        Lockfile::from_toml(&lockfile_toml)
-    } else {
-        Lockfile::load(path)
-    }
-}
+/// Display information about a particular vulnerability
+fn display_vulnerability(vulnerability: &Vulnerability) {
+    let advisory = &vulnerability.advisory;
 
-fn vulns_found(vuln_count: usize) {
     println!();
-
-    if vuln_count == 1 {
-        status_err!("1 vulnerability found!");
-    } else {
-        status_err!("{} vulnerabilities found!", vuln_count);
-    }
-}
-
-fn display_advisory(package: &Package, advisory: &Advisory) {
-    status_attr_err!("\nID", advisory.id.as_str());
-    status_attr_err!("Crate", package.name.as_str());
-    status_attr_err!("Version", &package.version.to_string());
-    status_attr_err!("Date", advisory.date.as_str());
+    display_attr("ID:      ", advisory.id.as_str());
+    display_attr("Crate:   ", vulnerability.package.name.as_str());
+    display_attr("Version: ", &vulnerability.package.version.to_string());
+    display_attr("Date:    ", advisory.date.as_str());
 
     if let Some(url) = advisory.url.as_ref() {
-        status_attr_err!("URL", url);
+        display_attr("URL:     ", url);
     }
 
-    status_attr_err!("Title", &advisory.title);
-    status_attr_err!(
+    display_attr("Title:   ", &advisory.title);
+    display_attr(
         "Solution: upgrade to",
-        "{}",
-        advisory
-            .patched_versions
+        &vulnerability
+            .versions
+            .patched
             .iter()
             .map(ToString::to_string)
             .collect::<Vec<_>>()
             .as_slice()
-            .join(" OR ")
+            .join(" OR "),
     );
+}
+
+/// Display an attribute of a particular vulnerability
+fn display_attr(attr: &str, content: &str) {
+    terminal::status::Status::new()
+        .bold()
+        .color(terminal::Color::Red)
+        .status(attr)
+        .print_stdout(content)
+        .unwrap();
 }
