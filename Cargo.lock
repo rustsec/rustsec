@@ -523,7 +523,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 [[package]]
 name = "rustsec"
 version = "0.12.1"
-source = "git+https://github.com/rustsec/rustsec-crate#2676affff769505de1988e2919ed3ce806318546"
+source = "git+https://github.com/rustsec/rustsec-crate#62fab98c97ca4fb09c6d480a0f0694dca322c2ed"
 dependencies = [
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "cvss 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
