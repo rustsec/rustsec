@@ -28,3 +28,4 @@ pub mod commands;
 pub mod config;
 pub mod error;
 mod prelude;
+pub mod tree;
