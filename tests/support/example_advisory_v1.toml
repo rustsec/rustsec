@@ -14,6 +14,7 @@ keywords = ["how", "are", "you", "gentlemen"]
 aliases = ["CVE-2001-2101"]
 cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
 patched_versions = [">= 1.2.3"]
+unaffected_versions = ["0.1.2"]
 
 [affected]
 arch = ["x86"]
