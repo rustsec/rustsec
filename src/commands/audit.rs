@@ -4,6 +4,7 @@ use super::CargoAuditCommand;
 use crate::{
     config::CargoAuditConfig,
     error::{Error, ErrorKind},
+    tree::Tree,
 };
 use abscissa_core::{config::Override, terminal, Command, FrameworkError, Runnable};
 use gumdrop::Options;
@@ -13,6 +14,7 @@ use rustsec::{
     Lockfile, Vulnerability,
 };
 use std::{
+    collections::BTreeSet as Set,
     io::{self, Read},
     path::{Path, PathBuf},
     process::exit,
@@ -184,8 +186,17 @@ impl Runnable for AuditCommand {
         if self.output_json {
             serde_json::to_writer(io::stdout(), &report).unwrap();
         } else {
+            // Track packages we've displayed once so we don't show the same dep tree
+            // TODO(tarcieri): group advisories about the same package?
+            let mut displayed_packages = Set::new();
+
             for vulnerability in &report.vulnerabilities.list {
-                display_vulnerability(&vulnerability);
+                if displayed_packages.insert(vulnerability.package.name.clone()) {
+                    let tree = Tree::new(&lockfile, &vulnerability.package);
+                    display_vulnerability(&vulnerability, Some(&tree));
+                } else {
+                    display_vulnerability(&vulnerability, None);
+                }
             }
         }
 
@@ -283,7 +294,7 @@ impl AuditCommand {
 }
 
 /// Display information about a particular vulnerability
-fn display_vulnerability(vulnerability: &Vulnerability) {
+fn display_vulnerability(vulnerability: &Vulnerability, tree: Option<&Tree>) {
     let advisory = &vulnerability.advisory;
 
     println!();
@@ -308,6 +319,17 @@ fn display_vulnerability(vulnerability: &Vulnerability) {
             .as_slice()
             .join(" OR "),
     );
+
+    if let Some(t) = tree {
+        terminal::status::Status::new()
+            .bold()
+            .color(terminal::Color::Red)
+            .status("Dependency tree:")
+            .print_stdout("")
+            .unwrap();
+
+        t.print();
+    }
 }
 
 /// Display an attribute of a particular vulnerability
