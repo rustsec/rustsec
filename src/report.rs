@@ -39,7 +39,7 @@ impl Report {
         let vulnerabilities = lockfile
             .query_vulnerabilities(db, &settings.query())
             .into_iter()
-            .filter(|vuln| !settings.ignore.contains(&vuln.advisory.metadata.id))
+            .filter(|vuln| !settings.ignore.contains(&vuln.advisory.id))
             .collect();
 
         Self {
@@ -184,19 +184,19 @@ impl Warning {
         for vuln in lockfile.query_vulnerabilities(db, &query) {
             let advisory = &vuln.advisory;
 
-            if settings.ignore.contains(&advisory.metadata.id) {
+            if settings.ignore.contains(&advisory.id) {
                 continue;
             }
 
             if settings
                 .informational_warnings
                 .iter()
-                .any(|info| Some(info) == advisory.metadata.informational.as_ref())
+                .any(|info| Some(info) == advisory.informational.as_ref())
             {
                 result.push(Self {
-                    package: advisory.metadata.package.clone(),
-                    message: advisory.metadata.title.clone(),
-                    url: advisory.metadata.id.url(),
+                    package: advisory.package.clone(),
+                    message: advisory.title.clone(),
+                    url: advisory.id.url(),
                 })
             }
         }
