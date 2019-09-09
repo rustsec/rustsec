@@ -33,7 +33,11 @@ const CARGO_LOCK_FILE: &str = "Cargo.lock";
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
 pub struct AuditCommand {
-    /// Version information
+    /// Get help information
+    #[options(short = "h", long = "help", help = "output help information and exit")]
+    help: bool,
+
+    /// Get version information
     #[options(no_short, long = "version", help = "output version and exit")]
     version: bool,
 
@@ -130,6 +134,10 @@ impl Override<CargoAuditConfig> for AuditCommand {
 
 impl Runnable for AuditCommand {
     fn run(&self) {
+        if self.help {
+            Self::print_usage_and_exit(&[]);
+        }
+
         if self.version {
             println!(
                 "{} {}",
