@@ -261,6 +261,20 @@ impl AuditCommand {
                 })
         };
 
+        if let Ok(support_info) = advisory_db_repo.support() {
+            if let Some(rustsec_update) = support_info.rustsec.next_update {
+                if !rustsec_update
+                    .version
+                    .matches(&rustsec::VERSION.parse().unwrap())
+                {
+                    status_warn!(
+                        "support for this version of `cargo-audit` ends on {}. Please upgrade!",
+                        rustsec_update.date.as_str()
+                    );
+                }
+            }
+        }
+
         let advisory_db = rustsec::Database::load(&advisory_db_repo).unwrap_or_else(|e| {
             status_err!("error loading advisory database: {}", e);
             exit(1);
