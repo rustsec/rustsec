@@ -191,7 +191,7 @@ impl Runnable for AuditCommand {
 
             for vulnerability in &report.vulnerabilities.list {
                 if displayed_packages.insert(vulnerability.package.name.clone()) {
-                    let tree = Tree::new(&lockfile, &vulnerability.package);
+                    let tree = Tree::new(&lockfile);
                     display_vulnerability(&vulnerability, Some(&tree));
                 } else {
                     display_vulnerability(&vulnerability, None);
@@ -380,7 +380,7 @@ fn display_vulnerability(vulnerability: &Vulnerability, tree: Option<&Tree>) {
             .print_stdout("")
             .unwrap();
 
-        t.print();
+        t.print(&vulnerability.package);
     }
 }
 
