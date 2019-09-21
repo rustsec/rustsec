@@ -3,8 +3,8 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use rustsec::{
-    advisory, database::Query, package, Database, Lockfile, Repository, VersionReq,
-    DEFAULT_REPO_URL,
+    advisory, database::Query, lockfile::Lockfile, package, Collection, Database, Repository,
+    VersionReq, DEFAULT_REPO_URL,
 };
 use tempfile::tempdir;
 
@@ -44,14 +44,14 @@ fn verify_rustsec_2017_0001(db: &Database) {
     );
     assert_eq!(
         example_advisory.metadata.collection.unwrap(),
-        package::Collection::Crates
+        Collection::Crates
     );
 
     let ref crate_advisories = db.query(&Query::new().package(example_package));
     assert_eq!(example_advisory, crate_advisories[0]);
 
-    let lockfile = Lockfile::load_file("Cargo.lock").unwrap();
-    let vulns = lockfile.vulnerabilities(&db);
+    let lockfile = Lockfile::load("Cargo.lock").unwrap();
+    let vulns = db.vulnerabilities(&lockfile);
     assert!(vulns.is_empty());
 }
 
@@ -83,7 +83,7 @@ fn verify_cve_2018_1000810(db: &Database) {
     );
     assert_eq!(
         example_advisory.metadata.collection.unwrap(),
-        package::Collection::Rust
+        Collection::Rust
     );
 }
 

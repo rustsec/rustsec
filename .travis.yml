@@ -22,7 +22,7 @@ env:
 matrix:
   fast_finish: true
   allow_failures:
-    # Travis CI's Windows tier is presently beta (slow / unreliable)
+    - os: osx
     - os: windows
 
 install:

@@ -9,9 +9,11 @@ pub use self::query::Query;
 use self::{entries::Entries, index::Index};
 use crate::{
     advisory::{self, Advisory},
+    collection::Collection,
     error::Error,
-    package,
+    lockfile::Lockfile,
     repository::{Commit, Repository},
+    vulnerability::Vulnerability,
 };
 
 /// Iterator over entries in the database
@@ -53,10 +55,10 @@ impl Database {
             if let Some(slot) = advisories.load_file(path)? {
                 let advisory = advisories.get(slot).unwrap();
                 match advisory.metadata.collection.unwrap() {
-                    package::Collection::Crates => {
+                    Collection::Crates => {
                         crate_index.insert(&advisory.metadata.package, slot);
                     }
-                    package::Collection::Rust => {
+                    Collection::Rust => {
                         rust_index.insert(&advisory.metadata.package, slot);
                     }
                 }
@@ -82,8 +84,8 @@ impl Database {
         if let Some(name) = &query.package {
             if let Some(collection) = query.collection {
                 return match collection {
-                    package::Collection::Crates => self.crate_index.get(name),
-                    package::Collection::Rust => self.rust_index.get(name),
+                    Collection::Crates => self.crate_index.get(name),
+                    Collection::Rust => self.rust_index.get(name),
                 }
                 .map(|slots| {
                     slots
@@ -98,6 +100,32 @@ impl Database {
         self.iter()
             .filter(|advisory| query.matches(advisory))
             .collect()
+    }
+
+    /// Find vulnerabilities in the provided `Lockfile` which match a given query.
+    pub fn query_vulnerabilities(&self, lockfile: &Lockfile, query: &Query) -> Vec<Vulnerability> {
+        let mut vulns = vec![];
+
+        for package in &lockfile.packages {
+            let advisories = self.query(
+                &query
+                    .clone()
+                    .package_version(package.name.clone(), package.version.clone()),
+            );
+
+            vulns.extend(
+                advisories
+                    .iter()
+                    .map(|advisory| Vulnerability::new(advisory, package)),
+            );
+        }
+
+        vulns
+    }
+
+    /// Scan for vulnerabilities in the provided `Lockfile`.
+    pub fn vulnerabilities(&self, lockfile: &Lockfile) -> Vec<Vulnerability> {
+        self.query_vulnerabilities(lockfile, &Query::crate_scope())
     }
 
     /// Iterate over all of the advisories in the database
