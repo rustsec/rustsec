@@ -23,7 +23,11 @@ pub mod lockfile;
 pub mod metadata;
 pub mod package;
 
-pub use self::{error::Error, lockfile::Lockfile, package::Package};
+pub use self::{
+    error::{Error, ErrorKind},
+    lockfile::Lockfile,
+    package::Package,
+};
 
 #[cfg(feature = "dependency-graph")]
 pub use self::dependency_graph::DependencyGraph;

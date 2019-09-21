@@ -9,8 +9,7 @@ use std::{
 };
 
 /// Package metadata
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
-pub struct Metadata(Map<Checksum, Hash>);
+pub type Metadata = Map<Checksum, Hash>;
 
 /// Package checksum info
 // TODO(tarcieri): properly parse checksum strings
