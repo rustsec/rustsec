@@ -15,21 +15,24 @@
 pub mod error;
 
 pub mod advisory;
+pub mod collection;
 pub mod database;
-pub mod lockfile;
-pub mod package;
 pub mod report;
 pub mod repository;
 pub mod version;
 pub mod vulnerability;
 
+// Re-export the `cargo-lock` crate
+pub use cargo_lock;
+
 // Re-export the `platforms` crate
 pub use platforms;
 
 pub use crate::{
-    advisory::*, database::*, error::*, lockfile::*, package::*, report::*, repository::*,
+    advisory::*, collection::Collection, database::*, error::*, report::*, repository::*,
     version::*, vulnerability::*,
 };
+pub use cargo_lock::{lockfile, package};
 
 // Use BTreeMap and BTreeSet as our map and set types
 use std::collections::{btree_map as map, btree_set as set, BTreeMap as Map, BTreeSet as Set};

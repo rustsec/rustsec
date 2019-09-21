@@ -9,8 +9,8 @@ pub use self::{commit::Commit, signature::Signature};
 
 use self::{authentication::with_authentication, support::Support};
 use crate::{
+    collection::Collection,
     error::{Error, ErrorKind},
-    package,
 };
 use git2;
 use std::{fs, path::PathBuf, vec};
@@ -207,7 +207,7 @@ impl Repository {
     pub fn advisories(&self) -> Result<Vec<PathBuf>, Error> {
         let mut paths = vec![];
 
-        for collection in &[package::Collection::Crates, package::Collection::Rust] {
+        for collection in &[Collection::Crates, Collection::Rust] {
             let collection_path = self.path.join(collection.as_str());
 
             if let Ok(collection_entry) = fs::read_dir(&collection_path) {
