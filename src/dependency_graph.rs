@@ -16,7 +16,7 @@ use std::collections::BTreeMap as Map;
 pub type Graph = petgraph::graph::Graph<Package, Edge>;
 
 /// Nodes in the dependency graph
-pub type Nodes = Map<package::Name, NodeIndex>;
+pub type Nodes = Map<package::Release, NodeIndex>;
 
 /// Dependency graph computed from a `Cargo.lock` file
 #[derive(Clone, Debug)]
@@ -41,7 +41,7 @@ impl DependencyGraph {
         let root_node = graph.add_node(root_package.clone());
 
         // TODO(tarcieri): index nodes by (name, version) tuples
-        nodes.insert(root_package.name.clone(), root_node);
+        nodes.insert(root_package.release(), root_node);
 
         let mut dep_graph = Self {
             graph,
@@ -72,7 +72,7 @@ impl DependencyGraph {
     fn add_dependencies(&mut self, lockfile: &Lockfile, package: &Package, parent: NodeIndex) {
         for dependency in lockfile.dependencies(package) {
             let node = self.graph.add_node(dependency.clone());
-            self.nodes.insert(dependency.name.clone(), node);
+            self.nodes.insert(dependency.release(), node);
             self.graph.add_edge(parent, node, Edge);
             self.add_dependencies(lockfile, dependency, node);
         }
