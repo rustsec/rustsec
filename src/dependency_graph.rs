@@ -12,11 +12,23 @@ use crate::{
 use petgraph::graph::NodeIndex;
 use std::collections::BTreeMap as Map;
 
-/// Dependency graph (modeled using `petgraph`)
-pub type Graph = petgraph::graph::Graph<Package, Edge>;
+/// `petgraph`-based graph types
+pub mod graph {
+    use super::{package, Map, NodeIndex, Package};
 
-/// Nodes in the dependency graph
-pub type Nodes = Map<package::Release, NodeIndex>;
+    /// Dependency graph (modeled using `petgraph`)
+    pub type Graph = petgraph::graph::Graph<Package, Edge>;
+
+    /// Nodes in the dependency graph
+    pub type Nodes = Map<package::Release, NodeIndex>;
+
+    /// Graph edges. These are presently just a placeholder.
+    // TODO(tarcieri): use these for e.g. VersionReqs?
+    #[derive(Clone, Debug)]
+    pub struct Edge;
+}
+
+use self::graph::*;
 
 /// Dependency graph computed from a `Cargo.lock` file
 #[derive(Clone, Debug)]
@@ -103,11 +115,6 @@ fn find_root_package(lockfile: &Lockfile) -> Result<&Package, Error> {
         .find(|package| &package.name == root_package_name)
         .unwrap())
 }
-
-/// Graph edges. These are presently just a placeholder.
-// TODO(tarcieri): use these for e.g. VersionReqs?
-#[derive(Clone, Debug)]
-pub struct Edge;
 
 #[cfg(test)]
 mod tests {
