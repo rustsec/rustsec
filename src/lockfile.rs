@@ -1,5 +1,8 @@
 //! Parser for `Cargo.lock` files
 
+#[cfg(feature = "petgraph")]
+pub mod dependency_graph;
+
 use crate::{
     database::{Database, Query},
     error::{Error, ErrorKind},
@@ -9,6 +12,9 @@ use crate::{
 use serde::Deserialize;
 use std::{fs, path::Path, str::FromStr};
 use toml;
+
+#[cfg(feature = "petgraph")]
+pub use self::dependency_graph::DependencyGraph;
 
 /// Parsed Cargo.lock file containing dependencies
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq)]
@@ -22,9 +28,20 @@ impl Lockfile {
     /// Load lock data from a `Cargo.lock` file
     pub fn load_file<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let path = path.as_ref();
-        fs::read_to_string(path)
+
+        let lockfile: Lockfile = fs::read_to_string(path)
             .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?
-            .parse()
+            .parse()?;
+
+        if lockfile.packages.is_empty() {
+            fail!(
+                ErrorKind::Parse,
+                "no [package] entries found in {}",
+                path.display()
+            );
+        }
+
+        Ok(lockfile)
     }
 
     /// Find vulnerabilities for the current lockfile
@@ -53,17 +70,26 @@ impl Lockfile {
         vulns
     }
 
-    /// Find all packages in the lockfile that depend on the given package
-    pub fn dependent_packages(&self, package: &Package) -> Vec<&Package> {
-        self.packages
-            .iter()
-            .filter(|other_package| {
-                other_package
-                    .dependencies
+    /// Find dependencies for the given package
+    pub fn dependencies(&self, package: &Package) -> Vec<&Package> {
+        let mut result = vec![];
+
+        for dependency in &package.dependencies {
+            result.push(
+                self.packages
                     .iter()
-                    .any(|dep| dep.name == package.name && dep.version == package.version)
-            })
-            .collect()
+                    .find(|pkg| dependency.name == pkg.name && dependency.version == pkg.version)
+                    .unwrap(),
+            )
+        }
+
+        result
+    }
+
+    /// Get the dependency graph for this lockfile
+    #[cfg(feature = "petgraph")]
+    pub fn dependency_graph(&self) -> DependencyGraph {
+        DependencyGraph::new(self)
     }
 }
 
