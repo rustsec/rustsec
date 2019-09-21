@@ -2,6 +2,7 @@
 
 use crate::{
     advisory::{Advisory, Severity},
+    collection::Collection,
     package,
     platforms::target::{Arch, OS},
     version::Version,
@@ -11,7 +12,7 @@ use crate::{
 #[derive(Clone, Debug, Default)]
 pub struct Query {
     /// Collection to query against
-    pub(super) collection: Option<package::Collection>,
+    pub(super) collection: Option<Collection>,
 
     /// Package name to search for
     pub(super) package: Option<package::Name>,
@@ -46,18 +47,18 @@ impl Query {
 
     /// Create a new query which uses the default scope rules for crates:
     ///
-    /// - Only `package::Collection::Crates`
+    /// - Only `Collection::Crates`
     /// - Ignore obsolete advisories
     /// - Ignore informational advisories
     pub fn crate_scope() -> Self {
         Self::new()
-            .collection(package::Collection::Crates)
+            .collection(Collection::Crates)
             .obsolete(false)
             .informational(false)
     }
 
     /// Set collection to query against
-    pub fn collection(mut self, collection: package::Collection) -> Self {
+    pub fn collection(mut self, collection: Collection) -> Self {
         self.collection = Some(collection);
         self
     }
