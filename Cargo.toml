@@ -15,6 +15,9 @@ keywords = ["cargo", "dependency", "lock", "lockfile"]
 
 [dependencies]
 petgraph = { version = "0.4", optional = true }
+semver = { version = "0.9", features = ["serde"] }
+serde = { version = "1", features = ["serde_derive"] }
+toml = "0.5"
 
 [features]
 dependency-graph = ["petgraph"]
