@@ -7,7 +7,7 @@ use std::fmt;
 /// Information about a Rust package (as sourced from `Cargo.lock`)
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Package {
-    /// Name of a crate
+    /// Name of the package
     pub name: Name,
 
     /// Crate version (using `semver`)
@@ -23,6 +23,26 @@ pub struct Package {
         deserialize_with = "deserialize_dependencies"
     )]
     pub dependencies: Vec<Package>,
+}
+
+impl Package {
+    /// Get release info for a particular package
+    pub fn release(&self) -> Release {
+        Release {
+            name: self.name.clone(),
+            version: self.version.clone(),
+        }
+    }
+}
+
+/// Package releases: name/version tuples used to index the graph
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, PartialOrd, Ord, Serialize)]
+pub struct Release {
+    /// Name of the package
+    pub name: Name,
+
+    /// Crate version (using `semver`)
+    pub version: Version,
 }
 
 /// Serialize a package in `[[package.dependencies]]`
