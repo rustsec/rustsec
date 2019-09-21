@@ -79,7 +79,6 @@ additional terms or conditions.
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[unsafe-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby
 

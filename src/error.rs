@@ -74,3 +74,15 @@ impl From<rustsec::Error> for Error {
         Error(err!(kind, "{}", other))
     }
 }
+
+impl From<rustsec::cargo_lock::Error> for Error {
+    fn from(other: rustsec::cargo_lock::Error) -> Self {
+        let kind = match other.kind() {
+            rustsec::cargo_lock::ErrorKind::Io => ErrorKind::Io,
+            rustsec::cargo_lock::ErrorKind::Parse => ErrorKind::Parse,
+            rustsec::cargo_lock::ErrorKind::Version => ErrorKind::Version,
+        };
+
+        Error(err!(kind, "{}", other))
+    }
+}

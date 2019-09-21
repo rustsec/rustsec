@@ -3,12 +3,9 @@
 //! Bits and pieces taken from `cargo-tree`, Copyright (c) 2015-2016 Steven Fackler
 //! Licensed under the same terms as `cargo-audit` (i.e. Apache 2.0 + MIT)
 
-use rustsec::{
-    lockfile::dependency_graph::{
-        petgraph::{graph::NodeIndex, visit::EdgeRef, EdgeDirection},
-        DependencyGraph,
-    },
-    package, Lockfile, Package,
+use rustsec::cargo_lock::{
+    dependency_graph::petgraph::{graph::NodeIndex, visit::EdgeRef, EdgeDirection},
+    package, DependencyGraph, Lockfile, Package,
 };
 use std::collections::BTreeSet as Set;
 
@@ -35,14 +32,14 @@ pub struct Tree(DependencyGraph);
 impl Tree {
     /// Construct a new tree for a particular package
     pub fn new(lockfile: &Lockfile) -> Self {
-        Tree(lockfile.dependency_graph())
+        Tree(DependencyGraph::new(lockfile).expect("invalid Cargo.lock file"))
     }
 
     /// Print the inverse dependency tree to standard output
     pub fn print(&self, package: &Package) {
         let mut levels_continue = vec![];
         let mut visited = Set::new();
-        let root = self.0.nodes()[&package.name];
+        let root = self.0.nodes()[&package.release()];
         self.print_node(root, &mut visited, &mut levels_continue);
     }
 
@@ -50,11 +47,11 @@ impl Tree {
     fn print_node(
         &self,
         node: NodeIndex,
-        visited: &mut Set<package::Name>,
+        visited: &mut Set<package::Release>,
         levels_continue: &mut Vec<bool>,
     ) {
         let package = &self.0.graph()[node];
-        let new = visited.insert(package.name.clone());
+        let new = visited.insert(package.release());
 
         if let Some((&last_continues, rest)) = levels_continue.split_last() {
             for &continues in rest {
