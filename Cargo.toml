@@ -13,6 +13,10 @@ repository = "https://github.com/rustsec/cargo-lock"
 categories = ["parser-implementations"]
 keywords = ["cargo", "dependency", "lock", "lockfile"]
 
+[badges]
+travis-ci = { repository = "rustsec/cargo-lock" }
+maintenance = { status = "passively-maintained" }
+
 [dependencies]
 petgraph = { version = "0.4", optional = true }
 semver = { version = "0.9", features = ["serde"] }
