@@ -19,6 +19,7 @@ chrono = { version = "0.4", features = ["serde"] }
 cvss = { version = "0.3", features = ["serde"] }
 git2 = "0.10"
 home = "0.5"
+petgraph = { version = "0.4", optional = true }
 platforms = { version = "0.2", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
 semver-parser = "0.7"
