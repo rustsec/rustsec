@@ -36,8 +36,8 @@ pub struct Report {
 impl Report {
     /// Generate a report for the given advisory database and lockfile
     pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Self {
-        let vulnerabilities = lockfile
-            .query_vulnerabilities(db, &settings.query())
+        let vulnerabilities = db
+            .query_vulnerabilities(lockfile, &settings.query())
             .into_iter()
             .filter(|vuln| !settings.ignore.contains(&vuln.advisory.id))
             .collect();
@@ -181,7 +181,7 @@ impl Warning {
         let query = settings.query().informational(true);
         let mut result = vec![];
 
-        for vuln in lockfile.query_vulnerabilities(db, &query) {
+        for vuln in db.query_vulnerabilities(lockfile, &query) {
             let advisory = &vuln.advisory;
 
             if settings.ignore.contains(&advisory.id) {

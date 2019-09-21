@@ -15,11 +15,11 @@ travis-ci = { repository = "rustsec/rustsec-crate" }
 maintenance = { status = "actively-developed" }
 
 [dependencies]
+cargo-lock = "0.2"
 chrono = { version = "0.4", features = ["serde"] }
 cvss = { version = "0.3", features = ["serde"] }
 git2 = "0.10"
 home = "0.5"
-petgraph = { version = "0.4", optional = true }
 platforms = { version = "0.2", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
 semver-parser = "0.7"
@@ -28,3 +28,9 @@ toml = "0.5"
 
 [dev-dependencies]
 tempfile = "3"
+
+[features]
+dependency-graph = ["cargo-lock/dependency-graph"]
+
+[package.metadata.docs.rs]
+all-features = true

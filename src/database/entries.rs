@@ -3,8 +3,9 @@
 use super::Iter;
 use crate::{
     advisory::{self, Advisory},
+    collection::Collection,
     error::{Error, ErrorKind},
-    map, package, Map,
+    map, Map,
 };
 use std::{
     ffi::{OsStr, OsString},
@@ -80,10 +81,10 @@ impl Entries {
             .file_name()
             .unwrap();
 
-        let collection = if collection_dir == OsStr::new(package::Collection::Crates.as_str()) {
-            package::Collection::Crates
-        } else if collection_dir == OsStr::new(package::Collection::Rust.as_str()) {
-            package::Collection::Rust
+        let collection = if collection_dir == OsStr::new(Collection::Crates.as_str()) {
+            Collection::Crates
+        } else if collection_dir == OsStr::new(Collection::Rust.as_str()) {
+            Collection::Rust
         } else {
             fail!(
                 ErrorKind::Repo,

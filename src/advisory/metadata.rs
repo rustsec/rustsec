@@ -3,7 +3,7 @@
 use super::{
     category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
 };
-use crate::{package, version::VersionReq};
+use crate::{collection::Collection, package, version::VersionReq};
 use serde::{Deserialize, Serialize};
 
 /// The `[advisory]` section of a RustSec security advisory
@@ -30,7 +30,7 @@ pub struct Metadata {
     /// Collection this advisory belongs to. This isn't intended to be
     /// explicitly specified in the advisory, but rather is auto-populated
     /// based on the location
-    pub collection: Option<package::Collection>,
+    pub collection: Option<Collection>,
 
     /// RustSec vulnerability categories: one of a fixed list of vulnerability
     /// categorizations accepted by the project.
