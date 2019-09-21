@@ -22,7 +22,7 @@ gumdrop = "0.6"
 home = "0.5"
 lazy_static = "1"
 petgraph = "0.4"
-rustsec = "0.13.0-alpha1"
+rustsec = { version = "0.13.0-alpha2", features = ["petgraph"] }
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 
