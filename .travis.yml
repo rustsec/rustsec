@@ -34,4 +34,4 @@ script:
   - cargo clippy --all
   - cargo build --release
   - cargo test --release
-  - cargo doc --no-deps
+  - cargo test --all-features --release
