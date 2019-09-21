@@ -17,8 +17,9 @@ use abscissa_core::{
 use gumdrop::Options;
 use rustsec::{
     advisory,
+    lockfile::Lockfile,
     platforms::target::{Arch, OS},
-    report, Lockfile, Vulnerability,
+    report, Vulnerability,
 };
 use std::{
     collections::BTreeSet as Set,
@@ -318,7 +319,7 @@ impl AuditCommand {
             io::stdin().read_to_string(&mut lockfile_toml)?;
             Ok(lockfile_toml.parse()?)
         } else {
-            Ok(Lockfile::load_file(path)?)
+            Ok(Lockfile::load(path)?)
         }
     }
 
