@@ -53,6 +53,7 @@ additional terms or conditions.
 
 [//]: # (general links)
 
+[RustSec]: https://rustsec.org/
 [`petgraph`]: https://github.com/petgraph/petgraph
 [LICENSE-APACHE]: https://github.com/RustSec/cargo-lock/blob/master/LICENSE-APACHE
 [LICENSE-MIT]: https://github.com/RustSec/cargo-lock/blob/master/LICENSE-MIT
