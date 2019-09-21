@@ -8,7 +8,12 @@
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
-Self-contained Cargo.lock parser with optional dependency graph analysis
+Self-contained Cargo.lock parser with optional dependency graph analysis,
+used by [RustSec].
+
+When the `dependency-graph` feature of this crate is enabled, it supports
+computing a directed graph of the dependency tree expressed in the lockfile,
+modeled using the [`petgraph`] crate.
 
 [Documentation][docs-link]
 
@@ -35,8 +40,8 @@ additional terms or conditions.
 
 [crate-image]: https://img.shields.io/crates/v/cargo-lock.svg
 [crate-link]: https://crates.io/crates/cargo-lock
-[docs-image]: https://docs.rs/rustsec/badge.svg
-[docs-link]: https://docs.rs/rustsec/
+[docs-image]: https://docs.rs/cargo-lock/badge.svg
+[docs-link]: https://docs.rs/cargo-lock/
 [build-image]: https://travis-ci.org/RustSec/cargo-lock.svg?branch=master
 [build-link]: https://travis-ci.org/RustSec/cargo-lock
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
@@ -48,5 +53,6 @@ additional terms or conditions.
 
 [//]: # (general links)
 
+[`petgraph`]: https://github.com/petgraph/petgraph
 [LICENSE-APACHE]: https://github.com/RustSec/cargo-lock/blob/master/LICENSE-APACHE
 [LICENSE-MIT]: https://github.com/RustSec/cargo-lock/blob/master/LICENSE-MIT
