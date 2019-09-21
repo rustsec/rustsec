@@ -18,6 +18,7 @@ pub struct Lockfile {
     pub packages: Vec<Package>,
 
     /// Package metadata
+    #[serde(default)]
     pub metadata: Metadata,
 }
 
