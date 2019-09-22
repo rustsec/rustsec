@@ -4,6 +4,7 @@
 //! This is run in CI at the time advisories are submitted.
 
 use super::{Advisory, Category};
+use chrono::Datelike;
 use std::{fmt, fs, path::Path};
 
 /// Lint information about a particular advisory
@@ -85,6 +86,8 @@ impl Linter {
 
     /// Lint the `[advisory]` metadata section
     fn lint_metadata(&mut self, metadata: &toml::Value) {
+        let mut year = None;
+
         if let Some(table) = metadata.as_table() {
             for (key, value) in table {
                 match key.as_str() {
@@ -95,6 +98,18 @@ impl Linter {
                                 section: Some("advisory"),
                                 message: Some("unknown advisory ID type"),
                             });
+                        } else if let Some(y1) = self.advisory.metadata.id.year() {
+                            if let Some(y2) = year {
+                                if y1 != y2 {
+                                    self.errors.push(Error {
+                                        kind: ErrorKind::value("id", value.to_string()),
+                                        section: Some("advisory"),
+                                        message: Some("year in advisory ID does not match date"),
+                                    });
+                                }
+                            } else {
+                                year = Some(y1);
+                            }
                         }
                     }
                     "categories" => {
@@ -124,9 +139,25 @@ impl Linter {
                             }
                         }
                     }
+                    "date" => {
+                        let y1 =
+                            self.advisory.metadata.date.to_chrono_date().unwrap().year() as u32;
+
+                        if let Some(y2) = year {
+                            if y1 != y2 {
+                                self.errors.push(Error {
+                                    kind: ErrorKind::value("date", value.to_string()),
+                                    section: Some("advisory"),
+                                    message: Some("year in advisory ID does not match date"),
+                                });
+                            }
+                        } else {
+                            year = Some(y1);
+                        }
+                    }
                     "patched_versions" | "unaffected_versions" => (), // TODO(tarcieri): deprecate
-                    "aliases" | "cvss" | "date" | "keywords" | "obsolete" | "package"
-                    | "references" | "title" | "description" => (),
+                    "aliases" | "cvss" | "keywords" | "obsolete" | "package" | "references"
+                    | "title" | "description" => (),
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),
