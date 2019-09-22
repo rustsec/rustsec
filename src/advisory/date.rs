@@ -2,7 +2,7 @@
 
 use crate::error::{Error, ErrorKind};
 
-use chrono::{self, DateTime, Utc};
+use chrono::{self, NaiveDate, Utc};
 use serde::{de, Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -18,9 +18,9 @@ pub struct Date(String);
 
 impl Date {
     /// Convert an advisory RFC 3339 date into a `chrono::Date`
-    pub fn to_chrono_date(&self) -> chrono::Date<Utc> {
-        let datetime = DateTime::parse_from_rfc3339(self.0.as_ref()).unwrap();
-        chrono::Date::from_utc(datetime.naive_utc().date(), Utc)
+    pub fn to_chrono_date(&self) -> Result<chrono::Date<Utc>, Error> {
+        let date = NaiveDate::parse_from_str(&self.0, "%Y-%m-%d")?;
+        Ok(chrono::Date::from_utc(date, Utc))
     }
 
     /// Borrow this date as a string reference
