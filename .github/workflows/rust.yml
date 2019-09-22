@@ -1,0 +1,19 @@
+name: Rust
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: rustfmt
+      run: cargo fmt --all -- --check
+    - name: clippy
+      run: cargo clippy --all
+    - name: build
+      run: cargo build --release
+    - name: test
+      run: cargo test --release
+    - name: doc
+      run: cargo doc --no-deps
