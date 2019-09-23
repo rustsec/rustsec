@@ -28,11 +28,9 @@ pub(crate) const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
 const SUPPORT_FILE: &str = "support.toml";
 
 /// Ref for master in the local repository
-
 const LOCAL_MASTER_REF: &str = "refs/heads/master";
 
 /// Ref for master in the remote repository
-
 const REMOTE_MASTER_REF: &str = "refs/remotes/origin/master";
 
 /// Git repository for a Rust advisory DB
@@ -55,13 +53,11 @@ impl Repository {
     }
 
     /// Fetch the default repository
-
     pub fn fetch_default_repo() -> Result<Self, Error> {
         Self::fetch(DEFAULT_REPO_URL, Repository::default_path(), true)
     }
 
     /// Create a new `Repository` with the given URL and path
-
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,

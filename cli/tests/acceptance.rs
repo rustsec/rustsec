@@ -8,9 +8,18 @@ lazy_static! {
     pub static ref RUNNER: CmdRunner = CmdRunner::default();
 }
 
+/// Run `rustsec check` against a freshly fetched advisory DB repo
 #[test]
-fn version_no_args() {
+fn check_advisory_db() {
+    // Fetch the advisory database
+    rustsec::Repository::fetch_default_repo().unwrap();
+
     let mut runner = RUNNER.clone();
-    let mut cmd = runner.arg("version").capture_stdout().run();
-    cmd.stdout().expect_regex(r"\Arustsec-cli [\d\.\-]+\z");
+
+    runner
+        .arg("check")
+        .arg(&rustsec::Repository::default_path())
+        .capture_stdout()
+        .status()
+        .expect_success();
 }

@@ -10,14 +10,16 @@ readme      = "README.md"
 edition     = "2018"
 
 [dependencies]
-abscissa_core = "0.3.0"
+abscissa_core = "0.3"
+crates_io_api = "0.5"
 failure = "0.1"
 gumdrop = "0.6"
 lazy_static = "1"
 rustsec = { version = "0.13", path = ".." }
 serde = { version = "1", features = ["serde_derive"] }
+termcolor = "1"
 
 [dev-dependencies.abscissa_core]
-version = "0.3.0"
+version = "0.3"
 features = ["testing"]
 
