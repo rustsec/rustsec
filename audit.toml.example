@@ -26,6 +26,9 @@ output_format = "terminal"
 # Operate quielty only printing out information on error
 quiet = false
 
+# Show inverse dependency trees along with advisories
+show_dependency_tree = true
+
 # Severity threshold to alert at on the CVSS Qualitative Severity Rating Scale.
 # Valid options are: "none", "low", "medium", "high", "critical"
 severity_threshold = "low"

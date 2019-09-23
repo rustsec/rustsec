@@ -3,15 +3,11 @@
 use crate::{
     config::{AuditConfig, OutputFormat},
     error::{Error, ErrorKind},
-    tree::Tree,
+    prelude::*,
+    presenter::Presenter,
 };
-use abscissa_core::terminal::{
-    self,
-    Color::{Red, Yellow},
-};
-use rustsec::{lockfile::Lockfile, report, Vulnerability};
+use rustsec::{lockfile::Lockfile, report};
 use std::{
-    collections::BTreeSet as Set,
     io::{self, Read},
     path::Path,
     process::exit,
@@ -19,14 +15,17 @@ use std::{
 
 /// Security vulnerability auditor
 pub struct Auditor {
+    /// Are we operating in quiet mode?
+    quiet: bool,
+
+    /// Should dependency trees be displayed?
+    show_dependency_tree: bool,
+
     /// RustSec Advisory Database
     database: rustsec::Database,
 
     /// Output format to display
     output_format: OutputFormat,
-
-    /// Are we operating in quiet mode?
-    quiet: bool,
 
     /// Report settings to use when generating audit report
     report_settings: report::Settings,
@@ -37,6 +36,7 @@ impl Auditor {
     pub fn new(config: &AuditConfig) -> Self {
         // Use quiet mode if explicitly configured or if we're outputting JSON
         let quiet = config.quiet || config.output_format == OutputFormat::Json;
+        let show_dependency_tree = config.show_dependency_tree.unwrap_or(true);
 
         let advisory_db_url = config
             .advisory_db_url
@@ -96,9 +96,10 @@ impl Auditor {
         }
 
         Self {
+            show_dependency_tree,
+            quiet,
             database,
             output_format: config.output_format,
-            quiet,
             report_settings: config.report_settings(),
         }
     }
@@ -143,33 +144,18 @@ impl Auditor {
         match self.output_format {
             OutputFormat::Json => serde_json::to_writer(io::stdout(), &report).unwrap(),
             OutputFormat::Terminal => {
-                // Track packages we've displayed once so we don't show the same dep tree
-                // TODO(tarcieri): group advisories about the same package?
-                let mut displayed_packages = Set::new();
+                let mut presenter = Presenter::new(&lockfile, self.show_dependency_tree);
 
                 for vulnerability in &report.vulnerabilities.list {
-                    if displayed_packages.insert(vulnerability.package.name.clone()) {
-                        let tree = Tree::new(&lockfile);
-                        display_vulnerability(&vulnerability, Some(&tree));
-                    } else {
-                        display_vulnerability(&vulnerability, None);
-                    }
+                    presenter.print_vulnerability(vulnerability);
                 }
 
                 if !report.warnings.is_empty() {
                     println!();
-
                     status_warn!("found informational advisories for dependencies");
 
                     for warning in &report.warnings {
-                        println!();
-
-                        display_attr(Yellow, "Crate:   ", warning.package.as_str());
-                        display_attr(Red, "Message: ", warning.message.as_str());
-
-                        if let Some(url) = &warning.url {
-                            display_attr(Yellow, "URL:     ", url);
-                        }
+                        presenter.print_warning(warning)
                     }
                 }
             }
@@ -199,56 +185,4 @@ impl Auditor {
             Ok(Lockfile::load(lockfile_path)?)
         }
     }
-}
-
-/// Display information about a particular vulnerability
-fn display_vulnerability(vulnerability: &Vulnerability, tree: Option<&Tree>) {
-    let advisory = &vulnerability.advisory;
-
-    println!();
-    display_attr(Red, "ID:      ", advisory.id.as_str());
-    display_attr(Red, "Crate:   ", vulnerability.package.name.as_str());
-    display_attr(Red, "Version: ", &vulnerability.package.version.to_string());
-    display_attr(Red, "Date:    ", advisory.date.as_str());
-
-    if let Some(url) = advisory.id.url() {
-        display_attr(Red, "URL:     ", &url);
-    } else if let Some(url) = advisory.url.as_ref() {
-        display_attr(Red, "URL:     ", url);
-    }
-
-    display_attr(Red, "Title:   ", &advisory.title);
-    display_attr(
-        Red,
-        "Solution: upgrade to",
-        &vulnerability
-            .versions
-            .patched
-            .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>()
-            .as_slice()
-            .join(" OR "),
-    );
-
-    if let Some(t) = tree {
-        terminal::status::Status::new()
-            .bold()
-            .color(Red)
-            .status("Dependency tree:")
-            .print_stdout("")
-            .unwrap();
-
-        t.print(&vulnerability.package);
-    }
-}
-
-/// Display an attribute of a particular vulnerability
-fn display_attr(color: terminal::Color, attr: &str, content: &str) {
-    terminal::status::Status::new()
-        .bold()
-        .color(color)
-        .status(attr)
-        .print_stdout(content)
-        .unwrap();
 }
