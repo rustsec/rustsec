@@ -47,8 +47,8 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/rustsec
 [docs-image]: https://docs.rs/rustsec/badge.svg
 [docs-link]: https://docs.rs/rustsec/
-[build-image]: https://travis-ci.org/RustSec/rustsec-crate.svg?branch=master
-[build-link]: https://travis-ci.org/RustSec/rustsec-crate
+[build-image]: https://github.com/rustsec/rustsec-crate/workflows/Rust/badge.svg
+[build-link]: https://github.com/rustsec/rustsec-crate/actions
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
