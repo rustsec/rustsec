@@ -1,0 +1,31 @@
+# Example `~/.cargo/audit.toml` file
+# All of the options which can be passed via CLI arguments can also be
+# permanently specified in this file.
+
+# Path where the advisory database's git repo will be cloned to
+advisory_db_path = "~/.cargo/advisory-db"
+
+# URL to the advisory database's git repository
+advisory_db_url = "https://github.com/RustSec/advisory-db.git"
+
+# Ignore advisory database which hasn't been updated in over 90 days
+allow_stale = false
+
+# When should colors be displayed? ("always", "never", or "auto")
+color = "auto"
+
+# List of advisory IDs to ignore e.g. ["RUSTSEC-2019-0001", "RUSTSEC-2019-0002"]
+ignore = []
+
+# Don't automatically fetch the advisory DB via git
+no_fetch = false
+
+# Output format ("terminal" or "json")
+output_format = "terminal"
+
+# Operate quielty only printing out information on error
+quiet = false
+
+# Severity threshold to alert at on the CVSS Qualitative Severity Rating Scale.
+# Valid options are: "none", "low", "medium", "high", "critical"
+severity_threshold = "low"

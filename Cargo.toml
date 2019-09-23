@@ -12,7 +12,6 @@ keywords    = ["cargo-subcommand", "security", "audit", "vulnerability"]
 edition     = "2018"
 
 [badges]
-travis-ci = { repository = "rustsec/cargo-audit" }
 maintenance = { status = "actively-developed" }
 
 [dependencies]
@@ -28,6 +27,7 @@ serde_json = "1"
 
 [dev-dependencies]
 tempfile = "3"
+toml = "0.5"
 
 [dev-dependencies.abscissa_core]
 version = "0.3"
