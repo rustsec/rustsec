@@ -4,14 +4,14 @@ description = "Client library for the RustSec security advisory database"
 version     = "0.13.0-alpha4" # Also update html_root_url in lib.rs when bumping this
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 license     = "Apache-2.0 OR MIT"
-homepage    = "https://github.com/rustsec/rustsec-crate/"
+homepage    = "https://rustsec.org"
+repository  = "https://github.com/rustsec/rustsec-crate/"
 readme      = "README.md"
 categories  = ["api-bindings", "development-tools"]
 keywords    = ["audit", "rustsec", "security", "advisory", "vulnerability"]
 edition     = "2018"
 
 [badges]
-travis-ci = { repository = "rustsec/rustsec-crate" }
 maintenance = { status = "actively-developed" }
 
 [dependencies]
