@@ -20,13 +20,10 @@
     html_root_url = "https://docs.rs/cargo-audit/0.9.0-beta1"
 )]
 
-#[macro_use]
-extern crate abscissa_core;
-
 pub mod application;
 pub mod auditor;
 pub mod commands;
 pub mod config;
 pub mod error;
 mod prelude;
-pub mod tree;
+pub mod presenter;

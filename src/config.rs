@@ -44,6 +44,9 @@ pub struct AuditConfig {
     /// Ignore advisories with a severity lower than this threshold
     pub severity_threshold: Option<advisory::Severity>,
 
+    /// Show information about dependency trees with vulnerabilities
+    pub show_dependency_tree: Option<bool>,
+
     /// Target architecture to find vulnerabilities for
     pub target_arch: Option<Arch>,
 
