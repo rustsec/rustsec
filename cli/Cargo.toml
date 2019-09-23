@@ -1,0 +1,23 @@
+[package]
+name        = "rustsec-cli"
+description = "Command-line application for maintaining the RustSec Advisory Database"
+version     = "0.0.0"
+authors     = ["Tony Arcieri <bascule@gmail.com>"]
+license     = "Apache-2.0 OR MIT"
+homepage    = "https://rustsec.org"
+repository  = "https://github.com/rustsec/rustsec-crate/"
+readme      = "README.md"
+edition     = "2018"
+
+[dependencies]
+abscissa_core = "0.3.0"
+failure = "0.1"
+gumdrop = "0.6"
+lazy_static = "1"
+rustsec = { version = "0.13", path = ".." }
+serde = { version = "1", features = ["serde_derive"] }
+
+[dev-dependencies.abscissa_core]
+version = "0.3.0"
+features = ["testing"]
+
