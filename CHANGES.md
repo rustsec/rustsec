@@ -1,3 +1,27 @@
+## [0.13.0] (2019-09-23)
+
+- linter: Ensure advisory date's year matches year in advisory ID ([#99])
+- Use the `cargo-lock` crate ([#97])
+- lockfile: Add (optional) DependencyGraph analysis ([#95])
+- Rename `rustsec::db` module to `rustsec::database` ([#90])
+- report: Generate warnings for selected informational advisories ([#89])
+- vulnerability: Add `affected_functions()` ([#88])
+- Add `rustsec::advisory::Linter` ([#87])
+- package: Parse dependencies from Cargo.lock ([#84])
+- Initial `report` module and built-in report-generating ([#83])
+- Basic query support ([#81])
+- Index the `rust` advisory directory from `RustSec/advisory-db` ([#80])
+- Add first-class support for GitHub Security Advisories (GHSA) ([#79])
+- Re-vendor Cargo's git authentication code ([#78])
+- `support.toml` for indicating supported versions ([#76])
+- Add support for "informational" advisories ([#75])
+- Add `rustsec::advisory::Category` ([#74])
+- Refactor advisory types: add `[affected]` and `[versions]` sections ([#73])
+- advisory: Add (optional) `cvss` field with CVSS v3.1 score ([#72])
+- Freshen deps: add `home`, remove `directories` and `failure` ([#71])
+- Improved handling of prereleases; MSRV 1.35+ ([#69])
+- Add `Version` and `VersionReq` newtypes ([#68])
+
 ## [0.12.1] (2019-07-29)
 
 - Use new inclusive range syntax ([#66])
@@ -106,6 +130,28 @@
 
 - Initial release
 
+[0.13.0]: https://github.com/RustSec/rustsec-crate/pull/103
+[#99]: https://github.com/RustSec/rustsec-crate/pull/99
+[#97]: https://github.com/RustSec/rustsec-crate/pull/97
+[#95]: https://github.com/RustSec/rustsec-crate/pull/95
+[#90]: https://github.com/RustSec/rustsec-crate/pull/90
+[#89]: https://github.com/RustSec/rustsec-crate/pull/89
+[#88]: https://github.com/RustSec/rustsec-crate/pull/88
+[#87]: https://github.com/RustSec/rustsec-crate/pull/87
+[#84]: https://github.com/RustSec/rustsec-crate/pull/84
+[#83]: https://github.com/RustSec/rustsec-crate/pull/83
+[#81]: https://github.com/RustSec/rustsec-crate/pull/81
+[#80]: https://github.com/RustSec/rustsec-crate/pull/80
+[#79]: https://github.com/RustSec/rustsec-crate/pull/79
+[#78]: https://github.com/RustSec/rustsec-crate/pull/78
+[#76]: https://github.com/RustSec/rustsec-crate/pull/76
+[#75]: https://github.com/RustSec/rustsec-crate/pull/75
+[#74]: https://github.com/RustSec/rustsec-crate/pull/74
+[#73]: https://github.com/RustSec/rustsec-crate/pull/73
+[#72]: https://github.com/RustSec/rustsec-crate/pull/72
+[#71]: https://github.com/RustSec/rustsec-crate/pull/71
+[#69]: https://github.com/RustSec/rustsec-crate/pull/69
+[#68]: https://github.com/RustSec/rustsec-crate/pull/68
 [0.12.1]: https://github.com/RustSec/rustsec-crate/pull/67
 [#66]: https://github.com/RustSec/rustsec-crate/pull/66
 [0.12.0]: https://github.com/RustSec/rustsec-crate/pull/65
