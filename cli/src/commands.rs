@@ -2,8 +2,9 @@
 
 mod check;
 mod version;
+mod web;
 
-use self::{check::CheckCmd, version::VersionCmd};
+use self::{check::CheckCmd, version::VersionCmd, web::WebCmd};
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
 use std::path::PathBuf;
@@ -14,6 +15,10 @@ pub enum RustsecCliCmd {
     /// The `check` subcommand
     #[options(help = "check that the Advisory DB is well-formed")]
     Check(CheckCmd),
+
+    /// The `web` subcommand
+    #[options(help = "render advisory Markdown files for the rustsec.org web site")]
+    Web(WebCmd),
 
     /// The `help` subcommand
     #[options(help = "get usage information")]

@@ -9,4 +9,6 @@ pub mod application;
 pub mod commands;
 pub mod config;
 pub mod error;
+pub mod linter;
 pub mod prelude;
+pub mod web;
