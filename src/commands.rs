@@ -3,7 +3,7 @@
 mod audit;
 
 use self::audit::AuditCommand;
-use crate::config::CargoAuditConfig;
+use crate::config::AuditConfig;
 use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Options, Runnable};
 use std::path::PathBuf;
 
@@ -20,7 +20,7 @@ pub enum CargoAuditCommand {
     Audit(AuditCommand),
 }
 
-impl Configurable<CargoAuditConfig> for CargoAuditCommand {
+impl Configurable<AuditConfig> for CargoAuditCommand {
     /// Location of `audit.toml` (if it exists)
     fn config_path(&self) -> Option<PathBuf> {
         // Check if the config file exists, and if it does not, ignore it.
@@ -36,7 +36,7 @@ impl Configurable<CargoAuditConfig> for CargoAuditCommand {
     }
 
     /// Override loaded config with explicit command-line arguments
-    fn process_config(&self, config: CargoAuditConfig) -> Result<CargoAuditConfig, FrameworkError> {
+    fn process_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
         match self {
             CargoAuditCommand::Audit(cmd) => cmd.override_config(config),
         }
