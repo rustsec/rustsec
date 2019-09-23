@@ -2,7 +2,7 @@
 //!
 //! <https://docs.rs/abscissa_core>
 
-use crate::{commands::CargoAuditCommand, config::CargoAuditConfig};
+use crate::{commands::CargoAuditCommand, config::AuditConfig};
 use abscissa_core::{
     application, config, logging, Application, EntryPoint, FrameworkError, StandardPaths,
 };
@@ -36,7 +36,7 @@ pub fn app_config() -> config::Reader<CargoAuditApplication> {
 #[derive(Debug)]
 pub struct CargoAuditApplication {
     /// Application configuration.
-    config: Option<CargoAuditConfig>,
+    config: Option<AuditConfig>,
 
     /// Application state.
     state: application::State<Self>,
@@ -60,13 +60,13 @@ impl Application for CargoAuditApplication {
     type Cmd = EntryPoint<CargoAuditCommand>;
 
     /// Application configuration.
-    type Cfg = CargoAuditConfig;
+    type Cfg = AuditConfig;
 
     /// Paths to resources within the application.
     type Paths = StandardPaths;
 
     /// Accessor for application configuration.
-    fn config(&self) -> &CargoAuditConfig {
+    fn config(&self) -> &AuditConfig {
         self.config.as_ref().expect("config not loaded")
     }
 
