@@ -10,7 +10,7 @@ use super::{
     Dependency,
 };
 use crate::{error::Error, lockfile::Lockfile, package::Package, Map};
-use std::{collections::BTreeSet as Set, fmt};
+use std::{collections::BTreeSet as Set, io};
 
 /// Dependency tree computed from a `Cargo.lock` file
 #[derive(Clone, Debug)]
@@ -47,27 +47,27 @@ impl Tree {
         Ok(dep_graph)
     }
 
-    /// Display the dependency graph for the given [`NodeIndex`] using the
+    /// Render the dependency graph for the given [`NodeIndex`] using the
     /// default set of [`Symbols`].
-    pub fn display(
+    pub fn render(
         &self,
-        f: &mut fmt::Formatter<'_>,
+        w: &mut impl io::Write,
         node_index: NodeIndex,
         direction: EdgeDirection,
-    ) -> fmt::Result {
-        self.display_with_symbols(f, node_index, direction, &Symbols::default())
+    ) -> io::Result<()> {
+        self.render_with_symbols(w, node_index, direction, &Symbols::default())
     }
 
-    /// Display the dependency graph for the given [`NodeIndex`] using the
+    /// Render the dependency graph for the given [`NodeIndex`] using the
     /// provided set of [`Symbols`].
-    pub fn display_with_symbols(
+    pub fn render_with_symbols(
         &self,
-        f: &mut fmt::Formatter<'_>,
+        w: &mut impl io::Write,
         node_index: NodeIndex,
         direction: EdgeDirection,
         symbols: &Symbols,
-    ) -> fmt::Result {
-        Presenter::new(&self.graph, symbols).print_node(f, node_index, direction)
+    ) -> io::Result<()> {
+        Presenter::new(&self.graph, symbols).print_node(w, node_index, direction)
     }
 
     /// Get the `petgraph` dependency graph.
@@ -150,17 +150,17 @@ impl<'g, 's> Presenter<'g, 's> {
     /// Print a node in the dependency tree.
     fn print_node(
         &mut self,
-        f: &mut fmt::Formatter<'_>,
+        w: &mut impl io::Write,
         node_index: NodeIndex,
         direction: EdgeDirection,
-    ) -> fmt::Result {
+    ) -> io::Result<()> {
         let package = &self.graph[node_index];
         let new = self.visited.insert(node_index);
 
         if let Some((&last_continues, rest)) = self.levels_continue.split_last() {
             for &continues in rest {
                 let c = if continues { self.symbols.down } else { " " };
-                write!(f, "{}   ", c)?;
+                write!(w, "{}   ", c)?;
             }
 
             let c = if last_continues {
@@ -169,10 +169,10 @@ impl<'g, 's> Presenter<'g, 's> {
                 self.symbols.ell
             };
 
-            write!(f, "{0}{1}{1} ", c, self.symbols.right)?;
+            write!(w, "{0}{1}{1} ", c, self.symbols.right)?;
         }
 
-        writeln!(f, "{} {}", &package.name, &package.version)?;
+        writeln!(w, "{} {}", &package.name, &package.version)?;
 
         if !new {
             return Ok(());
@@ -187,7 +187,7 @@ impl<'g, 's> Presenter<'g, 's> {
 
         for (i, dependency) in dependencies.iter().enumerate() {
             self.levels_continue.push(i < (dependencies.len() - 1));
-            self.print_node(f, *dependency, direction)?;
+            self.print_node(w, *dependency, direction)?;
             self.levels_continue.pop();
         }
 
