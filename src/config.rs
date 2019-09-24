@@ -93,6 +93,10 @@ pub struct OutputConfig {
     /// Should colors be displayed?
     pub color: Option<String>,
 
+    /// Disallow any warning advisories
+    #[serde(default)]
+    pub deny_warnings: bool,
+
     /// Output format to use
     #[serde(default)]
     pub format: OutputFormat,
