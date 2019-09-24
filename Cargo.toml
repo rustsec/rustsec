@@ -18,7 +18,7 @@ members = ["cli"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-cargo-lock = "0.2"
+cargo-lock = "1"
 chrono = { version = "0.4", features = ["serde"] }
 cvss = { version = "0.3", features = ["serde"] }
 git2 = "0.10"
@@ -33,7 +33,7 @@ toml = "0.5"
 tempfile = "3"
 
 [features]
-dependency-graph = ["cargo-lock/dependency-graph"]
+dependency-tree = ["cargo-lock/dependency-tree"]
 
 [package.metadata.docs.rs]
 all-features = true
