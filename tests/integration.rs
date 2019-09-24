@@ -3,8 +3,8 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use rustsec::{
-    advisory, database::Query, lockfile::Lockfile, Collection, Database, Repository, VersionReq,
-    DEFAULT_REPO_URL,
+    advisory, database::Query, lockfile::Lockfile, repository, Collection, Database, Repository,
+    VersionReq,
 };
 use tempfile::tempdir;
 
@@ -94,5 +94,5 @@ fn clone_into_existing_directory() {
     let tmp = tempdir().unwrap();
 
     // Attempt to fetch into it
-    Repository::fetch(DEFAULT_REPO_URL, tmp.path(), true).unwrap();
+    Repository::fetch(repository::DEFAULT_URL, tmp.path(), true).unwrap();
 }
