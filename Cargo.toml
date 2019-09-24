@@ -20,7 +20,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 cargo-lock = "1"
 chrono = { version = "0.4", features = ["serde"] }
-cvss = { version = "0.3", features = ["serde"] }
+cvss = { version = "1", features = ["serde"] }
 git2 = "0.10"
 home = "0.5"
 platforms = { version = "0.2", features = ["serde"] }
