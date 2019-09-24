@@ -1,10 +1,10 @@
 //! `rustsec-admin` CLI subcommands
 
-mod check;
+mod lint;
 mod version;
 mod web;
 
-use self::{check::CheckCmd, version::VersionCmd, web::WebCmd};
+use self::{lint::LintCmd, version::VersionCmd, web::WebCmd};
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
 use std::path::PathBuf;
@@ -12,9 +12,9 @@ use std::path::PathBuf;
 /// `rustsec-admin` CLI subcommands
 #[derive(Command, Debug, Options, Runnable)]
 pub enum AdminCmd {
-    /// The `check` subcommand
-    #[options(help = "check that the Advisory DB is well-formed")]
-    Check(CheckCmd),
+    /// The `lint` subcommand
+    #[options(help = "lint Advisory DB and ensure is well-formed")]
+    Lint(LintCmd),
 
     /// The `web` subcommand
     #[options(help = "render advisory Markdown files for the rustsec.org web site")]
