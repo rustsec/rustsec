@@ -7,9 +7,9 @@ use crate::{
     advisory,
     database::{Database, Query},
     lockfile::Lockfile,
-    package,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
+    warning::Warning,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -47,7 +47,7 @@ impl Report {
             lockfile: LockfileInfo::new(lockfile),
             settings: settings.clone(),
             vulnerabilities: VulnerabilityInfo::new(vulnerabilities),
-            warnings: Warning::generate(db, lockfile, settings),
+            warnings: find_warnings(db, lockfile, settings),
         }
     }
 }
@@ -162,45 +162,31 @@ impl VulnerabilityInfo {
     }
 }
 
-/// Warnings about particular dependencies
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct Warning {
-    /// Name of the dependent package
-    pub package: package::Name,
+/// Find warnings from the given advisory [`Database`] and [`Lockfile`]
+pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Vec<Warning> {
+    let query = settings.query().informational(true);
+    let mut result = vec![];
 
-    /// Text of the warning
-    pub message: String,
+    // TODO(tarcieri): abstract `Cargo.lock` query logic between vulnerabilities/warnings
+    for advisory_vuln in db.query_vulnerabilities(lockfile, &query) {
+        let advisory = &advisory_vuln.advisory;
 
-    /// URL with additional information (if available)
-    pub url: Option<String>,
-}
-
-impl Warning {
-    /// Generate a report for the given advisory database and lockfile
-    pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Vec<Self> {
-        let query = settings.query().informational(true);
-        let mut result = vec![];
-
-        for vuln in db.query_vulnerabilities(lockfile, &query) {
-            let advisory = &vuln.advisory;
-
-            if settings.ignore.contains(&advisory.id) {
-                continue;
-            }
-
-            if settings
-                .informational_warnings
-                .iter()
-                .any(|info| Some(info) == advisory.informational.as_ref())
-            {
-                result.push(Self {
-                    package: advisory.package.clone(),
-                    message: advisory.title.clone(),
-                    url: advisory.id.url(),
-                })
-            }
+        if settings.ignore.contains(&advisory.id) {
+            continue;
         }
 
-        result
+        if settings
+            .informational_warnings
+            .iter()
+            .any(|info| Some(info) == advisory.informational.as_ref())
+        {
+            result.push(Warning::new(
+                advisory,
+                &advisory_vuln.versions,
+                &advisory_vuln.package,
+            ))
+        }
     }
+
+    result
 }

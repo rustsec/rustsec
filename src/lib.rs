@@ -21,6 +21,7 @@ pub mod report;
 pub mod repository;
 pub mod version;
 pub mod vulnerability;
+pub mod warning;
 
 // Re-export the `cargo-lock` crate
 pub use cargo_lock;
@@ -29,8 +30,15 @@ pub use cargo_lock;
 pub use platforms;
 
 pub use crate::{
-    advisory::*, collection::Collection, database::*, error::*, report::*, repository::*,
-    version::*, vulnerability::*,
+    advisory::Advisory,
+    collection::Collection,
+    database::Database,
+    error::{Error, ErrorKind},
+    report::Report,
+    repository::Repository,
+    version::{Version, VersionReq},
+    vulnerability::Vulnerability,
+    warning::Warning,
 };
 pub use cargo_lock::{lockfile, package};
 
