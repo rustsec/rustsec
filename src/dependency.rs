@@ -3,7 +3,7 @@
 #[cfg(feature = "dependency-tree")]
 pub mod graph;
 #[cfg(feature = "dependency-tree")]
-mod tree;
+pub mod tree;
 
 #[cfg(feature = "dependency-tree")]
 pub use self::tree::Tree;
