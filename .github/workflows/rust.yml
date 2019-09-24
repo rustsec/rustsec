@@ -7,13 +7,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: rustfmt
+    - name: Formatting
       run: cargo fmt --all -- --check
-    - name: clippy
+    - name: Lint
       run: cargo clippy --all
-    - name: build
+    - name: Build
       run: cargo build --release
-    - name: test
+    - name: Tests
       run: cargo test --release
-    - name: doc
+    - name: Tests (--all-features)
+      run: cargo test --all-features --release
+    - name: Docs
       run: cargo doc --no-deps
