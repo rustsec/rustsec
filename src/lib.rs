@@ -1,7 +1,7 @@
 //! `cargo-lock`: Self-contained `Cargo.lock` parser with optional dependency
 //! graph analysis.
 //!
-//! When the `dependency-graph` feature of this crate is enabled, it supports
+//! When the `dependency-tree` feature of this crate is enabled, it supports
 //! computing a directed graph of the dependency tree expressed in the lockfile,
 //! modeled using the [`petgraph`] crate.
 //!
@@ -17,17 +17,17 @@
 #[macro_use]
 pub mod error;
 
-#[cfg(feature = "dependency-graph")]
-pub mod dependency_graph;
+pub mod dependency;
 pub mod lockfile;
 pub mod metadata;
 pub mod package;
 
 pub use self::{
+    dependency::Dependency,
     error::{Error, ErrorKind},
     lockfile::Lockfile,
     package::Package,
 };
 
-#[cfg(feature = "dependency-graph")]
-pub use self::dependency_graph::DependencyGraph;
+/// Use `BTreeMap` for all `Map` types in the crate
+use std::collections::BTreeMap as Map;

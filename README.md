@@ -11,7 +11,7 @@
 Self-contained Cargo.lock parser with optional dependency graph analysis,
 used by [RustSec].
 
-When the `dependency-graph` feature of this crate is enabled, it supports
+When the `dependency-tree` feature of this crate is enabled, it supports
 computing a directed graph of the dependency tree expressed in the lockfile,
 modeled using the [`petgraph`] crate.
 

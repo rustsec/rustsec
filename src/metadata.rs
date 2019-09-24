@@ -1,12 +1,8 @@
 //! Package metadata
 
-use crate::error::Error;
+use crate::{error::Error, Map};
 use serde::{de, ser, Deserialize, Serialize};
-use std::{
-    collections::BTreeMap as Map,
-    fmt::{self, Display},
-    str::FromStr,
-};
+use std::{fmt, str::FromStr};
 
 /// Package metadata
 pub type Metadata = Map<Checksum, Hash>;
@@ -16,7 +12,7 @@ pub type Metadata = Map<Checksum, Hash>;
 #[derive(Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub struct Checksum(String);
 
-impl Display for Checksum {
+impl fmt::Display for Checksum {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -33,8 +29,9 @@ impl FromStr for Checksum {
 impl<'de> Deserialize<'de> for Checksum {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use de::Error;
-        let checksum = String::deserialize(deserializer)?;
-        checksum.parse().map_err(D::Error::custom)
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(D::Error::custom)
     }
 }
 
@@ -49,7 +46,7 @@ impl Serialize for Checksum {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Hash(String);
 
-impl Display for Hash {
+impl fmt::Display for Hash {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -66,8 +63,9 @@ impl FromStr for Hash {
 impl<'de> Deserialize<'de> for Hash {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use de::Error;
-        let checksum = String::deserialize(deserializer)?;
-        checksum.parse().map_err(D::Error::custom)
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(D::Error::custom)
     }
 }
 
