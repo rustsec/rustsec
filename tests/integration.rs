@@ -3,8 +3,8 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use rustsec::{
-    advisory, database::Query, lockfile::Lockfile, package, Collection, Database, Repository,
-    VersionReq, DEFAULT_REPO_URL,
+    advisory, database::Query, lockfile::Lockfile, Collection, Database, Repository, VersionReq,
+    DEFAULT_REPO_URL,
 };
 use tempfile::tempdir;
 
@@ -21,7 +21,7 @@ fn happy_path() {
 fn verify_rustsec_2017_0001(db: &Database) {
     let example_advisory_id = "RUSTSEC-2017-0001".parse::<advisory::Id>().unwrap();
     let example_advisory = db.get(&example_advisory_id).unwrap();
-    let example_package = package::Name::from("sodiumoxide");
+    let example_package = "sodiumoxide".parse().unwrap();
 
     assert_eq!(example_advisory.metadata.id, example_advisory_id);
     assert_eq!(example_advisory.metadata.package, example_package);
@@ -60,7 +60,7 @@ fn verify_rustsec_2017_0001(db: &Database) {
 fn verify_cve_2018_1000810(db: &Database) {
     let example_advisory_id = "CVE-2018-1000810".parse::<advisory::Id>().unwrap();
     let example_advisory = db.get(&example_advisory_id).unwrap();
-    let example_package = package::Name::from("std");
+    let example_package = "std".parse().unwrap();
 
     assert_eq!(example_advisory.metadata.id, example_advisory_id);
     assert_eq!(example_advisory.metadata.package, example_package);
