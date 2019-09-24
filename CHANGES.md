@@ -1,3 +1,7 @@
+## [1.0.0] (2019-09-23)
+
+- Migrate to GitHub Actions ([#11])
+
 ## [0.3.0] (2019-09-06)
 
 - CVSS v3.0 support ([#8], [#9])
@@ -12,6 +16,8 @@
 
 - Initial release
 
+[1.0.0]: https://github.com/RustSec/cvss.rs/pull/12
+[#11]: https://github.com/RustSec/cvss.rs/pull/11
 [0.3.0]: https://github.com/RustSec/cvss.rs/pull/10
 [#9]: https://github.com/RustSec/cvss.rs/pull/9
 [#8]: https://github.com/RustSec/cvss.rs/pull/8
