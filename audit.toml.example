@@ -2,33 +2,26 @@
 # All of the options which can be passed via CLI arguments can also be
 # permanently specified in this file.
 
-# Path where the advisory database's git repo will be cloned to
-advisory_db_path = "~/.cargo/advisory-db"
+[advisories]
+ignore = [] # advisory IDs to ignore e.g. ["RUSTSEC-2019-0001", ...]
+informational_warnings = ["unmaintained"] # warn for categories of informational advisories
+severity_threshold = "low" # CVSS severity ("none", "low", "medium", "high", "critical")
 
-# URL to the advisory database's git repository
-advisory_db_url = "https://github.com/RustSec/advisory-db.git"
+# Advisory Database Configuration
+[database]
+path = "~/.cargo/advisory-db" # Path where advisory git repo will be cloned
+url = "https://github.com/RustSec/advisory-db.git" # URL to git repo
+fetch = true # Perform a `git fetch` before auditing (default: true)
+stale = false # Allow stale advisory DB (i.e. no commits for 90 days, default: false)
 
-# Ignore advisory database which hasn't been updated in over 90 days
-allow_stale = false
+# Output Configuration
+[output]
+color = "auto" # Display colors? ("always", "never", or "auto")
+format = "terminal" # "terminal" (human readable report) or "json"
+quiet = false # Only print information on error
+show_tree = true # Show inverse dependency trees along with advisories (default: true)
 
-# When should colors be displayed? ("always", "never", or "auto")
-color = "auto"
-
-# List of advisory IDs to ignore e.g. ["RUSTSEC-2019-0001", "RUSTSEC-2019-0002"]
-ignore = []
-
-# Don't automatically fetch the advisory DB via git
-no_fetch = false
-
-# Output format ("terminal" or "json")
-output_format = "terminal"
-
-# Operate quielty only printing out information on error
-quiet = false
-
-# Show inverse dependency trees along with advisories
-show_dependency_tree = true
-
-# Severity threshold to alert at on the CVSS Qualitative Severity Rating Scale.
-# Valid options are: "none", "low", "medium", "high", "critical"
-severity_threshold = "low"
+# Target Configuration
+[target]
+arch = "x86_64" # Ignore advisories for CPU architectures other than this one
+os = "linux" # Ignore advisories for operating systems other than this one

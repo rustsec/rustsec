@@ -10,11 +10,11 @@ fn parse_audit_toml_example() {
     let config: AuditConfig = toml::from_str(&toml_string).unwrap();
 
     assert_eq!(
-        config.advisory_db_path.unwrap(),
+        config.database.path.unwrap(),
         Path::new("~/.cargo/advisory-db")
     );
     assert_eq!(
-        config.advisory_db_url.unwrap(),
+        config.database.url.unwrap(),
         "https://github.com/RustSec/advisory-db.git"
     );
 }
