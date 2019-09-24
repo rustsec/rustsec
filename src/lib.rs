@@ -14,7 +14,7 @@
     unused_qualifications
 )]
 #![forbid(unsafe_code)]
-#![doc(html_root_url = "https://docs.rs/platforms/0.2.0")]
+#![doc(html_root_url = "https://docs.rs/platforms/0.2.1")]
 
 #[cfg(feature = "std")]
 extern crate std;

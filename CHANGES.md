@@ -1,3 +1,8 @@
+## [0.2.1] (2019-09-24)
+
+- Initial GitHub Actions config ([#12])
+- Properly set up `target::os::TARGET_OS` const for unknown OS ([#11])
+
 ## [0.2.0] (2019-01-13)
 
 - Update platforms to match RustForge ([#9])
@@ -29,6 +34,9 @@
 
 - Initial release
 
+[0.2.1]: https://github.com/RustSec/platforms-crate/pull/13
+[#12]: https://github.com/RustSec/platforms-crate/pull/12
+[#11]: https://github.com/RustSec/platforms-crate/pull/11
 [0.2.0]: https://github.com/RustSec/platforms-crate/pull/10
 [#9]: https://github.com/RustSec/platforms-crate/pull/9
 [#8]: https://github.com/RustSec/platforms-crate/pull/8
