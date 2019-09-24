@@ -11,9 +11,6 @@ categories  = ["api-bindings", "development-tools"]
 keywords    = ["audit", "rustsec", "security", "advisory", "vulnerability"]
 edition     = "2018"
 
-[workspace]
-members = ["cli"]
-
 [badges]
 maintenance = { status = "actively-developed" }
 
