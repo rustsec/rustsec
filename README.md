@@ -1,4 +1,4 @@
-# cargo-lock: Self-contained `Cargo.lock` parser
+# `cargo-lock` crate: `Cargo.lock` parser
 
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
@@ -8,12 +8,13 @@
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
-Self-contained Cargo.lock parser with optional dependency graph analysis,
-used by [RustSec].
+Self-contained [serde]-powered `Cargo.lock` parser with optional dependency
+tree analysis features. Used by [RustSec].
 
 When the `dependency-tree` feature of this crate is enabled, it supports
-computing a directed graph of the dependency tree expressed in the lockfile,
-modeled using the [`petgraph`] crate.
+computing a directed graph of the dependency tree, modeled using the
+[`petgraph`] crate, along with support for printing dependency trees ala
+the [`cargo-tree`] crate.
 
 [Documentation][docs-link]
 
@@ -53,7 +54,9 @@ additional terms or conditions.
 
 [//]: # (general links)
 
+[serde]: https://serde.rs/
 [RustSec]: https://rustsec.org/
 [`petgraph`]: https://github.com/petgraph/petgraph
+[`cargo-tree`]: https://github.com/sfackler/cargo-tree
 [LICENSE-APACHE]: https://github.com/RustSec/cargo-lock/blob/master/LICENSE-APACHE
 [LICENSE-MIT]: https://github.com/RustSec/cargo-lock/blob/master/LICENSE-MIT
