@@ -1,7 +1,7 @@
 //! Core auditing functionality
 
 use crate::{
-    config::{AuditConfig, OutputFormat},
+    config::AuditConfig,
     error::{Error, ErrorKind},
     prelude::*,
     presenter::Presenter,
@@ -15,56 +15,48 @@ use std::{
 
 /// Security vulnerability auditor
 pub struct Auditor {
-    /// Are we operating in quiet mode?
-    quiet: bool,
-
-    /// Should dependency trees be displayed?
-    show_dependency_tree: bool,
-
     /// RustSec Advisory Database
     database: rustsec::Database,
 
-    /// Output format to display
-    output_format: OutputFormat,
+    /// Presenter for displaying the report
+    presenter: Presenter,
 
-    /// Report settings to use when generating audit report
+    /// Audit report settings
     report_settings: report::Settings,
 }
 
 impl Auditor {
     /// Initialize the auditor
     pub fn new(config: &AuditConfig) -> Self {
-        // Use quiet mode if explicitly configured or if we're outputting JSON
-        let quiet = config.quiet || config.output_format == OutputFormat::Json;
-        let show_dependency_tree = config.show_dependency_tree.unwrap_or(true);
-
         let advisory_db_url = config
-            .advisory_db_url
+            .database
+            .url
             .as_ref()
             .map(AsRef::as_ref)
             .unwrap_or(rustsec::DEFAULT_REPO_URL);
 
         let advisory_db_path = config
-            .advisory_db_path
+            .database
+            .path
             .as_ref()
             .cloned()
             .unwrap_or_else(rustsec::Repository::default_path);
 
-        let advisory_db_repo = if config.no_fetch {
-            rustsec::Repository::open(&advisory_db_path).unwrap_or_else(|e| {
-                status_err!("couldn't open advisory database: {}", e);
-                exit(1);
-            })
-        } else {
-            if !quiet {
+        let advisory_db_repo = if config.database.fetch {
+            if !config.output.is_quiet() {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
 
-            rustsec::Repository::fetch(advisory_db_url, &advisory_db_path, !config.allow_stale)
+            rustsec::Repository::fetch(advisory_db_url, &advisory_db_path, !config.database.stale)
                 .unwrap_or_else(|e| {
                     status_err!("couldn't fetch advisory database: {}", e);
                     exit(1);
                 })
+        } else {
+            rustsec::Repository::open(&advisory_db_path).unwrap_or_else(|e| {
+                status_err!("couldn't open advisory database: {}", e);
+                exit(1);
+            })
         };
 
         if let Ok(support_info) = advisory_db_repo.support() {
@@ -86,7 +78,7 @@ impl Auditor {
             exit(1);
         });
 
-        if !quiet {
+        if !config.output.is_quiet() {
             status_ok!(
                 "Loaded",
                 "{} security advisories (from {})",
@@ -96,16 +88,14 @@ impl Auditor {
         }
 
         Self {
-            show_dependency_tree,
-            quiet,
             database,
-            output_format: config.output_format,
+            presenter: Presenter::new(&config.output),
             report_settings: config.report_settings(),
         }
     }
 
     /// Perform audit
-    pub fn audit(&self, lockfile_path: &Path) {
+    pub fn audit(&mut self, lockfile_path: &Path) -> rustsec::Report {
         let lockfile = self
             .load_lockfile(lockfile_path)
             .unwrap_or_else(|e| match e.kind() {
@@ -122,56 +112,11 @@ impl Auditor {
                 }
             });
 
-        if !self.quiet {
-            status_ok!(
-                "Scanning",
-                "{} for vulnerabilities ({} crate dependencies)",
-                lockfile_path.display(),
-                lockfile.packages.len(),
-            );
-        }
+        self.presenter.before_report(&lockfile_path, &lockfile);
 
         let report = rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
-
-        if !self.quiet {
-            if report.vulnerabilities.found {
-                status_err!("Vulnerable crates found!");
-            } else {
-                status_ok!("Success", "No vulnerable packages found");
-            }
-        }
-
-        match self.output_format {
-            OutputFormat::Json => serde_json::to_writer(io::stdout(), &report).unwrap(),
-            OutputFormat::Terminal => {
-                let mut presenter = Presenter::new(&lockfile, self.show_dependency_tree);
-
-                for vulnerability in &report.vulnerabilities.list {
-                    presenter.print_vulnerability(vulnerability);
-                }
-
-                if !report.warnings.is_empty() {
-                    println!();
-                    status_warn!("found informational advisories for dependencies");
-
-                    for warning in &report.warnings {
-                        presenter.print_warning(warning)
-                    }
-                }
-            }
-        }
-
-        if report.vulnerabilities.found {
-            println!();
-
-            if report.vulnerabilities.count == 1 {
-                status_err!("1 vulnerability found!");
-            } else {
-                status_err!("{} vulnerabilities found!", report.vulnerabilities.count);
-            }
-
-            exit(1);
-        }
+        self.presenter.print_report(&report, &lockfile);
+        report
     }
 
     /// Load the lockfile to be audited
