@@ -1,46 +1,10 @@
 //! RustSec Advisory DB Linter
 
 use crate::prelude::*;
-use std::{io::Write, path::Path, process::exit};
-use termcolor::{
-    Color::{Green, Red},
-    ColorChoice, ColorSpec, StandardStream, WriteColor,
-};
-
-macro_rules! writeln_color {
-    ($stream:expr, $color:path, $fmt:expr, $msg:expr) => {
-        let mut color = ColorSpec::new();
-        color.bold();
-        color.set_fg(Some($color));
-        $stream.set_color(&color).unwrap();
-
-        writeln!($stream, $fmt, $msg).unwrap();
-        $stream.reset().unwrap();
-    };
-}
-
-macro_rules! writeln_success {
-    ($stream:expr, $msg:expr) => {
-        writeln_color!($stream, Green, "✔ {}", $msg);
-    };
-    ($stream:expr, $fmt:expr, $($arg:tt)+) => {
-        writeln_success!($stream, format!($fmt, $($arg)+));
-    }
-}
-
-macro_rules! writeln_error {
-    ($stream:expr, $msg:expr) => {
-        writeln_color!($stream, Red, "✘ {}", $msg);
-    };
-    ($stream:expr, $fmt:expr, $($arg:tt)+) => {
-        writeln_error!($stream, format!($fmt, $($arg)+));
-    }
-}
+use std::{path::Path, process::exit};
 
 /// Lint all advisories in the database
 pub fn lint_advisories(repo_path: &Path) {
-    let mut stdout = StandardStream::stdout(ColorChoice::Auto);
-
     let repo = rustsec::Repository::open(repo_path).unwrap_or_else(|e| {
         status_err!(
             "couldn't open advisory DB repo from {}: {}",
@@ -60,29 +24,26 @@ pub fn lint_advisories(repo_path: &Path) {
         exit(1);
     }
 
-    writeln_success!(
-        &mut stdout,
-        "Successfully parsed {} advisories",
-        advisories.len()
+    status_ok!(
+        "Loaded",
+        "{} security advisories (from {})",
+        advisories.len(),
+        repo_path.display()
     );
 
     let cratesio_client = crates_io_api::SyncClient::new();
     let mut invalid_advisories = 0;
 
     for advisory in advisories {
-        if !lint_advisory(repo_path, &mut stdout, &cratesio_client, advisory) {
+        if !lint_advisory(repo_path, &cratesio_client, advisory) {
             invalid_advisories += 1;
         }
     }
 
     if invalid_advisories == 0 {
-        writeln_success!(&mut stdout, "All advisories are well-formed");
+        status_ok!("Success", "all advisories are well-formed");
     } else {
-        writeln_error!(
-            &mut stdout,
-            "{} advisories contain errors!",
-            invalid_advisories
-        );
+        status_err!("{} advisories contain errors!", invalid_advisories);
         exit(1);
     }
 }
@@ -90,7 +51,6 @@ pub fn lint_advisories(repo_path: &Path) {
 /// Lint an individual advisory in the database
 fn lint_advisory(
     repo_path: &Path,
-    stdout: &mut StandardStream,
     cratesio_client: &crates_io_api::SyncClient,
     advisory: &rustsec::Advisory,
 ) -> bool {
@@ -98,8 +58,7 @@ fn lint_advisory(
         match cratesio_client.get_crate(advisory.metadata.package.as_str()) {
             Ok(response) => {
                 if response.crate_data.name != advisory.metadata.package.as_str() {
-                    writeln_error!(
-                        stdout,
+                    status_err!(
                         "crates.io package name does not match package name in advisory for {}",
                         advisory.metadata.package.as_str()
                     );
@@ -107,9 +66,8 @@ fn lint_advisory(
                 }
             }
             Err(err) => {
-                writeln_error!(
-                    stdout,
-                    "Failed to get package `{}` from crates.io: {}",
+                status_err!(
+                    "failed to get package `{}` from crates.io: {}",
                     advisory.metadata.package.as_str(),
                     err
                 );
@@ -128,21 +86,20 @@ fn lint_advisory(
     let lint = rustsec::advisory::Linter::lint_file(&advisory_path).unwrap();
 
     if lint.errors().is_empty() {
-        writeln_success!(
-            stdout,
-            "{} successfully passed lint",
+        status_ok!(
+            "Checked",
+            "{} passed lint successfully",
             advisory_path.display()
         );
         true
     } else {
-        writeln_error!(
-            stdout,
+        status_err!(
             "{} contained the following lint errors:",
             advisory_path.display()
         );
 
         for error in lint.errors() {
-            writeln!(stdout, "  - {}", error).unwrap();
+            println!("  - {}", error);
         }
 
         false

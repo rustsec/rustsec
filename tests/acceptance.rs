@@ -8,16 +8,16 @@ lazy_static! {
     pub static ref RUNNER: CmdRunner = CmdRunner::default();
 }
 
-/// Run `rustsec-admin check` against a freshly fetched advisory DB repo
+/// Run `rustsec-admin lint` against a freshly fetched advisory DB repo
 #[test]
-fn check_advisory_db() {
+fn lint_advisory_db() {
     // Fetch the advisory database
     rustsec::Repository::fetch_default_repo().unwrap();
 
     let mut runner = RUNNER.clone();
 
     runner
-        .arg("check")
+        .arg("lint")
         .arg(&rustsec::Repository::default_path())
         .capture_stdout()
         .status()
