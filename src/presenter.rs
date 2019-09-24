@@ -1,8 +1,5 @@
 //! Presenter for `rustsec::Report` information.
 
-mod tree;
-
-use self::tree::Tree;
 use crate::{
     config::{OutputConfig, OutputFormat},
     prelude::*,
@@ -12,7 +9,10 @@ use abscissa_core::terminal::{
     Color::{self, Red, Yellow},
 };
 use rustsec::{
-    cargo_lock::{package, DependencyGraph, Lockfile, Package},
+    cargo_lock::{
+        dependency::{self, graph::EdgeDirection, Dependency},
+        Lockfile, Package,
+    },
     Vulnerability, Warning,
 };
 use std::{collections::BTreeSet as Set, io, path::Path};
@@ -22,7 +22,7 @@ use std::{collections::BTreeSet as Set, io, path::Path};
 pub struct Presenter {
     /// Track packages we've displayed once so we don't show the same dep tree
     // TODO(tarcieri): group advisories about the same package?
-    displayed_packages: Set<package::Release>,
+    displayed_packages: Set<Dependency>,
 
     /// Output configuration
     config: OutputConfig,
@@ -62,10 +62,12 @@ impl Presenter {
             status_ok!("Success", "No vulnerable packages found");
         }
 
-        let dependency_graph = DependencyGraph::new(lockfile).expect("invalid Cargo.lock file");
+        let tree = lockfile
+            .dependency_tree()
+            .expect("invalid Cargo.lock dependency tree");
 
         for vulnerability in &report.vulnerabilities.list {
-            self.print_vulnerability(vulnerability, &dependency_graph);
+            self.print_vulnerability(vulnerability, &tree);
         }
 
         if !report.warnings.is_empty() {
@@ -73,7 +75,7 @@ impl Presenter {
             status_warn!("found informational advisories for dependencies");
 
             for warning in &report.warnings {
-                self.print_warning(warning)
+                self.print_warning(warning, &tree)
             }
         }
 
@@ -89,22 +91,18 @@ impl Presenter {
     }
 
     /// Print information about the given vulnerability
-    fn print_vulnerability(
-        &mut self,
-        vulnerability: &Vulnerability,
-        dependency_graph: &DependencyGraph,
-    ) {
+    fn print_vulnerability(&mut self, vulnerability: &Vulnerability, tree: &dependency::Tree) {
         let advisory = &vulnerability.advisory;
 
         println!();
-        self.print_attr(Red, "ID:      ", advisory.id.as_str());
-        self.print_attr(Red, "Crate:   ", vulnerability.package.name.as_str());
+        self.print_attr(Red, "ID:      ", &advisory.id);
+        self.print_attr(Red, "Crate:   ", &vulnerability.package.name);
         self.print_attr(Red, "Version: ", &vulnerability.package.version.to_string());
-        self.print_attr(Red, "Date:    ", advisory.date.as_str());
+        self.print_attr(Red, "Date:    ", &advisory.date);
 
         if let Some(url) = advisory.id.url() {
             self.print_attr(Red, "URL:     ", &url);
-        } else if let Some(url) = advisory.url.as_ref() {
+        } else if let Some(url) = &advisory.url {
             self.print_attr(Red, "URL:     ", url);
         }
 
@@ -122,38 +120,43 @@ impl Presenter {
                 .join(" OR "),
         );
 
-        self.print_tree(Red, &vulnerability.package, dependency_graph);
+        self.print_tree(Red, &vulnerability.package, tree);
     }
 
     /// Print information about a given warning
-    fn print_warning(&mut self, warning: &Warning) {
+    fn print_warning(&mut self, warning: &Warning, tree: &dependency::Tree) {
         println!();
 
-        self.print_attr(Yellow, "Crate:   ", warning.package.as_str());
-        self.print_attr(Red, "Message: ", warning.message.as_str());
+        self.print_attr(Yellow, "Crate:   ", &warning.package.name);
+        self.print_attr(Red, "Title: ", &warning.advisory.title);
+        self.print_attr(Red, "Date:    ", &warning.advisory.date);
 
-        if let Some(url) = &warning.url {
+        if let Some(url) = warning.advisory.id.url() {
+            self.print_attr(Yellow, "URL:     ", &url);
+        } else if let Some(url) = &warning.advisory.url {
             self.print_attr(Yellow, "URL:     ", url);
         }
 
-        // TODO(tarcieri): include full packages in warnings so we can print trees
-        // self.print_tree(Yellow, &vulnerability.package, dependency_graph);
+        self.print_tree(Yellow, &warning.package, tree);
     }
 
     /// Display an attribute of a particular vulnerability
-    fn print_attr(&self, color: Color, attr: &str, content: &str) {
+    fn print_attr(&self, color: Color, attr: &str, content: impl AsRef<str>) {
         terminal::status::Status::new()
             .bold()
             .color(color)
             .status(attr)
-            .print_stdout(content)
+            .print_stdout(content.as_ref())
             .unwrap();
     }
 
     /// Print the inverse dependency tree to standard output
-    fn print_tree(&mut self, color: Color, package: &Package, dependency_graph: &DependencyGraph) {
+    fn print_tree(&mut self, color: Color, package: &Package, tree: &dependency::Tree) {
         // Only show the tree once per package
-        if !self.displayed_packages.insert(package.release()) {
+        if !self
+            .displayed_packages
+            .insert(Dependency::from(package.clone()))
+        {
             return;
         }
 
@@ -168,7 +171,8 @@ impl Presenter {
             .print_stdout("")
             .unwrap();
 
-        let package_node = dependency_graph.nodes()[&package.release()];
-        Tree::new(dependency_graph.graph()).print_node(package_node)
+        let package_node = tree.nodes()[&Dependency::from(package.clone())];
+        tree.render(&mut io::stdout(), package_node, EdgeDirection::Incoming)
+            .unwrap();
     }
 }
