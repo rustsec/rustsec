@@ -24,7 +24,7 @@ serde = { version = "1", features = ["serde_derive"] }
 toml = "0.5"
 
 [features]
-dependency-graph = ["petgraph"]
+dependency-tree = ["petgraph"]
 
 [package.metadata.docs.rs]
 all-features = true
