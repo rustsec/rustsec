@@ -37,8 +37,8 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/cvss
 [docs-image]: https://docs.rs/cvss/badge.svg
 [docs-link]: https://docs.rs/cvss/
-[build-image]: https://travis-ci.org/RustSec/cvss.rs.svg?branch=master
-[build-link]: https://travis-ci.org/RustSec/cvss.rs
+[build-image]: https://github.com/rustsec/cvss.rs/workflows/Rust/badge.svg
+[build-link]: https://github.com/rustsec/cvss.rs/actions
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
