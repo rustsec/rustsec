@@ -1,11 +1,11 @@
-//! `version` subcommand
+//! `rustsec-admin version` subcommand
 
 #![allow(clippy::never_loop)]
 
 use super::AdminCmd;
 use abscissa_core::{Command, Options, Runnable};
 
-/// `version` subcommand
+/// `rustsec-admin version` subcommand
 #[derive(Command, Debug, Default, Options)]
 pub struct VersionCmd {}
 
