@@ -40,17 +40,22 @@ pub struct Error {
 }
 
 impl Error {
-    /// Create a new error with the given description
-    pub fn new<S: ToString>(kind: ErrorKind, description: &S) -> Self {
+    /// Create a new error with the given message
+    pub fn new<S: ToString>(kind: ErrorKind, msg: &S) -> Self {
         Self {
             kind,
-            msg: description.to_string(),
+            msg: msg.to_string(),
         }
     }
 
     /// Obtain the inner `ErrorKind` for this error
     pub fn kind(&self) -> ErrorKind {
         self.kind
+    }
+
+    /// Obtain the associated error message
+    pub fn msg(&self) -> &str {
+        &self.msg
     }
 }
 
@@ -77,13 +82,13 @@ pub enum ErrorKind {
 
 impl Display for ErrorKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let description = match self {
+        let msg = match self {
             ErrorKind::Io => "I/O operation failed",
             ErrorKind::Parse => "parse error",
             ErrorKind::Version => "bad version",
         };
 
-        write!(f, "{}", description)
+        write!(f, "{}", msg)
     }
 }
 
