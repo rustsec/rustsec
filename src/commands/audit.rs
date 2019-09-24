@@ -9,7 +9,10 @@ use crate::{
 use abscissa_core::{config::Override, FrameworkError};
 use gumdrop::Options;
 use rustsec::platforms::target::{Arch, OS};
-use std::{path::PathBuf, process::exit};
+use std::{
+    path::{Path, PathBuf},
+    process::exit,
+};
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
@@ -39,7 +42,7 @@ pub struct AuditCommand {
         long = "db",
         help = "advisory database git repo path (default: ~/.cargo/advisory-db)"
     )]
-    db: Option<String>,
+    db: Option<PathBuf>,
 
     /// Path to the lockfile
     #[options(
@@ -47,9 +50,9 @@ pub struct AuditCommand {
         long = "file",
         help = "Cargo lockfile to inspect (or `-` for STDIN, default: Cargo.lock)"
     )]
-    file: Option<String>,
+    file: Option<PathBuf>,
 
-    /// Advisory ids to ignore
+    /// Advisory IDs to ignore
     #[options(
         no_short,
         long = "ignore",
@@ -106,40 +109,42 @@ pub struct AuditCommand {
 impl Override<AuditConfig> for AuditCommand {
     fn override_config(&self, mut config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
         if let Some(color) = &self.color {
-            config.color = Some(color.clone());
+            config.output.color = Some(color.clone());
         }
 
         if let Some(db) = &self.db {
-            config.advisory_db_path = Some(db.into());
+            config.database.path = Some(db.into());
         }
 
         for advisory_id in &self.ignore {
-            // TODO(tarcieri): handle/ignore duplicate advisory IDs between config and CLI opts
-            config.ignore.push(advisory_id.parse().unwrap_or_else(|e| {
-                status_err!("error parsing {}: {}", advisory_id, e);
-                exit(1);
-            }));
+            config
+                .advisories
+                .ignore
+                .push(advisory_id.parse().unwrap_or_else(|e| {
+                    status_err!("error parsing {}: {}", advisory_id, e);
+                    exit(1);
+                }));
         }
 
-        config.no_fetch |= self.no_fetch;
-        config.allow_stale |= self.stale;
+        config.database.fetch |= !self.no_fetch;
+        config.database.stale |= self.stale;
 
         if let Some(target_arch) = self.target_arch {
-            config.target_arch = Some(target_arch);
+            config.target.arch = Some(target_arch);
         }
 
         if let Some(target_os) = self.target_os {
-            config.target_os = Some(target_os);
+            config.target.os = Some(target_os);
         }
 
         if let Some(url) = &self.url {
-            config.advisory_db_url = Some(url.clone())
+            config.database.url = Some(url.clone())
         }
 
-        config.quiet |= self.quiet;
+        config.output.quiet |= self.quiet;
 
         if self.output_json {
-            config.output_format = OutputFormat::Json;
+            config.output.format = OutputFormat::Json;
         }
 
         Ok(config)
@@ -160,10 +165,12 @@ impl Runnable for AuditCommand {
         let lockfile_path = self
             .file
             .as_ref()
-            .map(PathBuf::from)
-            .unwrap_or_else(|| PathBuf::from(CARGO_LOCK_FILE));
+            .map(PathBuf::as_path)
+            .unwrap_or_else(|| Path::new(CARGO_LOCK_FILE));
 
-        self.auditor().audit(&lockfile_path);
+        if self.auditor().audit(&lockfile_path).vulnerabilities.found {
+            exit(1)
+        }
     }
 }
 
