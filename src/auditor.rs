@@ -33,7 +33,7 @@ impl Auditor {
             .url
             .as_ref()
             .map(AsRef::as_ref)
-            .unwrap_or(rustsec::DEFAULT_REPO_URL);
+            .unwrap_or(rustsec::repository::DEFAULT_URL);
 
         let advisory_db_path = config
             .database
