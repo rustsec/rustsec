@@ -10,8 +10,8 @@
 [crate-link]: https://crates.io/crates/platforms
 [docs-image]: https://docs.rs/platforms/badge.svg
 [docs-link]: https://docs.rs/platforms/
-[build-image]: https://travis-ci.org/RustSec/platforms-crate.svg?branch=master
-[build-link]: https://travis-ci.org/RustSec/platforms-crate
+[build-image]: https://github.com/rustsec/platforms-crate/workflows/Rust/badge.svg
+[build-link]: https://github.com/rustsec/platforms-crate/actions
 [license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby
