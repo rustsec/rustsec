@@ -1,4 +1,4 @@
-# Rust "platforms" crate
+# Rust `platforms` crate
 
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
