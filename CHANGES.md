@@ -1,3 +1,9 @@
+## [0.14.0] (2019-09-24)
+
+- warning: Extract into module; make more like `Vulnerability` ([#110])
+- Upgrade to `cvss` crate v1.0 ([#109])
+- Upgrade to `cargo-lock` crate v1.0 ([#107])
+
 ## [0.13.0] (2019-09-23)
 
 - linter: Ensure advisory date's year matches year in advisory ID ([#99])
@@ -130,6 +136,10 @@
 
 - Initial release
 
+[0.14.0]: https://github.com/RustSec/rustsec-crate/pull/111
+[#110]: https://github.com/RustSec/rustsec-crate/pull/110
+[#109]: https://github.com/RustSec/rustsec-crate/pull/109
+[#107]: https://github.com/RustSec/rustsec-crate/pull/107
 [0.13.0]: https://github.com/RustSec/rustsec-crate/pull/103
 [#99]: https://github.com/RustSec/rustsec-crate/pull/99
 [#97]: https://github.com/RustSec/rustsec-crate/pull/97

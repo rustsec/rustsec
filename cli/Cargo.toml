@@ -16,7 +16,7 @@ failure = "0.1"
 gumdrop = "0.6"
 handlebars = "2"
 lazy_static = "1"
-rustsec = { version = "0.13", path = ".." }
+rustsec = { version = "0.14", path = ".." }
 serde = { version = "1", features = ["serde_derive"] }
 termcolor = "1"
 
