@@ -71,8 +71,8 @@ additional terms or conditions.
 
 [crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
 [crate-link]: https://crates.io/crates/cargo-audit
-[build-image]: https://travis-ci.org/RustSec/cargo-audit.svg?branch=master
-[build-link]: https://travis-ci.org/RustSec/cargo-audit
+[build-image]: https://github.com/rustsec/cargo-audit/workflows/Rust/badge.svg
+[build-link]: https://github.com/rustsec/cargo-audit/actions
 [appveyor-image]: https://ci.appveyor.com/api/projects/status/oa39c0in9qkxpoiv?svg=true
 [appveyor-link]: https://ci.appveyor.com/project/tarcieri/cargo-audit
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
