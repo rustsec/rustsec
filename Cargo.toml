@@ -6,8 +6,9 @@ triple, target_arch, target_os) sourced from Rust Forge.
 """
 version     = "0.2.1" # Also update html_root_url in lib.rs when bumping this
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
-license     = "MIT OR Apache-2.0"
-homepage    = "https://github.com/RustSec/platforms-crate"
+license     = "Apache-2.0 OR MIT"
+homepage    = "https://rustsec.org"
+repository  = "https://github.com/RustSec/platforms-crate"
 readme      = "README.md"
 categories  = ["development-tools", "no-std"]
 keywords    = ["architectures", "cpu", "platforms", "os", "targets"]
