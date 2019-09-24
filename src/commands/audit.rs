@@ -38,11 +38,18 @@ pub struct AuditCommand {
 
     /// Filesystem path to the advisory database git repository
     #[options(
-        short = "D",
         long = "db",
         help = "advisory database git repo path (default: ~/.cargo/advisory-db)"
     )]
     db: Option<PathBuf>,
+
+    /// Deny warnings
+    #[options(
+        short = "D",
+        long = "deny-warnings",
+        help = "exit with an error if any warning advisories are found"
+    )]
+    deny_warnings: bool,
 
     /// Path to the lockfile
     #[options(
@@ -141,6 +148,7 @@ impl Override<AuditConfig> for AuditCommand {
             config.database.url = Some(url.clone())
         }
 
+        config.output.deny_warnings |= self.deny_warnings;
         config.output.quiet |= self.quiet;
 
         if self.output_json {

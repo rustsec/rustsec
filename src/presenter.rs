@@ -15,7 +15,7 @@ use rustsec::{
     },
     Vulnerability, Warning,
 };
-use std::{collections::BTreeSet as Set, io, path::Path};
+use std::{collections::BTreeSet as Set, io, path::Path, process::exit};
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -72,7 +72,15 @@ impl Presenter {
 
         if !report.warnings.is_empty() {
             println!();
-            status_warn!("found informational advisories for dependencies");
+
+            if self.config.deny_warnings {
+                status_err!("{} dependencies with warnings found", report.warnings.len());
+            } else {
+                status_warn!(
+                    "{} dependencies with informational warnings found",
+                    report.warnings.len()
+                );
+            }
 
             for warning in &report.warnings {
                 self.print_warning(warning, &tree)
@@ -86,6 +94,24 @@ impl Presenter {
                 status_err!("1 vulnerability found!");
             } else {
                 status_err!("{} vulnerabilities found!", report.vulnerabilities.count);
+            }
+        }
+
+        if !report.warnings.is_empty() {
+            if !report.vulnerabilities.found {
+                println!();
+            }
+
+            if self.config.deny_warnings {
+                status_err!(
+                    "{} warnings found! (deny warnings enabled)",
+                    report.warnings.len()
+                );
+
+                // TODO(tarcieri): better unify this with vulnerabilities handling
+                exit(1);
+            } else {
+                status_warn!("{} warnings found!", report.warnings.len());
             }
         }
     }
@@ -125,19 +151,24 @@ impl Presenter {
 
     /// Print information about a given warning
     fn print_warning(&mut self, warning: &Warning, tree: &dependency::Tree) {
-        println!();
+        let color = if self.config.deny_warnings {
+            Red
+        } else {
+            Yellow
+        };
 
-        self.print_attr(Yellow, "Crate:   ", &warning.package.name);
-        self.print_attr(Red, "Title: ", &warning.advisory.title);
-        self.print_attr(Red, "Date:    ", &warning.advisory.date);
+        println!();
+        self.print_attr(color, "Crate:   ", &warning.package.name);
+        self.print_attr(color, "Title: ", &warning.advisory.title);
+        self.print_attr(color, "Date:    ", &warning.advisory.date);
 
         if let Some(url) = warning.advisory.id.url() {
-            self.print_attr(Yellow, "URL:     ", &url);
+            self.print_attr(color, "URL:     ", &url);
         } else if let Some(url) = &warning.advisory.url {
-            self.print_attr(Yellow, "URL:     ", url);
+            self.print_attr(color, "URL:     ", url);
         }
 
-        self.print_tree(Yellow, &warning.package, tree);
+        self.print_tree(color, &warning.package, tree);
     }
 
     /// Display an attribute of a particular vulnerability
