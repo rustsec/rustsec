@@ -16,7 +16,7 @@ use git2;
 use std::{fs, path::PathBuf, vec};
 
 /// Location of the RustSec advisory database for crates.io
-pub const DEFAULT_REPO_URL: &str = "https://github.com/RustSec/advisory-db.git";
+pub const DEFAULT_URL: &str = "https://github.com/RustSec/advisory-db.git";
 
 /// Number of days after which the repo will be considered stale
 pub const DAYS_UNTIL_STALE: usize = 90;
@@ -54,10 +54,10 @@ impl Repository {
 
     /// Fetch the default repository
     pub fn fetch_default_repo() -> Result<Self, Error> {
-        Self::fetch(DEFAULT_REPO_URL, Repository::default_path(), true)
+        Self::fetch(DEFAULT_URL, Repository::default_path(), true)
     }
 
-    /// Create a new `Repository` with the given URL and path
+    /// Create a new [`Repository`] with the given URL and path
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,

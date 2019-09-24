@@ -37,6 +37,12 @@ impl<'de> Deserialize<'de> for Date {
     }
 }
 
+impl AsRef<str> for Date {
+    fn as_ref(&self) -> &str {
+        self.as_str()
+    }
+}
+
 impl FromStr for Date {
     type Err = Error;
 
