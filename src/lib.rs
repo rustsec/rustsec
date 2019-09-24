@@ -1,9 +1,9 @@
 //! Common Vulnerability Scoring System.
 //!
-//! The [cvss::v3::Base](v3/base/struct.Base.html) type provides the main
-//! functionality presently implemented by this crate, namely: support for
-//! parsing, serializing, and scoring `CVSS:3.0` and `CVSS:3.1`
-//! Base Metric Group vector strings as described in the CVSS v3.1 Specification:
+//! The [`cvss::v3::Base`] type provides the main functionality presently
+//! implemented by this crate, namely: support for parsing, serializing,
+//! and scoring `CVSS:3.0` and `CVSS:3.1` Base Metric Group vector strings
+//! as described in the CVSS v3.1 Specification:
 //!
 //! <https://www.first.org/cvss/specification-document>
 //!
@@ -13,7 +13,7 @@
 
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
-    html_root_url = "https://docs.rs/cvss/0.3.0"
+    html_root_url = "https://docs.rs/cvss/1.0.0"
 )]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
