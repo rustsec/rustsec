@@ -1,3 +1,13 @@
+## [0.9.0] (2019-09-25)
+
+- Add `--deny-warnings` option ([#128])
+- Upgrade to `rustsec` crate v0.14 ([#126])
+- Configuration file: `~/.cargo/audit.toml` ([#123], [#125])
+- Fix `--help` ([#113])
+- Warn for outdated `rustsec` crate versions ([#112])
+- Display warnings for select informational advisories ([#110])
+- Display dependency trees with each advisory ([#109])
+
 ## [0.8.1] (2019-08-25)
 
 - Fix `--version` ([#101])
@@ -77,6 +87,15 @@
 
 - Initial release
 
+[0.9.0]: https://github.com/RustSec/cargo-audit/pull/130
+[#128]: https://github.com/RustSec/cargo-audit/pull/128
+[#126]: https://github.com/RustSec/cargo-audit/pull/126
+[#125]: https://github.com/RustSec/cargo-audit/pull/125
+[#123]: https://github.com/RustSec/cargo-audit/pull/123
+[#113]: https://github.com/RustSec/cargo-audit/pull/113
+[#112]: https://github.com/RustSec/cargo-audit/pull/112
+[#110]: https://github.com/RustSec/cargo-audit/pull/110
+[#109]: https://github.com/RustSec/cargo-audit/pull/109
 [0.8.1]: https://github.com/RustSec/cargo-audit/pull/102
 [#101]: https://github.com/RustSec/cargo-audit/pull/101
 [0.8.0]: https://github.com/RustSec/cargo-audit/pull/99
