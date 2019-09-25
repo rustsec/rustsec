@@ -1,12 +1,13 @@
 //! Rust packages enumerated in `Cargo.lock`
 
+pub use semver::Version;
+
 use crate::{dependency::Dependency, error::Error};
-use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
 /// Information about a Rust package (as sourced from `Cargo.lock`)
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, PartialOrd, Ord, Serialize)]
 pub struct Package {
     /// Name of the package
     pub name: Name,
