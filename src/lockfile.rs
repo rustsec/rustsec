@@ -6,7 +6,6 @@ use crate::{
     error::{Error, ErrorKind},
     metadata::Metadata,
     package::Package,
-    Map,
 };
 use serde::{Deserialize, Serialize};
 use std::{fs, path::Path, str::FromStr, string::ToString};
@@ -39,13 +38,6 @@ impl Lockfile {
         }
     }
 
-    /// Get the root [`Package`] in this `Lockfile`
-    pub fn root_package(&self) -> &Package {
-        // We assert a valid root exists at the time the `Lockfile` is parsed
-        // inside of `FromStr` so it's safe to unwrap here
-        find_root_package(self).unwrap()
-    }
-
     /// Enumerate dependent [`Package`] types for the given parent [`Package`].
     pub fn dependent_packages(&self, package: &Package) -> Vec<&Package> {
         let mut result = vec![];
@@ -76,16 +68,7 @@ impl FromStr for Lockfile {
     type Err = Error;
 
     fn from_str(toml_string: &str) -> Result<Self, Error> {
-        let lockfile: Self = toml::from_str(toml_string)?;
-
-        if lockfile.packages.is_empty() {
-            fail!(ErrorKind::Parse, "no [package] entries found");
-        }
-
-        // Ensure the lockfile has a valid root package
-        find_root_package(&lockfile)?;
-
-        Ok(lockfile)
+        Ok(toml::from_str(toml_string)?)
     }
 }
 
@@ -93,29 +76,4 @@ impl ToString for Lockfile {
     fn to_string(&self) -> String {
         toml::to_string(self).unwrap()
     }
-}
-
-/// Find the root package in the given lockfile
-fn find_root_package(lockfile: &Lockfile) -> Result<&Package, Error> {
-    let mut dependency_counts = Map::new();
-
-    for package in &lockfile.packages {
-        dependency_counts.entry(&package.name).or_insert(0);
-
-        for dependency in &package.dependencies {
-            *dependency_counts.entry(&dependency.name).or_insert(0) += 1;
-        }
-    }
-
-    let root_package_name = *dependency_counts
-        .iter()
-        .find(|(_, count)| **count == 0)
-        .ok_or_else(|| format_err!(ErrorKind::Parse, "couldn't find root package"))?
-        .0;
-
-    Ok(lockfile
-        .packages
-        .iter()
-        .find(|package| &package.name == root_package_name)
-        .unwrap())
 }

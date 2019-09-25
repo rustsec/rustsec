@@ -17,6 +17,9 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
+#[cfg(feature = "dependency-graph")]
+pub use petgraph;
+
 #[macro_use]
 pub mod error;
 
@@ -29,7 +32,7 @@ pub use self::{
     dependency::Dependency,
     error::{Error, ErrorKind},
     lockfile::Lockfile,
-    package::Package,
+    package::{Package, Version},
 };
 
 /// Use `BTreeMap` for all `Map` types in the crate
