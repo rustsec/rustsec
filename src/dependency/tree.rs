@@ -20,31 +20,28 @@ pub struct Tree {
 
     /// Package data associated with nodes in the graph
     nodes: Nodes,
-
-    /// Root node of the dependency graph
-    root_index: NodeIndex,
 }
 
 impl Tree {
     /// Construct a new dependency tree for the given [`Lockfile`].
     pub fn new(lockfile: &Lockfile) -> Result<Self, Error> {
-        let mut graph = Graph::new();
-        let mut nodes = Map::new();
-
-        let root_package = lockfile.root_package();
-        let root_node = graph.add_node(root_package.clone());
-
-        // TODO(tarcieri): index nodes by (name, version) tuples
-        nodes.insert(Dependency::from(root_package.clone()), root_node);
-
-        let mut dep_graph = Self {
-            graph,
-            nodes,
-            root_index: root_node,
+        let mut tree = Self {
+            graph: Graph::new(),
+            nodes: Map::new(),
         };
+        let mut indexed = Set::new();
 
-        dep_graph.add_dependencies(lockfile, root_package, root_node);
-        Ok(dep_graph)
+        for package in &lockfile.packages {
+            if !indexed.insert(package) {
+                continue;
+            }
+
+            let node = tree.graph.add_node(package.clone());
+            tree.nodes.insert(Dependency::from(package.clone()), node);
+            tree.add_dependencies(lockfile, package, node, &mut indexed);
+        }
+
+        Ok(tree)
     }
 
     /// Render the dependency graph for the given [`NodeIndex`] using the
@@ -80,24 +77,24 @@ impl Tree {
         &self.nodes
     }
 
-    /// Get the root [`NodeIndex`] in the dependency graph.
-    pub fn root_index(&self) -> NodeIndex {
-        self.root_index
-    }
-
-    /// Get the root [`Package`] in the dependency graph
-    pub fn root_package(&self) -> &Package {
-        &self.graph[self.root_index]
-    }
-
     /// Add the dependencies of a given package to the given node
-    fn add_dependencies(&mut self, lockfile: &Lockfile, package: &Package, parent: NodeIndex) {
+    fn add_dependencies<'a>(
+        &mut self,
+        lockfile: &'a Lockfile,
+        package: &'a Package,
+        parent: NodeIndex,
+        indexed: &mut Set<&'a Package>,
+    ) {
         for dependent_package in lockfile.dependent_packages(package) {
+            if !indexed.insert(package) {
+                continue;
+            }
+
             let dependency = Dependency::from(dependent_package.clone());
             let node_index = self.graph.add_node(dependent_package.clone());
             self.nodes.insert(dependency.clone(), node_index);
             self.graph.add_edge(parent, node_index, dependency);
-            self.add_dependencies(lockfile, dependent_package, node_index);
+            self.add_dependencies(lockfile, dependent_package, node_index, indexed);
         }
     }
 }
