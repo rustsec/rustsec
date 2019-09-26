@@ -9,13 +9,7 @@ use crate::{
 use abscissa_core::{config::Override, FrameworkError};
 use gumdrop::Options;
 use rustsec::platforms::target::{Arch, OS};
-use std::{
-    path::{Path, PathBuf},
-    process::exit,
-};
-
-/// Name of `Cargo.lock`
-const CARGO_LOCK_FILE: &str = "Cargo.lock";
+use std::{path::PathBuf, process::exit};
 
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
@@ -170,13 +164,9 @@ impl Runnable for AuditCommand {
             exit(0);
         }
 
-        let lockfile_path = self
-            .file
-            .as_ref()
-            .map(PathBuf::as_path)
-            .unwrap_or_else(|| Path::new(CARGO_LOCK_FILE));
+        let lockfile_path = self.file.as_ref().map(PathBuf::as_path);
 
-        if self.auditor().audit(&lockfile_path).vulnerabilities.found {
+        if self.auditor().audit(lockfile_path).vulnerabilities.found {
             exit(1)
         }
     }
