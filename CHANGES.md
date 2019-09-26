@@ -1,3 +1,8 @@
+## [2.0.0] (2019-09-25)
+
+- Use two-pass dependency tree computation ([#20])
+- Remove `Lockfile::root_package()` ([#18])
+
 ## [1.0.0] (2019-09-24)
 
 - dependency/tree: Render trees to an `io::Write` ([#16])
@@ -16,6 +21,9 @@
 
 - Initial release
 
+[2.0.0]: https://github.com/RustSec/cargo-lock/pull/21
+[#20]: https://github.com/RustSec/cargo-lock/pull/20
+[#18]: https://github.com/RustSec/cargo-lock/pull/18
 [1.0.0]: https://github.com/RustSec/cargo-lock/pull/17
 [#16]: https://github.com/RustSec/cargo-lock/pull/16
 [#14]: https://github.com/RustSec/cargo-lock/pull/14
