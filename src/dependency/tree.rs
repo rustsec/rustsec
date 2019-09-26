@@ -9,7 +9,7 @@ use super::{
     graph::{EdgeDirection, Graph, NodeIndex, Nodes},
     Dependency,
 };
-use crate::{error::Error, lockfile::Lockfile, package::Package, Map};
+use crate::{error::Error, lockfile::Lockfile, Map};
 use std::{collections::BTreeSet as Set, io};
 
 /// Dependency tree computed from a `Cargo.lock` file
@@ -25,23 +25,27 @@ pub struct Tree {
 impl Tree {
     /// Construct a new dependency tree for the given [`Lockfile`].
     pub fn new(lockfile: &Lockfile) -> Result<Self, Error> {
-        let mut tree = Self {
-            graph: Graph::new(),
-            nodes: Map::new(),
-        };
-        let mut indexed = Set::new();
+        let mut graph = Graph::new();
+        let mut nodes = Map::new();
 
+        // Populate all graph nodes in the first pass
         for package in &lockfile.packages {
-            if !indexed.insert(package) {
-                continue;
-            }
-
-            let node = tree.graph.add_node(package.clone());
-            tree.nodes.insert(Dependency::from(package.clone()), node);
-            tree.add_dependencies(lockfile, package, node, &mut indexed);
+            let node_index = graph.add_node(package.clone());
+            nodes.insert(Dependency::from(package.clone()), node_index);
         }
 
-        Ok(tree)
+        // Populate all graph edges in the second pass
+        for package in &lockfile.packages {
+            let parent_index = nodes[&Dependency::from(package.clone())];
+
+            for dependency in &package.dependencies {
+                if let Some(node_index) = nodes.get(dependency) {
+                    graph.add_edge(parent_index, *node_index, dependency.clone());
+                }
+            }
+        }
+
+        Ok(Tree { graph, nodes })
     }
 
     /// Render the dependency graph for the given [`NodeIndex`] using the
@@ -75,27 +79,6 @@ impl Tree {
     /// Get the nodes of the `petgraph` dependency graph.
     pub fn nodes(&self) -> &Nodes {
         &self.nodes
-    }
-
-    /// Add the dependencies of a given package to the given node
-    fn add_dependencies<'a>(
-        &mut self,
-        lockfile: &'a Lockfile,
-        package: &'a Package,
-        parent: NodeIndex,
-        indexed: &mut Set<&'a Package>,
-    ) {
-        for dependent_package in lockfile.dependent_packages(package) {
-            if !indexed.insert(package) {
-                continue;
-            }
-
-            let dependency = Dependency::from(dependent_package.clone());
-            let node_index = self.graph.add_node(dependent_package.clone());
-            self.nodes.insert(dependency.clone(), node_index);
-            self.graph.add_edge(parent, node_index, dependency);
-            self.add_dependencies(lockfile, dependent_package, node_index, indexed);
-        }
     }
 }
 
