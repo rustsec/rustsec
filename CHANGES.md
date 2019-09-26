@@ -1,3 +1,7 @@
+## [0.9.1] (2019-09-25)
+
+- Update to `rustsec` crate v0.14.1 ([#134])
+
 ## [0.9.0] (2019-09-25)
 
 - Add `--deny-warnings` option ([#128])
@@ -87,6 +91,8 @@
 
 - Initial release
 
+[0.9.1]: https://github.com/RustSec/cargo-audit/pull/135
+[#134]: https://github.com/RustSec/cargo-audit/pull/134
 [0.9.0]: https://github.com/RustSec/cargo-audit/pull/130
 [#128]: https://github.com/RustSec/cargo-audit/pull/128
 [#126]: https://github.com/RustSec/cargo-audit/pull/126
