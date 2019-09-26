@@ -1,3 +1,7 @@
+## [0.14.1] (2019-09-25)
+
+- Upgrade to `cargo-lock` crate v2.0 ([#113])
+
 ## [0.14.0] (2019-09-24)
 
 - warning: Extract into module; make more like `Vulnerability` ([#110])
@@ -136,6 +140,8 @@
 
 - Initial release
 
+[0.14.1]: https://github.com/RustSec/rustsec-crate/pull/114
+[#113]: https://github.com/RustSec/rustsec-crate/pull/113
 [0.14.0]: https://github.com/RustSec/rustsec-crate/pull/111
 [#110]: https://github.com/RustSec/rustsec-crate/pull/110
 [#109]: https://github.com/RustSec/rustsec-crate/pull/109
