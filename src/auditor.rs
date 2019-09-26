@@ -1,17 +1,15 @@
 //! Core auditing functionality
 
-use crate::{
-    config::AuditConfig,
-    error::{Error, ErrorKind},
-    prelude::*,
-    presenter::Presenter,
-};
+use crate::{config::AuditConfig, error::Error, prelude::*, presenter::Presenter};
 use rustsec::{lockfile::Lockfile, report};
 use std::{
     io::{self, Read},
     path::Path,
-    process::exit,
+    process::{exit, Command},
 };
+
+/// Name of `Cargo.lock`
+const CARGO_LOCK_FILE: &str = "Cargo.lock";
 
 /// Security vulnerability auditor
 pub struct Auditor {
@@ -95,22 +93,21 @@ impl Auditor {
     }
 
     /// Perform audit
-    pub fn audit(&mut self, lockfile_path: &Path) -> rustsec::Report {
-        let lockfile = self
-            .load_lockfile(lockfile_path)
-            .unwrap_or_else(|e| match e.kind() {
-                ErrorKind::Io => {
-                    status_err!("Couldn't find '{}'!", lockfile_path.display());
-                    println!(
-                    "\nRun \"cargo generate-lockfile\" to generate lockfile before running audit"
-                );
-                    exit(1);
-                }
-                _ => {
-                    status_err!("Couldn't load {}: {}", lockfile_path.display(), e);
-                    exit(1);
-                }
-            });
+    pub fn audit(&mut self, maybe_lockfile_path: Option<&Path>) -> rustsec::Report {
+        let lockfile_path = maybe_lockfile_path.unwrap_or_else(|| {
+            let path = Path::new(CARGO_LOCK_FILE);
+
+            if !path.exists() && Path::new("Cargo.toml").exists() {
+                generate_lockfile();
+            }
+
+            path
+        });
+
+        let lockfile = self.load_lockfile(lockfile_path).unwrap_or_else(|e| {
+            status_err!("Couldn't load {}: {}", lockfile_path.display(), e);
+            exit(1);
+        });
 
         self.presenter.before_report(&lockfile_path, &lockfile);
 
@@ -129,5 +126,29 @@ impl Auditor {
         } else {
             Ok(Lockfile::load(lockfile_path)?)
         }
+    }
+}
+
+/// Run `cargo generate-lockfile`
+fn generate_lockfile() {
+    let status = Command::new("cargo")
+        .arg("generate-lockfile")
+        .status()
+        .unwrap_or_else(|e| {
+            status_err!("couldn't run `cargo generate-lockfile`: {}", e);
+            exit(1);
+        });
+
+    if !status.success() {
+        if let Some(code) = status.code() {
+            status_err!(
+                "non-zero exit status running `cargo generate-lockfile`: {}",
+                code
+            );
+        } else {
+            status_err!("no exit status running `cargo generate-lockfile`!");
+        }
+
+        exit(1);
     }
 }
