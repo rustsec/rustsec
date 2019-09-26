@@ -38,22 +38,6 @@ impl Lockfile {
         }
     }
 
-    /// Enumerate dependent [`Package`] types for the given parent [`Package`].
-    pub fn dependent_packages(&self, package: &Package) -> Vec<&Package> {
-        let mut result = vec![];
-
-        for dependency in &package.dependencies {
-            result.push(
-                self.packages
-                    .iter()
-                    .find(|pkg| dependency.matches(pkg))
-                    .unwrap(),
-            )
-        }
-
-        result
-    }
-
     /// Get the dependency tree for this `Lockfile`. Returns an error if the
     /// contents of this lockfile aren't well structured.
     ///
