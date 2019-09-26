@@ -17,9 +17,6 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
-#[cfg(feature = "dependency-graph")]
-pub use petgraph;
-
 #[macro_use]
 pub mod error;
 
