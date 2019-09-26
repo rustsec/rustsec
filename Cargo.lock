@@ -104,7 +104,7 @@ dependencies = [
  "home 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "petgraph 0.4.13 (registry+https://github.com/rust-lang/crates.io-index)",
- "rustsec 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustsec 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -113,7 +113,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "1.0.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "petgraph 0.4.13 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -556,10 +556,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rustsec"
-version = "0.14.0"
+version = "0.14.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "cargo-lock 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "cvss 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "git2 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -844,7 +844,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum bitflags 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8a606a02debe2813760609f57a64a2ffd27d9fdf5b2f133eaca0b248dd92cdd2"
 "checksum c2-chacha 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7d64d04786e0f528460fc884753cf8dddcc466be308f6026f8e355c41a0e4101"
 "checksum canonical-path 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
-"checksum cargo-lock 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6926ae8bdf7c429fc339bf536b6c3574c27fbedac9a5290965f0e3741da13c6f"
+"checksum cargo-lock 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c71af43718e224d4e38ad3413423018c09ad2e86a90ce6b35542582d524e68fa"
 "checksum cc 1.0.45 (registry+https://github.com/rust-lang/crates.io-index)" = "4fc9a35e1f4290eb9e5fc54ba6cf40671ed2a2514c3eeb2b2a908dda2ea5a1be"
 "checksum cfg-if 0.1.9 (registry+https://github.com/rust-lang/crates.io-index)" = "b486ce3ccf7ffd79fdeb678eac06a9e6c09fc88d33836340becb8fffe87c5e33"
 "checksum chrono 0.4.9 (registry+https://github.com/rust-lang/crates.io-index)" = "e8493056968583b0193c1bb04d6f7684586f3726992d6c573261941a895dbd68"
@@ -898,7 +898,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum regex-syntax 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)" = "11a7e20d1cce64ef2fed88b66d347f88bd9babb82845b2b858f3edbf59a4f716"
 "checksum remove_dir_all 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "4a83fa3702a688b9359eccba92d153ac33fd2e8462f9e0e3fdf155239ea7792e"
 "checksum rustc-demangle 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
-"checksum rustsec 0.14.0 (registry+https://github.com/rust-lang/crates.io-index)" = "70c60e63de6de066c80559c594083a89b67fccf671bc6aa6c098d58bd69a6cd2"
+"checksum rustsec 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)" = "f178cc2309fce3a64b282bcec8358da6cf7c59a78182342a4fc515deca355249"
 "checksum ryu 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c92464b447c0ee8c4fb3824ecc8383b81717b9f1e74ba2e72540aef7b9f82997"
 "checksum scopeguard 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b42e15e59b18a828bbf5c58ea01debb36b9b096346de35d941dcb89009f24a0d"
 "checksum secrecy 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)" = "69381774972c1fe76bfd9001609fa2b6f97674a1cb6e43bd51d6e9d7d26880c9"
