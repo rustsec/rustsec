@@ -1,3 +1,7 @@
+## [0.15.0] (2019-10-01)
+
+- Upgrade to `cargo-lock` crate v3.0 ([#115])
+
 ## [0.14.1] (2019-09-25)
 
 - Upgrade to `cargo-lock` crate v2.0 ([#113])
@@ -140,6 +144,8 @@
 
 - Initial release
 
+[0.15.0]: https://github.com/RustSec/rustsec-crate/pull/116
+[#115]: https://github.com/RustSec/rustsec-crate/pull/115
 [0.14.1]: https://github.com/RustSec/rustsec-crate/pull/114
 [#113]: https://github.com/RustSec/rustsec-crate/pull/113
 [0.14.0]: https://github.com/RustSec/rustsec-crate/pull/111
