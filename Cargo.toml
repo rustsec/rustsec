@@ -15,7 +15,7 @@ edition     = "2018"
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-cargo-lock = "2"
+cargo-lock = "3"
 chrono = { version = "0.4", features = ["serde"] }
 cvss = { version = "1", features = ["serde"] }
 git2 = "0.10"
