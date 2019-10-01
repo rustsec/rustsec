@@ -11,10 +11,10 @@ fn load_our_own_lockfile() {
     assert!(lockfile.packages.len() > 0);
 }
 
-/// Load a non-trivial example `Cargo.lock` file
+/// Load a non-trivial example `Cargo.lock` file (from the Cargo project itself)
 #[test]
-fn load_example_lockfile() {
-    let lockfile = Lockfile::load("tests/support/Cargo.lock.example").unwrap();
+fn load_example_cargo_lockfile() {
+    let lockfile = Lockfile::load("tests/support/Cargo.lock.example-cargo").unwrap();
 
     assert_eq!(lockfile.packages.len(), 141);
     assert_eq!(lockfile.metadata.len(), 136);
@@ -35,6 +35,14 @@ fn load_example_lockfile() {
     );
 }
 
+/// Load a non-trivial example `Cargo.lock` file (from rustc)
+#[test]
+fn load_example_rustc_lockfile() {
+    let lockfile = Lockfile::load("tests/support/Cargo.lock.example-rustc").unwrap();
+    assert_eq!(lockfile.packages.len(), 472);
+    assert_eq!(lockfile.metadata.len(), 0);
+}
+
 /// Dependency tree tests
 #[cfg(feature = "dependency-tree")]
 mod tree {
@@ -52,13 +60,26 @@ mod tree {
     }
 
     /// Compute a dependency graph from a non-trivial example `Cargo.lock`
+    /// (i.e. from the Cargo project itself)
     #[test]
-    fn compute_from_example_lockfile() {
-        let tree = Lockfile::load("tests/support/Cargo.lock.example")
+    fn compute_from_example_cargo_lockfile() {
+        let tree = Lockfile::load("tests/support/Cargo.lock.example-cargo")
             .unwrap()
             .dependency_tree()
             .unwrap();
 
         assert_eq!(tree.nodes().len(), 141);
+    }
+
+    /// Compute a dependency graph from a non-trivial example `Cargo.lock`
+    /// (i.e. from rustc)
+    #[test]
+    fn compute_from_example_rustc_lockfile() {
+        let tree = Lockfile::load("tests/support/Cargo.lock.example-rustc")
+            .unwrap()
+            .dependency_tree()
+            .unwrap();
+
+        assert_eq!(tree.nodes().len(), 472);
     }
 }
