@@ -28,7 +28,7 @@ impl From<Package> for Dependency {
     fn from(pkg: Package) -> Dependency {
         Self {
             name: pkg.name.clone(),
-            version: pkg.version.clone(),
+            version: Some(pkg.version.clone()),
             source: pkg.source.clone(),
         }
     }

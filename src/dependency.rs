@@ -23,7 +23,7 @@ pub struct Dependency {
     pub name: Name,
 
     /// Version of the dependency
-    pub version: Version,
+    pub version: Option<Version>,
 
     /// Source for the dependency
     pub source: Option<Source>,
@@ -32,13 +32,25 @@ pub struct Dependency {
 impl Dependency {
     /// Does the given [`Package`] exactly match this `Dependency`?
     pub fn matches(&self, package: &Package) -> bool {
-        self.name == package.name && self.version == package.version
+        if self.name != package.name {
+            return false;
+        }
+
+        if let Some(version) = &self.version {
+            version == &package.version
+        } else {
+            true
+        }
     }
 }
 
 impl fmt::Display for Dependency {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {}", &self.name, &self.version)?;
+        write!(f, "{}", &self.name)?;
+
+        if let Some(version) = &self.version {
+            write!(f, " {}", version)?;
+        }
 
         if let Some(source) = &self.source {
             write!(f, " ({})", source)?;
@@ -59,10 +71,7 @@ impl FromStr for Dependency {
             .ok_or_else(|| format_err!(ErrorKind::Parse, "empty dependency string"))?
             .parse()?;
 
-        let version = parts
-            .next()
-            .ok_or_else(|| format_err!(ErrorKind::Parse, "missing version for dependency: {}", s))?
-            .parse()?;
+        let version = parts.next().map(FromStr::from_str).transpose()?;
 
         let source = parts
             .next()
