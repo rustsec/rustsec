@@ -1,3 +1,7 @@
+## [0.9.2] (2019-10-01)
+
+- Update to `rustsec` crate v0.15 ([#138])
+
 ## [0.9.1] (2019-09-25)
 
 - Update to `rustsec` crate v0.14.1 ([#134])
@@ -91,6 +95,8 @@
 
 - Initial release
 
+[0.9.2]: https://github.com/RustSec/cargo-audit/pull/139
+[#138]: https://github.com/RustSec/cargo-audit/pull/138
 [0.9.1]: https://github.com/RustSec/cargo-audit/pull/135
 [#134]: https://github.com/RustSec/cargo-audit/pull/134
 [0.9.0]: https://github.com/RustSec/cargo-audit/pull/130
