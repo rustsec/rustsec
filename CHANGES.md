@@ -1,3 +1,7 @@
+## [3.0.0] (2019-10-01)
+
+- Support `[package.dependencies]` without versions ([#23])
+
 ## [2.0.0] (2019-09-25)
 
 - Use two-pass dependency tree computation ([#20])
@@ -21,6 +25,8 @@
 
 - Initial release
 
+[3.0.0]: https://github.com/RustSec/cargo-lock/pull/24
+[#23]: https://github.com/RustSec/cargo-lock/pull/23
 [2.0.0]: https://github.com/RustSec/cargo-lock/pull/21
 [#20]: https://github.com/RustSec/cargo-lock/pull/20
 [#18]: https://github.com/RustSec/cargo-lock/pull/18
