@@ -1,3 +1,5 @@
+//! Git commit signatures
+
 use crate::error::Error;
 
 /// Digital signatures (in OpenPGP format) on commits to the repository

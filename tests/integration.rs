@@ -75,7 +75,7 @@ fn verify_cve_2018_1000810(db: &Database) {
     );
     assert_eq!(
         example_advisory.metadata.title,
-        "Buffer overflow vulnenrability in str::repeat()"
+        "Buffer overflow vulnerability in str::repeat()"
     );
     assert_eq!(
         &example_advisory.metadata.description[0..30],
