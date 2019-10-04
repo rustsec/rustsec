@@ -1,8 +1,8 @@
 //! Git repository handling for the RustSec advisory DB
 
-mod authentication;
-mod commit;
-mod signature;
+pub mod authentication;
+pub mod commit;
+pub mod signature;
 pub mod support;
 
 pub use self::{commit::Commit, signature::Signature};
