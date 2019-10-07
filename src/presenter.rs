@@ -133,18 +133,27 @@ impl Presenter {
         }
 
         self.print_attr(Red, "Title:   ", &advisory.title);
-        self.print_attr(
-            Red,
-            "Solution: upgrade to",
-            &vulnerability
-                .versions
-                .patched
-                .iter()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>()
-                .as_slice()
-                .join(" OR "),
-        );
+        if vulnerability.versions.patched.is_empty() {
+            self.print_attr(
+                Red,
+                "Solution:",
+                String::from(" No safe upgrade is available!"),
+            );
+        } else {
+            self.print_attr(
+                Red,
+                "Solution:",
+                String::from(" upgrade to ")
+                    + &vulnerability
+                        .versions
+                        .patched
+                        .iter()
+                        .map(ToString::to_string)
+                        .collect::<Vec<_>>()
+                        .as_slice()
+                        .join(" OR "),
+            );
+        }
 
         self.print_tree(Red, &vulnerability.package, tree);
     }
