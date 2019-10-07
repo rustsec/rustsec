@@ -18,7 +18,7 @@ macro_rules! format_err {
 /// Create and return an error with a formatted message
 macro_rules! fail {
     ($kind:path, $msg:expr) => {
-        Err(format_err!($kind, $msg))?
+        return Err(format_err!($kind, $msg));
     };
     ($kind:path, $fmt:expr, $($arg:tt)+) => {
         fail!($kind, format!($fmt, $($arg)+))
