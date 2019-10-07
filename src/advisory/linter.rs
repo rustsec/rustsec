@@ -3,7 +3,7 @@
 //!
 //! This is run in CI at the time advisories are submitted.
 
-use super::{Advisory, Category};
+use super::{Advisory, Category, Informational};
 use chrono::Datelike;
 use std::{fmt, fs, path::Path};
 
@@ -128,6 +128,17 @@ impl Linter {
                         section: Some("advisory"),
                         message: Some("collection shouldn't be explicit; inferred by location"),
                     }),
+                    "informational" => {
+                        if let Some(Informational::Other(other)) =
+                            &self.advisory.metadata.informational
+                        {
+                            self.errors.push(Error {
+                                kind: ErrorKind::value("informational", other.to_string()),
+                                section: Some("advisory"),
+                                message: Some("unknown informational advisory type"),
+                            });
+                        }
+                    }
                     "url" => {
                         if let Some(url) = value.as_str() {
                             if !url.starts_with("https://") {
