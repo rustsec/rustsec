@@ -8,6 +8,28 @@ on:
 name: Rust
 
 jobs:
+  audit:
+    name: Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install cargo audit
+        run: cargo install cargo-audit
+
+      - name: Run cargo audit
+        uses: actions-rs/cargo@v1
+        with:
+          command: audit
+          args: --deny-warnings
+
   check:
     name: Check
     runs-on: ubuntu-latest
@@ -28,7 +50,15 @@ jobs:
 
   test:
     name: Test Suite
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform:
+          - ubuntu-latest
+          - windows-latest
+        toolchain:
+          - 1.35.0
+          - stable
+    runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v1
@@ -36,7 +66,7 @@ jobs:
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: ${{ matrix.toolchain }}
           override: true
 
       - name: Run cargo test
