@@ -1,6 +1,9 @@
 # Based on https://github.com/actions-rs/meta/blob/master/recipes/quickstart.md
 
-on: [push, pull_request]
+on:
+  pull_request: {}
+  push:
+    branches: develop
 
 name: Rust
 
@@ -25,6 +28,32 @@ jobs:
 
   test:
     name: Test Suite
+    strategy:
+      matrix:
+        platform:
+          - ubuntu-latest
+          - windows-latest
+        toolchain:
+          - 1.35.0
+          - stable
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v1
+
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          override: true
+
+      - name: Run cargo test
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+
+  audit:
+    name: Self-Audit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -36,10 +65,8 @@ jobs:
           toolchain: stable
           override: true
 
-      - name: Run cargo test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
+      - name: Run cargo audit
+        run: cargo run -- audit --deny-warnings
 
   fmt:
     name: Rustfmt
