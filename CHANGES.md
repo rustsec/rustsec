@@ -1,3 +1,9 @@
+## [0.9.3] (2019-10-08)
+
+- Update to `rustsec` crate v0.15.2 ([#149])
+- presenter: Cleanups for informational advisories ([#148])
+- presenter: Print better message when no solution is available ([#144])
+
 ## [0.9.2] (2019-10-01)
 
 - Update to `rustsec` crate v0.15 ([#138])
@@ -95,6 +101,10 @@
 
 - Initial release
 
+[0.9.3]: https://github.com/RustSec/cargo-audit/pull/150
+[#149]: https://github.com/RustSec/cargo-audit/pull/149
+[#148]: https://github.com/RustSec/cargo-audit/pull/148
+[#144]: https://github.com/RustSec/cargo-audit/pull/144
 [0.9.2]: https://github.com/RustSec/cargo-audit/pull/139
 [#138]: https://github.com/RustSec/cargo-audit/pull/138
 [0.9.1]: https://github.com/RustSec/cargo-audit/pull/135
