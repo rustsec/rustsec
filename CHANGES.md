@@ -1,3 +1,8 @@
+## [0.15.1] (2019-10-07)
+
+- linter: Add `informational` as an allowable `[advisory]` key ([#118])
+- repository: Expose `authentication` module ([#117])
+
 ## [0.15.0] (2019-10-01)
 
 - Upgrade to `cargo-lock` crate v3.0 ([#115])
@@ -144,6 +149,9 @@
 
 - Initial release
 
+[0.15.1]: https://github.com/RustSec/rustsec-crate/pull/121
+[#118]: https://github.com/RustSec/rustsec-crate/pull/118
+[#117]: https://github.com/RustSec/rustsec-crate/pull/117
 [0.15.0]: https://github.com/RustSec/rustsec-crate/pull/116
 [#115]: https://github.com/RustSec/rustsec-crate/pull/115
 [0.14.1]: https://github.com/RustSec/rustsec-crate/pull/114
