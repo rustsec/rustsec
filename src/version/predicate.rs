@@ -88,7 +88,11 @@ impl Predicate {
             None => return false,
         }
 
-        !(self.pre.is_empty() && ver.is_prerelease())
+        if self.pre.is_empty() {
+            false
+        } else {
+            !ver.is_prerelease()
+        }
     }
 
     // see https://www.npmjs.org/doc/misc/semver.html for behavior
