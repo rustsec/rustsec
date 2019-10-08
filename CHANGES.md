@@ -1,3 +1,7 @@
+## [0.15.2] (2019-10-08)
+
+- version: Fix matching bug for `>` version requirements ([#122])
+
 ## [0.15.1] (2019-10-07)
 
 - linter: Add `informational` as an allowable `[advisory]` key ([#118])
@@ -149,6 +153,8 @@
 
 - Initial release
 
+[0.15.2]: https://github.com/RustSec/rustsec-crate/pull/123
+[#122]: https://github.com/RustSec/rustsec-crate/pull/122
 [0.15.1]: https://github.com/RustSec/rustsec-crate/pull/121
 [#118]: https://github.com/RustSec/rustsec-crate/pull/118
 [#117]: https://github.com/RustSec/rustsec-crate/pull/117
