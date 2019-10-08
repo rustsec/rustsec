@@ -73,12 +73,23 @@ impl Presenter {
         if !report.warnings.is_empty() {
             println!();
 
+            let advisory_word = if report.warnings.len() != 1 {
+                "advisories"
+            } else {
+                "advisory"
+            };
+
             if self.config.deny_warnings {
-                status_err!("{} dependencies with warnings found", report.warnings.len());
+                status_err!(
+                    "{} informational {} found",
+                    report.warnings.len(),
+                    advisory_word
+                );
             } else {
                 status_warn!(
-                    "{} dependencies with informational warnings found",
-                    report.warnings.len()
+                    "{} informational {} found",
+                    report.warnings.len(),
+                    advisory_word
                 );
             }
 
@@ -102,16 +113,23 @@ impl Presenter {
                 println!();
             }
 
+            let warnings_word = if report.warnings.len() != 1 {
+                "warnings"
+            } else {
+                "warning"
+            };
+
             if self.config.deny_warnings {
                 status_err!(
-                    "{} warnings found! (deny warnings enabled)",
-                    report.warnings.len()
+                    "{} {} found and `--deny-warnings` enabled!",
+                    report.warnings.len(),
+                    warnings_word
                 );
 
                 // TODO(tarcieri): better unify this with vulnerabilities handling
                 exit(1);
             } else {
-                status_warn!("{} warnings found!", report.warnings.len());
+                status_warn!("{} {} found!", report.warnings.len(), warnings_word);
             }
         }
     }
@@ -168,7 +186,7 @@ impl Presenter {
 
         println!();
         self.print_attr(color, "Crate:   ", &warning.package.name);
-        self.print_attr(color, "Title: ", &warning.advisory.title);
+        self.print_attr(color, "Title:   ", &warning.advisory.title);
         self.print_attr(color, "Date:    ", &warning.advisory.date);
 
         if let Some(url) = warning.advisory.id.url() {
