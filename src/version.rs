@@ -123,6 +123,7 @@ mod tests {
         assert!(version_req("= 0.0.0").matches(&version("0.0.0")));
         assert!(version_req("> 0.0.0").matches(&version("0.0.1")));
         assert!(version_req("< 1.0.0").matches(&version("0.0.1")));
+        assert!(!version_req("> 1.0.0").matches(&version("1.0.0")));
     }
 
     // Test case from: <https://github.com/RustSec/cargo-audit/issues/30>
