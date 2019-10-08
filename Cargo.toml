@@ -1,7 +1,7 @@
 [package]
 name        = "rustsec-admin"
 description = "Admin utility for maintaining the RustSec Advisory Database"
-version     = "0.1.0"
+version     = "0.1.1"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 license     = "Apache-2.0 OR MIT"
 homepage    = "https://rustsec.org"
