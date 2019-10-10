@@ -192,14 +192,18 @@ impl Runnable for AuditCommand {
                 .list
                 .iter()
                 .for_each(|vulnerability| {
-                    manifest
-                        .upgrade(
-                            &Dependency::new(vulnerability.package.name.as_str()).set_version(
-                                vulnerability.versions.patched[0].to_string().as_str(),
-                            ),
-                            false,
-                        )
-                        .expect("unable to perform upgrade.");
+                    if vulnerability.versions.patched.is_empty() {
+                        println!("no upgrade available for {}", vulnerability.package.name);
+                    } else {
+                        manifest
+                            .upgrade(
+                                &Dependency::new(vulnerability.package.name.as_str()).set_version(
+                                    vulnerability.versions.patched[0].to_string().as_str(), // this does not look good at all...
+                                ),
+                                false,
+                            )
+                            .expect("unable to perform upgrade.");
+                    }
                 });
         }
         if report.vulnerabilities.found {
