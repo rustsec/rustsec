@@ -1,15 +1,23 @@
 //! The `cargo audit` subcommand
 
-use super::CargoAuditCommand;
+use std::{
+    path::{Path, PathBuf},
+    process::exit,
+};
+
+use abscissa_core::{config::Override, FrameworkError};
+use cargo_edit::Dependency;
+use cargo_edit::LocalManifest;
+use gumdrop::Options;
+use rustsec::platforms::target::{Arch, OS};
+
 use crate::{
     auditor::Auditor,
     config::{AuditConfig, OutputFormat},
     prelude::*,
 };
-use abscissa_core::{config::Override, FrameworkError};
-use gumdrop::Options;
-use rustsec::platforms::target::{Arch, OS};
-use std::{path::PathBuf, process::exit};
+
+use super::CargoAuditCommand;
 
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
@@ -21,6 +29,12 @@ pub struct AuditCommand {
     /// Get version information
     #[options(no_short, long = "version", help = "output version and exit")]
     version: bool,
+
+    /// Get version information
+    /// TODO :: If the upgrade is a breaking change according to semver,
+    ///         then we must inform the user of this.
+    #[options(no_short, long = "fix", help = "upgrade unsafe cargo dependencies")]
+    perform_fix: bool,
 
     /// Colored output configuration
     #[options(
@@ -166,7 +180,29 @@ impl Runnable for AuditCommand {
 
         let lockfile_path = self.file.as_ref().map(PathBuf::as_path);
 
-        if self.auditor().audit(lockfile_path).vulnerabilities.found {
+        let report = self.auditor().audit(&lockfile_path);
+        let path = Path::new("Cargo.toml");
+        let mut manifest = match LocalManifest::try_new(&path) {
+            Ok(ok) => ok,
+            Err(err) => panic!("error:{:#?}", err),
+        };
+        if self.perform_fix {
+            report
+                .vulnerabilities
+                .list
+                .iter()
+                .for_each(|vulnerability| {
+                    manifest
+                        .upgrade(
+                            &Dependency::new(vulnerability.package.name.as_str()).set_version(
+                                vulnerability.versions.patched[0].to_string().as_str(),
+                            ),
+                            false,
+                        )
+                        .expect("unable to perform upgrade.");
+                });
+        }
+        if report.vulnerabilities.found {
             exit(1)
         }
     }

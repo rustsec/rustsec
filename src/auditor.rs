@@ -93,7 +93,7 @@ impl Auditor {
     }
 
     /// Perform audit
-    pub fn audit(&mut self, maybe_lockfile_path: Option<&Path>) -> rustsec::Report {
+    pub fn audit(&mut self, maybe_lockfile_path: &Option<&Path>) -> rustsec::Report {
         let lockfile_path = maybe_lockfile_path.unwrap_or_else(|| {
             let path = Path::new(CARGO_LOCK_FILE);
 
