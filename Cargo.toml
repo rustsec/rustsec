@@ -20,7 +20,7 @@ failure = "0.1"
 gumdrop = "0.7"
 home = "0.5"
 lazy_static = "1"
-rustsec = { version = "0.15.2", features = ["dependency-tree"] }
+rustsec = { version = "0.16", features = ["dependency-tree"] }
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 

@@ -57,20 +57,6 @@ impl Auditor {
             })
         };
 
-        if let Ok(support_info) = advisory_db_repo.support() {
-            if let Some(rustsec_update) = support_info.rustsec.next_update {
-                if !rustsec_update
-                    .version
-                    .matches(&rustsec::VERSION.parse().unwrap())
-                {
-                    status_warn!(
-                        "support for this version of `cargo-audit` ends on {}. Please upgrade!",
-                        rustsec_update.date.as_str()
-                    );
-                }
-            }
-        }
-
         let database = rustsec::Database::load(&advisory_db_repo).unwrap_or_else(|e| {
             status_err!("error loading advisory database: {}", e);
             exit(1);
@@ -112,7 +98,11 @@ impl Auditor {
         self.presenter.before_report(&lockfile_path, &lockfile);
 
         let report = rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
-        self.presenter.print_report(&report, &lockfile);
+        let self_advisories = self.self_advisories();
+
+        self.presenter
+            .print_report(&report, self_advisories.as_slice(), &lockfile);
+
         report
     }
 
@@ -126,6 +116,29 @@ impl Auditor {
         } else {
             Ok(Lockfile::load(lockfile_path)?)
         }
+    }
+
+    /// Query the database for advisories about `cargo-audit` or `rustsec` itself
+    fn self_advisories(&mut self) -> Vec<rustsec::Advisory> {
+        let mut results = vec![];
+
+        for (package_str, version_str) in &[
+            ("cargo-audit", crate::VERSION),
+            ("rustsec", rustsec::VERSION),
+        ] {
+            let package: rustsec::package::Name = package_str.parse().unwrap();
+            let version: rustsec::Version = version_str.parse().unwrap();
+            let query = rustsec::database::Query::crate_scope();
+
+            for advisory in self
+                .database
+                .query(&query.package_version(package, version))
+            {
+                results.push(advisory.clone());
+            }
+        }
+
+        results
     }
 }
 

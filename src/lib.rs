@@ -27,3 +27,6 @@ pub mod config;
 pub mod error;
 mod prelude;
 pub mod presenter;
+
+/// Current version of the `cargo-audit` crate
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
