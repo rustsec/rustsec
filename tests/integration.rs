@@ -17,7 +17,7 @@ fn happy_path() {
 }
 
 /// End-to-end integration test (has online dependency on GitHub) which looks
-/// for the `RUSTSEC-2017-0001` vulnerability (sodiumoxide crate).
+/// for the `RUSTSEC-2017-0001` vulnerability (`sodiumoxide` crate).
 fn verify_rustsec_2017_0001(db: &Database) {
     let example_advisory_id = "RUSTSEC-2017-0001".parse::<advisory::Id>().unwrap();
     let example_advisory = db.get(&example_advisory_id).unwrap();
@@ -47,7 +47,7 @@ fn verify_rustsec_2017_0001(db: &Database) {
         Collection::Crates
     );
 
-    let ref crate_advisories = db.query(&Query::new().package(example_package));
+    let crate_advisories = db.query(&Query::new().package(example_package).year(2017));
     assert_eq!(example_advisory, crate_advisories[0]);
 
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
