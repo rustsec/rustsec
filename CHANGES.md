@@ -1,3 +1,7 @@
+## [0.16.0] (2019-10-13)
+
+- Remove `support.toml` parsing ([#124])
+
 ## [0.15.2] (2019-10-08)
 
 - version: Fix matching bug for `>` version requirements ([#122])
@@ -153,6 +157,8 @@
 
 - Initial release
 
+[0.16.0]: https://github.com/RustSec/rustsec-crate/pull/125
+[#124]: https://github.com/RustSec/rustsec-crate/pull/124
 [0.15.2]: https://github.com/RustSec/rustsec-crate/pull/123
 [#122]: https://github.com/RustSec/rustsec-crate/pull/122
 [0.15.1]: https://github.com/RustSec/rustsec-crate/pull/121
