@@ -103,7 +103,7 @@ dependencies = [
  "gumdrop 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "home 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rustsec 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustsec 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.101 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.41 (registry+https://github.com/rust-lang/crates.io-index)",
  "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -539,7 +539,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rustsec"
-version = "0.15.2"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cargo-lock 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -864,7 +864,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum regex-syntax 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)" = "11a7e20d1cce64ef2fed88b66d347f88bd9babb82845b2b858f3edbf59a4f716"
 "checksum remove_dir_all 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "4a83fa3702a688b9359eccba92d153ac33fd2e8462f9e0e3fdf155239ea7792e"
 "checksum rustc-demangle 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)" = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
-"checksum rustsec 0.15.2 (registry+https://github.com/rust-lang/crates.io-index)" = "016d6cdd552d040a73cfb20ee12ce4a39ce1a8c04c4a9a8bfd93cb9f21756f86"
+"checksum rustsec 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6e60ce03d2bba8617aa60f42ebf003613cae28f812e454782b59b3ecdda6cdeb"
 "checksum ryu 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "19d2271fa48eaf61e53cc88b4ad9adcbafa2d512c531e7fadb6dc11a4d3656c5"
 "checksum scopeguard 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b42e15e59b18a828bbf5c58ea01debb36b9b096346de35d941dcb89009f24a0d"
 "checksum secrecy 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "9eb052cf770a381fa9a6ee63038ff9a0b11d30abb53be970672e950649ff0bfb"
