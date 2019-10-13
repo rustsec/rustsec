@@ -3,7 +3,7 @@
 [![Latest Version][crate-image]][crate-link]
 [![Build Status][build-image]][build-link]
 [![Safety Dance][safety-image]][safety-link]
-![Rust 1.35+][rustc-image]
+![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
@@ -12,7 +12,7 @@ Audit `Cargo.lock` files for crates with security vulnerabilities reported to th
 
 ## Requirements
 
-`cargo audit` requires Rust **1.35** or later.
+`cargo audit` requires Rust **1.36** or later.
 
 ## Installation
 
@@ -73,7 +73,7 @@ additional terms or conditions.
 [build-image]: https://github.com/rustsec/cargo-audit/workflows/Rust/badge.svg
 [build-link]: https://github.com/rustsec/cargo-audit/actions
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.36+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [gitter-image]: https://badges.gitter.im/badge.svg
