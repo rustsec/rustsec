@@ -3,11 +3,10 @@
 pub mod authentication;
 pub mod commit;
 pub mod signature;
-pub mod support;
 
 pub use self::{commit::Commit, signature::Signature};
 
-use self::{authentication::with_authentication, support::Support};
+use self::authentication::with_authentication;
 use crate::{
     collection::Collection,
     error::{Error, ErrorKind},
@@ -23,9 +22,6 @@ pub const DAYS_UNTIL_STALE: usize = 90;
 
 /// Directory under ~/.cargo where the advisory-db repo will be kept
 pub(crate) const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
-
-/// Name of version support tracking file
-const SUPPORT_FILE: &str = "support.toml";
 
 /// Ref for master in the local repository
 const LOCAL_MASTER_REF: &str = "refs/heads/master";
@@ -155,48 +151,18 @@ impl Repository {
     /// Open a repository at the given path
     pub fn open<P: Into<PathBuf>>(into_path: P) -> Result<Self, Error> {
         let path = into_path.into();
-        let git_repo = git2::Repository::open(&path)?;
+        let repo = git2::Repository::open(&path)?;
 
-        // Ensure the repo is in a clean state
-        if git_repo.state() != git2::RepositoryState::Clean {
-            fail!(
-                ErrorKind::Repo,
-                "bad repository state: {:?}",
-                git_repo.state()
-            );
+        if repo.state() == git2::RepositoryState::Clean {
+            Ok(Repository { path, repo })
+        } else {
+            fail!(ErrorKind::Repo, "bad repository state: {:?}", repo.state())
         }
-
-        let repository = Repository {
-            path,
-            repo: git_repo,
-        };
-
-        // TODO(tarcieri): temporarily ignores missing `support.toml`. Make it mandatory.
-        if let Ok(support) = repository.support() {
-            if !support.rustsec.is_supported() {
-                fail!(
-                    ErrorKind::Version,
-                    "end-of-life RustSec client! Please upgrade to the latest version"
-                );
-            }
-        }
-
-        Ok(repository)
     }
 
     /// Get information about the latest commit to the repo
     pub fn latest_commit(&self) -> Result<Commit, Error> {
         Commit::from_repo_head(self)
-    }
-
-    /// Load support information from `support.toml`
-    pub fn support(&self) -> Result<Support, Error> {
-        let path = self.path.join(SUPPORT_FILE);
-
-        let toml_string = fs::read_to_string(&path)
-            .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?;
-
-        Ok(toml::from_str(&toml_string)?)
     }
 
     /// Paths to all advisories located in the database
