@@ -1,3 +1,8 @@
+## [0.10.0] (2019-10-13)
+
+- Upgrade `rustsec` to v0.16; new self-audit system ([#155])
+- Upgrade to Abscissa v0.4; MSRV 1.36 ([#154])
+
 ## [0.9.3] (2019-10-08)
 
 - Update to `rustsec` crate v0.15.2 ([#149])
@@ -101,6 +106,9 @@
 
 - Initial release
 
+[0.10.0]: https://github.com/RustSec/cargo-audit/pull/156
+[#155]: https://github.com/RustSec/cargo-audit/pull/155
+[#154]: https://github.com/RustSec/cargo-audit/pull/154
 [0.9.3]: https://github.com/RustSec/cargo-audit/pull/150
 [#149]: https://github.com/RustSec/cargo-audit/pull/149
 [#148]: https://github.com/RustSec/cargo-audit/pull/148

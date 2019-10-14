@@ -96,7 +96,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "cargo-audit"
-version = "0.9.3"
+version = "0.10.0"
 dependencies = [
  "abscissa_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
