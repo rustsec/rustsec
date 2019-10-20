@@ -13,7 +13,7 @@
 //!
 //! <https://docs.rs/rustsec/>
 
-#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
+#![deny(warnings, /*missing_docs,*/ trivial_casts, unused_qualifications)]
 #![forbid(unsafe_code)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
