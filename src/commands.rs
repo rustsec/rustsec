@@ -18,6 +18,9 @@ pub enum CargoAuditCommand {
     /// The `cargo audit` subcommand
     #[options(help = "Audit Cargo.lock files for vulnerable crates")]
     Audit(AuditCommand),
+
+    #[options(help = "Fix vulnerable packages where available")]
+    Fix(AuditCommand),
 }
 
 impl Configurable<AuditConfig> for CargoAuditCommand {
@@ -39,6 +42,7 @@ impl Configurable<AuditConfig> for CargoAuditCommand {
     fn process_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
         match self {
             CargoAuditCommand::Audit(cmd) => cmd.override_config(config),
+            x => panic!("Unexpected invalid token {:?}", x),
         }
     }
 }
