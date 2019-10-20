@@ -46,6 +46,11 @@ impl AuditConfig {
 
         settings
     }
+
+    /// Set fix mode
+    pub fn set_audit_and_fix_mode(&mut self) {
+        self.output.audit_and_fix = true
+    }
 }
 
 /// Advisory-related configuration.
@@ -106,12 +111,20 @@ pub struct OutputConfig {
 
     /// Show inverse dependency trees along with advisories (default: true)
     pub show_tree: Option<bool>,
+
+    /// Enable fix mode
+    pub audit_and_fix: bool,
 }
 
 impl OutputConfig {
     /// Is quiet mode enabled?
     pub fn is_quiet(&self) -> bool {
         self.quiet || self.format == OutputFormat::Json
+    }
+
+    /// Is fix mode enabled?
+    pub fn is_audit_and_fix_mode(&self) -> bool {
+        self.audit_and_fix || false
     }
 }
 

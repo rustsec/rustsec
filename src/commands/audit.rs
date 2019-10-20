@@ -178,12 +178,4 @@ impl AuditCommand {
         let config = app_config();
         Auditor::new(&config)
     }
-
-    /// Initialize `Fix`
-    pub fn fix(&self) -> Auditor {
-        println!("w t f");
-        let config = app_config();
-        Auditor::new(&config)
-
-    }
 }
