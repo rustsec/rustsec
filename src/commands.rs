@@ -5,8 +5,8 @@ mod audit;
 use self::audit::AuditCommand;
 use crate::config::AuditConfig;
 use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Options, Runnable};
-use std::path::PathBuf;
 use std::env;
+use std::path::PathBuf;
 
 /// Name of the configuration file (located in `~/.cargo`)
 ///

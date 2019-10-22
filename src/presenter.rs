@@ -8,6 +8,8 @@ use abscissa_core::terminal::{
     self,
     Color::{self, Red, Yellow},
 };
+use cargo_edit::Dependency as EditDependency;
+use cargo_edit::LocalManifest;
 use rustsec::{
     cargo_lock::{
         dependency::{self, graph::EdgeDirection, Dependency},
@@ -16,8 +18,6 @@ use rustsec::{
     Vulnerability, Warning,
 };
 use std::{collections::BTreeSet as Set, io, path::Path, process::exit};
-use cargo_edit::Dependency as EditDependency;
-use cargo_edit::LocalManifest;
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -28,7 +28,6 @@ pub struct Presenter {
 
     /// Output configuration
     config: OutputConfig,
-
 }
 
 impl Presenter {
@@ -56,7 +55,7 @@ impl Presenter {
     pub fn upgrade_vulnerability(&self, vulnerability: &Vulnerability) {
         let path = Path::new("Cargo.toml");
         // TODO: fix this either with singleton or signature
-        // should be declared and set once, currently 
+        // should be declared and set once, currently
         // manifest is initialized on each iteration
         let mut manifest = match LocalManifest::try_new(&path) {
             Ok(ok) => ok,
@@ -67,10 +66,8 @@ impl Presenter {
         } else {
             manifest
                 .upgrade(
-                    &EditDependency::new(
-                        vulnerability.package.name.as_str()).set_version(
-                        vulnerability.versions.patched[0].to_string().as_str(),
-                    ),
+                    &EditDependency::new(vulnerability.package.name.as_str())
+                        .set_version(vulnerability.versions.patched[0].to_string().as_str()),
                     false,
                 )
                 .expect("unable to perform upgrade.");
@@ -103,7 +100,7 @@ impl Presenter {
             self.print_vulnerability(vulnerability, &tree);
             if self.config.is_audit_and_fix_mode() {
                 self.upgrade_vulnerability(vulnerability);
-            }            
+            }
         }
 
         if !report.warnings.is_empty() {

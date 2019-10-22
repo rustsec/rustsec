@@ -124,7 +124,7 @@ impl OutputConfig {
 
     /// Is fix mode enabled?
     pub fn is_audit_and_fix_mode(&self) -> bool {
-        self.audit_and_fix || false
+        self.audit_and_fix
     }
 }
 
