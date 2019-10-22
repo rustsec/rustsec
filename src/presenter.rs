@@ -53,10 +53,11 @@ impl Presenter {
 
     /// Upgrade vulnerable package with `cargo-edit`
     pub fn upgrade_vulnerability(&self, vulnerability: &Vulnerability) {
+        // https://github.com/RustSec/cargo-audit/pull/151/files
         let path = Path::new("Cargo.toml");
         // TODO: fix this either with singleton or signature
         // should be declared and set once, currently
-        // manifest is initialized on each iteration
+        // manifest is instantiated on each iteration
         let mut manifest = match LocalManifest::try_new(&path) {
             Ok(ok) => ok,
             Err(err) => panic!("error:{:#?}", err),
