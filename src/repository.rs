@@ -91,8 +91,12 @@ impl Repository {
             let mut callbacks = git2::RemoteCallbacks::new();
             callbacks.credentials(f);
 
+            let mut proxy_opts = git2::ProxyOptions::new();
+            proxy_opts.auto();
+
             let mut fetch_opts = git2::FetchOptions::new();
             fetch_opts.remote_callbacks(callbacks);
+            fetch_opts.proxy_options(proxy_opts);
 
             if path.exists() {
                 let repo = git2::Repository::open(&path)?;
