@@ -5,6 +5,7 @@ mod audit;
 use self::audit::AuditCommand;
 use crate::config::AuditConfig;
 use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Options, Runnable};
+use std::env;
 use std::path::PathBuf;
 
 /// Name of the configuration file (located in `~/.cargo`)
@@ -18,6 +19,10 @@ pub enum CargoAuditCommand {
     /// The `cargo audit` subcommand
     #[options(help = "Audit Cargo.lock files for vulnerable crates")]
     Audit(AuditCommand),
+
+    /// The `cargo fix` subcommand
+    #[options(help = "Fix vulnerable packages where available")]
+    Fix(AuditCommand),
 }
 
 impl Configurable<AuditConfig> for CargoAuditCommand {
@@ -36,9 +41,16 @@ impl Configurable<AuditConfig> for CargoAuditCommand {
     }
 
     /// Override loaded config with explicit command-line arguments
-    fn process_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
+    /// `fix` update vulnerabilities with `cargo-edit`
+    /// `audit` match self
+    fn process_config(&self, mut config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
+        let args: Vec<String> = env::args().collect();
+        if args.iter().any(|arg| arg == "fix") {
+            config.set_audit_and_fix_mode()
+        }
         match self {
             CargoAuditCommand::Audit(cmd) => cmd.override_config(config),
+            _ => Ok(config),
         }
     }
 }
