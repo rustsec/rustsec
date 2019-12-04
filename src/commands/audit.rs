@@ -7,8 +7,12 @@ use crate::{
     prelude::*,
 };
 use abscissa_core::{config::Override, FrameworkError};
+#[cfg(feature = "fix")]
+use cargo_edit::{Dependency as EditDependency, LocalManifest};
 use gumdrop::Options;
 use rustsec::platforms::target::{Arch, OS};
+#[cfg(feature = "fix")]
+use rustsec::Vulnerability;
 use std::{path::PathBuf, process::exit};
 
 /// The `cargo audit` subcommand
@@ -45,13 +49,18 @@ pub struct AuditCommand {
     )]
     deny_warnings: bool,
 
-    /// Path to the lockfile
+    /// Path to `Cargo.lock`
     #[options(
         short = "f",
         long = "file",
         help = "Cargo lockfile to inspect (or `-` for STDIN, default: Cargo.lock)"
     )]
     file: Option<PathBuf>,
+
+    /// Attempt to update vulnerable dependencies
+    #[cfg(feature = "fix")]
+    #[options(no_short, long = "fix", help = "upgrade vulnerable dependencies")]
+    fix: bool,
 
     /// Advisory IDs to ignore
     #[options(
@@ -165,8 +174,12 @@ impl Runnable for AuditCommand {
         }
 
         let lockfile_path = self.file.as_ref().map(PathBuf::as_path);
+        let report = self.auditor().audit(lockfile_path);
 
-        if self.auditor().audit(lockfile_path).vulnerabilities.found {
+        #[cfg(feature = "fix")]
+        self.perform_fix(&report.vulnerabilities.list);
+
+        if report.vulnerabilities.found {
             exit(1)
         }
     }
@@ -177,5 +190,44 @@ impl AuditCommand {
     pub fn auditor(&self) -> Auditor {
         let config = app_config();
         Auditor::new(&config)
+    }
+
+    /// Attempt to upgrade vulnerable dependencies
+    #[cfg(feature = "fix")]
+    pub fn perform_fix(&self, vulnerabilities: &[Vulnerability]) {
+        if !self.fix {
+            return;
+        }
+
+        let cargo_toml = self.cargo_toml_path();
+
+        let mut manifest = LocalManifest::try_new(&cargo_toml).unwrap_or_else(|e| {
+            status_err!(
+                "couldn't load manifest from {}: {}",
+                cargo_toml.display(),
+                e
+            );
+            exit(1);
+        });
+
+        for vulnerability in vulnerabilities {
+            if let Some(version) = vulnerability.versions.patched.get(0) {
+                manifest
+                    .upgrade(
+                        &EditDependency::new(vulnerability.package.name.as_str())
+                            .set_version(&version.to_string()),
+                        false,
+                    )
+                    .unwrap_or_else(|e| status_warn!("unable to perform upgrade: {}", e));
+            } else {
+                status_warn!("no upgrade available for {}", vulnerability.package.name);
+            }
+        }
+    }
+
+    /// Locate `Cargo.toml`
+    // TODO(tarcieri): less contrived implementation
+    pub fn cargo_toml_path(&self) -> PathBuf {
+        PathBuf::from("Cargo.toml")
     }
 }
