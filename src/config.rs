@@ -46,11 +46,6 @@ impl AuditConfig {
 
         settings
     }
-
-    /// Set fix mode
-    pub fn set_audit_and_fix_mode(&mut self) {
-        self.output.audit_and_fix = true
-    }
 }
 
 /// Advisory-related configuration.
@@ -113,7 +108,9 @@ pub struct OutputConfig {
     pub show_tree: Option<bool>,
 
     /// Enable fix mode
-    pub audit_and_fix: bool,
+    #[cfg(feature = "fix")]
+    #[serde(default)]
+    pub fix: bool,
 }
 
 impl OutputConfig {
@@ -123,8 +120,9 @@ impl OutputConfig {
     }
 
     /// Is fix mode enabled?
-    pub fn is_audit_and_fix_mode(&self) -> bool {
-        self.audit_and_fix
+    #[cfg(feature = "fix")]
+    pub fn is_fix_enabled(&self) -> bool {
+        self.fix
     }
 }
 
