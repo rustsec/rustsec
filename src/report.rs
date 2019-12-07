@@ -5,7 +5,7 @@
 
 use crate::{
     advisory,
-    database::{Database, Query},
+    database::{Database, Query, package_scope::PackageScope},
     lockfile::Lockfile,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
@@ -36,8 +36,13 @@ pub struct Report {
 impl Report {
     /// Generate a report for the given advisory database and lockfile
     pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Self {
+        let mut package_scope = &PackageScope::default();
+        if let Some(scope) = &settings.package_scope {
+            package_scope = scope;
+        }
+
         let vulnerabilities = db
-            .query_vulnerabilities(lockfile, &settings.query())
+            .query_vulnerabilities(lockfile, &settings.query(), package_scope)
             .into_iter()
             .filter(|vuln| !settings.ignore.contains(&vuln.advisory.id))
             .collect();
@@ -69,6 +74,9 @@ pub struct Settings {
 
     /// Types of informational advisories to generate warnings for
     pub informational_warnings: Vec<advisory::Informational>,
+
+    /// Scope of packages which should be considered for audit
+    pub package_scope: Option<PackageScope>,
 }
 
 impl Settings {
@@ -167,8 +175,14 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
     let query = settings.query().informational(true);
     let mut result = vec![];
 
+    let mut package_scope = &PackageScope::default();
+    if let Some(scope) = &settings.package_scope {
+        package_scope = scope;
+    }
+
+
     // TODO(tarcieri): abstract `Cargo.lock` query logic between vulnerabilities/warnings
-    for advisory_vuln in db.query_vulnerabilities(lockfile, &query) {
+    for advisory_vuln in db.query_vulnerabilities(lockfile, &query, package_scope) {
         let advisory = &advisory_vuln.advisory;
 
         if settings.ignore.contains(&advisory.id) {
