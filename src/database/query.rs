@@ -7,6 +7,7 @@ use crate::{
     platforms::target::{Arch, OS},
     version::Version,
 };
+use crate::database::package_scope::PackageScope;
 
 /// Queries against the RustSec database
 #[derive(Clone, Debug, Default)]
@@ -37,6 +38,9 @@ pub struct Query {
 
     /// Query for informational advisories
     informational: Option<bool>,
+
+    /// Scope of packages which should be considered for audit
+    package_scope: Option<PackageScope>,
 }
 
 impl Query {
