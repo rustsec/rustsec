@@ -8,6 +8,7 @@ use rustsec::{
 };
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use rustsec::database::package_scope::PackageScope;
 
 /// `cargo audit` configuration:
 ///
@@ -26,6 +27,9 @@ pub struct AuditConfig {
 
     /// Target-related configuration
     pub target: TargetConfig,
+
+    /// Packages-related configuration
+    pub packages: PackageConfig,
 }
 
 impl AuditConfig {
@@ -36,6 +40,7 @@ impl AuditConfig {
         settings.severity = self.advisories.severity_threshold;
         settings.target_arch = self.target.arch;
         settings.target_os = self.target.os;
+        settings.package_scope = self.packages.scope;
 
         if let Some(informational_warnings) = &self.advisories.informational_warnings {
             settings.informational_warnings = informational_warnings.clone();
@@ -153,4 +158,12 @@ pub struct TargetConfig {
 
     /// Target OS to find vulnerabilities for
     pub os: Option<OS>,
+}
+
+/// Packages configuration
+#[derive(Clone, Config, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct PackageConfig {
+    /// Package scope which should be considered for querying for vulnerabilities.
+    pub scope: Option<PackageScope>,
 }
