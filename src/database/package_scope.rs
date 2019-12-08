@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 /// Scope for querying which kind of packages should be considered.
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum PackageScope {
     /// `LocalCrates` are crates without any source e.g. crates linked in a workspace.
     LocalCrates,
