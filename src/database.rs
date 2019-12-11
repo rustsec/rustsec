@@ -110,19 +110,21 @@ impl Database {
         let mut vulns = vec![];
 
         for package in &lockfile.packages {
-            if !scope.is_local() {
-                let advisories = self.query(
-                    &query
-                        .clone()
-                        .package_version(package.name.clone(), package.version.clone()),
-                );
-
-                vulns.extend(
-                    advisories
-                        .iter()
-                        .map(|advisory| Vulnerability::new(advisory, package)),
-                );
+            if scope.is_no_local() && package.source.is_none() {
+                continue;
             }
+
+            let advisories = self.query(
+                &query
+                    .clone()
+                    .package_version(package.name.clone(), package.version.clone()),
+            );
+
+            vulns.extend(
+                advisories
+                    .iter()
+                    .map(|advisory| Vulnerability::new(advisory, package)),
+            );
         }
 
         vulns

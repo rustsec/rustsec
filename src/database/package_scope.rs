@@ -1,27 +1,52 @@
 use serde::{Deserialize, Serialize};
 
-/// Scope for querying which kind of packages should be considered.
-#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum PackageScope {
-    /// `LocalCrates` are crates without any source e.g. crates linked in a workspace.
-    LocalCrates,
-
-    /// `PublicCrates` are the the crate with a source e.g. crates from `crates.io`.
-    PublicCrates,
-
-    /// `All` package types should considered.
+/// Source of a package
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub enum PackageSource {
+    /// Package is local
+    Local,
+    /// Package is located in a specific registry with `String` uri
+    Registry(String),
+    /// Package is located somewhere public
+    Public,
+    /// All sources should be considered
     All
+}
+
+/// Scope for querying which kind of packages should be considered.
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PackageScope {
+    /// Source of a package
+    pub source: PackageSource,
 }
 
 impl PackageScope {
     /// Determines if scope is only local crates
-    pub fn is_local(&self) -> bool {
-        self == &PackageScope::LocalCrates
+    pub fn is_no_local(&self) -> bool {
+        if self.source == PackageSource::Public {
+            return true;
+        }
+        if let PackageSource::Registry(_some) = &self.source {
+            return true;
+        }
+        false
     }
 }
 
 impl Default for PackageScope {
     fn default() -> Self {
-        PackageScope::All
+        PackageScope { source: PackageSource::All }
+    }
+}
+
+impl PackageScope {
+    /// Creates a new [[PackageScope]] from a specific registry uri `source`
+    pub fn from_registry(source: &str) -> Self {
+        PackageScope { source: PackageSource::Registry(source.to_string())}
+    }
+
+    /// Creates a new [[PackageScope]] with a specific [[PackageSource]]
+    pub fn from_source(source: PackageSource) -> Self {
+        PackageScope { source }
     }
 }
