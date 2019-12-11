@@ -29,4 +29,4 @@ arch = "x86_64" # Ignore advisories for CPU architectures other than this one
 os = "linux" # Ignore advisories for operating systems other than this one
 
 [packages]
-scope = "all" # "all", "publiccrates" or "localcrates"
+scope = "All" # "All", "Public" or "Local"
