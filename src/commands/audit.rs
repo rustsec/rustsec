@@ -14,6 +14,7 @@ use rustsec::platforms::target::{Arch, OS};
 #[cfg(feature = "fix")]
 use rustsec::Vulnerability;
 use std::{path::PathBuf, process::exit};
+use rustsec::database::package_scope::PackageSource;
 
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
@@ -114,6 +115,10 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[options(no_short, long = "json", help = "Output report in JSON format")]
     output_json: bool,
+
+    /// Vulnerability querying does not consider local crates
+    #[options(no_short, long = "no-local-crates", help = "Vulnerability querying does not consider local crates")]
+    no_local_crates: bool,
 }
 
 impl Override<AuditConfig> for AuditCommand {
@@ -156,6 +161,10 @@ impl Override<AuditConfig> for AuditCommand {
 
         if self.output_json {
             config.output.format = OutputFormat::Json;
+        }
+
+        if self.no_local_crates {
+            config.packages.source = Some(PackageSource::Public)
         }
 
         Ok(config)
