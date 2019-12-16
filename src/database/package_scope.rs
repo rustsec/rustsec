@@ -10,7 +10,7 @@ pub enum PackageSource {
     /// Package is located somewhere public
     Public,
     /// All sources should be considered
-    All
+    All,
 }
 
 /// Scope for querying which kind of packages should be considered.
@@ -35,14 +35,18 @@ impl PackageScope {
 
 impl Default for PackageScope {
     fn default() -> Self {
-        PackageScope { source: PackageSource::All }
+        PackageScope {
+            source: PackageSource::All,
+        }
     }
 }
 
 impl PackageScope {
     /// Creates a new [[PackageScope]] from a specific registry uri `source`
     pub fn from_registry(source: &str) -> Self {
-        PackageScope { source: PackageSource::Registry(source.to_string())}
+        PackageScope {
+            source: PackageSource::Registry(source.to_string()),
+        }
     }
 
     /// Creates a new [[PackageScope]] with a specific [[PackageSource]]

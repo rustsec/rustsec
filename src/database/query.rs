@@ -1,5 +1,6 @@
 //! Queries against the RustSec database
 
+use crate::database::package_scope::PackageScope;
 use crate::{
     advisory::{Advisory, Severity},
     collection::Collection,
@@ -7,7 +8,6 @@ use crate::{
     platforms::target::{Arch, OS},
     version::Version,
 };
-use crate::database::package_scope::PackageScope;
 
 /// Queries against the RustSec database
 #[derive(Clone, Debug, Default)]

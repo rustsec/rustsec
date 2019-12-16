@@ -106,7 +106,12 @@ impl Database {
     }
 
     /// Find vulnerabilities in the provided `Lockfile` which match a given query.
-    pub fn query_vulnerabilities(&self, lockfile: &Lockfile, query: &Query, scope: &PackageScope) -> Vec<Vulnerability> {
+    pub fn query_vulnerabilities(
+        &self,
+        lockfile: &Lockfile,
+        query: &Query,
+        scope: &PackageScope,
+    ) -> Vec<Vulnerability> {
         let mut vulns = vec![];
 
         for package in &lockfile.packages {
