@@ -1,17 +1,13 @@
 use cargo_lock::Lockfile;
+use once_cell::sync::Lazy;
 use rustsec::database::package_scope::{PackageScope, PackageSource};
 use rustsec::database::Query;
 use rustsec::Database;
 use std::path::Path;
 use std::sync::Mutex;
 
-#[macro_use]
-extern crate lazy_static;
-
-lazy_static! {
-    pub static ref DEFAULT_DATABASE: Mutex<Database> =
-        { Mutex::new(Database::fetch().expect("Should be fetchable.")) };
-}
+static DEFAULT_DATABASE: Lazy<Mutex<Database>> =
+    Lazy::new(|| Mutex::new(Database::fetch().expect("Should be fetchable.")));
 
 /// Queries vulnerabilites in public package scope
 #[test]
