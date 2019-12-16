@@ -168,7 +168,7 @@ name = "cargo-audit"
 version = "0.10.0"
 dependencies = [
  "abscissa_core 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "cargo-edit 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-edit 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "failure 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "gumdrop 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "home 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -182,7 +182,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-edit"
-version = "0.4.1"
+version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "atty 0.2.13 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2009,7 +2009,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)" = "206fdffcfa2df7cbe15601ef46c813fce0965eb3286db6b56c583b814b51c81c"
 "checksum c2-chacha 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)" = "214238caa1bf3a496ec3392968969cab8549f96ff30652c9e56885329315f6bb"
 "checksum canonical-path 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
-"checksum cargo-edit 0.4.1 (registry+https://github.com/rust-lang/crates.io-index)" = "7165bcde078bc26d28672f55cd02afa2e056c7c6414e62f9bd54b66209a682f0"
+"checksum cargo-edit 0.4.2 (registry+https://github.com/rust-lang/crates.io-index)" = "9a55c37149afb91330f327e77d4adba97653394afabced7a8f759e37c899dc9c"
 "checksum cargo-lock 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "00d397ef532645d0918e142f9ad1bc6e402a58f5ae80080acdc3ffb0dc23a4cc"
 "checksum cargo_metadata 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)" = "46e3374c604fb39d1a2f35ed5e4a4e30e60d01fab49446e08f1b3e9a90aef202"
 "checksum cc 1.0.48 (registry+https://github.com/rust-lang/crates.io-index)" = "f52a465a666ca3d838ebbf08b241383421412fe7ebb463527bba275526d89f76"
