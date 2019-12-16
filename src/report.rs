@@ -5,7 +5,7 @@
 
 use crate::{
     advisory,
-    database::{Database, Query, package_scope::PackageScope},
+    database::{package_scope::PackageScope, Database, Query},
     lockfile::Lockfile,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
@@ -179,7 +179,6 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
     if let Some(scope) = &settings.package_scope {
         package_scope = scope;
     }
-
 
     // TODO(tarcieri): abstract `Cargo.lock` query logic between vulnerabilities/warnings
     for advisory_vuln in db.query_vulnerabilities(lockfile, &query, package_scope) {
