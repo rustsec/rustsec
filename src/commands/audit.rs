@@ -7,8 +7,6 @@ use crate::{
     prelude::*,
 };
 use abscissa_core::{config::Override, FrameworkError};
-#[cfg(feature = "fix")]
-use cargo_edit::{Dependency as EditDependency, LocalManifest};
 use gumdrop::Options;
 use rustsec::platforms::target::{Arch, OS};
 #[cfg(feature = "fix")]
@@ -201,7 +199,7 @@ impl AuditCommand {
 
         let cargo_toml = self.cargo_toml_path();
 
-        let mut manifest = LocalManifest::try_new(&cargo_toml).unwrap_or_else(|e| {
+        let mut manifest = cargo_edit::LocalManifest::try_new(&cargo_toml).unwrap_or_else(|e| {
             status_err!(
                 "couldn't load manifest from {}: {}",
                 cargo_toml.display(),
@@ -210,14 +208,16 @@ impl AuditCommand {
             exit(1);
         });
 
+        // TODO(tarcieri): dry run support
+        let dry_run = false;
+
         for vulnerability in vulnerabilities {
             if let Some(version) = vulnerability.versions.patched.get(0) {
+                let dependency = cargo_edit::Dependency::new(vulnerability.package.name.as_str())
+                    .set_version(&version.to_string());
+
                 manifest
-                    .upgrade(
-                        &EditDependency::new(vulnerability.package.name.as_str())
-                            .set_version(&version.to_string()),
-                        false,
-                    )
+                    .upgrade(&dependency, dry_run, false)
                     .unwrap_or_else(|e| status_warn!("unable to perform upgrade: {}", e));
             } else {
                 status_warn!("no upgrade available for {}", vulnerability.package.name);
