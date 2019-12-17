@@ -15,7 +15,12 @@ use rustsec::{
     },
     Vulnerability, Warning,
 };
-use std::{collections::BTreeSet as Set, io, path::Path, process::exit};
+use std::{
+    collections::BTreeSet as Set,
+    io::{self, Write},
+    path::Path,
+    process::exit,
+};
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -58,6 +63,7 @@ impl Presenter {
     ) {
         if self.config.format == OutputFormat::Json {
             serde_json::to_writer(io::stdout(), &report).unwrap();
+            io::stdout().flush().unwrap();
             return;
         }
 

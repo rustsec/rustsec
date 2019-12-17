@@ -8,30 +8,28 @@
 #![forbid(unsafe_code)]
 
 use abscissa_core::testing::prelude::*;
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::{io::BufRead, path::PathBuf};
 use tempfile::TempDir;
 
-lazy_static! {
-    /// Directory containing the advisory database.
-    ///
-    /// Uses a temporary directory to avoid polluting the default DB.
-    /// Instead use a single DB we tear down on test suite exit.
-    static ref ADVISORY_DB_DIR: TempDir = TempDir::new().unwrap();
+/// Directory containing the advisory database.
+///
+/// Uses a temporary directory to avoid polluting the default DB.
+/// Instead use a single DB we tear down on test suite exit.
+static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 
-    /// Executes target binary via `cargo run`.
-    ///
-    /// Storing this value in a `lazy_static!` ensures that all instances of
-    /// the runner acquire a mutex when executing commands and inspecting
-    /// exit statuses, serializing what would otherwise be multithreaded
-    /// invocations as `cargo test` executes tests in parallel by default.
-    pub static ref RUNNER: CmdRunner = {
-        let mut runner = CmdRunner::default();
-        runner.arg("audit").arg("--db").arg(ADVISORY_DB_DIR.path());
-        runner.capture_stdout().capture_stderr();
-        runner
-    };
-}
+/// Executes target binary via `cargo run`.
+///
+/// Storing this value in a `lazy_static!` ensures that all instances of
+/// the runner acquire a mutex when executing commands and inspecting
+/// exit statuses, serializing what would otherwise be multithreaded
+/// invocations as `cargo test` executes tests in parallel by default.
+pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
+    let mut runner = CmdRunner::default();
+    runner.arg("audit").arg("--db").arg(ADVISORY_DB_DIR.path());
+    runner.capture_stdout().capture_stderr();
+    runner
+});
 
 /// Get a `CmdRunner` configured to point at a project with or without vulns
 pub fn new_cmd_runner(has_vulns: bool) -> CmdRunner {

@@ -74,7 +74,7 @@ jobs:
           override: true
 
       - name: Run cargo audit
-        run: cargo run -- audit --deny-warnings
+        run: cargo run -- audit --deny-warnings --ignore RUSTSEC-2019-0031
 
   fmt:
     name: Rustfmt
