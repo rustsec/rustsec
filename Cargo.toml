@@ -25,7 +25,7 @@ serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 
 [dependencies.cargo-edit]
-version = "= 0.4.1" # ensure `git2` dep matches when upgrading
+version = "= 0.4.2" # ensure `git2` dep matches when upgrading
 optional = true
 default-features = false
 features = ["upgrade"]
