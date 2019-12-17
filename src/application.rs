@@ -4,14 +4,12 @@
 
 use crate::{commands::CargoAuditCommand, config::AuditConfig};
 use abscissa_core::{
-    application, config, logging, Application, EntryPoint, FrameworkError, StandardPaths,
+    application::{self, AppCell},
+    config, trace, Application, EntryPoint, FrameworkError, StandardPaths,
 };
-use lazy_static::lazy_static;
 
-lazy_static! {
-    /// Application state
-    pub static ref APPLICATION: application::Lock<CargoAuditApplication> = application::Lock::default();
-}
+/// Application state
+pub static APPLICATION: AppCell<CargoAuditApplication> = AppCell::new();
 
 /// Obtain a read-only (multi-reader) lock on the application state.
 ///
@@ -94,12 +92,12 @@ impl Application for CargoAuditApplication {
         Ok(())
     }
 
-    /// Get logging configuration from command-line options
-    fn logging_config(&self, command: &EntryPoint<CargoAuditCommand>) -> logging::Config {
+    /// Get tracing configuration from command-line options
+    fn tracing_config(&self, command: &EntryPoint<CargoAuditCommand>) -> trace::Config {
         if command.verbose {
-            logging::Config::verbose()
+            trace::Config::verbose()
         } else {
-            logging::Config::default()
+            trace::Config::default()
         }
     }
 }
