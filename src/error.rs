@@ -1,12 +1,51 @@
 //! Error types
 
-use abscissa_core::err;
-use failure::Fail;
-use std::{fmt, io};
+use abscissa_core::error::{BoxError, Context};
+use std::{
+    fmt::{self, Display},
+    io,
+    ops::Deref,
+};
+use thiserror::Error;
+
+/// Kinds of errors
+#[derive(Copy, Clone, Debug, Eq, Error, PartialEq)]
+pub enum ErrorKind {
+    /// Error in configuration file
+    #[error("config error")]
+    Config,
+
+    /// Input/output error
+    #[error("I/O error")]
+    Io,
+
+    /// Parse errors
+    #[error("parse error")]
+    Parse,
+
+    /// Repository errors
+    #[error("git repo error")]
+    Repo,
+
+    /// Version errors
+    #[error("version error")]
+    Version,
+
+    /// Other kinds of errors
+    #[error("other error")]
+    Other,
+}
+
+impl ErrorKind {
+    /// Create an error context from this error
+    pub fn context(self, source: impl Into<BoxError>) -> Context<ErrorKind> {
+        Context::new(self, Some(source.into()))
+    }
+}
 
 /// Error type
 #[derive(Debug)]
-pub struct Error(abscissa_core::Error<ErrorKind>);
+pub struct Error(Box<Context<ErrorKind>>);
 
 impl Error {
     /// Get the kind of error that occurred
@@ -15,74 +54,60 @@ impl Error {
     }
 }
 
-/// Kinds of errors
-#[derive(Copy, Clone, Eq, PartialEq, Debug, Fail)]
-pub enum ErrorKind {
-    /// Error in configuration file
-    #[fail(display = "config error")]
-    Config,
+impl Deref for Error {
+    type Target = Context<ErrorKind>;
 
-    /// Input/output error
-    #[fail(display = "I/O error")]
-    Io,
-
-    /// Parse errors
-    #[fail(display = "parse error")]
-    Parse,
-
-    /// Repository errors
-    #[fail(display = "git repo error")]
-    Repo,
-
-    /// Version errors
-    #[fail(display = "version error")]
-    Version,
-
-    /// Other kinds of errors
-    #[fail(display = "other error")]
-    Other,
+    fn deref(&self) -> &Context<ErrorKind> {
+        &self.0
+    }
 }
 
-impl fmt::Display for Error {
+impl Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl From<abscissa_core::Error<ErrorKind>> for Error {
-    fn from(other: abscissa_core::Error<ErrorKind>) -> Self {
-        Error(other)
+impl From<Context<ErrorKind>> for Error {
+    fn from(context: Context<ErrorKind>) -> Self {
+        Error(Box::new(context))
     }
 }
 
 impl From<io::Error> for Error {
     fn from(other: io::Error) -> Self {
-        err!(ErrorKind::Io, other).into()
+        ErrorKind::Io.context(other).into()
     }
 }
 
 impl From<rustsec::Error> for Error {
     fn from(other: rustsec::Error) -> Self {
-        let kind = match other.kind() {
+        match other.kind() {
             rustsec::ErrorKind::Io => ErrorKind::Io,
             rustsec::ErrorKind::Parse => ErrorKind::Parse,
             rustsec::ErrorKind::Repo => ErrorKind::Repo,
             rustsec::ErrorKind::Version => ErrorKind::Version,
             _ => ErrorKind::Other,
-        };
-
-        Error(err!(kind, "{}", other))
+        }
+        .context(other)
+        .into()
     }
 }
 
 impl From<rustsec::cargo_lock::Error> for Error {
     fn from(other: rustsec::cargo_lock::Error) -> Self {
-        let kind = match other.kind() {
+        match other.kind() {
             rustsec::cargo_lock::ErrorKind::Io => ErrorKind::Io,
             rustsec::cargo_lock::ErrorKind::Parse => ErrorKind::Parse,
             rustsec::cargo_lock::ErrorKind::Version => ErrorKind::Version,
-        };
+        }
+        .context(other)
+        .into()
+    }
+}
 
-        Error(err!(kind, "{}", other))
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.0.source()
     }
 }
