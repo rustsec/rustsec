@@ -31,6 +31,7 @@ tempfile = "3"
 
 [features]
 dependency-tree = ["cargo-lock/dependency-tree"]
+vendored-openssl = ["git2/vendored-openssl"]
 
 [package.metadata.docs.rs]
 all-features = true
