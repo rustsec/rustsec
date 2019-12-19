@@ -4,14 +4,12 @@
 
 use crate::{commands::AdminCmd, config::AppConfig};
 use abscissa_core::{
-    application, config, logging, Application, EntryPoint, FrameworkError, StandardPaths,
+    application::{self, AppCell},
+    config, trace, Application, EntryPoint, FrameworkError, StandardPaths,
 };
-use lazy_static::lazy_static;
 
-lazy_static! {
-    /// Application state
-    pub static ref APPLICATION: application::Lock<AdminApp> = application::Lock::default();
-}
+/// Application state
+pub static APPLICATION: AppCell<AdminApp> = AppCell::new();
 
 /// Obtain a read-only (multi-reader) lock on the application state.
 ///
@@ -81,12 +79,12 @@ impl Application for AdminApp {
         Ok(())
     }
 
-    /// Get logging configuration from command-line options.
-    fn logging_config(&self, command: &EntryPoint<AdminCmd>) -> logging::Config {
+    /// Get tracing configuration from command-line options
+    fn tracing_config(&self, command: &EntryPoint<AdminCmd>) -> trace::Config {
         if command.verbose {
-            logging::Config::verbose()
+            trace::Config::verbose()
         } else {
-            logging::Config::default()
+            trace::Config::default()
         }
     }
 }
