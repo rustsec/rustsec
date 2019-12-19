@@ -10,17 +10,15 @@ readme      = "README.md"
 edition     = "2018"
 
 [dependencies]
-abscissa_core = "0.3"
+abscissa_core = "0.5"
 crates_io_api = "0.5"
-failure = "0.1"
-gumdrop = "0.6"
+gumdrop = "0.7"
 handlebars = "2"
-lazy_static = "1"
-rustsec = "0.15.1"
+rustsec = "0.16"
 serde = { version = "1", features = ["serde_derive"] }
 termcolor = "1"
+thiserror = "1"
 
-[dev-dependencies.abscissa_core]
-version = "0.3"
-features = ["testing"]
-
+[dev-dependencies]
+abscissa_core = { version = "0.5", features = ["testing"] }
+once_cell = "1.2"
