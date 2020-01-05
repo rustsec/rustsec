@@ -10,11 +10,11 @@ use abscissa_core::{config::Override, FrameworkError};
 #[cfg(feature = "fix")]
 use cargo_edit::{Dependency as EditDependency, LocalManifest};
 use gumdrop::Options;
+use rustsec::database::package_scope::PackageSource;
 use rustsec::platforms::target::{Arch, OS};
 #[cfg(feature = "fix")]
 use rustsec::Vulnerability;
 use std::{path::PathBuf, process::exit};
-use rustsec::database::package_scope::PackageSource;
 
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
@@ -117,7 +117,11 @@ pub struct AuditCommand {
     output_json: bool,
 
     /// Vulnerability querying does not consider local crates
-    #[options(no_short, long = "no-local-crates", help = "Vulnerability querying does not consider local crates")]
+    #[options(
+        no_short,
+        long = "no-local-crates",
+        help = "Vulnerability querying does not consider local crates"
+    )]
     no_local_crates: bool,
 }
 

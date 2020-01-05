@@ -1,6 +1,7 @@
 //! The `~/.cargo/audit.toml` configuration file
 
 use abscissa_core::Config;
+use rustsec::database::package_scope::{PackageScope, PackageSource};
 use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
@@ -8,7 +9,6 @@ use rustsec::{
 };
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use rustsec::database::package_scope::{PackageScope, PackageSource};
 
 /// `cargo audit` configuration:
 ///
