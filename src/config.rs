@@ -1,6 +1,5 @@
 //! The `~/.cargo/audit.toml` configuration file
 
-use abscissa_core::Config;
 use rustsec::database::package_scope::{PackageScope, PackageSource};
 use rustsec::{
     advisory,
@@ -13,7 +12,7 @@ use std::path::PathBuf;
 /// `cargo audit` configuration:
 ///
 /// An optional TOML config file located in `~/.cargo/audit.toml`
-#[derive(Clone, Config, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AuditConfig {
     /// Advisory-related configuration
@@ -57,7 +56,7 @@ impl AuditConfig {
 }
 
 /// Advisory-related configuration.
-#[derive(Clone, Config, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AdvisoryConfig {
     /// Ignore advisories for the given IDs
@@ -78,7 +77,7 @@ pub struct AdvisoryConfig {
 ///
 /// The advisory database is stored in a Git repository. This section of the
 /// configuration stores settings related to it.
-#[derive(Clone, Config, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct DatabaseConfig {
     /// Path to the local copy of advisory database's git repo (default: ~/.cargo/advisory-db)
@@ -95,7 +94,7 @@ pub struct DatabaseConfig {
 }
 
 /// Output configuration
-#[derive(Clone, Config, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct OutputConfig {
     /// Should colors be displayed?
@@ -135,7 +134,7 @@ impl OutputConfig {
 }
 
 /// Output format
-#[derive(Copy, Clone, Config, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum OutputFormat {
     /// Display JSON
     #[serde(rename = "json")]
@@ -153,7 +152,7 @@ impl Default for OutputFormat {
 }
 
 /// Target configuration
-#[derive(Clone, Config, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TargetConfig {
     /// Target architecture to find vulnerabilities for
@@ -164,7 +163,7 @@ pub struct TargetConfig {
 }
 
 /// Packages configuration
-#[derive(Clone, Config, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct PackageConfig {
     /// Package scope which should be considered for querying for vulnerabilities.
