@@ -30,6 +30,9 @@ optional = true
 default-features = false
 features = ["upgrade"]
 
+[patch.crates-io]
+rustsec = { git = "https://github.com/RustSec/rustsec-crate" }
+
 [dev-dependencies]
 tempfile = "3"
 toml = "0.5"
