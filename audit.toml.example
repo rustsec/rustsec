@@ -27,3 +27,6 @@ show_tree = true # Show inverse dependency trees along with advisories (default:
 [target]
 arch = "x86_64" # Ignore advisories for CPU architectures other than this one
 os = "linux" # Ignore advisories for operating systems other than this one
+
+[packages]
+source = "All" # "All", "Public" or "Local"
