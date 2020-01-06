@@ -1,5 +1,6 @@
 //! The `~/.cargo/audit.toml` configuration file
 
+use rustsec::database::package_scope::{PackageScope, PackageSource};
 use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
@@ -25,6 +26,9 @@ pub struct AuditConfig {
 
     /// Target-related configuration
     pub target: TargetConfig,
+
+    /// Packages-related configuration
+    pub packages: PackageConfig,
 }
 
 impl AuditConfig {
@@ -35,6 +39,10 @@ impl AuditConfig {
         settings.severity = self.advisories.severity_threshold;
         settings.target_arch = self.target.arch;
         settings.target_os = self.target.os;
+
+        if let Some(source) = &self.packages.source {
+            settings.package_scope = Some(PackageScope::from_source(source.clone()));
+        }
 
         if let Some(informational_warnings) = &self.advisories.informational_warnings {
             settings.informational_warnings = informational_warnings.clone();
@@ -152,4 +160,12 @@ pub struct TargetConfig {
 
     /// Target OS to find vulnerabilities for
     pub os: Option<OS>,
+}
+
+/// Packages configuration
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct PackageConfig {
+    /// Package scope which should be considered for querying for vulnerabilities.
+    pub source: Option<PackageSource>,
 }

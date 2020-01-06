@@ -8,6 +8,7 @@ use crate::{
 };
 use abscissa_core::{config::Override, FrameworkError};
 use gumdrop::Options;
+use rustsec::database::package_scope::PackageSource;
 use rustsec::platforms::target::{Arch, OS};
 #[cfg(feature = "fix")]
 use rustsec::Vulnerability;
@@ -112,6 +113,14 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[options(no_short, long = "json", help = "Output report in JSON format")]
     output_json: bool,
+
+    /// Vulnerability querying does not consider local crates
+    #[options(
+        no_short,
+        long = "no-local-crates",
+        help = "Vulnerability querying does not consider local crates"
+    )]
+    no_local_crates: bool,
 }
 
 impl Override<AuditConfig> for AuditCommand {
@@ -154,6 +163,10 @@ impl Override<AuditConfig> for AuditCommand {
 
         if self.output_json {
             config.output.format = OutputFormat::Json;
+        }
+
+        if self.no_local_crates {
+            config.packages.source = Some(PackageSource::Public)
         }
 
         Ok(config)
