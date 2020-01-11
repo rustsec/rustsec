@@ -18,11 +18,11 @@ maintenance = { status = "actively-developed" }
 cargo-lock = "3"
 chrono = { version = "0.4", features = ["serde"] }
 cvss = { version = "1", features = ["serde"] }
-git2 = "0.10"
+git2 = "0.11"
 home = "0.5"
 platforms = { version = "0.2", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
-semver-parser = "0.7"
+semver-parser = "0.9"
 serde = { version = "1", features = ["serde_derive"] }
 toml = "0.5"
 
