@@ -73,6 +73,11 @@ pub enum ErrorKind {
     #[error("bad parameter")]
     BadParam,
 
+    /// Error performing an automatic fix
+    #[cfg(feature = "fix")]
+    #[error("fix failed")]
+    Fix,
+
     /// An error occurred performing an I/O operation (e.g. network, file)
     #[error("I/O operation failed")]
     Io,
@@ -101,6 +106,13 @@ pub enum ErrorKind {
 impl From<Utf8Error> for Error {
     fn from(other: Utf8Error) -> Self {
         format_err!(ErrorKind::Parse, &other)
+    }
+}
+
+#[cfg(feature = "fix")]
+impl From<cargo_edit::Error> for Error {
+    fn from(other: cargo_edit::Error) -> Self {
+        format_err!(ErrorKind::Fix, &other)
     }
 }
 

@@ -17,7 +17,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 cargo-lock = "3"
 chrono = { version = "0.4", features = ["serde"] }
-crates-index = "0.13"
+crates-index = "= 0.13.4"
 cvss = { version = "1", features = ["serde"] }
 git2 = "0.11"
 home = "0.5"
@@ -28,13 +28,23 @@ serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
 toml = "0.5"
 
+[dependencies.cargo-edit]
+version = "= 0.4.2" # ensure `git2` dep matches when upgrading
+optional = true
+default-features = false
+features = ["upgrade"]
+
 [dev-dependencies]
 tempfile = "3"
 once_cell = "1.2.0"
 
 [features]
+fix = ["cargo-edit"]
 dependency-tree = ["cargo-lock/dependency-tree"]
 vendored-openssl = ["git2/vendored-openssl"]
 
 [package.metadata.docs.rs]
 all-features = true
+
+[patch.crates-io]
+cargo-edit = { git = "https://github.com/killercup/cargo-edit" }

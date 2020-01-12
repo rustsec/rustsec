@@ -17,6 +17,8 @@ pub mod error;
 pub mod advisory;
 pub mod collection;
 pub mod database;
+#[cfg(feature = "fix")]
+pub mod fixer;
 pub mod registry;
 pub mod report;
 pub mod repository;
