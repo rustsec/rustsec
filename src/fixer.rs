@@ -22,7 +22,7 @@ impl Fixer {
     /// Attempt to fix the given vulnerability
     pub fn fix(
         &mut self,
-        vulnerability: Vulnerability,
+        vulnerability: &Vulnerability,
         dry_run: bool,
     ) -> Result<VersionReq, Error> {
         // TODO(tarcieri): find semver-compatible fix?
