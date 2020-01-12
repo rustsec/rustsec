@@ -8,28 +8,6 @@ on:
 name: Rust
 
 jobs:
-  audit:
-    name: Audit
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout sources
-        uses: actions/checkout@v1
-
-      - name: Install stable toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-
-      - name: Install cargo audit
-        run: cargo install cargo-audit
-
-      - name: Run cargo audit
-        uses: actions-rs/cargo@v1
-        with:
-          command: audit
-          args: --deny-warnings
-
   check:
     name: Check
     runs-on: ubuntu-latest
@@ -63,6 +41,18 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v1
 
+      - name: Cache cargo registry
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
+
+      - name: Cache cargo index
+        uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
+
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -71,8 +61,21 @@ jobs:
 
       - name: Run cargo test
         uses: actions-rs/cargo@v1
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: -D warnings
         with:
           command: test
+          args: --release
+
+      - name: Run cargo test --all-features
+        uses: actions-rs/cargo@v1
+        env:
+          CARGO_INCREMENTAL: 0
+          RUSTFLAGS: -D warnings
+        with:
+          command: test
+          args: --all-features --release
 
   fmt:
     name: Rustfmt
