@@ -17,6 +17,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 cargo-lock = "3"
 chrono = { version = "0.4", features = ["serde"] }
+crates-index = "0.13"
 cvss = { version = "1", features = ["serde"] }
 git2 = "0.11"
 home = "0.5"
@@ -24,6 +25,7 @@ platforms = { version = "0.2", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
 semver-parser = "0.9"
 serde = { version = "1", features = ["serde_derive"] }
+thiserror = "1"
 toml = "0.5"
 
 [dev-dependencies]
