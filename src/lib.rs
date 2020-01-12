@@ -17,6 +17,7 @@ pub mod error;
 pub mod advisory;
 pub mod collection;
 pub mod database;
+pub mod registry;
 pub mod report;
 pub mod repository;
 pub mod version;

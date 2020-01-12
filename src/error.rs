@@ -7,6 +7,7 @@ use std::{
     io,
     str::Utf8Error,
 };
+use thiserror::Error;
 use toml;
 
 /// Create a new error (of a given enum variant) with a formatted message
@@ -66,36 +67,35 @@ impl Display for Error {
 impl std::error::Error for Error {}
 
 /// Custom error type for this library
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Error, Eq, PartialEq)]
 pub enum ErrorKind {
     /// Invalid argument or parameter
+    #[error("bad parameter")]
     BadParam,
 
     /// An error occurred performing an I/O operation (e.g. network, file)
+    #[error("I/O operation failed")]
     Io,
 
+    /// Not found
+    #[error("not found")]
+    NotFound,
+
     /// Couldn't parse response data
+    #[error("parse error")]
     Parse,
 
+    /// Registry-related error
+    #[error("registry")]
+    Registry,
+
     /// Git operation failed
+    #[error("git operation failed")]
     Repo,
 
     /// Errors related to versions
+    #[error("bad version")]
     Version,
-}
-
-impl Display for ErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let description = match self {
-            ErrorKind::BadParam => "bad parameter",
-            ErrorKind::Io => "I/O operation failed",
-            ErrorKind::Parse => "parse error",
-            ErrorKind::Repo => "git operation failed",
-            ErrorKind::Version => "bad version",
-        };
-
-        write!(f, "{}", description)
-    }
 }
 
 impl From<Utf8Error> for Error {
@@ -125,6 +125,12 @@ impl From<git2::Error> for Error {
 impl From<io::Error> for Error {
     fn from(other: io::Error) -> Self {
         format_err!(ErrorKind::Io, &other)
+    }
+}
+
+impl From<crates_index::Error> for Error {
+    fn from(other: crates_index::Error) -> Self {
+        format_err!(ErrorKind::Registry, "{}", other)
     }
 }
 
