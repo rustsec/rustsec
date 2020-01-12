@@ -15,7 +15,7 @@ edition     = "2018"
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-abscissa_core = "0.5"
+abscissa_core = "0.5.1"
 gumdrop = "0.7"
 home = "0.5"
 lazy_static = "1"
@@ -44,4 +44,4 @@ version = "0.5"
 features = ["testing"]
 
 [features]
-fix = ["cargo-edit"]
+fix = ["rustsec/fix"]

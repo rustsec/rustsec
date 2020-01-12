@@ -13,12 +13,12 @@
 //!
 //! <https://docs.rs/rustsec/>
 
-#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
-#![forbid(unsafe_code)]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
     html_root_url = "https://docs.rs/cargo-audit/0.10.0"
 )]
+#![forbid(unsafe_code)]
+#![warn(missing_docs, rust_2018_idioms, trivial_casts, unused_qualifications)]
 
 pub mod application;
 pub mod auditor;

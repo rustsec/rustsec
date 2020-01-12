@@ -113,23 +113,12 @@ pub struct OutputConfig {
 
     /// Show inverse dependency trees along with advisories (default: true)
     pub show_tree: Option<bool>,
-
-    /// Enable fix mode
-    #[cfg(feature = "fix")]
-    #[serde(default)]
-    pub fix: bool,
 }
 
 impl OutputConfig {
     /// Is quiet mode enabled?
     pub fn is_quiet(&self) -> bool {
         self.quiet || self.format == OutputFormat::Json
-    }
-
-    /// Is fix mode enabled?
-    #[cfg(feature = "fix")]
-    pub fn is_fix_enabled(&self) -> bool {
-        self.fix
     }
 }
 

@@ -1,5 +1,8 @@
 //! The `cargo audit` subcommand
 
+#[cfg(feature = "fix")]
+mod fix;
+
 use super::CargoAuditCommand;
 use crate::{
     auditor::Auditor,
@@ -10,9 +13,10 @@ use abscissa_core::{config::Override, FrameworkError};
 use gumdrop::Options;
 use rustsec::database::package_scope::PackageSource;
 use rustsec::platforms::target::{Arch, OS};
-#[cfg(feature = "fix")]
-use rustsec::Vulnerability;
 use std::{path::PathBuf, process::exit};
+
+#[cfg(feature = "fix")]
+use self::fix::FixCommand;
 
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
@@ -24,6 +28,11 @@ pub struct AuditCommand {
     /// Get version information
     #[options(no_short, long = "version", help = "output version and exit")]
     version: bool,
+
+    /// Optional subcommand (used for `cargo audit fix`)
+    #[cfg(feature = "fix")]
+    #[options(command)]
+    subcommand: Option<AuditSubcommand>,
 
     /// Colored output configuration
     #[options(
@@ -55,11 +64,6 @@ pub struct AuditCommand {
         help = "Cargo lockfile to inspect (or `-` for STDIN, default: Cargo.lock)"
     )]
     file: Option<PathBuf>,
-
-    /// Attempt to update vulnerable dependencies
-    #[cfg(feature = "fix")]
-    #[options(no_short, long = "fix", help = "upgrade vulnerable dependencies")]
-    fix: bool,
 
     /// Advisory IDs to ignore
     #[options(
@@ -123,6 +127,15 @@ pub struct AuditCommand {
     no_local_crates: bool,
 }
 
+/// Subcommands of `cargo audit`
+#[cfg(feature = "fix")]
+#[derive(Command, Debug, Options, Runnable)]
+pub enum AuditSubcommand {
+    /// `cargo audit fix` subcommand
+    #[options(help = "automatically upgrade vulnerable dependencies")]
+    Fix(FixCommand),
+}
+
 impl Override<AuditConfig> for AuditCommand {
     fn override_config(&self, mut config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
         if let Some(color) = &self.color {
@@ -184,11 +197,17 @@ impl Runnable for AuditCommand {
             exit(0);
         }
 
+        #[cfg(feature = "fix")]
+        match &self.subcommand {
+            Some(AuditSubcommand::Fix(fix)) => {
+                fix.run();
+                exit(0)
+            }
+            None => (),
+        }
+
         let lockfile_path = self.file.as_ref().map(PathBuf::as_path);
         let report = self.auditor().audit(lockfile_path);
-
-        #[cfg(feature = "fix")]
-        self.perform_fix(&report.vulnerabilities.list);
 
         if report.vulnerabilities.found {
             exit(1)
@@ -201,46 +220,5 @@ impl AuditCommand {
     pub fn auditor(&self) -> Auditor {
         let config = app_config();
         Auditor::new(&config)
-    }
-
-    /// Attempt to upgrade vulnerable dependencies
-    #[cfg(feature = "fix")]
-    pub fn perform_fix(&self, vulnerabilities: &[Vulnerability]) {
-        if !self.fix {
-            return;
-        }
-
-        let cargo_toml = self.cargo_toml_path();
-
-        let mut manifest = cargo_edit::LocalManifest::try_new(&cargo_toml).unwrap_or_else(|e| {
-            status_err!(
-                "couldn't load manifest from {}: {}",
-                cargo_toml.display(),
-                e
-            );
-            exit(1);
-        });
-
-        // TODO(tarcieri): dry run support
-        let dry_run = false;
-
-        for vulnerability in vulnerabilities {
-            if let Some(version) = vulnerability.versions.patched.get(0) {
-                let dependency = cargo_edit::Dependency::new(vulnerability.package.name.as_str())
-                    .set_version(&version.to_string());
-
-                manifest
-                    .upgrade(&dependency, dry_run, false)
-                    .unwrap_or_else(|e| status_warn!("unable to perform upgrade: {}", e));
-            } else {
-                status_warn!("no upgrade available for {}", vulnerability.package.name);
-            }
-        }
-    }
-
-    /// Locate `Cargo.toml`
-    // TODO(tarcieri): less contrived implementation
-    pub fn cargo_toml_path(&self) -> PathBuf {
-        PathBuf::from("Cargo.toml")
     }
 }
