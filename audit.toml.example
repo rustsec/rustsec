@@ -21,7 +21,6 @@ deny_warnings = false # exit on error if any warnings are found
 format = "terminal" # "terminal" (human readable report) or "json"
 quiet = false # Only print information on error
 show_tree = true # Show inverse dependency trees along with advisories (default: true)
-# fix = true # Automatically upgrade vulnerable dependencies (requires `fix` cargo feature)
 
 # Target Configuration
 [target]
