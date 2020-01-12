@@ -6,10 +6,12 @@
 use crate::{
     advisory,
     database::{package_scope::PackageScope, Database, Query},
+    error::Error,
     lockfile::Lockfile,
     platforms::target::{Arch, OS},
+    registry,
     vulnerability::Vulnerability,
-    warning::Warning,
+    warning::{self, Warning},
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -47,12 +49,19 @@ impl Report {
             .filter(|vuln| !settings.ignore.contains(&vuln.advisory.id))
             .collect();
 
+        let mut warnings = find_warnings(db, lockfile, settings);
+
+        // TODO(tarcieri): logging for registry index errors
+        if let Ok(mut yanked) = find_yanked_crates(lockfile) {
+            warnings.append(&mut yanked);
+        }
+
         Self {
             database: DatabaseInfo::new(db),
             lockfile: LockfileInfo::new(lockfile),
             settings: settings.clone(),
             vulnerabilities: VulnerabilityInfo::new(vulnerabilities),
-            warnings: find_warnings(db, lockfile, settings),
+            warnings,
         }
     }
 }
@@ -193,13 +202,36 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
             .iter()
             .any(|info| Some(info) == advisory.informational.as_ref())
         {
-            result.push(Warning::new(
-                advisory,
-                &advisory_vuln.versions,
-                &advisory_vuln.package,
-            ))
+            let kind = match advisory.informational.as_ref().unwrap() {
+                advisory::Informational::Notice => warning::Kind::Informational {
+                    advisory: advisory.clone(),
+                    versions: advisory_vuln.versions.clone(),
+                },
+                advisory::Informational::Unmaintained => warning::Kind::Unmaintained {
+                    advisory: advisory.clone(),
+                    versions: advisory_vuln.versions.clone(),
+                },
+                advisory::Informational::Other(_) => continue,
+            };
+
+            result.push(Warning::new(kind, &advisory_vuln.package))
         }
     }
 
     result
+}
+
+/// If the index is available, check for yanked crates in the lockfile
+fn find_yanked_crates(lockfile: &Lockfile) -> Result<Vec<Warning>, Error> {
+    let index = registry::Index::open()?;
+
+    let mut result = vec![];
+
+    for package in &lockfile.packages {
+        if index.find(&package.name, &package.version)?.is_yanked {
+            result.push(Warning::new(warning::Kind::Yanked, package));
+        }
+    }
+
+    Ok(result)
 }

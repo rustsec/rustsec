@@ -6,27 +6,48 @@ use serde::{Deserialize, Serialize};
 /// Warnings sourced from the Advisory DB
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Warning {
-    /// Security advisory warning was sourced from
-    pub advisory: advisory::Metadata,
-
-    /// Versions impacted by this warning
-    pub versions: advisory::Versions,
+    /// Kind of warning
+    pub kind: Kind,
 
     /// Name of the dependent package
     pub package: Package,
 }
 
 impl Warning {
-    /// Create `Warning` about a given [`Advisory`] and [`Package`]
-    pub(crate) fn new(
-        advisory: &advisory::Metadata,
-        versions: &advisory::Versions,
-        package: &Package,
-    ) -> Self {
+    /// Create `Warning` of the given kind
+    pub(crate) fn new(kind: Kind, package: &Package) -> Self {
         Self {
-            advisory: advisory.clone(),
-            versions: versions.clone(),
+            kind,
             package: package.clone(),
         }
     }
+}
+
+/// Kinds of warnings
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[allow(clippy::large_enum_variant)]
+pub enum Kind {
+    /// Unmaintained packages
+    #[serde(rename = "unmaintained")]
+    Unmaintained {
+        /// Source advisory
+        advisory: advisory::Metadata,
+
+        /// Versions impacted by this warning
+        versions: advisory::Versions,
+    },
+
+    /// Informational advisories
+    #[serde(rename = "informational")]
+    Informational {
+        /// Source advisory
+        advisory: advisory::Metadata,
+
+        /// Versions impacted by this warning
+        versions: advisory::Versions,
+    },
+
+    /// Yanked packages
+    #[serde(rename = "yanked")]
+    Yanked,
 }
