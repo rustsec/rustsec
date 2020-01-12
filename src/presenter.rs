@@ -13,7 +13,7 @@ use rustsec::{
         dependency::{self, graph::EdgeDirection, Dependency},
         Lockfile, Package,
     },
-    Vulnerability, Warning,
+    warning, Vulnerability, Warning,
 };
 use std::{
     collections::BTreeSet as Set,
@@ -84,24 +84,16 @@ impl Presenter {
         if !report.warnings.is_empty() {
             println!();
 
-            let advisory_word = if report.warnings.len() != 1 {
-                "advisories"
+            let warning_word = if report.warnings.len() != 1 {
+                "warnings"
             } else {
-                "advisory"
+                "warning"
             };
 
             if self.config.deny_warnings {
-                status_err!(
-                    "{} informational {} found",
-                    report.warnings.len(),
-                    advisory_word
-                );
+                status_err!("{} {} found", report.warnings.len(), warning_word);
             } else {
-                status_warn!(
-                    "{} informational {} found",
-                    report.warnings.len(),
-                    advisory_word
-                );
+                status_warn!("{} {} found", report.warnings.len(), warning_word);
             }
 
             for warning in &report.warnings {
@@ -217,7 +209,12 @@ impl Presenter {
 
     /// Print information about a given warning
     fn print_warning(&mut self, warning: &Warning, tree: &dependency::Tree) {
-        self.print_advisory_warning(&warning.advisory);
+        match &warning.kind {
+            warning::Kind::Informational { advisory, .. }
+            | warning::Kind::Unmaintained { advisory, .. } => self.print_advisory_warning(advisory),
+            warning::Kind::Yanked => self.print_yanked_warning(&warning.package),
+        }
+
         self.print_tree(self.warning_color(), &warning.package, tree);
     }
 
@@ -231,19 +228,29 @@ impl Presenter {
     }
 
     /// Print a warning about a particular advisory
-    fn print_advisory_warning(&mut self, metadata: &rustsec::advisory::Metadata) {
+    fn print_advisory_warning(&self, metadata: &rustsec::advisory::Metadata) {
         let color = self.warning_color();
 
         println!();
-        self.print_attr(color, "Crate:   ", &metadata.package);
-        self.print_attr(color, "Title:   ", &metadata.title);
-        self.print_attr(color, "Date:    ", &metadata.date);
+        self.print_attr(color, "Crate: ", &metadata.package);
+        self.print_attr(color, "Title: ", &metadata.title);
+        self.print_attr(color, "Date:  ", &metadata.date);
 
         if let Some(url) = metadata.id.url() {
-            self.print_attr(color, "URL:     ", &url);
+            self.print_attr(color, "URL:   ", &url);
         } else if let Some(url) = &metadata.url {
-            self.print_attr(color, "URL:     ", url);
+            self.print_attr(color, "URL:   ", url);
         }
+    }
+
+    /// Print a warning about a yanked crate
+    fn print_yanked_warning(&self, package: &Package) {
+        let color = self.warning_color();
+
+        println!();
+        self.print_attr(color, "Crate:   ", &package.name);
+        self.print_attr(color, "Version: ", package.version.to_string());
+        self.print_attr(color, "Warning: ", "package has been yanked!");
     }
 
     /// Display an attribute of a particular vulnerability
