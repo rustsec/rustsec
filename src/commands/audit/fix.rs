@@ -11,6 +11,10 @@ use std::{
 
 #[derive(Command, Default, Debug, Options)]
 pub struct FixCommand {
+    /// Get help information
+    #[options(short = "h", long = "help", help = "output help information and exit")]
+    help: bool,
+
     /// Path to `Cargo.lock`
     #[options(short = "f", long = "file", help = "Cargo lockfile to inspect")]
     file: Option<PathBuf>,
@@ -41,6 +45,10 @@ impl FixCommand {
 
 impl Runnable for FixCommand {
     fn run(&self) {
+        if self.help {
+            Self::print_usage_and_exit(&[]);
+        }
+
         let report = self.auditor().audit(self.cargo_lock_path());
 
         if report.vulnerabilities.list.is_empty() {
