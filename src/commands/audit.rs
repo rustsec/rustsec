@@ -21,6 +21,11 @@ use self::fix::FixCommand;
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Options)]
 pub struct AuditCommand {
+    /// Optional subcommand (used for `cargo audit fix`)
+    #[cfg(feature = "fix")]
+    #[options(command)]
+    subcommand: Option<AuditSubcommand>,
+
     /// Get help information
     #[options(short = "h", long = "help", help = "output help information and exit")]
     help: bool,
@@ -28,11 +33,6 @@ pub struct AuditCommand {
     /// Get version information
     #[options(no_short, long = "version", help = "output version and exit")]
     version: bool,
-
-    /// Optional subcommand (used for `cargo audit fix`)
-    #[cfg(feature = "fix")]
-    #[options(command)]
-    subcommand: Option<AuditSubcommand>,
 
     /// Colored output configuration
     #[options(
@@ -188,15 +188,6 @@ impl Override<AuditConfig> for AuditCommand {
 
 impl Runnable for AuditCommand {
     fn run(&self) {
-        if self.help {
-            Self::print_usage_and_exit(&[]);
-        }
-
-        if self.version {
-            println!("cargo-audit {}", CargoAuditCommand::version());
-            exit(0);
-        }
-
         #[cfg(feature = "fix")]
         match &self.subcommand {
             Some(AuditSubcommand::Fix(fix)) => {
@@ -204,6 +195,15 @@ impl Runnable for AuditCommand {
                 exit(0)
             }
             None => (),
+        }
+
+        if self.help {
+            Self::print_usage_and_exit(&[]);
+        }
+
+        if self.version {
+            println!("cargo-audit {}", CargoAuditCommand::version());
+            exit(0);
         }
 
         let lockfile_path = self.file.as_ref().map(PathBuf::as_path);
