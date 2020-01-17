@@ -35,7 +35,7 @@ cargo-edit = { git = "https://github.com/killercup/cargo-edit" }
 rustsec = { git = "https://github.com/RustSec/rustsec-crate" }
 
 [dev-dependencies]
-once_cell = "1.2"
+once_cell = "1.3"
 tempfile = "3"
 toml = "0.5"
 
