@@ -210,7 +210,7 @@ dependencies = [
  "serde_derive 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.44 (registry+https://github.com/rust-lang/crates.io-index)",
  "structopt 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "subprocess 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)",
+ "subprocess 0.1.19 (registry+https://github.com/rust-lang/crates.io-index)",
  "termcolor 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml 0.5.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml_edit 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -403,11 +403,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
-
-[[package]]
-name = "crossbeam-utils"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "crossbeam-utils"
@@ -1670,10 +1665,10 @@ dependencies = [
 
 [[package]]
 name = "subprocess"
-version = "0.1.18"
+version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
- "crossbeam-utils 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "crossbeam-utils 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libc 0.2.66 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -2210,7 +2205,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum crossbeam-deque 0.7.2 (registry+https://github.com/rust-lang/crates.io-index)" = "c3aa945d63861bfe624b55d153a39684da1e8c0bc8fba932f7ee3a3c16cea3ca"
 "checksum crossbeam-epoch 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5064ebdbf05ce3cb95e45c8b086f72263f4166b29b97f6baff7ef7fe047b55ac"
 "checksum crossbeam-queue 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7c979cd6cfe72335896575c6b5688da489e420d36a27a0b9eb0c73db574b4a4b"
-"checksum crossbeam-utils 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "677d453a17e8bd2b913fa38e8b9cf04bcdbb5be790aa294f2389661d72036015"
 "checksum crossbeam-utils 0.6.6 (registry+https://github.com/rust-lang/crates.io-index)" = "04973fa96e96579258a5091af6003abde64af786b860f18622b82e026cca60e6"
 "checksum crossbeam-utils 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ce446db02cdc3165b94ae73111e570793400d0794e46125cc4056c81cbb039f4"
 "checksum cvss 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c425c059aef1e9cc614482211c4bd78664299ca91d4353db994f9966a1e7161d"
@@ -2353,7 +2347,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum strsim 0.9.3 (registry+https://github.com/rust-lang/crates.io-index)" = "6446ced80d6c486436db5c078dde11a9f73d42b57fb273121e160b84f63d894c"
 "checksum structopt 0.3.7 (registry+https://github.com/rust-lang/crates.io-index)" = "884ae79d6aad1e738f4a70dff314203fd498490a63ebc4d03ea83323c40b7b72"
 "checksum structopt-derive 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "0a97f829a34a0a9d5b353a881025a23b8c9fd09d46be6045df6b22920dbd7a93"
-"checksum subprocess 0.1.18 (registry+https://github.com/rust-lang/crates.io-index)" = "28fc0f40f0c0da73339d347aa7d6d2b90341a95683a47722bc4eebed71ff3c00"
+"checksum subprocess 0.1.19 (registry+https://github.com/rust-lang/crates.io-index)" = "58fc79281b172a46b946f240d0f899abb2c101fd02a240f8f917f51b479149a1"
 "checksum syn 1.0.13 (registry+https://github.com/rust-lang/crates.io-index)" = "1e4ff033220a41d1a57d8125eab57bf5263783dfdcc18688b1dacc6ce9651ef8"
 "checksum syn-mid 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9fd3937748a7eccff61ba5b90af1a20dbf610858923a9192ea0ecb0cb77db1d0"
 "checksum synstructure 0.12.3 (registry+https://github.com/rust-lang/crates.io-index)" = "67656ea1dc1b41b1451851562ea232ec2e5a80242139f7e679ceccfb5d61f545"
