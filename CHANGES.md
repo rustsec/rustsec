@@ -1,3 +1,12 @@
+## [0.17.0] (2020-01-19)
+
+- Bump MSRV to 1.39 ([#140])
+- Extract `cargo audit fix` logic into `Fixer` ([#136])
+- Warn for yanked crates ([#135])
+- Add `vendored-openssl` feature ([#130])
+- Support crate sources as a vulnerability query attribute ([#128])
+- Try to auto-detect proxy setting ([#126])
+
 ## [0.16.0] (2019-10-13)
 
 - Remove `support.toml` parsing ([#124])
@@ -157,6 +166,13 @@
 
 - Initial release
 
+[0.17.0]: https://github.com/RustSec/rustsec-crate/pull/141
+[#140]: https://github.com/RustSec/rustsec-crate/pull/140
+[#136]: https://github.com/RustSec/rustsec-crate/pull/136
+[#135]: https://github.com/RustSec/rustsec-crate/pull/135
+[#130]: https://github.com/RustSec/rustsec-crate/pull/130
+[#128]: https://github.com/RustSec/rustsec-crate/pull/128
+[#126]: https://github.com/RustSec/rustsec-crate/pull/126
 [0.16.0]: https://github.com/RustSec/rustsec-crate/pull/125
 [#124]: https://github.com/RustSec/rustsec-crate/pull/124
 [0.15.2]: https://github.com/RustSec/rustsec-crate/pull/123
