@@ -4,12 +4,19 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum PackageSource {
     /// Package is local
+    #[serde(rename = "local")]
     Local,
+
     /// Package is located in a specific registry with `String` uri
+    #[serde(rename = "registry")]
     Registry(String),
+
     /// Package is located somewhere public
+    #[serde(rename = "public")]
     Public,
+
     /// All sources should be considered
+    #[serde(rename = "all")]
     All,
 }
 
