@@ -29,7 +29,7 @@ thiserror = "1"
 toml = "0.5"
 
 [dependencies.cargo-edit]
-version = "= 0.4.2" # ensure `git2` dep matches when upgrading
+version = "= 0.5.0" # ensure `git2` dep matches when upgrading
 optional = true
 default-features = false
 features = ["upgrade"]
@@ -45,6 +45,3 @@ vendored-openssl = ["git2/vendored-openssl"]
 
 [package.metadata.docs.rs]
 all-features = true
-
-[patch.crates-io]
-cargo-edit = { git = "https://github.com/killercup/cargo-edit" }
