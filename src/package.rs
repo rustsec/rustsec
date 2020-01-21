@@ -29,7 +29,7 @@ impl From<Package> for Dependency {
         Self {
             name: pkg.name.clone(),
             version: Some(pkg.version.clone()),
-            source: pkg.source.clone(),
+            source: pkg.source,
         }
     }
 }
