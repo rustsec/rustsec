@@ -1,5 +1,10 @@
 //! Parser for `Cargo.lock` files
 
+mod parser;
+pub mod version;
+
+pub use self::version::ResolveVersion;
+
 #[cfg(feature = "dependency-tree")]
 use crate::dependency::Tree;
 use crate::{
@@ -7,20 +12,19 @@ use crate::{
     metadata::Metadata,
     package::Package,
 };
-use serde::{Deserialize, Serialize};
 use std::{fs, path::Path, str::FromStr, string::ToString};
 use toml;
 
 /// Parsed Cargo.lock file containing dependencies
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Lockfile {
+    /// Version of the Lockfile
+    pub version: ResolveVersion,
+
     /// Dependencies enumerated in the lockfile
-    #[serde(rename = "package")]
     pub packages: Vec<Package>,
 
     /// Package metadata
-    #[serde(default)]
     pub metadata: Metadata,
 }
 
@@ -56,8 +60,9 @@ impl FromStr for Lockfile {
     }
 }
 
-impl ToString for Lockfile {
-    fn to_string(&self) -> String {
-        toml::to_string(self).unwrap()
-    }
-}
+// TODO(tarcieri): add ResolveVersion-respecting `Serialize` impl
+// impl ToString for Lockfile {
+//    fn to_string(&self) -> String {
+//        toml::to_string(self).unwrap()
+//    }
+//}
