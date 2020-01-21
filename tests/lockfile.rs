@@ -8,6 +8,7 @@ use cargo_lock::{metadata, Lockfile, Version};
 #[test]
 fn load_our_own_lockfile() {
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
+    dbg!(&lockfile);
     assert!(lockfile.packages.len() > 0);
 }
 
