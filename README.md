@@ -43,7 +43,7 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/cargo-lock
 [docs-image]: https://docs.rs/cargo-lock/badge.svg
 [docs-link]: https://docs.rs/cargo-lock/
-[build-image]: https://github.com/rustsec/cargo-lock/workflows/Rust/badge.svg
+[build-image]: https://github.com/rustsec/cargo-lock/workflows/Rust/badge.svg?branch=master&event=push
 [build-link]: https://github.com/rustsec/cargo-lock/actions
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
