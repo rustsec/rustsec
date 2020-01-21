@@ -8,9 +8,18 @@ use cargo_lock::{metadata, Lockfile, ResolveVersion, Version};
 #[test]
 fn load_our_own_lockfile() {
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
-    dbg!(&lockfile);
     assert_eq!(lockfile.version, ResolveVersion::V2);
     assert_ne!(lockfile.packages.len(), 0);
+}
+
+/// Ensure we can reserialize this crate's own `Cargo.lock` file
+#[test]
+fn serialize_our_own_lockfile() {
+    let lockfile = Lockfile::load("Cargo.lock").unwrap();
+    let reserialized = lockfile.to_string();
+
+    let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
+    assert_eq!(lockfile, lockfile2);
 }
 
 /// Load example V1 `Cargo.lock` file (from the Cargo project itself)
