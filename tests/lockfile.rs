@@ -2,21 +2,23 @@
 
 // TODO(tarcieri): add more example `Cargo.lock` files which cover more scenarios
 
-use cargo_lock::{metadata, Lockfile, Version};
+use cargo_lock::{metadata, Lockfile, ResolveVersion, Version};
 
 /// Load this crate's own `Cargo.lock` file
 #[test]
 fn load_our_own_lockfile() {
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
     dbg!(&lockfile);
-    assert!(lockfile.packages.len() > 0);
+    assert_eq!(lockfile.version, ResolveVersion::V2);
+    assert_ne!(lockfile.packages.len(), 0);
 }
 
-/// Load a non-trivial example `Cargo.lock` file (from the Cargo project itself)
+/// Load example V1 `Cargo.lock` file (from the Cargo project itself)
 #[test]
-fn load_example_cargo_lockfile() {
+fn load_example_v1_lockfile() {
     let lockfile = Lockfile::load("tests/support/Cargo.lock.example-cargo").unwrap();
 
+    assert_eq!(lockfile.version, ResolveVersion::V1);
     assert_eq!(lockfile.packages.len(), 141);
     assert_eq!(lockfile.metadata.len(), 136);
 
@@ -36,10 +38,11 @@ fn load_example_cargo_lockfile() {
     );
 }
 
-/// Load a non-trivial example `Cargo.lock` file (from rustc)
+/// Load example V2 `Cargo.lock` file (from rustc)
 #[test]
-fn load_example_rustc_lockfile() {
+fn load_example_v2_lockfile() {
     let lockfile = Lockfile::load("tests/support/Cargo.lock.example-rustc").unwrap();
+    assert_eq!(lockfile.version, ResolveVersion::V2);
     assert_eq!(lockfile.packages.len(), 472);
     assert_eq!(lockfile.metadata.len(), 0);
 }
@@ -57,7 +60,7 @@ mod tree {
             .dependency_tree()
             .unwrap();
 
-        assert!(tree.nodes().len() > 0);
+        assert_ne!(tree.nodes().len(), 0);
     }
 
     /// Compute a dependency graph from a non-trivial example `Cargo.lock`

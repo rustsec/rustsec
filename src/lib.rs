@@ -28,7 +28,8 @@ pub mod package;
 pub use self::{
     dependency::Dependency,
     error::{Error, ErrorKind},
-    lockfile::Lockfile,
+    lockfile::{Lockfile, ResolveVersion},
+    metadata::Metadata,
     package::{Package, Version},
 };
 
