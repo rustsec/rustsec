@@ -5,7 +5,7 @@
 //! and ensure the end-user is supplied a consistent representation.
 
 use super::{version::ResolveVersion, Lockfile};
-use crate::{metadata::Metadata, package::Package};
+use crate::{dependency::Dependency, metadata::Metadata, package::Package, patch::Patch};
 use serde::{de, Deserialize};
 use std::{fmt, marker::PhantomData};
 
@@ -15,12 +15,24 @@ impl<'de> Deserialize<'de> for Lockfile {
         D: de::Deserializer<'de>,
     {
         /// Field names in `Cargo.lock`
-        const FIELDS: &[&str] = &["package", "metadata"];
+        const FIELDS: &[&str] = &["package", "root", "metadata", "patch"];
 
         /// Fields in `Cargo.lock`
         enum Field {
+            /// `[[package]]` section
             Package,
+
+            /// Legacy `[root]` section
+            Root,
+
+            /// `[metadata]` section
             Metadata,
+
+            /// `[patch]` section
+            Patch,
+
+            /// Ignore unknown field
+            Ignore,
         }
 
         /// Serde visitor for fields in `Cargo.lock`
@@ -36,8 +48,10 @@ impl<'de> Deserialize<'de> for Lockfile {
             fn visit_str<E: de::Error>(self, value: &str) -> Result<Self::Value, E> {
                 match value {
                     "package" => Ok(Field::Package),
+                    "root" => Ok(Field::Root),
                     "metadata" => Ok(Field::Metadata),
-                    _ => Err(de::Error::unknown_field(value, FIELDS)),
+                    "patch" => Ok(Field::Patch),
+                    _ => Ok(Field::Ignore),
                 }
             }
         }
@@ -45,7 +59,7 @@ impl<'de> Deserialize<'de> for Lockfile {
         impl<'de> Deserialize<'de> for Field {
             #[inline]
             fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-                de::Deserializer::deserialize_identifier(deserializer, FieldVisitor)
+                deserializer.deserialize_identifier(FieldVisitor)
             }
         }
 
@@ -68,7 +82,9 @@ impl<'de> Deserialize<'de> for Lockfile {
                 A: de::MapAccess<'de>,
             {
                 let mut packages: Option<Vec<Package>> = None;
+                let mut root: Option<Dependency> = None;
                 let mut metadata: Option<Metadata> = None;
+                let mut patch: Option<Patch> = None;
 
                 while let Some(key) = de::MapAccess::next_key::<Field>(&mut map)? {
                     match key {
@@ -79,6 +95,13 @@ impl<'de> Deserialize<'de> for Lockfile {
 
                             packages = Some(de::MapAccess::next_value::<Vec<Package>>(&mut map)?);
                         }
+                        Field::Root => {
+                            if root.is_some() {
+                                return Err(<A::Error as de::Error>::duplicate_field("root"));
+                            }
+
+                            root = Some(de::MapAccess::next_value::<Dependency>(&mut map)?);
+                        }
                         Field::Metadata => {
                             if metadata.is_some() {
                                 return Err(<A::Error as de::Error>::duplicate_field("metadata"));
@@ -86,6 +109,14 @@ impl<'de> Deserialize<'de> for Lockfile {
 
                             metadata = Some(de::MapAccess::next_value::<Metadata>(&mut map)?);
                         }
+                        Field::Patch => {
+                            if patch.is_some() {
+                                return Err(<A::Error as de::Error>::duplicate_field("patch"));
+                            }
+
+                            patch = Some(de::MapAccess::next_value::<Patch>(&mut map)?);
+                        }
+                        Field::Ignore => (),
                     }
                 }
 
@@ -94,14 +125,18 @@ impl<'de> Deserialize<'de> for Lockfile {
 
                 let metadata = metadata.unwrap_or_default();
 
+                let patch = patch.unwrap_or_default();
+
                 // Autodetect Cargo.lock resolve version based on its contents
                 let version =
                     ResolveVersion::detect(&packages, &metadata).map_err(de::Error::custom)?;
 
                 Ok(Lockfile {
                     version,
+                    root,
                     packages,
                     metadata,
+                    patch,
                 })
             }
         }

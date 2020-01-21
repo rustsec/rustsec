@@ -5,9 +5,10 @@ use crate::{
     metadata::Metadata,
     package::Package,
 };
+use serde::{Deserialize, Serialize};
 
 /// Lockfile versions
-#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
 pub enum ResolveVersion {
     /// The original `Cargo.lock` format which places checksums in the
     /// `[[metadata]]` table.
