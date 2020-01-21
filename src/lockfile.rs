@@ -1,6 +1,6 @@
 //! Parser for `Cargo.lock` files
 
-mod parser;
+mod encoding;
 pub mod version;
 
 pub use self::version::ResolveVersion;
@@ -68,9 +68,8 @@ impl FromStr for Lockfile {
     }
 }
 
-// TODO(tarcieri): add ResolveVersion-respecting `Serialize` impl
-// impl ToString for Lockfile {
-//    fn to_string(&self) -> String {
-//        toml::to_string(self).unwrap()
-//    }
-//}
+impl ToString for Lockfile {
+    fn to_string(&self) -> String {
+        toml::to_string(self).unwrap()
+    }
+}
