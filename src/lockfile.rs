@@ -8,9 +8,11 @@ pub use self::version::ResolveVersion;
 #[cfg(feature = "dependency-tree")]
 use crate::dependency::Tree;
 use crate::{
+    dependency::Dependency,
     error::{Error, ErrorKind},
     metadata::Metadata,
     package::Package,
+    patch::Patch,
 };
 use std::{fs, path::Path, str::FromStr, string::ToString};
 use toml;
@@ -24,8 +26,14 @@ pub struct Lockfile {
     /// Dependencies enumerated in the lockfile
     pub packages: Vec<Package>,
 
+    /// Legacy "root" dependency for backwards compatibility
+    pub root: Option<Dependency>,
+
     /// Package metadata
     pub metadata: Metadata,
+
+    /// Patches
+    pub patch: Patch,
 }
 
 impl Lockfile {
