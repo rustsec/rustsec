@@ -1,13 +1,59 @@
-//! serde-based lockfile parser
+//! serde-based `Cargo.lock` parser/serializer
 //!
-//! This uses a custom visitor impl (extracted from the proc macro one)
-//! which allows us to do postprocessing to detect the V1 vs V2 formats
-//! and ensure the end-user is supplied a consistent representation.
+//! Customized to allow pre/postprocessing to detect and serialize both
+//! the V1 vs V2 formats and ensure the end-user is supplied a consistent
+//! representation regardless of which version is in use.
 
 use super::{version::ResolveVersion, Lockfile};
 use crate::{dependency::Dependency, metadata::Metadata, package::Package, patch::Patch};
-use serde::{de, Deserialize};
+use serde::{de, ser, Deserialize, Serialize};
 use std::{fmt, marker::PhantomData};
+
+// TODO(tarcieri): handle V1 vs V2 format when serializing
+impl Serialize for Lockfile {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: ser::Serializer,
+    {
+        let mut field_count = 1; // package section (mandatory)
+
+        if self.root.is_some() {
+            field_count += 1;
+        }
+
+        if !self.metadata.is_empty() {
+            field_count += 1;
+        }
+
+        if !self.patch.is_empty() {
+            field_count += 1;
+        }
+
+        let mut state = ser::Serializer::serialize_struct(serializer, "Lockfile", field_count)?;
+
+        ser::SerializeStruct::serialize_field(&mut state, "package", &self.packages)?;
+
+        if self.root.is_some() {
+            ser::SerializeStruct::serialize_field(&mut state, "root", &self.root)?;
+        } else {
+            ser::SerializeStruct::skip_field(&mut state, "root")?;
+        }
+
+        if self.metadata.is_empty() {
+            ser::SerializeStruct::skip_field(&mut state, "metadata")?;
+        } else {
+            ser::SerializeStruct::serialize_field(&mut state, "metadata", &self.metadata)?;
+        }
+
+        if self.patch.is_empty() {
+            ser::SerializeStruct::skip_field(&mut state, "patch")?;
+        } else {
+            ser::SerializeStruct::serialize_field(&mut state, "patch", &self.patch)?;
+        }
+
+        ser::SerializeStruct::end(state)
+    }
+}
 
 impl<'de> Deserialize<'de> for Lockfile {
     fn deserialize<D>(deserialize: D) -> Result<Self, D::Error>

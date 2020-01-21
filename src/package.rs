@@ -26,7 +26,7 @@ pub struct Package {
     pub checksum: Option<Checksum>,
 
     /// Dependencies of the package
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<Dependency>,
 }
 
