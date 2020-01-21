@@ -29,44 +29,6 @@ macro_rules! fail {
     };
 }
 
-/// Error type
-#[derive(Debug)]
-pub struct Error {
-    /// Kind of error
-    kind: ErrorKind,
-
-    /// Message providing additional information
-    msg: String,
-}
-
-impl Error {
-    /// Create a new error with the given message
-    pub fn new<S: ToString>(kind: ErrorKind, msg: &S) -> Self {
-        Self {
-            kind,
-            msg: msg.to_string(),
-        }
-    }
-
-    /// Obtain the inner `ErrorKind` for this error
-    pub fn kind(&self) -> ErrorKind {
-        self.kind
-    }
-
-    /// Obtain the associated error message
-    pub fn msg(&self) -> &str {
-        &self.msg
-    }
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: {}", &self.kind, &self.msg)
-    }
-}
-
-impl std::error::Error for Error {}
-
 /// Custom error type for this library
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum ErrorKind {
@@ -110,8 +72,52 @@ impl From<semver::ReqParseError> for Error {
     }
 }
 
+impl From<std::num::ParseIntError> for Error {
+    fn from(other: std::num::ParseIntError) -> Self {
+        format_err!(ErrorKind::Parse, &other)
+    }
+}
+
 impl From<toml::de::Error> for Error {
     fn from(other: toml::de::Error) -> Self {
         format_err!(ErrorKind::Parse, &other)
     }
 }
+
+/// Error type
+#[derive(Debug)]
+pub struct Error {
+    /// Kind of error
+    kind: ErrorKind,
+
+    /// Message providing additional information
+    msg: String,
+}
+
+impl Error {
+    /// Create a new error with the given message
+    pub fn new<S: ToString>(kind: ErrorKind, msg: &S) -> Self {
+        Self {
+            kind,
+            msg: msg.to_string(),
+        }
+    }
+
+    /// Obtain the inner `ErrorKind` for this error
+    pub fn kind(&self) -> ErrorKind {
+        self.kind
+    }
+
+    /// Obtain the associated error message
+    pub fn msg(&self) -> &str {
+        &self.msg
+    }
+}
+
+impl Display for Error {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}: {}", &self.kind, &self.msg)
+    }
+}
+
+impl std::error::Error for Error {}
