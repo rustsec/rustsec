@@ -24,6 +24,7 @@ pub mod dependency;
 pub mod lockfile;
 pub mod metadata;
 pub mod package;
+pub mod patch;
 
 pub use self::{
     dependency::Dependency,
