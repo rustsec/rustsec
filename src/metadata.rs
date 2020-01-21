@@ -34,9 +34,8 @@ impl FromStr for Key {
 impl<'de> Deserialize<'de> for Key {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use de::Error;
-        String::deserialize(deserializer)?
-            .parse()
-            .map_err(D::Error::custom)
+        let s = String::deserialize(deserializer)?;
+        s.parse().map_err(D::Error::custom)
     }
 }
 
@@ -73,9 +72,8 @@ impl FromStr for Value {
 impl<'de> Deserialize<'de> for Value {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use de::Error;
-        String::deserialize(deserializer)?
-            .parse()
-            .map_err(D::Error::custom)
+        let s = String::deserialize(deserializer)?;
+        s.parse().map_err(D::Error::custom)
     }
 }
 
