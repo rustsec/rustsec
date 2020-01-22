@@ -22,7 +22,7 @@
 //!
 //! It supports the following subcommands:
 //!
-//! ## `list`: summarize packages in `Cargo.lock`
+//! ### `list`: summarize packages in `Cargo.lock`
 //!
 //! The `cargo lock list` subcommand provides a short synopsis of the
 //! packages enumerated in `Cargo.lock`:
@@ -40,7 +40,7 @@
 //! [...]
 //! ```
 //!
-//! ## `translate`: convert `Cargo.lock` files between the V1 and V2 formats
+//! ### `translate`: convert `Cargo.lock` files between the V1 and V2 formats
 //!
 //! The `cargo lock translate` subcommand can translate V1 Cargo.lock files to
 //! the [new V2 format] and vice versa:
@@ -56,7 +56,7 @@
 //! $ cargo lock translate --v1
 //! ```
 //!
-//! ## `tree`: provide information for how a dependency is included
+//! ### `tree`: provide information for how a dependency is included
 //!
 //! The `cargo lock tree` subcommand (similar to the `cargo-tree` command)
 //! can provide a visualization of how a particular dependency is being used
@@ -95,7 +95,7 @@
 
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
-    html_root_url = "https://docs.rs/cargo-lock/3.0.0"
+    html_root_url = "https://docs.rs/cargo-lock/4.0.0"
 )]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
