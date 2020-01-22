@@ -25,6 +25,12 @@ impl Checksum {
     }
 }
 
+impl From<[u8; 32]> for Checksum {
+    fn from(bytes: [u8; 32]) -> Checksum {
+        Checksum::Sha256(bytes)
+    }
+}
+
 impl FromStr for Checksum {
     type Err = Error;
 
