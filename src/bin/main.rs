@@ -3,13 +3,16 @@
 #![forbid(unsafe_code)]
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-use cargo_lock::{Lockfile, ResolveVersion};
+use cargo_lock::{package, Lockfile, ResolveVersion};
 use gumdrop::Options;
 use std::{
-    env, fs,
+    env, fs, io,
     path::{Path, PathBuf},
     process::exit,
 };
+
+#[cfg(feature = "dependency-tree")]
+use cargo_lock::dependency::graph::EdgeDirection;
 
 /// Wrapper toplevel command for the `cargo lock` subcommand
 #[derive(Options)]
@@ -18,12 +21,20 @@ enum CargoLock {
     Lock(Command),
 }
 
+/// `cargo lock` subcommands
 #[derive(Debug, Options)]
 enum Command {
+    /// The `cargo lock translate` subcommand
     #[options(help = "translate a Cargo.toml file")]
     Translate(TranslateCmd),
+
+    /// The `cargo lock tree` subcommand
+    #[cfg(feature = "dependency-tree")]
+    #[options(help = "print a dependency tree for the given dependency")]
+    Tree(TreeCmd),
 }
 
+/// The `cargo lock translate` subcommand
 #[derive(Debug, Options)]
 struct TranslateCmd {
     /// Input `Cargo.lock` file
@@ -73,18 +84,79 @@ impl TranslateCmd {
     }
 }
 
+/// The `cargo lock tree` subcommand
+#[cfg(feature = "dependency-tree")]
+#[derive(Debug, Options)]
+struct TreeCmd {
+    /// Input `Cargo.lock` file
+    #[options(short = "f", help = "input Cargo.lock file to translate")]
+    file: Option<PathBuf>,
+
+    /// Dependencies names to draw a tree for
+    #[options(free, help = "dependency names to draw trees for")]
+    dependencies: Vec<package::Name>,
+}
+
+#[cfg(feature = "dependency-tree")]
+impl TreeCmd {
+    /// Display dependency trees from `Cargo.lock`
+    pub fn run(&self) {
+        let filename = self
+            .file
+            .as_ref()
+            .map(AsRef::as_ref)
+            .unwrap_or_else(|| Path::new("Cargo.lock"));
+
+        let lockfile = Lockfile::load(filename).unwrap_or_else(|e| {
+            eprintln!("*** error: {}", e);
+            exit(1);
+        });
+
+        let tree = lockfile.dependency_tree().unwrap_or_else(|e| {
+            eprintln!("*** error: {}", e);
+            exit(1);
+        });
+
+        // TODO(tarcieri): detect root package(s), automatically use those?
+        if self.dependencies.is_empty() {
+            eprintln!("*** error: no dependency names given");
+            exit(1);
+        }
+
+        for (i, dep) in self.dependencies.iter().enumerate() {
+            if i > 0 {
+                println!();
+            }
+
+            let package = lockfile
+                .packages
+                .iter()
+                .find(|pkg| pkg.name == *dep)
+                .unwrap_or_else(|| {
+                    eprintln!("*** error: invalid dependency name: `{}`", dep);
+                    exit(1);
+                });
+
+            let index = tree.nodes()[&package.into()];
+            tree.render(&mut io::stdout(), index, EdgeDirection::Incoming)
+                .unwrap();
+        }
+    }
+}
+
 fn main() {
     let args = env::args().collect::<Vec<_>>();
 
-    match CargoLock::parse_args_default(&args[1..]) {
-        Ok(CargoLock::Lock(cmd)) => match cmd {
-            Command::Translate(translate) => translate.run(),
-        },
-        Err(e) => {
-            eprintln!("*** error: {}", e);
-            eprintln!("USAGE:");
-            eprintln!("{}", Command::usage());
-            exit(1);
-        }
+    let CargoLock::Lock(cmd) = CargoLock::parse_args_default(&args[1..]).unwrap_or_else(|e| {
+        eprintln!("*** error: {}", e);
+        eprintln!("USAGE:");
+        eprintln!("{}", Command::usage());
+        exit(1);
+    });
+
+    match cmd {
+        Command::Translate(translate) => translate.run(),
+        #[cfg(feature = "dependency-tree")]
+        Command::Tree(tree) => tree.run(),
     }
 }
