@@ -31,7 +31,7 @@ pub use self::{
     error::{Error, ErrorKind},
     lockfile::{Lockfile, ResolveVersion},
     metadata::Metadata,
-    package::{Checksum, Name, Package, Source, Version},
+    package::{Checksum, Name, Package, SourceId, Version},
     patch::Patch,
 };
 
