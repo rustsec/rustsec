@@ -22,6 +22,24 @@
 //!
 //! It supports the following subcommands:
 //!
+//! ## `list`: summarize packages in `Cargo.lock`
+//!
+//! The `cargo lock list` subcommand provides a short synopsis of the
+//! packages enumerated in `Cargo.lock`:
+//!
+//! ```text
+//! $ cargo lock list
+//! - autocfg 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)
+//! - cargo-lock 3.0.0
+//! - fixedbitset 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)
+//! - gumdrop 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)
+//! - gumdrop_derive 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)
+//! - idna 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)
+//! - indexmap 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)
+//! - matches 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)
+//! [...]
+//! ```
+//!
 //! ## `translate`: convert `Cargo.lock` files between the V1 and V2 formats
 //!
 //! The `cargo lock translate` subcommand can translate V1 Cargo.lock files to

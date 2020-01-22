@@ -3,7 +3,7 @@
 #![forbid(unsafe_code)]
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-use cargo_lock::{package, Lockfile, ResolveVersion};
+use cargo_lock::{package, Dependency, Lockfile, ResolveVersion};
 use gumdrop::Options;
 use std::{
     env, fs, io,
@@ -24,6 +24,10 @@ enum CargoLock {
 /// `cargo lock` subcommands
 #[derive(Debug, Options)]
 enum Command {
+    /// The `cargo lock list` subcommand
+    #[options(help = "list packages in Cargo.toml")]
+    List(ListCmd),
+
     /// The `cargo lock translate` subcommand
     #[options(help = "translate a Cargo.toml file")]
     Translate(TranslateCmd),
@@ -32,6 +36,23 @@ enum Command {
     #[cfg(feature = "dependency-tree")]
     #[options(help = "print a dependency tree for the given dependency")]
     Tree(TreeCmd),
+}
+
+/// The `cargo lock list` subcommand
+#[derive(Debug, Options)]
+struct ListCmd {
+    /// Input `Cargo.lock` file
+    #[options(short = "f", help = "input Cargo.lock file to translate")]
+    file: Option<PathBuf>,
+}
+
+impl ListCmd {
+    /// Display dependency summary from `Cargo.lock`
+    pub fn run(&self) {
+        for package in &load_lockfile(&self.file).packages {
+            println!("- {}", Dependency::from(package));
+        }
+    }
 }
 
 /// The `cargo lock translate` subcommand
@@ -53,22 +74,13 @@ struct TranslateCmd {
 impl TranslateCmd {
     /// Translate `Cargo.lock` to a different format version
     pub fn run(&self) {
-        let input = self
-            .file
-            .as_ref()
-            .map(AsRef::as_ref)
-            .unwrap_or_else(|| Path::new("Cargo.lock"));
-
         let output = self
             .output
             .as_ref()
             .map(AsRef::as_ref)
             .unwrap_or_else(|| Path::new("-"));
 
-        let mut lockfile = Lockfile::load(input).unwrap_or_else(|e| {
-            eprintln!("*** error: {}", e);
-            exit(1);
-        });
+        let mut lockfile = load_lockfile(&self.file);
 
         lockfile.version = self.version.unwrap_or_default();
         let lockfile_toml = lockfile.to_string();
@@ -101,16 +113,7 @@ struct TreeCmd {
 impl TreeCmd {
     /// Display dependency trees from `Cargo.lock`
     pub fn run(&self) {
-        let filename = self
-            .file
-            .as_ref()
-            .map(AsRef::as_ref)
-            .unwrap_or_else(|| Path::new("Cargo.lock"));
-
-        let lockfile = Lockfile::load(filename).unwrap_or_else(|e| {
-            eprintln!("*** error: {}", e);
-            exit(1);
-        });
+        let lockfile = load_lockfile(&self.file);
 
         let tree = lockfile.dependency_tree().unwrap_or_else(|e| {
             eprintln!("*** error: {}", e);
@@ -144,6 +147,19 @@ impl TreeCmd {
     }
 }
 
+/// Load a lockfile from the given path (or `Cargo.toml`)
+fn load_lockfile(path: &Option<PathBuf>) -> Lockfile {
+    let path = path
+        .as_ref()
+        .map(AsRef::as_ref)
+        .unwrap_or_else(|| Path::new("Cargo.lock"));
+
+    Lockfile::load(path).unwrap_or_else(|e| {
+        eprintln!("*** error: {}", e);
+        exit(1);
+    })
+}
+
 fn main() {
     let args = env::args().collect::<Vec<_>>();
 
@@ -155,6 +171,7 @@ fn main() {
     });
 
     match cmd {
+        Command::List(list) => list.run(),
         Command::Translate(translate) => translate.run(),
         #[cfg(feature = "dependency-tree")]
         Command::Tree(tree) => tree.run(),
