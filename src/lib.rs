@@ -95,7 +95,7 @@
 
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
-    html_root_url = "https://docs.rs/cargo-lock/4.0.0"
+    html_root_url = "https://docs.rs/cargo-lock/4.0.1"
 )]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
