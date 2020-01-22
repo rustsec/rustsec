@@ -22,7 +22,7 @@
 //!
 //! It supports the following subcommands:
 //!
-//! ## `translate`: translate `Cargo.lock` files between the V1 and V2 formats
+//! ## `translate`: convert `Cargo.lock` files between the V1 and V2 formats
 //!
 //! The `cargo lock translate` subcommand can translate V1 Cargo.lock files to
 //! the [new V2 format] and vice versa:
@@ -38,12 +38,37 @@
 //! $ cargo lock translate --v1
 //! ```
 //!
-//! # Dependency tree
+//! ## `tree`: provide information for how a dependency is included
+//!
+//! The `cargo lock tree` subcommand (similar to the `cargo-tree` command)
+//! can provide a visualization of how a particular dependency is being used
+//! in your project, by consulting Cargo.lock alone:
+//!
+//! ```text
+//! $ cargo lock tree syn
+//! syn 1.0.14
+//! ├── serde_derive 1.0.104
+//! │   └── serde 1.0.104
+//! │       ├── toml 0.5.6
+//! │       │   └── cargo-lock 3.0.0
+//! │       ├── semver 0.9.0
+//! │       │   └── cargo-lock 3.0.0
+//! │       └── cargo-lock 3.0.0
+//! └── gumdrop_derive 0.7.0
+//!    └── gumdrop 0.7.0
+//!        └── cargo-lock 3.0.0
+//! ```
+//!
+//! # Dependency tree API
 //!
 //! When the `dependency-tree` feature of this crate is enabled, it supports
 //! computing a directed graph of the dependency tree expressed in the
 //! lockfile, modeled using the [`petgraph`] crate, along with support for
-//! printing dependency trees ala the [`cargo-tree`] crate.
+//! printing dependency trees ala the [`cargo-tree`] crate, a CLI intreface
+//! for which is provided by the `cargo lock tree` subcommand described above.
+//!
+//! This same graph representation of a `Cargo.lock` file is programatically
+//! available via this crate's API.
 //!
 //! [RustSec]: https://rustsec.org/
 //! [new V2 format]: https://github.com/rust-lang/cargo/pull/7070
