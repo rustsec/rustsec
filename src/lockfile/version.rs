@@ -6,6 +6,7 @@ use crate::{
     metadata::Metadata,
 };
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 /// Lockfile versions
 #[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
@@ -52,5 +53,21 @@ impl ResolveVersion {
 impl Default for ResolveVersion {
     fn default() -> Self {
         ResolveVersion::V2
+    }
+}
+
+impl FromStr for ResolveVersion {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        match s {
+            "1" => Ok(ResolveVersion::V1),
+            "2" => Ok(ResolveVersion::V2),
+            _ => fail!(
+                ErrorKind::Parse,
+                "invalid Cargo.lock format version: `{}`",
+                s
+            ),
+        }
     }
 }

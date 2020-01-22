@@ -2,13 +2,40 @@
 //! for both the V1 and V2 (merge-friendly) formats, as well as optional
 //! dependency tree analysis features. Used by [RustSec].
 //!
-//! # Usage
+//! # Usage Example
 //!
 //! ```
 //! use cargo_lock::Lockfile;
 //!
 //! let lockfile = Lockfile::load("Cargo.lock").unwrap();
 //! println!("number of dependencies: {}", lockfile.packages.len());
+//! ```
+//!
+//! # Command Line Interface
+//!
+//! This crate provides a `cargo lock` Cargo subcommand which can be installed
+//! by running the following:
+//!
+//! ```text
+//! $ cargo install cargo-lock
+//! ```
+//!
+//! It supports the following subcommands:
+//!
+//! ## `translate`: translate `Cargo.lock` files between the V1 and V2 formats
+//!
+//! The `cargo lock translate` subcommand can translate V1 Cargo.lock files to
+//! the [new V2 format] and vice versa:
+//!
+//! ```text
+//! $ cargo lock translate
+//! ```
+//!
+//! ...will translate Cargo.lock to the V2 format. To translate a V2 Cargo.lock
+//! file back to the V1 format, use:
+//!
+//! ```text
+//! $ cargo lock translate --v1
 //! ```
 //!
 //! # Dependency tree
@@ -19,6 +46,7 @@
 //! printing dependency trees ala the [`cargo-tree`] crate.
 //!
 //! [RustSec]: https://rustsec.org/
+//! [new V2 format]: https://github.com/rust-lang/cargo/pull/7070
 //! [`petgraph`]: https://github.com/petgraph/petgraph
 //! [`cargo-tree`]: https://github.com/sfackler/cargo-tree
 

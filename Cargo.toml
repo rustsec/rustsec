@@ -15,6 +15,7 @@ keywords = ["cargo", "dependency", "lock", "lockfile"]
 maintenance = { status = "passively-maintained" }
 
 [dependencies]
+gumdrop = { version = "0.7", optional = true }
 petgraph = { version = "0.5", optional = true }
 semver = { version = "0.9", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
@@ -22,7 +23,6 @@ toml = "0.5"
 url = "2"
 
 [features]
+default = ["cli", "dependency-tree"]
+cli = ["gumdrop"]
 dependency-tree = ["petgraph"]
-
-[package.metadata.docs.rs]
-all-features = true
