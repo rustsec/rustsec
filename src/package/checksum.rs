@@ -2,7 +2,7 @@
 
 use crate::{Error, ErrorKind};
 use serde::{de, ser, Deserialize, Serialize};
-pub use std::{fmt, str::FromStr};
+pub use std::{convert::TryFrom, fmt, str::FromStr};
 
 /// Cryptographic checksum (SHA-256) for a package
 #[derive(Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]

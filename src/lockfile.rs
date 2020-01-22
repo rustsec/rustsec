@@ -1,6 +1,6 @@
 //! Parser for `Cargo.lock` files
 
-mod encoding;
+pub(crate) mod encoding;
 pub mod version;
 
 pub use self::version::ResolveVersion;
