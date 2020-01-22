@@ -1,5 +1,17 @@
-//! `cargo-lock`: Self-contained `Cargo.lock` parser with optional dependency
-//! graph analysis. Used by [RustSec].
+//! `cargo-lock`: Self-contained `Cargo.lock` parser/serializer with support
+//! for both the V1 and V2 (merge-friendly) formats, as well as optional
+//! dependency tree analysis features. Used by [RustSec].
+//!
+//! # Usage
+//!
+//! ```
+//! use cargo_lock::Lockfile;
+//!
+//! let lockfile = Lockfile::load("Cargo.lock").unwrap();
+//! println!("number of dependencies: {}", lockfile.packages.len());
+//! ```
+//!
+//! # Dependency tree
 //!
 //! When the `dependency-tree` feature of this crate is enabled, it supports
 //! computing a directed graph of the dependency tree expressed in the
