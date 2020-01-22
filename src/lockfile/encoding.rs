@@ -6,7 +6,7 @@
 
 use super::{Lockfile, ResolveVersion};
 use crate::{
-    metadata, Checksum, Dependency, Error, ErrorKind, Metadata, Name, Package, Patch, Source,
+    metadata, Checksum, Dependency, Error, ErrorKind, Metadata, Name, Package, Patch, SourceId,
     Version,
 };
 use serde::{de, ser, Deserialize, Serialize};
@@ -165,7 +165,7 @@ pub(super) struct EncodablePackage {
     pub(super) version: Version,
 
     /// Source of a package
-    pub(super) source: Option<Source>,
+    pub(super) source: Option<SourceId>,
 
     /// Package checksum
     pub(super) checksum: Option<Checksum>,
@@ -246,7 +246,7 @@ pub(super) struct EncodableDependency {
     pub(super) version: Option<Version>,
 
     /// Source for the dependency
-    pub(super) source: Option<Source>,
+    pub(super) source: Option<SourceId>,
 }
 
 impl EncodableDependency {

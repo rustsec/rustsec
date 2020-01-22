@@ -9,9 +9,9 @@ fn load_our_lockfile() -> Lockfile {
     Lockfile::load("Cargo.lock").unwrap()
 }
 
-/// Load this crate's own `Cargo.lock` file
+/// Load this crate's own V2 `Cargo.lock` file
 #[test]
-fn load_our_own_lockfile() {
+fn load_our_own_v2_lockfile() {
     let lockfile = load_our_lockfile();
     assert_eq!(lockfile.version, ResolveVersion::V2);
     assert_ne!(lockfile.packages.len(), 0);
@@ -20,7 +20,7 @@ fn load_our_own_lockfile() {
 /// Load example V1 `Cargo.lock` file (from the Cargo project itself)
 #[test]
 fn load_example_v1_lockfile() {
-    let lockfile = Lockfile::load("tests/support/Cargo.lock.example-cargo").unwrap();
+    let lockfile = Lockfile::load("tests/support/Cargo.lock.v1-example").unwrap();
 
     assert_eq!(lockfile.version, ResolveVersion::V1);
     assert_eq!(lockfile.packages.len(), 141);
@@ -45,7 +45,7 @@ fn load_example_v1_lockfile() {
 /// Load example V2 `Cargo.lock` file (from rustc)
 #[test]
 fn load_example_v2_lockfile() {
-    let lockfile = Lockfile::load("tests/support/Cargo.lock.example-rustc").unwrap();
+    let lockfile = Lockfile::load("tests/support/Cargo.lock.v2-example").unwrap();
     assert_eq!(lockfile.version, ResolveVersion::V2);
     assert_eq!(lockfile.packages.len(), 472);
     assert_eq!(lockfile.metadata.len(), 0);
@@ -74,7 +74,7 @@ fn serialize_v2_to_v1() {
 /// Ensure we can serialize a V1 lockfile as a V2 lockfile
 #[test]
 fn serialize_v1_to_v2() {
-    let mut lockfile = Lockfile::load("tests/support/Cargo.lock.example-cargo").unwrap();
+    let mut lockfile = Lockfile::load("tests/support/Cargo.lock.v1-example").unwrap();
     lockfile.version = ResolveVersion::V2;
 
     let reserialized = lockfile.to_string();
@@ -98,11 +98,11 @@ mod tree {
         assert_ne!(tree.nodes().len(), 0);
     }
 
-    /// Compute a dependency graph from a non-trivial example `Cargo.lock`
+    /// Compute a dependency graph from a non-trivial example V1 `Cargo.lock`
     /// (i.e. from the Cargo project itself)
     #[test]
-    fn compute_from_example_cargo_lockfile() {
-        let tree = Lockfile::load("tests/support/Cargo.lock.example-cargo")
+    fn compute_from_v1_example_lockfile() {
+        let tree = Lockfile::load("tests/support/Cargo.lock.v1-example")
             .unwrap()
             .dependency_tree()
             .unwrap();
@@ -110,11 +110,11 @@ mod tree {
         assert_eq!(tree.nodes().len(), 141);
     }
 
-    /// Compute a dependency graph from a non-trivial example `Cargo.lock`
+    /// Compute a dependency graph from a non-trivial example V2 `Cargo.lock`
     /// (i.e. from rustc)
     #[test]
-    fn compute_from_example_rustc_lockfile() {
-        let tree = Lockfile::load("tests/support/Cargo.lock.example-rustc")
+    fn compute_from_v2_example_lockfile() {
+        let tree = Lockfile::load("tests/support/Cargo.lock.v2-example")
             .unwrap()
             .dependency_tree()
             .unwrap();

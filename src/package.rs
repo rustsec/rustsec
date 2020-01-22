@@ -4,7 +4,7 @@ pub mod checksum;
 pub mod name;
 pub mod source;
 
-pub use self::{checksum::Checksum, name::Name, source::Source};
+pub use self::{checksum::Checksum, name::Name, source::SourceId};
 pub use semver::Version;
 
 use crate::dependency::Dependency;
@@ -19,8 +19,8 @@ pub struct Package {
     /// Version of the package
     pub version: Version,
 
-    /// Source for the package
-    pub source: Option<Source>,
+    /// Source identifier for the package
+    pub source: Option<SourceId>,
 
     /// Checksum for this package
     pub checksum: Option<Checksum>,
