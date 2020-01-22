@@ -23,6 +23,20 @@ the [`cargo-tree`] crate.
 
 `cargo-lock` requires Rust **1.35** or later.
 
+## Command Line Interface
+
+This crate provides a `cargo lock` subcommand which can be installed with:
+
+```
+$ cargo install cargo-lock
+```
+
+It supports the following subcommands:
+
+- `translate`: translate `Cargo.lock` files between the V1 and V2 formats
+
+See the [crate documentation][docs-link] for more detailed usage information.
+
 ## License
 
 Licensed under either of:
