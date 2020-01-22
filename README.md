@@ -1,4 +1,4 @@
-# `cargo-lock` crate: `Cargo.lock` parser
+# `cargo-lock` crate
 
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
@@ -8,7 +8,8 @@
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
-Self-contained [serde]-powered `Cargo.lock` parser with optional dependency
+Self-contained [serde]-powered `Cargo.lock` parser/serializer with support for
+both the V1 and V2 (merge-friendly) formats, as well as optional dependency
 tree analysis features. Used by [RustSec].
 
 When the `dependency-tree` feature of this crate is enabled, it supports
