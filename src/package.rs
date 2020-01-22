@@ -28,15 +28,7 @@ pub struct Package {
     /// Dependencies of the package
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<Dependency>,
-}
 
-impl From<Package> for Dependency {
-    /// Get the [`Dependency`] requirement for this `[[package]]`
-    fn from(pkg: Package) -> Dependency {
-        Self {
-            name: pkg.name.clone(),
-            version: Some(pkg.version.clone()),
-            source: pkg.source,
-        }
-    }
+    /// Replace directive
+    pub replace: Option<Dependency>,
 }

@@ -1,9 +1,9 @@
 //! Lockfile versions
 
+use super::encoding::EncodablePackage;
 use crate::{
     error::{Error, ErrorKind},
     metadata::Metadata,
-    package::Package,
 };
 use serde::{Deserialize, Serialize};
 
@@ -23,11 +23,12 @@ pub enum ResolveVersion {
 
 impl ResolveVersion {
     /// Autodetect the version of a lockfile from the packages
-    pub fn detect(packages: &[Package], metadata: &Metadata) -> Result<Self, Error> {
+    pub(super) fn detect(
+        packages: &[EncodablePackage],
+        metadata: &Metadata,
+    ) -> Result<Self, Error> {
         // V1: look for [[metadata]] keys beginning with checksum
-        let is_v1 = metadata
-            .keys()
-            .any(|key| key.as_ref().starts_with("checksum "));
+        let is_v1 = metadata.keys().any(|key| key.is_checksum());
 
         // V2: look for `checksum` fields in `[package]`
         let is_v2 = packages.iter().any(|package| package.checksum.is_some());

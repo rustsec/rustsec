@@ -4,22 +4,17 @@
 
 use cargo_lock::{metadata, Lockfile, ResolveVersion, Version};
 
+/// Load our own `Cargo.lock` file for use in tests
+fn load_our_lockfile() -> Lockfile {
+    Lockfile::load("Cargo.lock").unwrap()
+}
+
 /// Load this crate's own `Cargo.lock` file
 #[test]
 fn load_our_own_lockfile() {
-    let lockfile = Lockfile::load("Cargo.lock").unwrap();
+    let lockfile = load_our_lockfile();
     assert_eq!(lockfile.version, ResolveVersion::V2);
     assert_ne!(lockfile.packages.len(), 0);
-}
-
-/// Ensure we can reserialize this crate's own `Cargo.lock` file
-#[test]
-fn serialize_our_own_lockfile() {
-    let lockfile = Lockfile::load("Cargo.lock").unwrap();
-    let reserialized = lockfile.to_string();
-
-    let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
-    assert_eq!(lockfile, lockfile2);
 }
 
 /// Load example V1 `Cargo.lock` file (from the Cargo project itself)
@@ -54,6 +49,37 @@ fn load_example_v2_lockfile() {
     assert_eq!(lockfile.version, ResolveVersion::V2);
     assert_eq!(lockfile.packages.len(), 472);
     assert_eq!(lockfile.metadata.len(), 0);
+}
+
+/// Ensure we can reserialize this crate's own `Cargo.lock` file
+#[test]
+fn serialize_our_own_lockfile() {
+    let lockfile = load_our_lockfile();
+    let reserialized = lockfile.to_string();
+    let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
+    assert_eq!(lockfile, lockfile2);
+}
+
+/// Ensure we can serialize a V2 lockfile (our own) as a V1 lockfile
+#[test]
+fn serialize_v2_to_v1() {
+    let mut lockfile = load_our_lockfile();
+    lockfile.version = ResolveVersion::V1;
+
+    let reserialized = lockfile.to_string();
+    let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
+    assert_eq!(lockfile.packages, lockfile2.packages);
+}
+
+/// Ensure we can serialize a V1 lockfile as a V2 lockfile
+#[test]
+fn serialize_v1_to_v2() {
+    let mut lockfile = Lockfile::load("tests/support/Cargo.lock.example-cargo").unwrap();
+    lockfile.version = ResolveVersion::V2;
+
+    let reserialized = lockfile.to_string();
+    let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
+    assert_eq!(lockfile.packages, lockfile2.packages);
 }
 
 /// Dependency tree tests

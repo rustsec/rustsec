@@ -8,22 +8,19 @@ pub mod tree;
 #[cfg(feature = "dependency-tree")]
 pub use self::tree::Tree;
 
-use crate::{
-    error::{Error, ErrorKind},
-    package::{Name, Package, Source},
-};
+use crate::package::{Name, Package, Source};
 use semver::Version;
-use serde::{de, ser, Deserialize, Serialize};
-use std::{fmt, str::FromStr};
+use serde::{Deserialize, Serialize};
+use std::fmt;
 
 /// Package dependencies
-#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
 pub struct Dependency {
     /// Name of the dependency
     pub name: Name,
 
     /// Version of the dependency
-    pub version: Option<Version>,
+    pub version: Version,
 
     /// Source for the dependency
     pub source: Option<Source>,
@@ -32,25 +29,13 @@ pub struct Dependency {
 impl Dependency {
     /// Does the given [`Package`] exactly match this `Dependency`?
     pub fn matches(&self, package: &Package) -> bool {
-        if self.name != package.name {
-            return false;
-        }
-
-        if let Some(version) = &self.version {
-            version == &package.version
-        } else {
-            true
-        }
+        self.name == package.name && self.version == package.version
     }
 }
 
 impl fmt::Display for Dependency {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self.name)?;
-
-        if let Some(version) = &self.version {
-            write!(f, " {}", version)?;
-        }
+        write!(f, "{} {}", &self.name, &self.version)?;
 
         if let Some(source) = &self.source {
             write!(f, " ({})", source)?;
@@ -60,56 +45,13 @@ impl fmt::Display for Dependency {
     }
 }
 
-impl FromStr for Dependency {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Error> {
-        let mut parts = s.split_whitespace();
-
-        let name = parts
-            .next()
-            .ok_or_else(|| format_err!(ErrorKind::Parse, "empty dependency string"))?
-            .parse()?;
-
-        let version = parts.next().map(FromStr::from_str).transpose()?;
-
-        let source = parts
-            .next()
-            .map(|s| {
-                if s.len() < 2 || !s.starts_with('(') || !s.ends_with(')') {
-                    Err(format_err!(
-                        ErrorKind::Parse,
-                        "malformed source in dependency: {}",
-                        s
-                    ))
-                } else {
-                    s[1..(s.len() - 1)].parse()
-                }
-            })
-            .transpose()?;
-
-        if parts.next().is_some() {
-            fail!(ErrorKind::Parse, "malformed dependency: {}", s);
+impl From<&Package> for Dependency {
+    /// Get the [`Dependency`] requirement for this `[[package]]`
+    fn from(pkg: &Package) -> Dependency {
+        Self {
+            name: pkg.name.clone(),
+            version: pkg.version.clone(),
+            source: pkg.source.clone(),
         }
-
-        Ok(Self {
-            name,
-            version,
-            source,
-        })
-    }
-}
-
-impl<'de> Deserialize<'de> for Dependency {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use de::Error;
-        String::deserialize(deserializer)
-            .and_then(|ref s| Self::from_str(s).map_err(D::Error::custom))
-    }
-}
-
-impl Serialize for Dependency {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.to_string().serialize(serializer)
     }
 }
