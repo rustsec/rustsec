@@ -8,7 +8,7 @@ pub mod tree;
 #[cfg(feature = "dependency-tree")]
 pub use self::tree::Tree;
 
-use crate::package::{Name, Package, Source};
+use crate::package::{Name, Package, SourceId};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use std::fmt;
@@ -22,8 +22,8 @@ pub struct Dependency {
     /// Version of the dependency
     pub version: Version,
 
-    /// Source for the dependency
-    pub source: Option<Source>,
+    /// Source identifier for the dependency
+    pub source: Option<SourceId>,
 }
 
 impl Dependency {
