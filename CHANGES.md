@@ -1,3 +1,7 @@
+## [4.0.1] (2020-01-22)
+
+- CLI: fix executable name ([#45])
+
 ## [4.0.0] (2020-01-22)
 
 - Command line interface ([#40], [#42], [#43])
@@ -36,6 +40,8 @@
 
 - Initial release
 
+[4.0.1]: https://github.com/RustSec/cargo-lock/pull/46
+[#45]: https://github.com/RustSec/cargo-lock/pull/46
 [4.0.0]: https://github.com/RustSec/cargo-lock/pull/44
 [#43]: https://github.com/RustSec/cargo-lock/pull/43
 [#42]: https://github.com/RustSec/cargo-lock/pull/42
