@@ -11,6 +11,13 @@ pub type Metadata = Map<Key, Value>;
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Key(String);
 
+impl Key {
+    /// Is this metadata key a checksum entry?
+    pub fn is_checksum(&self) -> bool {
+        self.0.starts_with("checksum ")
+    }
+}
+
 impl AsRef<str> for Key {
     fn as_ref(&self) -> &str {
         &self.0

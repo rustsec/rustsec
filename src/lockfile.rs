@@ -5,10 +5,8 @@ pub mod version;
 
 pub use self::version::ResolveVersion;
 
-#[cfg(feature = "dependency-tree")]
-use crate::dependency::Tree;
+use self::encoding::EncodableLockfile;
 use crate::{
-    dependency::Dependency,
     error::{Error, ErrorKind},
     metadata::Metadata,
     package::Package,
@@ -16,6 +14,9 @@ use crate::{
 };
 use std::{fs, path::Path, str::FromStr, string::ToString};
 use toml;
+
+#[cfg(feature = "dependency-tree")]
+use crate::dependency::Tree;
 
 /// Parsed Cargo.lock file containing dependencies
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -27,7 +28,7 @@ pub struct Lockfile {
     pub packages: Vec<Package>,
 
     /// Legacy "root" dependency for backwards compatibility
-    pub root: Option<Dependency>,
+    pub root: Option<Package>,
 
     /// Package metadata
     pub metadata: Metadata,
@@ -70,6 +71,6 @@ impl FromStr for Lockfile {
 
 impl ToString for Lockfile {
     fn to_string(&self) -> String {
-        toml::to_string(self).unwrap()
+        toml::to_string(&EncodableLockfile::from(self)).unwrap()
     }
 }

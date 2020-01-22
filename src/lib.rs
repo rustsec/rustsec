@@ -31,7 +31,8 @@ pub use self::{
     error::{Error, ErrorKind},
     lockfile::{Lockfile, ResolveVersion},
     metadata::Metadata,
-    package::{Package, Version},
+    package::{Checksum, Name, Package, Source, Version},
+    patch::Patch,
 };
 
 /// Use `BTreeMap` for all `Map` types in the crate

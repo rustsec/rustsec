@@ -31,12 +31,12 @@ impl Tree {
         // Populate all graph nodes in the first pass
         for package in &lockfile.packages {
             let node_index = graph.add_node(package.clone());
-            nodes.insert(Dependency::from(package.clone()), node_index);
+            nodes.insert(Dependency::from(package), node_index);
         }
 
         // Populate all graph edges in the second pass
         for package in &lockfile.packages {
-            let parent_index = nodes[&Dependency::from(package.clone())];
+            let parent_index = nodes[&Dependency::from(package)];
 
             for dependency in &package.dependencies {
                 if let Some(node_index) = nodes.get(dependency) {
