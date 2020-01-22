@@ -53,23 +53,11 @@ impl EncodableLockfile {
     /// Attempt to find a checksum for a package in a V1 lockfile
     pub fn find_checksum(&self, package: &Package) -> Option<Checksum> {
         for (key, value) in &self.metadata {
-            let mut key_parts = key.as_ref().split(' ');
-
-            if key_parts.next() != Some("checksum") {
-                continue;
+            if let Ok(dep) = key.checksum_dependency() {
+                if dep.name == package.name && dep.version == package.version {
+                    return value.checksum().ok();
+                }
             }
-
-            match key_parts.next() {
-                Some(n) if n == package.name.as_ref() => (),
-                _ => continue,
-            }
-
-            match key_parts.next() {
-                Some(v) if v == package.version.to_string() => (),
-                _ => continue,
-            }
-
-            return value.as_ref().parse().ok();
         }
 
         None
@@ -120,9 +108,7 @@ impl From<&Lockfile> for EncodableLockfile {
 
         for package in &lockfile.packages {
             let mut raw_pkg = EncodablePackage::from(package);
-            let checksum_key = format!("checksum {}", Dependency::from(package))
-                .parse::<metadata::Key>()
-                .unwrap();
+            let checksum_key = metadata::Key::for_checksum(&Dependency::from(package));
 
             match lockfile.version {
                 // In the V1 format, we need to remove the checksum from
@@ -157,7 +143,7 @@ impl From<&Lockfile> for EncodableLockfile {
 
 /// Serialization-oriented equivalent to [`Package`]
 #[derive(Debug, Deserialize, Serialize)]
-pub(super) struct EncodablePackage {
+pub(crate) struct EncodablePackage {
     /// Package name
     pub(super) name: Name,
 
@@ -238,7 +224,7 @@ impl From<&Package> for EncodablePackage {
 
 /// Package dependencies
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub(super) struct EncodableDependency {
+pub(crate) struct EncodableDependency {
     /// Name of the dependency
     pub(super) name: Name,
 
