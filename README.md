@@ -26,7 +26,7 @@ Once installed, run `cargo audit` at the toplevel of any Cargo project.
 
 ## Screenshot
 
-<img src="https://github.com/RustSec/cargo-audit/raw/master/screenshot.png" alt="Screenshot" style="max-width:100%;">
+<img src="https://raw.githubusercontent.com/RustSec/cargo-audit/c857beb/img/screenshot.png" alt="Screenshot" style="max-width:100%;">
 
 ## `cargo audit fix` subcommand
 
@@ -40,7 +40,9 @@ $ cargo install cargo-audit --features=fix
 ```
 
 Once installed, run `cargo audit fix` to automatically fix vulnerable
-dependency requirements.
+dependency requirements:
+
+<img src="https://raw.githubusercontent.com/RustSec/cargo-audit/c857beb/img/screenshot-fix.png" alt="Screenshot" style="max-width:100%;">
 
 This will modify `Cargo.toml` in place. To perform a dry run instead, which
 shows a preview of what dependencies would be upgraded, run
