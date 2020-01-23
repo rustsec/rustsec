@@ -1,3 +1,11 @@
+## [0.11.0] (2020-01-20)
+
+- Update `rustsec` crate to v0.17 release; MSRV 1.39+ ([#186], [#188])
+- Warn for yanked crates ([#180])
+- Respect sources of dependencies when auditing ([#175])
+- Upgrade to `abscissa` v0.5 ([#174])
+- `cargo audit fix` subcommand ([#157], [#166], [#181])
+
 ## [0.10.0] (2019-10-13)
 
 - Upgrade `rustsec` to v0.16; new self-audit system ([#155])
@@ -106,6 +114,15 @@
 
 - Initial release
 
+[0.11.0]: https://github.com/RustSec/cargo-audit/pull/189
+[#188]: https://github.com/RustSec/cargo-audit/pull/188
+[#186]: https://github.com/RustSec/cargo-audit/pull/186
+[#181]: https://github.com/RustSec/cargo-audit/pull/181
+[#180]: https://github.com/RustSec/cargo-audit/pull/180
+[#175]: https://github.com/RustSec/cargo-audit/pull/175
+[#174]: https://github.com/RustSec/cargo-audit/pull/174
+[#166]: https://github.com/RustSec/cargo-audit/pull/166
+[#157]: https://github.com/RustSec/cargo-audit/pull/157
 [0.10.0]: https://github.com/RustSec/cargo-audit/pull/156
 [#155]: https://github.com/RustSec/cargo-audit/pull/155
 [#154]: https://github.com/RustSec/cargo-audit/pull/154
