@@ -266,10 +266,7 @@ impl Presenter {
     /// Print the inverse dependency tree to standard output
     fn print_tree(&mut self, color: Color, package: &Package, tree: &dependency::Tree) {
         // Only show the tree once per package
-        if !self
-            .displayed_packages
-            .insert(Dependency::from(package.clone()))
-        {
+        if !self.displayed_packages.insert(Dependency::from(package)) {
             return;
         }
 
@@ -284,7 +281,7 @@ impl Presenter {
             .print_stdout("")
             .unwrap();
 
-        let package_node = tree.nodes()[&Dependency::from(package.clone())];
+        let package_node = tree.nodes()[&Dependency::from(package)];
         tree.render(&mut io::stdout(), package_node, EdgeDirection::Incoming)
             .unwrap();
     }
