@@ -24,6 +24,28 @@ $ cargo install cargo-audit
 
 Once installed, run `cargo audit` at the toplevel of any Cargo project.
 
+## Screenshot
+
+<img src="https://github.com/RustSec/cargo-audit/raw/master/screenshot.png" alt="Screenshot" style="max-width:100%;">
+
+## `cargo audit fix` subcommand
+
+This tool supports an experimental feature to automatically update `Cargo.toml`
+to fix vulnerable dependency requirements.
+
+To enable it, install `cargo audit` with the `fix` feature enabled:
+
+```
+$ cargo install cargo-audit --features=fix
+```
+
+Once installed, run `cargo audit fix` to automatically fix vulnerable
+dependency requirements.
+
+This will modify `Cargo.toml` in place. To perform a dry run instead, which
+shows a preview of what dependencies would be upgraded, run
+`cargo audit fix --dry-run`.
+
 ## Using `cargo audit` on Travis CI
 
 To automatically run `cargo audit` on every build in Travis CI, you can add the following to your `.travis.yml`:
@@ -46,10 +68,6 @@ GitHub repo:
 <a href="https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md">
   <img alt="Report Vulnerability" width="250px" height="60px" src="https://rustsec.org/assets/img/report-vuln-button.svg">
 </a>
-
-## Screenshot
-
-<img src="https://github.com/RustSec/cargo-audit/raw/master/screenshot.png" alt="Screenshot" style="max-width:100%;">
 
 ## License
 
