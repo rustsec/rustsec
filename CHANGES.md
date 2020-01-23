@@ -1,3 +1,7 @@
+## [0.17.1] (2020-01-22)
+
+- Update `cargo-lock` requirement from 3.0 to 4.0 ([#143])
+
 ## [0.17.0] (2020-01-19)
 
 - Bump MSRV to 1.39 ([#140])
@@ -166,6 +170,8 @@
 
 - Initial release
 
+[0.17.1]: https://github.com/RustSec/rustsec-crate/pull/144
+[#143]: https://github.com/RustSec/rustsec-crate/pull/143
 [0.17.0]: https://github.com/RustSec/rustsec-crate/pull/141
 [#140]: https://github.com/RustSec/rustsec-crate/pull/140
 [#136]: https://github.com/RustSec/rustsec-crate/pull/136
