@@ -33,7 +33,9 @@ $ cargo install cargo-lock
 
 It supports the following subcommands:
 
+- `list`: list packages in `Cargo.toml`
 - `translate`: translate `Cargo.lock` files between the V1 and V2 formats
+- `tree`: print a dependency tree for a given dependency
 
 See the [crate documentation][docs-link] for more detailed usage information.
 
