@@ -90,7 +90,7 @@ additional terms or conditions.
 
 [crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
 [crate-link]: https://crates.io/crates/cargo-audit
-[build-image]: https://github.com/rustsec/cargo-audit/workflows/Rust/badge.svg
+[build-image]: https://github.com/rustsec/cargo-audit/workflows/Rust/badge.svg?branch=master&event=push
 [build-link]: https://github.com/rustsec/cargo-audit/actions
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.39+-blue.svg
