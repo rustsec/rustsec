@@ -35,3 +35,4 @@ features = ["testing"]
 
 [features]
 fix = ["rustsec/fix"]
+vendored-openssl = ["rustsec/vendored-openssl"]
