@@ -1,4 +1,8 @@
-## [0.11.0] (2020-01-20)
+## [0.11.1] (2020-01-24)
+
+- Add `vendored-openssl` feature ([#193])
+
+## [0.11.0] (2020-01-22)
 
 - Update `rustsec` crate to v0.17 release; MSRV 1.39+ ([#186], [#188])
 - Warn for yanked crates ([#180])
@@ -114,6 +118,8 @@
 
 - Initial release
 
+[0.11.1]: https://github.com/RustSec/cargo-audit/pull/194
+[#193]: https://github.com/RustSec/cargo-audit/pull/193
 [0.11.0]: https://github.com/RustSec/cargo-audit/pull/189
 [#188]: https://github.com/RustSec/cargo-audit/pull/188
 [#186]: https://github.com/RustSec/cargo-audit/pull/186
