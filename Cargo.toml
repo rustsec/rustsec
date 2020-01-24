@@ -13,7 +13,7 @@ edition     = "2018"
 abscissa_core = "0.5"
 crates_io_api = "0.5"
 gumdrop = "0.7"
-handlebars = "2"
+handlebars = "3"
 rustsec = "0.17"
 serde = { version = "1", features = ["serde_derive"] }
 termcolor = "1"
