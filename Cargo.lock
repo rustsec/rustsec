@@ -591,7 +591,7 @@ dependencies = [
 
 [[package]]
 name = "handlebars"
-version = "3.0.0"
+version = "3.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "log 0.4.8 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1395,7 +1395,7 @@ dependencies = [
  "abscissa_core 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "crates_io_api 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gumdrop 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "handlebars 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "handlebars 3.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rustsec 0.17.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.104 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2160,7 +2160,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum gumdrop 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ee50908bc1beeac1f2902e0b4e0cd0d844e716f5ebdc6f0cfc1163fe5e10bcde"
 "checksum gumdrop_derive 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)" = "90454ce4de40b7ca6a8968b5ef367bdab48413962588d0d2b1638d60090c35d7"
 "checksum h2 0.1.26 (registry+https://github.com/rust-lang/crates.io-index)" = "a5b34c246847f938a410a03c5458c7fee2274436675e76d8b903c08efc29c462"
-"checksum handlebars 3.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "0bb959f7ef68cdfd3bf80efac8cc370942f6480400fee7e150b06dc0dd1ad806"
+"checksum handlebars 3.0.1 (registry+https://github.com/rust-lang/crates.io-index)" = "ba758d094d31274eb49d15da6f326b96bf3185239a6359bf684f3d5321148900"
 "checksum home 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "c07c315e106bd6f83f026a20ddaeef2706782e490db1dcdd37caad38a0e895b3"
 "checksum http 0.1.21 (registry+https://github.com/rust-lang/crates.io-index)" = "d6ccf5ede3a895d8856620237b2f02972c1bbc78d2965ad7fe8838d4a0ed41f0"
 "checksum http-body 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "6741c859c1b2463a423a1dbce98d418e6c3c3fc720fb0d45528657320920292d"
