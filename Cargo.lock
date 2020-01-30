@@ -2,9 +2,9 @@
 # It is not intended for manual editing.
 [[package]]
 name = "abscissa_core"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48e6300a8ec97b5f3f8f3096e6926443cceaf8f40ba7dc6c742ad79d9cf44b96"
+checksum = "6a07677093120a02583717b6dd1ef81d8de1e8d01bd226c83f0f9bdf3e56bb3a"
 dependencies = [
  "abscissa_derive",
  "backtrace",
