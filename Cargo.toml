@@ -15,7 +15,7 @@ edition     = "2018"
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-abscissa_core = "0.5.1"
+abscissa_core = "0.5.2"
 gumdrop = "0.7"
 home = "0.5"
 lazy_static = "1"
