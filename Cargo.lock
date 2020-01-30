@@ -2,7 +2,7 @@
 # It is not intended for manual editing.
 [[package]]
 name = "abscissa_core"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "abscissa_derive 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1392,7 +1392,7 @@ dependencies = [
 name = "rustsec-admin"
 version = "0.1.1"
 dependencies = [
- "abscissa_core 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "abscissa_core 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "crates_io_api 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "gumdrop 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "handlebars 3.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2094,7 +2094,7 @@ version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [metadata]
-"checksum abscissa_core 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)" = "48e6300a8ec97b5f3f8f3096e6926443cceaf8f40ba7dc6c742ad79d9cf44b96"
+"checksum abscissa_core 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)" = "6a07677093120a02583717b6dd1ef81d8de1e8d01bd226c83f0f9bdf3e56bb3a"
 "checksum abscissa_derive 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "74f5722bc48763cb9d81d8427ca05b6aa2842f6632cf8e4c0a29eef9baececcc"
 "checksum adler32 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "5d2e7343e7fc9de883d1b0341e0b13970f764c14101234857d2ddafa1cb1cac2"
 "checksum aho-corasick 0.7.6 (registry+https://github.com/rust-lang/crates.io-index)" = "58fb5e95d83b38284460a5fda7d6470aa0b8844d283a0b614b8535e880800d2d"
