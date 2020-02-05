@@ -16,7 +16,6 @@ stale = false # Allow stale advisory DB (i.e. no commits for 90 days, default: f
 
 # Output Configuration
 [output]
-color = "auto" # Display colors? ("always", "never", or "auto")
 deny_warnings = false # exit on error if any warnings are found
 format = "terminal" # "terminal" (human readable report) or "json"
 quiet = false # Only print information on error

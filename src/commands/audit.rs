@@ -9,7 +9,7 @@ use crate::{
     config::{AuditConfig, OutputFormat},
     prelude::*,
 };
-use abscissa_core::{config::Override, FrameworkError};
+use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
 use gumdrop::Options;
 use rustsec::database::package_scope::PackageSource;
 use rustsec::platforms::target::{Arch, OS};
@@ -136,12 +136,19 @@ pub enum AuditSubcommand {
     Fix(FixCommand),
 }
 
+impl AuditCommand {
+    /// Get the color configuration
+    pub fn color_config(&self) -> Option<ColorChoice> {
+        self.color.as_ref().map(|colors| match colors.as_ref() {
+            "always" => ColorChoice::Always,
+            "never" => ColorChoice::Never,
+            _ => panic!("invalid color choice setting: {}", &colors),
+        })
+    }
+}
+
 impl Override<AuditConfig> for AuditCommand {
     fn override_config(&self, mut config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
-        if let Some(color) = &self.color {
-            config.output.color = Some(color.clone());
-        }
-
         if let Some(db) = &self.db {
             config.database.path = Some(db.into());
         }

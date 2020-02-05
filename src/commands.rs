@@ -5,7 +5,7 @@ mod audit;
 use self::audit::AuditCommand;
 use crate::config::AuditConfig;
 use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Options, Runnable};
-use std::path::PathBuf;
+use std::{ops::Deref, path::PathBuf};
 
 /// Name of the configuration file (located in `~/.cargo`)
 ///
@@ -36,11 +36,19 @@ impl Configurable<AuditConfig> for CargoAuditCommand {
     }
 
     /// Override loaded config with explicit command-line arguments
-    /// `fix` update vulnerabilities with `cargo-edit`
-    /// `audit` match self
     fn process_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
         match self {
             CargoAuditCommand::Audit(cmd) => cmd.override_config(config),
+        }
+    }
+}
+
+impl Deref for CargoAuditCommand {
+    type Target = AuditCommand;
+
+    fn deref(&self) -> &AuditCommand {
+        match self {
+            CargoAuditCommand::Audit(cmd) => cmd,
         }
     }
 }
