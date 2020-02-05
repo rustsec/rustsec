@@ -1,7 +1,7 @@
 //! Core auditing functionality
 
 use crate::{config::AuditConfig, error::Error, prelude::*, presenter::Presenter};
-use rustsec::{lockfile::Lockfile, report};
+use rustsec::{lockfile::Lockfile, registry, report, warning, Warning};
 use std::{
     io::{self, Read},
     path::Path,
@@ -15,6 +15,9 @@ const CARGO_LOCK_FILE: &str = "Cargo.lock";
 pub struct Auditor {
     /// RustSec Advisory Database
     database: rustsec::Database,
+
+    /// Crates.io registry index
+    registry_index: Option<registry::Index>,
 
     /// Presenter for displaying the report
     presenter: Presenter,
@@ -71,8 +74,41 @@ impl Auditor {
             );
         }
 
+        let registry_index = if config.yanked.enabled {
+            if config.yanked.update_index {
+                if !config.output.is_quiet() {
+                    status_ok!("Updating", "crates.io index");
+                }
+
+                match registry::Index::fetch() {
+                    Ok(index) => Some(index),
+                    Err(err) => {
+                        if !config.output.is_quiet() {
+                            status_warn!("couldn't update crates.io index: {}", err);
+                        }
+
+                        None
+                    }
+                }
+            } else {
+                match registry::Index::open() {
+                    Ok(index) => Some(index),
+                    Err(err) => {
+                        if !config.output.is_quiet() {
+                            status_warn!("couldn't open crates.io index: {}", err);
+                        }
+
+                        None
+                    }
+                }
+            }
+        } else {
+            None
+        };
+
         Self {
             database,
+            registry_index,
             presenter: Presenter::new(&config.output),
             report_settings: config.report_settings(),
         }
@@ -97,7 +133,21 @@ impl Auditor {
 
         self.presenter.before_report(&lockfile_path, &lockfile);
 
-        let report = rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
+        let mut report =
+            rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
+
+        // Warn for yanked crates
+        if let Some(index) = &self.registry_index {
+            for package in &lockfile.packages {
+                if let Ok(pkg) = index.find(&package.name, &package.version) {
+                    if pkg.is_yanked {
+                        let warning = Warning::new(warning::Kind::Yanked, package);
+                        report.warnings.push(warning);
+                    }
+                }
+            }
+        }
+
         let self_advisories = self.self_advisories();
 
         self.presenter
