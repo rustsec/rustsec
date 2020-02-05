@@ -6,10 +6,8 @@
 use crate::{
     advisory,
     database::{package_scope::PackageScope, Database, Query},
-    error::Error,
     lockfile::Lockfile,
     platforms::target::{Arch, OS},
-    registry,
     vulnerability::Vulnerability,
     warning::{self, Warning},
 };
@@ -49,12 +47,7 @@ impl Report {
             .filter(|vuln| !settings.ignore.contains(&vuln.advisory.id))
             .collect();
 
-        let mut warnings = find_warnings(db, lockfile, settings);
-
-        // TODO(tarcieri): logging for registry index errors
-        if let Ok(mut yanked) = find_yanked_crates(lockfile) {
-            warnings.append(&mut yanked);
-        }
+        let warnings = find_warnings(db, lockfile, settings);
 
         Self {
             database: DatabaseInfo::new(db),
@@ -219,19 +212,4 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
     }
 
     result
-}
-
-/// If the index is available, check for yanked crates in the lockfile
-fn find_yanked_crates(lockfile: &Lockfile) -> Result<Vec<Warning>, Error> {
-    let index = registry::Index::open()?;
-
-    let mut result = vec![];
-
-    for package in &lockfile.packages {
-        if index.find(&package.name, &package.version)?.is_yanked {
-            result.push(Warning::new(warning::Kind::Yanked, package));
-        }
-    }
-
-    Ok(result)
 }
