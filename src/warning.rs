@@ -15,7 +15,7 @@ pub struct Warning {
 
 impl Warning {
     /// Create `Warning` of the given kind
-    pub(crate) fn new(kind: Kind, package: &Package) -> Self {
+    pub fn new(kind: Kind, package: &Package) -> Self {
         Self {
             kind,
             package: package.clone(),
