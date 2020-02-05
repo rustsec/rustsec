@@ -1,3 +1,7 @@
+## [0.18.0] (2020-02-05)
+
+- Move yanked crate auditing to `cargo-audit` ([#147])
+
 ## [0.17.1] (2020-01-22)
 
 - Update `cargo-lock` requirement from 3.0 to 4.0 ([#143])
@@ -170,6 +174,8 @@
 
 - Initial release
 
+[0.18.0]: https://github.com/RustSec/rustsec-crate/pull/148
+[#147]: https://github.com/RustSec/rustsec-crate/pull/147
 [0.17.1]: https://github.com/RustSec/rustsec-crate/pull/144
 [#143]: https://github.com/RustSec/rustsec-crate/pull/143
 [0.17.0]: https://github.com/RustSec/rustsec-crate/pull/141
