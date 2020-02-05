@@ -16,19 +16,28 @@ use std::path::PathBuf;
 #[serde(deny_unknown_fields)]
 pub struct AuditConfig {
     /// Advisory-related configuration
+    #[serde(default)]
     pub advisories: AdvisoryConfig,
 
     /// Advisory Database configuration
+    #[serde(default)]
     pub database: DatabaseConfig,
 
     /// Output configuration
+    #[serde(default)]
     pub output: OutputConfig,
 
     /// Target-related configuration
+    #[serde(default)]
     pub target: TargetConfig,
 
     /// Packages-related configuration
+    #[serde(default)]
     pub packages: PackageConfig,
+
+    /// Configuration for auditing for yanked crates
+    #[serde(default)]
+    pub yanked: YankedConfig,
 }
 
 impl AuditConfig {
@@ -154,4 +163,31 @@ pub struct TargetConfig {
 pub struct PackageConfig {
     /// Package scope which should be considered for querying for vulnerabilities.
     pub source: Option<PackageSource>,
+}
+
+/// Configuration for auditing for yanked crates
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct YankedConfig {
+    /// Is auditing for yanked crates enabled?
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+
+    /// Should the crates.io index be updated before checking for yanked crates?
+    #[serde(default = "default_true")]
+    pub update_index: bool,
+}
+
+impl Default for YankedConfig {
+    fn default() -> Self {
+        Self {
+            enabled: true,
+            update_index: true,
+        }
+    }
+}
+
+/// Helper function for returning a default of `true`
+fn default_true() -> bool {
+    true
 }
