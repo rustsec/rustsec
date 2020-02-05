@@ -5,7 +5,9 @@
 use crate::{commands::CargoAuditCommand, config::AuditConfig};
 use abscissa_core::{
     application::{self, AppCell},
-    config, trace, Application, EntryPoint, FrameworkError, StandardPaths,
+    config,
+    terminal::ColorChoice,
+    trace, Application, EntryPoint, FrameworkError, StandardPaths,
 };
 
 /// Application state
@@ -90,6 +92,15 @@ impl Application for CargoAuditApplication {
         self.state.components.after_config(&config)?;
         self.config = Some(config);
         Ok(())
+    }
+
+    /// Color configuration for this application.
+    fn term_colors(&self, entrypoint: &EntryPoint<CargoAuditCommand>) -> ColorChoice {
+        entrypoint
+            .command
+            .as_ref()
+            .and_then(|cmd| cmd.color_config())
+            .unwrap_or_else(|| ColorChoice::Auto)
     }
 
     /// Get tracing configuration from command-line options
