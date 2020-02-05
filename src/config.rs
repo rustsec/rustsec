@@ -97,9 +97,6 @@ pub struct DatabaseConfig {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct OutputConfig {
-    /// Should colors be displayed?
-    pub color: Option<String>,
-
     /// Disallow any warning advisories
     #[serde(default)]
     pub deny_warnings: bool,
