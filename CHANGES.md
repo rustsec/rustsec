@@ -1,3 +1,8 @@
+## [0.11.2] (2020-02-07)
+
+- Improve yanked crate auditing messages and config ([#200])
+- Fix `-c`/`--color` command line argument ([#199])
+
 ## [0.11.1] (2020-01-24)
 
 - Add `vendored-openssl` feature ([#193])
@@ -118,6 +123,9 @@
 
 - Initial release
 
+[0.11.2]: https://github.com/RustSec/cargo-audit/pull/201
+[#200]: https://github.com/RustSec/cargo-audit/pull/200
+[#199]: https://github.com/RustSec/cargo-audit/pull/199
 [0.11.1]: https://github.com/RustSec/cargo-audit/pull/194
 [#193]: https://github.com/RustSec/cargo-audit/pull/193
 [0.11.0]: https://github.com/RustSec/cargo-audit/pull/189
