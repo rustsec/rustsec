@@ -4,26 +4,18 @@
 
 use rustsec::advisory::Category;
 
-/// Example RustSec Advisory (V1 format) to use for tests
-const ADVISORY_PATH_V1: &str = "./tests/support/example_advisory_v1.toml";
-
 /// Example RustSec Advisory (V2 format) to use for tests
-const ADVISORY_PATH_V2: &str = "./tests/support/example_advisory_v2.toml";
+const ADVISORY_PATH: &str = "./tests/support/example_advisory_v2.toml";
 
 /// Load the V1 advisory from the filesystem
-fn load_advisory_v1() -> rustsec::Advisory {
-    rustsec::Advisory::load_file(ADVISORY_PATH_V1).unwrap()
-}
-
-/// Load the V1 advisory from the filesystem
-fn load_advisory_v2() -> rustsec::Advisory {
-    rustsec::Advisory::load_file(ADVISORY_PATH_V2).unwrap()
+fn load_advisory() -> rustsec::Advisory {
+    rustsec::Advisory::load_file(ADVISORY_PATH).unwrap()
 }
 
 /// Basic metadata
 #[test]
 fn parse_metadata() {
-    let advisory = load_advisory_v1();
+    let advisory = load_advisory();
     assert_eq!(advisory.metadata.id.as_str(), "RUSTSEC-2001-2101");
     assert_eq!(advisory.metadata.package.as_str(), "base");
     assert_eq!(advisory.metadata.title, "All your base are belong to us");
@@ -52,7 +44,7 @@ fn parse_metadata() {
 /// Parsing of impact metadata
 #[test]
 fn parse_affected() {
-    let affected = load_advisory_v1().affected.unwrap();
+    let affected = load_advisory().affected.unwrap();
     assert_eq!(affected.arch[0], platforms::target::Arch::X86);
     assert_eq!(affected.os[0], platforms::target::OS::Windows);
 
@@ -65,7 +57,7 @@ fn parse_affected() {
 /// Parsing of other aliased advisory IDs
 #[test]
 fn parse_aliases() {
-    let alias = &load_advisory_v1().metadata.aliases[0];
+    let alias = &load_advisory().metadata.aliases[0];
     assert!(alias.is_cve());
     assert_eq!(alias.year().unwrap(), 2001);
 }
@@ -73,7 +65,7 @@ fn parse_aliases() {
 /// Parsing of CVSS v3.1 severity vector strings
 #[test]
 fn parse_cvss_vector_string() {
-    let advisory = load_advisory_v1();
+    let advisory = load_advisory();
     assert_eq!(
         advisory.severity().unwrap(),
         rustsec::advisory::Severity::Critical
@@ -94,26 +86,11 @@ fn parse_cvss_vector_string() {
     assert_eq!(cvss.score().value(), 10.0);
 }
 
-/// Parsing of patched version reqs (V1 format)
-#[test]
-fn parse_patched_version_reqs_v1() {
-    let req = &load_advisory_v1().versions.patched[0];
-    assert!(!req.matches(&"1.2.2".parse().unwrap()));
-    assert!(req.matches(&"1.2.3".parse().unwrap()));
-    assert!(req.matches(&"1.2.4".parse().unwrap()));
-}
-
 /// Parsing of patched version reqs (V2 format)
 #[test]
 fn parse_patched_version_reqs_v2() {
-    let req = &load_advisory_v2().versions.patched[0];
+    let req = &load_advisory().versions.patched[0];
     assert!(!req.matches(&"1.2.2".parse().unwrap()));
     assert!(req.matches(&"1.2.3".parse().unwrap()));
     assert!(req.matches(&"1.2.4".parse().unwrap()));
-}
-
-/// Ensure V1 and V2 formats parse equivalently
-#[test]
-fn advisory_v1_and_v2_equivalence() {
-    assert_eq!(load_advisory_v1(), load_advisory_v2());
 }

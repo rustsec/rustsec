@@ -20,7 +20,7 @@ pub struct Versions {
 }
 
 impl Versions {
-    /// Is the given version of a package vulnerabley?
+    /// Is the given version of a package vulnerable?
     pub fn is_vulnerable(&self, version: &Version) -> bool {
         if self.patched.iter().any(|req| req.matches(version)) {
             return false;
