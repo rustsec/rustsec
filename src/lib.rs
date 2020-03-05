@@ -53,7 +53,7 @@
 //! file back to the V1 format, use:
 //!
 //! ```text
-//! $ cargo lock translate --v1
+//! $ cargo lock translate -v1
 //! ```
 //!
 //! ### `tree`: provide information for how a dependency is included
