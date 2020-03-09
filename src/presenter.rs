@@ -1,7 +1,7 @@
 //! Presenter for `rustsec::Report` information.
 
 use crate::{
-    config::{OutputConfig, OutputFormat},
+    config::{OutputConfig, OutputFormat, WarningKind},
     prelude::*,
 };
 use abscissa_core::terminal::{
@@ -81,20 +81,61 @@ impl Presenter {
             self.print_vulnerability(vulnerability, &tree);
         }
 
+        let deny_unmaintained = self
+            .config
+            .deny_warnings
+            .contains(&WarningKind::Unmaintained);
+        let deny_yanked = self.config.deny_warnings.contains(&WarningKind::Yanked);
+
+        //
+        //  could instead do something like this (if Warning implemented Copy):
+        //
+        //  let (denied, others): (Vec<Warning>, Vec<Warning>) =
+        //     report.warnings.iter().partition(|&w| match w.kind {
+        //         warning::Kind::Unmaintained { .. } => deny_unmaintained,
+        //         warning::Kind::Yanked { .. } => deny_yanked,
+        //         _ => false,
+        //     });
+        let mut num_denied = 0;
+        let mut num_not_denied = 0;
+        for warning in &report.warnings {
+            match warning.kind {
+                warning::Kind::Unmaintained { .. } => {
+                    if deny_unmaintained {
+                        num_denied += 1
+                    } else {
+                        num_not_denied += 1
+                    }
+                }
+                warning::Kind::Yanked { .. } => {
+                    if deny_yanked {
+                        num_denied += 1
+                    } else {
+                        num_not_denied += 1
+                    }
+                }
+                _ => num_not_denied += 1,
+            }
+        }
+
         if !report.warnings.is_empty() {
             println!();
 
-            let warning_word = if report.warnings.len() != 1 {
+            let warning_word = if num_denied != 1 {
                 "warnings"
             } else {
                 "warning"
             };
 
-            if self.config.deny_warnings {
-                status_err!("{} {} found", report.warnings.len(), warning_word);
+            status_err!("{} denied {} found", num_denied, warning_word);
+
+            let warning_word = if num_not_denied != 1 {
+                "warnings"
             } else {
-                status_warn!("{} {} found", report.warnings.len(), warning_word);
-            }
+                "warning"
+            };
+
+            status_warn!("{} not-denied {} found", num_not_denied, warning_word);
 
             for warnings in report.warnings.values() {
                 for warning in warnings {
@@ -108,7 +149,7 @@ impl Presenter {
 
             let msg = "this copy of cargo-audit has known advisories!";
 
-            if self.config.deny_warnings {
+            if self.config.deny_warnings.contains(&WarningKind::Other) {
                 status_err!(msg);
             } else {
                 status_warn!(msg);
@@ -134,23 +175,29 @@ impl Presenter {
                 println!();
             }
 
-            let warnings_word = if report.warnings.len() != 1 {
+            let warning_word = if num_denied != 1 {
                 "warnings"
             } else {
                 "warning"
             };
 
-            if self.config.deny_warnings {
+            if num_denied > 0 {
                 status_err!(
-                    "{} {} found and `--deny-warnings` enabled!",
+                    "{} denied {} found and `--deny-warnings` enabled!",
                     report.warnings.len(),
-                    warnings_word
+                    warning_word
                 );
 
                 // TODO(tarcieri): better unify this with vulnerabilities handling
                 exit(1);
             } else {
-                status_warn!("{} {} found!", report.warnings.len(), warnings_word);
+                let warning_word = if num_not_denied != 1 {
+                    "warnings"
+                } else {
+                    "warning"
+                };
+
+                status_warn!("{} {} found!", num_not_denied, warning_word);
             }
         }
 
@@ -158,7 +205,7 @@ impl Presenter {
                            cargo install --force cargo-audit";
 
         if !self_advisories.is_empty() {
-            if self.config.deny_warnings {
+            if self.config.deny_warnings.contains(&WarningKind::Other) {
                 status_err!(upgrade_msg);
                 exit(1);
             } else {
@@ -225,13 +272,15 @@ impl Presenter {
         self.print_tree(self.warning_color(), &warning.package, tree);
     }
 
+    // TODO: fix the colors based on type of warning
     /// Get the color to use when displaying warnings
     fn warning_color(&self) -> Color {
-        if self.config.deny_warnings {
+        Yellow
+        /*if self.config.deny_warnings {
             Red
         } else {
             Yellow
-        }
+        }*/
     }
 
     /// Print a warning about a particular advisory

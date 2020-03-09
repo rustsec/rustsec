@@ -6,7 +6,7 @@ mod fix;
 use super::CargoAuditCommand;
 use crate::{
     auditor::Auditor,
-    config::{AuditConfig, OutputFormat},
+    config::{AuditConfig, OutputFormat, WarningKind},
     prelude::*,
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
@@ -53,9 +53,9 @@ pub struct AuditCommand {
     #[options(
         short = "D",
         long = "deny-warnings",
-        help = "exit with an error if any warning advisories are found"
+        help = "exit with an error if any warning advisories of specified kinds are found"
     )]
-    deny_warnings: bool,
+    deny_warnings: Vec<WarningKind>,
 
     /// Path to `Cargo.lock`
     #[options(
@@ -178,7 +178,19 @@ impl Override<AuditConfig> for AuditCommand {
             config.database.url = Some(url.clone())
         }
 
-        config.output.deny_warnings |= self.deny_warnings;
+        for kind in &self.deny_warnings {
+            match kind {
+                WarningKind::All => {
+                    config.output.deny_warnings = vec![
+                        WarningKind::Other,
+                        WarningKind::Unmaintained,
+                        WarningKind::Yanked,
+                    ]
+                }
+                k => config.output.deny_warnings.push(k.clone()),
+            }
+        }
+
         config.output.quiet |= self.quiet;
 
         if self.output_json {
