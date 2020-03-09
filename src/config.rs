@@ -4,10 +4,11 @@ use rustsec::{
     advisory,
     database::scope,
     platforms::target::{Arch, OS},
-    report,
+    report, Error, ErrorKind,
 };
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use std::str::FromStr;
 
 /// `cargo audit` configuration:
 ///
@@ -108,7 +109,7 @@ pub struct DatabaseConfig {
 pub struct OutputConfig {
     /// Disallow any warning advisories
     #[serde(default)]
-    pub deny_warnings: bool,
+    pub deny_warnings: Vec<WarningKind>,
 
     /// Output format to use
     #[serde(default)]
@@ -125,6 +126,47 @@ impl OutputConfig {
     /// Is quiet mode enabled?
     pub fn is_quiet(&self) -> bool {
         self.quiet || self.format == OutputFormat::Json
+    }
+}
+
+/// Warning kinds
+#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+pub enum WarningKind {
+    #[serde(rename = "all")]
+    All,
+
+    #[serde(rename = "other")]
+    Other,
+
+    ///
+    #[serde(rename = "unmaintained")]
+    Unmaintained,
+
+    ///
+    #[serde(rename = "yanked")]
+    Yanked,
+}
+
+impl FromStr for WarningKind {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        match s {
+            "unmaintainable" => Ok(WarningKind::Unmaintained),
+            "yanked" => Ok(WarningKind::Yanked),
+            "other" => Ok(WarningKind::Other),
+            "all" => Ok(WarningKind::All),
+            other => Err(Error::new(
+                ErrorKind::Parse,
+                &format!("invalid deny-warnings option: {}", other),
+            )),
+        }
+    }
+}
+
+impl Default for WarningKind {
+    fn default() -> Self {
+        WarningKind::Other
     }
 }
 
