@@ -1,7 +1,7 @@
 //! Presenter for `rustsec::Report` information.
 
 use crate::{
-    config::{OutputConfig, OutputFormat, WarningKind},
+    config::{DenyWarningOption, OutputConfig, OutputFormat},
     prelude::*,
 };
 use abscissa_core::terminal::{
@@ -29,6 +29,9 @@ pub struct Presenter {
     // TODO(tarcieri): group advisories about the same package?
     displayed_packages: Set<Dependency>,
 
+    /// Track warning kinds
+    deny_warning_kinds: Set<warning::Kind>,
+
     /// Output configuration
     config: OutputConfig,
 }
@@ -38,6 +41,11 @@ impl Presenter {
     pub fn new(config: &OutputConfig) -> Self {
         Self {
             displayed_packages: Set::new(),
+            deny_warning_kinds: config
+                .deny_warnings
+                .iter()
+                .filter_map(|k| k.get_warning_kind())
+                .collect(),
             config: config.clone(),
         }
     }
@@ -51,6 +59,14 @@ impl Presenter {
                 lockfile_path.display(),
                 lockfile.packages.len(),
             );
+        }
+    }
+
+    fn warning_word(&self, count: u64) -> &str {
+        if count != 1 {
+            "warnings"
+        } else {
+            "warning"
         }
     }
 
@@ -81,66 +97,36 @@ impl Presenter {
             self.print_vulnerability(vulnerability, &tree);
         }
 
-        let deny_unmaintained = self
-            .config
-            .deny_warnings
-            .contains(&WarningKind::Unmaintained);
-        let deny_yanked = self.config.deny_warnings.contains(&WarningKind::Yanked);
+        // sort warning::Kinds alphabetically
+        let mut sorted_keys: Vec<&warning::Kind> = report
+            .warnings
+            .warnings
+            .keys()
+            .collect::<Vec<&warning::Kind>>();
+        sorted_keys.sort();
 
-        //
-        //  could instead do something like this (if Warning implemented Copy):
-        //
-        //  let (denied, others): (Vec<Warning>, Vec<Warning>) =
-        //     report.warnings.iter().partition(|&w| match w.kind {
-        //         warning::Kind::Unmaintained { .. } => deny_unmaintained,
-        //         warning::Kind::Yanked { .. } => deny_yanked,
-        //         _ => false,
-        //     });
-        let mut num_denied = 0;
-        let mut num_not_denied = 0;
-        for warning in &report.warnings {
-            match warning.kind {
-                warning::Kind::Unmaintained { .. } => {
-                    if deny_unmaintained {
-                        num_denied += 1
-                    } else {
-                        num_not_denied += 1
-                    }
-                }
-                warning::Kind::Yanked { .. } => {
-                    if deny_yanked {
-                        num_denied += 1
-                    } else {
-                        num_not_denied += 1
-                    }
-                }
-                _ => num_not_denied += 1,
+        let mut num_denied: u64 = 0;
+        let mut num_not_denied: u64 = 0;
+
+        for kind in &sorted_keys {
+            if self.deny_warning_kinds.contains(kind) {
+                num_denied += report.warnings.warnings.get(kind).unwrap().len() as u64;
+            } else {
+                num_not_denied += report.warnings.warnings.get(kind).unwrap().len() as u64;
             }
         }
 
-        if !report.warnings.is_empty() {
-            println!();
+        status_err!("{} {} found", num_denied, self.warning_word(num_denied));
 
-            let warning_word = if num_denied != 1 {
-                "warnings"
-            } else {
-                "warning"
-            };
+        status_warn!(
+            "{} {} found",
+            num_not_denied,
+            self.warning_word(num_not_denied)
+        );
 
-            status_err!("{} denied {} found", num_denied, warning_word);
-
-            let warning_word = if num_not_denied != 1 {
-                "warnings"
-            } else {
-                "warning"
-            };
-
-            status_warn!("{} not-denied {} found", num_not_denied, warning_word);
-
-            for warnings in report.warnings.values() {
-                for warning in warnings {
-                    self.print_warning(warning, &tree)
-                }
+        for kind in &sorted_keys {
+            for warning in report.warnings.warnings.get(kind).unwrap() {
+                self.print_warning(warning, &tree)
             }
         }
 
@@ -149,7 +135,11 @@ impl Presenter {
 
             let msg = "this copy of cargo-audit has known advisories!";
 
-            if self.config.deny_warnings.contains(&WarningKind::Other) {
+            if self
+                .config
+                .deny_warnings
+                .contains(&DenyWarningOption::Other)
+            {
                 status_err!(msg);
             } else {
                 status_warn!(msg);
@@ -170,34 +160,26 @@ impl Presenter {
             }
         }
 
-        if !report.warnings.is_empty() {
+        if num_denied > 0 || num_not_denied > 0 {
             if !report.vulnerabilities.found {
                 println!();
             }
 
-            let warning_word = if num_denied != 1 {
-                "warnings"
-            } else {
-                "warning"
-            };
-
             if num_denied > 0 {
                 status_err!(
                     "{} denied {} found and `--deny-warnings` enabled!",
-                    report.warnings.len(),
-                    warning_word
+                    num_denied,
+                    self.warning_word(num_denied)
                 );
 
                 // TODO(tarcieri): better unify this with vulnerabilities handling
                 exit(1);
             } else {
-                let warning_word = if num_not_denied != 1 {
-                    "warnings"
-                } else {
-                    "warning"
-                };
-
-                status_warn!("{} {} found!", num_not_denied, warning_word);
+                status_warn!(
+                    "{} {} found!",
+                    num_not_denied + num_denied,
+                    self.warning_word(num_not_denied + num_denied)
+                );
             }
         }
 
@@ -205,7 +187,11 @@ impl Presenter {
                            cargo install --force cargo-audit";
 
         if !self_advisories.is_empty() {
-            if self.config.deny_warnings.contains(&WarningKind::Other) {
+            if self
+                .config
+                .deny_warnings
+                .contains(&DenyWarningOption::Other)
+            {
                 status_err!(upgrade_msg);
                 exit(1);
             } else {
@@ -269,23 +255,29 @@ impl Presenter {
             warning::Kind::Yanked => self.print_yanked_warning(&warning.package),
         }
 
-        self.print_tree(self.warning_color(), &warning.package, tree);
+        self.print_tree(
+            self.warning_color(self.deny_warning_kinds.contains(&warning.kind)),
+            &warning.package,
+            tree,
+        );
     }
 
-    // TODO: fix the colors based on type of warning
     /// Get the color to use when displaying warnings
-    fn warning_color(&self) -> Color {
-        Yellow
-        /*if self.config.deny_warnings {
+    fn warning_color(&self, deny_warning: bool) -> Color {
+        if deny_warning {
             Red
         } else {
             Yellow
-        }*/
+        }
     }
 
     /// Print a warning about a particular advisory
     fn print_advisory_warning(&self, metadata: &rustsec::advisory::Metadata) {
-        let color = self.warning_color();
+        let color = self.warning_color(
+            self.config
+                .deny_warnings
+                .contains(&DenyWarningOption::Other),
+        );
 
         println!();
         self.print_attr(color, "Crate: ", &metadata.package);
@@ -301,7 +293,7 @@ impl Presenter {
 
     /// Print a warning about a yanked crate
     fn print_yanked_warning(&self, package: &Package) {
-        let color = self.warning_color();
+        let color = self.warning_color(self.deny_warning_kinds.contains(&warning::Kind::Yanked));
 
         println!();
         self.print_attr(color, "Crate:   ", &package.name);

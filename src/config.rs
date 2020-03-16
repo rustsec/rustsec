@@ -1,5 +1,7 @@
 //! The `~/.cargo/audit.toml` configuration file
 
+use rustsec::database::package_scope::{PackageScope, PackageSource};
+use rustsec::warning;
 use rustsec::{
     advisory,
     database::scope,
@@ -109,7 +111,7 @@ pub struct DatabaseConfig {
 pub struct OutputConfig {
     /// Disallow any warning advisories
     #[serde(default)]
-    pub deny_warnings: Vec<WarningKind>,
+    pub deny_warnings: Vec<DenyWarningOption>,
 
     /// Output format to use
     #[serde(default)]
@@ -130,32 +132,46 @@ impl OutputConfig {
 }
 
 /// Warning kinds
-#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub enum WarningKind {
+#[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Serialize, Ord)]
+pub enum DenyWarningOption {
+    /// Deny all warnings
     #[serde(rename = "all")]
     All,
 
-    #[serde(rename = "other")]
-    Other,
-
-    ///
+    /// Deny unmaintained warnings
     #[serde(rename = "unmaintained")]
     Unmaintained,
 
-    ///
+    /// Deny yanked warnings
     #[serde(rename = "yanked")]
     Yanked,
+
+    /// Deny other warnings
+    #[serde(rename = "other")]
+    Other,
 }
 
-impl FromStr for WarningKind {
+impl DenyWarningOption {
+    /// Get the warning::Kind that corresponds to self, if applicable
+    pub fn get_warning_kind(&self) -> Option<warning::Kind> {
+        return match self {
+            DenyWarningOption::All => None,
+            DenyWarningOption::Other => None,
+            DenyWarningOption::Unmaintained => Some(warning::Kind::Unmaintained),
+            DenyWarningOption::Yanked => Some(warning::Kind::Yanked),
+        };
+    }
+}
+
+impl FromStr for DenyWarningOption {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "unmaintainable" => Ok(WarningKind::Unmaintained),
-            "yanked" => Ok(WarningKind::Yanked),
-            "other" => Ok(WarningKind::Other),
-            "all" => Ok(WarningKind::All),
+            "unmaintained" => Ok(DenyWarningOption::Unmaintained),
+            "yanked" => Ok(DenyWarningOption::Yanked),
+            "other" => Ok(DenyWarningOption::Other),
+            "all" => Ok(DenyWarningOption::All),
             other => Err(Error::new(
                 ErrorKind::Parse,
                 &format!("invalid deny-warnings option: {}", other),
@@ -164,9 +180,9 @@ impl FromStr for WarningKind {
     }
 }
 
-impl Default for WarningKind {
+impl Default for DenyWarningOption {
     fn default() -> Self {
-        WarningKind::Other
+        DenyWarningOption::All
     }
 }
 
