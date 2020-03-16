@@ -13,6 +13,7 @@ use crate::{
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Vulnerability report for a given lockfile
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -30,7 +31,7 @@ pub struct Report {
     pub vulnerabilities: VulnerabilityInfo,
 
     /// Warnings about dependencies (from e.g. informational advisories)
-    pub warnings: Vec<Warning>,
+    pub warnings: WarningInfo,
 }
 
 impl Report {
@@ -172,10 +173,28 @@ impl VulnerabilityInfo {
     }
 }
 
+/// Information about warnings
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct WarningInfo {
+    /// Warnings by warning kind
+    pub warnings: HashMap<warning::Kind, Vec<Warning>>,
+}
+
+impl WarningInfo {
+    /// Add warning to WarningInfo
+    pub fn add(&mut self, warning: Warning) {
+        if let Some(w) = self.warnings.get_mut(&warning.kind) {
+            (*w).push(warning);
+        } else {
+            self.warnings.insert(warning.kind.clone(), vec![warning]);
+        }
+    }
+}
+
 /// Find warnings from the given advisory [`Database`] and [`Lockfile`]
-pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Vec<Warning> {
+pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> WarningInfo {
     let query = settings.query().informational(true);
-    let mut result = vec![];
+    let mut warnings = WarningInfo::default();
 
     let mut package_scope = &PackageScope::default();
     if let Some(scope) = &settings.package_scope {
@@ -195,21 +214,23 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
             .iter()
             .any(|info| Some(info) == advisory.informational.as_ref())
         {
-            let kind = match advisory.informational.as_ref().unwrap() {
-                advisory::Informational::Notice => warning::Kind::Informational {
-                    advisory: advisory.clone(),
-                    versions: advisory_vuln.versions.clone(),
-                },
-                advisory::Informational::Unmaintained => warning::Kind::Unmaintained {
-                    advisory: advisory.clone(),
-                    versions: advisory_vuln.versions.clone(),
-                },
+            match advisory.informational.as_ref().unwrap() {
+                advisory::Informational::Notice => warnings.add(Warning::new(
+                    warning::Kind::Informational,
+                    &advisory_vuln.package,
+                    Some(advisory.clone()),
+                    Some(advisory_vuln.versions.clone()),
+                )),
+                advisory::Informational::Unmaintained => warnings.add(Warning::new(
+                    warning::Kind::Unmaintained,
+                    &advisory_vuln.package,
+                    Some(advisory.clone()),
+                    Some(advisory_vuln.versions.clone()),
+                )),
                 advisory::Informational::Other(_) => continue,
             };
-
-            result.push(Warning::new(kind, &advisory_vuln.package))
         }
     }
 
-    result
+    warnings
 }
