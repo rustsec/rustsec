@@ -19,7 +19,7 @@ use std::{path::PathBuf, process::exit};
 use self::fix::FixCommand;
 
 /// The `cargo audit` subcommand
-#[derive(Default, Debug, Options, Command)]
+#[derive(Command, Default, Debug, Options)]
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix`)
     #[cfg(feature = "fix")]

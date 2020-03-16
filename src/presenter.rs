@@ -25,11 +25,11 @@ use std::{
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
 pub struct Presenter {
-    /// Track packages we've displayed once so we don't show the same dep tree
+    /// Keep track packages we've displayed once so we don't show the same dep tree
     // TODO(tarcieri): group advisories about the same package?
     displayed_packages: Set<Dependency>,
 
-    /// Track warning kinds
+    /// Keep track of the warning kinds that correspond to deny-warnings options
     deny_warning_kinds: Set<warning::Kind>,
 
     /// Output configuration
@@ -146,7 +146,12 @@ impl Presenter {
             }
 
             for advisory in self_advisories {
-                self.print_advisory_warning(&advisory.metadata);
+                self.print_advisory_warning(
+                    &advisory.metadata,
+                    self.config
+                        .deny_warnings
+                        .contains(&DenyWarningOption::Other),
+                );
             }
         }
 
@@ -247,7 +252,10 @@ impl Presenter {
         match &warning.kind {
             warning::Kind::Informational | warning::Kind::Unmaintained => {
                 if let Some(advisory) = &warning.advisory {
-                    self.print_advisory_warning(advisory)
+                    self.print_advisory_warning(
+                        advisory,
+                        self.deny_warning_kinds.contains(&warning.kind),
+                    )
                 } else {
                     warn!("warning missing advisory: {:?}", warning);
                 }
@@ -272,12 +280,8 @@ impl Presenter {
     }
 
     /// Print a warning about a particular advisory
-    fn print_advisory_warning(&self, metadata: &rustsec::advisory::Metadata) {
-        let color = self.warning_color(
-            self.config
-                .deny_warnings
-                .contains(&DenyWarningOption::Other),
-        );
+    fn print_advisory_warning(&self, metadata: &rustsec::advisory::Metadata, deny_warning: bool) {
+        let color = self.warning_color(deny_warning);
 
         println!();
         self.print_attr(color, "Crate: ", &metadata.package);
