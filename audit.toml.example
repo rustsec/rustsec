@@ -16,7 +16,7 @@ stale = false # Allow stale advisory DB (i.e. no commits for 90 days, default: f
 
 # Output Configuration
 [output]
-deny_warnings = ["all"] # exit on error if any warnings are found
+deny_warnings = ["unmaintained", "other"] # exit on error if any warnings are found
 format = "terminal" # "terminal" (human readable report) or "json"
 quiet = false # Only print information on error
 show_tree = true # Show inverse dependency trees along with advisories (default: true)

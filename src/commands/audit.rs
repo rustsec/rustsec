@@ -6,7 +6,7 @@ mod fix;
 use super::CargoAuditCommand;
 use crate::{
     auditor::Auditor,
-    config::{AuditConfig, OutputFormat, WarningKind},
+    config::{AuditConfig, DenyWarningOption, OutputFormat},
     prelude::*,
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
@@ -19,7 +19,7 @@ use std::{path::PathBuf, process::exit};
 use self::fix::FixCommand;
 
 /// The `cargo audit` subcommand
-#[derive(Command, Default, Debug, Options)]
+#[derive(Default, Debug, Options, Command)]
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix`)
     #[cfg(feature = "fix")]
@@ -55,7 +55,7 @@ pub struct AuditCommand {
         long = "deny-warnings",
         help = "exit with an error if any warning advisories of specified kinds are found"
     )]
-    deny_warnings: Vec<WarningKind>,
+    deny_warnings: Vec<DenyWarningOption>,
 
     /// Path to `Cargo.lock`
     #[options(
@@ -180,11 +180,11 @@ impl Override<AuditConfig> for AuditCommand {
 
         for kind in &self.deny_warnings {
             match kind {
-                WarningKind::All => {
+                DenyWarningOption::All => {
                     config.output.deny_warnings = vec![
-                        WarningKind::Other,
-                        WarningKind::Unmaintained,
-                        WarningKind::Yanked,
+                        DenyWarningOption::Other,
+                        DenyWarningOption::Unmaintained,
+                        DenyWarningOption::Yanked,
                     ]
                 }
                 k => config.output.deny_warnings.push(k.clone()),
