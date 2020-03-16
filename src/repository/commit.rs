@@ -4,7 +4,6 @@ use super::DAYS_UNTIL_STALE;
 use super::{signature::Signature, Repository};
 use crate::error::{Error, ErrorKind};
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
-use git2;
 
 /// Information about a commit to the Git repository
 #[derive(Debug)]

@@ -32,8 +32,8 @@ impl Warning {
         Self {
             kind,
             package: package.clone(),
-            advisory: advisory,
-            versions: versions,
+            advisory,
+            versions,
         }
     }
 }
