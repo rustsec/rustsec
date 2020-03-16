@@ -1,14 +1,11 @@
 //! Error types used by this crate
 
-use chrono;
-use git2;
 use std::{
     fmt::{self, Display},
     io,
     str::Utf8Error,
 };
 use thiserror::Error;
-use toml;
 
 /// Create a new error (of a given enum variant) with a formatted message
 macro_rules! format_err {
