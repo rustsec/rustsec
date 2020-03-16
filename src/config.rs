@@ -153,7 +153,7 @@ pub enum DenyWarningOption {
 
 impl DenyWarningOption {
     /// Get the warning::Kind that corresponds to self, if applicable
-    pub fn get_warning_kind(&self) -> Option<warning::Kind> {
+    pub fn get_warning_kind(self) -> Option<warning::Kind> {
         match self {
             DenyWarningOption::All => None,
             DenyWarningOption::Other => None,
