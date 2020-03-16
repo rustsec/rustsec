@@ -10,10 +10,10 @@ use crate::{
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
     warning::{self, Warning},
+    Map,
 };
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Vulnerability report for a given lockfile
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -177,7 +177,7 @@ impl VulnerabilityInfo {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct WarningInfo {
     /// Warnings by warning kind
-    pub warnings: HashMap<warning::Kind, Vec<Warning>>,
+    pub warnings: Map<warning::Kind, Vec<Warning>>,
 }
 
 impl WarningInfo {
