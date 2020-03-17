@@ -97,18 +97,10 @@ impl Presenter {
             self.print_vulnerability(vulnerability, &tree);
         }
 
-        // sort warning::Kinds alphabetically
-        let mut sorted_keys: Vec<&warning::Kind> = report
-            .warnings
-            .warnings
-            .keys()
-            .collect::<Vec<&warning::Kind>>();
-        sorted_keys.sort();
-
         let mut num_denied: u64 = 0;
         let mut num_not_denied: u64 = 0;
 
-        for kind in &sorted_keys {
+        for kind in report.warnings.warnings.keys() {
             if self.deny_warning_kinds.contains(kind) {
                 num_denied += report.warnings.warnings.get(kind).unwrap().len() as u64;
             } else {
@@ -124,7 +116,7 @@ impl Presenter {
             self.warning_word(num_not_denied)
         );
 
-        for kind in &sorted_keys {
+        for kind in report.warnings.warnings.keys() {
             for warning in report.warnings.warnings.get(kind).unwrap() {
                 self.print_warning(warning, &tree)
             }
