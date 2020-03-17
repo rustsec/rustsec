@@ -7,6 +7,7 @@ use crate::{
     advisory,
     database::{package_scope::PackageScope, Database, Query},
     lockfile::Lockfile,
+    map,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
     warning::{self, Warning},
@@ -183,11 +184,12 @@ pub struct WarningInfo {
 impl WarningInfo {
     /// Add warning to WarningInfo
     pub fn add(&mut self, warning: Warning) {
-        if let Some(w) = self.warnings.get_mut(&warning.kind) {
-            (*w).push(warning);
-        } else {
-            self.warnings.insert(warning.kind.clone(), vec![warning]);
-        }
+        match self.warnings.entry(warning.kind.clone()) {
+            map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
+            map::Entry::Vacant(entry) => {
+                entry.insert(vec![warning]);
+            }
+        };
     }
 }
 
