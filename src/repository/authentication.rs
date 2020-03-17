@@ -3,7 +3,6 @@
 //! <https://github.com/rust-lang/cargo/blob/5102de2/src/cargo/sources/git/utils.rs#L410>
 
 use crate::error::{Error, ErrorKind};
-use git2;
 use std::env;
 
 /// Prepare the authentication callbacks for cloning a git repository.
