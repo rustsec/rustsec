@@ -11,7 +11,6 @@ use crate::{
     collection::Collection,
     error::{Error, ErrorKind},
 };
-use git2;
 use std::{fs, path::PathBuf, vec};
 
 /// Location of the RustSec advisory database for crates.io
