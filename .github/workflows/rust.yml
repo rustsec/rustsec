@@ -34,7 +34,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
         toolchain:
-          - 1.39.0
+          - 1.40.0
           - stable
     runs-on: ${{ matrix.platform }}
     steps:
