@@ -17,9 +17,9 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 cargo-lock = { version = "4", default-features = false }
 chrono = { version = "0.4", features = ["serde"] }
-crates-index = "= 0.13.4"
+crates-index = "= 0.14.3"
 cvss = { version = "1", features = ["serde"] }
-git2 = "0.11"
+git2 = "0.13"
 home = "0.5"
 platforms = { version = "0.2", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
@@ -29,7 +29,7 @@ thiserror = "1"
 toml = "0.5"
 
 [dependencies.cargo-edit]
-version = "= 0.5.0" # ensure `git2` dep matches when upgrading
+version = "= 0.6.0" # ensure `git2` dep matches when upgrading
 optional = true
 default-features = false
 features = ["upgrade"]

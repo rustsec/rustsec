@@ -25,7 +25,7 @@ database in other capacities.
 
 ## Requirements
 
-- Rust **1.39+**
+- Rust **1.40+**
 
 ## License
 
@@ -54,7 +54,7 @@ additional terms or conditions.
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [deps-image]: https://deps.rs/repo/github/RustSec/rustsec-crate/status.svg
 [deps-link]: https://deps.rs/repo/github/RustSec/rustsec-crate
-[rustc-image]: https://img.shields.io/badge/rustc-1.39+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.40+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [gitter-image]: https://badges.gitter.im/badge.svg
 [gitter-link]: https://gitter.im/RustSec/Lobby
