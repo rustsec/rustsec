@@ -213,7 +213,7 @@ impl Runnable for AuditCommand {
             exit(0);
         }
 
-        let lockfile_path = self.file.as_ref().map(PathBuf::as_path);
+        let lockfile_path = self.file.as_deref();
         let report = self.auditor().audit(lockfile_path);
 
         if report.vulnerabilities.found {
