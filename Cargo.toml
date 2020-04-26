@@ -16,7 +16,7 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 abscissa_core = "0.5.2"
-gumdrop = "0.7"
+gumdrop = "0.8"
 home = "0.5"
 lazy_static = "1"
 rustsec = { version = "0.18", features = ["dependency-tree"] }
