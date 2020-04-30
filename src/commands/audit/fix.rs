@@ -1,6 +1,6 @@
 //! The `cargo audit fix` subcommand
 
-use crate::{auditor::Auditor, prelude::*};
+use crate::{auditor::Auditor, lockfile, prelude::*};
 use abscissa_core::{Command, Runnable};
 use gumdrop::Options;
 use rustsec::fixer::Fixer;
@@ -79,5 +79,7 @@ impl Runnable for FixCommand {
                 status_warn!("{}", e);
             }
         }
+
+        lockfile::generate();
     }
 }

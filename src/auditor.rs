@@ -1,11 +1,11 @@
 //! Core auditing functionality
 
-use crate::{config::AuditConfig, error::Error, prelude::*, presenter::Presenter};
+use crate::{config::AuditConfig, error::Error, lockfile, prelude::*, presenter::Presenter};
 use rustsec::{lockfile::Lockfile, registry, report, warning, Warning};
 use std::{
     io::{self, Read},
     path::Path,
-    process::{exit, Command},
+    process::exit,
 };
 
 /// Name of `Cargo.lock`
@@ -120,7 +120,7 @@ impl Auditor {
             let path = Path::new(CARGO_LOCK_FILE);
 
             if !path.exists() && Path::new("Cargo.toml").exists() {
-                generate_lockfile();
+                lockfile::generate();
             }
 
             path
@@ -189,29 +189,5 @@ impl Auditor {
         }
 
         results
-    }
-}
-
-/// Run `cargo generate-lockfile`
-fn generate_lockfile() {
-    let status = Command::new("cargo")
-        .arg("generate-lockfile")
-        .status()
-        .unwrap_or_else(|e| {
-            status_err!("couldn't run `cargo generate-lockfile`: {}", e);
-            exit(1);
-        });
-
-    if !status.success() {
-        if let Some(code) = status.code() {
-            status_err!(
-                "non-zero exit status running `cargo generate-lockfile`: {}",
-                code
-            );
-        } else {
-            status_err!("no exit status running `cargo generate-lockfile`!");
-        }
-
-        exit(1);
     }
 }
