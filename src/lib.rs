@@ -25,6 +25,7 @@ pub mod auditor;
 pub mod commands;
 pub mod config;
 pub mod error;
+pub mod lockfile;
 mod prelude;
 pub mod presenter;
 
