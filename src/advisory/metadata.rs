@@ -15,6 +15,14 @@ pub struct Metadata {
     /// Name of affected crate
     pub package: package::Name,
 
+    /// One-liner description of a vulnerability
+    #[serde(default)]
+    pub title: String,
+
+    /// Extended description of a vulnerability
+    #[serde(default)]
+    pub description: String,
+
     /// Date this advisory was officially issued
     pub date: Date,
 
@@ -60,12 +68,6 @@ pub struct Metadata {
 
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<String>,
-
-    /// One-liner description of a vulnerability
-    pub title: String,
-
-    /// Extended description of a vulnerability
-    pub description: String,
 
     /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
     // TODO(tarcieri): phase this out
