@@ -37,7 +37,23 @@ impl Entries {
     // TODO(tarcieri): factor more of this into `advisory.rs`?
     pub fn load_file(&mut self, path: &Path) -> Result<Option<Slot>, Error> {
         let mut advisory = Advisory::load_file(path)?;
-        let expected_filename = OsString::from(format!("{}.toml", advisory.metadata.id));
+
+        // TODO(tarcieri): deprecate and remove legacy TOML-based advisory format
+        let expected_filename = match path.extension().and_then(|ext| ext.to_str()) {
+            Some("toml") => {
+                // Legacy TOML-based advisory format
+                OsString::from(format!("{}.toml", advisory.metadata.id))
+            }
+            Some("md") => {
+                // New V3 Markdown-based advisory format
+                OsString::from(format!("{}.md", advisory.metadata.id))
+            }
+            _ => fail!(
+                ErrorKind::Repo,
+                "unexpected file extension: {}",
+                path.display()
+            ),
+        };
 
         // Ensure advisory has the correct filename
         if path.file_name().unwrap() != expected_filename {
