@@ -4,7 +4,6 @@
 [![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
 [![Safety Dance][safety-image]][safety-link]
-[![dependency status][deps-image]][deps-link]
 ![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
@@ -52,8 +51,6 @@ additional terms or conditions.
 [build-link]: https://github.com/rustsec/rustsec-crate/actions
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[deps-image]: https://deps.rs/repo/github/RustSec/rustsec-crate/status.svg
-[deps-link]: https://deps.rs/repo/github/RustSec/rustsec-crate
 [rustc-image]: https://img.shields.io/badge/rustc-1.40+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [gitter-image]: https://badges.gitter.im/badge.svg

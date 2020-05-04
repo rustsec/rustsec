@@ -1154,7 +1154,7 @@ checksum = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
 
 [[package]]
 name = "rustsec"
-version = "0.18.0"
+version = "0.19.0"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
