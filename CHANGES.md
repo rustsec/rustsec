@@ -1,3 +1,11 @@
+## [0.19.0] (2020-05-04)
+
+- Refactor package scopes ([#168])
+- Prototype V3 Advisory Format ([#167])
+- Bump dependencies to link `libgit2` dynamically ([#163])
+- Add `WarningInfo` and modify `Warning` struct ([#156])
+- Drop support for the V1 advisory format ([#154])
+
 ## [0.18.0] (2020-02-05)
 
 - Move yanked crate auditing to `cargo-audit` ([#147])
@@ -174,6 +182,12 @@
 
 - Initial release
 
+[0.19.0]: https://github.com/RustSec/rustsec-crate/pull/169
+[#168]: https://github.com/RustSec/rustsec-crate/pull/168
+[#167]: https://github.com/RustSec/rustsec-crate/pull/167
+[#163]: https://github.com/RustSec/rustsec-crate/pull/163
+[#156]: https://github.com/RustSec/rustsec-crate/pull/156
+[#154]: https://github.com/RustSec/rustsec-crate/pull/154
 [0.18.0]: https://github.com/RustSec/rustsec-crate/pull/148
 [#147]: https://github.com/RustSec/rustsec-crate/pull/147
 [0.17.1]: https://github.com/RustSec/rustsec-crate/pull/144
