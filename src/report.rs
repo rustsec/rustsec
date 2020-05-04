@@ -5,7 +5,7 @@
 
 use crate::{
     advisory,
-    database::{package_scope::PackageScope, Database, Query},
+    database::{scope, Database, Query},
     lockfile::Lockfile,
     map,
     platforms::target::{Arch, OS},
@@ -38,10 +38,7 @@ pub struct Report {
 impl Report {
     /// Generate a report for the given advisory database and lockfile
     pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Self {
-        let mut package_scope = &PackageScope::default();
-        if let Some(scope) = &settings.package_scope {
-            package_scope = scope;
-        }
+        let package_scope = settings.package_scope.as_ref().cloned().unwrap_or_default();
 
         let vulnerabilities = db
             .query_vulnerabilities(lockfile, &settings.query(), package_scope)
@@ -80,7 +77,7 @@ pub struct Settings {
     pub informational_warnings: Vec<advisory::Informational>,
 
     /// Scope of packages which should be considered for audit
-    pub package_scope: Option<PackageScope>,
+    pub package_scope: Option<scope::Package>,
 }
 
 impl Settings {
@@ -196,12 +193,9 @@ impl WarningInfo {
 /// Find warnings from the given advisory [`Database`] and [`Lockfile`]
 pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> WarningInfo {
     let query = settings.query().informational(true);
-    let mut warnings = WarningInfo::default();
+    let package_scope = settings.package_scope.as_ref().cloned().unwrap_or_default();
 
-    let mut package_scope = &PackageScope::default();
-    if let Some(scope) = &settings.package_scope {
-        package_scope = scope;
-    }
+    let mut warnings = WarningInfo::default();
 
     // TODO(tarcieri): abstract `Cargo.lock` query logic between vulnerabilities/warnings
     for advisory_vuln in db.query_vulnerabilities(lockfile, &query, package_scope) {

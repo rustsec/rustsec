@@ -4,12 +4,11 @@ mod entries;
 mod index;
 mod query;
 
-/// Contains the definition of a [PackageScope]
-pub mod package_scope;
+pub mod scope;
 
 pub use self::query::Query;
 
-use self::{entries::Entries, index::Index, package_scope::PackageScope};
+use self::{entries::Entries, index::Index};
 use crate::{
     advisory::{self, Advisory},
     collection::Collection,
@@ -106,16 +105,18 @@ impl Database {
     }
 
     /// Find vulnerabilities in the provided `Lockfile` which match a given query.
+    // TODO(tarcieri): move `package_scope` into `Query`?
     pub fn query_vulnerabilities(
         &self,
         lockfile: &Lockfile,
         query: &Query,
-        scope: &PackageScope,
+        package_scope: impl Into<scope::Package>,
     ) -> Vec<Vulnerability> {
+        let package_scope = package_scope.into();
         let mut vulns = vec![];
 
         for package in &lockfile.packages {
-            if scope.is_no_local() && package.source.is_none() {
+            if package_scope.is_remote() && package.source.is_none() {
                 continue;
             }
 
@@ -137,7 +138,7 @@ impl Database {
 
     /// Scan for vulnerabilities in the provided `Lockfile`.
     pub fn vulnerabilities(&self, lockfile: &Lockfile) -> Vec<Vulnerability> {
-        self.query_vulnerabilities(lockfile, &Query::crate_scope(), &PackageScope::default())
+        self.query_vulnerabilities(lockfile, &Query::crate_scope(), scope::Package::default())
     }
 
     /// Iterate over all of the advisories in the database
