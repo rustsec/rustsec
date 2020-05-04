@@ -1,9 +1,9 @@
 //! Queries against the RustSec database
-
-use crate::database::package_scope::PackageScope;
+//!
 use crate::{
     advisory::{Advisory, Severity},
     collection::Collection,
+    database::scope,
     package,
     platforms::target::{Arch, OS},
     version::Version,
@@ -40,7 +40,7 @@ pub struct Query {
     informational: Option<bool>,
 
     /// Scope of packages which should be considered for audit
-    package_scope: Option<PackageScope>,
+    package_scope: Option<scope::Package>,
 }
 
 impl Query {
