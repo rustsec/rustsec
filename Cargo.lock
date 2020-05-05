@@ -189,9 +189,9 @@ dependencies = [
 
 [[package]]
 name = "cargo-edit"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a494f4c79d34de5652a6385e8e207832bcb00e4a499e1c5183396bf3d71f5c7f"
+checksum = "96c6c218e759311574120f7ac8fd6b0c3ed155e1240c00f751a2f47c10068e8a"
 dependencies = [
  "atty",
  "cargo_metadata",
@@ -330,9 +330,9 @@ checksum = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 
 [[package]]
 name = "crates-index"
-version = "0.13.4"
+version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0435191b5c428de0fc336ced10bd809a56f12bcebc17727a4d879902216739f6"
+checksum = "185e829c8d4ce272df41f19bfc7bb1ef1f119cc451647527c0bce643d8913e25"
 dependencies = [
  "error-chain",
  "git2",
@@ -341,6 +341,7 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+ "smol_str",
 ]
 
 [[package]]
@@ -595,9 +596,9 @@ dependencies = [
 
 [[package]]
 name = "git2"
-version = "0.11.0"
+version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77519ef7c5beee314d0804d4534f01e0f9e8d9acdee2b7a48627e590b27e0ec4"
+checksum = "e1e02a51cd90229028c9bd8be0a0364f85b6b3199cccaa0ef39005ddbd5ac165"
 dependencies = [
  "bitflags",
  "libc",
@@ -833,9 +834,9 @@ checksum = "99e85c08494b21a9054e7fe1374a732aeadaff3980b6990b94bfd3a70f690005"
 
 [[package]]
 name = "libgit2-sys"
-version = "0.10.0"
+version = "0.12.5+1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d9ec6bca50549d34a392611dde775123086acbd994e3fff64954777ce2dc2e51"
+checksum = "3eadeec65514971355bf7134967a543f71372f35b53ac6c7143e7bd157f07535"
 dependencies = [
  "cc",
  "libc",
@@ -1339,9 +1340,9 @@ checksum = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
 
 [[package]]
 name = "rustsec"
-version = "0.18.0"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de6b471e1ab0015cff3864141c2a1cad6a31cb3aba672aba7386e50a51e53db0"
+checksum = "28e44305df002d4f16667f3a5b24492e9f989166848a64059cc6ea5a89772a44"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
@@ -1514,6 +1515,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c7cb5678e1615754284ec264d9bb5b4c27d2018577fd90ac0ceb578591ed5ee4"
 
 [[package]]
+name = "smol_str"
+version = "0.1.15"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "34836c9a295c62c2ce3514471117c5cb269891e8421b2aafdd910050576c4d8b"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "stable_deref_trait"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1557,11 +1567,10 @@ dependencies = [
 
 [[package]]
 name = "subprocess"
-version = "0.1.20"
+version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68713fc0f9d941642c1e020d622e6421dfe09e8891ddd4bfa2109fda9a40431d"
+checksum = "5109e3c3215ce5339ca9766a6db7f39144ccc7d9bad53b96d65cfb14ae6c2985"
 dependencies = [
- "crossbeam-utils",
  "libc",
  "winapi 0.3.8",
 ]
