@@ -1,3 +1,9 @@
+## [0.12.0] (2020-05-06)
+
+- Update `rustsec` crate to v0.20 ([#221])
+- Regenerate lockfile after `cargo audit fix` ([#219])
+- Update dependencies; MSRV 1.40+ ([#216])
+
 ## [0.11.2] (2020-02-07)
 
 - Improve yanked crate auditing messages and config ([#200])
@@ -123,6 +129,10 @@
 
 - Initial release
 
+[0.12.0]: https://github.com/RustSec/cargo-audit/pull/222
+[#221]: https://github.com/RustSec/cargo-audit/pull/221
+[#219]: https://github.com/RustSec/cargo-audit/pull/219
+[#216]: https://github.com/RustSec/cargo-audit/pull/216
 [0.11.2]: https://github.com/RustSec/cargo-audit/pull/201
 [#200]: https://github.com/RustSec/cargo-audit/pull/200
 [#199]: https://github.com/RustSec/cargo-audit/pull/199
