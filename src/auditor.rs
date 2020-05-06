@@ -3,6 +3,7 @@
 use crate::{config::AuditConfig, error::Error, lockfile, prelude::*, presenter::Presenter};
 use rustsec::{lockfile::Lockfile, registry, report, warning, Warning};
 use std::{
+    collections::btree_map as map,
     io::{self, Read},
     path::Path,
     process::exit,
@@ -137,12 +138,18 @@ impl Auditor {
             rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
 
         // Warn for yanked crates
+        // TODO(tarcieri): move this logic into the `rustsec` crate?
         if let Some(index) = &self.registry_index {
             for package in &lockfile.packages {
                 if let Ok(pkg) = index.find(&package.name, &package.version) {
                     if pkg.is_yanked {
-                        let warning = Warning::new(warning::Kind::Yanked, package);
-                        report.warnings.push(warning);
+                        let warning = Warning::new(warning::Kind::Yanked, package, None, None);
+                        match report.warnings.entry(warning::Kind::Yanked) {
+                            map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
+                            map::Entry::Vacant(entry) => {
+                                entry.insert(vec![warning]);
+                            }
+                        }
                     }
                 }
             }
