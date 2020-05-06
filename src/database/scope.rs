@@ -55,7 +55,7 @@ impl Default for Package {
 }
 
 impl Package {
-    /// Creates a new [[Scope]] from a specific registry uri `source`
+    /// Creates a new [[`Package`]] scope from a specific registry URI
     pub fn from_registry(source: &str) -> Self {
         Registry::Private {
             uri: source.to_string(),
