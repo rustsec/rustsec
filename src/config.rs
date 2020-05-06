@@ -1,6 +1,5 @@
 //! The `~/.cargo/audit.toml` configuration file
 
-use rustsec::database::package_scope::{PackageScope, PackageSource};
 use rustsec::warning;
 use rustsec::{
     advisory,
