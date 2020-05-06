@@ -1,8 +1,8 @@
 //! The `~/.cargo/audit.toml` configuration file
 
-use rustsec::database::package_scope::{PackageScope, PackageSource};
 use rustsec::{
     advisory,
+    database::scope,
     platforms::target::{Arch, OS},
     report,
 };
@@ -50,7 +50,7 @@ impl AuditConfig {
         settings.target_os = self.target.os;
 
         if let Some(source) = &self.packages.source {
-            settings.package_scope = Some(PackageScope::from_source(source.clone()));
+            settings.package_scope = Some(source.clone().into());
         }
 
         if let Some(informational_warnings) = &self.advisories.informational_warnings {
@@ -162,7 +162,7 @@ pub struct TargetConfig {
 #[serde(deny_unknown_fields)]
 pub struct PackageConfig {
     /// Package scope which should be considered for querying for vulnerabilities.
-    pub source: Option<PackageSource>,
+    pub source: Option<scope::Registry>,
 }
 
 /// Configuration for auditing for yanked crates

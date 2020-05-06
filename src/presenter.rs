@@ -96,8 +96,10 @@ impl Presenter {
                 status_warn!("{} {} found", report.warnings.len(), warning_word);
             }
 
-            for warning in &report.warnings {
-                self.print_warning(warning, &tree)
+            for warnings in report.warnings.values() {
+                for warning in warnings {
+                    self.print_warning(warning, &tree)
+                }
             }
         }
 
@@ -210,8 +212,13 @@ impl Presenter {
     /// Print information about a given warning
     fn print_warning(&mut self, warning: &Warning, tree: &dependency::Tree) {
         match &warning.kind {
-            warning::Kind::Informational { advisory, .. }
-            | warning::Kind::Unmaintained { advisory, .. } => self.print_advisory_warning(advisory),
+            warning::Kind::Informational | warning::Kind::Unmaintained => {
+                if let Some(advisory) = &warning.advisory {
+                    self.print_advisory_warning(advisory)
+                } else {
+                    warn!("warning missing advisory: {:?}", warning);
+                }
+            }
             warning::Kind::Yanked => self.print_yanked_warning(&warning.package),
         }
 
