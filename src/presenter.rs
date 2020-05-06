@@ -100,11 +100,11 @@ impl Presenter {
         let mut num_denied: u64 = 0;
         let mut num_not_denied: u64 = 0;
 
-        for kind in report.warnings.warnings.keys() {
+        for kind in report.warnings.keys() {
             if self.deny_warning_kinds.contains(kind) {
-                num_denied += report.warnings.warnings.get(kind).unwrap().len() as u64;
+                num_denied += report.warnings.get(kind).unwrap().len() as u64;
             } else {
-                num_not_denied += report.warnings.warnings.get(kind).unwrap().len() as u64;
+                num_not_denied += report.warnings.get(kind).unwrap().len() as u64;
             }
         }
 
@@ -116,8 +116,8 @@ impl Presenter {
             self.warning_word(num_not_denied)
         );
 
-        for kind in report.warnings.warnings.keys() {
-            for warning in report.warnings.warnings.get(kind).unwrap() {
+        for kind in report.warnings.keys() {
+            for warning in report.warnings.get(kind).unwrap() {
                 self.print_warning(warning, &tree)
             }
         }
