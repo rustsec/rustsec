@@ -1,3 +1,7 @@
+## [0.20.0] (2020-05-06)
+
+- Make `WarningInfo` into a simple type alias ([#170])
+
 ## [0.19.0] (2020-05-04)
 
 - Refactor package scopes ([#168])
@@ -182,6 +186,8 @@
 
 - Initial release
 
+[0.20.0]: https://github.com/RustSec/rustsec-crate/pull/171
+[#170]: https://github.com/RustSec/rustsec-crate/pull/170
 [0.19.0]: https://github.com/RustSec/rustsec-crate/pull/169
 [#168]: https://github.com/RustSec/rustsec-crate/pull/168
 [#167]: https://github.com/RustSec/rustsec-crate/pull/167
