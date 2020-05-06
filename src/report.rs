@@ -172,23 +172,7 @@ impl VulnerabilityInfo {
 }
 
 /// Information about warnings
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct WarningInfo {
-    /// Warnings by warning kind
-    pub warnings: Map<warning::Kind, Vec<Warning>>,
-}
-
-impl WarningInfo {
-    /// Add warning to WarningInfo
-    pub fn add(&mut self, warning: Warning) {
-        match self.warnings.entry(warning.kind.clone()) {
-            map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
-            map::Entry::Vacant(entry) => {
-                entry.insert(vec![warning]);
-            }
-        };
-    }
-}
+pub type WarningInfo = Map<warning::Kind, Vec<Warning>>;
 
 /// Find warnings from the given advisory [`Database`] and [`Lockfile`]
 pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> WarningInfo {
@@ -210,21 +194,25 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
             .iter()
             .any(|info| Some(info) == advisory.informational.as_ref())
         {
-            match advisory.informational.as_ref().unwrap() {
-                advisory::Informational::Notice => warnings.add(Warning::new(
-                    warning::Kind::Informational,
-                    &advisory_vuln.package,
-                    Some(advisory.clone()),
-                    Some(advisory_vuln.versions.clone()),
-                )),
-                advisory::Informational::Unmaintained => warnings.add(Warning::new(
-                    warning::Kind::Unmaintained,
-                    &advisory_vuln.package,
-                    Some(advisory.clone()),
-                    Some(advisory_vuln.versions.clone()),
-                )),
+            let warning_kind = match advisory.informational.as_ref().unwrap() {
+                advisory::Informational::Notice => warning::Kind::Informational,
+                advisory::Informational::Unmaintained => warning::Kind::Unmaintained,
                 advisory::Informational::Other(_) => continue,
             };
+
+            let warning = Warning::new(
+                warning_kind,
+                &advisory_vuln.package,
+                Some(advisory.clone()),
+                Some(advisory_vuln.versions.clone()),
+            );
+
+            match warnings.entry(warning.kind) {
+                map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
+                map::Entry::Vacant(entry) => {
+                    entry.insert(vec![warning]);
+                }
+            }
         }
     }
 

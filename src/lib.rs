@@ -1,4 +1,4 @@
-//! rustsec: Client library for the `RustSec` security advisory database
+//! `rustsec`: client library for the RustSec Security Advisory Database
 //!
 //! This crate is primarily intended for use with the cargo-audit tool:
 //!
