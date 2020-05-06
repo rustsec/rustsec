@@ -11,7 +11,7 @@ use crate::{
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
 use gumdrop::Options;
-use rustsec::database::package_scope::PackageSource;
+use rustsec::database::scope;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
@@ -186,7 +186,7 @@ impl Override<AuditConfig> for AuditCommand {
         }
 
         if self.no_local_crates {
-            config.packages.source = Some(PackageSource::Public)
+            config.packages.source = Some(scope::Registry::Public)
         }
 
         Ok(config)
