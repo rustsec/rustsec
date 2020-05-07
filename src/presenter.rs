@@ -108,7 +108,7 @@ impl Presenter {
             }
         }
 
-        status_err!("{} {} found", num_denied, self.warning_word(num_denied));
+        status_err!("{} {} found!", num_denied, self.warning_word(num_denied));
 
         status_warn!(
             "{} {} found",
