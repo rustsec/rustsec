@@ -1,13 +1,15 @@
 //! The `~/.cargo/audit.toml` configuration file
 
+use rustsec::warning;
 use rustsec::{
     advisory,
     database::scope,
     platforms::target::{Arch, OS},
-    report,
+    report, Error, ErrorKind,
 };
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+use std::str::FromStr;
 
 /// `cargo audit` configuration:
 ///
@@ -108,7 +110,7 @@ pub struct DatabaseConfig {
 pub struct OutputConfig {
     /// Disallow any warning advisories
     #[serde(default)]
-    pub deny_warnings: bool,
+    pub deny_warnings: Vec<DenyWarningOption>,
 
     /// Output format to use
     #[serde(default)]
@@ -125,6 +127,61 @@ impl OutputConfig {
     /// Is quiet mode enabled?
     pub fn is_quiet(&self) -> bool {
         self.quiet || self.format == OutputFormat::Json
+    }
+}
+
+/// Warning kinds
+#[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Serialize, Ord)]
+pub enum DenyWarningOption {
+    /// Deny all warnings
+    #[serde(rename = "all")]
+    All,
+
+    /// Deny unmaintained warnings
+    #[serde(rename = "unmaintained")]
+    Unmaintained,
+
+    /// Deny yanked warnings
+    #[serde(rename = "yanked")]
+    Yanked,
+
+    /// Deny other warnings
+    #[serde(rename = "other")]
+    Other,
+}
+
+impl DenyWarningOption {
+    /// Get the warning::Kind that corresponds to self, if applicable
+    pub fn get_warning_kind(self) -> Option<warning::Kind> {
+        match self {
+            DenyWarningOption::All => None,
+            DenyWarningOption::Other => None,
+            DenyWarningOption::Unmaintained => Some(warning::Kind::Unmaintained),
+            DenyWarningOption::Yanked => Some(warning::Kind::Yanked),
+        }
+    }
+}
+
+impl FromStr for DenyWarningOption {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        match s {
+            "unmaintained" => Ok(DenyWarningOption::Unmaintained),
+            "yanked" => Ok(DenyWarningOption::Yanked),
+            "other" => Ok(DenyWarningOption::Other),
+            "all" => Ok(DenyWarningOption::All),
+            other => Err(Error::new(
+                ErrorKind::Parse,
+                &format!("invalid deny-warnings option: {}", other),
+            )),
+        }
+    }
+}
+
+impl Default for DenyWarningOption {
+    fn default() -> Self {
+        DenyWarningOption::All
     }
 }
 
