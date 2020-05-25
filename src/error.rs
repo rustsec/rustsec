@@ -4,7 +4,6 @@ use std::{
     fmt::{self, Display},
     io,
 };
-use toml;
 
 /// Create error with a formatted message
 macro_rules! format_err {
