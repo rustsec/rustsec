@@ -13,7 +13,6 @@ use crate::{
     patch::Patch,
 };
 use std::{fs, path::Path, str::FromStr, string::ToString};
-use toml;
 
 #[cfg(feature = "dependency-tree")]
 use crate::dependency::Tree;
