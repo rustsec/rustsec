@@ -29,7 +29,7 @@ enum Command {
     List(ListCmd),
 
     /// The `cargo lock translate` subcommand
-    #[options(help = "translate a Cargo.toml file")]
+    #[options(help = "translate a Cargo.lock file")]
     Translate(TranslateCmd),
 
     /// The `cargo lock tree` subcommand
