@@ -65,6 +65,20 @@ impl Id {
         self.year
     }
 
+    /// Get the numerical part of this advisory (if available).
+    ///
+    /// This corresponds to the numbers on the right side of the ID.
+    pub fn numerical_part(&self) -> Option<u32> {
+        if self.is_placeholder() {
+            return None;
+        }
+
+        self.string
+            .split('-')
+            .last()
+            .and_then(|s| str::parse(s).ok())
+    }
+
     /// Get a URL to a web page with more information on this advisory
     // TODO(tarcieri): look up GHSA URLs via the GraphQL API?
     // <https://developer.github.com/v4/object/securityadvisory/>
@@ -247,6 +261,7 @@ mod tests {
             rustsec_id.url().unwrap(),
             "https://rustsec.org/advisories/RUSTSEC-2018-0001"
         );
+        assert_eq!(rustsec_id.numerical_part().unwrap(), 0001);
     }
 
     // The RUSTSEC-0000-0000 ID is a placeholder we need to treat as valid
@@ -256,6 +271,7 @@ mod tests {
         assert!(rustsec_id.is_rustsec());
         assert!(rustsec_id.year().is_none());
         assert!(rustsec_id.url().is_none());
+        assert!(rustsec_id.numerical_part().is_none());
     }
 
     #[test]
@@ -267,6 +283,7 @@ mod tests {
             cve_id.url().unwrap(),
             "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-1000168"
         );
+        assert_eq!(cve_id.numerical_part().unwrap(), 1000168);
     }
 
     #[test]
@@ -275,6 +292,7 @@ mod tests {
         assert!(ghsa_id.is_ghsa());
         assert!(ghsa_id.year().is_none());
         assert!(ghsa_id.url().is_none());
+        assert!(ghsa_id.numerical_part().is_none());
     }
 
     #[test]
@@ -286,6 +304,7 @@ mod tests {
             talos_id.url().unwrap(),
             "https://www.talosintelligence.com/reports/TALOS-2017-0468"
         );
+        assert_eq!(talos_id.numerical_part().unwrap(), 0468);
     }
 
     #[test]
@@ -294,5 +313,6 @@ mod tests {
         assert!(other_id.is_other());
         assert!(other_id.year().is_none());
         assert!(other_id.url().is_none());
+        assert_eq!(other_id.numerical_part().unwrap(), 42);
     }
 }
