@@ -1,3 +1,7 @@
+## [0.20.1] (2020-06-14)
+
+- Add `advisory::Id::numerical_part()` ([#185])
+
 ## [0.20.0] (2020-05-06)
 
 - Make `WarningInfo` into a simple type alias ([#170])
@@ -186,6 +190,8 @@
 
 - Initial release
 
+[0.20.1]: https://github.com/RustSec/rustsec-crate/pull/186
+[#185]: https://github.com/RustSec/rustsec-crate/pull/185
 [0.20.0]: https://github.com/RustSec/rustsec-crate/pull/171
 [#170]: https://github.com/RustSec/rustsec-crate/pull/170
 [0.19.0]: https://github.com/RustSec/rustsec-crate/pull/169
