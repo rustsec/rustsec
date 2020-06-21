@@ -15,6 +15,14 @@ pub enum Informational {
     /// Crate is unmaintained / abandoned
     Unmaintained,
 
+    /// Crate is not [sound], i.e., unsound.
+    ///
+    /// A crate is unsound if, using its public API from safe code, it is possible to cause [Undefined Behavior].
+    ///
+    /// [sound]: https://rust-lang.github.io/unsafe-code-guidelines/glossary.html#soundness-of-code--of-a-library
+    /// [Undefined Behavior]: https://doc.rust-lang.org/reference/behavior-considered-undefined.html
+    Unsound,
+
     /// Other types of informational advisories: left open-ended to add
     /// more of them in the future.
     Other(String),
@@ -26,6 +34,7 @@ impl Informational {
         match self {
             Informational::Notice => "notice",
             Informational::Unmaintained => "unmaintained",
+            Informational::Unsound => "unsound",
             Informational::Other(other) => other,
         }
     }
@@ -44,6 +53,7 @@ impl FromStr for Informational {
         Ok(match s {
             "notice" => Informational::Notice,
             "unmaintained" => Informational::Unmaintained,
+            "unsound" => Informational::Unsound,
             other => Informational::Other(other.to_owned()),
         })
     }
