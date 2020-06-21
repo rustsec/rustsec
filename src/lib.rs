@@ -6,6 +6,7 @@
 #![forbid(unsafe_code)]
 
 pub mod application;
+pub mod assigner;
 pub mod commands;
 pub mod config;
 pub mod error;
