@@ -46,6 +46,10 @@ pub enum Kind {
     #[serde(rename = "unmaintained")]
     Unmaintained,
 
+    /// Unsound packages
+    #[serde(rename = "unsound")]
+    Unsound,
+
     /// Informational advisories
     #[serde(rename = "informational")]
     Informational,
