@@ -1,12 +1,13 @@
 //! Informational advisories: ones which don't represent an immediate security
 //! threat, but something users of a crate should be warned of/aware of
 
-use crate::error::Error;
+use crate::{error::Error, warning};
 use serde::{de, ser, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
 /// Categories of informational vulnerabilities
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum Informational {
     /// Security notices for a crate which are published on <https://rustsec.org>
     /// but don't represent a vulnerability in a crate itself.
@@ -29,13 +30,55 @@ pub enum Informational {
 }
 
 impl Informational {
-    /// Get a `str` representing an informational category
+    /// Get a `str` representing an [`Informational`] category
     pub fn as_str(&self) -> &str {
         match self {
-            Informational::Notice => "notice",
-            Informational::Unmaintained => "unmaintained",
-            Informational::Unsound => "unsound",
-            Informational::Other(other) => other,
+            Self::Notice => "notice",
+            Self::Unmaintained => "unmaintained",
+            Self::Unsound => "unsound",
+            Self::Other(other) => other,
+        }
+    }
+
+    /// Is this informational advisory a `notice`?
+    pub fn is_notice(&self) -> bool {
+        match self {
+            Self::Notice => true,
+            _ => false,
+        }
+    }
+
+    /// Is this informational advisory for an `unmaintained` crate?
+    pub fn is_unmaintained(&self) -> bool {
+        match self {
+            Self::Unmaintained => true,
+            _ => false,
+        }
+    }
+
+    /// Is this informational advisory for an `unsound` crate?
+    pub fn is_unsound(&self) -> bool {
+        match self {
+            Self::Unsound => true,
+            _ => false,
+        }
+    }
+
+    /// Is this informational advisory of an unknown kind?
+    pub fn is_other(&self) -> bool {
+        match self {
+            Self::Other(_) => true,
+            _ => false,
+        }
+    }
+
+    /// Get a warning kind for this informational type (if applicable)
+    pub fn warning_kind(&self) -> Option<warning::Kind> {
+        match self {
+            Self::Notice => Some(warning::Kind::Informational),
+            Self::Unmaintained => Some(warning::Kind::Unmaintained),
+            Self::Unsound => Some(warning::Kind::Unsound),
+            Self::Other(_) => None,
         }
     }
 }
@@ -51,10 +94,10 @@ impl FromStr for Informational {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         Ok(match s {
-            "notice" => Informational::Notice,
-            "unmaintained" => Informational::Unmaintained,
-            "unsound" => Informational::Unsound,
-            other => Informational::Other(other.to_owned()),
+            "notice" => Self::Notice,
+            "unmaintained" => Self::Unmaintained,
+            "unsound" => Self::Unsound,
+            other => Self::Other(other.to_owned()),
         })
     }
 }
