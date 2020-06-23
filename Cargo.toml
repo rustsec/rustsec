@@ -17,7 +17,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 cargo-lock = { version = "4", default-features = false }
 chrono = { version = "0.4", features = ["serde"] }
-crates-index = "= 0.14.3"
+crates-index = "= 0.15.0"
 cvss = { version = "1", features = ["serde"] }
 git2 = "0.13"
 home = "0.5"
