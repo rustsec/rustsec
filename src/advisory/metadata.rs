@@ -3,7 +3,7 @@
 use super::{
     category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
 };
-use crate::{collection::Collection, package, version::VersionReq};
+use crate::{collection::Collection, package};
 use serde::{Deserialize, Serialize};
 
 /// The `[advisory]` section of a RustSec security advisory
@@ -70,13 +70,4 @@ pub struct Metadata {
     /// This can be used to soft-delete advisories which were filed in error.
     #[serde(default)]
     pub yanked: bool,
-
-    /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
-    // TODO(tarcieri): phase this out
-    #[serde(default)]
-    pub(super) patched_versions: Vec<VersionReq>,
-
-    /// Versions which were never affected in the first place
-    #[serde(default)]
-    pub(super) unaffected_versions: Vec<VersionReq>,
 }

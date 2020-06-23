@@ -169,9 +169,9 @@ impl Linter {
                             year = Some(y1);
                         }
                     }
-                    "patched_versions" | "unaffected_versions" | "obsolete" => (), // TODO(tarcieri): deprecate
                     "aliases" | "cvss" | "keywords" | "package" | "references" | "title"
                     | "description" | "yanked" => (),
+                    "obsolete" => (), // TODO(tarcieri): deprecate
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),
