@@ -17,15 +17,38 @@ pub(crate) const YEAR_MAX: u32 = YEAR_MIN + 100;
 pub struct Date(String);
 
 impl Date {
+    /// Get the year for this date
+    pub fn year(&self) -> u32 {
+        self.component(0).expect("has year")
+    }
+
+    /// Get the month for this date
+    pub fn month(&self) -> u32 {
+        self.component(1).expect("has month")
+    }
+
+    /// Get the day of the month for this date
+    pub fn day(&self) -> u32 {
+        self.component(2).expect("has day")
+    }
+
+    /// Borrow this date as a string reference
+    pub fn as_str(&self) -> &str {
+        self.0.as_ref()
+    }
+
     /// Convert an advisory RFC 3339 date into a `chrono::Date`
     pub fn to_chrono_date(&self) -> Result<chrono::Date<Utc>, Error> {
         let date = NaiveDate::parse_from_str(&self.0, "%Y-%m-%d")?;
         Ok(chrono::Date::from_utc(date, Utc))
     }
 
-    /// Borrow this date as a string reference
-    pub fn as_str(&self) -> &str {
-        self.0.as_ref()
+    /// Get a specific component of the date by numerical offset
+    fn component(&self, index: usize) -> Option<u32> {
+        self.0
+            .split('-')
+            .nth(index)
+            .map(|cmp| cmp.parse().expect("numerical date components"))
     }
 }
 
@@ -114,5 +137,13 @@ mod tests {
         assert!(Date::from_str("2017-01-32").is_err());
         assert!(Date::from_str("2017-01-").is_err());
         assert!(Date::from_str("2017-01-01-01").is_err());
+    }
+
+    #[test]
+    fn date_components_test() {
+        let date = Date::from_str("2000-01-02").unwrap();
+        assert_eq!(date.year(), 2000);
+        assert_eq!(date.month(), 1);
+        assert_eq!(date.day(), 2);
     }
 }
