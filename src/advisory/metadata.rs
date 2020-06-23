@@ -62,12 +62,14 @@ pub struct Metadata {
     /// affecting a particular crate without failing the build.
     pub informational: Option<Informational>,
 
-    /// Is the advisory obsolete? Obsolete advisories will be ignored.
-    #[serde(default)]
-    pub obsolete: bool,
-
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<String>,
+
+    /// Has this advisory (i.e. itself, regardless of the crate) been yanked?
+    ///
+    /// This can be used to soft-delete advisories which were filed in error.
+    #[serde(default)]
+    pub yanked: bool,
 
     /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
     // TODO(tarcieri): phase this out

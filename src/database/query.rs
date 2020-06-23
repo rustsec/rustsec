@@ -33,8 +33,9 @@ pub struct Query {
     /// Year associated with the advisory ID
     year: Option<u32>,
 
-    /// Query for obsolete advisories
-    obsolete: Option<bool>,
+    /// Query for yanked advisories (i.e. advisories which were soft-deleted
+    /// from the database, as opposed to yanked crates)
+    yanked: Option<bool>,
 
     /// Query for informational advisories
     informational: Option<bool>,
@@ -52,12 +53,12 @@ impl Query {
     /// Create a new query which uses the default scope rules for crates:
     ///
     /// - Only `Collection::Crates`
-    /// - Ignore obsolete advisories
+    /// - Ignore yanked advisories
     /// - Ignore informational advisories
     pub fn crate_scope() -> Self {
         Self::new()
             .collection(Collection::Crates)
-            .obsolete(false)
+            .yanked(false)
             .informational(false)
     }
 
@@ -112,10 +113,11 @@ impl Query {
         self
     }
 
-    /// Query for obsolete vulnerabilities. By default they will be omitted
-    /// from query results.
-    pub fn obsolete(mut self, setting: bool) -> Self {
-        self.obsolete = Some(setting);
+    /// Query for yanked advisories.
+    ///
+    /// By default they will be omitted from query results.
+    pub fn yanked(mut self, setting: bool) -> Self {
+        self.yanked = Some(setting);
         self
     }
 
@@ -176,8 +178,8 @@ impl Query {
             }
         }
 
-        if let Some(obsolete) = self.obsolete {
-            if obsolete != advisory.metadata.obsolete {
+        if let Some(yanked) = self.yanked {
+            if yanked != advisory.metadata.yanked {
                 return false;
             }
         }
