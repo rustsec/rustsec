@@ -3,8 +3,7 @@
 //!
 //! This is run in CI at the time advisories are submitted.
 
-use super::{Advisory, Category, Informational};
-use chrono::Datelike;
+use super::{Advisory, Category};
 use std::{fmt, fs, path::Path};
 
 /// Lint information about a particular advisory
@@ -129,11 +128,16 @@ impl Linter {
                         message: Some("collection shouldn't be explicit; inferred by location"),
                     }),
                     "informational" => {
-                        if let Some(Informational::Other(other)) =
-                            &self.advisory.metadata.informational
-                        {
+                        let informational = self
+                            .advisory
+                            .metadata
+                            .informational
+                            .as_ref()
+                            .expect("parsed informational");
+
+                        if informational.is_other() {
                             self.errors.push(Error {
-                                kind: ErrorKind::value("informational", other.to_string()),
+                                kind: ErrorKind::value("informational", informational.as_str()),
                                 section: Some("advisory"),
                                 message: Some("unknown informational advisory type"),
                             });
@@ -151,8 +155,7 @@ impl Linter {
                         }
                     }
                     "date" => {
-                        let y1 =
-                            self.advisory.metadata.date.to_chrono_date().unwrap().year() as u32;
+                        let y1 = self.advisory.metadata.date.year();
 
                         if let Some(y2) = year {
                             if y1 != y2 {
