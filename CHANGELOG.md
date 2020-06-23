@@ -4,14 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.20.1 (2020-06-14)
+## 0.21.0 (2020-06-23)
+### Added
+- `year`, `month`, and `day` methods to `advisory::Date` ([#191])
+- `unsound` informational advisory kind ([#189])
 
-- Add `advisory::Id::numerical_part()` ([#185])
+### Changed
+- Bump `crates-index` from 0.14 to 0.15 ([#183])
+- Rename `obsolete` advisories to `yanked` ([#196])
+- Rename `warning::Kind::Informational` to `::Notice` ([#195])
+- Make `warning::Kind` a `#[non_exhausive]` enum ([#195])
+- Make `Informational` a `#[non_exhausive]` enum ([#194])
+
+### Removed
+- Legacy `patched_versions` and `unaffected_versions` ([#197])
+
+[#197]: https://github.com/RustSec/rustsec-crate/pull/197
+[#196]: https://github.com/RustSec/rustsec-crate/pull/196
+[#195]: https://github.com/RustSec/rustsec-crate/pull/195
+[#194]: https://github.com/RustSec/rustsec-crate/pull/194
+[#191]: https://github.com/RustSec/rustsec-crate/pull/191
+[#189]: https://github.com/RustSec/rustsec-crate/pull/189
+[#183]: https://github.com/RustSec/rustsec-crate/pull/183
+
+## 0.20.1 (2020-06-14)
+### Added
+- `advisory::Id::numerical_part()` ([#185])
 
 [#185]: https://github.com/RustSec/rustsec-crate/pull/185
 
 ## 0.20.0 (2020-05-06)
-
+### Changed
 - Make `WarningInfo` into a simple type alias ([#170])
 
 [#170]: https://github.com/RustSec/rustsec-crate/pull/170
