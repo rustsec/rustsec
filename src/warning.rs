@@ -3,7 +3,7 @@
 use crate::error::{Error, ErrorKind};
 use crate::{advisory, package::Package};
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 /// Warnings sourced from the Advisory DB
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -36,12 +36,48 @@ impl Warning {
             versions,
         }
     }
+
+    /// Is this a warning a `notice` about a crate?
+    pub fn is_notice(&self) -> bool {
+        match self.kind {
+            Kind::Notice => true,
+            _ => false,
+        }
+    }
+
+    /// Is this a warning about an `unmaintained` crate?
+    pub fn is_unmaintained(&self) -> bool {
+        match self.kind {
+            Kind::Unmaintained => true,
+            _ => false,
+        }
+    }
+
+    /// Is this a warning about an `unsound` crate?
+    pub fn is_unsound(&self) -> bool {
+        match self.kind {
+            Kind::Unmaintained => true,
+            _ => false,
+        }
+    }
+
+    /// Is this a warning about a yanked crate?
+    pub fn is_yanked(&self) -> bool {
+        match self.kind {
+            Kind::Unmaintained => true,
+            _ => false,
+        }
+    }
 }
 
 /// Kinds of warnings
 #[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Serialize, Ord)]
-#[allow(clippy::large_enum_variant)]
+#[non_exhaustive]
 pub enum Kind {
+    /// Informational notices about packages
+    #[serde(rename = "notice")]
+    Notice,
+
     /// Unmaintained packages
     #[serde(rename = "unmaintained")]
     Unmaintained,
@@ -50,13 +86,21 @@ pub enum Kind {
     #[serde(rename = "unsound")]
     Unsound,
 
-    /// Informational advisories
-    #[serde(rename = "informational")]
-    Informational,
-
     /// Yanked packages
     #[serde(rename = "yanked")]
     Yanked,
+}
+
+impl Kind {
+    /// Get a `str` representing an warning [`Kind`]
+    pub fn as_str(&self) -> &str {
+        match self {
+            Self::Notice => "notice",
+            Self::Unmaintained => "unmaintained",
+            Self::Unsound => "unsound",
+            Self::Yanked => "yanked",
+        }
+    }
 }
 
 impl FromStr for Kind {
@@ -64,10 +108,17 @@ impl FromStr for Kind {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         Ok(match s {
+            "notice" => Kind::Notice,
             "unmaintained" => Kind::Unmaintained,
-            "informational" => Kind::Informational,
+            "unsound" => Kind::Unsound,
             "yanked" => Kind::Yanked,
             other => fail!(ErrorKind::Parse, "invalid warning type: {}", other),
         })
+    }
+}
+
+impl fmt::Display for Kind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.as_str())
     }
 }
