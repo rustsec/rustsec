@@ -1,5 +1,6 @@
 //! Error types
 
+use crate::prelude::*;
 use abscissa_core::error::{BoxError, Context};
 use std::{
     fmt::{self, Display},
@@ -15,9 +16,17 @@ pub enum ErrorKind {
     #[error("config error")]
     Config,
 
+    /// crates.io API error
+    #[error("crates.io error")]
+    CratesIo,
+
     /// Input/output error
     #[error("I/O error")]
     Io,
+
+    /// `rustsec` crate errors
+    #[error("RustSec error")]
+    RustSec,
 }
 
 impl ErrorKind {
@@ -45,9 +54,21 @@ impl Display for Error {
     }
 }
 
+impl std::error::Error for Error {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        self.0.source()
+    }
+}
+
 impl From<Context<ErrorKind>> for Error {
     fn from(context: Context<ErrorKind>) -> Self {
         Error(Box::new(context))
+    }
+}
+
+impl From<crates_io_api::Error> for Error {
+    fn from(other: crates_io_api::Error) -> Self {
+        format_err!(ErrorKind::CratesIo, "{}", other).into()
     }
 }
 
@@ -57,8 +78,8 @@ impl From<io::Error> for Error {
     }
 }
 
-impl std::error::Error for Error {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.0.source()
+impl From<rustsec::Error> for Error {
+    fn from(other: rustsec::Error) -> Self {
+        ErrorKind::RustSec.context(other).into()
     }
 }
