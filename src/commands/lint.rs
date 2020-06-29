@@ -1,8 +1,12 @@
 //! `rustsec-admin lint` subcommand
 
+use crate::{linter::Linter, prelude::*};
 use abscissa_core::{Command, Runnable};
 use gumdrop::Options;
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    process::exit,
+};
 
 /// `rustsec-admin lint` subcommand
 #[derive(Command, Debug, Default, Options)]
@@ -20,6 +24,42 @@ impl Runnable for LintCmd {
             _ => Self::print_usage_and_exit(&[]),
         };
 
-        crate::linter::lint_advisories(repo_path);
+        let linter = Linter::new(&repo_path).unwrap_or_else(|e| {
+            status_err!(
+                "error loading advisory DB repo from {}: {}",
+                repo_path.display(),
+                e
+            );
+
+            exit(1);
+        });
+
+        let advisories = linter.advisory_db().iter();
+
+        // Ensure we're parsing some advisories
+        if advisories.len() == 0 {
+            status_err!("no advisories found!");
+            exit(1);
+        }
+
+        status_ok!(
+            "Loaded",
+            "{} security advisories (from {})",
+            advisories.len(),
+            repo_path.display()
+        );
+
+        let invalid_advisory_count = linter.lint().unwrap_or_else(|e| {
+            status_err!("error linting advisory DB {}: {}", repo_path.display(), e);
+
+            exit(1);
+        });
+
+        if invalid_advisory_count == 0 {
+            status_ok!("Success", "all advisories are well-formed");
+        } else {
+            status_err!("{} advisories contain errors!", invalid_advisory_count);
+            exit(1);
+        }
     }
 }

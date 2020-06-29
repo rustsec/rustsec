@@ -1,107 +1,138 @@
 //! RustSec Advisory DB Linter
 
-use crate::prelude::*;
-use std::{path::Path, process::exit};
+use crate::{
+    error::{Error, ErrorKind},
+    prelude::*,
+};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
-/// Lint all advisories in the database
-pub fn lint_advisories(repo_path: &Path) {
-    let repo = rustsec::Repository::open(repo_path).unwrap_or_else(|e| {
-        status_err!(
-            "couldn't open advisory DB repo from {}: {}",
-            repo_path.display(),
-            e
-        );
-        exit(1);
-    });
+/// List of "collections" within the Advisory DB
+// TODO(tarcieri): provide some other means of iterating over the collections?
+pub const COLLECTIONS: &[rustsec::Collection] =
+    &[rustsec::Collection::Crates, rustsec::Collection::Rust];
 
-    // Ensure Advisories.toml parses
-    let db = rustsec::Database::load(&repo).unwrap();
-    let advisories = db.iter();
+/// Advisory linter
+pub struct Linter {
+    /// Path to the advisory database
+    repo_path: PathBuf,
 
-    // Ensure we're parsing some advisories
-    if advisories.len() == 0 {
-        status_err!("no advisories found!");
-        exit(1);
-    }
+    /// Crates.io client
+    cratesio_client: crates_io_api::SyncClient,
 
-    status_ok!(
-        "Loaded",
-        "{} security advisories (from {})",
-        advisories.len(),
-        repo_path.display()
-    );
+    /// Loaded Advisory DB
+    advisory_db: rustsec::Database,
 
-    let cratesio_client = crates_io_api::SyncClient::new();
-    let mut invalid_advisories = 0;
-
-    for advisory in advisories {
-        if !lint_advisory(repo_path, &cratesio_client, advisory) {
-            invalid_advisories += 1;
-        }
-    }
-
-    if invalid_advisories == 0 {
-        status_ok!("Success", "all advisories are well-formed");
-    } else {
-        status_err!("{} advisories contain errors!", invalid_advisories);
-        exit(1);
-    }
+    /// Total number of invalid advisories encountered
+    invalid_advisories: usize,
 }
 
-/// Lint an individual advisory in the database
-fn lint_advisory(
-    repo_path: &Path,
-    cratesio_client: &crates_io_api::SyncClient,
-    advisory: &rustsec::Advisory,
-) -> bool {
-    if advisory.metadata.collection == Some(rustsec::Collection::Crates) {
-        match cratesio_client.get_crate(advisory.metadata.package.as_str()) {
-            Ok(response) => {
-                if response.crate_data.name != advisory.metadata.package.as_str() {
-                    status_err!(
-                        "crates.io package name does not match package name in advisory for {}",
-                        advisory.metadata.package.as_str()
-                    );
-                    return false;
-                }
-            }
-            Err(err) => {
-                status_err!(
-                    "failed to get package `{}` from crates.io: {}",
-                    advisory.metadata.package.as_str(),
-                    err
-                );
-                return false;
-            }
-        }
+impl Linter {
+    /// Create a new linter for the database at the given path
+    pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
+        let repo_path = repo_path.into();
+        let cratesio_client = crates_io_api::SyncClient::new();
+        let repo = rustsec::Repository::open(&repo_path)?;
+        let advisory_db = rustsec::Database::load(&repo)?;
+
+        Ok(Self {
+            repo_path,
+            cratesio_client,
+            advisory_db,
+            invalid_advisories: 0,
+        })
     }
 
-    let mut advisory_path = repo_path
-        .join(advisory.metadata.collection.as_ref().unwrap().to_string())
-        .join(advisory.metadata.package.as_str())
-        .join(advisory.metadata.id.as_str());
+    /// Borrow the loaded advisory database
+    pub fn advisory_db(&self) -> &rustsec::Database {
+        &self.advisory_db
+    }
 
-    advisory_path.set_extension("toml");
+    /// Lint the loaded database
+    pub fn lint(mut self) -> Result<usize, Error> {
+        for collection in COLLECTIONS {
+            for crate_entry in fs::read_dir(self.repo_path.join(collection.as_str())).unwrap() {
+                let crate_dir = crate_entry.unwrap().path();
 
-    let lint = rustsec::advisory::Linter::lint_file(&advisory_path).unwrap();
+                if !crate_dir.is_dir() {
+                    fail!(
+                        ErrorKind::RustSec,
+                        "unexpected file in `{}`: {}",
+                        collection,
+                        crate_dir.display()
+                    );
+                }
 
-    if lint.errors().is_empty() {
-        status_ok!(
-            "Checked",
-            "{} passed lint successfully",
-            advisory_path.display()
-        );
-        true
-    } else {
-        status_err!(
-            "{} contained the following lint errors:",
-            advisory_path.display()
-        );
-
-        for error in lint.errors() {
-            println!("  - {}", error);
+                for advisory_entry in crate_dir.read_dir().unwrap() {
+                    let advisory_path = advisory_entry.unwrap().path();
+                    self.lint_advisory(*collection, &advisory_path)?;
+                }
+            }
         }
 
-        false
+        Ok(self.invalid_advisories)
+    }
+
+    /// Lint an advisory at the specified path
+    // TODO(tarcieri): separate out presentation (`status_*`) from linting code?
+    fn lint_advisory(
+        &mut self,
+        collection: rustsec::Collection,
+        advisory_path: &Path,
+    ) -> Result<(), Error> {
+        if !advisory_path.is_file() {
+            fail!(
+                ErrorKind::RustSec,
+                "unexpected entry in `{}`: {}",
+                collection,
+                advisory_path.display()
+            );
+        }
+
+        let advisory = rustsec::Advisory::load_file(advisory_path)?;
+
+        if collection == rustsec::Collection::Crates {
+            self.crates_io_lints(&advisory)?;
+        }
+
+        let lint_result = rustsec::advisory::Linter::lint_file(&advisory_path)?;
+
+        if lint_result.errors().is_empty() {
+            status_ok!("Linted", "ok: {}", advisory_path.display());
+        } else {
+            self.invalid_advisories += 1;
+
+            status_err!(
+                "{} contained the following lint errors:",
+                advisory_path.display()
+            );
+
+            for error in lint_result.errors() {
+                println!("  - {}", error);
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Perform lints that connect to https://crates.io
+    fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
+        let response = self
+            .cratesio_client
+            .get_crate(advisory.metadata.package.as_str())?;
+
+        if response.crate_data.name != advisory.metadata.package.as_str() {
+            self.invalid_advisories += 1;
+
+            fail!(
+                ErrorKind::CratesIo,
+                "crates.io package name does not match package name in advisory for {}",
+                advisory.metadata.package.as_str()
+            );
+        }
+
+        Ok(())
     }
 }
