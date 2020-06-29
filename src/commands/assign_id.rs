@@ -1,4 +1,4 @@
-//! `rustsec-admin assignid` subcommand
+//! `rustsec-admin assign-id` subcommand
 //!
 //! Assigns RUSTSEC ids to new vulnerabilities
 
@@ -6,7 +6,7 @@ use abscissa_core::{Command, Runnable};
 use gumdrop::Options;
 use std::path::{Path, PathBuf};
 
-/// `rustsec-admin lint` subcommand
+/// `rustsec-admin assign-id` subcommand
 #[derive(Command, Debug, Default, Options)]
 pub struct AssignIdCmd {
     /// Path to the advisory database
