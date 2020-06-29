@@ -1,14 +1,13 @@
 //! RustSec Advisory DB tool to assign ids
 
-use crate::error::ErrorKind;
-use crate::prelude::*;
-use chrono::Datelike;
-use rustsec::advisory::id::Kind;
-use rustsec::collection::Collection;
-use rustsec::Advisory;
-use std::fs::File;
-use std::io::{BufRead, BufReader, LineWriter, Write};
-use std::{collections::HashMap, fs, path::Path, process::exit};
+use crate::{error::ErrorKind, prelude::*, Map};
+use rustsec::{advisory::id::Kind, collection::Collection, Advisory};
+use std::{
+    fs::{self, File},
+    io::{BufRead, BufReader, LineWriter, Write},
+    path::Path,
+    process::exit,
+};
 
 /// assign ids to advisories in a particular repo_path
 pub fn assign_ids(repo_path: &Path) {
@@ -38,15 +37,17 @@ pub fn assign_ids(repo_path: &Path) {
         repo_path.display()
     );
 
-    let mut highest_id = HashMap::new();
+    let mut highest_id = Map::new();
 
     for advisory in advisories {
         let advisory_clone = advisory.clone();
         let metadata = advisory_clone.metadata;
         let id = metadata.id;
-        let year = metadata.date.to_chrono_date().unwrap().year();
+        let year = metadata.date.year();
+
         if let Kind::RUSTSEC = id.kind() {
             let id_num = id.numerical_part().unwrap();
+
             if let Some(&number) = highest_id.get(&year) {
                 if number < id_num {
                     highest_id.insert(year, id_num);
@@ -62,6 +63,7 @@ pub fn assign_ids(repo_path: &Path) {
     let rust_str = Collection::Rust.to_string();
     collection_strs.push(crates_str);
     collection_strs.push(rust_str);
+
     for collection_str in collection_strs {
         assign_ids_across_directory(collection_str, repo_path, &mut highest_id);
     }
@@ -71,9 +73,10 @@ pub fn assign_ids(repo_path: &Path) {
 fn assign_ids_across_directory(
     collection_str: String,
     repo_path: &Path,
-    highest_ids: &mut HashMap<i32, u32>,
+    highest_ids: &mut Map<u32, u32>,
 ) {
     let dir_path = repo_path.join(collection_str);
+
     if let Ok(collection_entry) = fs::read_dir(dir_path) {
         for dir_entry in collection_entry {
             let unwrapped_dir_entry = dir_entry.unwrap();
@@ -102,7 +105,7 @@ fn assign_ids_across_directory(
                         .unwrap();
                     let advisory = toml.parse::<Advisory>().unwrap();
                     let date = advisory.metadata.date;
-                    let year = date.to_chrono_date().unwrap().year();
+                    let year = date.year();
                     let new_id = highest_ids.get(&year).unwrap() + 1;
                     let year_str = year.to_string();
                     let string_id = format!("RUSTSEC-{}-{:04}", year_str, new_id);
