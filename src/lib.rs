@@ -13,3 +13,5 @@ pub mod error;
 pub mod linter;
 pub mod prelude;
 pub mod web;
+
+use std::collections::BTreeMap as Map;
