@@ -21,7 +21,7 @@ pub struct FixCommand {
 
     /// Perform a dry run
     #[options(no_short, long = "dry-run", help = "perform a dry run for the fix")]
-    dry_run: Option<bool>,
+    dry_run: bool,
 }
 
 impl FixCommand {
@@ -64,7 +64,7 @@ impl Runnable for FixCommand {
             exit(1);
         });
 
-        let dry_run = self.dry_run.unwrap_or_default();
+        let dry_run = self.dry_run;
         let dry_run_info = if dry_run { " (dry run)" } else { "" };
 
         status_ok!(
