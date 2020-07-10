@@ -92,7 +92,7 @@ jobs:
           override: true
 
       - name: Run cargo audit
-        run: cargo run -- audit --deny-warnings all --ignore RUSTSEC-2019-0031
+        run: cargo run -- audit --deny-warnings all --ignore RUSTSEC-2019-0031 --ignore RUSTSEC-2020-0016
 
   fmt:
     name: Rustfmt
@@ -126,7 +126,7 @@ jobs:
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
+          toolchain: 1.40.0
           override: true
 
       - name: Install clippy
