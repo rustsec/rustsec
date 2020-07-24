@@ -9,8 +9,17 @@ use std::{
     process::exit,
 };
 
+/// What sort of output should be generated on stdout.
+#[derive(PartialEq, Clone, Copy)]
+pub enum OutputMode {
+    /// Normal human readable logging
+    HumanReadable,
+    /// Output designed for use in the github action that runs this in prod
+    GithubAction,
+}
+
 /// assign ids to advisories in a particular repo_path
-pub fn assign_ids(repo_path: &Path) {
+pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
     let repo = rustsec::Repository::open(repo_path).unwrap_or_else(|e| {
         status_err!(
             "couldn't open advisory DB repo from {}: {}",
@@ -30,12 +39,14 @@ pub fn assign_ids(repo_path: &Path) {
         exit(1);
     }
 
-    status_ok!(
-        "Loaded",
-        "{} security advisories (from {})",
-        advisories.len(),
-        repo_path.display()
-    );
+    if output_mode == OutputMode::HumanReadable {
+        status_ok!(
+            "Loaded",
+            "{} security advisories (from {})",
+            advisories.len(),
+            repo_path.display()
+        );
+    }
 
     let mut highest_id = Map::new();
 
@@ -64,8 +75,19 @@ pub fn assign_ids(repo_path: &Path) {
     collection_strs.push(crates_str);
     collection_strs.push(rust_str);
 
+    let mut assignments = vec![];
     for collection_str in collection_strs {
-        assign_ids_across_directory(collection_str, repo_path, &mut highest_id);
+        assign_ids_across_directory(
+            collection_str,
+            repo_path,
+            &mut highest_id,
+            output_mode,
+            &mut assignments,
+        );
+    }
+
+    if output_mode == OutputMode::GithubAction {
+        println!("Assigned {}", assignments.join(", "));
     }
 }
 
@@ -74,6 +96,8 @@ fn assign_ids_across_directory(
     collection_str: String,
     repo_path: &Path,
     highest_ids: &mut Map<u32, u32>,
+    output_mode: OutputMode,
+    assignments: &mut Vec<String>,
 ) {
     let dir_path = repo_path.join(collection_str);
 
@@ -130,7 +154,11 @@ fn assign_ids_across_directory(
                     }
                     highest_ids.insert(year, new_id);
                     fs::remove_file(advisory_path_for_deleting).unwrap();
-                    status_ok!("Assignment", "Assigned {} to {}", string_id, dir_name);
+                    if output_mode == OutputMode::HumanReadable {
+                        status_ok!("Assignment", "Assigned {} to {}", string_id, dir_name);
+                    } else {
+                        assignments.push(format!("{} to {}", string_id, dir_name))
+                    }
                 }
             }
         }
