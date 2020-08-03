@@ -29,6 +29,15 @@ pub const AARCH64_APPLE_IOS: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// `aarch64-pc-windows-msvc`: ARM64 MSVC (Windows 10)
+pub const AARCH64_PC_WINDOWS_MSVC: Platform = Platform {
+    target_triple: "aarch64-pc-windows-msvc",
+    target_arch: Arch::AARCH64,
+    target_os: OS::Windows,
+    target_env: Some(Env::MSVC),
+    tier: Tier::Two,
+};
+
 /// `aarch64-fuchsia`: ARM64 Fuchsia
 pub const AARCH64_FUCHSIA: Platform = Platform {
     target_triple: "aarch64-fuchsia",
