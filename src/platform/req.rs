@@ -167,6 +167,7 @@ mod tests {
                 "i686-pc-windows-msvc",
                 "x86_64-pc-windows-gnu",
                 "x86_64-pc-windows-msvc",
+                "aarch64-pc-windows-msvc",
                 "i586-pc-windows-msvc"
             ]
         );
