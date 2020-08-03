@@ -64,6 +64,7 @@ pub const ALL_PLATFORMS: &[Platform] = &[
     tier1::X86_64_UNKNOWN_LINUX_GNU,
     // Tier 2
     tier2::AARCH64_APPLE_IOS,
+    tier2::AARCH64_PC_WINDOWS_MSVC,
     tier2::AARCH64_LINUX_ANDROID,
     tier2::AARCH64_FUCHSIA,
     tier2::AARCH64_UNKNOWN_LINUX_GNU,
