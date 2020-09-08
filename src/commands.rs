@@ -24,12 +24,22 @@ impl Configurable<AuditConfig> for CargoAuditCommand {
     /// Location of `audit.toml` (if it exists)
     fn config_path(&self) -> Option<PathBuf> {
         // Check if the config file exists, and if it does not, ignore it.
-        let filename = home::cargo_home()
+        //
+        // The order of precedence for which config file to use is:
+        // 1. The current project's `.cargo` configuration directory.
+        // 2. The current user's home directory configuration.
+
+        let project_config_filename = PathBuf::from("./.cargo").join(CONFIG_FILE);
+        if project_config_filename.exists() {
+            return Some(project_config_filename);
+        }
+
+        let home_config_filename = home::cargo_home()
             .ok()
             .map(|cargo_home| cargo_home.join(CONFIG_FILE))?;
 
-        if filename.exists() {
-            Some(filename)
+        if home_config_filename.exists() {
+            Some(home_config_filename)
         } else {
             None
         }
