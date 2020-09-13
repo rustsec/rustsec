@@ -1,10 +1,12 @@
+//! Rust target environments
+
 use core::str::FromStr;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 use crate::error::Error;
 
-/// `target_env`: Target enviroment that disambiguates the target platform by ABI / libc.
+/// `target_env`: target enviroment that disambiguates the target platform by ABI / libc.
 /// This value is closely related to the fourth element of the platform target triple,
 /// though it is not identical. For example, embedded ABIs such as `gnueabihf` will simply
 /// define `target_env` as `"gnu"` (i.e. `target::Env::GNU`)
