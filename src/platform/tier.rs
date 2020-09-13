@@ -1,5 +1,11 @@
 //! Rust platform tiers
 
+use crate::error::Error;
+use core::{convert::TryFrom, fmt, str::FromStr};
+
+#[cfg(feature = "serde")]
+use serde::{de, ser, Deserialize, Serialize};
+
 /// Rust platform tiers: support levels are organized into three tiers, each
 /// with a different set of guarantees.
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -51,5 +57,60 @@ impl Tier {
             Tier::Two => "tier2",
             Tier::Three => "tier3",
         }
+    }
+}
+
+impl From<Tier> for usize {
+    fn from(tier: Tier) -> usize {
+        tier.to_usize()
+    }
+}
+
+impl TryFrom<usize> for Tier {
+    type Error = Error;
+
+    fn try_from(num: usize) -> Result<Tier, Error> {
+        match num {
+            1 => Ok(Tier::One),
+            2 => Ok(Tier::Two),
+            3 => Ok(Tier::Three),
+            _ => Err(Error),
+        }
+    }
+}
+
+impl FromStr for Tier {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Tier, Error> {
+        match s {
+            "tier1" => Ok(Tier::One),
+            "tier2" => Ok(Tier::Two),
+            "tier3" => Ok(Tier::Three),
+            _ => Err(Error),
+        }
+    }
+}
+
+impl fmt::Display for Tier {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl Serialize for Tier {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(self.as_str())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for Tier {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use de::Error;
+        <&str>::deserialize(deserializer)?
+            .parse()
+            .map_err(D::Error::custom)
     }
 }

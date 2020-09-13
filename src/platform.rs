@@ -9,10 +9,12 @@ mod req;
 mod tier;
 
 pub use self::tier::Tier;
-use crate::target::*;
 
 #[cfg(feature = "std")]
 pub use self::req::PlatformReq;
+
+use crate::{error::Error, target::*};
+use core::{fmt, str::FromStr};
 
 /// Rust platforms supported by mainline rustc
 ///
@@ -43,6 +45,25 @@ pub struct Platform {
     /// - `Tier::Two`: guaranteed to build
     /// - `Tier::Three`: unofficially supported with no guarantees
     pub tier: Tier,
+}
+
+impl FromStr for Platform {
+    type Err = Error;
+
+    /// Find an architecture by its "target triple"
+    fn from_str(target_triple: &str) -> Result<Self, Self::Err> {
+        ALL_PLATFORMS
+            .iter()
+            .find(|platform| platform.target_triple == target_triple)
+            .cloned()
+            .ok_or(Error)
+    }
+}
+
+impl fmt::Display for Platform {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.target_triple)
+    }
 }
 
 /// All valid Rust platforms usable from the mainline compiler

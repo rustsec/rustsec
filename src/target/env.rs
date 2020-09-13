@@ -1,10 +1,10 @@
 //! Rust target environments
 
-use core::str::FromStr;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
 use crate::error::Error;
+use core::{fmt, str::FromStr};
+
+#[cfg(feature = "serde")]
+use serde::{de, ser, Deserialize, Serialize};
 
 /// `target_env`: target enviroment that disambiguates the target platform by ABI / libc.
 /// This value is closely related to the fourth element of the platform target triple,
@@ -65,17 +65,25 @@ impl FromStr for Env {
     }
 }
 
+impl fmt::Display for Env {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 #[cfg(feature = "serde")]
 impl Serialize for Env {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Env {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(Self::from_str(<&str>::deserialize(deserializer)?).unwrap_or(Env::Unknown))
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        Ok(<&str>::deserialize(deserializer)?
+            .parse()
+            .unwrap_or(Env::Unknown))
     }
 }
 

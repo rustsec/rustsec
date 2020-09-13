@@ -1,10 +1,10 @@
 //! Operating systems
 
-use core::str::FromStr;
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-
 use crate::error::Error;
+use core::{fmt, str::FromStr};
+
+#[cfg(feature = "serde")]
+use serde::{de, ser, Deserialize, Serialize};
 
 /// `target_os`: Operating system of the target. This value is closely related to the second
 /// and third element of the platform target triple, though it is not identical.
@@ -118,17 +118,25 @@ impl FromStr for OS {
     }
 }
 
+impl fmt::Display for OS {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 #[cfg(feature = "serde")]
 impl Serialize for OS {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for OS {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(Self::from_str(<&str>::deserialize(deserializer)?).unwrap_or(OS::Unknown))
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        Ok(<&str>::deserialize(deserializer)?
+            .parse()
+            .unwrap_or(OS::Unknown))
     }
 }
 
