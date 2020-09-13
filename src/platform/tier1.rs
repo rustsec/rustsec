@@ -1,15 +1,15 @@
 //! All Tier 1 platforms supported by Rust. Sourced from:
 //!
-//! <https://forge.rust-lang.org/platform-support.html>
+//! <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
 //!
 //! Tier 1 platforms can be thought of as “guaranteed to work”.
 //! Specifically they will each satisfy the following requirements:
 //!
-//! * Official binary releases are provided for the platform.
-//! * Automated testing is set up to run tests for the platform.
-//! * Landing changes to the rust-lang/rust repository’s master branch
+//! - Official binary releases are provided for the platform.
+//! - Automated testing is set up to run tests for the platform.
+//! - Landing changes to the rust-lang/rust repository’s master branch
 //!   is gated on tests passing.
-//! * Documentation for how to use and how to build the platform is available.
+//! - Documentation for how to use and how to build the platform is available.
 
 use crate::{
     platform::{Platform, Tier},

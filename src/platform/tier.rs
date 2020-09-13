@@ -1,3 +1,5 @@
+//! Rust platform tiers
+
 /// Rust platform tiers: support levels are organized into three tiers, each
 /// with a different set of guarantees.
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
