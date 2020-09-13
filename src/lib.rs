@@ -3,18 +3,18 @@
 //! This crate provides an interface to the platform data available at Rust Forge:
 //!
 //! <https://forge.rust-lang.org/platform-support.html>
+//!
+//! ## Minimum Supported Rust Version
+//!
+//! Rust **1.41** or higher.
+//!
+//! Minimum supported Rust version can be changed in the future, but it will be
+//! done with a minor version bump.
 
 #![no_std]
-#![deny(
-    warnings,
-    missing_docs,
-    trivial_casts,
-    trivial_numeric_casts,
-    unused_import_braces,
-    unused_qualifications
-)]
-#![forbid(unsafe_code)]
 #![doc(html_root_url = "https://docs.rs/platforms/0.2.1")]
+#![forbid(unsafe_code)]
+#![warn(missing_docs, unused_qualifications)]
 
 #[cfg(feature = "std")]
 extern crate std;

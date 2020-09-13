@@ -3,40 +3,34 @@
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
-![MIT/Apache 2 licensed][license-image]
-[![Gitter Chat][gitter-image]][gitter-link]
-
-[crate-image]: https://img.shields.io/crates/v/platforms.svg
-[crate-link]: https://crates.io/crates/platforms
-[docs-image]: https://docs.rs/platforms/badge.svg
-[docs-link]: https://docs.rs/platforms/
-[build-image]: https://github.com/rustsec/platforms-crate/workflows/Rust/badge.svg
-[build-link]: https://github.com/rustsec/platforms-crate/actions
-[license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
-[gitter-image]: https://badges.gitter.im/badge.svg
-[gitter-link]: https://gitter.im/RustSec/Lobby
+![Apache 2/MIT licensed][license-image]
+![MSRV][rustc-image]
+[![Project Chat][zulip-image]][zulip-link]
 
 Rust platform registry: provides programmatic access to information
 about valid Rust platforms, sourced from [Rust Forge].
 
-[Documentation]
-
-[Rust Forge]: https://forge.rust-lang.org/platform-support.html
-[Documentation]: https://docs.rs/platforms/
+[Documentation][docs-link]
 
 ## About
 
 This crate provides programmatic access to information about valid Rust
 platforms. This is useful for systems which document/inventory information
-relevant to Rust platforms: specifically it was created for the
-[RustSec Advisory Database] as a way to document and validate which Rust
-platforms security advisories are applicable to.
+relevant to Rust platforms.
+
+It was created for the [RustSec Advisory Database] and is maintained by the
+[Rust Secure Code Working Group][wg-secure-code].
 
 It is not intended to be a tool for gating builds based on the current platform
 or as a replacement for Rust's existing conditional compilation features:
 please use those for build purposes.
 
-[RustSec Advisory Database]: https://github.com/RustSec
+## Minimum Supported Rust Version
+
+Rust **1.41** or higher.
+
+Minimum supported Rust version can be changed in the future, but it will be
+done with a minor version bump.
 
 ## Registered Platforms
 
@@ -132,6 +126,44 @@ please use those for build purposes.
 | [x86_64-unknown-haiku]            | x86_64      | haiku      | ""         |
 | [x86_64-unknown-openbsd]          | x86_64      | openbsd    | ""         |
 
+## License
+
+Licensed under either of:
+
+ * Apache License, Version 2.0 ([LICENSE-APACHE] or https://www.apache.org/licenses/LICENSE-2.0)
+ * MIT license ([LICENSE-MIT] or https://opensource.org/licenses/MIT)
+
+at your option.
+
+### Contribution
+
+Unless you explicitly state otherwise, any contribution intentionally submitted
+for inclusion in the work by you shall be dual licensed as above, without any
+additional terms or conditions.
+
+[//]: # (badges)
+
+[crate-image]: https://img.shields.io/crates/v/platforms.svg
+[crate-link]: https://crates.io/crates/platforms
+[docs-image]: https://docs.rs/platforms/badge.svg
+[docs-link]: https://docs.rs/platforms/
+[build-image]: https://github.com/rustsec/platforms-crate/workflows/Rust/badge.svg
+[build-link]: https://github.com/rustsec/platforms-crate/actions
+[license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
+[zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
+[zulip-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
+
+[//]: # (general links)
+
+[Rust Forge]: https://forge.rust-lang.org/platform-support.html
+[RustSec Advisory Database]: https://github.com/RustSec
+[wg-secure-code]: https://www.rust-lang.org/governance/wgs/wg-secure-code
+[LICENSE-APACHE]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-MIT
+
+[//]: # (platform links)
+
 [i686-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.I686_APPLE_DARWIN.html
 [i686-pc-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.I686_PC_WINDOWS_GNU.html
 [i686-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.I686_PC_WINDOWS_MSVC.html
@@ -209,21 +241,3 @@ please use those for build purposes.
 [x86_64-unknown-dragonfly]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.X86_64_UNKNOWN_DRAGONFLY.html
 [x86_64-unknown-haiku]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.X86_64_UNKNOWN_HAIKU.html
 [x86_64-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/tier3/constant.X86_64_UNKNOWN_OPENBSD.html
-
-## License
-
-Licensed under either of:
-
- * Apache License, Version 2.0 ([LICENSE-APACHE] or https://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT] or https://opensource.org/licenses/MIT)
-
-at your option.
-
-[LICENSE-APACHE]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-MIT
-
-### Contribution
-
-Unless you explicitly state otherwise, any contribution intentionally submitted
-for inclusion in the work by you shall be dual licensed as above, without any
-additional terms or conditions.

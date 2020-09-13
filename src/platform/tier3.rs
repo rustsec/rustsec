@@ -74,7 +74,7 @@ pub const THUMBV6M_NONE_EABI: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// `thumbv7em-none-eabi`:	Bare Cortex-M4, M7
+/// `thumbv7em-none-eabi`: Bare Cortex-M4, M7
 pub const THUMBV7EM_NONE_EABI: Platform = Platform {
     target_triple: "thumbv7em-none-eabi",
     target_arch: Arch::THUMBV7,
@@ -101,7 +101,7 @@ pub const THUMBV7M_NONE_EABI: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// `x86_64-fortanix-unknown-sgx`: 	Fortanix ABI for 64-bit Intel SGX
+/// `x86_64-fortanix-unknown-sgx`: Fortanix ABI for 64-bit Intel SGX
 pub const X86_64_FORTANIX_UNKNOWN_SGX: Platform = Platform {
     target_triple: "x86_64-fortanix-unknown-sgx",
     target_arch: Arch::X86_64,

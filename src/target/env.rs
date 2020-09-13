@@ -9,6 +9,7 @@ use crate::error::Error;
 /// though it is not identical. For example, embedded ABIs such as `gnueabihf` will simply
 /// define `target_env` as `"gnu"` (i.e. `target::Env::GNU`)
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum Env {
     /// `gnu`: The GNU C Library (glibc)
     GNU,
