@@ -159,8 +159,8 @@ additional terms or conditions.
 
 [RustSec Advisory Database]: https://github.com/RustSec
 [wg-secure-code]: https://www.rust-lang.org/governance/wgs/wg-secure-code
-[LICENSE-APACHE]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-MIT
+[LICENSE-APACHE]: https://github.com/RustSec/platforms-crate/blob/master/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/platforms-crate/blob/master/LICENSE-MIT
 
 [//]: # (platform links)
 

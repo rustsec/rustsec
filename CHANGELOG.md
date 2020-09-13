@@ -1,0 +1,70 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 1.0.0 (2020-09-13)
+### Added
+- Ensure all types have `FromStr`, `Display`, and `serde` impls ([#20])
+- `aarch64-pc-windows-msvc` platform ([#17])
+
+### Changed
+- Make extensible enums `non_exhaustive`; MSRV 1.40+ ([#18])
+
+[#20]: https://github.com/RustSec/platforms-crate/pull/20
+[#18]: https://github.com/RustSec/platforms-crate/pull/18
+[#17]: https://github.com/RustSec/platforms-crate/pull/17
+
+## 0.2.1 (2019-09-24)
+
+- Initial GitHub Actions config ([#12])
+- Properly set up `target::os::TARGET_OS` const for unknown OS ([#11])
+
+[#12]: https://github.com/RustSec/platforms-crate/pull/12
+[#11]: https://github.com/RustSec/platforms-crate/pull/11
+
+## 0.2.0 (2019-01-13)
+
+- Update platforms to match RustForge ([#9])
+- Update to Rust 2018 edition ([#8])
+
+[#9]: https://github.com/RustSec/platforms-crate/pull/9
+[#8]: https://github.com/RustSec/platforms-crate/pull/8
+
+## 0.1.4 (2018-07-29)
+
+- `x86_64-apple-darwin`: fix typo in target triple name ([#6])
+- Have markdown-table-gen output links to Platform structs on docs.rs ([#5])
+
+[#6]: https://github.com/RustSec/platforms-crate/pull/6
+[#5]: https://github.com/RustSec/platforms-crate/pull/5
+
+## 0.1.3 (2018-07-28)
+
+- Fix Travis CI badge in Cargo.toml
+
+## 0.1.2 (2018-07-27)
+
+- Add table of supported platforms to README.md using Markdown generator ([#4])
+
+[#4]: https://github.com/RustSec/platforms-crate/pull/4
+
+## 0.1.1 (2018-07-27)
+
+- Impl `Display` and `std::error::Error` traits for `packages::Error` ([#3])
+
+[#3]: https://github.com/RustSec/platforms-crate/pull/3
+
+## 0.1.0 (2018-07-26)
+
+- Add `guess_current()` ([#2])
+- Optional serde support ([#1])
+
+[#2]: https://github.com/RustSec/platforms-crate/pull/2
+[#1]: https://github.com/RustSec/platforms-crate/pull/1
+
+## 0.0.1 (2018-07-26)
+
+- Initial release
