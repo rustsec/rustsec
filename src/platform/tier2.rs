@@ -1,6 +1,6 @@
 //! All Tier 2 platforms supported by Rust. Sourced from:
 //!
-//! <https://forge.rust-lang.org/platform-support.html>
+//! <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
 //!
 //! Tier 2 platforms can be thought of as “guaranteed to build”. Automated
 //! tests are not run so it’s not guaranteed to produce a working build,
@@ -9,9 +9,9 @@
 //!
 //! Specifically, these platforms are required to have each of the following:
 //!
-//! * Official binary releases are provided for the platform.
-//! * Automated building is set up, but may not be running tests.
-//! * Landing changes to the rust-lang/rust repository’s master branch is
+//! - Official binary releases are provided for the platform.
+//! - Automated building is set up, but may not be running tests.
+//! - Landing changes to the rust-lang/rust repository’s master branch is
 //!   gated on platforms building. For some platforms only the standard
 //!   library is compiled, but for others rustc and cargo are too.
 

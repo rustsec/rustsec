@@ -1,3 +1,5 @@
+//! Platform requirements
+
 use crate::error::Error;
 use crate::platform::{Platform, ALL_PLATFORMS};
 #[cfg(feature = "serde")]
@@ -9,7 +11,7 @@ use std::{str::FromStr, string::String, vec::Vec};
 ///
 /// For a list of all valid platforms, "target triples", see:
 ///
-/// <https://forge.rust-lang.org/platform-support.html>
+/// <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
 ///
 /// Platforms can be grouped with simple globbing rules:
 ///
