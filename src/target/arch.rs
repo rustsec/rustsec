@@ -6,6 +6,7 @@ use crate::error::Error;
 
 /// `target_arch`: Target CPU architecture
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum Arch {
     /// `aarch64`: ARMv8 64-bit architecture
     AARCH64,
