@@ -8,7 +8,7 @@
 [![Project Chat][zulip-image]][zulip-link]
 
 Rust platform registry: provides programmatic access to information
-about valid Rust platforms, sourced from [Rust Forge].
+about valid Rust platforms, sourced from the Rust compiler.
 
 [Documentation][docs-link]
 
@@ -27,7 +27,7 @@ please use those for build purposes.
 
 ## Minimum Supported Rust Version
 
-Rust **1.41** or higher.
+Rust **1.40** or higher.
 
 Minimum supported Rust version can be changed in the future, but it will be
 done with a minor version bump.
@@ -149,14 +149,13 @@ additional terms or conditions.
 [docs-link]: https://docs.rs/platforms/
 [build-image]: https://github.com/rustsec/platforms-crate/workflows/Rust/badge.svg
 [build-link]: https://github.com/rustsec/platforms-crate/actions
-[license-image]: https://img.shields.io/badge/license-MIT%2FApache2-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
+[license-image]: https://img.shields.io/badge/license-Apache2%2FMIT-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.40+-blue.svg
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
 [zulip-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
 
 [//]: # (general links)
 
-[Rust Forge]: https://forge.rust-lang.org/platform-support.html
 [RustSec Advisory Database]: https://github.com/RustSec
 [wg-secure-code]: https://www.rust-lang.org/governance/wgs/wg-secure-code
 [LICENSE-APACHE]: https://github.com/RustSec/rustsec-client/blob/master/LICENSE-APACHE
