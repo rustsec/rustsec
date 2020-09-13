@@ -2,9 +2,10 @@
 
 use crate::error::Error;
 use crate::platform::{Platform, ALL_PLATFORMS};
+use std::{fmt, str::FromStr, string::String, vec::Vec};
+
 #[cfg(feature = "serde")]
-use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
-use std::{str::FromStr, string::String, vec::Vec};
+use serde::{de, ser, Deserialize, Serialize};
 
 /// Platform requirements: glob-like expressions for matching Rust platforms
 /// as identified by a "target triple", e.g. `i686-apple-darwin`.
@@ -86,7 +87,7 @@ impl FromStr for PlatformReq {
     ///
     /// Must match at least one known Rust platform "target triple"
     /// (e.g. `x86_64-unknown-linux-gnu`) to be considered valid.
-    fn from_str(req_str: &str) -> Result<Self, Self::Err> {
+    fn from_str(req_str: &str) -> Result<PlatformReq, Error> {
         let platform_req = PlatformReq(req_str.into());
 
         if platform_req.0.is_empty() || platform_req.matching_platforms().is_empty() {
@@ -97,18 +98,26 @@ impl FromStr for PlatformReq {
     }
 }
 
+impl fmt::Display for PlatformReq {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
 #[cfg(feature = "serde")]
 impl Serialize for PlatformReq {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for PlatformReq {
-    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Self::from_str(&String::deserialize(deserializer)?)
-            .map_err(|_| D::Error::custom("malformed platform req"))
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use de::Error;
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(D::Error::custom)
     }
 }
 
