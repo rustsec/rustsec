@@ -1,6 +1,6 @@
 //! All Tier 3 platforms supported by Rust. Sourced from:
 //!
-//! <https://forge.rust-lang.org/platform-support.html>
+//! <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
 //!
 //! Tier 3 platforms are those which the Rust codebase has support for, but
 //! which are not built or tested automatically, and may not work.

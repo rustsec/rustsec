@@ -1,28 +1,22 @@
-use crate::target::*;
+//! Rust platforms
 
-/// Platform requirements
-#[cfg(feature = "std")]
-mod req;
-
-/// The `Tier` enum
-mod tier;
-
-/// All Tier 1 Rust platforms
 pub mod tier1;
-
-/// All Tier 2 Rust platforms
 pub mod tier2;
-
-/// All Tier 3 Rust platforms
 pub mod tier3;
 
 #[cfg(feature = "std")]
-pub use self::req::PlatformReq;
+mod req;
+mod tier;
+
 pub use self::tier::Tier;
+use crate::target::*;
+
+#[cfg(feature = "std")]
+pub use self::req::PlatformReq;
 
 /// Rust platforms supported by mainline rustc
 ///
-/// Sourced from <https://forge.rust-lang.org/platform-support.html>
+/// Sourced from <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Platform {
     /// "Target triple" string uniquely identifying the platform. See:
@@ -45,9 +39,9 @@ pub struct Platform {
 
     /// Tier of this platform:
     ///
-    /// * `Tier::One`: guaranteed to work
-    /// * `Tier::Two`: guaranteed to build
-    /// * `Tier::Three`: unofficially supported with no guarantees
+    /// - `Tier::One`: guaranteed to work
+    /// - `Tier::Two`: guaranteed to build
+    /// - `Tier::Three`: unofficially supported with no guarantees
     pub tier: Tier,
 }
 
