@@ -1,3 +1,5 @@
+//! Error type
+
 use core::fmt::{self, Display};
 
 /// Error type
