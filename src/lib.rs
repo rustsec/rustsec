@@ -32,27 +32,3 @@ pub use crate::{
 
 #[cfg(feature = "std")]
 pub use crate::platform::PlatformReq;
-
-/// Find a Rust platform by its "target triple", e.g. `i686-apple-darwin`
-pub fn find(target_triple: &str) -> Option<&'static Platform> {
-    Platform::all()
-        .iter()
-        .find(|platform| platform.target_triple == target_triple)
-}
-
-/// Attempt to guess the current `Platform`. May give inaccurate results.
-pub fn guess_current() -> Option<&'static Platform> {
-    Platform::all().iter().find(|platform| {
-        platform.target_arch == TARGET_ARCH
-            && platform.target_env == TARGET_ENV
-            && platform.target_os == TARGET_OS
-    })
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn guesses_current() {
-        assert!(super::guess_current().is_some());
-    }
-}
