@@ -48,6 +48,22 @@ pub struct Platform {
 }
 
 impl Platform {
+    /// Find a Rust platform by its "target triple", e.g. `i686-apple-darwin`
+    pub fn find(target_triple: &str) -> Option<&'static Platform> {
+        Self::all()
+            .iter()
+            .find(|platform| platform.target_triple == target_triple)
+    }
+
+    /// Attempt to guess the current `Platform`. May give inaccurate results.
+    pub fn guess_current() -> Option<&'static Platform> {
+        Self::all().iter().find(|platform| {
+            platform.target_arch == TARGET_ARCH
+                && platform.target_env == TARGET_ENV
+                && platform.target_os == TARGET_OS
+        })
+    }
+
     /// All valid Rust platforms usable from the mainline compiler
     pub fn all() -> &'static [Platform] {
         &[
@@ -160,5 +176,10 @@ mod tests {
                 platform.target_triple
             );
         }
+    }
+
+    #[test]
+    fn guesses_current() {
+        assert!(Platform::guess_current().is_some());
     }
 }
