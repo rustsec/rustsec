@@ -13,7 +13,7 @@
 //! done with a minor version bump.
 
 #![no_std]
-#![doc(html_root_url = "https://docs.rs/platforms/1.0.0")]
+#![doc(html_root_url = "https://docs.rs/platforms/1.0.1")]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, unused_qualifications, rust_2018_idioms)]
 

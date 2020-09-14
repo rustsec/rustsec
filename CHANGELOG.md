@@ -5,7 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0 (2020-09-13)
+## 1.0.1 (2020-09-14)
+### Changed
+- Make `Platform::all()` a `const fn` ([#24])
+- Refactor `Platform::find` and `::guess_current` ([#23])
+- Rename `ALL_PLATFORMS` to `Platform::all()` ([#22])
+
+[#24]: https://github.com/RustSec/platforms-crate/pull/24
+[#23]: https://github.com/RustSec/platforms-crate/pull/23
+[#22]: https://github.com/RustSec/platforms-crate/pull/22
+
+## 1.0.0 (2020-09-13) [YANKED]
 ### Added
 - Ensure all types have `FromStr`, `Display`, and `serde` impls ([#20])
 - `aarch64-pc-windows-msvc` platform ([#17])
