@@ -65,7 +65,7 @@ impl Platform {
     }
 
     /// All valid Rust platforms usable from the mainline compiler
-    pub const fn all() -> &'static [Platform] {
+    pub fn all() -> &'static [Platform] {
         &[
             // Tier 1
             tier1::I686_APPLE_DARWIN,
