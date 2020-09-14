@@ -27,7 +27,7 @@ please use those for build purposes.
 
 ## Minimum Supported Rust Version
 
-Rust **1.46** or higher.
+Rust **1.40** or higher.
 
 Minimum supported Rust version can be changed in the future, but it will be
 done with a minor version bump.
@@ -151,7 +151,7 @@ additional terms or conditions.
 [build-image]: https://github.com/rustsec/platforms-crate/workflows/Rust/badge.svg
 [build-link]: https://github.com/rustsec/platforms-crate/actions
 [license-image]: https://img.shields.io/badge/license-Apache2%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.46+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.40+-blue.svg
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
 [zulip-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
 

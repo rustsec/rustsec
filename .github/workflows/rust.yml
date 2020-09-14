@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.46.0 # MSRV
+          - 1.40.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@v1
@@ -36,7 +36,7 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: 1.46.0 # MSRV
+          toolchain: 1.40.0 # MSRV
           components: clippy
           override: true
       - run: cargo clippy --all --all-features -- -D warnings
