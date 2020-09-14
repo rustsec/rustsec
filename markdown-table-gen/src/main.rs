@@ -1,6 +1,6 @@
 //! Generates a Markdown-formatted table of all platforms known to this crate
 
-use platforms::{Platform, Tier, ALL_PLATFORMS};
+use platforms::{Platform, Tier};
 
 /// Max width for target triples
 const TARGET_TRIPLE_WIDTH: usize = 31;
@@ -17,7 +17,7 @@ const TARGET_ENV_WIDTH: usize = 10;
 fn main() {
     // TODO: double check the others are aligned
     assert_eq!(
-        ALL_PLATFORMS
+        Platform::all()
             .iter()
             .map(|p| p.target_triple.len())
             .max()
@@ -26,7 +26,7 @@ fn main() {
     );
 
     assert_eq!(
-        ALL_PLATFORMS
+        Platform::all()
             .iter()
             .map(|p| p.target_os.as_str().len())
             .max()
@@ -41,7 +41,7 @@ fn main() {
 fn print_platforms_table() {
     let mut current_tier: Option<Tier> = None;
 
-    for platform in ALL_PLATFORMS {
+    for platform in Platform::all() {
         // Print headers if we're on a different tier from before
         if current_tier != Some(platform.tier) {
             if current_tier.is_some() {
@@ -101,7 +101,7 @@ fn print_platform_entry(platform: &Platform) {
 fn print_platform_links() {
     println!();
 
-    for platform in ALL_PLATFORMS {
+    for platform in Platform::all() {
         println!(
             "[{}]: https://docs.rs/platforms/latest/platforms/platform/tier{}/constant.{}.html",
             platform.target_triple,

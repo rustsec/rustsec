@@ -1,7 +1,7 @@
 //! Platform requirements
 
 use crate::error::Error;
-use crate::platform::{Platform, ALL_PLATFORMS};
+use crate::platform::Platform;
 use std::{fmt, str::FromStr, string::String, vec::Vec};
 
 #[cfg(feature = "serde")]
@@ -70,11 +70,10 @@ impl PlatformReq {
     }
 
     /// Expand glob expressions into a list of all known matching platforms
-    pub fn matching_platforms(&self) -> Vec<Platform> {
-        ALL_PLATFORMS
+    pub fn matching_platforms(&self) -> Vec<&'static Platform> {
+        Platform::all()
             .iter()
             .filter(|platform| self.matches(*platform))
-            .cloned()
             .collect()
     }
 }
@@ -123,7 +122,7 @@ impl<'de> Deserialize<'de> for PlatformReq {
 
 #[cfg(test)]
 mod tests {
-    use super::{PlatformReq, ALL_PLATFORMS};
+    use super::{Platform, PlatformReq};
     use std::{str::FromStr, vec::Vec};
 
     #[test]
@@ -200,14 +199,14 @@ mod tests {
     #[test]
     fn wildcard_test() {
         let req = PlatformReq::from_str("*").unwrap();
-        assert_eq!(req.matching_platforms().len(), ALL_PLATFORMS.len())
+        assert_eq!(req.matching_platforms().len(), Platform::all().len())
     }
 
     // How to handle this is debatable...
     #[test]
     fn double_wildcard_test() {
         let req = PlatformReq::from_str("**").unwrap();
-        assert_eq!(req.matching_platforms().len(), ALL_PLATFORMS.len())
+        assert_eq!(req.matching_platforms().len(), Platform::all().len())
     }
 
     #[test]

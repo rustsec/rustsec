@@ -26,7 +26,7 @@ pub mod target;
 
 pub use crate::{
     error::Error,
-    platform::{Platform, Tier, ALL_PLATFORMS},
+    platform::{Platform, Tier},
     target::{TARGET_ARCH, TARGET_ENV, TARGET_OS},
 };
 
@@ -35,14 +35,14 @@ pub use crate::platform::PlatformReq;
 
 /// Find a Rust platform by its "target triple", e.g. `i686-apple-darwin`
 pub fn find(target_triple: &str) -> Option<&'static Platform> {
-    ALL_PLATFORMS
+    Platform::all()
         .iter()
         .find(|platform| platform.target_triple == target_triple)
 }
 
 /// Attempt to guess the current `Platform`. May give inaccurate results.
 pub fn guess_current() -> Option<&'static Platform> {
-    ALL_PLATFORMS.iter().find(|platform| {
+    Platform::all().iter().find(|platform| {
         platform.target_arch == TARGET_ARCH
             && platform.target_env == TARGET_ENV
             && platform.target_os == TARGET_OS
