@@ -17,11 +17,11 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 cargo-lock = { version = "4", default-features = false }
 chrono = { version = "0.4", features = ["serde"] }
-crates-index = "= 0.15.1"
+crates-index = "=0.15.2"
 cvss = { version = "1", features = ["serde"] }
 git2 = "0.13"
 home = "0.5"
-platforms = { version = "0.2", features = ["serde"] }
+platforms = { version = "1", features = ["serde"] }
 semver = { version = "0.9", features = ["serde"] }
 semver-parser = "0.9"
 serde = { version = "1", features = ["serde_derive"] }
