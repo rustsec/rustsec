@@ -19,6 +19,7 @@ pub mod collection;
 pub mod database;
 #[cfg(feature = "fix")]
 pub mod fixer;
+#[cfg(feature = "fetch")]
 pub mod registry;
 pub mod report;
 pub mod repository;
@@ -43,6 +44,10 @@ pub use crate::{
     vulnerability::Vulnerability,
     warning::Warning,
 };
+
+#[cfg(feature = "fetch")]
+pub use crate::repository::git::GitRepository;
+
 pub use cargo_lock::{lockfile, package};
 
 // Use BTreeMap and BTreeSet as our map and set types

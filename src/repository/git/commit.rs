@@ -1,36 +1,13 @@
 //! Commits to the advisory DB git repository
 
 use super::DAYS_UNTIL_STALE;
-use super::{signature::Signature, Repository};
 use crate::error::{Error, ErrorKind};
+use crate::repository::{git::GitRepository, signature::Signature, Commit};
 use chrono::{DateTime, Duration, NaiveDateTime, Utc};
-
-/// Information about a commit to the Git repository
-#[derive(Debug)]
-pub struct Commit {
-    /// ID (i.e. SHA-1 hash) of the latest commit
-    pub commit_id: String,
-
-    /// Information about the author of a commit
-    pub author: String,
-
-    /// Summary message for the commit
-    pub summary: String,
-
-    /// Commit time in number of seconds since the UNIX epoch
-    pub time: DateTime<Utc>,
-
-    /// Signature on the commit (mandatory for Repository::fetch)
-    // TODO: actually verify signatures
-    pub signature: Option<Signature>,
-
-    /// Signed data to verify along with this commit
-    signed_data: Option<Vec<u8>>,
-}
 
 impl Commit {
     /// Get information about HEAD
-    pub(crate) fn from_repo_head(repo: &Repository) -> Result<Self, Error> {
+    pub(crate) fn from_repo_head(repo: &GitRepository) -> Result<Self, Error> {
         let head = repo.repo.head()?;
 
         let oid = head.target().ok_or_else(|| {
@@ -82,7 +59,7 @@ impl Commit {
 
     /// Reset the repository's state to match this commit
 
-    pub(crate) fn reset(&self, repo: &Repository) -> Result<(), Error> {
+    pub(crate) fn reset(&self, repo: &GitRepository) -> Result<(), Error> {
         let commit_object = repo.repo.find_object(
             git2::Oid::from_str(&self.commit_id).unwrap(),
             Some(git2::ObjectType::Commit),

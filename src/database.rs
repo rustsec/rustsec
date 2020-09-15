@@ -38,14 +38,8 @@ pub struct Database {
 }
 
 impl Database {
-    /// Fetch the default advisory database from GitHub
-    pub fn fetch() -> Result<Self, Error> {
-        let repo = Repository::fetch_default_repo()?;
-        Self::load(&repo)
-    }
-
     /// Load [`Database`] from the given [`Repository`]
-    pub fn load(repo: &Repository) -> Result<Self, Error> {
+    pub fn load(repo: &impl Repository) -> Result<Self, Error> {
         let advisory_paths = repo.advisories()?;
         let latest_commit = repo.latest_commit()?;
 

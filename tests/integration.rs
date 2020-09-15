@@ -1,9 +1,9 @@
 //! Integration test against the live `advisory-db` repo on GitHub
-
+#![cfg(feature = "fetch")]
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use rustsec::{
-    advisory, database::Query, lockfile::Lockfile, repository, Collection, Database, Repository,
+    advisory, database::Query, lockfile::Lockfile, repository::git, Collection, Database,
     VersionReq,
 };
 use tempfile::tempdir;
@@ -11,7 +11,7 @@ use tempfile::tempdir;
 /// Happy path integration test (has online dependency on GitHub)
 #[test]
 fn happy_path() {
-    let db = Database::fetch().unwrap();
+    let db = Database::load(&git::GitRepository::fetch_default_repo().unwrap()).unwrap();
     verify_rustsec_2017_0001(&db);
     verify_cve_2018_1000810(&db);
 }
@@ -94,5 +94,5 @@ fn clone_into_existing_directory() {
     let tmp = tempdir().unwrap();
 
     // Attempt to fetch into it
-    Repository::fetch(repository::DEFAULT_URL, tmp.path(), true).unwrap();
+    git::GitRepository::fetch(git::DEFAULT_URL, tmp.path(), true).unwrap();
 }
