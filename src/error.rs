@@ -125,6 +125,7 @@ impl From<fmt::Error> for Error {
     }
 }
 
+#[cfg(feature = "fetch")]
 impl From<git2::Error> for Error {
     fn from(other: git2::Error) -> Self {
         format_err!(ErrorKind::Repo, &other)
@@ -137,6 +138,7 @@ impl From<io::Error> for Error {
     }
 }
 
+#[cfg(feature = "fetch")]
 impl From<crates_index::Error> for Error {
     fn from(other: crates_index::Error) -> Self {
         format_err!(ErrorKind::Registry, "{}", other)
