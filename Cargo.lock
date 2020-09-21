@@ -198,6 +198,7 @@ dependencies = [
  "rustsec",
  "serde",
  "serde_json",
+ "smol_str",
  "tempfile",
  "thiserror",
  "toml",
