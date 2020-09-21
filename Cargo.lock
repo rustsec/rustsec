@@ -255,14 +255,15 @@ checksum = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 
 [[package]]
 name = "crates-index"
-version = "0.15.3"
+version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc52f0c6081717cb8dcd48895987f10b137c4a65aba61fa083f16a19ebc73ae1"
+checksum = "14f005608371af209b666b57d93a673722d78377b01b4e084d3ecc724080ed17"
 dependencies = [
  "git2",
  "glob",
  "hex",
  "home",
+ "memchr",
  "semver 0.10.0",
  "serde",
  "serde_derive",
