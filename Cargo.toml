@@ -28,6 +28,7 @@ thiserror = "1"
 once_cell = "1.3"
 tempfile = "3"
 toml = "0.5"
+smol_str = "=0.1.16" # smol_str 0.1.17 is incompatible with Rust 1.44 or lower
 
 [dev-dependencies.abscissa_core]
 version = "0.5"
