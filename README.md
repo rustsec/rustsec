@@ -6,7 +6,7 @@
 [![Safety Dance][safety-image]][safety-link]
 ![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
-[![Gitter Chat][gitter-image]][gitter-link]
+[![Project Chat][zulip-image]][zulip-link]
 
 Self-contained [serde]-powered `Cargo.lock` parser/serializer with support for
 both the V1 and V2 (merge-friendly) formats, as well as optional dependency
@@ -76,8 +76,8 @@ additional terms or conditions.
 [rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[gitter-image]: https://badges.gitter.im/badge.svg
-[gitter-link]: https://gitter.im/RustSec/Lobby
+[zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
+[zulip-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
 
 [//]: # (general links)
 
