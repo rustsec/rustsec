@@ -172,7 +172,7 @@ checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 
 [[package]]
 name = "cargo-audit"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "abscissa_core",
  "gumdrop",
@@ -182,6 +182,7 @@ dependencies = [
  "rustsec",
  "serde",
  "serde_json",
+ "smol_str",
  "tempfile",
  "thiserror",
  "toml",
@@ -1516,9 +1517,9 @@ checksum = "c7cb5678e1615754284ec264d9bb5b4c27d2018577fd90ac0ceb578591ed5ee4"
 
 [[package]]
 name = "smol_str"
-version = "0.1.15"
+version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34836c9a295c62c2ce3514471117c5cb269891e8421b2aafdd910050576c4d8b"
+checksum = "2f7909a1d8bc166a862124d84fdc11bda0ea4ed3157ccca662296919c2972db1"
 dependencies = [
  "serde",
 ]
