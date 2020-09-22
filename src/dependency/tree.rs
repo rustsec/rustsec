@@ -9,7 +9,7 @@ use super::{
     graph::{EdgeDirection, Graph, NodeIndex, Nodes},
     Dependency,
 };
-use crate::{error::Error, lockfile::Lockfile, Map};
+use crate::{error::Error, lockfile::Lockfile, package::Package, Map};
 use std::{collections::BTreeSet as Set, io};
 
 /// Dependency tree computed from a `Cargo.lock` file
@@ -69,6 +69,15 @@ impl Tree {
         symbols: &Symbols,
     ) -> io::Result<()> {
         Presenter::new(&self.graph, symbols).print_node(w, node_index, direction)
+    }
+
+    /// Get the root packages in the dependency graph, i.e. the packages defined
+    /// in the workspace which are not used as dependencies
+    pub fn roots(&self) -> Vec<&Package> {
+        self.graph
+            .externals(EdgeDirection::Incoming)
+            .map(|node_index| &self.graph[node_index])
+            .collect()
     }
 
     /// Get the `petgraph` dependency graph.
@@ -179,7 +188,7 @@ impl<'g, 's> Presenter<'g, 's> {
 mod tests {
     use super::*;
 
-    /// Load the `rustsec` crate's `Cargo.lock`
+    /// Load this crate's `Cargo.lock`
     fn load_lockfile() -> Lockfile {
         Lockfile::load("Cargo.lock").unwrap()
     }
@@ -188,5 +197,15 @@ mod tests {
     fn compute_tree() {
         // TODO(tarcieri): test dependency tree is computed correctly
         Tree::new(&load_lockfile()).unwrap();
+    }
+
+    #[test]
+    fn compute_roots() {
+        let tree = Tree::new(&load_lockfile()).unwrap();
+        let roots = tree.roots();
+        assert_eq!(roots.len(), 1);
+
+        let root_package = roots[0];
+        assert_eq!(root_package.name.as_str(), "cargo-lock");
     }
 }
