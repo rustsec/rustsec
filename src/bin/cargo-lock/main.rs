@@ -14,13 +14,6 @@ use std::{
 #[cfg(feature = "dependency-tree")]
 use cargo_lock::dependency::graph::EdgeDirection;
 
-/// Wrapper toplevel command for the `cargo lock` subcommand
-#[derive(Options)]
-enum CargoLock {
-    #[options(help = "the `cargo lock` Cargo subcommand")]
-    Lock(Command),
-}
-
 /// `cargo lock` subcommands
 #[derive(Debug, Options)]
 enum Command {
@@ -161,14 +154,32 @@ fn load_lockfile(path: &Option<PathBuf>) -> Lockfile {
 }
 
 fn main() {
-    let args = env::args().collect::<Vec<_>>();
+    let mut args = env::args().collect::<Vec<_>>();
 
-    if args[1..].is_empty() || args.get(1).map(AsRef::as_ref) == Some("lock") {
-        ListCmd::default().run();
+    // Remove leading arguments (bin and potential `lock`)
+    if !args.is_empty() {
+        args.remove(0);
+
+        if args.get(0).map(AsRef::as_ref) == Some("lock") {
+            args.remove(0);
+        }
+    }
+
+    // If no command is specified, implicitly assume `list`
+    if args.is_empty() || args[0].starts_with('-') {
+        ListCmd::parse_args_default(&args)
+            .unwrap_or_else(|e| {
+                eprintln!("*** error: {}", e);
+                eprintln!("USAGE:");
+                eprintln!("{}", ListCmd::usage());
+                exit(1);
+            })
+            .run();
         exit(0);
     }
 
-    let CargoLock::Lock(cmd) = CargoLock::parse_args_default(&args[1..]).unwrap_or_else(|e| {
+    // ...otherwise parse and run the subcommand
+    let cmd = Command::parse_args_default(&args).unwrap_or_else(|e| {
         eprintln!("*** error: {}", e);
         eprintln!("USAGE:");
         eprintln!("{}", Command::usage());
