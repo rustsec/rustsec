@@ -38,19 +38,60 @@
 //!
 //! ### `list`: summarize packages in `Cargo.lock`
 //!
-//! The `cargo lock list` subcommand provides a short synopsis of the
-//! packages enumerated in `Cargo.lock`:
+//! The `cargo lock list` subcommand (which can be shortened to just
+//! `cargo lock` if you prefer) provides a short synopsis of the packages
+//! enumerated in `Cargo.lock`:
 //!
 //! ```text
-//! $ cargo lock list
+//! $ cargo lock
+//! - autocfg 1.0.0
+//! - cargo-lock 4.0.1
+//! - fixedbitset 0.2.0
+//! - gumdrop 0.8.0
+//! - gumdrop_derive 0.8.0
+//! - idna 0.2.0
+//! - indexmap 1.3.2
+//! - matches 0.1.8
+//! [...]
+//! ```
+//!
+//! Adding a `-d` (or `--dependencies`) flag will show transitive dependencies:
+//!
+//! ```text
+//! $ cargo lock -d
+//! - autocfg 1.0.0
+//! - cargo-lock 4.0.1
+//!   - gumdrop 0.8.0
+//!   - petgraph 0.5.1
+//!   - semver 0.10.0
+//!   - serde 1.0.116
+//!   - toml 0.5.6
+//!   - url 2.1.1
+//! - fixedbitset 0.2.0
+//! - gumdrop 0.8.0
+//!   - gumdrop_derive 0.8.0
+//! - gumdrop_derive 0.8.0
+//!   - proc-macro2 1.0.21
+//!   - quote 1.0.3
+//!   - syn 1.0.40
+//! - idna 0.2.0
+//!   - matches 0.1.8
+//!   - unicode-bidi 0.3.4
+//!   - unicode-normalization 0.1.12
+//! [...]
+//! ```
+//!
+//! Adding a `-s` (or `--source`) flag will show source information for each
+//! package (when available):
+//!
+//! ```text
 //! - autocfg 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)
-//! - cargo-lock 3.0.0
+//! - cargo-lock 4.0.1
 //! - fixedbitset 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)
-//! - gumdrop 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)
-//! - gumdrop_derive 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)
+//! - gumdrop 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)
+//! - gumdrop_derive 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)
 //! - idna 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)
-//! - indexmap 1.3.1 (registry+https://github.com/rust-lang/crates.io-index)
-//! - matches 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)
+//! - indexmap 1.3.2 (registry+https://github.com/rust-lang/crates.io-index)
 //! [...]
 //! ```
 //!
@@ -73,8 +114,27 @@
 //! ### `tree`: provide information for how a dependency is included
 //!
 //! The `cargo lock tree` subcommand (similar to the `cargo-tree` command)
-//! can provide a visualization of how a particular dependency is being used
-//! in your project, by consulting Cargo.lock alone:
+//! can provide a visualization of the current dependency tree or how a
+//! particular dependency is being used in your project, by consulting
+//! `Cargo.lock` alone:
+//!
+//! ```text
+//! $ cargo lock tree
+//! cargo-lock 4.0.1
+//! ├── url 2.1.1
+//! │   ├── percent-encoding 2.1.0
+//! │   ├── matches 0.1.8
+//! │   └── idna 0.2.0
+//! │       ├── unicode-normalization 0.1.12
+//! │       │   └── smallvec 1.2.0
+//! │       ├── unicode-bidi 0.3.4
+//! │       │   └── matches 0.1.8
+//! │       └── matches 0.1.8
+//! ├── toml 0.5.6
+//! │   └── serde 1.0.116
+//! │       └── serde_derive 1.0.116
+//! [...]
+//! ```
 //!
 //! ```text
 //! $ cargo lock tree syn
