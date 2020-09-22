@@ -338,13 +338,13 @@ checksum = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
 
 [[package]]
 name = "crates-index"
-version = "0.14.3"
+version = "0.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "185e829c8d4ce272df41f19bfc7bb1ef1f119cc451647527c0bce643d8913e25"
+checksum = "15467291e8911aa3e73b0e77d988362da1df7ac974c7189ab38b94b6f7edfa7e"
 dependencies = [
- "error-chain",
  "git2",
  "glob",
+ "hex",
  "home",
  "serde",
  "serde_derive",
@@ -700,6 +700,9 @@ name = "hex"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "644f9158b2f133fd50f5fb3242878846d9eb792e445c893805ff0e3824006e35"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "home"
@@ -1390,9 +1393,9 @@ checksum = "4c691c0e608126e00913e33f0ccf3727d5fc84573623b8d65b2df340b5201783"
 
 [[package]]
 name = "rustsec"
-version = "0.20.1"
+version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bcdbdffa54886a5cd9025a2881e148351183d5a8ec83b4b9f87a00427756d44"
+checksum = "b2f7c2b431b329341b1ee7193b7403269153b99804ff5850a0b8966aed26f558"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
