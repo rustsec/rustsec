@@ -41,13 +41,35 @@ struct ListCmd {
     /// Input `Cargo.lock` file
     #[options(short = "f", help = "input Cargo.lock file")]
     file: Option<PathBuf>,
+
+    /// List dependencies as part of the output
+    #[options(short = "d", help = "show dependencies for each package")]
+    dependencies: bool,
+
+    /// Show package sources in list
+    #[options(short = "s", help = "show package sources in listing")]
+    sources: bool,
 }
 
 impl ListCmd {
     /// Display dependency summary from `Cargo.lock`
     pub fn run(&self) {
         for package in &load_lockfile(&self.file).packages {
-            println!("- {}", Dependency::from(package));
+            if self.sources {
+                println!("- {}", Dependency::from(package));
+            } else {
+                println!("- {} {}", package.name, package.version);
+            }
+
+            if self.dependencies {
+                for dep in &package.dependencies {
+                    if self.sources {
+                        println!("  - {}", dep);
+                    } else {
+                        println!("  - {} {}", dep.name, dep.version);
+                    }
+                }
+            }
         }
     }
 }
