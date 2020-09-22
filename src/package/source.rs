@@ -9,8 +9,11 @@
 
 use crate::error::{Error, ErrorKind};
 use serde::{de, ser, Deserialize, Serialize};
-use std::{fmt, path::Path, str::FromStr};
+use std::{fmt, str::FromStr};
 use url::Url;
+
+#[cfg(any(unix, windows))]
+use std::path::Path;
 
 /// Location of the crates.io index
 pub const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
@@ -48,6 +51,7 @@ enum SourceKind {
     LocalRegistry,
 
     /// A directory-based registry.
+    #[cfg(any(unix, windows))]
     Directory,
 }
 
@@ -111,6 +115,7 @@ impl SourceId {
     /// Creates a `SourceId` from a filesystem path.
     ///
     /// `path`: an absolute path.
+    #[cfg(any(unix, windows))]
     pub fn for_path(path: &Path) -> Result<Self, Error> {
         Self::new(SourceKind::Path, path.into_url()?)
     }
@@ -126,11 +131,13 @@ impl SourceId {
     }
 
     /// Creates a SourceId from a local registry path.
+    #[cfg(any(unix, windows))]
     pub fn for_local_registry(path: &Path) -> Result<Self, Error> {
         Self::new(SourceKind::LocalRegistry, path.into_url()?)
     }
 
     /// Creates a `SourceId` from a directory path.
+    #[cfg(any(unix, windows))]
     pub fn for_directory(path: &Path) -> Result<Self, Error> {
         Self::new(SourceKind::Directory, path.into_url()?)
     }
@@ -258,6 +265,7 @@ impl fmt::Display for SourceId {
                 ref url,
                 ..
             } => write!(f, "local-registry+{}", url),
+            #[cfg(any(unix, windows))]
             SourceId {
                 kind: SourceKind::Directory,
                 ref url,
@@ -335,6 +343,7 @@ impl<'a> IntoUrl for &'a str {
     }
 }
 
+#[cfg(any(unix, windows))]
 impl<'a> IntoUrl for &'a Path {
     fn into_url(self) -> Result<Url, Error> {
         Url::from_file_path(self)
