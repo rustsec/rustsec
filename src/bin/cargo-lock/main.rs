@@ -4,6 +4,7 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use cargo_lock::{
+    dependency::graph::EdgeDirection,
     dependency::Tree,
     package::{self},
     Dependency, Lockfile, ResolveVersion,
@@ -14,9 +15,6 @@ use std::{
     path::{Path, PathBuf},
     process::exit,
 };
-
-#[cfg(feature = "dependency-tree")]
-use cargo_lock::dependency::graph::EdgeDirection;
 
 /// `cargo lock` subcommands
 #[derive(Debug, Options)]
@@ -30,7 +28,6 @@ enum Command {
     Translate(TranslateCmd),
 
     /// The `cargo lock tree` subcommand
-    #[cfg(feature = "dependency-tree")]
     #[options(help = "print a dependency tree for the given dependency")]
     Tree(TreeCmd),
 }
@@ -126,7 +123,6 @@ impl TranslateCmd {
 }
 
 /// The `cargo lock tree` subcommand
-#[cfg(feature = "dependency-tree")]
 #[derive(Debug, Options)]
 struct TreeCmd {
     /// Input `Cargo.lock` file
@@ -138,7 +134,6 @@ struct TreeCmd {
     dependencies: Vec<package::Name>,
 }
 
-#[cfg(feature = "dependency-tree")]
 impl TreeCmd {
     /// Display dependency trees from `Cargo.lock`
     pub fn run(&self) {
@@ -240,7 +235,6 @@ fn main() {
     match cmd {
         Command::List(list) => list.run(),
         Command::Translate(translate) => translate.run(),
-        #[cfg(feature = "dependency-tree")]
         Command::Tree(tree) => tree.run(),
     }
 }

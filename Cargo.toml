@@ -26,3 +26,7 @@ url = "2"
 [features]
 cli = ["gumdrop", "dependency-tree"]
 dependency-tree = ["petgraph"]
+
+[package.metadata.docs.rs]
+features = ["dependency-tree"]
+rustdoc-args = ["--cfg", "docsrs"]
