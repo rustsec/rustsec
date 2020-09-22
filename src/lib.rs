@@ -25,6 +25,17 @@
 //! println!("number of dependencies: {}", lockfile.packages.len());
 //! ```
 //!
+//! # Dependency tree API
+//!
+//! When the `dependency-tree` feature of this crate is enabled, it supports
+//! computing a directed graph of the dependency tree expressed in the
+//! lockfile, modeled using the [`petgraph`] crate, along with support for
+//! printing dependency trees ala the [`cargo-tree`] crate, a CLI intreface
+//! for which is provided by the `cargo lock tree` subcommand described above.
+//!
+//! This same graph representation of a `Cargo.lock` file is programatically
+//! available via this crate's API.
+//!
 //! # Command Line Interface
 //!
 //! This crate provides a `cargo lock` Cargo subcommand which can be installed
@@ -98,7 +109,7 @@
 //! ### `translate`: convert `Cargo.lock` files between the V1 and V2 formats
 //!
 //! The `cargo lock translate` subcommand can translate V1 Cargo.lock files to
-//! the [new V2 format] and vice versa:
+//! the [V2 format] and vice versa:
 //!
 //! ```text
 //! $ cargo lock translate
@@ -151,19 +162,8 @@
 //!        └── cargo-lock 3.0.0
 //! ```
 //!
-//! # Dependency tree API
-//!
-//! When the `dependency-tree` feature of this crate is enabled, it supports
-//! computing a directed graph of the dependency tree expressed in the
-//! lockfile, modeled using the [`petgraph`] crate, along with support for
-//! printing dependency trees ala the [`cargo-tree`] crate, a CLI intreface
-//! for which is provided by the `cargo lock tree` subcommand described above.
-//!
-//! This same graph representation of a `Cargo.lock` file is programatically
-//! available via this crate's API.
-//!
 //! [RustSec]: https://rustsec.org/
-//! [new V2 format]: https://github.com/rust-lang/cargo/pull/7070
+//! [V2 format]: https://github.com/rust-lang/cargo/pull/7070
 //! [`petgraph`]: https://github.com/petgraph/petgraph
 //! [`cargo-tree`]: https://github.com/sfackler/cargo-tree
 
