@@ -20,7 +20,7 @@ use std::{
 #[derive(Debug, Options)]
 enum Command {
     /// The `cargo lock list` subcommand
-    #[options(help = "list packages in Cargo.toml")]
+    #[options(help = "list packages in Cargo.lock")]
     List(ListCmd),
 
     /// The `cargo lock translate` subcommand
