@@ -42,6 +42,10 @@ struct ListCmd {
     #[options(short = "f", help = "input Cargo.lock file")]
     file: Option<PathBuf>,
 
+    /// Get information for a specific package
+    #[options(short = "p", help = "get information for a single package")]
+    package: Option<package::Name>,
+
     /// List dependencies as part of the output
     #[options(short = "d", help = "show dependencies for each package")]
     dependencies: bool,
@@ -55,6 +59,12 @@ impl ListCmd {
     /// Display dependency summary from `Cargo.lock`
     pub fn run(&self) {
         for package in &load_lockfile(&self.file).packages {
+            if let Some(name) = &self.package {
+                if &package.name != name {
+                    continue;
+                }
+            }
+
             if self.sources {
                 println!("- {}", Dependency::from(package));
             } else {
