@@ -3,7 +3,11 @@
 #![forbid(unsafe_code)]
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-use cargo_lock::{package, Dependency, Lockfile, ResolveVersion};
+use cargo_lock::{
+    dependency::Tree,
+    package::{self},
+    Dependency, Lockfile, ResolveVersion,
+};
 use gumdrop::Options;
 use std::{
     env, fs, io,
@@ -113,12 +117,27 @@ impl TreeCmd {
             exit(1);
         });
 
-        // TODO(tarcieri): detect root package(s), automatically use those?
         if self.dependencies.is_empty() {
-            eprintln!("*** error: no dependency names given");
-            exit(1);
+            self.dependency_tree(&tree);
+        } else {
+            self.inverse_dependency_tree(&lockfile, &tree);
         }
+    }
 
+    /// Show forward dependency tree for detected root dependencies
+    fn dependency_tree(&self, tree: &Tree) {
+        for (i, index) in tree.roots().iter().enumerate() {
+            if i > 0 {
+                println!();
+            }
+
+            tree.render(&mut io::stdout(), *index, EdgeDirection::Outgoing)
+                .unwrap();
+        }
+    }
+
+    /// Show inverse dependency tree for the provided dependencies
+    fn inverse_dependency_tree(&self, lockfile: &Lockfile, tree: &Tree) {
         for (i, dep) in self.dependencies.iter().enumerate() {
             if i > 0 {
                 println!();
