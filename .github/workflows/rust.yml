@@ -25,7 +25,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: wasm32-unknown-unknown
           override: true
-      - run: cargo build --no-default-features --lib --release --target wasm32-unknown-unknown
+      - run: cargo build --no-default-features --release --target wasm32-unknown-unknown
 
   test:
     runs-on: ubuntu-latest

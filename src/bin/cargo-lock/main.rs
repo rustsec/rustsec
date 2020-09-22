@@ -39,10 +39,10 @@ enum Command {
 }
 
 /// The `cargo lock list` subcommand
-#[derive(Debug, Options)]
+#[derive(Debug, Default, Options)]
 struct ListCmd {
     /// Input `Cargo.lock` file
-    #[options(short = "f", help = "input Cargo.lock file to translate")]
+    #[options(short = "f", help = "input Cargo.lock file")]
     file: Option<PathBuf>,
 }
 
@@ -162,6 +162,11 @@ fn load_lockfile(path: &Option<PathBuf>) -> Lockfile {
 
 fn main() {
     let args = env::args().collect::<Vec<_>>();
+
+    if args[1..].is_empty() || args.get(1).map(AsRef::as_ref) == Some("lock") {
+        ListCmd::default().run();
+        exit(0);
+    }
 
     let CargoLock::Lock(cmd) = CargoLock::parse_args_default(&args[1..]).unwrap_or_else(|e| {
         eprintln!("*** error: {}", e);
