@@ -1,3 +1,7 @@
+## [0.12.1] (2020-09-22)
+
+- Pin `smol_str` to v0.1.16 to ensure MSRV 1.41 compatibility ([#255], [#258])
+
 ## [0.12.0] (2020-05-06)
 
 - Update `rustsec` crate to v0.20 ([#221])
@@ -129,6 +133,9 @@
 
 - Initial release
 
+[0.12.1]: https://github.com/RustSec/cargo-audit/pull/260
+[#258]: https://github.com/RustSec/cargo-audit/pull/258
+[#255]: https://github.com/RustSec/cargo-audit/pull/255
 [0.12.0]: https://github.com/RustSec/cargo-audit/pull/222
 [#221]: https://github.com/RustSec/cargo-audit/pull/221
 [#219]: https://github.com/RustSec/cargo-audit/pull/219
