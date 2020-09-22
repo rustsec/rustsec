@@ -31,7 +31,7 @@
 //! by running the following:
 //!
 //! ```text
-//! $ cargo install cargo-lock
+//! $ cargo install cargo-lock --features cli
 //! ```
 //!
 //! It supports the following subcommands:

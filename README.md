@@ -38,7 +38,7 @@ done with a minor version bump.
 This crate provides a `cargo lock` subcommand which can be installed with:
 
 ```
-$ cargo install cargo-lock
+$ cargo install cargo-lock --features=cli
 ```
 
 It supports the following subcommands:
