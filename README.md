@@ -4,7 +4,7 @@
 [![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
 [![Safety Dance][safety-image]][safety-link]
-![Rust 1.35+][rustc-image]
+![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Gitter Chat][gitter-image]][gitter-link]
 
@@ -19,9 +19,19 @@ the [`cargo-tree`] crate.
 
 [Documentation][docs-link]
 
-## Requirements
+## Minimum Supported Rust Version
 
-`cargo-lock` requires Rust **1.35** or later.
+Rust **1.41** or higher.
+
+Minimum supported Rust version can be changed in the future, but it will be
+done with a minor version bump.
+
+## SemVer Policy
+
+- MSRV is considered exempt from SemVer as noted above
+- The `cargo lock` CLI interface is not considered to have a stable interface
+  and is also exempted from SemVer. We reserve the right to make substantial
+  changes to it at any time (for now)
 
 ## Command Line Interface
 
@@ -63,7 +73,7 @@ additional terms or conditions.
 [build-image]: https://github.com/rustsec/cargo-lock/workflows/Rust/badge.svg?branch=master&event=push
 [build-link]: https://github.com/rustsec/cargo-lock/actions
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [gitter-image]: https://badges.gitter.im/badge.svg

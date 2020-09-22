@@ -2,6 +2,20 @@
 //! for both the V1 and V2 (merge-friendly) formats, as well as optional
 //! dependency tree analysis features. Used by [RustSec].
 //!
+//! ## Minimum Supported Rust Version
+//!
+//! Rust **1.41** or higher.
+//!
+//! Minimum supported Rust version can be changed in the future, but it will be
+//! done with a minor version bump.
+//!
+//! ## SemVer Policy
+//!
+//! - MSRV is considered exempt from SemVer as noted above
+//! - The `cargo lock` CLI interface is not considered to have a stable interface
+//!   and is also exempted from SemVer. We reserve the right to make substantial
+//!   changes to it at any time (for now)
+//!
 //! # Usage Example
 //!
 //! ```
