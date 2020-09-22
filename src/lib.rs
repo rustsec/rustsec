@@ -167,6 +167,7 @@
 //! [`petgraph`]: https://github.com/petgraph/petgraph
 //! [`cargo-tree`]: https://github.com/sfackler/cargo-tree
 
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
     html_root_url = "https://docs.rs/cargo-lock/4.0.1"
