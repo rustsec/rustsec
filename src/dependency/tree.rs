@@ -9,7 +9,7 @@ use super::{
     graph::{EdgeDirection, Graph, NodeIndex, Nodes},
     Dependency,
 };
-use crate::{error::Error, lockfile::Lockfile, package::Package, Map};
+use crate::{error::Error, lockfile::Lockfile, Map};
 use std::{collections::BTreeSet as Set, io};
 
 /// Dependency tree computed from a `Cargo.lock` file
@@ -71,13 +71,10 @@ impl Tree {
         Presenter::new(&self.graph, symbols).print_node(w, node_index, direction)
     }
 
-    /// Get the root packages in the dependency graph, i.e. the packages defined
-    /// in the workspace which are not used as dependencies
-    pub fn roots(&self) -> Vec<&Package> {
-        self.graph
-            .externals(EdgeDirection::Incoming)
-            .map(|node_index| &self.graph[node_index])
-            .collect()
+    /// Get the indexes of the root packages in the workspace
+    /// (i.e. toplevel packages which are not used as dependencies)
+    pub fn roots(&self) -> Vec<NodeIndex> {
+        self.graph.externals(EdgeDirection::Incoming).collect()
     }
 
     /// Get the `petgraph` dependency graph.
@@ -171,7 +168,10 @@ impl<'g, 's> Presenter<'g, 's> {
         let dependencies = self
             .graph
             .edges_directed(node_index, direction)
-            .map(|edge| edge.source())
+            .map(|edge| match direction {
+                EdgeDirection::Incoming => edge.source(),
+                EdgeDirection::Outgoing => edge.target(),
+            })
             .collect::<Vec<_>>();
 
         for (i, dependency) in dependencies.iter().enumerate() {
@@ -205,7 +205,7 @@ mod tests {
         let roots = tree.roots();
         assert_eq!(roots.len(), 1);
 
-        let root_package = roots[0];
+        let root_package = &tree.graph[roots[0]];
         assert_eq!(root_package.name.as_str(), "cargo-lock");
     }
 }
