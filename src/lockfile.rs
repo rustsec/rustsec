@@ -70,6 +70,6 @@ impl FromStr for Lockfile {
 
 impl ToString for Lockfile {
     fn to_string(&self) -> String {
-        toml::to_string(&EncodableLockfile::from(self)).unwrap()
+        EncodableLockfile::from(self).to_string()
     }
 }
