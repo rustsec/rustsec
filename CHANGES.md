@@ -1,8 +1,32 @@
-## [4.0.1] (2020-01-22)
+## 5.0.0 (2020-09-23)
+
+- CLI: support for listing a single dependency ([#77])
+- Cargo-compatible serializer ([#76])
+- CLI: add `--dependencies` and `--sources` flags to `cargo lock list` ([#75])
+- CLI: implement `cargo lock tree` without arguments ([#74])
+- Add `dependency::Tree::roots()` method ([#73])
+- CLI: make `list` the default command ([#72])
+- Make `cli` feature non-default ([#70])
+- WASM support; MSRV 1.41+ ([#69])
+- Bump `semver` dependency from v0.9 to v0.10 ([#57])
+
+[#77]: https://github.com/RustSec/cargo-lock/pull/77
+[#76]: https://github.com/RustSec/cargo-lock/pull/76
+[#75]: https://github.com/RustSec/cargo-lock/pull/75
+[#74]: https://github.com/RustSec/cargo-lock/pull/74
+[#73]: https://github.com/RustSec/cargo-lock/pull/73
+[#72]: https://github.com/RustSec/cargo-lock/pull/72
+[#70]: https://github.com/RustSec/cargo-lock/pull/70
+[#69]: https://github.com/RustSec/cargo-lock/pull/69
+[#57]: https://github.com/RustSec/cargo-lock/pull/57
+
+## 4.0.1 (2020-01-22)
 
 - CLI: fix executable name ([#45])
 
-## [4.0.0] (2020-01-22)
+[#45]: https://github.com/RustSec/cargo-lock/pull/46
+
+## 4.0.0 (2020-01-22)
 
 - Command line interface ([#40], [#42], [#43])
 - Add helper methods for working with checksum metadata ([#38])
@@ -13,36 +37,6 @@
 - Update `petgraph` requirement from 0.4 to 0.5 ([#28])
 - Add `package::Checksum` ([#29])
 
-## [3.0.0] (2019-10-01)
-
-- Support `[package.dependencies]` without versions ([#23])
-
-## [2.0.0] (2019-09-25)
-
-- Use two-pass dependency tree computation ([#20])
-- Remove `Lockfile::root_package()` ([#18])
-
-## [1.0.0] (2019-09-24)
-
-- dependency/tree: Render trees to an `io::Write` ([#16])
-- metadata: Generalize into `Key` and `Value` types ([#14])
-- Refactor dependency handling ([#11])
-
-## [0.2.1] (2019-09-21)
-
-- Allow empty `[metadata]` in Cargo.lock files ([#9])
-
-## [0.2.0] (2019-09-21)
-
-- dependency_graph: Move `petgraph` types into a module ([#7])
-
-## [0.1.0] (2019-09-21)
-
-- Initial release
-
-[4.0.1]: https://github.com/RustSec/cargo-lock/pull/46
-[#45]: https://github.com/RustSec/cargo-lock/pull/46
-[4.0.0]: https://github.com/RustSec/cargo-lock/pull/44
 [#43]: https://github.com/RustSec/cargo-lock/pull/43
 [#42]: https://github.com/RustSec/cargo-lock/pull/42
 [#40]: https://github.com/RustSec/cargo-lock/pull/40
@@ -54,22 +48,42 @@
 [#29]: https://github.com/RustSec/cargo-lock/pull/29
 [#28]: https://github.com/RustSec/cargo-lock/pull/28
 
-[3.0.0]: https://github.com/RustSec/cargo-lock/pull/24
+## 3.0.0 (2019-10-01)
+
+- Support `[package.dependencies]` without versions ([#23])
+
 [#23]: https://github.com/RustSec/cargo-lock/pull/23
 
-[2.0.0]: https://github.com/RustSec/cargo-lock/pull/21
+## 2.0.0 (2019-09-25)
+
+- Use two-pass dependency tree computation ([#20])
+- Remove `Lockfile::root_package()` ([#18])
+
 [#20]: https://github.com/RustSec/cargo-lock/pull/20
 [#18]: https://github.com/RustSec/cargo-lock/pull/18
 
-[1.0.0]: https://github.com/RustSec/cargo-lock/pull/17
+## 1.0.0 (2019-09-24)
+
+- dependency/tree: Render trees to an `io::Write` ([#16])
+- metadata: Generalize into `Key` and `Value` types ([#14])
+- Refactor dependency handling ([#11])
+
 [#16]: https://github.com/RustSec/cargo-lock/pull/16
 [#14]: https://github.com/RustSec/cargo-lock/pull/14
 [#11]: https://github.com/RustSec/cargo-lock/pull/11
 
-[0.2.1]: https://github.com/RustSec/cargo-lock/pull/10
+## 0.2.1 (2019-09-21)
+
+- Allow empty `[metadata]` in Cargo.lock files ([#9])
+
 [#9]: https://github.com/RustSec/cargo-lock/pull/9
 
-[0.2.0]: https://github.com/RustSec/cargo-lock/pull/8
+## 0.2.0 (2019-09-21)
+
+- dependency_graph: Move `petgraph` types into a module ([#7])
+
 [#7]: https://github.com/RustSec/cargo-lock/pull/7
 
-[0.1.0]: https://github.com/RustSec/cargo-lock/pull/5
+## 0.1.0 (2019-09-21)
+
+- Initial release

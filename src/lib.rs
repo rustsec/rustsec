@@ -170,7 +170,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
-    html_root_url = "https://docs.rs/cargo-lock/5.0.0-rc"
+    html_root_url = "https://docs.rs/cargo-lock/5.0.0"
 )]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
