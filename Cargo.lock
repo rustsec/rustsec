@@ -8,7 +8,7 @@ checksum = "f8aac770f1885fd7e387acedd76065302551364496e46b3dd00860b2f8359b9d"
 
 [[package]]
 name = "cargo-lock"
-version = "5.0.0-rc"
+version = "5.0.0"
 dependencies = [
  "gumdrop",
  "petgraph",
