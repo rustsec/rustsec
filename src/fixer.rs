@@ -2,9 +2,9 @@
 
 use crate::{
     error::{Error, ErrorKind},
-    version::VersionReq,
     vulnerability::Vulnerability,
 };
+use semver::VersionReq;
 use std::path::Path;
 
 /// Auto-fixer for vulnerable dependencies
