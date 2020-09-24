@@ -4,7 +4,7 @@
 //! and `unaffected_versions` sections of the `[advisory]`, but can't be
 //! used
 
-use crate::version::{Version, VersionReq};
+use semver::{Version, VersionReq};
 use serde::{Deserialize, Serialize};
 
 /// The `[versions]` subsection of an advisory: future home to information

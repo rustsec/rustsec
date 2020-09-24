@@ -5,9 +5,9 @@ use crate::{
     collection::Collection,
     database::scope,
     package,
-    platforms::target::{Arch, OS},
-    version::Version,
 };
+use platforms::target::{Arch, OS};
+use semver::Version;
 
 /// Queries against the RustSec database
 #[derive(Clone, Debug, Default)]
