@@ -1,3 +1,9 @@
+## 6.0.0 (2020-09-25)
+
+- Bump semver from 0.10.0 to 0.11.0 ([#83])
+
+[#83]: https://github.com/RustSec/cargo-lock/pull/83
+
 ## 5.0.0 (2020-09-23)
 
 - CLI: support for listing a single dependency ([#77])
