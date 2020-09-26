@@ -211,9 +211,10 @@ impl Linter {
                 match key.as_str() {
                     "functions" => {
                         for function in self.advisory.affected.as_ref().unwrap().functions.keys() {
-                            if function.segments()[0].as_str()
-                                != self.advisory.metadata.package.as_str()
-                            {
+                            // Rust identifiers do not allow '-' character but crate names do,
+                            // thus "crate-name" would be addressed as "crate_name" in function path
+                            let crate_name = self.advisory.metadata.package.as_str().replace("-", "_");
+                            if function.segments()[0].as_str() != crate_name {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("functions", function.to_string()),
                                     section: Some("affected"),
