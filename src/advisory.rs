@@ -10,6 +10,8 @@ pub mod linter;
 pub mod metadata;
 pub mod versions;
 
+mod parser;
+
 pub use self::{
     affected::Affected, category::Category, date::Date, id::Id, informational::Informational,
     keyword::Keyword, linter::Linter, metadata::Metadata, versions::Versions,
@@ -61,62 +63,32 @@ impl Advisory {
         }
     }
 
-    /// Parse a V3 advisory from a string
+    /// Parse a V3 advisory at the given path
+    // TODO(tarcieri): make V3 advisory format the default
     pub fn parse_v3(path: &Path) -> Result<Self, Error> {
         let advisory_data = fs::read_to_string(path)
             .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?;
 
-        if !advisory_data.starts_with("```toml") {
-            fail!(
-                ErrorKind::Parse,
-                "unexpected start of V3 advisory: {}",
-                path.display()
-            )
-        }
+        Self::parse_v3_string(&advisory_data)
+            .map_err(|e| format_err!(ErrorKind::Parse, "error parsing {}: {}", path.display(), e))
+    }
 
-        let toml_end = advisory_data.find("\n```").ok_or_else(|| {
-            format_err!(
-                ErrorKind::Parse,
-                "couldn't find end of TOML front matter in advisory: {}",
-                path.display()
-            )
-        })?;
+    /// Parse a V3 advisory from a string
+    // TODO(tarcieri): make V3 advisory format the default
+    pub fn parse_v3_string(advisory_data: &str) -> Result<Self, Error> {
+        let parts = parser::Parts::parse(&advisory_data)?;
 
-        let front_matter = advisory_data[7..toml_end].trim_start().trim_end();
-        let mut advisory: Self = toml::from_str(front_matter)?;
+        let mut advisory: Self = toml::from_str(&parts.front_matter)?;
 
         if advisory.metadata.title != "" || advisory.metadata.description != "" {
             fail!(
                 ErrorKind::Parse,
-                "Markdown advisories MUST have empty title/description: {}",
-                path.display()
-            )
-        }
-
-        let markdown = advisory_data[(toml_end + 4)..].trim_start();
-
-        if !markdown.starts_with("# ") {
-            fail!(
-                ErrorKind::Parse,
-                "Expected # header after TOML front matter in: {}",
-                path.display()
+                "Markdown advisories MUST have empty title/description"
             );
         }
 
-        let next_newline = markdown.find('\n').ok_or_else(|| {
-            format_err!(
-                ErrorKind::Parse,
-                "no Markdown body (i.e. description) found: {}",
-                path.display()
-            )
-        })?;
-
-        advisory.metadata.title = markdown[2..next_newline].trim_end().to_owned();
-        advisory.metadata.description = markdown[(next_newline + 1)..]
-            .trim_start()
-            .trim_end()
-            .to_owned();
-
+        advisory.metadata.title = parts.title.to_owned();
+        advisory.metadata.description = parts.description.to_owned();
         Ok(advisory)
     }
 
@@ -129,14 +101,19 @@ impl Advisory {
 impl FromStr for Advisory {
     type Err = Error;
 
-    fn from_str(toml_string: &str) -> Result<Self, Error> {
-        let advisory: Self = toml::from_str(toml_string)?;
+    fn from_str(advisory_data: &str) -> Result<Self, Error> {
+        // TODO(tarcieri): make V3 advisory format the default
+        if advisory_data.starts_with("```toml") {
+            return Self::parse_v3_string(advisory_data);
+        }
+
+        let advisory: Self = toml::from_str(advisory_data)?;
 
         if advisory.metadata.title == "" || advisory.metadata.description == "" {
             fail!(
                 ErrorKind::Parse,
                 "missing title and/or description in advisory:\n\n{}",
-                toml_string
+                advisory_data
             )
         }
 

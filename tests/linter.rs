@@ -3,12 +3,22 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 /// Example RustSec Advisory (V2 format)
-const ADVISORY_PATH: &str = "./tests/support/example_advisory_v2.toml";
+const ADVISORY_PATH_V2: &str = "./tests/support/example_advisory_v2.toml";
 
-/// Ensure the example advisories pass lint
+/// Example RustSec Advisory (V2 format)
+const ADVISORY_PATH_V3: &str = "./tests/support/example_advisory_v3.md";
+
+/// Ensure example V2 advisory passes lint
 #[test]
-fn valid_example() {
-    let lint = rustsec::advisory::Linter::lint_file(ADVISORY_PATH).unwrap();
+fn valid_example_v2() {
+    let lint = rustsec::advisory::Linter::lint_file(ADVISORY_PATH_V2).unwrap();
+    assert_eq!(lint.errors(), &[]);
+}
+
+/// Ensure example V3 advisory passes lint
+#[test]
+fn valid_example_v3() {
+    let lint = rustsec::advisory::Linter::lint_file(ADVISORY_PATH_V3).unwrap();
     assert_eq!(lint.errors(), &[]);
 }
 
@@ -42,7 +52,7 @@ const INVALID_ADVISORY_TOML: &str = r#"
 /// Advisory which fails lint for multiple msgs
 #[test]
 fn invalid_example() {
-    let lint = rustsec::advisory::Linter::lint_string(INVALID_ADVISORY_TOML).unwrap();
+    let lint = rustsec::advisory::Linter::lint_string(INVALID_ADVISORY_TOML, false).unwrap();
 
     // Do we get the expected number of errors?
     assert_eq!(lint.errors().len(), 7);
