@@ -17,6 +17,7 @@ maintenance = { status = "actively-developed" }
 [dependencies]
 cargo-lock = { version = "5", default-features = false }
 chrono = { version = "0.4", features = ["serde"] }
+comrak = { version = "0.8", optional = true, default-features = false }
 crates-index = { version = "0.15.4", optional = true }
 cvss = { version = "1", features = ["serde"] }
 fs-err = "2.5"
@@ -43,6 +44,7 @@ once_cell = "1.3.0"
 default = ["fetch"]
 fetch = ["crates-index", "git2", "home"]
 fix = ["cargo-edit"]
+markdown = ["comrak"]
 dependency-tree = ["cargo-lock/dependency-tree"]
 vendored-openssl = ["git2/vendored-openssl"]
 
