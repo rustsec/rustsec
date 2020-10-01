@@ -95,6 +95,22 @@ impl Advisory {
         Ok(advisory)
     }
 
+    /// Get the title of this advisory
+    pub fn title(&self) -> &str {
+        &self.metadata.title
+    }
+
+    /// Get the description of this advisory as raw Markdown
+    pub fn description(&self) -> &str {
+        &self.metadata.description
+    }
+
+    /// Get the description of this advisory as HTML rendered from Markdown
+    #[cfg(feature = "markdown")]
+    pub fn description_html(&self) -> String {
+        comrak::markdown_to_html(self.description(), &Default::default())
+    }
+
     /// Get the severity of this advisory if it has a CVSS v3 associated
     pub fn severity(&self) -> Option<Severity> {
         self.metadata.cvss.as_ref().map(|cvss| cvss.severity())
