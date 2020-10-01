@@ -157,10 +157,10 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
 
     if let Some(first_char) = chars.next() {
         match first_char {
-            'A'..='Z' | 'a'..='z' | '_' => (),
+            'A'..='Z' | 'a'..='z' | '_' | '<' => (),
             _ => fail!(
                 ErrorKind::Parse,
-                "identifier must start with a letter: '{}'",
+                "invalid character at start of ident: '{}'",
                 identifier
             ),
         }
@@ -170,8 +170,8 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
 
     for c in chars {
         match c {
-            'A'..='Z' | 'a'..='z' | '0'..='9' | '_' => (),
-            '<' | '>' | '(' | ')' => fail!(
+            'A'..='Z' | 'a'..='z' | '0'..='9' | '_' | '<' | '>' | ',' => (),
+            '(' | ')' => fail!(
                 ErrorKind::Parse,
                 "omit parameters when specifying affected paths: '{}'",
                 identifier
@@ -212,6 +212,9 @@ mod tests {
         assert!(FunctionPath::from_str("foo::bar").is_ok());
         assert!(FunctionPath::from_str("foo::bar::baz").is_ok());
         assert!(FunctionPath::from_str("foo::Bar::baz").is_ok());
+        assert!(FunctionPath::from_str("foo::<Bar>::baz").is_ok());
+        assert!(FunctionPath::from_str("foo::<BarA,BarB>::baz").is_ok());
+        assert!(FunctionPath::from_str("foo::Bar<Baz>::quux").is_ok());
         assert!(FunctionPath::from_str("foo::Bar::_baz").is_ok());
         assert!(FunctionPath::from_str("foo::Bar::_baz_").is_ok());
         assert!(FunctionPath::from_str("f00::B4r::_b4z_").is_ok());
