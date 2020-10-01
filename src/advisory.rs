@@ -18,9 +18,12 @@ pub use self::{
 };
 pub use cvss::Severity;
 
-use crate::error::{Error, ErrorKind};
+use crate::{
+    error::{Error, ErrorKind},
+    fs,
+};
 use serde::{Deserialize, Serialize};
-use std::{fs, path::Path, str::FromStr};
+use std::{path::Path, str::FromStr};
 
 /// RustSec Security Advisories
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]

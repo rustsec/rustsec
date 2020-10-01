@@ -1,15 +1,15 @@
 //! Repository handling for the RustSec advisory DB
 
+pub mod signature;
+
 #[cfg(feature = "fetch")]
 pub mod git;
 
-pub mod signature;
-
-use crate::Error;
-use signature::Signature;
-use std::path::PathBuf;
+#[cfg(feature = "fetch")]
+pub use self::git::GitRepository;
 
 use chrono::{DateTime, Utc};
+use signature::Signature;
 
 /// Information about a commit to the Git repository
 #[derive(Debug)]
@@ -32,13 +32,4 @@ pub struct Commit {
 
     /// Signed data to verify along with this commit
     signed_data: Option<Vec<u8>>,
-}
-
-/// Repository for a Rust advisory DB.
-pub trait Repository {
-    /// Get information about the latest commit to the repo
-    fn latest_commit(&self) -> Result<Commit, Error>;
-
-    /// Paths to all advisories located in the database
-    fn advisories(&self) -> Result<Vec<PathBuf>, Error>;
 }

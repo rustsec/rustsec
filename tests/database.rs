@@ -11,7 +11,7 @@ use std::sync::Mutex;
 
 static DEFAULT_DATABASE: Lazy<Mutex<Database>> = Lazy::new(|| {
     Mutex::new(
-        Database::load(&GitRepository::fetch_default_repo().unwrap())
+        Database::load_from_repo(&GitRepository::fetch_default_repo().unwrap())
             .expect("Should be fetchable."),
     )
 });

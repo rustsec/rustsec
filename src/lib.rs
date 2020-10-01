@@ -27,6 +27,7 @@ pub mod vulnerability;
 pub mod warning;
 
 pub use cargo_lock::{self, lockfile, package};
+pub use fs_err as fs;
 pub use platforms;
 pub use semver::{self, Version, VersionReq};
 
@@ -36,7 +37,6 @@ pub use crate::{
     database::Database,
     error::{Error, ErrorKind},
     report::Report,
-    repository::Repository,
     vulnerability::Vulnerability,
     warning::Warning,
 };

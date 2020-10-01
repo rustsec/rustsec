@@ -112,11 +112,11 @@ pub struct DatabaseInfo {
 
     /// Git commit hash for the last commit to the database
     #[serde(rename = "last-commit")]
-    pub last_commit: String,
+    pub last_commit: Option<String>,
 
     /// Date when the advisory database was last committed to
     #[serde(rename = "last-updated")]
-    pub last_updated: DateTime<Utc>,
+    pub last_updated: Option<DateTime<Utc>>,
 }
 
 impl DatabaseInfo {
@@ -124,8 +124,8 @@ impl DatabaseInfo {
     pub fn new(db: &Database) -> Self {
         Self {
             advisory_count: db.iter().count(),
-            last_commit: db.latest_commit().commit_id.clone(),
-            last_updated: db.latest_commit().time,
+            last_commit: db.latest_commit().map(|c| c.commit_id.clone()),
+            last_updated: db.latest_commit().map(|c| c.time),
         }
     }
 }

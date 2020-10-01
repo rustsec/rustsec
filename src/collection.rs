@@ -18,6 +18,11 @@ pub enum Collection {
 }
 
 impl Collection {
+    /// Get all collections as a slice
+    pub fn all() -> &'static [Self] {
+        &[Collection::Crates, Collection::Rust]
+    }
+
     /// Get a `str` representing the kind of package
     pub fn as_str(&self) -> &str {
         match self {
