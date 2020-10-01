@@ -11,7 +11,7 @@ use tempfile::tempdir;
 /// Happy path integration test (has online dependency on GitHub)
 #[test]
 fn happy_path() {
-    let db = Database::load(&git::GitRepository::fetch_default_repo().unwrap()).unwrap();
+    let db = Database::load_from_repo(&git::GitRepository::fetch_default_repo().unwrap()).unwrap();
     verify_rustsec_2017_0001(&db);
     verify_cve_2018_1000810(&db);
 }

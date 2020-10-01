@@ -4,7 +4,8 @@
 //! This is run in CI at the time advisories are submitted.
 
 use super::{parser, Advisory, Category};
-use std::{fmt, fs, path::Path};
+use crate::fs;
+use std::{fmt, path::Path};
 
 /// Lint information about a particular advisory
 #[derive(Debug)]
@@ -52,7 +53,6 @@ impl Linter {
         // Get a raw TOML value representing the document for linting
         let toml_value = if is_v3 {
             let parts = parser::Parts::parse(&s)?;
-            dbg!(&parts);
             parts.front_matter.parse::<toml::Value>()?
         } else {
             s.parse::<toml::Value>()?

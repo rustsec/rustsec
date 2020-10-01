@@ -13,10 +13,15 @@ use crate::{
     advisory::{self, Advisory},
     collection::Collection,
     error::Error,
+    fs,
     lockfile::Lockfile,
-    repository::{Commit, Repository},
+    repository::Commit,
     vulnerability::Vulnerability,
 };
+use std::path::Path;
+
+#[cfg(feature = "fetch")]
+use crate::repository::GitRepository;
 
 /// Iterator over entries in the database
 pub type Iter<'a> = std::slice::Iter<'a, Advisory>;
@@ -34,14 +39,25 @@ pub struct Database {
     crate_index: Index,
 
     /// Information about the last git commit to the database
-    latest_commit: Commit,
+    latest_commit: Option<Commit>,
 }
 
 impl Database {
-    /// Load [`Database`] from the given [`Repository`]
-    pub fn load(repo: &impl Repository) -> Result<Self, Error> {
-        let advisory_paths = repo.advisories()?;
-        let latest_commit = repo.latest_commit()?;
+    /// Open [`Database`] located at the given local path
+    pub fn open(path: &Path) -> Result<Self, Error> {
+        let mut advisory_paths = vec![];
+
+        for collection in Collection::all() {
+            let collection_path = path.join(collection.as_str());
+
+            if let Ok(collection_entry) = fs::read_dir(&collection_path) {
+                for dir_entry in collection_entry {
+                    for advisory_entry in fs::read_dir(dir_entry?.path())? {
+                        advisory_paths.push(advisory_entry?.path().to_owned());
+                    }
+                }
+            }
+        }
 
         let mut advisories = Entries::new();
         let mut rust_index = Index::new();
@@ -65,8 +81,22 @@ impl Database {
             advisories,
             crate_index,
             rust_index,
-            latest_commit,
+            latest_commit: None,
         })
+    }
+
+    /// Load [`Database`] from the given [`GitRepository`]
+    #[cfg(feature = "fetch")]
+    pub fn load_from_repo(repo: &GitRepository) -> Result<Self, Error> {
+        let mut db = Self::open(repo.path())?;
+        db.latest_commit = Some(repo.latest_commit()?);
+        Ok(db)
+    }
+
+    /// Fetch the default advisory database from GitHub
+    #[cfg(feature = "fetch")]
+    pub fn fetch() -> Result<Self, Error> {
+        GitRepository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
@@ -141,7 +171,7 @@ impl Database {
     }
 
     /// Get information about the latest commit to the repo
-    pub fn latest_commit(&self) -> &Commit {
-        &self.latest_commit
+    pub fn latest_commit(&self) -> Option<&Commit> {
+        self.latest_commit.as_ref()
     }
 }

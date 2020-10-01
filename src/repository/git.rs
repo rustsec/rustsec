@@ -5,11 +5,11 @@ pub mod commit;
 
 use self::authentication::with_authentication;
 use crate::{
-    collection::Collection,
     error::{Error, ErrorKind},
-    repository::{Commit, Repository},
+    fs,
+    repository::Commit,
 };
-use std::{fs, path::PathBuf, vec};
+use std::path::{Path, PathBuf};
 
 /// Location of the RustSec advisory database for crates.io
 pub const DEFAULT_URL: &str = "https://github.com/RustSec/advisory-db.git";
@@ -33,32 +33,6 @@ pub struct GitRepository {
 
     /// Repository object
     repo: git2::Repository,
-}
-
-impl Repository for GitRepository {
-    /// Get information about the latest commit to the repo
-    fn latest_commit(&self) -> Result<Commit, Error> {
-        Commit::from_repo_head(self)
-    }
-
-    /// Paths to all advisories located in the database
-    fn advisories(&self) -> Result<Vec<PathBuf>, Error> {
-        let mut paths = vec![];
-
-        for collection in &[Collection::Crates, Collection::Rust] {
-            let collection_path = self.path.join(collection.as_str());
-
-            if let Ok(collection_entry) = fs::read_dir(&collection_path) {
-                for dir_entry in collection_entry {
-                    for advisory_entry in fs::read_dir(dir_entry?.path())? {
-                        paths.push(advisory_entry?.path().to_owned());
-                    }
-                }
-            }
-        }
-
-        Ok(paths)
-    }
 }
 
 impl GitRepository {
@@ -185,5 +159,15 @@ impl GitRepository {
         } else {
             fail!(ErrorKind::Repo, "bad repository state: {:?}", repo.state())
         }
+    }
+
+    /// Get information about the latest commit to the repo
+    pub fn latest_commit(&self) -> Result<Commit, Error> {
+        Commit::from_repo_head(self)
+    }
+
+    /// Path to the local checkout of a git repository
+    pub fn path(&self) -> &Path {
+        self.path.as_ref()
     }
 }
