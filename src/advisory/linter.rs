@@ -189,7 +189,6 @@ impl Linter {
                     }
                     "aliases" | "cvss" | "keywords" | "package" | "references" | "title"
                     | "description" | "yanked" => (),
-                    "obsolete" => (), // TODO(tarcieri): deprecate
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),
