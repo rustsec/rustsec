@@ -10,13 +10,13 @@ pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| CmdRunner::default());
 #[test]
 fn lint_advisory_db() {
     // Fetch the advisory database
-    rustsec::Repository::fetch_default_repo().unwrap();
+    rustsec::GitRepository::fetch_default_repo().unwrap();
 
     let mut runner = RUNNER.clone();
 
     runner
         .arg("lint")
-        .arg(&rustsec::Repository::default_path())
+        .arg(&rustsec::GitRepository::default_path())
         .capture_stdout()
         .status()
         .expect_success();

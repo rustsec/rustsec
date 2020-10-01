@@ -34,8 +34,7 @@ impl Linter {
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
         let cratesio_client = crates_io_api::SyncClient::new();
-        let repo = rustsec::Repository::open(&repo_path)?;
-        let advisory_db = rustsec::Database::load(&repo)?;
+        let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
             repo_path,
