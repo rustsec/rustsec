@@ -3,7 +3,7 @@
 //!
 //! This is run in CI at the time advisories are submitted.
 
-use super::{Advisory, Category};
+use super::{parser, Advisory, Category};
 use std::{fmt, fs, path::Path};
 
 /// Lint information about a particular advisory
@@ -20,6 +20,17 @@ impl Linter {
     /// Lint the advisory TOML file located at the given path
     pub fn lint_file<P: AsRef<Path>>(path: P) -> Result<Self, crate::Error> {
         let path = path.as_ref();
+
+        let is_v3 = match path.extension().and_then(|ext| ext.to_str()) {
+            Some("toml") => false,
+            Some("md") => true,
+            other => fail!(
+                crate::ErrorKind::Parse,
+                "invalid advisory file extension: {}",
+                other.unwrap_or("(missing)")
+            ),
+        };
+
         let toml = fs::read_to_string(path).map_err(|e| {
             format_err!(
                 crate::ErrorKind::Io,
@@ -29,16 +40,23 @@ impl Linter {
             )
         })?;
 
-        Self::lint_string(&toml)
+        Self::lint_string(&toml, is_v3)
     }
 
     /// Lint the given advisory TOML string
-    pub fn lint_string(s: &str) -> Result<Self, crate::Error> {
+    // TODO(tarcieri): remove support for V2 format once we've transitioned
+    pub fn lint_string(s: &str, is_v3: bool) -> Result<Self, crate::Error> {
         // Ensure the advisory parses according to the normal parser first
         let advisory = s.parse::<Advisory>()?;
 
         // Get a raw TOML value representing the document for linting
-        let toml_value = s.parse::<toml::Value>()?;
+        let toml_value = if is_v3 {
+            let parts = parser::Parts::parse(&s)?;
+            dbg!(&parts);
+            parts.front_matter.parse::<toml::Value>()?
+        } else {
+            s.parse::<toml::Value>()?
+        };
 
         let mut linter = Self {
             advisory,
