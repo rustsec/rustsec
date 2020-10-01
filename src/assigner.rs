@@ -20,7 +20,7 @@ pub enum OutputMode {
 
 /// assign ids to advisories in a particular repo_path
 pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
-    let repo = rustsec::Repository::open(repo_path).unwrap_or_else(|e| {
+    let db = rustsec::Database::open(repo_path).unwrap_or_else(|e| {
         status_err!(
             "couldn't open advisory DB repo from {}: {}",
             repo_path.display(),
@@ -29,8 +29,6 @@ pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
         exit(1);
     });
 
-    // Ensure Advisories.toml parses
-    let db = rustsec::Database::load(&repo).unwrap();
     let advisories = db.iter();
 
     // Ensure we're parsing some advisories
