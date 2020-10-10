@@ -62,6 +62,10 @@ script:
   - cargo audit
 ```
 
+## Using `cargo audit` on GitHub Action
+
+Please use [`audit-check` action](https://github.com/actions-rs/audit-check) directly.
+
 ## Reporting Vulnerabilities
 
 Report vulnerabilities by opening pull requests against the [RustSec Advisory Database]
