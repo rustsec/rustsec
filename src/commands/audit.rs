@@ -187,7 +187,7 @@ impl Override<AuditConfig> for AuditCommand {
                         DenyWarningOption::Yanked,
                     ]
                 }
-                k => config.output.deny_warnings.push(k.clone()),
+                k => config.output.deny_warnings.push(*k),
             }
         }
 

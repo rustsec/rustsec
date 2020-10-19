@@ -8,19 +8,14 @@ use abscissa_core::terminal::{
     self,
     Color::{self, Red, Yellow},
 };
-use rustsec::{
-    cargo_lock::{
-        dependency::{self, graph::EdgeDirection, Dependency},
-        Lockfile, Package,
-    },
-    warning, Vulnerability, Warning,
+use rustsec::cargo_lock::{
+    dependency::{self, graph::EdgeDirection, Dependency},
+    Lockfile, Package,
 };
-use std::{
-    collections::BTreeSet as Set,
-    io::{self, Write},
-    path::Path,
-    process::exit,
-};
+use std::{collections::BTreeSet as Set, io, path::Path};
+
+use std::io::Write as _;
+use std::string::ToString as _;
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -30,7 +25,7 @@ pub struct Presenter {
     displayed_packages: Set<Dependency>,
 
     /// Keep track of the warning kinds that correspond to deny-warnings options
-    deny_warning_kinds: Set<warning::Kind>,
+    deny_warning_kinds: Set<rustsec::warning::Kind>,
 
     /// Output configuration
     config: OutputConfig,
@@ -83,50 +78,28 @@ impl Presenter {
             return;
         }
 
-        if report.vulnerabilities.found {
-            status_err!("Vulnerable crates found!");
-        } else {
-            status_ok!("Success", "No vulnerable packages found");
-        }
+        // We'll set this to true if (e.g.) we see a warning and have deny-warnings enabled.
+        // Once we've printed the whole report, we'll bail out of the whole program.
+        let mut exit_with_failure = false;
 
         let tree = lockfile
             .dependency_tree()
             .expect("invalid Cargo.lock dependency tree");
 
+        // Print out vulnerabilities and warnings
         for vulnerability in &report.vulnerabilities.list {
             self.print_vulnerability(vulnerability, &tree);
         }
 
-        let mut num_denied: u64 = 0;
-        let mut num_not_denied: u64 = 0;
-
-        for kind in report.warnings.keys() {
-            if self.deny_warning_kinds.contains(kind) {
-                num_denied += report.warnings.get(kind).unwrap().len() as u64;
-            } else {
-                num_not_denied += report.warnings.get(kind).unwrap().len() as u64;
-            }
-        }
-
-        status_err!("{} {} found!", num_denied, self.warning_word(num_denied));
-
-        status_warn!(
-            "{} {} found",
-            num_not_denied,
-            self.warning_word(num_not_denied)
-        );
-
-        for kind in report.warnings.keys() {
-            for warning in report.warnings.get(kind).unwrap() {
+        for warnings in report.warnings.values() {
+            for warning in warnings.iter() {
                 self.print_warning(warning, &tree)
             }
         }
 
+        // Print out any self-advisories
         if !self_advisories.is_empty() {
-            println!();
-
-            let msg = "this copy of cargo-audit has known advisories!";
-
+            let msg = "This copy of cargo-audit has known advisories!";
             if self
                 .config
                 .deny_warnings
@@ -138,18 +111,19 @@ impl Presenter {
             }
 
             for advisory in self_advisories {
-                self.print_advisory_warning(
+                self.print_metadata(
                     &advisory.metadata,
-                    self.config
-                        .deny_warnings
-                        .contains(&DenyWarningOption::Other),
+                    self.warning_color(
+                        self.config
+                            .deny_warnings
+                            .contains(&DenyWarningOption::Other),
+                    ),
                 );
             }
+            println!();
         }
 
         if report.vulnerabilities.found {
-            println!();
-
             if report.vulnerabilities.count == 1 {
                 status_err!("1 vulnerability found!");
             } else {
@@ -157,74 +131,79 @@ impl Presenter {
             }
         }
 
-        if num_denied > 0 || num_not_denied > 0 {
-            if !report.vulnerabilities.found {
-                println!();
-            }
+        // Count up the warnings, sorting into denied and allowed
+        let mut num_denied: u64 = 0;
+        let mut num_not_denied: u64 = 0;
 
+        for (kind, warnings) in report.warnings.iter() {
+            if self.deny_warning_kinds.contains(kind) {
+                num_denied += warnings.len() as u64;
+            } else {
+                num_not_denied += warnings.len() as u64;
+            }
+        }
+
+        if num_denied > 0 || num_not_denied > 0 {
             if num_denied > 0 {
                 status_err!(
-                    "{} denied {} found and `--deny-warnings` enabled!",
+                    "{} denied {} found!",
                     num_denied,
                     self.warning_word(num_denied)
                 );
-
-                // TODO(tarcieri): better unify this with vulnerabilities handling
-                exit(1);
-            } else {
+                exit_with_failure = true;
+            }
+            if num_not_denied > 0 {
                 status_warn!(
-                    "{} {} found!",
-                    num_not_denied + num_denied,
-                    self.warning_word(num_not_denied + num_denied)
+                    "{} allowed {} found",
+                    num_not_denied,
+                    self.warning_word(num_not_denied)
                 );
             }
         }
 
-        let upgrade_msg = "upgrade cargo-audit to the latest version: \
-                           cargo install --force cargo-audit";
-
         if !self_advisories.is_empty() {
+            let upgrade_msg = "upgrade cargo-audit to the latest version: \
+                               cargo install --force cargo-audit";
+
             if self
                 .config
                 .deny_warnings
                 .contains(&DenyWarningOption::Other)
             {
                 status_err!(upgrade_msg);
-                exit(1);
+                exit_with_failure = true;
             } else {
                 status_warn!(upgrade_msg);
             }
         }
+
+        // TODO(tarcieri): better unify this with vulnerabilities handling
+        if exit_with_failure {
+            std::process::exit(1);
+        }
     }
 
     /// Print information about the given vulnerability
-    fn print_vulnerability(&mut self, vulnerability: &Vulnerability, tree: &dependency::Tree) {
-        let advisory = &vulnerability.advisory;
+    fn print_vulnerability(
+        &mut self,
+        vulnerability: &rustsec::Vulnerability,
+        tree: &dependency::Tree,
+    ) {
+        self.print_attr(Red, "Crate:        ", &vulnerability.package.name);
+        self.print_attr(
+            Red,
+            "Version:      ",
+            &vulnerability.package.version.to_string(),
+        );
+        self.print_metadata(&vulnerability.advisory, Red);
 
-        println!();
-        self.print_attr(Red, "ID:      ", &advisory.id);
-        self.print_attr(Red, "Crate:   ", &vulnerability.package.name);
-        self.print_attr(Red, "Version: ", &vulnerability.package.version.to_string());
-        self.print_attr(Red, "Date:    ", &advisory.date);
-
-        if let Some(url) = advisory.id.url() {
-            self.print_attr(Red, "URL:     ", &url);
-        } else if let Some(url) = &advisory.url {
-            self.print_attr(Red, "URL:     ", url);
-        }
-
-        self.print_attr(Red, "Title:   ", &advisory.title);
         if vulnerability.versions.patched.is_empty() {
-            self.print_attr(
-                Red,
-                "Solution:",
-                String::from(" No safe upgrade is available!"),
-            );
+            self.print_attr(Red, "Solution:     ", "No safe upgrade is available!");
         } else {
             self.print_attr(
                 Red,
-                "Solution:",
-                String::from(" upgrade to ")
+                "Solution:     ",
+                String::from("Upgrade to ")
                     + &vulnerability
                         .versions
                         .patched
@@ -237,29 +216,27 @@ impl Presenter {
         }
 
         self.print_tree(Red, &vulnerability.package, tree);
+        println!();
     }
 
     /// Print information about a given warning
-    fn print_warning(&mut self, warning: &Warning, tree: &dependency::Tree) {
-        match &warning.kind {
-            warning::Kind::Informational | warning::Kind::Unmaintained => {
-                if let Some(advisory) = &warning.advisory {
-                    self.print_advisory_warning(
-                        advisory,
-                        self.deny_warning_kinds.contains(&warning.kind),
-                    )
-                } else {
-                    warn!("warning missing advisory: {:?}", warning);
-                }
-            }
-            warning::Kind::Yanked => self.print_yanked_warning(&warning.package),
+    fn print_warning(&mut self, warning: &rustsec::Warning, tree: &dependency::Tree) {
+        let color = self.warning_color(self.deny_warning_kinds.contains(&warning.kind));
+
+        self.print_attr(color, "Crate:        ", &warning.package.name);
+        self.print_attr(
+            color,
+            "Version:      ",
+            &warning.package.version.to_string(),
+        );
+        self.print_attr(color, "Warning:      ", warning.kind.as_str());
+
+        if let Some(metadata) = &warning.advisory {
+            self.print_metadata(metadata, color)
         }
 
-        self.print_tree(
-            self.warning_color(self.deny_warning_kinds.contains(&warning.kind)),
-            &warning.package,
-            tree,
-        );
+        self.print_tree(color, &warning.package, tree);
+        println!();
     }
 
     /// Get the color to use when displaying warnings
@@ -272,29 +249,16 @@ impl Presenter {
     }
 
     /// Print a warning about a particular advisory
-    fn print_advisory_warning(&self, metadata: &rustsec::advisory::Metadata, deny_warning: bool) {
-        let color = self.warning_color(deny_warning);
-
-        println!();
-        self.print_attr(color, "Crate: ", &metadata.package);
-        self.print_attr(color, "Title: ", &metadata.title);
-        self.print_attr(color, "Date:  ", &metadata.date);
+    fn print_metadata(&self, metadata: &rustsec::advisory::Metadata, color: Color) {
+        self.print_attr(color, "Title:        ", &metadata.title);
+        self.print_attr(color, "Date:         ", &metadata.date);
+        self.print_attr(color, "ID:           ", &metadata.id);
 
         if let Some(url) = metadata.id.url() {
-            self.print_attr(color, "URL:   ", &url);
+            self.print_attr(color, "URL:          ", &url);
         } else if let Some(url) = &metadata.url {
-            self.print_attr(color, "URL:   ", url);
+            self.print_attr(color, "URL:          ", url);
         }
-    }
-
-    /// Print a warning about a yanked crate
-    fn print_yanked_warning(&self, package: &Package) {
-        let color = self.warning_color(self.deny_warning_kinds.contains(&warning::Kind::Yanked));
-
-        println!();
-        self.print_attr(color, "Crate:   ", &package.name);
-        self.print_attr(color, "Version: ", package.version.to_string());
-        self.print_attr(color, "Warning: ", "package has been yanked!");
     }
 
     /// Display an attribute of a particular vulnerability
