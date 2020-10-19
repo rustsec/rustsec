@@ -96,6 +96,7 @@ jobs:
           cargo run -- audit --deny-warnings all
           --ignore RUSTSEC-2020-0016
           --ignore RUSTSEC-2020-0036
+          --ignore RUSTSEC-2020-0053
 
   fmt:
     name: Rustfmt
