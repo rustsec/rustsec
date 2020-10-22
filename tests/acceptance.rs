@@ -4,7 +4,7 @@
 use abscissa_core::testing::prelude::*;
 use once_cell::sync::Lazy;
 
-pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| CmdRunner::default());
+pub static RUNNER: Lazy<CmdRunner> = Lazy::new(CmdRunner::default);
 
 /// Run `rustsec-admin lint` against a freshly fetched advisory DB repo
 #[test]

@@ -155,10 +155,7 @@ impl<'a> From<&'a rustsec::Advisory> for AdvisoryParams {
             .replace('\n', " ")
             .replace("  ", " ");
 
-        summary.retain(|c| match c {
-            'A'..='Z' | 'a'..='z' | '0'..='9' | ' ' | ',' | '.' => true,
-            _ => false,
-        });
+        summary.retain(|c| matches!(c, 'A'..='Z' | 'a'..='z' | '0'..='9' | ' ' | ',' | '.'));
 
         let mut tags = vec![advisory.metadata.package.to_string()];
 
