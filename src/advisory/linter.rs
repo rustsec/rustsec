@@ -22,17 +22,16 @@ impl Linter {
     pub fn lint_file<P: AsRef<Path>>(path: P) -> Result<Self, crate::Error> {
         let path = path.as_ref();
 
-        let is_v3 = match path.extension().and_then(|ext| ext.to_str()) {
-            Some("toml") => false,
-            Some("md") => true,
+        match path.extension().and_then(|ext| ext.to_str()) {
+            Some("md") => (),
             other => fail!(
                 crate::ErrorKind::Parse,
                 "invalid advisory file extension: {}",
                 other.unwrap_or("(missing)")
             ),
-        };
+        }
 
-        let toml = fs::read_to_string(path).map_err(|e| {
+        let advisory_data = fs::read_to_string(path).map_err(|e| {
             format_err!(
                 crate::ErrorKind::Io,
                 "couldn't open {}: {}",
@@ -41,29 +40,24 @@ impl Linter {
             )
         })?;
 
-        Self::lint_string(&toml, is_v3)
+        Self::lint_string(&advisory_data)
     }
 
-    /// Lint the given advisory TOML string
-    // TODO(tarcieri): remove support for V2 format once we've transitioned
-    pub fn lint_string(s: &str, is_v3: bool) -> Result<Self, crate::Error> {
+    /// Lint the given advisory data
+    pub fn lint_string(s: &str) -> Result<Self, crate::Error> {
         // Ensure the advisory parses according to the normal parser first
         let advisory = s.parse::<Advisory>()?;
 
-        // Get a raw TOML value representing the document for linting
-        let toml_value = if is_v3 {
-            let parts = parser::Parts::parse(&s)?;
-            parts.front_matter.parse::<toml::Value>()?
-        } else {
-            s.parse::<toml::Value>()?
-        };
+        // Get advisory "front matter" (TOML formatted)
+        let advisory_parts = parser::Parts::parse(&s)?;
+        let front_matter = advisory_parts.front_matter.parse::<toml::Value>()?;
 
         let mut linter = Self {
             advisory,
             errors: vec![],
         };
 
-        linter.lint_advisory(&toml_value);
+        linter.lint_advisory(&front_matter);
         Ok(linter)
     }
 

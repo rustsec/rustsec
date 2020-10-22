@@ -8,13 +8,6 @@ const ADVISORY_PATH_V2: &str = "./tests/support/example_advisory_v2.toml";
 /// Example RustSec Advisory (V2 format)
 const ADVISORY_PATH_V3: &str = "./tests/support/example_advisory_v3.md";
 
-/// Ensure example V2 advisory passes lint
-#[test]
-fn valid_example_v2() {
-    let lint = rustsec::advisory::Linter::lint_file(ADVISORY_PATH_V2).unwrap();
-    assert_eq!(lint.errors(), &[]);
-}
-
 /// Ensure example V3 advisory passes lint
 #[test]
 fn valid_example_v3() {
@@ -22,37 +15,48 @@ fn valid_example_v3() {
     assert_eq!(lint.errors(), &[]);
 }
 
+/// Ensure example V2 advisory passes does not pass lint - deprecated!
+#[test]
+fn invalid_example_v2() {
+    let lint_result = rustsec::advisory::Linter::lint_file(ADVISORY_PATH_V2);
+    assert!(lint_result.is_err());
+}
+
 /// Example advisory used in the subsequent `#[test]`
-const INVALID_ADVISORY_TOML: &str = r#"
-    [advisory]
-    id = "LULZSEC-2001-2101"
-    package = "base"
-    collection = "crates"
-    title = "All your base are belong to us"
-    description = "You have no chance to survive. Make your time."
-    date = "2001-02-03"
-    url = "ftp://www.youtube.com/watch?v=jQE66WA2s-A"
-    categories = ["invalid-category"]
-    keywords = ["how", "are", "you", "gentlemen"]
-    aliases = ["CVE-2001-2101"]
-    cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
-    invalid-advisory-key = "invalid"
+const INVALID_ADVISORY_MD: &str = r#"```toml
+[advisory]
+id = "LULZSEC-2001-2101"
+package = "base"
+collection = "crates"
+date = "2001-02-03"
+url = "ftp://www.youtube.com/watch?v=jQE66WA2s-A"
+categories = ["invalid-category"]
+keywords = ["how", "are", "you", "gentlemen"]
+aliases = ["CVE-2001-2101"]
+cvss = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H"
+invalid-advisory-key = "invalid"
 
-    [versions]
-    patched = [">= 1.2.3"]
+[versions]
+patched = [">= 1.2.3"]
 
-    [affected]
-    arch = ["x86"]
-    os = ["windows"]
-    functions = { "notyourbase::belongs::All" = ["< 1.2.3"] }
+[affected]
+arch = ["x86"]
+os = ["windows"]
+functions = { "notyourbase::belongs::All" = ["< 1.2.3"] }
 
-    [invalid-section]
+[invalid-section]
+```
+
+# All your base are belong to us
+
+You have no chance to survive. Make your time.
+
 "#;
 
 /// Advisory which fails lint for multiple msgs
 #[test]
 fn invalid_example() {
-    let lint = rustsec::advisory::Linter::lint_string(INVALID_ADVISORY_TOML, false).unwrap();
+    let lint = rustsec::advisory::Linter::lint_string(INVALID_ADVISORY_MD).unwrap();
 
     // Do we get the expected number of errors?
     assert_eq!(lint.errors().len(), 7);
