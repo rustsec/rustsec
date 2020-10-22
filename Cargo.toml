@@ -31,7 +31,7 @@ thiserror = "1"
 toml = "0.5"
 
 [dependencies.cargo-edit]
-version = "0.6"
+version = "0.7"
 optional = true
 default-features = false
 features = ["upgrade"]
