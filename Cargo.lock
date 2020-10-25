@@ -180,12 +180,12 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "5.0.0"
+version = "6.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "415e72da563b29daa89e034bf4bc3cd9986b9c34dbc07b0d6ac542e48574ab25"
+checksum = "bad00408e56f778335802ea240b8d70bebf6ea6c43c7508ebb6259431b5f16c2"
 dependencies = [
  "petgraph",
- "semver 0.10.0",
+ "semver 0.11.0",
  "serde",
  "toml",
  "url",
@@ -1357,7 +1357,7 @@ dependencies = [
  "home",
  "once_cell",
  "platforms",
- "semver 0.10.0",
+ "semver 0.11.0",
  "serde",
  "smol_str",
  "tempfile",
