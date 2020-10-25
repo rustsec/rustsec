@@ -131,7 +131,7 @@ fn assign_ids_across_directory(
                         .unwrap();
 
                     let advisory_parts = parser::Parts::parse(&advisory_data).unwrap();
-                    let advisory = advisory_parts.front_matter.parse::<Advisory>().unwrap();
+                    let advisory: Advisory = toml::from_str(&advisory_parts.front_matter).unwrap();
                     let date = advisory.metadata.date;
                     let year = date.year();
                     let new_id = highest_ids.get(&year).unwrap() + 1;

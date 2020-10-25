@@ -18,6 +18,7 @@ rustsec = "=0.22.0-pre3"
 serde = { version = "1", features = ["serde_derive"] }
 termcolor = "1"
 thiserror = "1"
+toml = "0.5"
 chrono = { version = "0.4", features = ["serde"] }
 
 [dev-dependencies]

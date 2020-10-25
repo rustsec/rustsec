@@ -1580,6 +1580,7 @@ dependencies = [
  "serde",
  "termcolor",
  "thiserror",
+ "toml",
 ]
 
 [[package]]
