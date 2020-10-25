@@ -40,14 +40,7 @@ impl Entries {
 
         // TODO(tarcieri): deprecate and remove legacy TOML-based advisory format
         let expected_filename = match path.extension().and_then(|ext| ext.to_str()) {
-            Some("toml") => {
-                // Legacy TOML-based advisory format
-                OsString::from(format!("{}.toml", advisory.metadata.id))
-            }
-            Some("md") => {
-                // New V3 Markdown-based advisory format
-                OsString::from(format!("{}.md", advisory.metadata.id))
-            }
+            Some("md") => OsString::from(format!("{}.md", advisory.metadata.id)),
             _ => fail!(
                 ErrorKind::Repo,
                 "unexpected file extension: {}",

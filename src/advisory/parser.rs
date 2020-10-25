@@ -31,7 +31,7 @@ impl<'a> Parts<'a> {
 
             fail!(
                 ErrorKind::Parse,
-                "unexpected start of V3 advisory: \"{}\"",
+                "unexpected start of advisory: \"{}\"",
                 context
             )
         }
