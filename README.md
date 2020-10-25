@@ -6,7 +6,7 @@
 [![Safety Dance][safety-image]][safety-link]
 ![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
-[![Gitter Chat][gitter-image]][gitter-link]
+[![Project Chat][chat-image]][chat-link]
 
 Client library for accessing the [RustSec Security Advisory Database]:
 fetches the [advisory-db] (or other compatible) git repository and
@@ -56,8 +56,8 @@ additional terms or conditions.
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[gitter-image]: https://badges.gitter.im/badge.svg
-[gitter-link]: https://gitter.im/RustSec/Lobby
+[chat-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
+[chat-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
 
 [//]: # (general links)
 
