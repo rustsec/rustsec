@@ -5,7 +5,7 @@ use crate::error::{Error, ErrorKind};
 
 /// Parts of a parsed advisory
 #[derive(Copy, Clone, Debug)]
-pub(super) struct Parts<'a> {
+pub struct Parts<'a> {
     /// TOML front matter
     pub front_matter: &'a str,
 
@@ -21,7 +21,7 @@ pub(super) struct Parts<'a> {
 
 impl<'a> Parts<'a> {
     /// Parse a Markdown advisory into its component parts
-    pub(super) fn parse(advisory_data: &'a str) -> Result<Self, Error> {
+    pub fn parse(advisory_data: &'a str) -> Result<Self, Error> {
         if !advisory_data.starts_with("```toml") {
             let context = if advisory_data.len() > 20 {
                 &advisory_data[..20]
