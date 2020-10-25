@@ -4,6 +4,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.22.0 (2020-10-25)
+### Added
+- `fetch` feature ([#213], [#226])
+
+### Changed
+- Bump `cargo-lock` to v6; `semver` to v0.11 ([#244])
+- Make `advisory.title` and `advisory.description` struct fields ([#242])
+- Remove support for the V2 advisory format ([#238], [#242], [#243])
+- Mark the `advisory::parser` module as `pub` ([#240])
+- Bump `cargo-edit` to 0.7.0 ([#231])
+- Bump `crates-index` from 0.15.4 to 0.16.0 ([#237])
+- `advisory`: laxer function path handling ([#229])
+- `linter`: fully deprecate `obsolete` in favor of `yanked` ([#228])
+- `advisory`: `markdown` feature and `Advisory::description_html` ([#227])
+- `linter`: add support for V3 advisory format ([#225])
+- MSRV 1.41+ ([#217])
+- Bump `platforms` crate to v1 ([#210])
+
+### Fixed
+- `linter`: correctly handle crates with dashes in names ([#221])
+
+### Removed
+- `advisory.metadata.title` and `advisory.metadata.description` ([#242])
+
+[#244]: https://github.com/RustSec/rustsec-crate/pull/244
+[#243]: https://github.com/RustSec/rustsec-crate/pull/243
+[#242]: https://github.com/RustSec/rustsec-crate/pull/242
+[#240]: https://github.com/RustSec/rustsec-crate/pull/240
+[#238]: https://github.com/RustSec/rustsec-crate/pull/238
+[#237]: https://github.com/RustSec/rustsec-crate/pull/237
+[#231]: https://github.com/RustSec/rustsec-crate/pull/231
+[#229]: https://github.com/RustSec/rustsec-crate/pull/229
+[#228]: https://github.com/RustSec/rustsec-crate/pull/228
+[#227]: https://github.com/RustSec/rustsec-crate/pull/227
+[#226]: https://github.com/RustSec/rustsec-crate/pull/226
+[#225]: https://github.com/RustSec/rustsec-crate/pull/225
+[#221]: https://github.com/RustSec/rustsec-crate/pull/221
+[#217]: https://github.com/RustSec/rustsec-crate/pull/217
+[#213]: https://github.com/RustSec/rustsec-crate/pull/213
+[#210]: https://github.com/RustSec/rustsec-crate/pull/210
+
 ## 0.21.0 (2020-06-23)
 ### Added
 - `year`, `month`, and `day` methods to `advisory::Date` ([#191])
