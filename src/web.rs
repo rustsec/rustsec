@@ -149,11 +149,7 @@ impl<'a> From<&'a rustsec::Advisory> for AdvisoryParams {
             )
         };
 
-        let mut summary = advisory
-            .metadata
-            .description
-            .replace('\n', " ")
-            .replace("  ", " ");
+        let mut summary = advisory.description.replace('\n', " ").replace("  ", " ");
 
         summary.retain(|c| matches!(c, 'A'..='Z' | 'a'..='z' | '0'..='9' | ' ' | ',' | '.'));
 
@@ -170,9 +166,9 @@ impl<'a> From<&'a rustsec::Advisory> for AdvisoryParams {
         Self {
             id: advisory.metadata.id.to_string(),
             package: advisory.metadata.package.to_string(),
-            title: advisory.metadata.title.clone(),
+            title: advisory.title.clone(),
             summary: summary.trim().to_owned(),
-            description: advisory.metadata.description.trim().to_owned(),
+            description: advisory.description.trim().to_owned(),
             date: advisory.metadata.date.as_str().to_owned(),
             tags: tags.join(" "),
             url: advisory.metadata.url.clone(),
