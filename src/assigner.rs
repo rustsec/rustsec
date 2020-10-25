@@ -1,7 +1,11 @@
 //! RustSec Advisory DB tool to assign ids
 
 use crate::{error::ErrorKind, prelude::*, Map};
-use rustsec::{advisory::id::Kind, collection::Collection, Advisory};
+use rustsec::{
+    advisory::{id::Kind, parser},
+    collection::Collection,
+    Advisory,
+};
 use std::{
     fs::{self, File},
     io::{BufRead, BufReader, LineWriter, Write},
@@ -115,7 +119,7 @@ fn assign_ids_across_directory(
                 let advisory_filename = unwrapped_advisory.file_name();
                 let advisory_filename_str = advisory_filename.into_string().unwrap();
                 if advisory_filename_str.contains("RUSTSEC-0000-0000") {
-                    let toml = fs::read_to_string(advisory_path_clone)
+                    let advisory_data = fs::read_to_string(advisory_path_clone)
                         .map_err(|e| {
                             format_err!(
                                 ErrorKind::Io,
@@ -125,13 +129,15 @@ fn assign_ids_across_directory(
                             );
                         })
                         .unwrap();
-                    let advisory = toml.parse::<Advisory>().unwrap();
+
+                    let advisory_parts = parser::Parts::parse(&advisory_data).unwrap();
+                    let advisory = advisory_parts.front_matter.parse::<Advisory>().unwrap();
                     let date = advisory.metadata.date;
                     let year = date.year();
                     let new_id = highest_ids.get(&year).unwrap() + 1;
                     let year_str = year.to_string();
                     let string_id = format!("RUSTSEC-{}-{:04}", year_str, new_id);
-                    let new_filename = format!("{}.toml", string_id);
+                    let new_filename = format!("{}.md", string_id);
                     let new_path = dir_path_clone.join(new_filename);
                     let original_file = File::open(advisory_path_for_reading).unwrap();
                     let reader = BufReader::new(original_file);
