@@ -2,24 +2,14 @@
 
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-/// Example RustSec Advisory (V2 format)
-const ADVISORY_PATH_V2: &str = "./tests/support/example_advisory_v2.toml";
+/// Example RustSec Advisory
+const EXAMPLE_ADVISORY_PATH: &str = "./tests/support/example_advisory.md";
 
-/// Example RustSec Advisory (V2 format)
-const ADVISORY_PATH_V3: &str = "./tests/support/example_advisory_v3.md";
-
-/// Ensure example V3 advisory passes lint
+/// Ensure example advisory passes lint
 #[test]
-fn valid_example_v3() {
-    let lint = rustsec::advisory::Linter::lint_file(ADVISORY_PATH_V3).unwrap();
+fn valid_advisory() {
+    let lint = rustsec::advisory::Linter::lint_file(EXAMPLE_ADVISORY_PATH).unwrap();
     assert_eq!(lint.errors(), &[]);
-}
-
-/// Ensure example V2 advisory passes does not pass lint - deprecated!
-#[test]
-fn invalid_example_v2() {
-    let lint_result = rustsec::advisory::Linter::lint_file(ADVISORY_PATH_V2);
-    assert!(lint_result.is_err());
 }
 
 /// Example advisory used in the subsequent `#[test]`
