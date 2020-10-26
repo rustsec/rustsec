@@ -12,7 +12,7 @@ Audit `Cargo.lock` files for crates with security vulnerabilities reported to th
 
 ## Requirements
 
-`cargo audit` requires Rust **1.40** or later.
+`cargo audit` requires Rust **1.41** or later.
 
 ## Installation
 
@@ -97,7 +97,7 @@ additional terms or conditions.
 [build-image]: https://github.com/rustsec/cargo-audit/workflows/Rust/badge.svg?branch=master&event=push
 [build-link]: https://github.com/rustsec/cargo-audit/actions
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.40+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [gitter-image]: https://badges.gitter.im/badge.svg
