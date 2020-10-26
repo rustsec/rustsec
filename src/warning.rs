@@ -1,7 +1,7 @@
 //! Warnings sourced from the Advisory DB
 
 use crate::error::{Error, ErrorKind};
-use crate::{advisory, package::Package};
+use crate::{advisory::Advisory, package::Package};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
@@ -15,25 +15,16 @@ pub struct Warning {
     pub package: Package,
 
     /// Source advisory
-    pub advisory: Option<advisory::Metadata>,
-
-    /// Versions impacted by this warning
-    pub versions: Option<advisory::Versions>,
+    pub advisory: Option<Advisory>,
 }
 
 impl Warning {
     /// Create `Warning` of the given kind
-    pub fn new(
-        kind: Kind,
-        package: &Package,
-        advisory: Option<advisory::Metadata>,
-        versions: Option<advisory::Versions>,
-    ) -> Self {
+    pub fn new(kind: Kind, package: &Package, advisory: Option<Advisory>) -> Self {
         Self {
             kind,
             package: package.clone(),
             advisory,
-            versions,
         }
     }
 
