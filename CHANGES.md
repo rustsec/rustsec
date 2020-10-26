@@ -1,3 +1,12 @@
+## 0.3.0 (2020-10-26)
+
+- Bump `rustsec` crate dependency to v0.22 ([#83])
+- `assign-id`: fix command after V3 advisory format migration ([#79], [#81])
+
+[#83]: https://github.com/RustSec/rustsec-admin/pull/83
+[#81]: https://github.com/RustSec/rustsec-admin/pull/81
+[#79]: https://github.com/RustSec/rustsec-admin/pull/79
+
 ## 0.2.1 (2020-07-24)
 
 - Output mode for use with the production github action ([#62])
