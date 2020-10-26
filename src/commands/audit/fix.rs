@@ -4,6 +4,7 @@ use crate::{auditor::Auditor, lockfile, prelude::*};
 use abscissa_core::{Command, Runnable};
 use gumdrop::Options;
 use rustsec::fixer::Fixer;
+use rustsec::Vulnerability;
 use std::{
     path::{Path, PathBuf},
     process::exit,
@@ -74,8 +75,13 @@ impl Runnable for FixCommand {
             dry_run_info
         );
 
-        for vulnerability in &report.vulnerabilities.list {
-            if let Err(e) = fixer.fix(vulnerability, dry_run) {
+        for vulnerability_info in &report.vulnerabilities.list {
+            let vulnerability = Vulnerability {
+                advisory: vulnerability_info.to_advisory(),
+                package: vulnerability_info.package.clone(),
+            };
+
+            if let Err(e) = fixer.fix(&vulnerability, dry_run) {
                 status_warn!("{}", e);
             }
         }
