@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.22.0 (2020-10-25)
+## 0.22.1 (2020-10-26)
+### Changed
+- Refactor `Advisory` and `VulnerabilityInfo` ([#246])
+
+[#246]: https://github.com/RustSec/rustsec-crate/pull/246
+
+## 0.22.0 (2020-10-25) [YANKED]
 ### Added
 - `fetch` feature ([#213], [#226])
 
