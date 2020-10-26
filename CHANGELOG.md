@@ -1,12 +1,34 @@
-## 0.12.1 (2020-09-22)
+# Changelog
+All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 0.13.0 (2020-10-26)
+### Added
+- Support for project specific config directories ([#252]) 
+
+### Changed
+- Bump `rustsec` crate to v0.22; MSRV 1.41+ ([#271])
+- JSON report format changes ([#271])
+- Presenter improvements ([#268])
+
+### Fixed
+- `fix --dry-run` no longer requires argument ([#231])
+
+[#271]: https://github.com/RustSec/cargo-audit/pull/258
+[#268]: https://github.com/RustSec/cargo-audit/pull/268
+[#255]: https://github.com/RustSec/cargo-audit/pull/255
+[#252]: https://github.com/RustSec/cargo-audit/pull/252
+[#231]: https://github.com/RustSec/cargo-audit/pull/231
+
+## 0.12.1 (2020-09-22)
 - Pin `smol_str` to v0.1.16 to ensure MSRV 1.41 compatibility ([#255], [#258])
 
 [#258]: https://github.com/RustSec/cargo-audit/pull/258
 [#255]: https://github.com/RustSec/cargo-audit/pull/255
 
 ## 0.12.0 (2020-05-06)
-
 - Update `rustsec` crate to v0.20 ([#221])
 - Regenerate lockfile after `cargo audit fix` ([#219])
 - Update dependencies; MSRV 1.40+ ([#216])
@@ -16,7 +38,6 @@
 [#216]: https://github.com/RustSec/cargo-audit/pull/216
 
 ## 0.11.2 (2020-02-07)
-
 - Improve yanked crate auditing messages and config ([#200])
 - Fix `-c`/`--color` command line argument ([#199])
 
@@ -24,13 +45,11 @@
 [#199]: https://github.com/RustSec/cargo-audit/pull/199
 
 ## 0.11.1 (2020-01-24)
-
 - Add `vendored-openssl` feature ([#193])
 
 [#193]: https://github.com/RustSec/cargo-audit/pull/193
 
 ## 0.11.0 (2020-01-22)
-
 - Update `rustsec` crate to v0.17 release; MSRV 1.39+ ([#186], [#188])
 - Warn for yanked crates ([#180])
 - Respect sources of dependencies when auditing ([#175])
@@ -47,7 +66,6 @@
 [#157]: https://github.com/RustSec/cargo-audit/pull/157
 
 ## 0.10.0 (2019-10-13)
-
 - Upgrade `rustsec` to v0.16; new self-audit system ([#155])
 - Upgrade to Abscissa v0.4; MSRV 1.36 ([#154])
 
@@ -55,7 +73,6 @@
 [#154]: https://github.com/RustSec/cargo-audit/pull/154
 
 ## 0.9.3 (2019-10-08)
-
 - Update to `rustsec` crate v0.15.2 ([#149])
 - presenter: Cleanups for informational advisories ([#148])
 - presenter: Print better message when no solution is available ([#144])
@@ -65,19 +82,16 @@
 [#144]: https://github.com/RustSec/cargo-audit/pull/144
 
 ## 0.9.2 (2019-10-01)
-
 - Update to `rustsec` crate v0.15 ([#138])
 
 [#138]: https://github.com/RustSec/cargo-audit/pull/138
 
 ## 0.9.1 (2019-09-25)
-
 - Update to `rustsec` crate v0.14.1 ([#134])
 
 [#134]: https://github.com/RustSec/cargo-audit/pull/134
 
 ## 0.9.0 (2019-09-25)
-
 - Add `--deny-warnings` option ([#128])
 - Upgrade to `rustsec` crate v0.14 ([#126])
 - Configuration file: `~/.cargo/audit.toml` ([#123], [#125])
@@ -96,13 +110,11 @@
 [#109]: https://github.com/RustSec/cargo-audit/pull/109
 
 ## 0.8.1 (2019-08-25)
-
 - Fix `--version` ([#101])
 
 [#101]: https://github.com/RustSec/cargo-audit/pull/101
 
 ## 0.8.0 (2019-08-16)
-
 - Use the Abscissa application framework ([#85], [#87], [#92], [#94])
 - Implement `--no-fetch` ([#97])
 - Add support for reading lockfiles from STDIN ([#98])
@@ -115,7 +127,6 @@
 [#85]: https://github.com/RustSec/cargo-audit/pull/85
 
 ## 0.7.0 (2019-07-15)
-
 - Switch from `term` to `termcolor` crate ([#83])
 - Update `gumdrop` to v0.6, `rustsec` crate to v0.12; min Rust 1.32+ ([#82])
 - Produce valid JSON when no vulnerabilities are detected ([#77])
@@ -127,13 +138,11 @@
 [#75]: https://github.com/RustSec/cargo-audit/pull/75
 
 ## 0.6.1 (2018-12-16)
-
 - Fix option parsing ([#64])
 
 [#64]: https://github.com/RustSec/cargo-audit/pull/64
 
 ## 0.6.0 (2018-12-15)
-
 - Update to Rust 2018 edition ([#61])
 - Update to `rustsec` crate v0.10 ([#59])
 - Prevent `--help` from exiting with error ([#57])
@@ -145,25 +154,21 @@
 [#41]: https://github.com/RustSec/cargo-audit/pull/41
 
 ## 0.5.2 (2018-07-29)
-
 - Have `cargo audit version` exit with status `0` ([#38])
 
 [#38]: https://github.com/RustSec/cargo-audit/pull/38
 
 ## 0.5.1 (2018-07-29)
-
 - Refactoring and UI improvements ([#37])
 
 [#37]: https://github.com/RustSec/cargo-audit/pull/37
 
 ## 0.5.0 (2018-07-29)
-
 - Upgrade `rustsec` crate to 0.9 ([#36])
 
 [#36]: https://github.com/RustSec/cargo-audit/pull/36
 
 ## 0.4.0 (2018-07-24)
-
 - Honor the `affected_platforms` attribute ([#35])
 - Update `rustsec` crate dependency to `0.8` series ([#34])
 - Update `term` crate dependency to `0.5` series ([#31])
@@ -173,13 +178,11 @@
 [#31]: https://github.com/RustSec/cargo-audit/pull/31
 
 ## 0.3.2 (2018-07-23)
-
 - README.md: Use `<img>` tag for screenshot so it renders on crates.io ([#28])
 
 [#28]: https://github.com/RustSec/cargo-audit/pull/28
 
 ## 0.3.1 (2018-07-23)
-
 - Use ` OR ` delimiter to display patched versions ([#25])
 - Fix `cargo audit --version` ([#24])
 
@@ -187,19 +190,16 @@
 [#24]: https://github.com/RustSec/cargo-audit/pull/24
 
 ## 0.3.0 (2018-07-23)
-
 - Near rewrite of cargo-audit using `rustsec` 0.7.0 ([#22])
 
 [#22]: https://github.com/RustSec/cargo-audit/pull/22
 
 ## 0.2.1 (2017-09-24)
-
 - Use crate isatty to resolve Windows build errors ([#14])
 
 [#14]: https://github.com/RustSec/cargo-audit/pull/14
 
 ## 0.2.0 (2017-03-05)
-
 - Upgrade to rustsec 0.6.0 crate ([#12])
 - Configurable colors ([#10])
 - Avoid panicking if there are no dependencies ([#8])
@@ -211,11 +211,9 @@
 [#6]: https://github.com/RustSec/cargo-audit/pull/6
 
 ## 0.1.1 (2017-02-27)
-
 - Make cargo-audit a proper cargo subcommand ([#2])
 
 [#2]: https://github.com/RustSec/cargo-audit/pull/2
 
 ## 0.1.0 (2017-02-27)
-
 - Initial release
