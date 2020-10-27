@@ -116,7 +116,6 @@ fn advisories_found_json() {
 
     assert_eq!(vulnerabilities.len(), 1);
 
-    dbg!(&vulnerabilities[0]);
     let advisory_id = vulnerabilities[0]
         .pointer("/advisory/id")
         .unwrap()
