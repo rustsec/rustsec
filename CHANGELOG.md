@@ -4,7 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.13.0 (2020-10-26)
+## 0.13.1 (2020-10-27)
+### Changed
+- Split `-D`/`--deny` and `--deny-warnings` ([#278])
+- Bump `rustsec` crate to v0.22.2 ([#277])
+
+### Fixed
+- JSON serialization ([#277])
+
+[#278]: https://github.com/RustSec/cargo-audit/pull/278
+[#277]: https://github.com/RustSec/cargo-audit/pull/277
+
+## 0.13.0 (2020-10-26) [YANKED]
 ### Added
 - Support for project specific config directories ([#252]) 
 
