@@ -127,7 +127,7 @@ pub struct AdvisoryParams {
     pub unaffected_versions: Option<Vec<String>>,
 }
 
-impl<'a> From<&'a rustsec::Advisory> for AdvisoryParams {
+impl From<&rustsec::Advisory> for AdvisoryParams {
     fn from(advisory: &rustsec::Advisory) -> AdvisoryParams {
         let patched_versions = advisory
             .versions
@@ -149,7 +149,7 @@ impl<'a> From<&'a rustsec::Advisory> for AdvisoryParams {
             )
         };
 
-        let mut summary = advisory.description.replace('\n', " ").replace("  ", " ");
+        let mut summary = advisory.description().replace('\n', " ").replace("  ", " ");
 
         summary.retain(|c| matches!(c, 'A'..='Z' | 'a'..='z' | '0'..='9' | ' ' | ',' | '.'));
 
@@ -164,11 +164,11 @@ impl<'a> From<&'a rustsec::Advisory> for AdvisoryParams {
         );
 
         Self {
-            id: advisory.metadata.id.to_string(),
+            id: advisory.id().to_string(),
             package: advisory.metadata.package.to_string(),
-            title: advisory.title.clone(),
+            title: advisory.title().to_owned(),
             summary: summary.trim().to_owned(),
-            description: advisory.description.trim().to_owned(),
+            description: advisory.description().trim().to_owned(),
             date: advisory.metadata.date.as_str().to_owned(),
             tags: tags.join(" "),
             url: advisory.metadata.url.clone(),
