@@ -6,7 +6,7 @@ mod fix;
 use super::CargoAuditCommand;
 use crate::{
     auditor::Auditor,
-    config::{AuditConfig, DenyWarningOption, OutputFormat},
+    config::{AuditConfig, DenyOption, OutputFormat},
     prelude::*,
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
@@ -49,13 +49,21 @@ pub struct AuditCommand {
     )]
     db: Option<PathBuf>,
 
-    /// Deny warnings
+    /// Deny flag
     #[options(
         short = "D",
-        long = "deny-warnings",
-        help = "exit with an error if any warning advisories of specified kinds are found"
+        long = "deny",
+        help = "exit with an error on: warnings (any), unmaintained, unsound, yanked"
     )]
-    deny_warnings: Vec<DenyWarningOption>,
+    deny: Vec<DenyOption>,
+
+    /// Deny warnings (legacy)
+    #[options(
+        no_short,
+        long = "deny-warnings",
+        help = "deprecated legacy alternative to: --deny warnings"
+    )]
+    deny_warnings: bool,
 
     /// Path to `Cargo.lock`
     #[options(
@@ -178,16 +186,17 @@ impl Override<AuditConfig> for AuditCommand {
             config.database.url = Some(url.clone())
         }
 
-        for kind in &self.deny_warnings {
-            match kind {
-                DenyWarningOption::All => {
-                    config.output.deny_warnings = vec![
-                        DenyWarningOption::Other,
-                        DenyWarningOption::Unmaintained,
-                        DenyWarningOption::Yanked,
-                    ]
+        if self.deny_warnings {
+            // TODO(tarcieri): remove this in the next release of cargo-audit
+            status_warn!("the --deny-warnings flag is deprecated. Please use: --deny warnings");
+            config.output.deny = DenyOption::all();
+        } else {
+            for kind in &self.deny {
+                if *kind == DenyOption::Warnings {
+                    config.output.deny = DenyOption::all();
+                } else {
+                    config.output.deny.push(*kind);
                 }
-                k => config.output.deny_warnings.push(*k),
             }
         }
 
