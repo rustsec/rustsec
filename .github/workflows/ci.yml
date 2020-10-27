@@ -63,7 +63,7 @@ jobs:
           override: true
       - name: Run cargo audit
         run: >
-          cargo run -- audit --deny-warnings all
+          cargo run -- audit -D warnings
           --ignore RUSTSEC-2020-0016
           --ignore RUSTSEC-2020-0036
           --ignore RUSTSEC-2020-0053
