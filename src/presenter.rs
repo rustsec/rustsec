@@ -1,7 +1,7 @@
 //! Presenter for `rustsec::Report` information.
 
 use crate::{
-    config::{DenyWarningOption, OutputConfig, OutputFormat},
+    config::{DenyOption, OutputConfig, OutputFormat},
     prelude::*,
 };
 use abscissa_core::terminal::{
@@ -37,7 +37,7 @@ impl Presenter {
         Self {
             displayed_packages: Set::new(),
             deny_warning_kinds: config
-                .deny_warnings
+                .deny
                 .iter()
                 .filter_map(|k| k.get_warning_kind())
                 .collect(),
@@ -100,11 +100,8 @@ impl Presenter {
         // Print out any self-advisories
         if !self_advisories.is_empty() {
             let msg = "This copy of cargo-audit has known advisories!";
-            if self
-                .config
-                .deny_warnings
-                .contains(&DenyWarningOption::Other)
-            {
+
+            if self.config.deny.contains(&DenyOption::Warnings) {
                 status_err!(msg);
             } else {
                 status_warn!(msg);
@@ -113,11 +110,7 @@ impl Presenter {
             for advisory in self_advisories {
                 self.print_metadata(
                     &advisory.metadata,
-                    self.warning_color(
-                        self.config
-                            .deny_warnings
-                            .contains(&DenyWarningOption::Other),
-                    ),
+                    self.warning_color(self.config.deny.contains(&DenyOption::Warnings)),
                 );
             }
             println!();
@@ -165,11 +158,7 @@ impl Presenter {
             let upgrade_msg = "upgrade cargo-audit to the latest version: \
                                cargo install --force cargo-audit";
 
-            if self
-                .config
-                .deny_warnings
-                .contains(&DenyWarningOption::Other)
-            {
+            if self.config.deny.contains(&DenyOption::Warnings) {
                 status_err!(upgrade_msg);
                 exit_with_failure = true;
             } else {
