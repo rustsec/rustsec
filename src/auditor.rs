@@ -35,33 +35,37 @@ impl Auditor {
             .url
             .as_ref()
             .map(AsRef::as_ref)
-            .unwrap_or(rustsec::repository::DEFAULT_URL);
+            .unwrap_or(rustsec::repository::git::DEFAULT_URL);
 
         let advisory_db_path = config
             .database
             .path
             .as_ref()
             .cloned()
-            .unwrap_or_else(rustsec::Repository::default_path);
+            .unwrap_or_else(rustsec::GitRepository::default_path);
 
         let advisory_db_repo = if config.database.fetch {
             if !config.output.is_quiet() {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
 
-            rustsec::Repository::fetch(advisory_db_url, &advisory_db_path, !config.database.stale)
-                .unwrap_or_else(|e| {
-                    status_err!("couldn't fetch advisory database: {}", e);
-                    exit(1);
-                })
+            rustsec::GitRepository::fetch(
+                advisory_db_url,
+                &advisory_db_path,
+                !config.database.stale,
+            )
+            .unwrap_or_else(|e| {
+                status_err!("couldn't fetch advisory database: {}", e);
+                exit(1);
+            })
         } else {
-            rustsec::Repository::open(&advisory_db_path).unwrap_or_else(|e| {
+            rustsec::GitRepository::open(&advisory_db_path).unwrap_or_else(|e| {
                 status_err!("couldn't open advisory database: {}", e);
                 exit(1);
             })
         };
 
-        let database = rustsec::Database::load(&advisory_db_repo).unwrap_or_else(|e| {
+        let database = rustsec::Database::load_from_repo(&advisory_db_repo).unwrap_or_else(|e| {
             status_err!("error loading advisory database: {}", e);
             exit(1);
         });
