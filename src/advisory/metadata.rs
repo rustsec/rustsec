@@ -15,6 +15,14 @@ pub struct Metadata {
     /// Name of affected crate
     pub package: package::Name,
 
+    /// One-liner description of a vulnerability
+    #[serde(default)]
+    pub title: String,
+
+    /// Extended description of a vulnerability
+    #[serde(default)]
+    pub description: String,
+
     /// Date this advisory was officially issued
     pub date: Date,
 

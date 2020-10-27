@@ -1385,7 +1385,6 @@ dependencies = [
  "once_cell",
  "platforms",
  "semver 0.11.0",
- "semver-parser 0.10.0",
  "serde",
  "smol_str",
  "tempfile",

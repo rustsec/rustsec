@@ -26,7 +26,7 @@ impl Fixer {
         dry_run: bool,
     ) -> Result<VersionReq, Error> {
         // TODO(tarcieri): find semver-compatible fix?
-        let version_req = match vulnerability.advisory.versions.patched.get(0) {
+        let version_req = match vulnerability.versions.patched.get(0) {
             Some(req) => req,
             None => fail!(ErrorKind::Version, "no fixed version available"),
         };

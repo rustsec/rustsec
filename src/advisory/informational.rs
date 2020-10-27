@@ -42,26 +42,17 @@ impl Informational {
 
     /// Is this informational advisory a `notice`?
     pub fn is_notice(&self) -> bool {
-        match self {
-            Self::Notice => true,
-            _ => false,
-        }
+        *self == Self::Notice
     }
 
     /// Is this informational advisory for an `unmaintained` crate?
     pub fn is_unmaintained(&self) -> bool {
-        match self {
-            Self::Unmaintained => true,
-            _ => false,
-        }
+        *self == Self::Unmaintained
     }
 
     /// Is this informational advisory for an `unsound` crate?
     pub fn is_unsound(&self) -> bool {
-        match self {
-            Self::Unsound => true,
-            _ => false,
-        }
+        *self == Self::Unsound
     }
 
     /// Is this informational advisory of an unknown kind?

@@ -27,14 +27,6 @@ use std::{path::Path, str::FromStr};
 /// RustSec Security Advisories
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Advisory {
-    /// One-liner description of a vulnerability
-    #[serde(default)]
-    pub title: String,
-
-    /// Extended description of a vulnerability
-    #[serde(default)]
-    pub description: String,
-
     /// The `[advisory]` section of a RustSec advisory
     #[serde(rename = "advisory")]
     pub metadata: Metadata,
@@ -59,10 +51,30 @@ impl Advisory {
             .map_err(|e| format_err!(ErrorKind::Parse, "error parsing {}: {}", path.display(), e))
     }
 
+    /// Get advisory ID
+    pub fn id(&self) -> &Id {
+        &self.metadata.id
+    }
+
+    /// Get advisory title
+    pub fn title(&self) -> &str {
+        self.metadata.title.as_ref()
+    }
+
+    /// Get advisory description
+    pub fn description(&self) -> &str {
+        self.metadata.description.as_ref()
+    }
+
     /// Get the description of this advisory as HTML rendered from Markdown
     #[cfg(feature = "markdown")]
     pub fn description_html(&self) -> String {
-        comrak::markdown_to_html(&self.description, &Default::default())
+        comrak::markdown_to_html(&self.description(), &Default::default())
+    }
+
+    /// Get advisory date
+    pub fn date(&self) -> &Date {
+        &self.metadata.date
     }
 
     /// Get the severity of this advisory if it has a CVSS v3 associated
@@ -79,22 +91,22 @@ impl FromStr for Advisory {
 
         let mut advisory: Self = toml::from_str(&parts.front_matter)?;
 
-        if advisory.title != "" {
+        if !advisory.metadata.title.is_empty() {
             fail!(
                 ErrorKind::Parse,
                 "invalid `title` attribute in advisory TOML"
             );
         }
 
-        if advisory.description != "" {
+        if !advisory.metadata.description.is_empty() {
             fail!(
                 ErrorKind::Parse,
                 "invalid `description` attribute in advisory TOML"
             );
         }
 
-        advisory.title = parts.title.to_owned();
-        advisory.description = parts.description.to_owned();
+        advisory.metadata.title = parts.title.to_owned();
+        advisory.metadata.description = parts.description.to_owned();
 
         Ok(advisory)
     }

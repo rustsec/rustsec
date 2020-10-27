@@ -19,9 +19,9 @@ fn parse_metadata() {
     let advisory = load_example_advisory();
     assert_eq!(advisory.metadata.id.as_str(), "RUSTSEC-2001-2101");
     assert_eq!(advisory.metadata.package.as_str(), "base");
-    assert_eq!(advisory.title, "All your base are belong to us");
+    assert_eq!(advisory.title(), "All your base are belong to us");
     assert_eq!(
-        advisory.description,
+        advisory.description(),
         "You have no chance to survive. Make your time."
     );
     assert_eq!(advisory.metadata.date.as_str(), "2001-02-03");
