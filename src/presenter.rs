@@ -111,8 +111,8 @@ impl Presenter {
             }
 
             for advisory in self_advisories {
-                self.print_advisory(
-                    &advisory,
+                self.print_metadata(
+                    &advisory.metadata,
                     self.warning_color(
                         self.config
                             .deny_warnings
@@ -186,7 +186,7 @@ impl Presenter {
     /// Print information about the given vulnerability
     fn print_vulnerability(
         &mut self,
-        vulnerability: &rustsec::report::VulnerabilityInfo,
+        vulnerability: &rustsec::Vulnerability,
         tree: &dependency::Tree,
     ) {
         self.print_attr(Red, "Crate:        ", &vulnerability.package.name);
@@ -195,7 +195,7 @@ impl Presenter {
             "Version:      ",
             &vulnerability.package.version.to_string(),
         );
-        self.print_advisory(&vulnerability.to_advisory(), Red);
+        self.print_metadata(&vulnerability.advisory, Red);
 
         if vulnerability.versions.patched.is_empty() {
             self.print_attr(Red, "Solution:     ", "No safe upgrade is available!");
@@ -203,17 +203,15 @@ impl Presenter {
             self.print_attr(
                 Red,
                 "Solution:     ",
-                format!(
-                    "Upgrade to {}",
-                    vulnerability
+                String::from("Upgrade to ")
+                    + &vulnerability
                         .versions
                         .patched
                         .iter()
                         .map(ToString::to_string)
                         .collect::<Vec<_>>()
                         .as_slice()
-                        .join(" OR ")
-                ),
+                        .join(" OR "),
             );
         }
 
@@ -234,7 +232,7 @@ impl Presenter {
         self.print_attr(color, "Warning:      ", warning.kind.as_str());
 
         if let Some(metadata) = &warning.advisory {
-            self.print_advisory(metadata, color)
+            self.print_metadata(metadata, color)
         }
 
         self.print_tree(color, &warning.package, tree);
@@ -251,14 +249,14 @@ impl Presenter {
     }
 
     /// Print a warning about a particular advisory
-    fn print_advisory(&self, advisory: &rustsec::Advisory, color: Color) {
-        self.print_attr(color, "Title:        ", &advisory.title);
-        self.print_attr(color, "Date:         ", &advisory.metadata.date);
-        self.print_attr(color, "ID:           ", &advisory.metadata.id);
+    fn print_metadata(&self, metadata: &rustsec::advisory::Metadata, color: Color) {
+        self.print_attr(color, "Title:        ", &metadata.title);
+        self.print_attr(color, "Date:         ", &metadata.date);
+        self.print_attr(color, "ID:           ", &metadata.id);
 
-        if let Some(url) = advisory.metadata.id.url() {
+        if let Some(url) = metadata.id.url() {
             self.print_attr(color, "URL:          ", &url);
-        } else if let Some(url) = &advisory.metadata.url {
+        } else if let Some(url) = &metadata.url {
             self.print_attr(color, "URL:          ", url);
         }
     }
