@@ -4,11 +4,10 @@
 //! but also provide the core reporting functionality used in general.
 
 use crate::{
-    advisory::{self, Advisory},
+    advisory,
     database::{scope, Database, Query},
     lockfile::Lockfile,
     map,
-    package::Package,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
     warning::{self, Warning},
@@ -30,10 +29,10 @@ pub struct Report {
     pub settings: Settings,
 
     /// Vulnerabilities detected in project
-    pub vulnerabilities: Vulnerabilities,
+    pub vulnerabilities: VulnerabilityInfo,
 
     /// Warnings about dependencies (from e.g. informational advisories)
-    pub warnings: Warnings,
+    pub warnings: WarningInfo,
 }
 
 impl Report {
@@ -44,8 +43,8 @@ impl Report {
         let vulnerabilities = db
             .query_vulnerabilities(lockfile, &settings.query(), package_scope)
             .into_iter()
-            .filter(|vuln| !settings.ignore.contains(&vuln.advisory.metadata.id))
-            .collect::<Vec<_>>();
+            .filter(|vuln| !settings.ignore.contains(&vuln.advisory.id))
+            .collect();
 
         let warnings = find_warnings(db, lockfile, settings);
 
@@ -53,7 +52,7 @@ impl Report {
             database: DatabaseInfo::new(db),
             lockfile: LockfileInfo::new(lockfile),
             settings: settings.clone(),
-            vulnerabilities: Vulnerabilities::new(&vulnerabilities),
+            vulnerabilities: VulnerabilityInfo::new(vulnerabilities),
             warnings,
         }
     }
@@ -150,7 +149,7 @@ impl LockfileInfo {
 
 /// Information about detected vulnerabilities
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
-pub struct Vulnerabilities {
+pub struct VulnerabilityInfo {
     /// Were any vulnerabilities found?
     pub found: bool,
 
@@ -158,95 +157,44 @@ pub struct Vulnerabilities {
     pub count: usize,
 
     /// List of detected vulnerabilities
-    pub list: Vec<VulnerabilityInfo>,
-}
-
-impl Vulnerabilities {
-    /// Create new vulnerability info
-    pub fn new(vulns: &[Vulnerability]) -> Self {
-        Self {
-            found: !vulns.is_empty(),
-            count: vulns.len(),
-            list: vulns.iter().map(VulnerabilityInfo::from).collect(),
-        }
-    }
-}
-
-/// Entry for a particular vulnerability
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-pub struct VulnerabilityInfo {
-    /// One-liner description of a vulnerability
-    pub title: String,
-
-    /// Extended description of a vulnerability
-    pub description: String,
-
-    /// The `[advisory]` section of a RustSec advisory
-    pub advisory: advisory::Metadata,
-
-    /// The (optional) `[affected]` section of a RustSec advisory
-    pub affected: Option<advisory::Affected>,
-
-    /// Versions related to this advisory which are patched or unaffected.
-    pub versions: advisory::Versions,
-
-    /// Impacted package
-    pub package: Package,
-}
-
-impl From<&Vulnerability> for VulnerabilityInfo {
-    fn from(vuln: &Vulnerability) -> VulnerabilityInfo {
-        VulnerabilityInfo {
-            title: vuln.advisory.title.clone(),
-            description: vuln.advisory.description.clone(),
-            advisory: vuln.advisory.metadata.clone(),
-            affected: vuln.advisory.affected.clone(),
-            versions: vuln.advisory.versions.clone(),
-            package: vuln.package.clone(),
-        }
-    }
+    pub list: Vec<Vulnerability>,
 }
 
 impl VulnerabilityInfo {
-    /// Convert back to an advisory
-    // TODO(tarcieri): find a less hacky solution for this which avoids
-    // round tripping from Advisory -> VulnerabilityInfo -> Advisory
-    pub fn to_advisory(&self) -> Advisory {
-        Advisory {
-            title: self.title.clone(),
-            description: self.description.clone(),
-            metadata: self.advisory.clone(),
-            affected: self.affected.clone(),
-            versions: self.versions.clone(),
+    /// Create new vulnerability info
+    pub fn new(list: Vec<Vulnerability>) -> Self {
+        Self {
+            found: !list.is_empty(),
+            count: list.len(),
+            list,
         }
     }
 }
 
 /// Information about warnings
-pub type Warnings = Map<warning::Kind, Vec<Warning>>;
+pub type WarningInfo = Map<warning::Kind, Vec<Warning>>;
 
 /// Find warnings from the given advisory [`Database`] and [`Lockfile`]
-pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Warnings {
+pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> WarningInfo {
     let query = settings.query().informational(true);
     let package_scope = settings.package_scope.as_ref().cloned().unwrap_or_default();
 
-    let mut warnings = Warnings::default();
+    let mut warnings = WarningInfo::default();
 
     // TODO(tarcieri): abstract `Cargo.lock` query logic between vulnerabilities/warnings
-    for vuln in db.query_vulnerabilities(lockfile, &query, package_scope) {
-        let advisory = &vuln.advisory;
+    for advisory_vuln in db.query_vulnerabilities(lockfile, &query, package_scope) {
+        let advisory = &advisory_vuln.advisory;
 
-        if settings.ignore.contains(&advisory.metadata.id) {
+        if settings.ignore.contains(&advisory.id) {
             continue;
         }
 
         if settings
             .informational_warnings
             .iter()
-            .any(|info| Some(info) == advisory.metadata.informational.as_ref())
+            .any(|info| Some(info) == advisory.informational.as_ref())
         {
             let warning_kind = match advisory
-                .metadata
                 .informational
                 .as_ref()
                 .expect("informational advisory")
@@ -256,7 +204,12 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
                 None => continue,
             };
 
-            let warning = Warning::new(warning_kind, &vuln.package, Some(advisory.clone()));
+            let warning = Warning::new(
+                warning_kind,
+                &advisory_vuln.package,
+                Some(advisory.clone()),
+                Some(advisory_vuln.versions.clone()),
+            );
 
             match warnings.entry(warning.kind) {
                 map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),

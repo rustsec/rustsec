@@ -35,11 +35,11 @@ fn verify_rustsec_2017_0001(db: &Database) {
         "https://github.com/dnaq/sodiumoxide/issues/154"
     );
     assert_eq!(
-        example_advisory.title,
+        example_advisory.title(),
         "scalarmult() vulnerable to degenerate public keys"
     );
     assert_eq!(
-        &example_advisory.description[0..30],
+        &example_advisory.description()[0..30],
         "The `scalarmult()` function in"
     );
     assert_eq!(
@@ -74,11 +74,11 @@ fn verify_cve_2018_1000810(db: &Database) {
         "https://groups.google.com/forum/#!topic/rustlang-security-announcements/CmSuTm-SaU0"
     );
     assert_eq!(
-        example_advisory.title,
+        example_advisory.title(),
         "Buffer overflow vulnerability in str::repeat()"
     );
     assert_eq!(
-        &example_advisory.description[0..30],
+        &example_advisory.description()[0..30],
         "The Rust team was recently not"
     );
     assert_eq!(

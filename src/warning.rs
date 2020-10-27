@@ -1,7 +1,7 @@
 //! Warnings sourced from the Advisory DB
 
 use crate::error::{Error, ErrorKind};
-use crate::{advisory::Advisory, package::Package};
+use crate::{advisory, package::Package};
 use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
@@ -15,49 +15,46 @@ pub struct Warning {
     pub package: Package,
 
     /// Source advisory
-    pub advisory: Option<Advisory>,
+    pub advisory: Option<advisory::Metadata>,
+
+    /// Versions impacted by this warning
+    pub versions: Option<advisory::Versions>,
 }
 
 impl Warning {
     /// Create `Warning` of the given kind
-    pub fn new(kind: Kind, package: &Package, advisory: Option<Advisory>) -> Self {
+    pub fn new(
+        kind: Kind,
+        package: &Package,
+        advisory: Option<advisory::Metadata>,
+        versions: Option<advisory::Versions>,
+    ) -> Self {
         Self {
             kind,
             package: package.clone(),
             advisory,
+            versions,
         }
     }
 
     /// Is this a warning a `notice` about a crate?
     pub fn is_notice(&self) -> bool {
-        match self.kind {
-            Kind::Notice => true,
-            _ => false,
-        }
+        self.kind == Kind::Notice
     }
 
     /// Is this a warning about an `unmaintained` crate?
     pub fn is_unmaintained(&self) -> bool {
-        match self.kind {
-            Kind::Unmaintained => true,
-            _ => false,
-        }
+        self.kind == Kind::Unmaintained
     }
 
     /// Is this a warning about an `unsound` crate?
     pub fn is_unsound(&self) -> bool {
-        match self.kind {
-            Kind::Unmaintained => true,
-            _ => false,
-        }
+        self.kind == Kind::Unsound
     }
 
     /// Is this a warning about a yanked crate?
     pub fn is_yanked(&self) -> bool {
-        match self.kind {
-            Kind::Unmaintained => true,
-            _ => false,
-        }
+        self.kind == Kind::Yanked
     }
 }
 
