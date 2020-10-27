@@ -203,15 +203,17 @@ impl Presenter {
             self.print_attr(
                 Red,
                 "Solution:     ",
-                String::from("Upgrade to ")
-                    + &vulnerability
+                format!(
+                    "Upgrade to {}",
+                    vulnerability
                         .versions
                         .patched
                         .iter()
                         .map(ToString::to_string)
                         .collect::<Vec<_>>()
                         .as_slice()
-                        .join(" OR "),
+                        .join(" OR ")
+                ),
             );
         }
 
