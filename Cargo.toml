@@ -1,7 +1,7 @@
 [package]
 name        = "rustsec"
 description = "Client library for the RustSec security advisory database"
-version     = "0.22.1" # Also update html_root_url in lib.rs when bumping this
+version     = "0.22.2" # Also update html_root_url in lib.rs when bumping this
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 license     = "Apache-2.0 OR MIT"
 homepage    = "https://rustsec.org"
@@ -25,6 +25,7 @@ git2 = { version = "0.13", optional = true }
 home = { version = "0.5", optional = true }
 platforms = { version = "1", features = ["serde"] }
 semver = { version = "0.11", features = ["serde"] }
+semver-parser = { version = "=0.10.0", optional = true } # workardound for build failure?!
 serde = { version = "1", features = ["serde_derive"] }
 smol_str = "=0.1.16" # smol_str 0.1.17 requires Rust 1.46+
 thiserror = "1"
@@ -43,7 +44,7 @@ once_cell = "1.3.0"
 [features]
 default = ["fetch"]
 fetch = ["crates-index", "git2", "home"]
-fix = ["cargo-edit"]
+fix = ["cargo-edit", "semver-parser"]
 markdown = ["comrak"]
 dependency-tree = ["cargo-lock/dependency-tree"]
 vendored-openssl = ["git2/vendored-openssl"]
