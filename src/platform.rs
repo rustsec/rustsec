@@ -57,10 +57,12 @@ impl Platform {
 
     /// Attempt to guess the current `Platform`. May give inaccurate results.
     pub fn guess_current() -> Option<&'static Platform> {
-        Self::all().iter().find(|platform| {
-            platform.target_arch == TARGET_ARCH
-                && platform.target_env == TARGET_ENV
-                && platform.target_os == TARGET_OS
+        Self::find(env!("TARGET")).or_else(|| {
+            Self::all().iter().find(|platform| {
+                platform.target_arch == TARGET_ARCH
+                    && platform.target_env == TARGET_ENV
+                    && platform.target_os == TARGET_OS
+            })
         })
     }
 
