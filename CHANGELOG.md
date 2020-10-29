@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.3 (2020-10-29)
+### Changed
+- Source `Platform::guess_current` from `$TARGET` environment variable when
+  available ([#29])
+
+[#29]: https://github.com/RustSec/platforms-crate/pull/29
+
 ## 1.0.2 (2020-09-14)
 ### Removed
 - `const fn` on `Platforms::all` ([#27])
