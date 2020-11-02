@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump `rustsec` crate to v0.22; MSRV 1.41+ ([#271])
 - JSON report format changes ([#271])
 - Presenter improvements ([#268])
+- Make warning types an argument ([#206])
 
 ### Fixed
 - `fix --dry-run` no longer requires argument ([#231])
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#255]: https://github.com/RustSec/cargo-audit/pull/255
 [#252]: https://github.com/RustSec/cargo-audit/pull/252
 [#231]: https://github.com/RustSec/cargo-audit/pull/231
+[#206]: https://github.com/RustSec/cargo-audit/pull/206
 
 ## 0.12.1 (2020-09-22)
 - Pin `smol_str` to v0.1.16 to ensure MSRV 1.41 compatibility ([#255], [#258])
