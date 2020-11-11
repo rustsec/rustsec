@@ -1,4 +1,4 @@
-name: Rust
+name: CI
 
 on:
   pull_request: {}
@@ -21,9 +21,9 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
+          profile: minimal
       - run: cargo check
       - run: cargo test --no-default-features --release
       - run: cargo test --release
@@ -36,10 +36,10 @@ jobs:
         uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           components: rustfmt
           override: true
+          profile: minimal
       - name: Run cargo fmt
         uses: actions-rs/cargo@v1
         with:
@@ -52,10 +52,10 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: 1.41.0 # MSRV
           components: clippy
           override: true
+          profile: minimal
       - run: cargo clippy --all-features -- -D warnings
 
   codecov:
@@ -64,12 +64,12 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          profile: minimal
           toolchain: stable
           override: true
+          profile: minimal
       - uses: actions-rs/tarpaulin@v0.1
         with:
-          version: latest
+          version: 'latest'
           args: --all -- --test-threads 1
       - uses: codecov/codecov-action@v1
       - uses: actions/upload-artifact@v1
