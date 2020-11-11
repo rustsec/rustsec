@@ -26,7 +26,7 @@ smol_str = "=0.1.16" # smol_str 0.1.17 is incompatible with Rust 1.44 or lower
 thiserror = "1"
 
 [dev-dependencies]
-once_cell = "1.3"
+once_cell = "1.5"
 tempfile = "3"
 toml = "0.5"
 
