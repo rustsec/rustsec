@@ -181,8 +181,8 @@ impl Linter {
                             year = Some(y1);
                         }
                     }
-                    "aliases" | "cvss" | "keywords" | "package" | "references" | "title"
-                    | "description" | "yanked" => (),
+                    "aliases" | "cvss" | "keywords" | "package" | "references" | "related"
+                    | "title" | "description" | "yanked" => (),
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),
