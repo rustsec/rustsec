@@ -30,10 +30,10 @@ pub struct Metadata {
     #[serde(default)]
     pub aliases: Vec<Id>,
 
-    /// Advisory IDs which are related to this advisory (use `aliases` if it
-    /// is the same vulnerability syndicated to a different database)
+    /// Advisory IDs which are related to this advisory.
+    /// (use `aliases` for the same vulnerability syndicated to other databases)
     #[serde(default)]
-    pub references: Vec<Id>,
+    pub related: Vec<Id>,
 
     /// Collection this advisory belongs to. This isn't intended to be
     /// explicitly specified in the advisory, but rather is auto-populated
