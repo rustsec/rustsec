@@ -5,6 +5,7 @@ use super::{
 };
 use crate::{collection::Collection, package};
 use serde::{Deserialize, Serialize};
+use url::Url;
 
 /// The `[advisory]` section of a RustSec security advisory
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -63,7 +64,7 @@ pub struct Metadata {
     pub informational: Option<Informational>,
 
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
-    pub url: Option<String>,
+    pub url: Option<Url>,
 
     /// Has this advisory (i.e. itself, regardless of the crate) been yanked?
     ///

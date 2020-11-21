@@ -31,7 +31,7 @@ fn verify_rustsec_2017_0001(db: &Database) {
     );
     assert_eq!(example_advisory.metadata.date.as_str(), "2017-01-26");
     assert_eq!(
-        example_advisory.metadata.url.as_ref().unwrap(),
+        example_advisory.metadata.url.as_ref().unwrap().to_string(),
         "https://github.com/dnaq/sodiumoxide/issues/154"
     );
     assert_eq!(
@@ -70,7 +70,7 @@ fn verify_cve_2018_1000810(db: &Database) {
     );
     assert_eq!(example_advisory.metadata.date.as_str(), "2018-09-21");
     assert_eq!(
-        example_advisory.metadata.url.as_ref().unwrap(),
+        example_advisory.metadata.url.as_ref().unwrap().to_string(),
         "https://groups.google.com/forum/#!topic/rustlang-security-announcements/CmSuTm-SaU0"
     );
     assert_eq!(
