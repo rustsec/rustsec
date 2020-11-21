@@ -26,7 +26,7 @@ platforms = { version = "1", features = ["serde"] }
 semver = { version = "0.11", features = ["serde"] }
 semver-parser = { version = "=0.10.0", optional = true } # workardound for build failure?!
 serde = { version = "1", features = ["serde_derive"] }
-smol_str = "=0.1.16" # smol_str 0.1.17 requires Rust 1.46+
+smol_str = "=0.1.17" # smol_str 0.1.17 requires Rust 1.46+
 thiserror = "1"
 toml = "0.5"
 url = { version = "2", features = ["serde"] }
