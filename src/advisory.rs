@@ -66,12 +66,6 @@ impl Advisory {
         self.metadata.description.as_ref()
     }
 
-    /// Get the description of this advisory as HTML rendered from Markdown
-    #[cfg(feature = "markdown")]
-    pub fn description_html(&self) -> String {
-        comrak::markdown_to_html(&self.description(), &Default::default())
-    }
-
     /// Get advisory date
     pub fn date(&self) -> &Date {
         &self.metadata.date
