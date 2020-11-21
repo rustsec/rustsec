@@ -26,7 +26,7 @@ fn parse_metadata() {
     );
     assert_eq!(advisory.metadata.date.as_str(), "2001-02-03");
     assert_eq!(
-        advisory.metadata.url.unwrap(),
+        advisory.metadata.url.unwrap().to_string(),
         "https://www.youtube.com/watch?v=jQE66WA2s-A"
     );
 
