@@ -1,9 +1,31 @@
 //! Commits to the advisory DB git repository
 
-use super::DAYS_UNTIL_STALE;
+use super::timestamp::Timestamp;
 use crate::error::{Error, ErrorKind};
-use crate::repository::{git::GitRepository, signature::Signature, Commit};
-use chrono::{DateTime, Duration, NaiveDateTime, Utc};
+use crate::repository::{git::GitRepository, signature::Signature};
+
+/// Information about a commit to the Git repository
+#[derive(Debug)]
+pub struct Commit {
+    /// ID (i.e. SHA-1 hash) of the latest commit
+    pub commit_id: String,
+
+    /// Information about the author of a commit
+    pub author: String,
+
+    /// Summary message for the commit
+    pub summary: String,
+
+    /// Commit time in number of seconds since the UNIX epoch
+    pub timestamp: Timestamp,
+
+    /// Signature on the commit (mandatory for Repository::fetch)
+    // TODO: actually verify signatures
+    pub signature: Option<Signature>,
+
+    /// Signed data to verify along with this commit
+    signed_data: Option<Vec<u8>>,
+}
 
 impl Commit {
     /// Get information about HEAD
@@ -36,17 +58,13 @@ impl Commit {
             _ => (None, None),
         };
 
-        let time = DateTime::from_utc(
-            NaiveDateTime::from_timestamp(commit.time().seconds(), 0),
-            Utc,
-        );
+        let time = Timestamp::new(commit.time().seconds() as u64);
 
         Ok(Commit {
             commit_id,
             author,
             summary,
-
-            time,
+            timestamp: time,
             signature,
             signed_data,
         })
@@ -58,7 +76,6 @@ impl Commit {
     }
 
     /// Reset the repository's state to match this commit
-
     pub(crate) fn reset(&self, repo: &GitRepository) -> Result<(), Error> {
         let commit_object = repo.repo.find_object(
             git2::Oid::from_str(&self.commit_id).unwrap(),
@@ -70,24 +87,5 @@ impl Commit {
             .reset(&commit_object, git2::ResetType::Hard, None)?;
 
         Ok(())
-    }
-
-    /// Determine if the repository is fresh or stale (i.e. has it recently been committed to)
-
-    pub(crate) fn ensure_fresh(&self) -> Result<(), Error> {
-        let fresh_after_date = Utc::now()
-            .checked_sub_signed(Duration::days(DAYS_UNTIL_STALE as i64))
-            .unwrap();
-
-        if self.time > fresh_after_date {
-            Ok(())
-        } else {
-            fail!(
-                ErrorKind::Repo,
-                "stale repo: not updated for {} days (last commit: {:?})",
-                DAYS_UNTIL_STALE,
-                self.time
-            )
-        }
     }
 }

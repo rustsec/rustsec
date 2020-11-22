@@ -13,13 +13,16 @@ use crate::{
     warning::{self, Warning},
     Map,
 };
-use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+
+#[cfg(feature = "fetch")]
+use crate::repository::git;
 
 /// Vulnerability report for a given lockfile
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Report {
     /// Information about the advisory database
+    #[cfg(feature = "fetch")]
     pub database: DatabaseInfo,
 
     /// Information about the audited lockfile
@@ -49,6 +52,7 @@ impl Report {
         let warnings = find_warnings(db, lockfile, settings);
 
         Self {
+            #[cfg(feature = "fetch")]
             database: DatabaseInfo::new(db),
             lockfile: LockfileInfo::new(lockfile),
             settings: settings.clone(),
@@ -104,6 +108,7 @@ impl Settings {
 }
 
 /// Information about the advisory database
+#[cfg(feature = "fetch")]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DatabaseInfo {
     /// Number of advisories in the database
@@ -116,16 +121,17 @@ pub struct DatabaseInfo {
 
     /// Date when the advisory database was last committed to
     #[serde(rename = "last-updated")]
-    pub last_updated: Option<DateTime<Utc>>,
+    pub last_updated: Option<git::Timestamp>,
 }
 
+#[cfg(feature = "fetch")]
 impl DatabaseInfo {
     /// Create database information from the advisory db
     pub fn new(db: &Database) -> Self {
         Self {
             advisory_count: db.iter().count(),
             last_commit: db.latest_commit().map(|c| c.commit_id.clone()),
-            last_updated: db.latest_commit().map(|c| c.time),
+            last_updated: db.latest_commit().map(|c| c.timestamp),
         }
     }
 }
