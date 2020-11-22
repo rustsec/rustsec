@@ -113,12 +113,6 @@ impl From<cargo_edit::Error> for Error {
     }
 }
 
-impl From<chrono::ParseError> for Error {
-    fn from(other: chrono::ParseError) -> Self {
-        format_err!(ErrorKind::Parse, &other)
-    }
-}
-
 impl From<fmt::Error> for Error {
     fn from(other: fmt::Error) -> Self {
         format_err!(ErrorKind::Io, &other)

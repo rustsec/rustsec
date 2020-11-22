@@ -15,13 +15,12 @@ use crate::{
     error::Error,
     fs,
     lockfile::Lockfile,
-    repository::Commit,
     vulnerability::Vulnerability,
 };
 use std::path::Path;
 
 #[cfg(feature = "fetch")]
-use crate::repository::GitRepository;
+use crate::repository::{git::Commit, GitRepository};
 
 /// Iterator over entries in the database
 pub type Iter<'a> = std::slice::Iter<'a, Advisory>;
@@ -39,6 +38,7 @@ pub struct Database {
     crate_index: Index,
 
     /// Information about the last git commit to the database
+    #[cfg(feature = "fetch")]
     latest_commit: Option<Commit>,
 }
 
@@ -81,6 +81,7 @@ impl Database {
             advisories,
             crate_index,
             rust_index,
+            #[cfg(feature = "fetch")]
             latest_commit: None,
         })
     }
@@ -171,6 +172,7 @@ impl Database {
     }
 
     /// Get information about the latest commit to the repo
+    #[cfg(feature = "fetch")]
     pub fn latest_commit(&self) -> Option<&Commit> {
         self.latest_commit.as_ref()
     }

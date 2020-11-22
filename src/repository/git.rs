@@ -1,21 +1,20 @@
 //! Git repository handling for the RustSec advisory DB
 
-pub mod authentication;
-pub mod commit;
+mod authentication;
+mod commit;
+mod timestamp;
+
+pub use self::{commit::Commit, timestamp::Timestamp};
 
 use self::authentication::with_authentication;
 use crate::{
     error::{Error, ErrorKind},
     fs,
-    repository::Commit,
 };
 use std::path::{Path, PathBuf};
 
 /// Location of the RustSec advisory database for crates.io
 pub const DEFAULT_URL: &str = "https://github.com/RustSec/advisory-db.git";
-
-/// Number of days after which the repo will be considered stale
-pub const DAYS_UNTIL_STALE: usize = 90;
 
 /// Directory under ~/.cargo where the advisory-db repo will be kept
 pub(crate) const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
@@ -142,8 +141,12 @@ impl GitRepository {
         }
 
         // Ensure that the upstream repository hasn't gone stale
-        if ensure_fresh {
-            latest_commit.ensure_fresh()?;
+        if ensure_fresh && !latest_commit.timestamp.is_fresh() {
+            fail!(
+                ErrorKind::Repo,
+                "repository is stale (last commit: {:?})",
+                latest_commit.timestamp
+            );
         }
 
         Ok(repo)

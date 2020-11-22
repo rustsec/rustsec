@@ -2,7 +2,6 @@
 
 use crate::error::{Error, ErrorKind};
 
-use chrono::{self, NaiveDate, Utc};
 use serde::{de, Deserialize, Serialize};
 use std::str::FromStr;
 
@@ -35,12 +34,6 @@ impl Date {
     /// Borrow this date as a string reference
     pub fn as_str(&self) -> &str {
         self.0.as_ref()
-    }
-
-    /// Convert an advisory RFC 3339 date into a `chrono::Date`
-    pub fn to_chrono_date(&self) -> Result<chrono::Date<Utc>, Error> {
-        let date = NaiveDate::parse_from_str(&self.0, "%Y-%m-%d")?;
-        Ok(chrono::Date::from_utc(date, Utc))
     }
 
     /// Get a specific component of the date by numerical offset
