@@ -66,6 +66,10 @@ pub struct Metadata {
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<Url>,
 
+    /// Additional reference URLs with more information related to this advisory
+    #[serde(default)]
+    pub references: Vec<Url>,
+
     /// Has this advisory (i.e. itself, regardless of the crate) been yanked?
     ///
     /// This can be used to soft-delete advisories which were filed in error.
