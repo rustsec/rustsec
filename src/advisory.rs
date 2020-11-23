@@ -83,7 +83,14 @@ impl FromStr for Advisory {
     fn from_str(advisory_data: &str) -> Result<Self, Error> {
         let parts = parser::Parts::parse(&advisory_data)?;
 
-        let mut advisory: Self = toml::from_str(&parts.front_matter)?;
+        // V4 advisories omit the leading `[advisory]` TOML table
+        let front_matter = if parts.front_matter.starts_with("[advisory]\n") {
+            parts.front_matter.to_owned()
+        } else {
+            String::from("[advisory]\n") + parts.front_matter
+        };
+
+        let mut advisory: Self = toml::from_str(&front_matter)?;
 
         if !advisory.metadata.title.is_empty() {
             fail!(
