@@ -16,7 +16,7 @@ use crate::{
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "fetch")]
-use crate::repository::git;
+use std::time::SystemTime;
 
 /// Vulnerability report for a given lockfile
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -120,8 +120,8 @@ pub struct DatabaseInfo {
     pub last_commit: Option<String>,
 
     /// Date when the advisory database was last committed to
-    #[serde(rename = "last-updated")]
-    pub last_updated: Option<git::Timestamp>,
+    #[serde(rename = "last-updated", with = "humantime_serde")]
+    pub last_updated: Option<SystemTime>,
 }
 
 #[cfg(feature = "fetch")]

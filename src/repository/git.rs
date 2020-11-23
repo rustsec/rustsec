@@ -2,11 +2,9 @@
 
 mod authentication;
 mod commit;
-mod timestamp;
 
-pub use self::{commit::Commit, timestamp::Timestamp};
+pub use self::{authentication::with_authentication, commit::Commit};
 
-use self::authentication::with_authentication;
 use crate::{
     error::{Error, ErrorKind},
     fs,
@@ -141,7 +139,7 @@ impl GitRepository {
         }
 
         // Ensure that the upstream repository hasn't gone stale
-        if ensure_fresh && !latest_commit.timestamp.is_fresh() {
+        if ensure_fresh && !latest_commit.is_fresh() {
             fail!(
                 ErrorKind::Repo,
                 "repository is stale (last commit: {:?})",

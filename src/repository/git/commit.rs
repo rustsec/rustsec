@@ -1,8 +1,14 @@
 //! Commits to the advisory DB git repository
 
-use super::timestamp::Timestamp;
-use crate::error::{Error, ErrorKind};
-use crate::repository::{git::GitRepository, signature::Signature};
+use crate::{
+    error::{Error, ErrorKind},
+    repository::{git::GitRepository, signature::Signature},
+};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
+
+/// Number of days after which the repo will be considered stale
+/// (90 days)
+const STALE_AFTER: Duration = Duration::from_secs(90 * 86400);
 
 /// Information about a commit to the Git repository
 #[derive(Debug)]
@@ -17,7 +23,7 @@ pub struct Commit {
     pub summary: String,
 
     /// Commit time in number of seconds since the UNIX epoch
-    pub timestamp: Timestamp,
+    pub timestamp: SystemTime,
 
     /// Signature on the commit (mandatory for Repository::fetch)
     // TODO: actually verify signatures
@@ -58,7 +64,7 @@ impl Commit {
             _ => (None, None),
         };
 
-        let time = Timestamp::new(commit.time().seconds() as u64);
+        let time = UNIX_EPOCH + Duration::from_secs(commit.time().seconds() as u64);
 
         Ok(Commit {
             commit_id,
@@ -68,6 +74,12 @@ impl Commit {
             signature,
             signed_data,
         })
+    }
+
+    /// Is the commit timestamp "fresh" as in the database has been updated
+    /// recently? (i.e. 90 days, per the `STALE_AFTER` constant)
+    pub fn is_fresh(&self) -> bool {
+        self.timestamp > SystemTime::now().checked_sub(STALE_AFTER).unwrap()
     }
 
     /// Get the raw bytes to be verified when verifying a commit signature
