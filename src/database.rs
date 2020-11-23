@@ -20,7 +20,7 @@ use crate::{
 use std::path::Path;
 
 #[cfg(feature = "git")]
-use crate::repository::{git::Commit, GitRepository};
+use crate::repository::git;
 
 /// Iterator over entries in the database
 pub type Iter<'a> = std::slice::Iter<'a, Advisory>;
@@ -39,7 +39,7 @@ pub struct Database {
 
     /// Information about the last git commit to the database
     #[cfg(feature = "git")]
-    latest_commit: Option<Commit>,
+    latest_commit: Option<git::Commit>,
 }
 
 impl Database {
@@ -86,9 +86,9 @@ impl Database {
         })
     }
 
-    /// Load [`Database`] from the given [`GitRepository`]
+    /// Load [`Database`] from the given [`git::Repository`]
     #[cfg(feature = "git")]
-    pub fn load_from_repo(repo: &GitRepository) -> Result<Self, Error> {
+    pub fn load_from_repo(repo: &git::Repository) -> Result<Self, Error> {
         let mut db = Self::open(repo.path())?;
         db.latest_commit = Some(repo.latest_commit()?);
         Ok(db)
@@ -97,7 +97,7 @@ impl Database {
     /// Fetch the default advisory database from GitHub
     #[cfg(feature = "git")]
     pub fn fetch() -> Result<Self, Error> {
-        GitRepository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
+        git::Repository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
@@ -173,7 +173,7 @@ impl Database {
 
     /// Get information about the latest commit to the repo
     #[cfg(feature = "git")]
-    pub fn latest_commit(&self) -> Option<&Commit> {
+    pub fn latest_commit(&self) -> Option<&git::Commit> {
         self.latest_commit.as_ref()
     }
 }

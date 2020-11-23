@@ -4,14 +4,14 @@ use cargo_lock::Lockfile;
 use once_cell::sync::Lazy;
 use rustsec::database::scope;
 use rustsec::database::Query;
-use rustsec::repository::git::GitRepository;
+use rustsec::repository::git::Repository;
 use rustsec::Database;
 use std::path::Path;
 use std::sync::Mutex;
 
 static DEFAULT_DATABASE: Lazy<Mutex<Database>> = Lazy::new(|| {
     Mutex::new(
-        Database::load_from_repo(&GitRepository::fetch_default_repo().unwrap())
+        Database::load_from_repo(&Repository::fetch_default_repo().unwrap())
             .expect("Should be fetchable."),
     )
 });
