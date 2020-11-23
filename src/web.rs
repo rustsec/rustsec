@@ -171,7 +171,7 @@ impl From<&rustsec::Advisory> for AdvisoryParams {
             description: advisory.description().trim().to_owned(),
             date: advisory.metadata.date.as_str().to_owned(),
             tags: tags.join(" "),
-            url: advisory.metadata.url.clone(),
+            url: advisory.metadata.url.as_ref().map(|u| u.to_string()),
             patched_versions,
             unaffected_versions,
         }
