@@ -65,6 +65,7 @@ impl std::error::Error for Error {}
 
 /// Custom error type for this library
 #[derive(Copy, Clone, Debug, Error, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum ErrorKind {
     /// Invalid argument or parameter
     #[error("bad parameter")]

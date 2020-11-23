@@ -14,6 +14,7 @@ use std::{fmt, str::FromStr};
 ///
 /// [1]: https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md#criteria
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum Category {
     /// Execution of arbitrary code allowing an attacker to gain partial or
     /// total control of an impacted computer system.
