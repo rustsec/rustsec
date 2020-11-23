@@ -3,7 +3,7 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 /// Example RustSec Advisory
-const EXAMPLE_ADVISORY_PATH: &str = "./tests/support/example_advisory.md";
+const EXAMPLE_ADVISORY_PATH: &str = "./tests/support/example_advisory_v3.md";
 
 /// Ensure example advisory passes lint
 #[test]

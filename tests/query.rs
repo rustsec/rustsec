@@ -6,7 +6,7 @@ use rustsec::{advisory::Severity, database::Query, package};
 
 /// Load example advisory from the filesystem
 fn load_advisory() -> rustsec::Advisory {
-    rustsec::Advisory::load_file("./tests/support/example_advisory.md").unwrap()
+    rustsec::Advisory::load_file("./tests/support/example_advisory_v3.md").unwrap()
 }
 
 #[test]
