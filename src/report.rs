@@ -15,14 +15,14 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 use std::time::SystemTime;
 
 /// Vulnerability report for a given lockfile
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Report {
     /// Information about the advisory database
-    #[cfg(feature = "fetch")]
+    #[cfg(feature = "git")]
     pub database: DatabaseInfo,
 
     /// Information about the audited lockfile
@@ -52,7 +52,7 @@ impl Report {
         let warnings = find_warnings(db, lockfile, settings);
 
         Self {
-            #[cfg(feature = "fetch")]
+            #[cfg(feature = "git")]
             database: DatabaseInfo::new(db),
             lockfile: LockfileInfo::new(lockfile),
             settings: settings.clone(),
@@ -108,7 +108,7 @@ impl Settings {
 }
 
 /// Information about the advisory database
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DatabaseInfo {
     /// Number of advisories in the database
@@ -124,7 +124,7 @@ pub struct DatabaseInfo {
     pub last_updated: Option<SystemTime>,
 }
 
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 impl DatabaseInfo {
     /// Create database information from the advisory db
     pub fn new(db: &Database) -> Self {

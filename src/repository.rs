@@ -2,8 +2,8 @@
 
 pub mod signature;
 
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 pub mod git;
 
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 pub use self::git::GitRepository;

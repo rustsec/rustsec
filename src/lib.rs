@@ -25,7 +25,7 @@ pub mod warning;
 #[cfg(feature = "fix")]
 pub mod fixer;
 
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 pub mod registry;
 
 pub use cargo_lock::{self, lockfile, package};
@@ -43,7 +43,7 @@ pub use crate::{
     warning::Warning,
 };
 
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 pub use crate::repository::git::GitRepository;
 
 // Use BTreeMap and BTreeSet as our map and set types
