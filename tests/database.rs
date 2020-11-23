@@ -1,4 +1,4 @@
-#![cfg(feature = "fetch")]
+#![cfg(feature = "git")]
 
 use cargo_lock::Lockfile;
 use once_cell::sync::Lazy;

@@ -43,9 +43,9 @@ tempfile = "3"
 once_cell = "1.5.2"
 
 [features]
-default = ["fetch"]
-fetch = ["crates-index", "git2", "home", "humantime", "humantime-serde"]
+default = ["git"]
 fix = ["cargo-edit", "semver-parser"]
+git = ["crates-index", "git2", "home", "humantime", "humantime-serde"]
 dependency-tree = ["cargo-lock/dependency-tree"]
 vendored-openssl = ["git2/vendored-openssl"]
 

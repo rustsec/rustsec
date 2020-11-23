@@ -19,7 +19,7 @@ use crate::{
 };
 use std::path::Path;
 
-#[cfg(feature = "fetch")]
+#[cfg(feature = "git")]
 use crate::repository::{git::Commit, GitRepository};
 
 /// Iterator over entries in the database
@@ -38,7 +38,7 @@ pub struct Database {
     crate_index: Index,
 
     /// Information about the last git commit to the database
-    #[cfg(feature = "fetch")]
+    #[cfg(feature = "git")]
     latest_commit: Option<Commit>,
 }
 
@@ -81,13 +81,13 @@ impl Database {
             advisories,
             crate_index,
             rust_index,
-            #[cfg(feature = "fetch")]
+            #[cfg(feature = "git")]
             latest_commit: None,
         })
     }
 
     /// Load [`Database`] from the given [`GitRepository`]
-    #[cfg(feature = "fetch")]
+    #[cfg(feature = "git")]
     pub fn load_from_repo(repo: &GitRepository) -> Result<Self, Error> {
         let mut db = Self::open(repo.path())?;
         db.latest_commit = Some(repo.latest_commit()?);
@@ -95,7 +95,7 @@ impl Database {
     }
 
     /// Fetch the default advisory database from GitHub
-    #[cfg(feature = "fetch")]
+    #[cfg(feature = "git")]
     pub fn fetch() -> Result<Self, Error> {
         GitRepository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
     }
@@ -172,7 +172,7 @@ impl Database {
     }
 
     /// Get information about the latest commit to the repo
-    #[cfg(feature = "fetch")]
+    #[cfg(feature = "git")]
     pub fn latest_commit(&self) -> Option<&Commit> {
         self.latest_commit.as_ref()
     }

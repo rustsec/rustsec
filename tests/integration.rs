@@ -1,5 +1,5 @@
 //! Integration test against the live `advisory-db` repo on GitHub
-#![cfg(feature = "fetch")]
+#![cfg(feature = "git")]
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use rustsec::{
