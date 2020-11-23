@@ -172,6 +172,7 @@ impl<'de> Deserialize<'de> for Id {
 
 /// Known kinds of advisory IDs
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum Kind {
     /// Our advisory namespace
     RUSTSEC,

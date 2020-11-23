@@ -297,6 +297,7 @@ impl fmt::Display for Error {
 
 /// Lint errors
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
 pub enum ErrorKind {
     /// Advisory is structurally malformed
     Malformed,
