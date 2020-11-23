@@ -3,6 +3,7 @@
 
 use abscissa_core::testing::prelude::*;
 use once_cell::sync::Lazy;
+use rustsec::repository::git;
 
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(CmdRunner::default);
 
@@ -10,13 +11,13 @@ pub static RUNNER: Lazy<CmdRunner> = Lazy::new(CmdRunner::default);
 #[test]
 fn lint_advisory_db() {
     // Fetch the advisory database
-    rustsec::GitRepository::fetch_default_repo().unwrap();
+    git::Repository::fetch_default_repo().unwrap();
 
     let mut runner = RUNNER.clone();
 
     runner
         .arg("lint")
-        .arg(&rustsec::GitRepository::default_path())
+        .arg(&git::Repository::default_path())
         .capture_stdout()
         .status()
         .expect_success();
