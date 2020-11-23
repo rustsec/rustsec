@@ -2,7 +2,7 @@
 
 use crate::{
     error::{Error, ErrorKind},
-    repository::{git::GitRepository, signature::Signature},
+    repository::{git::Repository, signature::Signature},
 };
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -35,7 +35,7 @@ pub struct Commit {
 
 impl Commit {
     /// Get information about HEAD
-    pub(crate) fn from_repo_head(repo: &GitRepository) -> Result<Self, Error> {
+    pub(crate) fn from_repo_head(repo: &Repository) -> Result<Self, Error> {
         let head = repo.repo.head()?;
 
         let oid = head.target().ok_or_else(|| {
@@ -88,7 +88,7 @@ impl Commit {
     }
 
     /// Reset the repository's state to match this commit
-    pub(crate) fn reset(&self, repo: &GitRepository) -> Result<(), Error> {
+    pub(crate) fn reset(&self, repo: &Repository) -> Result<(), Error> {
         let commit_object = repo.repo.find_object(
             git2::Oid::from_str(&self.commit_id).unwrap(),
             Some(git2::ObjectType::Commit),

@@ -11,7 +11,7 @@ use tempfile::tempdir;
 /// Happy path integration test (has online dependency on GitHub)
 #[test]
 fn happy_path() {
-    let db = Database::load_from_repo(&git::GitRepository::fetch_default_repo().unwrap()).unwrap();
+    let db = Database::load_from_repo(&git::Repository::fetch_default_repo().unwrap()).unwrap();
     verify_rustsec_2017_0001(&db);
     verify_cve_2018_1000810(&db);
 }
@@ -94,5 +94,5 @@ fn clone_into_existing_directory() {
     let tmp = tempdir().unwrap();
 
     // Attempt to fetch into it
-    git::GitRepository::fetch(git::DEFAULT_URL, tmp.path(), true).unwrap();
+    git::Repository::fetch(git::DEFAULT_URL, tmp.path(), true).unwrap();
 }

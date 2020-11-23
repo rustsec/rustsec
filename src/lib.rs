@@ -44,7 +44,7 @@ pub use crate::{
 };
 
 #[cfg(feature = "git")]
-pub use crate::repository::git::GitRepository;
+pub use crate::repository::git::Repository;
 
 // Use BTreeMap and BTreeSet as our map and set types
 use std::collections::{btree_map as map, btree_set as set, BTreeMap as Map, BTreeSet as Set};
