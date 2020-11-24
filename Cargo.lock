@@ -1592,7 +1592,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec-admin"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "abscissa_core",
  "chrono",
