@@ -79,6 +79,7 @@ impl Platform {
             tier1::X86_64_PC_WINDOWS_MSVC,
             tier1::X86_64_UNKNOWN_LINUX_GNU,
             // Tier 2
+            tier2::AARCH64_APPLE_DARWIN,
             tier2::AARCH64_APPLE_IOS,
             tier2::AARCH64_PC_WINDOWS_MSVC,
             tier2::AARCH64_LINUX_ANDROID,
