@@ -20,6 +20,15 @@ use crate::{
     target::{Arch, Env, OS},
 };
 
+/// `aarch64-apple-darwin`: Apple Silicon macOS (11+)
+pub const AARCH64_APPLE_DARWIN: Platform = Platform {
+    target_triple: "aarch64-apple-darwin",
+    target_arch: Arch::AARCH64,
+    target_os: OS::MacOS,
+    target_env: None,
+    tier: Tier::Two,
+};
+
 /// `aarch64-apple-ios`: ARM64 iOS
 pub const AARCH64_APPLE_IOS: Platform = Platform {
     target_triple: "aarch64-apple-ios",
