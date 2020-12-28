@@ -29,8 +29,8 @@ please use those for build purposes.
 
 Rust **1.40** or higher.
 
-Minimum supported Rust version can be changed in the future, but it will be
-done with a minor version bump.
+Minimum supported Rust version may be changed in the future, but it will be
+accompanied by a minor version bump.
 
 ## Registered Platforms
 
