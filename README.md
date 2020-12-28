@@ -51,6 +51,7 @@ done with a minor version bump.
 
 | target triple                     | target_arch | target_os  | target_env |
 |-----------------------------------|-------------|------------|------------|
+| [aarch64-apple-darwin]            | aarch64     | macos      | ""         |
 | [aarch64-apple-ios]               | aarch64     | ios        | ""         |
 | [aarch64-pc-windows-msvc]         | aarch64     | windows    | msvc       |
 | [aarch64-linux-android]           | aarch64     | android    | ""         |
@@ -172,6 +173,7 @@ additional terms or conditions.
 [x86_64-pc-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_PC_WINDOWS_GNU.html
 [x86_64-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_PC_WINDOWS_MSVC.html
 [x86_64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/tier1/constant.X86_64_UNKNOWN_LINUX_GNU.html
+[aarch64-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_APPLE_DARWIN.html
 [aarch64-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_APPLE_IOS.html
 [aarch64-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_PC_WINDOWS_MSVC.html
 [aarch64-linux-android]: https://docs.rs/platforms/latest/platforms/platform/tier2/constant.AARCH64_LINUX_ANDROID.html
