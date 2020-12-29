@@ -12,7 +12,7 @@ Audit `Cargo.lock` files for crates with security vulnerabilities reported to th
 
 ## Requirements
 
-`cargo audit` requires Rust **1.40** or later.
+`cargo audit` requires Rust **1.44** or later.
 
 ## Installation
 
