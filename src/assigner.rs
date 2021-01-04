@@ -134,7 +134,7 @@ fn assign_ids_across_directory(
                     let advisory: Advisory = toml::from_str(&advisory_parts.front_matter).unwrap();
                     let date = advisory.metadata.date;
                     let year = date.year();
-                    let new_id = highest_ids.get(&year).unwrap() + 1;
+                    let new_id = highest_ids.get(&year).cloned().unwrap_or_default() + 1;
                     let year_str = year.to_string();
                     let string_id = format!("RUSTSEC-{}-{:04}", year_str, new_id);
                     let new_filename = format!("{}.md", string_id);
