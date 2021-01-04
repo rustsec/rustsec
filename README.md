@@ -6,7 +6,7 @@
 [![Safety Dance][safety-image]][safety-link]
 ![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
-[![Gitter Chat][gitter-image]][gitter-link]
+[![Project Chat][chat-image]][chat-link]
 
 The `rustsec-admin` CLI app is an administrative utility for maintaining the
 RustSec Advisory Database.
@@ -41,11 +41,11 @@ additional terms or conditions.
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[gitter-image]: https://badges.gitter.im/badge.svg
-[gitter-link]: https://gitter.im/RustSec/Lobby
+[chat-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
+[chat-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
 
 [//]: # (general links)
 
 [cargo-audit]: https://github.com/RustSec/cargo-audit
-[LICENSE-APACHE]: https://github.com/RustSec/rustsec-admin/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/rustsec-admin/blob/master/LICENSE-MIT
+[LICENSE-APACHE]: https://github.com/RustSec/rustsec-admin/blob/main/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/rustsec-admin/blob/main/LICENSE-MIT
