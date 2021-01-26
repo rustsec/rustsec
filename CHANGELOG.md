@@ -4,6 +4,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.23.0 (2021-01-26)
+### Added
+- Advisory `references` as a URL list ([#266])
+- Support for omitting leading `[advisory]` table ([#268])
+- `thread-safety` category ([#290])
+
+### Changed
+- Rename previous `references` field to `related` ([#261])
+- Use `url` crate to parse metadata URL ([#263])
+- Bump `smol_str` to v0.1.17; MSRV 1.46+ ([#264])
+- Replace `chrono` with `humantime` ([#265])
+- Mark enums as non_exhaustive ([#267])
+- Use `SystemTime` instead of a `git::Timestamp` type ([#269])
+- Rename `fetch` Cargo feature to `git` ([#270])
+- Rename `repository::GitRepository` to `repository::git::Repository` ([#271])
+
+### Removed
+- `markdown` feature ([#262])
+
+[#261]: https://github.com/RustSec/rustsec-crate/pull/261
+[#262]: https://github.com/RustSec/rustsec-crate/pull/262
+[#263]: https://github.com/RustSec/rustsec-crate/pull/263
+[#264]: https://github.com/RustSec/rustsec-crate/pull/264
+[#265]: https://github.com/RustSec/rustsec-crate/pull/265
+[#266]: https://github.com/RustSec/rustsec-crate/pull/266
+[#267]: https://github.com/RustSec/rustsec-crate/pull/267
+[#268]: https://github.com/RustSec/rustsec-crate/pull/268
+[#269]: https://github.com/RustSec/rustsec-crate/pull/269
+[#270]: https://github.com/RustSec/rustsec-crate/pull/270
+[#271]: https://github.com/RustSec/rustsec-crate/pull/271
+[#290]: https://github.com/RustSec/rustsec-crate/pull/290
+
 ## 0.22.2 (2020-10-27)
 ### Changed
 - Revert "Refactor Advisory type handling" ([#249])
