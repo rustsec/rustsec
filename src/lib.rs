@@ -5,7 +5,7 @@
 //! <https://crates.io/crates/cargo-audit>
 
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
+    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png",
     html_root_url = "https://docs.rs/rustsec/0.23.0-pre"
 )]
 #![forbid(unsafe_code)]

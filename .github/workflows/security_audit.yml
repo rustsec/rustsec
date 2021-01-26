@@ -3,7 +3,7 @@ on:
   pull_request:
     paths: Cargo.lock
   push:
-    branches: develop
+    branches: main
     paths: Cargo.lock
   schedule:
     - cron: '0 0 * * *'
