@@ -50,7 +50,7 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/rustsec
 [docs-image]: https://docs.rs/rustsec/badge.svg
 [docs-link]: https://docs.rs/rustsec/
-[build-image]: https://github.com/rustsec/rustsec-crate/workflows/CI/badge.svg?branch=master&event=push
+[build-image]: https://github.com/rustsec/rustsec-crate/workflows/CI/badge.svg?branch=main&event=push
 [build-link]: https://github.com/rustsec/rustsec-crate/actions
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
@@ -65,5 +65,5 @@ additional terms or conditions.
 [advisory-db]: https://github.com/RustSec/advisory-db
 [Documentation]: https://docs.rs/rustsec/
 [cargo-audit]: https://github.com/rustsec/cargo-audit
-[LICENSE-APACHE]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/rustsec-crate/blob/master/LICENSE-MIT
+[LICENSE-APACHE]: https://github.com/RustSec/rustsec-crate/blob/main/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/rustsec-crate/blob/main/LICENSE-MIT
