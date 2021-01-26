@@ -70,8 +70,8 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/cargo-lock
 [docs-image]: https://docs.rs/cargo-lock/badge.svg
 [docs-link]: https://docs.rs/cargo-lock/
-[build-image]: https://github.com/rustsec/cargo-lock/workflows/Rust/badge.svg?branch=main&event=push
-[build-link]: https://github.com/rustsec/cargo-lock/actions
+[build-image]: https://github.com/rustsec/cargo-lock/workflows/CI/badge.svg?branch=main&event=push
+[build-link]: https://github.com/RustSec/cargo-lock/actions?query=workflow:CI
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
