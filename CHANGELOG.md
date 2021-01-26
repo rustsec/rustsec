@@ -1,3 +1,8 @@
+## 0.3.4 (2021-01-26)
+- Bump `rustsec` crate to v0.23 ([#112])
+
+[#112]: https://github.com/RustSec/rustsec-admin/pull/112
+
 ## 0.3.3 (2021-01-04)
 - assigner: fix "new year's" bug ([#102])
 
