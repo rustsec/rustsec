@@ -1,11 +1,21 @@
-## 6.0.0 (2020-09-25)
+# Changelog
+All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## 6.0.1 (2021-01-25)
+### Changed
+-  Rename default branch to `main` ([#94])
+
+[#94]: https://github.com/RustSec/cargo-lock/pull/94
+
+## 6.0.0 (2020-09-25)
 - Bump semver from 0.10.0 to 0.11.0 ([#83])
 
 [#83]: https://github.com/RustSec/cargo-lock/pull/83
 
 ## 5.0.0 (2020-09-23)
-
 - CLI: support for listing a single dependency ([#77])
 - Cargo-compatible serializer ([#76])
 - CLI: add `--dependencies` and `--sources` flags to `cargo lock list` ([#75])
@@ -27,13 +37,11 @@
 [#57]: https://github.com/RustSec/cargo-lock/pull/57
 
 ## 4.0.1 (2020-01-22)
-
 - CLI: fix executable name ([#45])
 
 [#45]: https://github.com/RustSec/cargo-lock/pull/46
 
 ## 4.0.0 (2020-01-22)
-
 - Command line interface ([#40], [#42], [#43])
 - Add helper methods for working with checksum metadata ([#38])
 - Use minified version of Cargo's `SourceId` type ([#36])
@@ -55,13 +63,11 @@
 [#28]: https://github.com/RustSec/cargo-lock/pull/28
 
 ## 3.0.0 (2019-10-01)
-
 - Support `[package.dependencies]` without versions ([#23])
 
 [#23]: https://github.com/RustSec/cargo-lock/pull/23
 
 ## 2.0.0 (2019-09-25)
-
 - Use two-pass dependency tree computation ([#20])
 - Remove `Lockfile::root_package()` ([#18])
 
@@ -69,7 +75,6 @@
 [#18]: https://github.com/RustSec/cargo-lock/pull/18
 
 ## 1.0.0 (2019-09-24)
-
 - dependency/tree: Render trees to an `io::Write` ([#16])
 - metadata: Generalize into `Key` and `Value` types ([#14])
 - Refactor dependency handling ([#11])
@@ -79,17 +84,14 @@
 [#11]: https://github.com/RustSec/cargo-lock/pull/11
 
 ## 0.2.1 (2019-09-21)
-
 - Allow empty `[metadata]` in Cargo.lock files ([#9])
 
 [#9]: https://github.com/RustSec/cargo-lock/pull/9
 
 ## 0.2.0 (2019-09-21)
-
 - dependency_graph: Move `petgraph` types into a module ([#7])
 
 [#7]: https://github.com/RustSec/cargo-lock/pull/7
 
 ## 0.1.0 (2019-09-21)
-
 - Initial release
