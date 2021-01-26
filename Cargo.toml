@@ -10,9 +10,6 @@ categories  = ["parser-implementations"]
 keywords    = ["cvssv3", "security", "advisory", "vulnerability"]
 edition     = "2018"
 
-[badges]
-maintenance = { status = "passively-maintained" }
-
 [dependencies]
 serde = { version = "1", optional = true }
 
