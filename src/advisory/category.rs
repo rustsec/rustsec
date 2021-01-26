@@ -48,6 +48,10 @@ pub enum Category {
     /// allowing the attacker to obtain unintended privileges.
     PrivilegeEscalation,
 
+    /// Thread safety bug, e.g. data races arising from unsafe code that
+    /// misapplies and/or misuses `Send`/`Sync`.
+    ThreadSafety,
+
     /// Other types of categories: left open-ended to add more of them in the future.
     Other(String),
 }
@@ -64,6 +68,7 @@ impl Category {
             Category::MemoryCorruption => "memory-corruption",
             Category::MemoryExposure => "memory-exposure",
             Category::PrivilegeEscalation => "privilege-escalation",
+            Category::ThreadSafety => "thread-safety",
             Category::Other(other) => other,
         }
     }
@@ -88,6 +93,7 @@ impl FromStr for Category {
             "memory-corruption" => Category::MemoryCorruption,
             "memory-exposure" => Category::MemoryExposure,
             "privilege-escalation" => Category::PrivilegeEscalation,
+            "thread-safety" => Category::ThreadSafety,
             other => Category::Other(other.to_owned()),
         })
     }
