@@ -18,6 +18,9 @@ use std::path::Path;
 /// Location of the crates.io index
 pub const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
 
+/// Default branch name
+pub const DEFAULT_BRANCH: &str = "master";
+
 /// Unique identifier for a source of packages.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct SourceId {
@@ -86,7 +89,7 @@ impl SourceId {
         match kind {
             "git" => {
                 let mut url = url.into_url()?;
-                let mut reference = GitReference::Branch("master".to_string());
+                let mut reference = GitReference::Branch(DEFAULT_BRANCH.to_string());
                 for (k, v) in url.query_pairs() {
                     match &k[..] {
                         // Map older 'ref' to branch.
@@ -307,10 +310,10 @@ pub enum GitReference {
 
 impl GitReference {
     /// Returns a `Display`able view of this git reference, or None if using
-    /// the head of the "master" branch
+    /// the head of the default branch
     pub fn pretty_ref(&self) -> Option<PrettyRef<'_>> {
         match *self {
-            GitReference::Branch(ref s) if *s == "master" => None,
+            GitReference::Branch(ref s) if *s == DEFAULT_BRANCH => None,
             _ => Some(PrettyRef { inner: self }),
         }
     }
