@@ -38,7 +38,7 @@ additional terms or conditions.
 [docs-image]: https://docs.rs/cvss/badge.svg
 [docs-link]: https://docs.rs/cvss/
 [build-image]: https://github.com/rustsec/cvss.rs/workflows/CI/badge.svg
-[build-link]: https://github.com/rustsec/cvss.rs/actions
+[build-link]: https://github.com/RustSec/cvss.rs/actions?query=workflow:CI
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
