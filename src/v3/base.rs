@@ -225,15 +225,17 @@ impl FromStr for Base {
             fail!(ErrorKind::Parse, "invalid CVSS prefix: {}", id);
         }
 
-        let mut metrics = Self::default();
-        metrics.minor_version = match version_string {
-            "3.0" => 0,
-            "3.1" => 1,
-            _ => fail!(
-                ErrorKind::Version,
-                "wrong CVSS version (expected one of '3.0' or '3.1'): '{}'",
-                version_string
-            ),
+        let mut metrics = Self {
+            minor_version: match version_string {
+                "3.0" => 0,
+                "3.1" => 1,
+                _ => fail!(
+                    ErrorKind::Version,
+                    "wrong CVSS version (expected one of '3.0' or '3.1'): '{}'",
+                    version_string
+                ),
+            },
+            ..Default::default()
         };
 
         for component in components {
