@@ -13,13 +13,15 @@ edition     = "2018"
 abscissa_core = "0.5"
 crates_io_api = "0.5"
 gumdrop = "0.7"
-handlebars = "3"
 rustsec = "0.23"
 serde = { version = "1", features = ["serde_derive"] }
 termcolor = "1"
 thiserror = "1"
 toml = "0.5"
 chrono = { version = "0.4", features = ["serde"] }
+askama = "0.10"
+fs_extra = "1.2.0"
+comrak = "0.9"
 
 [dev-dependencies]
 abscissa_core = { version = "0.5", features = ["testing"] }

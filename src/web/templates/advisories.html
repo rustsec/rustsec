@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Advisories{% endblock %}
+
+{% block content %}
+<main class="advisories">
+  <article>
+    {% for year_grouped_advisories in advisories_per_year %}
+    <header><h1>{{ year_grouped_advisories.year }}</h1></header>
+
+    {% for advisory in year_grouped_advisories.advisories %}
+      <li>
+        <time datetime="{{ advisory.date().as_str() }}">
+          {{ advisory.date() | friendly_date }}
+        </time>
+        <h3>
+          <a href="/advisories/{{ advisory.id() }}.html">
+            {{ advisory.id() }}: {{ advisory.metadata.package }}: {{ advisory.title() }}
+          </a>
+        </h3>
+      </li>
+    {% endfor %}
+    {% endfor %}
+  </article>
+</main>
+{% endblock %}

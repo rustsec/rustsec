@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}About RustSec{% endblock %}
+
+{% block content %}
+<main>
+  <article>
+    <header>
+      <h1>
+        <a href=".">
+          {{ advisory.id() }}: {{ advisory.metadata.package }}: {{ advisory.title() }}
+        </a>
+      </h1>
+      <time datetime="{{ advisory.date().as_str() }}">
+        {{ advisory.date() | friendly_date }}
+      </time>
+    </header>
+
+    <h3 id="description">Description</h3>
+    {{ rendered_description|safe }}
+
+    {% if advisory.metadata.url.is_some() %}
+    <h3 id="more-info">More Info</h3>
+    <p>
+      <a href="{{ advisory.metadata.url.as_ref().unwrap() }}">
+        {{ advisory.metadata.url.as_ref().unwrap() }}
+      </a>
+    </p>
+    {% endif %}
+
+    <h3 id="patched-versions">Patched Versions</h3>
+    <ul>
+    {% if advisory.versions.patched.len() == 0 %}
+      <li>None!</li>
+    {% endif %}
+    {% for patched in advisory.versions.patched %}
+      <li><code>{{ patched }}</code></li>
+    {% endfor %}
+    </ul>
+
+  </article>
+</main>
+{% endblock %}
