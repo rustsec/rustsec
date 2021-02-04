@@ -1,0 +1,113 @@
+body {
+  font-family: "Source Sans Pro";
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.65;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+  transition: color 0.2s ease-out;
+}
+a.selected, a:hover {
+  color: #949494;
+}
+
+a, b, strong, th {
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+}
+
+main {
+  flex-grow: 1;
+}
+
+article a {
+  color: #68f;
+}
+
+header a, footer a {
+  color: inherit;
+  font-weight: 500;
+}
+
+hr {
+  border: 1px solid rgba(148, 148, 148, 0.16);
+  margin: 2em 0;
+}
+
+header span, header time {
+  color: #949494;
+}
+
+.logo-image {
+  max-width: 400px;
+  max-height: 120px;
+}
+
+blockquote {
+  border-left: 5px solid #68f;
+  padding-left: 1.5em;
+  margin: 0;
+}
+
+body, aside, main {
+  flex-direction: column;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+
+figure {
+  margin: 1em 0;
+}
+
+code {
+  background-color: rgba(148, 148, 148, 0.12);
+  color: gray;
+  border-radius: 2px;
+  font-size: 0.8em;
+  margin: 0 0.2em;
+  padding: 0.2em 0.4em;
+}
+
+pre {
+  background-color: rgba(34, 34, 34, 0.8);
+  color: white;
+  border-radius: 2px;
+  font-size: 0.7em;
+  padding: 0.8em 1.2em;
+  white-space: pre-wrap;
+}
+
+pre code {
+  background: initial;
+  color: inherit;
+  font-size: initial;
+  margin: initial;
+  padding: initial;
+}
+
+table {
+  border-spacing: 1px;
+  box-shadow: 0px 0px 0px 1px rgba(148, 148, 148, 0.16) inset;
+}
+
+tr:hover {
+  background: rgba(148, 148, 148, 0.06);
+}
+
+th, td {
+  box-shadow: 0px 0px 0px 1px rgba(148, 148, 148, 0.16);
+  padding: 0.5em 1em;
+}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}About RustSec{% endblock %}
+
+{% block content %}
+<main>
+  <article>
+    <header>
+      <h1><a href="/">About RustSec</a></h1>
+    </header>
+
+    <p>The <a href="https://github.com/RustSec/advisory-db">RustSec Advisory Database</a>
+      is a repository of security advisories filed against Rust crates published
+      via <a href="https://crates.io">https://crates.io</a> maintained by
+      the <a href="https://www.rust-lang.org/governance/wgs/wg-secure-code">Rust Secure Code Working Group</a>.</p>
+    </p>
+
+
+    <h2>RustSec Tools</h2>
+    <ul>
+      <li>
+        <a href="https://github.com/RustSec/cargo-audit">cargo-audit</a> - audit
+        <code class="language-plaintext highlighter-rouge">Cargo.lock</code>
+        files for crates with security vulnerabilities
+      </li>
+    </ul>
+
+
+    <h2>Reporting Vulnerabilities</h2>
+    <p>To report a new vulnerability for a Rust crate, open a pull request
+      against the <a href="https://github.com/RustSec/advisory-db">RustSec Advisory Database</a>.
+    </p>
+
+    <p><a href="https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md">
+      <img alt="Report Vulnerability" width="250px" height="60px"
+        src="/img/report-vuln-button.svg" />
+    </a></p>
+
+  </article>
+</main>
+{% endblock %}
