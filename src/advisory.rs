@@ -84,7 +84,7 @@ impl FromStr for Advisory {
         let parts = parser::Parts::parse(&advisory_data)?;
 
         // V4 advisories omit the leading `[advisory]` TOML table
-        let front_matter = if parts.front_matter.starts_with("[advisory]\n") {
+        let front_matter = if parts.front_matter.starts_with("[advisory]") {
             parts.front_matter.to_owned()
         } else {
             String::from("[advisory]\n") + parts.front_matter
