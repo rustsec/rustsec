@@ -44,12 +44,12 @@ impl Auditor {
             .cloned()
             .unwrap_or_else(rustsec::GitRepository::default_path);
 
-        let advisory_db_repo = if config.database.fetch {
+        let database = if config.database.fetch {
             if !config.output.is_quiet() {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
 
-            rustsec::GitRepository::fetch(
+            let advisory_db_repo = rustsec::GitRepository::fetch(
                 advisory_db_url,
                 &advisory_db_path,
                 !config.database.stale,
@@ -57,18 +57,18 @@ impl Auditor {
             .unwrap_or_else(|e| {
                 status_err!("couldn't fetch advisory database: {}", e);
                 exit(1);
+            });
+
+            rustsec::Database::load_from_repo(&advisory_db_repo).unwrap_or_else(|e| {
+                status_err!("error loading advisory database: {}", e);
+                exit(1);
             })
         } else {
-            rustsec::GitRepository::open(&advisory_db_path).unwrap_or_else(|e| {
-                status_err!("couldn't open advisory database: {}", e);
+            rustsec::Database::open(&advisory_db_path).unwrap_or_else(|e| {
+                status_err!("error loading advisory database: {}", e);
                 exit(1);
             })
         };
-
-        let database = rustsec::Database::load_from_repo(&advisory_db_repo).unwrap_or_else(|e| {
-            status_err!("error loading advisory database: {}", e);
-            exit(1);
-        });
 
         if !config.output.is_quiet() {
             status_ok!(
@@ -80,7 +80,7 @@ impl Auditor {
         }
 
         let registry_index = if config.yanked.enabled {
-            if config.yanked.update_index {
+            if config.yanked.update_index && config.database.fetch {
                 if !config.output.is_quiet() {
                     status_ok!("Updating", "crates.io index");
                 }
