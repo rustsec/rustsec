@@ -62,6 +62,34 @@ impl AuditConfig {
             settings.informational_warnings = vec![advisory::Informational::Unmaintained];
         }
 
+        // Enable warnings for all informational advisories if they are marked deny.
+        // Deny only works on the output if a corresponding advisory is found but only the
+        // informational categories listed in informational_warnings are reported.
+        // This means that if "Unsound" is missing from informational_warnings then deny unsound
+        // will not do anything.
+        // To fix this always add the corresponding warning category
+        let mut insert_if_not_present = |warning| {
+            if !settings.informational_warnings.contains(&warning) {
+                settings.informational_warnings.push(warning);
+            }
+        };
+
+        for deny in &self.output.deny {
+            match deny {
+                DenyOption::Warnings => {
+                    insert_if_not_present(advisory::Informational::Notice);
+                    insert_if_not_present(advisory::Informational::Unmaintained);
+                    insert_if_not_present(advisory::Informational::Unsound);
+                    break;
+                }
+                DenyOption::Unmaintained => {
+                    insert_if_not_present(advisory::Informational::Unmaintained)
+                }
+                DenyOption::Unsound => insert_if_not_present(advisory::Informational::Unsound),
+                DenyOption::Yanked => continue,
+            };
+        }
+
         settings
     }
 }
