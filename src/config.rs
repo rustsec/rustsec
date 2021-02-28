@@ -58,8 +58,11 @@ impl AuditConfig {
         if let Some(informational_warnings) = &self.advisories.informational_warnings {
             settings.informational_warnings = informational_warnings.clone();
         } else {
-            // Alert for unmaintained packages by default
-            settings.informational_warnings = vec![advisory::Informational::Unmaintained];
+            // Alert for unmaintained and unsound packages by default
+            settings.informational_warnings = vec![
+                advisory::Informational::Unmaintained,
+                advisory::Informational::Unsound,
+            ];
         }
 
         settings
