@@ -5,6 +5,7 @@ use std::{fs, path::PathBuf};
 
 use askama::Template;
 use comrak::{markdown_to_html, ComrakOptions};
+use rust_embed::RustEmbed;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -56,12 +57,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     }
 
     // Copy all the static assets.
-    let mut options = fs_extra::dir::CopyOptions::new();
-    options.overwrite = true;
-    options.content_only = true;
-
-    let static_folder = PathBuf::from("src/web/static");
-    fs_extra::dir::copy(static_folder, &output_folder, &options).unwrap();
+    copy_static_assets(&output_folder);
 
     // Render the index.html (/) page.
     let index_page = IndexTemplate.render().unwrap();
@@ -99,6 +95,24 @@ pub fn render_advisories(output_folder: PathBuf) {
         "{} advisories rendered as HTML",
         advisories.len()
     );
+}
+
+#[derive(RustEmbed)]
+#[folder = "src/web/static/"]
+struct StaticAsset;
+
+fn copy_static_assets(output_folder: &PathBuf) {
+    for file in StaticAsset::iter() {
+        let asset_path = PathBuf::from(file.as_ref());
+
+        // If the asset is in a folder, e.g css/. Make the directory first.
+        if let Some(containing_folder) = asset_path.parent() {
+            fs::create_dir_all(output_folder.join(containing_folder)).unwrap();
+        }
+
+        let asset_contents = StaticAsset::get(file.as_ref()).unwrap();
+        fs::write(output_folder.join(file.as_ref()), asset_contents).unwrap();
+    }
 }
 
 mod filters {
