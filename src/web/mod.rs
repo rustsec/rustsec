@@ -29,14 +29,12 @@ struct AdvisoryTemplate<'a> {
 }
 
 /// Render all advisories using the Markdown template
-pub fn render_advisories() {
+pub fn render_advisories(output_folder: PathBuf) {
     let mut advisories: Vec<rustsec::Advisory> = rustsec::Database::fetch()
         .unwrap()
         .iter()
         .map(|advisory| advisory.to_owned())
         .collect();
-
-    let output_folder = PathBuf::from("_site");
 
     // Render individual advisory pages.
     let advisories_folder = output_folder.join("advisories");
