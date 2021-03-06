@@ -1,3 +1,12 @@
+## 0.3.5 (2021-03-06)
+- Use a fully Rust based solution for rendering web page ([#115])
+- Use rust-embed for static assets ([#122])
+- Add argument to change where website is outputted ([#123])
+
+[#115]: https://github.com/RustSec/rustsec-admin/pull/115
+[#122]: https://github.com/RustSec/rustsec-admin/pull/122
+[#123]: https://github.com/RustSec/rustsec-admin/pull/123
+
 ## 0.3.4 (2021-01-26)
 - Bump `rustsec` crate to v0.23 ([#112])
 
