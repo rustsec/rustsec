@@ -31,7 +31,7 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
-          - 1.41.0
+          - 1.46.0
           - stable
     runs-on: ${{ matrix.platform }}
     steps:
@@ -62,11 +62,7 @@ jobs:
           profile: minimal
           override: true
       - name: Run cargo audit
-        run: >
-          cargo run -- audit -D warnings
-          --ignore RUSTSEC-2020-0016
-          --ignore RUSTSEC-2020-0036
-          --ignore RUSTSEC-2020-0053
+        run: cargo run -- audit
 
   rustfmt:
     runs-on: ubuntu-latest
@@ -86,7 +82,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.41.0
+          toolchain: 1.46.0
           profile: minimal
           components: clippy
           override: true

@@ -42,14 +42,14 @@ impl Auditor {
             .path
             .as_ref()
             .cloned()
-            .unwrap_or_else(rustsec::GitRepository::default_path);
+            .unwrap_or_else(rustsec::repository::git::Repository::default_path);
 
         let database = if config.database.fetch {
             if !config.output.is_quiet() {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
 
-            let advisory_db_repo = rustsec::GitRepository::fetch(
+            let advisory_db_repo = rustsec::repository::git::Repository::fetch(
                 advisory_db_url,
                 &advisory_db_path,
                 !config.database.stale,
