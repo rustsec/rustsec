@@ -71,7 +71,7 @@ Please use [`audit-check` action](https://github.com/actions-rs/audit-check) dir
 Report vulnerabilities by opening pull requests against the [RustSec Advisory Database]
 GitHub repo:
 
-<a href="https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md">
+<a href="https://github.com/RustSec/advisory-db/blob/main/CONTRIBUTING.md">
   <img alt="Report Vulnerability" width="250px" height="60px" src="https://rustsec.org/assets/img/report-vuln-button.svg">
 </a>
 
@@ -94,8 +94,8 @@ additional terms or conditions.
 
 [crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
 [crate-link]: https://crates.io/crates/cargo-audit
-[build-image]: https://github.com/rustsec/cargo-audit/workflows/CI/badge.svg?branch=master&event=push
-[build-link]: https://github.com/RustSec/cargo-audit/actions?query=workflow:CI+branch:master
+[build-image]: https://github.com/rustsec/cargo-audit/workflows/CI/badge.svg?branch=main&event=push
+[build-link]: https://github.com/RustSec/cargo-audit/actions?query=workflow:CI+branch:main
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.46+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
@@ -106,5 +106,5 @@ additional terms or conditions.
 [//]: # (general links)
 
 [RustSec Advisory Database]: https://github.com/RustSec/advisory-db/
-[LICENSE-APACHE]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-APACHE
-[LICENSE-MIT]: https://github.com/RustSec/cargo-audit/blob/master/LICENSE-MIT
+[LICENSE-APACHE]: https://github.com/RustSec/cargo-audit/blob/main/LICENSE-APACHE
+[LICENSE-MIT]: https://github.com/RustSec/cargo-audit/blob/main/LICENSE-MIT

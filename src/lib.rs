@@ -14,7 +14,7 @@
 //! <https://docs.rs/rustsec/>
 
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/master/rustsec-logo-lg.png",
+    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png",
     html_root_url = "https://docs.rs/cargo-audit/0.13.0"
 )]
 #![forbid(unsafe_code)]
