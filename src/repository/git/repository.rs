@@ -7,14 +7,14 @@ use crate::{
 };
 use std::path::{Path, PathBuf};
 
-/// Directory under ~/.cargo where the advisory-db repo will be kept
+/// Directory under `~/.cargo` where the advisory-db repo will be kept
 const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
 
-/// Ref for master in the local repository
-const LOCAL_MASTER_REF: &str = "refs/heads/master";
+/// Ref for the `main` branch in the local repository
+const LOCAL_REF: &str = "refs/heads/main";
 
-/// Ref for master in the remote repository
-const REMOTE_MASTER_REF: &str = "refs/remotes/origin/master";
+/// Ref for the `main` branch in the remote repository
+const REMOTE_REF: &str = "refs/remotes/origin/main";
 
 /// Git repository for a Rust advisory DB
 pub struct Repository {
@@ -87,23 +87,23 @@ impl Repository {
 
             if path.exists() {
                 let repo = git2::Repository::open(&path)?;
-                let refspec = LOCAL_MASTER_REF.to_owned() + ":" + REMOTE_MASTER_REF;
+                let refspec = LOCAL_REF.to_owned() + ":" + REMOTE_REF;
 
                 // Fetch remote packfiles and update tips
                 let mut remote = repo.remote_anonymous(url)?;
                 remote.fetch(&[refspec.as_str()], Some(&mut fetch_opts), None)?;
 
                 // Get the current remote tip (as an updated local reference)
-                let remote_master_ref = repo.find_reference(REMOTE_MASTER_REF)?;
-                let remote_target = remote_master_ref.target().unwrap();
+                let remote_main_ref = repo.find_reference(REMOTE_REF)?;
+                let remote_target = remote_main_ref.target().unwrap();
 
-                // Set the local master ref to match the remote
-                let mut local_master_ref = repo.find_reference(LOCAL_MASTER_REF)?;
-                local_master_ref.set_target(
+                // Set the local main ref to match the remote
+                let mut local_main_ref = repo.find_reference(LOCAL_REF)?;
+                local_main_ref.set_target(
                     remote_target,
                     &format!(
-                        "rustsec: moving master to {}: {}",
-                        REMOTE_MASTER_REF, &remote_target
+                        "rustsec: moving `main` to {}: {}",
+                        REMOTE_REF, &remote_target
                     ),
                 )?;
             } else {

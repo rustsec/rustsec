@@ -12,7 +12,7 @@ use std::{fmt, str::FromStr};
 /// This type represents the present list of allowable vulnerability types for
 /// which we allow advisories to be filed.
 ///
-/// [1]: https://github.com/RustSec/advisory-db/blob/master/CONTRIBUTING.md#criteria
+/// [1]: https://github.com/RustSec/advisory-db/blob/main/CONTRIBUTING.md#criteria
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum Category {
