@@ -98,14 +98,26 @@ impl Repository {
                 let remote_target = remote_main_ref.target().unwrap();
 
                 // Set the local main ref to match the remote
-                let mut local_main_ref = repo.find_reference(LOCAL_REF)?;
-                local_main_ref.set_target(
-                    remote_target,
-                    &format!(
-                        "rustsec: moving `main` to {}: {}",
-                        REMOTE_REF, &remote_target
-                    ),
-                )?;
+                match repo.find_reference(LOCAL_REF) {
+                    Ok(mut local_main_ref) => {
+                        local_main_ref.set_target(
+                            remote_target,
+                            &format!(
+                                "rustsec: moving `main` to {}: {}",
+                                REMOTE_REF, &remote_target
+                            ),
+                        )?;
+                    }
+                    Err(e) if e.code() == git2::ErrorCode::NotFound => {
+                        // TODO(tarcieri): remove this workaround after repos have migrated
+                        let old_ref = repo.find_reference("refs/heads/master")?;
+                        git2::Branch::wrap(old_ref).rename("main", true)?;
+                        Self::fetch(url, &path, ensure_fresh)?;
+                    }
+                    Err(e) => {
+                        return Err(e.into());
+                    }
+                };
             } else {
                 git2::build::RepoBuilder::new()
                     .fetch_options(fetch_opts)
