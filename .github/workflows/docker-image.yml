@@ -1,0 +1,36 @@
+name: Publish Docker Image
+
+# Build on push to main and every week (sunday at 13:37)
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '37 13 * * 0'
+
+env:
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: -D warnings
+  DOCKER_IMAGE: rustsec/cargo-audit
+
+jobs:
+  # Build a docker image based on rust:latest, which installs latest cargo-audit from crates.io.
+  #
+  # Note: Right now we do not create versioned releases, the `latest` tag will always contain
+  #       the latest crates.io release! This is ideal for use in CI.
+  build_and_push:
+    name: Build and publish Docker image
+    runs-on: ubuntu-latest
+    if: ${{ github.repository_owner == 'RustSec' }}  # Do not run on forks, they can't push
+    steps:
+      - name: Create Dockerfile
+        run: |
+          echo "FROM rust:latest" > Dockerfile
+          echo "RUN apt-get update && apt-get install -y --no-install-recommends cmake && rm -rf /var/lib/apt/lists/*" >> Dockerfile
+          echo "RUN cargo install -f cargo-audit" >> Dockerfile
+          cat Dockerfile
+      - name: Build Docker image
+        run: docker build --no-cache -t ${DOCKER_IMAGE}:latest .
+      - name: Push Docker image
+        run: |
+          docker login -u "${{ secrets.DOCKER_USERNAME }}" -p "${{ secrets.DOCKER_PASSWORD }}" && \
+          docker push ${DOCKER_IMAGE}
