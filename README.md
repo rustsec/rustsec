@@ -2,6 +2,7 @@
 
 [![Latest Version][crate-image]][crate-link]
 [![Build Status][build-image]][build-link]
+[![Docker Image][docker-image]][docker-link]
 [![Safety Dance][safety-image]][safety-link]
 ![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
@@ -96,6 +97,8 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/cargo-audit
 [build-image]: https://github.com/rustsec/cargo-audit/workflows/CI/badge.svg?branch=main&event=push
 [build-link]: https://github.com/RustSec/cargo-audit/actions?query=workflow:CI+branch:main
+[docker-image]: https://img.shields.io/docker/pulls/rustsec/cargo-audit.svg
+[docker-link]: https://hub.docker.com/u/rustsec/cargo-audit
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.46+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
