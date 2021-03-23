@@ -64,12 +64,12 @@ jobs:
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1.0.7
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af
         with:
           toolchain: stable
           profile: minimal
           override: true
-      - uses: actions-rs/cargo@v1.0.3
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505
         name: Build
         with:
           use-cross: ${{ matrix.cross }}
@@ -99,7 +99,7 @@ jobs:
           version=$(echo "${{ github.ref }}" | cut -d/ -f3)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           7z a "$dst.zip" "$dst"
-      - uses: softprops/action-gh-release@v1
+      - uses: softprops/action-gh-release@91409e712cf565ce9eff10c87a8d1b11b81757ae
         with:
           files: |
             cargo-audit-*.tar.gz
