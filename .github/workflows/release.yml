@@ -74,7 +74,7 @@ jobs:
         with:
           use-cross: ${{ matrix.cross }}
           command: build
-          args: --release --features fix --target ${{ matrix.target }}
+          args: --release --locked --features fix --target ${{ matrix.target }}
       - name: Package
         shell: bash
         run: |
