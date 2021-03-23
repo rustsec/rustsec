@@ -22,7 +22,7 @@ pub enum Arch {
     /// `mips`: 32-bit MIPS CPU architecture
     MIPS,
 
-    /// `mips64`: 32-bit MIPS CPU architecture
+    /// `mips64`: 64-bit MIPS CPU architecture
     MIPS64,
 
     /// `msp430`: 16-bit MSP430 microcontrollers
