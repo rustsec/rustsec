@@ -64,12 +64,12 @@ jobs:
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rs/toolchain@v1.0.7
         with:
           toolchain: stable
           profile: minimal
           override: true
-      - uses: actions-rs/cargo@v1
+      - uses: actions-rs/cargo@v1.0.3
         name: Build
         with:
           use-cross: ${{ matrix.cross }}
