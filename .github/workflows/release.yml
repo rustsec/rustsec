@@ -81,7 +81,7 @@ jobs:
           set -eux
           bin="target/${{ matrix.target }}/release/cargo-audit"
           version=$(echo "${{ github.ref }}" | cut -d/ -f3)
-          dst="cargo-audit-${version}-${{ matrix.target }}"
+          dst="cargo-audit-${{ matrix.target }}-${version}"
           mkdir "$dst"
           mv "$bin" "$dst/"
           mv README.md CHANGELOG.md LICENSE-APACHE LICENSE-MIT "$dst/"
@@ -90,14 +90,14 @@ jobs:
         shell: bash
         run: |
           version=$(echo "${{ github.ref }}" | cut -d/ -f3)
-          dst="cargo-audit-${version}-${{ matrix.target }}"
-          tar cavf "$dst.tar.gz" "$dst"
+          dst="cargo-audit-${{ matrix.target }}-${version}"
+          tar cavf "$dst.tgz" "$dst"
       - name: Archive (zip)
         if: startsWith(matrix.name, 'windows-')
         shell: bash
         run: |
           version=$(echo "${{ github.ref }}" | cut -d/ -f3)
-          dst="cargo-audit-${version}-${{ matrix.target }}"
+          dst="cargo-audit-${{ matrix.target }}-${version}"
           7z a "$dst.zip" "$dst"
       - uses: softprops/action-gh-release@v1
         with:
