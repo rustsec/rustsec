@@ -21,7 +21,7 @@ toml = "0.5"
 chrono = { version = "0.4", features = ["serde"] }
 askama = "0.10"
 rust-embed="5.9.0"
-comrak = "0.9"
+comrak = "0.10"
 
 [dev-dependencies]
 abscissa_core = { version = "0.5", features = ["testing"] }
