@@ -79,7 +79,9 @@ jobs:
         shell: bash
         run: |
           set -eux
-          bin="target/${{ matrix.target }}/release/cargo-audit"
+          ext=""
+          [[ "${{ matrix.name }}" == windows-* ]] && ext=".exe"
+          bin="target/${{ matrix.target }}/release/cargo-audit${ext}"
           version=$(echo "${{ github.ref }}" | cut -d/ -f3)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           mkdir "$dst"
