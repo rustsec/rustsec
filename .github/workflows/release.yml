@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+env:
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: -D warnings
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        name:
+          - linux-x86-64-gnu
+          - linux-x86-64-musl
+          - linux-armv7-gnu
+          - linux-arm64-gnu
+          - mac-x86-64
+          - windows-x86-64
+        include:
+          - name: linux-x86-64-gnu
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            cross: false
+
+          - name: linux-x86-64-musl
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            cross: true
+
+          - name: linux-armv7-gnu
+            os: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+            cross: true
+
+          - name: linux-arm64-gnu
+            os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            cross: true
+
+          - name: mac-x86-64
+            os: macos-latest
+            target: x86_64-apple-darwin
+            cross: false
+
+          - name: windows-x86-64
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+            cross: false
+
+    name: Binaries for ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
+      - uses: actions/cache@v1
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
+      - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505
+        name: Build
+        with:
+          use-cross: ${{ matrix.cross }}
+          command: build
+          args: --release --locked --features fix --target ${{ matrix.target }}
+      - name: Package
+        shell: bash
+        run: |
+          set -eux
+          ext=""
+          [[ "${{ matrix.name }}" == windows-* ]] && ext=".exe"
+          bin="target/${{ matrix.target }}/release/cargo-audit${ext}"
+          version=$(echo "${{ github.ref }}" | cut -d/ -f3)
+          dst="cargo-audit-${{ matrix.target }}-${version}"
+          mkdir "$dst"
+          mv "$bin" "$dst/"
+          mv README.md CHANGELOG.md LICENSE-APACHE LICENSE-MIT "$dst/"
+      - name: Archive (tar)
+        if: '! startsWith(matrix.name, ''windows-'')'
+        shell: bash
+        run: |
+          version=$(echo "${{ github.ref }}" | cut -d/ -f3)
+          dst="cargo-audit-${{ matrix.target }}-${version}"
+          tar cavf "$dst.tgz" "$dst"
+      - name: Archive (zip)
+        if: startsWith(matrix.name, 'windows-')
+        shell: bash
+        run: |
+          version=$(echo "${{ github.ref }}" | cut -d/ -f3)
+          dst="cargo-audit-${{ matrix.target }}-${version}"
+          7z a "$dst.zip" "$dst"
+      - uses: softprops/action-gh-release@91409e712cf565ce9eff10c87a8d1b11b81757ae
+        with:
+          files: |
+            cargo-audit-*.tgz
+            cargo-audit-*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
