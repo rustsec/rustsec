@@ -102,7 +102,7 @@ jobs:
       - uses: softprops/action-gh-release@91409e712cf565ce9eff10c87a8d1b11b81757ae
         with:
           files: |
-            cargo-audit-*.tar.gz
+            cargo-audit-*.tgz
             cargo-audit-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
