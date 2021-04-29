@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.14.1 (2021-04-29)
+### Added
+- Generate release builds with github actions ([#337])
+
+### Changed
+- Bump rustsec from 0.23.2 to 0.23.3 ([#333])
+
+[#333]: https://github.com/RustSec/cargo-audit/pull/333
+[#337]: https://github.com/RustSec/cargo-audit/pull/337
+
 ## 0.14.0 (2021-03-07)
 ### Changed
 - When running in no-fetch mode, allow accessing a non-git repo ([#315])
