@@ -1,0 +1,34 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: serde
+    versions:
+    - 1.0.123
+    - 1.0.125
+  - dependency-name: once_cell
+    versions:
+    - 1.5.2
+    - 1.6.0
+    - 1.7.0
+    - 1.7.2
+  - dependency-name: serde_json
+    versions:
+    - 1.0.61
+    - 1.0.62
+    - 1.0.63
+    - 1.0.64
+  - dependency-name: thiserror
+    versions:
+    - 1.0.23
+    - 1.0.24
+  - dependency-name: tempfile
+    versions:
+    - 3.2.0
+  - dependency-name: toml
+    versions:
+    - 0.5.8
