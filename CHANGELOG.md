@@ -1,3 +1,8 @@
+## 0.4.1 (2021-04-30)
+- Display more information on the website ([#133])
+
+[#133]: https://github.com/RustSec/rustsec-admin/pull/133
+
 ## 0.4.0 (2021-03-06)
 - Use a fully Rust based solution for rendering web page ([#115])
 - Use rust-embed for static assets ([#122])
