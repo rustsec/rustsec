@@ -25,6 +25,15 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 500;
 }
 
+.yanked {
+  color: #949494;
+}
+
+.advisory p {
+  margin-bottom: 0;
+  margin-top: 0.4em;
+}
+
 main {
   flex-grow: 1;
 }
@@ -43,13 +52,9 @@ hr {
   margin: 2em 0;
 }
 
-header span, header time {
-  color: #949494;
-}
-
 .logo-image {
   max-width: 400px;
-  max-height: 120px;
+  max-height: 100px;
 }
 
 blockquote {
@@ -77,8 +82,8 @@ code {
   color: gray;
   border-radius: 2px;
   font-size: 0.8em;
-  margin: 0 0.2em;
   padding: 0.2em 0.4em;
+  margin: 0;
 }
 
 pre {
@@ -98,16 +103,38 @@ pre code {
   padding: initial;
 }
 
-table {
-  border-spacing: 1px;
-  box-shadow: 0px 0px 0px 1px rgba(148, 148, 148, 0.16) inset;
+main.advisory h3 {
+  margin-bottom: 0;
 }
 
-tr:hover {
-  background: rgba(148, 148, 148, 0.06);
+main.advisory ul {
+  margin-top:  0;
 }
 
-th, td {
-  box-shadow: 0px 0px 0px 1px rgba(148, 148, 148, 0.16);
-  padding: 0.5em 1em;
+dd ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-row-gap: 10px;
+}
+
+dd {
+  margin-left: 18px;
+}
+
+p.warning {
+  font-weight: 600;
+}
+
+header span.subtitle p {
+  font-size: 1.5em;
+  margin: 0;
 }
