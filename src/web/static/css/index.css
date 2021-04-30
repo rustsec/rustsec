@@ -64,13 +64,12 @@ body > footer {
 }
 
 header h1 {
-  margin-top: 0.4em;
+  margin-top: 0;
   margin-bottom: 0;
   line-height: 1.2;
 }
 
 article header {
-  text-align: center;
   margin-bottom: 1.6em;
 }
 
@@ -78,7 +77,7 @@ article footer {
   padding: 1em 0;
 }
 
-table {
+main.advisories table {
   width: 100%;
 }
 
@@ -98,12 +97,23 @@ nav, body > footer {
   align-items: center;
 }
 
-.archive h3 {
-  margin-top: 0;
-}
-.archive li {
-  list-style-type: none;
-}
-.archive a {
+.advisories a {
   font-weight: 500;
+}
+
+.advisories ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.advisories li {
+  margin-bottom: 30px;
+}
+
+.advisories h3 {
+  margin: 0;
+}
+
+.advisories time {
+  font-weight: 600;
 }

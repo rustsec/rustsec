@@ -5,21 +5,86 @@
 {% block content %}
 <main class="advisories">
   <article>
-    {% for year_grouped_advisories in advisories_per_year %}
-    <header><h1>{{ year_grouped_advisories.year }}</h1></header>
 
-    {% for advisory in year_grouped_advisories.advisories %}
+    {% for year_grouped_advisories in advisories_per_year %}
+    <header>
+      <h1>{{ year_grouped_advisories.year }}</h1>
+    </header>
+
+    <ul>
+      {% for advisory in year_grouped_advisories.advisories %}
       <li>
         <time datetime="{{ advisory.date().as_str() }}">
           {{ advisory.date() | friendly_date }}
         </time>
+
+
+        {% if advisory.metadata.yanked %}
+        <h3><a class="yanked" href="/advisories/{{ advisory.id() }}.html">
+            {{ advisory.id() }}
+          </a></h3>
+        (yanked advisory)
+        {% else %}
         <h3>
           <a href="/advisories/{{ advisory.id() }}.html">
-            {{ advisory.id() }}: {{ advisory.metadata.package }}: {{ advisory.title() }}
+            {{ advisory.id() }}:
+            {% match advisory.metadata.informational %}
+            {% when Some with (informational) %}
+            {% if informational.to_string() == "unsound" %}
+            Unsoundness in {{ advisory.metadata.package }}
+            {% else %}
+            {{ advisory.metadata.package }} is {{ informational.to_string() }}
+            {% endif %}
+            {% when None %}
+            Vulnerability in {{ advisory.metadata.package }}
+            {% endmatch %}
           </a>
         </h3>
+        <span>{{ advisory.title() }}</span>
+        {% endif %}
       </li>
+      {% endfor %}
+    </ul>
     {% endfor %}
+
+    {% for year_grouped_advisories in advisories_per_year %}
+    <h1>{{ year_grouped_advisories.year }}</h1>
+
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Type</th>
+        <th>Issued</th>
+        <th>Package</th>
+        <th>Title</th>
+      </tr>
+      {% for advisory in year_grouped_advisories.advisories %}
+      <tr>
+        <td>
+          <a {% if advisory.metadata.yanked %}class="yanked" {% endif %} href="/advisories/{{ advisory.id() }}.html">{{
+            advisory.id() }}</a>
+          {% if advisory.metadata.yanked %}
+          <br />(yanked advisory)
+          {% endif %}
+        </td>
+        <td>
+          {% match advisory.metadata.informational %}
+          {% when Some with (informational) %}
+          {{ informational.to_string() | capitalize }}
+          {% when None %}
+          Vulnerable
+          {% endmatch %}
+        </td>
+        <td>
+          <time datetime="{{ advisory.date().as_str() }}">
+            {{ advisory.date() | friendly_date }}
+          </time>
+        </td>
+        <td>{{ advisory.metadata.package }}</td>
+        <td>{{ advisory.title() }}</td>
+      </tr>
+      {% endfor %}
+    </table>
     {% endfor %}
   </article>
 </main>

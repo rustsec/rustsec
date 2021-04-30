@@ -1,7 +1,10 @@
 //! Code relating to the generation of the https://rustsec.org web site.
 //!
 use crate::prelude::*;
-use std::{fs, path::PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+};
 
 use askama::Template;
 use comrak::{markdown_to_html, ComrakOptions};
@@ -27,6 +30,7 @@ struct AdvisoriesPerYear {
 struct AdvisoryTemplate<'a> {
     advisory: &'a rustsec::Advisory,
     rendered_description: String,
+    rendered_title: String,
 }
 
 /// Render all advisories using the Markdown template
@@ -46,10 +50,12 @@ pub fn render_advisories(output_folder: PathBuf) {
 
         let rendered_description =
             markdown_to_html(advisory.description(), &ComrakOptions::default());
+        let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
 
         let advisory_tmpl = AdvisoryTemplate {
             advisory,
             rendered_description,
+            rendered_title,
         };
         fs::write(&output_path, advisory_tmpl.render().unwrap()).unwrap();
 
@@ -101,7 +107,7 @@ pub fn render_advisories(output_folder: PathBuf) {
 #[folder = "src/web/static/"]
 struct StaticAsset;
 
-fn copy_static_assets(output_folder: &PathBuf) {
+fn copy_static_assets(output_folder: &Path) {
     for file in StaticAsset::iter() {
         let asset_path = PathBuf::from(file.as_ref());
 
