@@ -1,3 +1,8 @@
+## 0.4.2 (2021-05-03)
+- web: Add back an Atom feed for advisories ([#140])
+
+[#140]: https://github.com/RustSec/rustsec-admin/pull/140
+
 ## 0.4.1 (2021-04-30)
 - Display more information on the website ([#133])
 
