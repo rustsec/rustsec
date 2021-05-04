@@ -34,6 +34,14 @@ struct AdvisoriesPerYear {
 }
 
 #[derive(Template)]
+#[template(path = "package-advisories.html")]
+struct AdvisoriesPerPackage {
+    package: String,
+    /// `Vec<(advisory, rendered_title, advisory_title_type)>`
+    advisories: Vec<(rustsec::Advisory, String, String)>,
+}
+
+#[derive(Template)]
 #[template(path = "advisory.html")]
 struct AdvisoryTemplate<'a> {
     advisory: &'a rustsec::Advisory,
@@ -58,7 +66,7 @@ pub fn render_advisories(output_folder: PathBuf) {
         .map(|advisory| advisory.to_owned())
         .collect();
 
-    // Render individual advisory pages.
+    // Render individual advisory pages (/advisories/${id}.html)
     let advisories_folder = output_folder.join("advisories");
     fs::create_dir_all(&advisories_folder).unwrap();
 
@@ -124,6 +132,44 @@ pub fn render_advisories(output_folder: PathBuf) {
         "Completed",
         "{} advisories rendered as HTML",
         advisories.len()
+    );
+
+    // Render the per-package pages (/packages/${package}.html).
+    let mut advisories_per_package = Vec::<AdvisoriesPerPackage>::new();
+
+    for advisory in advisories.clone() {
+        let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
+        let advisory_title_type = title_type(&advisory);
+
+        match advisories_per_package
+            .iter_mut()
+            .find(|package_advisories| {
+                package_advisories.package == advisory.metadata.package.to_string()
+            }) {
+            Some(package_advisories) => {
+                package_advisories
+                    .advisories
+                    .push((advisory, rendered_title, advisory_title_type))
+            }
+            None => advisories_per_package.push(AdvisoriesPerPackage {
+                package: advisory.metadata.package.to_string(),
+                advisories: vec![(advisory, rendered_title, advisory_title_type)],
+            }),
+        }
+    }
+
+    let packages_folder = output_folder.join("packages");
+    fs::create_dir_all(&packages_folder).unwrap();
+    for package_tpl in &advisories_per_package {
+        let output_path = packages_folder.join(package_tpl.package.clone() + ".html");
+        fs::write(&output_path, package_tpl.render().unwrap()).unwrap();
+
+        status_ok!("Rendered", "{}", output_path.display());
+    }
+    status_ok!(
+        "Completed",
+        "{} packages rendered as HTML",
+        advisories_per_package.len()
     );
 
     // Feed
