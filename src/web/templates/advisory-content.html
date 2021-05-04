@@ -29,13 +29,13 @@
         {% match advisory.metadata.collection %}
         {% when Some with (collection) %}
         {% if collection.to_string() == "crates" %}
-        {{ advisory.metadata.package }} (<a
-          href="https://crates.io/crates/{{ advisory.metadata.package }}">crates.io</a>)
+        <a href="/packages/{{ advisory.metadata.package }}.html">{{ advisory.metadata.package }}</a>
+          (<a href="https://crates.io/crates/{{ advisory.metadata.package }}">crates.io</a>)
         {% else %}
-        <code>{{ advisory.metadata.package }}</code>
+        <code><a href="/packages/{{ advisory.metadata.package }}.html">{{ advisory.metadata.package }}</a></code>
         {% endif %}
         {% when None %}
-        <code>{{ advisory.metadata.package }}</code>
+        <code><a href="/packages/{{ advisory.metadata.package }}.html">{{ advisory.metadata.package }}</a></code>
         {% endmatch %}
       </dd>
 
