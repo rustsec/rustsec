@@ -52,6 +52,7 @@ fn verify_rustsec_2017_0001(db: &Database) {
 
     let lockfile = Lockfile::load("Cargo.lock").unwrap();
     let vulns = db.vulnerabilities(&lockfile);
+    dbg!(&vulns);
     assert!(vulns.is_empty());
 }
 
