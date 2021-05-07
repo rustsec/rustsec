@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}{{ advisory.id() }}: {{ advisory.metadata.package }}: {{ advisory.title() }}{% endblock %}
+
+{% block content %}
+<main class="advisory">
+{% include "advisory-content.html" %}
+</main>
+{% endblock %}
