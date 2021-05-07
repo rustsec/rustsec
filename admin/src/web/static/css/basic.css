@@ -1,0 +1,145 @@
+body {
+  font-family: "Source Sans Pro";
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.65;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+  transition: color 0.2s ease-out;
+}
+a.selected, a:hover {
+  color: #949494;
+}
+
+a, b, strong, th {
+  font-weight: 400;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+}
+
+.yanked {
+  color: #949494;
+}
+
+.advisory p {
+  margin-bottom: 0;
+  margin-top: 0.4em;
+}
+
+.advisories p {
+  margin-bottom: 0;
+  margin-top: 0;
+}
+
+main {
+  flex-grow: 1;
+}
+
+article a {
+  color: #68f;
+}
+
+header a, footer a {
+  color: inherit;
+  font-weight: 500;
+}
+
+hr {
+  border: 1px solid rgba(148, 148, 148, 0.16);
+  margin: 2em 0;
+}
+
+.logo-image {
+  max-width: 400px;
+  max-height: 100px;
+}
+
+blockquote {
+  border-left: 5px solid #68f;
+  padding-left: 1.5em;
+  margin: 0;
+}
+
+body, aside, main {
+  flex-direction: column;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 2px;
+}
+
+figure {
+  margin: 1em 0;
+}
+
+code {
+  background-color: rgba(148, 148, 148, 0.12);
+  color: gray;
+  border-radius: 2px;
+  font-size: 0.8em;
+  padding: 0.2em 0.4em;
+  margin: 0;
+}
+
+pre {
+  background-color: rgba(34, 34, 34, 0.8);
+  color: white;
+  border-radius: 2px;
+  font-size: 0.7em;
+  padding: 0.8em 1.2em;
+  white-space: pre-wrap;
+}
+
+pre code {
+  background: initial;
+  color: inherit;
+  font-size: initial;
+  margin: initial;
+  padding: initial;
+}
+
+main.advisory h3 {
+  margin-bottom: 0;
+}
+
+main.advisory ul {
+  margin-top:  0;
+}
+
+dd ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+dt {
+  font-weight: 600;
+}
+
+dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-row-gap: 10px;
+}
+
+dd {
+  margin-left: 18px;
+}
+
+p.warning {
+  font-weight: 600;
+}
+
+header span.subtitle p {
+  font-size: 1.5em;
+  margin: 0;
+}

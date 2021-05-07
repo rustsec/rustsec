@@ -1,0 +1,30 @@
+[package]
+name        = "rustsec-admin"
+description = "Admin utility for maintaining the RustSec Advisory Database"
+version     = "0.4.2"
+authors     = ["Tony Arcieri <bascule@gmail.com>"]
+license     = "Apache-2.0 OR MIT"
+homepage    = "https://rustsec.org"
+repository  = "https://github.com/RustSec/rustsec-admin"
+readme      = "README.md"
+edition     = "2018"
+
+[dependencies]
+abscissa_core = "0.5"
+crates_io_api = "0.5"
+gumdrop = "0.7"
+rustsec = "0.23"
+serde = { version = "1", features = ["serde_derive"] }
+termcolor = "1"
+thiserror = "1"
+toml = "0.5"
+chrono = { version = "0.4", features = ["serde"] }
+askama = "0.10"
+rust-embed="5.9.0"
+comrak = "0.10"
+atom_syndication = "0.9"
+xml-rs = "0.8"
+
+[dev-dependencies]
+abscissa_core = { version = "0.5", features = ["testing"] }
+once_cell = "1.5"
