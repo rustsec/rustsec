@@ -19,7 +19,7 @@ abscissa_core = "0.5.2"
 gumdrop = "0.7"
 home = "0.5"
 lazy_static = "1"
-rustsec = { version = "0.23", features = ["dependency-tree"] }
+rustsec = { version = "0.23", features = ["dependency-tree"], path = "../rustsec" }
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 thiserror = "1"

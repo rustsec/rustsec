@@ -23,6 +23,3 @@ serde = { version = "1", optional = true }
 [features]
 default = ["std"]
 std = []
-
-[workspace]
-members = ["markdown-table-gen"]

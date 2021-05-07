@@ -1,0 +1,10 @@
+[workspace]
+members = [
+    "admin",
+    "cargo-audit",
+    "cargo-lock",
+    "cvss",
+    "platforms",
+    "platforms/markdown-table-gen",
+    "rustsec"
+]
