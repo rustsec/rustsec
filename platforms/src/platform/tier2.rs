@@ -38,15 +38,6 @@ pub const AARCH64_APPLE_IOS: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `aarch64-pc-windows-msvc`: ARM64 MSVC (Windows 10)
-pub const AARCH64_PC_WINDOWS_MSVC: Platform = Platform {
-    target_triple: "aarch64-pc-windows-msvc",
-    target_arch: Arch::AARCH64,
-    target_os: OS::Windows,
-    target_env: Some(Env::MSVC),
-    tier: Tier::Two,
-};
-
 /// `aarch64-fuchsia`: ARM64 Fuchsia
 pub const AARCH64_FUCHSIA: Platform = Platform {
     target_triple: "aarch64-fuchsia",
@@ -65,12 +56,12 @@ pub const AARCH64_LINUX_ANDROID: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `aarch64-unknown-linux-gnu`: ARM64 Linux
-pub const AARCH64_UNKNOWN_LINUX_GNU: Platform = Platform {
-    target_triple: "aarch64-unknown-linux-gnu",
+/// `aarch64-pc-windows-msvc`: ARM64 MSVC (Windows 10)
+pub const AARCH64_PC_WINDOWS_MSVC: Platform = Platform {
+    target_triple: "aarch64-pc-windows-msvc",
     target_arch: Arch::AARCH64,
-    target_os: OS::Linux,
-    target_env: Some(Env::GNU),
+    target_os: OS::Windows,
+    target_env: Some(Env::MSVC),
     tier: Tier::Two,
 };
 
@@ -80,6 +71,24 @@ pub const AARCH64_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_arch: Arch::AARCH64,
     target_os: OS::Linux,
     target_env: Some(Env::Musl),
+    tier: Tier::Two,
+};
+
+/// `aarch64-unknown-none`: Bare ARM64, hardfloat
+pub const AARCH64_UNKNOWN_NONE: Platform = Platform {
+    target_triple: "aarch64-unknown-none",
+    target_arch: Arch::AARCH64,
+    target_os: OS::Unknown,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `aarch64-unknown-none-softfloat`: Bare ARM64, softfloat
+pub const AARCH64_UNKNOWN_NONE_SOFTFLOAT: Platform = Platform {
+    target_triple: "aarch64-unknown-none-softfloat",
+    target_arch: Arch::AARCH64,
+    target_os: OS::Unknown,
+    target_env: None,
     tier: Tier::Two,
 };
 
@@ -128,6 +137,24 @@ pub const ARM_UNKNOWN_LINUX_MUSLEABIHF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// `armebv7r-none-eabi`: Bare ARMv7-R, Big Endian
+pub const ARMEBV7R_NONE_EABI: Platform = Platform {
+    target_triple: "armebv7r-none-eabi",
+    target_arch: Arch::ARM,
+    target_os: OS::Unknown,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `armebv7r-none-eabihf`: Bare ARMv7-R, Big Endian, hardfloat
+pub const ARMEBV7R_NONE_EABIHF: Platform = Platform {
+    target_triple: "armebv7r-none-eabihf",
+    target_arch: Arch::ARM,
+    target_os: OS::Unknown,
+    target_env: None,
+    tier: Tier::Two,
+};
+
 /// `armv5te-unknown-linux-gnueabi`: ARMv5TE Linux
 pub const ARMV5TE_UNKNOWN_LINUX_GNUEABI: Platform = Platform {
     target_triple: "armv5te-unknown-linux-gnueabi",
@@ -137,12 +164,12 @@ pub const ARMV5TE_UNKNOWN_LINUX_GNUEABI: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `armv7-apple-ios`: ARMv7 iOS, Cortex-a8
-pub const ARMV7_APPLE_IOS: Platform = Platform {
-    target_triple: "armv7-apple-ios",
+/// `armv5te-unknown-linux-musleabi`: ARMv5TE Linux with MUSL
+pub const ARMV5TE_UNKNOWN_LINUX_MUSLEABI: Platform = Platform {
+    target_triple: "armv5te-unknown-linux-musleabi",
     target_arch: Arch::ARM,
-    target_os: OS::iOS,
-    target_env: None,
+    target_os: OS::Linux,
+    target_env: Some(Env::Musl),
     tier: Tier::Two,
 };
 
@@ -155,7 +182,16 @@ pub const ARMV7_LINUX_ANDROIDEABI: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `armv7-unknown-linux-gnueabihf`: ARMv7 Linux
+/// `armv7-unknown-linux-gnueabi`: ARMv7 Linux
+pub const ARMV7_UNKNOWN_LINUX_GNUEABI: Platform = Platform {
+    target_triple: "armv7-unknown-linux-gnueabi",
+    target_arch: Arch::ARM,
+    target_os: OS::Linux,
+    target_env: Some(Env::GNU),
+    tier: Tier::Two,
+};
+
+/// `armv7-unknown-linux-gnueabihf`: ARMv7 Linux, hardfloat
 pub const ARMV7_UNKNOWN_LINUX_GNUEABIHF: Platform = Platform {
     target_triple: "armv7-unknown-linux-gnueabihf",
     target_arch: Arch::ARM,
@@ -164,7 +200,16 @@ pub const ARMV7_UNKNOWN_LINUX_GNUEABIHF: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `armv7-unknown-linux-musleabihf`: ARMv7 Linux with MUSL
+/// `armv7-unknown-linux-musleabi`: ARMv7 Linux with MUSL
+pub const ARMV7_UNKNOWN_LINUX_MUSLEABI: Platform = Platform {
+    target_triple: "armv7-unknown-linux-musleabi",
+    target_arch: Arch::ARM,
+    target_os: OS::Linux,
+    target_env: Some(Env::Musl),
+    tier: Tier::Two,
+};
+
+/// `armv7-unknown-linux-musleabihf`: ARMv7 Linux with MUSL, hardfloat
 pub const ARMV7_UNKNOWN_LINUX_MUSLEABIHF: Platform = Platform {
     target_triple: "armv7-unknown-linux-musleabihf",
     target_arch: Arch::ARM,
@@ -173,29 +218,11 @@ pub const ARMV7_UNKNOWN_LINUX_MUSLEABIHF: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `armv7s-apple-ios`: ARMv7 iOS, Cortex-a9
-pub const ARMV7S_APPLE_IOS: Platform = Platform {
-    target_triple: "armv7s-apple-ios",
-    target_arch: Arch::ARM,
-    target_os: OS::iOS,
-    target_env: None,
-    tier: Tier::Two,
-};
-
 /// `asmjs-unknown-emscripten`: asm.js via Emscripten
 pub const ASMJS_UNKNOWN_EMSCRIPTEN: Platform = Platform {
     target_triple: "asmjs-unknown-emscripten",
     target_arch: Arch::ASMJS,
     target_os: OS::Emscripten,
-    target_env: None,
-    tier: Tier::Two,
-};
-
-/// `i386-apple-ios`: 32-bit x86 iOS
-pub const I386_APPLE_IOS: Platform = Platform {
-    target_triple: "i386-apple-ios",
-    target_arch: Arch::X86,
-    target_os: OS::iOS,
     target_env: None,
     tier: Tier::Two,
 };
@@ -281,12 +308,30 @@ pub const MIPS64_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// `mips64-unknown-linux-muslabi64`: MIPS64 Linux, n64 ABI, MUSL
+pub const MIPS64_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
+    target_triple: "mips64-unknown-linux-muslabi64",
+    target_arch: Arch::MIPS64,
+    target_os: OS::Linux,
+    target_env: Some(Env::Musl),
+    tier: Tier::Two,
+};
+
 /// `mips64el-unknown-linux-gnuabi64`: MIPS64 (LE) Linux, n64 ABI
 pub const MIPS64EL_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     target_triple: "mips64el-unknown-linux-gnuabi64",
     target_arch: Arch::MIPS64,
     target_os: OS::Linux,
     target_env: Some(Env::GNU),
+    tier: Tier::Two,
+};
+
+/// `mips64el-unknown-linux-muslabi64`: MIPS64 (LE) Linux, n64 ABI, MUSL
+pub const MIPS64EL_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
+    target_triple: "mips64el-unknown-linux-muslabi64",
+    target_arch: Arch::MIPS64,
+    target_os: OS::Linux,
+    target_env: Some(Env::Musl),
     tier: Tier::Two,
 };
 
@@ -305,6 +350,15 @@ pub const MIPSEL_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_arch: Arch::MIPS,
     target_os: OS::Linux,
     target_env: Some(Env::Musl),
+    tier: Tier::Two,
+};
+
+/// `nvptx64-nvidia-cuda`: `--emit=asm` generates PTX code that runs on NVIDIA GPUs
+pub const NVPTX64_NVIDIA_CUDA: Platform = Platform {
+    target_triple: "nvptx64-nvidia-cuda",
+    target_arch: Arch::NVPTX64,
+    target_os: OS::Cuda,
+    target_env: None,
     tier: Tier::Two,
 };
 
@@ -362,6 +416,60 @@ pub const SPARC64_SUN_SOLARIS: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// `thumbv6m-none-eabi`: Bare Cortex-M0, M0+, M1
+pub const THUMBV6M_NONE_EABI: Platform = Platform {
+    target_triple: "thumbv6m-none-eabi",
+    target_arch: Arch::THUMBV6,
+    target_os: OS::Unknown,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `thumbv7em-none-eabi`: Bare Cortex-M4, M7
+pub const THUMBV7EM_NONE_EABI: Platform = Platform {
+    target_triple: "thumbv7em-none-eabi",
+    target_arch: Arch::THUMBV7,
+    target_os: OS::Unknown,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `thumbv7em-none-eabihf`: Bare Cortex-M4F, M7F, FPU, hardfloat
+pub const THUMBV7EM_NONE_EABIHF: Platform = Platform {
+    target_triple: "thumbv7em-none-eabihf",
+    target_arch: Arch::THUMBV7,
+    target_os: OS::Unknown,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `thumbv7m-none-eabi`: Bare Cortex-M3
+pub const THUMBV7M_NONE_EABI: Platform = Platform {
+    target_triple: "thumbv7m-none-eabi",
+    target_arch: Arch::THUMBV7,
+    target_os: OS::Unknown,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `thumbv7neon-linux-androideabi`: Thumb2-mode ARMv7a Android with NEON
+pub const THUMBV7NEON_LINUX_ANDROIDEABI: Platform = Platform {
+    target_triple: "thumbv7neon-linux-androideabi",
+    target_arch: Arch::ARM,
+    target_os: OS::Android,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `thumbv7neon-unknown-linux-gnueabihf`: Thumb2-mode ARMv7a Linux with NEON (kernel 4.4, glibc 2.23)
+pub const THUMBV7NEON_UNKNOWN_LINUX_GNUEABIHF: Platform = Platform {
+    target_triple: "thumbv7neon-unknown-linux-gnueabihf",
+    target_arch: Arch::ARM,
+    target_os: OS::Linux,
+    target_env: Some(Env::GNU),
+    tier: Tier::Two,
+};
+
 /// `wasm32-unknown-unknown`: WebAssembly
 pub const WASM_UNKNOWN_UNKNOWN: Platform = Platform {
     target_triple: "wasm32-unknown-unknown",
@@ -380,12 +488,30 @@ pub const WASM_UNKNOWN_EMSCRIPTEN: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// `wasm32-wasi`: WebAssembly with WASI
+pub const WASM_WASI: Platform = Platform {
+    target_triple: "wasm32-wasi",
+    target_arch: Arch::WASM32,
+    target_os: OS::Wasi,
+    target_env: None,
+    tier: Tier::Two,
+};
+
 /// `x86_64-apple-ios`: 64-bit x86 iOS
 pub const X86_64_APPLE_IOS: Platform = Platform {
     target_triple: "x86_64-apple-ios",
     target_arch: Arch::X86_64,
     target_env: None,
     target_os: OS::iOS,
+    tier: Tier::Two,
+};
+
+/// `x86_64-fortanix-unknown-sgx`: Fortanix ABI for 64-bit Intel SGX
+pub const X86_64_FORTANIX_UNKNOWN_SGX: Platform = Platform {
+    target_triple: "x86_64-fortanix-unknown-sgx",
+    target_arch: Arch::X86_64,
+    target_os: OS::Unknown,
+    target_env: Some(Env::SGX),
     tier: Tier::Two,
 };
 
@@ -407,30 +533,12 @@ pub const X86_64_LINUX_ANDROID: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// `x86_64-rumprun-netbsd`: 64-bit NetBSD Rump Kernel
-pub const X86_64_RUMPRUN_NETBSD: Platform = Platform {
-    target_triple: "x86_64-rumprun-netbsd",
-    target_arch: Arch::X86_64,
-    target_env: None,
-    target_os: OS::NetBSD,
-    tier: Tier::Two,
-};
-
-/// `x86_64-sun-solaris`: 64-bit Solaris 10/11, illumos
-pub const X86_64_SUN_SOLARIS: Platform = Platform {
-    target_triple: "x86_64-sun-solaris",
+/// `x86_64-pc-solaris`: 64-bit Solaris 10/11, illumos
+pub const X86_64_PC_SOLARIS: Platform = Platform {
+    target_triple: "x86_64-pc-solaris",
     target_arch: Arch::X86_64,
     target_os: OS::Solaris,
     target_env: None,
-    tier: Tier::Two,
-};
-
-/// `x86_64-unknown-cloudabi`: 64-bit CloudABI
-pub const X86_64_UNKNOWN_CLOUDABI: Platform = Platform {
-    target_triple: "x86_64-unknown-cloudabi",
-    target_arch: Arch::X86_64,
-    target_env: None,
-    target_os: OS::CloudABI,
     tier: Tier::Two,
 };
 
@@ -439,6 +547,15 @@ pub const X86_64_UNKNOWN_FREEBSD: Platform = Platform {
     target_triple: "x86_64-unknown-freebsd",
     target_arch: Arch::X86_64,
     target_os: OS::FreeBSD,
+    target_env: None,
+    tier: Tier::Two,
+};
+
+/// `x86_64-unknown-illumos`: illumos
+pub const X86_64_UNKNOWN_ILLUMOS: Platform = Platform {
+    target_triple: "x86_64-unknown-illumos",
+    target_arch: Arch::X86_64,
+    target_os: OS::Illumos,
     target_env: None,
     tier: Tier::Two,
 };
@@ -495,33 +612,6 @@ pub const X86_64_UNKNOWN_REDOX: Platform = Platform {
 //
 // **This status is accidental: no new platforms should reach this state**
 //
-
-/// `aarch64-unknown-cloudabi`: ARM64 CloudABI
-pub const AARCH64_UNKNOWN_CLOUDABI: Platform = Platform {
-    target_triple: "aarch64-unknown-cloudabi",
-    target_arch: Arch::AARCH64,
-    target_os: OS::CloudABI,
-    target_env: None,
-    tier: Tier::Two,
-};
-
-/// `armv7-unknown-cloudabi-eabihf`: ARMv7 CloudABI, hardfloat
-pub const ARMV7_UNKNOWN_CLOUDABI_EABIHF: Platform = Platform {
-    target_triple: "armv7-unknown-cloudabi-eabihf",
-    target_arch: Arch::ARM,
-    target_os: OS::CloudABI,
-    target_env: None,
-    tier: Tier::Two,
-};
-
-/// `i686-unknown-cloudabi`: 32-bit CloudABI
-pub const I686_UNKNOWN_CLOUDABI: Platform = Platform {
-    target_triple: "i686-unknown-cloudabi",
-    target_arch: Arch::X86,
-    target_os: OS::CloudABI,
-    target_env: None,
-    tier: Tier::Two,
-};
 
 /// `powerpc-unknown-linux-gnuspe`: PowerPC SPE Linux
 pub const POWERPC_UNKNOWN_LINUX_GNUSPE: Platform = Platform {

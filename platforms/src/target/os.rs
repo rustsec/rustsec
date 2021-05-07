@@ -14,11 +14,8 @@ pub enum OS {
     /// `android`: Google's Android mobile operating system
     Android,
 
-    /// `bitrig`: OpenBSD-based operating system
-    Bitrig,
-
-    /// `cloudabi`: Nuxi CloudABI runtime environment
-    CloudABI,
+    /// `cuda`: CUDA parallel computing platform
+    Cuda,
 
     /// `dragonfly`: DragonflyBSD
     Dragonfly,
@@ -34,6 +31,9 @@ pub enum OS {
 
     /// `haiku`: Haiku, an open source BeOS clone
     Haiku,
+
+    /// `illumos`: illumos is a partly free and open-source Unix operating system based on OpenSolaris
+    Illumos,
 
     /// `ios`: Apple's iOS mobile operating system
     #[allow(non_camel_case_types)]
@@ -57,6 +57,9 @@ pub enum OS {
     /// `solaris`: Oracle's (formerly Sun) Solaris operating system
     Solaris,
 
+    /// `wasi`: The WebAssembly System Interface
+    Wasi,
+
     /// `windows`: Microsoft's Windows operating system
     Windows,
 
@@ -69,13 +72,13 @@ impl OS {
     pub fn as_str(self) -> &'static str {
         match self {
             OS::Android => "android",
-            OS::Bitrig => "bitrig",
-            OS::CloudABI => "cloudabi",
+            OS::Cuda => "cuda",
             OS::Dragonfly => "dragonfly",
             OS::Emscripten => "emscripten",
             OS::FreeBSD => "freebsd",
             OS::Fuchsia => "fuchsia",
             OS::Haiku => "haiku",
+            OS::Illumos => "illumos",
             OS::iOS => "ios",
             OS::Linux => "linux",
             OS::MacOS => "macos",
@@ -83,6 +86,7 @@ impl OS {
             OS::OpenBSD => "openbsd",
             OS::Redox => "redox",
             OS::Solaris => "solaris",
+            OS::Wasi => "wasi",
             OS::Windows => "windows",
             OS::Unknown => "unknown",
         }
@@ -96,13 +100,13 @@ impl FromStr for OS {
     fn from_str(os_name: &str) -> Result<Self, Self::Err> {
         let os = match os_name {
             "android" => OS::Android,
-            "bitrig" => OS::Bitrig,
-            "cloudabi" => OS::CloudABI,
+            "cuda" => OS::Cuda,
             "dragonfly" => OS::Dragonfly,
             "emscripten" => OS::Emscripten,
             "freebsd" => OS::FreeBSD,
             "fuchsia" => OS::Fuchsia,
             "haiku" => OS::Haiku,
+            "illumos" => OS::Illumos,
             "ios" => OS::iOS,
             "linux" => OS::Linux,
             "macos" => OS::MacOS,
@@ -110,6 +114,7 @@ impl FromStr for OS {
             "openbsd" => OS::OpenBSD,
             "redox" => OS::Redox,
             "solaris" => OS::Solaris,
+            "wasi" => OS::Wasi,
             "windows" => OS::Windows,
             _ => return Err(Error),
         };
@@ -147,13 +152,9 @@ impl<'de> Deserialize<'de> for OS {
 /// `target_os` when building this crate: `android`
 pub const TARGET_OS: OS = OS::Android;
 
-#[cfg(target_os = "bitrig")]
-/// `target_os` when building this crate: `bitrig`
-pub const TARGET_OS: OS = OS::Bitrig;
-
-#[cfg(target_os = "cloudabi")]
-/// `target_os` when building this crate: `cloudabi`
-pub const TARGET_OS: OS = OS::CloudABI;
+#[cfg(target_os = "cuda")]
+/// `target_os` when building this crate: `cuda`
+pub const TARGET_OS: OS = OS::Cuda;
 
 #[cfg(target_os = "dragonfly")]
 /// `target_os` when building this crate: `dragonfly`
@@ -174,6 +175,10 @@ pub const TARGET_OS: OS = OS::Fuchsia;
 #[cfg(target_os = "haiku")]
 /// `target_os` when building this crate: `haiku`
 pub const TARGET_OS: OS = OS::Haiku;
+
+#[cfg(target_os = "illumos")]
+/// `target_os` when building this crate: `illumos`
+pub const TARGET_OS: OS = OS::Illumos;
 
 #[cfg(target_os = "ios")]
 /// `target_os` when building this crate: `ios`
@@ -203,19 +208,22 @@ pub const TARGET_OS: OS = OS::Redox;
 /// `target_os` when building this crate: `solaris`
 pub const TARGET_OS: OS = OS::Solaris;
 
+#[cfg(target_os = "wasi")]
+/// `target_os` when building this crate: `wasi`
+pub const TARGET_OS: OS = OS::Wasi;
+
 #[cfg(target_os = "windows")]
 /// `target_os` when building this crate: `windows`
 pub const TARGET_OS: OS = OS::Windows;
 
 #[cfg(not(any(
     target_os = "android",
-    target_os = "bitrig",
-    target_os = "cloudabi",
     target_os = "dragonfly",
     target_os = "emscripten",
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "haiku",
+    target_os = "illumos",
     target_os = "ios",
     target_os = "linux",
     target_os = "macos",
@@ -223,6 +231,7 @@ pub const TARGET_OS: OS = OS::Windows;
     target_os = "openbsd",
     target_os = "redox",
     target_os = "solaris",
+    target_os = "wasi",
     target_os = "windows",
 )))]
 /// `target_os` when building this crate: unknown!
