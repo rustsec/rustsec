@@ -1,4 +1,4 @@
-# cargo audit
+# RustSec: `cargo audit`
 
 [![Latest Version][crate-image]][crate-link]
 [![Build Status][build-image]][build-link]

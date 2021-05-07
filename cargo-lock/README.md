@@ -1,4 +1,4 @@
-# `cargo-lock` crate
+# RustSec: `cargo-lock` crate
 
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
