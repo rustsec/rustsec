@@ -11,6 +11,42 @@ use crate::{
     target::{Arch, Env, OS},
 };
 
+/// `armv7-apple-ios`: ARMv7 iOS, Cortex-a8
+pub const ARMV7_APPLE_IOS: Platform = Platform {
+    target_triple: "armv7-apple-ios",
+    target_arch: Arch::ARM,
+    target_os: OS::iOS,
+    target_env: None,
+    tier: Tier::Three,
+};
+
+/// `armv7s-apple-ios`: ARMv7 iOS, Cortex-a9
+pub const ARMV7S_APPLE_IOS: Platform = Platform {
+    target_triple: "armv7s-apple-ios",
+    target_arch: Arch::ARM,
+    target_os: OS::iOS,
+    target_env: None,
+    tier: Tier::Three,
+};
+
+/// `i386-apple-ios`: 32-bit x86 iOS
+pub const I386_APPLE_IOS: Platform = Platform {
+    target_triple: "i386-apple-ios",
+    target_arch: Arch::X86,
+    target_os: OS::iOS,
+    target_env: None,
+    tier: Tier::Three,
+};
+
+/// `i686-apple-darwin`: 32-bit OSX (10.7+, Lion+)
+pub const I686_APPLE_DARWIN: Platform = Platform {
+    target_triple: "i686-apple-darwin",
+    target_arch: Arch::X86,
+    target_os: OS::MacOS,
+    target_env: None,
+    tier: Tier::Three,
+};
+
 /// `i686-unknown-haiku`: 32-bit Haiku
 pub const I686_UNKNOWN_HAIKU: Platform = Platform {
     target_triple: "i686-unknown-haiku",
@@ -65,56 +101,11 @@ pub const SPARC64_UNKNOWN_NETBSD: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// `thumbv6m-none-eabi`: Bare Cortex-M0, M0+, M1
-pub const THUMBV6M_NONE_EABI: Platform = Platform {
-    target_triple: "thumbv6m-none-eabi",
-    target_arch: Arch::THUMBV6,
-    target_os: OS::Unknown,
-    target_env: None,
-    tier: Tier::Three,
-};
-
-/// `thumbv7em-none-eabi`: Bare Cortex-M4, M7
-pub const THUMBV7EM_NONE_EABI: Platform = Platform {
-    target_triple: "thumbv7em-none-eabi",
-    target_arch: Arch::THUMBV7,
-    target_os: OS::Unknown,
-    target_env: None,
-    tier: Tier::Three,
-};
-
-/// `thumbv7em-none-eabihf`: Bare Cortex-M4F, M7F, FPU, hardfloat
-pub const THUMBV7EM_NONE_EABIHF: Platform = Platform {
-    target_triple: "thumbv7em-none-eabihf",
-    target_arch: Arch::THUMBV7,
-    target_os: OS::Unknown,
-    target_env: None,
-    tier: Tier::Three,
-};
-
-/// `thumbv7m-none-eabi`: Bare Cortex-M3
-pub const THUMBV7M_NONE_EABI: Platform = Platform {
-    target_triple: "thumbv7m-none-eabi",
-    target_arch: Arch::THUMBV7,
-    target_os: OS::Unknown,
-    target_env: None,
-    tier: Tier::Three,
-};
-
-/// `x86_64-fortanix-unknown-sgx`: Fortanix ABI for 64-bit Intel SGX
-pub const X86_64_FORTANIX_UNKNOWN_SGX: Platform = Platform {
-    target_triple: "x86_64-fortanix-unknown-sgx",
+/// `x86_64-sun-solaris`: Deprecated target for 64-bit Solaris 10/11, illumos
+pub const X86_64_SUN_SOLARIS: Platform = Platform {
+    target_triple: "x86_64-sun-solaris",
     target_arch: Arch::X86_64,
-    target_os: OS::Unknown,
-    target_env: Some(Env::SGX),
-    tier: Tier::Three,
-};
-
-/// `x86_64-unknown-bitrig`: 64-bit Bitrig
-pub const X86_64_UNKNOWN_BITRIG: Platform = Platform {
-    target_triple: "x86_64-unknown-bitrig",
-    target_arch: Arch::X86_64,
-    target_os: OS::Bitrig,
+    target_os: OS::Solaris,
     target_env: None,
     tier: Tier::Three,
 };

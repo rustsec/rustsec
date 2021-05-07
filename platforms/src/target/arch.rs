@@ -28,6 +28,9 @@ pub enum Arch {
     /// `msp430`: 16-bit MSP430 microcontrollers
     MSP430,
 
+    /// `nvptx64`: 64-bit NVIDIA PTX
+    NVPTX64,
+
     /// `powerpc`: 32-bit POWERPC platform
     POWERPC,
 
@@ -75,6 +78,7 @@ impl Arch {
             Arch::MIPS => "mips",
             Arch::MIPS64 => "mips64",
             Arch::MSP430 => "msp430",
+            Arch::NVPTX64 => "nvptx64",
             Arch::POWERPC => "powerpc",
             Arch::POWERPC64 => "powerpc64",
             Arch::RISCV => "riscv",
@@ -103,6 +107,7 @@ impl FromStr for Arch {
             "mips" => Arch::MIPS,
             "mips64" => Arch::MIPS64,
             "msp430" => Arch::MSP430,
+            "nvptx64" => Arch::NVPTX64,
             "powerpc" => Arch::POWERPC,
             "powerpc64" => Arch::POWERPC64,
             "riscv" => Arch::RISCV,
@@ -170,6 +175,10 @@ pub const TARGET_ARCH: Arch = Arch::MIPS64;
 /// `target_arch` when building this crate: `msp430`
 pub const TARGET_ARCH: Arch = Arch::MSP430;
 
+#[cfg(target_arch = "nvptx64")]
+/// `target_arch` when building this crate: `nvptx64`
+pub const TARGET_ARCH: Arch = Arch::NVPTX64;
+
 #[cfg(target_arch = "powerpc")]
 /// `target_arch` when building this crate: `powerpc`
 pub const TARGET_ARCH: Arch = Arch::POWERPC;
@@ -212,6 +221,7 @@ pub const TARGET_ARCH: Arch = Arch::X86_64;
     target_arch = "asmjs",
     target_arch = "mips",
     target_arch = "mips64",
+    target_arch = "nvptx64",
     target_arch = "powerpc",
     target_arch = "powerpc64",
     target_arch = "riscv",

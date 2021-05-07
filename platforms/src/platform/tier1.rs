@@ -16,12 +16,12 @@ use crate::{
     target::{Arch, Env, OS},
 };
 
-/// `i686-apple-darwin`: 32-bit OSX (10.7+, Lion+)
-pub const I686_APPLE_DARWIN: Platform = Platform {
-    target_triple: "i686-apple-darwin",
-    target_arch: Arch::X86,
-    target_os: OS::MacOS,
-    target_env: None,
+/// `aarch64-unknown-linux-gnu`: ARM64 Linux
+pub const AARCH64_UNKNOWN_LINUX_GNU: Platform = Platform {
+    target_triple: "aarch64-unknown-linux-gnu",
+    target_arch: Arch::AARCH64,
+    target_os: OS::Linux,
+    target_env: Some(Env::GNU),
     tier: Tier::One,
 };
 
