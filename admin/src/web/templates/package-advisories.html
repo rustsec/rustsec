@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Advisories for package {{ package }}{% endblock %}
+
+{% block content %}
+<main class="advisories">
+  <article>
+
+    <header>
+      <h1>Advisories for {{ package }}</h1>
+    </header>
+
+    <ul>
+      {% for (advisory, rendered_title, advisory_title_type) in advisories %}
+      <li>
+        <time datetime="{{ advisory.date().as_str() }}">
+          {{ advisory.date() | friendly_date }}
+        </time>
+
+        {% if advisory.metadata.yanked %}
+        <h3><a class="yanked" href="/advisories/{{ advisory.id() }}.html">
+            {{ advisory.id() }}
+          </a></h3>
+        (yanked advisory)
+        {% else %}
+        <h3>
+          <a href="/advisories/{{ advisory.id() }}.html">
+            {{ advisory_title_type }}
+          </a>
+        </h3>
+        <span>{{ rendered_title|safe }}</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+</main>
+{% endblock %}
