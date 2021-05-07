@@ -3,7 +3,11 @@ name: Release
 on:
   push:
     tags:
-      - v*.*.*
+      - cargo-audit/v*.*.*
+
+defaults:
+  run:
+    working-directory: cargo-audit
 
 env:
   CARGO_INCREMENTAL: 0

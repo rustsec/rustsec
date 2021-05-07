@@ -1,0 +1,32 @@
+[package]
+name = "cargo-lock"
+description = "Self-contained Cargo.lock parser with optional dependency graph analysis"
+version = "6.0.1"
+authors = ["Tony Arcieri <bascule@gmail.com>"]
+license = "Apache-2.0 OR MIT"
+edition = "2018"
+readme = "README.md"
+homepage = "https://rustsec.org"
+repository = "https://github.com/rustsec/cargo-lock"
+categories = ["parser-implementations"]
+keywords = ["cargo", "dependency", "lock", "lockfile"]
+
+[[bin]]
+name = "cargo-lock"
+required-features = ["cli"]
+
+[dependencies]
+gumdrop = { version = "0.8", optional = true }
+petgraph = { version = "0.5", optional = true }
+semver = { version = "0.11", features = ["serde"] }
+serde = { version = "1", features = ["serde_derive"] }
+toml = "0.5"
+url = "2"
+
+[features]
+cli = ["gumdrop", "dependency-tree"]
+dependency-tree = ["petgraph"]
+
+[package.metadata.docs.rs]
+features = ["dependency-tree"]
+rustdoc-args = ["--cfg", "docsrs"]

@@ -1,0 +1,5 @@
+# Configuration for the template engine used in web generation. Make it
+# utilize the template folder under the web module.
+
+[general]
+dirs = ["src/web/templates"]
