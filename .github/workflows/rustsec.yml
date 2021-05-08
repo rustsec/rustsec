@@ -1,0 +1,33 @@
+name: rustsec
+
+on:
+  pull_request: {}
+  push:
+    branches: main
+
+defaults:
+  run:
+    working-directory: rustsec
+
+env:
+  CARGO_INCREMENTAL: 0
+  RUSTFLAGS: -D warnings
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - 1.46.0 # MSRV
+          - stable
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+          profile: minimal
+      - run: cargo check
+      - run: cargo test --no-default-features --release
+      - run: cargo test --release
+      - run: cargo test --all-features --release

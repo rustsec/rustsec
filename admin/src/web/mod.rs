@@ -97,6 +97,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     // Render the advisories.html (/advisories) page.
 
     // Sort the advisories by date in descending order for the big listing.
+    #[allow(clippy::unnecessary_sort_by)]
     advisories.sort_by(|a, b| b.date().cmp(&a.date()));
 
     let mut advisories_per_year = Vec::<AdvisoriesPerYear>::new();
