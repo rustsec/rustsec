@@ -39,7 +39,7 @@ impl FixCommand {
 
     /// Locate `Cargo.lock`
     pub fn cargo_lock_path(&self) -> Option<&Path> {
-        self.file.as_ref().map(PathBuf::as_path)
+        self.file.as_deref()
     }
 }
 

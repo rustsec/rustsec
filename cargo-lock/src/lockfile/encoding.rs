@@ -173,7 +173,7 @@ impl ToString for EncodableLockfile {
             for entry in list {
                 out.push_str("[[patch.unused]]\n");
                 emit_package(entry.as_table().unwrap(), &mut out);
-                out.push_str("\n");
+                out.push('\n');
             }
         }
 
@@ -222,7 +222,7 @@ fn emit_package(dep: &toml::value::Table, out: &mut String) {
         out.push_str(&format!("replace = {}\n", &dep["replace"]));
     }
 
-    out.push_str("\n");
+    out.push('\n');
 }
 
 /// Serialization-oriented equivalent to [`Package`]
