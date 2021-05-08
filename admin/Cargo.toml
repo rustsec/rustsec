@@ -5,7 +5,7 @@ version     = "0.4.2"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 license     = "Apache-2.0 OR MIT"
 homepage    = "https://rustsec.org"
-repository  = "https://github.com/RustSec/rustsec-admin"
+repository  = "https://github.com/RustSec/rustsec/tree/main/admin"
 readme      = "README.md"
 edition     = "2018"
 
