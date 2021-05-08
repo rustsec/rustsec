@@ -100,7 +100,7 @@ impl Application for CargoAuditApplication {
             .command
             .as_ref()
             .and_then(|cmd| cmd.color_config())
-            .unwrap_or_else(|| ColorChoice::Auto)
+            .unwrap_or(ColorChoice::Auto)
     }
 
     /// Get tracing configuration from command-line options
