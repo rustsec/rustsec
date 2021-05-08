@@ -1,4 +1,4 @@
-# `rustsec` crate: advisory DB client
+# RustSec: `rustsec` crate
 
 [![Latest Version][crate-image]][crate-link]
 [![Docs][docs-image]][docs-link]
