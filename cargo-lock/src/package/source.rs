@@ -51,6 +51,7 @@ enum SourceKind {
     Registry,
 
     /// A local filesystem-based registry.
+    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     LocalRegistry,
 
     /// A directory-based registry.
