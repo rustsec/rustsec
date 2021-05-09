@@ -158,7 +158,11 @@ mod tests {
                 "i686-unknown-linux-musl",
                 "mips-unknown-linux-musl",
                 "mipsel-unknown-linux-musl",
-                "x86_64-unknown-linux-musl"
+                "x86_64-unknown-linux-musl",
+                "powerpc-unknown-linux-musl",
+                "powerpc64-unknown-linux-musl",
+                "powerpc64le-unknown-linux-musl",
+                "s390x-unknown-linux-musl"
             ]
         );
     }
@@ -178,7 +182,8 @@ mod tests {
                 "x86_64-pc-windows-gnu",
                 "x86_64-pc-windows-msvc",
                 "aarch64-pc-windows-msvc",
-                "i586-pc-windows-msvc"
+                "i586-pc-windows-msvc",
+                "aarch64-uwp-windows-msvc"
             ]
         );
     }
