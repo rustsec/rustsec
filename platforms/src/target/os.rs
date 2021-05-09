@@ -32,6 +32,9 @@ pub enum OS {
     /// `haiku`: Haiku, an open source BeOS clone
     Haiku,
 
+    /// `hermit`: HermitCore is a novel unikernel operating system targeting a scalable and predictable runtime behavior for HPC and cloud environments
+    Hermit,
+
     /// `illumos`: illumos is a partly free and open-source Unix operating system based on OpenSolaris
     Illumos,
 
@@ -57,11 +60,18 @@ pub enum OS {
     /// `solaris`: Oracle's (formerly Sun) Solaris operating system
     Solaris,
 
+    /// `tvOS`: AppleTV operating system
+    #[allow(non_camel_case_types)]
+    tvOS,
+
     /// `wasi`: The WebAssembly System Interface
     Wasi,
 
     /// `windows`: Microsoft's Windows operating system
     Windows,
+
+    /// `vxworks`: VxWorks is a deterministic, priority-based preemptive RTOS with low latency and minimal jitter.
+    VxWorks,
 
     /// Operating systems we don't know about
     Unknown,
@@ -78,6 +88,7 @@ impl OS {
             OS::FreeBSD => "freebsd",
             OS::Fuchsia => "fuchsia",
             OS::Haiku => "haiku",
+            OS::Hermit => "hermit",
             OS::Illumos => "illumos",
             OS::iOS => "ios",
             OS::Linux => "linux",
@@ -86,8 +97,10 @@ impl OS {
             OS::OpenBSD => "openbsd",
             OS::Redox => "redox",
             OS::Solaris => "solaris",
+            OS::tvOS => "tvos",
             OS::Wasi => "wasi",
             OS::Windows => "windows",
+            OS::VxWorks => "vxworks",
             OS::Unknown => "unknown",
         }
     }
@@ -106,6 +119,7 @@ impl FromStr for OS {
             "freebsd" => OS::FreeBSD,
             "fuchsia" => OS::Fuchsia,
             "haiku" => OS::Haiku,
+            "hermit" => OS::Hermit,
             "illumos" => OS::Illumos,
             "ios" => OS::iOS,
             "linux" => OS::Linux,
@@ -114,8 +128,10 @@ impl FromStr for OS {
             "openbsd" => OS::OpenBSD,
             "redox" => OS::Redox,
             "solaris" => OS::Solaris,
+            "tvos" => OS::tvOS,
             "wasi" => OS::Wasi,
             "windows" => OS::Windows,
+            "vxworks" => OS::VxWorks,
             _ => return Err(Error),
         };
 
@@ -176,6 +192,10 @@ pub const TARGET_OS: OS = OS::Fuchsia;
 /// `target_os` when building this crate: `haiku`
 pub const TARGET_OS: OS = OS::Haiku;
 
+#[cfg(target_os = "hermit")]
+/// `target_os` when building this crate: `hermit`
+pub const TARGET_OS: OS = OS::Hermit;
+
 #[cfg(target_os = "illumos")]
 /// `target_os` when building this crate: `illumos`
 pub const TARGET_OS: OS = OS::Illumos;
@@ -208,6 +228,10 @@ pub const TARGET_OS: OS = OS::Redox;
 /// `target_os` when building this crate: `solaris`
 pub const TARGET_OS: OS = OS::Solaris;
 
+#[cfg(target_os = "tvos")]
+/// `target_os` when building this crate: `tvos`
+pub const TARGET_OS: OS = OS::tvOS;
+
 #[cfg(target_os = "wasi")]
 /// `target_os` when building this crate: `wasi`
 pub const TARGET_OS: OS = OS::Wasi;
@@ -216,6 +240,10 @@ pub const TARGET_OS: OS = OS::Wasi;
 /// `target_os` when building this crate: `windows`
 pub const TARGET_OS: OS = OS::Windows;
 
+#[cfg(target_os = "vxworks")]
+/// `target_os` when building this crate: `vxworks`
+pub const TARGET_OS: OS = OS::VxWorks;
+
 #[cfg(not(any(
     target_os = "android",
     target_os = "dragonfly",
@@ -223,6 +251,7 @@ pub const TARGET_OS: OS = OS::Windows;
     target_os = "freebsd",
     target_os = "fuchsia",
     target_os = "haiku",
+    target_os = "hermit",
     target_os = "illumos",
     target_os = "ios",
     target_os = "linux",
@@ -231,8 +260,10 @@ pub const TARGET_OS: OS = OS::Windows;
     target_os = "openbsd",
     target_os = "redox",
     target_os = "solaris",
+    target_os = "tvos",
     target_os = "wasi",
     target_os = "windows",
+    target_os = "vxworks"
 )))]
 /// `target_os` when building this crate: unknown!
 pub const TARGET_OS: OS = OS::Unknown;
