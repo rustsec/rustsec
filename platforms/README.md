@@ -158,8 +158,8 @@ additional terms or conditions.
 [crate-link]: https://crates.io/crates/platforms
 [docs-image]: https://docs.rs/platforms/badge.svg
 [docs-link]: https://docs.rs/platforms/
-[build-image]: https://github.com/rustsec/platforms-crate/workflows/CI/badge.svg
-[build-link]: https://github.com/RustSec/platforms-crate/actions?query=workflow:CI
+[build-image]: https://github.com/RustSec/rustsec/actions/workflows/platforms.yml/badge.svg
+[build-link]: https://github.com/RustSec/rustsec/actions/workflows/platforms.yml
 [license-image]: https://img.shields.io/badge/license-Apache2%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.40+-blue.svg
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
