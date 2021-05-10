@@ -1,7 +1,11 @@
 name: cargo-audit
 
 on:
-  pull_request: {}
+  pull_request:
+    paths:
+      - "cargo-audit/**"
+      - "rustsec/**"
+      - "Cargo.*"
   push:
     branches: main
 

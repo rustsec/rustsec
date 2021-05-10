@@ -1,7 +1,13 @@
 name: rustsec
 
 on:
-  pull_request: {}
+  pull_request:
+    paths:
+      - "cargo-lock/**"
+      - "cvss/**"
+      - "platforms/**"
+      - "rustsec/**"
+      - "Cargo.*"
   push:
     branches: main
 
