@@ -1,7 +1,7 @@
 //! Common Vulnerability Scoring System.
 //!
-//! The [`cvss::v3::Base`] type provides the main functionality presently
-//! implemented by this crate, namely: support for parsing, serializing,
+//! The [`cvss::v3::Base`][`v3::Base`] type provides the main functionality
+//! currently implemented by this crate, namely: support for parsing, serializing,
 //! and scoring `CVSS:3.0` and `CVSS:3.1` Base Metric Group vector strings
 //! as described in the CVSS v3.1 Specification:
 //!
