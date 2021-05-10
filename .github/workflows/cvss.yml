@@ -1,7 +1,10 @@
 name: cvss
 
 on:
-  pull_request: {}
+  pull_request:
+    paths:
+      - "cvss/**"
+      - "Cargo.*"
   push:
     branches: main
 
