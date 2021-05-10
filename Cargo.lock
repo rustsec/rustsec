@@ -606,15 +606,15 @@ dependencies = [
 [[package]]
 name = "cvss"
 version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b2ecd8322bca85301b52d821806315c282c7e5f85f03b0609e68d4189bda8f58"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "cvss"
-version = "1.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b2ecd8322bca85301b52d821806315c282c7e5f85f03b0609e68d4189bda8f58"
+version = "1.0.2"
 dependencies = [
  "serde",
 ]
@@ -2272,7 +2272,7 @@ dependencies = [
  "cargo-edit",
  "cargo-lock 6.0.1",
  "crates-index",
- "cvss 1.0.1",
+ "cvss 1.0.2",
  "fs-err",
  "git2",
  "home",
@@ -2298,7 +2298,7 @@ checksum = "09ca2e5b11f379d6f091b029f4efbcf77c2e5ce61628a3512944ac1718eafba5"
 dependencies = [
  "cargo-lock 6.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "crates-index",
- "cvss 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cvss 1.0.1",
  "fs-err",
  "git2",
  "home",

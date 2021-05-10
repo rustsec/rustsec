@@ -13,7 +13,7 @@
 
 #![doc(
     html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png",
-    html_root_url = "https://docs.rs/cvss/1.0.1"
+    html_root_url = "https://docs.rs/cvss/1.0.2"
 )]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
