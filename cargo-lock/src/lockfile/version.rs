@@ -6,20 +6,30 @@ use crate::{
     metadata::Metadata,
 };
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use std::{convert::TryFrom, str::FromStr};
 
 /// Lockfile versions
 #[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[non_exhaustive]
+#[repr(u32)]
 pub enum ResolveVersion {
-    /// The original `Cargo.lock` format which places checksums in the
+    /// Original `Cargo.lock` format which places checksums in the
     /// `[[metadata]]` table.
-    V1,
+    V1 = 1,
 
-    /// The new `Cargo.lock` format which is optimized to prevent merge
-    /// conflicts. For more information, see:
+    /// Revised `Cargo.lock` format which is optimized to prevent merge
+    /// conflicts.
     ///
+    /// For more information, see:
     /// <https://github.com/rust-lang/cargo/pull/7070>
-    V2,
+    V2 = 2,
+
+    /// Encodes Git dependencies with `branch = 'master'` in the manifest as
+    /// `?branch=master` in their URLs.
+    ///
+    /// For more information, see:
+    /// <https://internals.rust-lang.org/t/upcoming-changes-to-cargo-lock/14017>
+    V3 = 3,
 }
 
 impl ResolveVersion {
@@ -45,6 +55,11 @@ impl ResolveVersion {
             Ok(ResolveVersion::V2)
         }
     }
+
+    /// Should this version be explicitly encoded?
+    pub(super) fn is_explicit(self) -> bool {
+        u32::from(self) > 3
+    }
 }
 
 /// V2 format is now the default.
@@ -56,17 +71,40 @@ impl Default for ResolveVersion {
     }
 }
 
+impl From<ResolveVersion> for u32 {
+    fn from(version: ResolveVersion) -> u32 {
+        version as u32
+    }
+}
+
 impl FromStr for ResolveVersion {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Error> {
-        match s {
-            "1" => Ok(ResolveVersion::V1),
-            "2" => Ok(ResolveVersion::V2),
+        u32::from_str(s)
+            .map_err(|_| {
+                format_err!(
+                    ErrorKind::Parse,
+                    "invalid Cargo.lock format version: `{}`",
+                    s
+                )
+            })
+            .and_then(Self::try_from)
+    }
+}
+
+impl TryFrom<u32> for ResolveVersion {
+    type Error = Error;
+
+    fn try_from(num: u32) -> Result<Self, Error> {
+        match num {
+            1 => Ok(ResolveVersion::V1),
+            2 => Ok(ResolveVersion::V2),
+            3 => Ok(ResolveVersion::V3),
             _ => fail!(
                 ErrorKind::Parse,
                 "invalid Cargo.lock format version: `{}`",
-                s
+                num
             ),
         }
     }
