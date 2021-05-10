@@ -94,8 +94,8 @@ additional terms or conditions.
 
 [crate-image]: https://img.shields.io/crates/v/cargo-audit.svg
 [crate-link]: https://crates.io/crates/cargo-audit
-[build-image]: https://github.com/rustsec/cargo-audit/workflows/CI/badge.svg?branch=main&event=push
-[build-link]: https://github.com/RustSec/cargo-audit/actions?query=workflow:CI+branch:main
+[build-image]: https://github.com/RustSec/rustsec/actions/workflows/cargo-audit.yml/badge.svg
+[build-link]: https://github.com/RustSec/rustsec/actions/workflows/cargo-audit.yml
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [rustc-image]: https://img.shields.io/badge/rustc-1.46+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
