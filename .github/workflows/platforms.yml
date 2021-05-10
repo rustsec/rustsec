@@ -1,7 +1,10 @@
 name: platforms
 
 on:
-  pull_request: {}
+  pull_request:
+    paths:
+      - "platforms/**"
+      - "Cargo.*"
   push:
     branches: main
 

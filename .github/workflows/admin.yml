@@ -1,7 +1,11 @@
 name: admin
 
 on:
-  pull_request: {}
+  pull_request:
+    paths:
+      - "admin/**"
+      - "rustsec/**"
+      - "Cargo.*"
   push:
     branches: main
 
