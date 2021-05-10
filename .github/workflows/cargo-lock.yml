@@ -1,7 +1,10 @@
 name: cargo-lock
 
 on:
-  pull_request: {}
+  pull_request:
+    paths:
+      - "cargo-lock/**"
+      - "Cargo.*"
   push:
     branches: main
 
