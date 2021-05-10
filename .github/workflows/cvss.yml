@@ -1,4 +1,4 @@
-name: CI
+name: cvss
 
 on:
   pull_request: {}
