@@ -36,6 +36,9 @@ impl Serialize for Lockfile {
 /// Serialization-oriented equivalent to [`Lockfile`]
 #[derive(Debug, Deserialize, Serialize)]
 pub(super) struct EncodableLockfile {
+    /// Lockfile version
+    pub(super) version: Option<u32>,
+
     /// Packages in the lockfile
     #[serde(default)]
     pub(super) package: Vec<EncodablePackage>,
@@ -75,19 +78,17 @@ impl TryFrom<EncodableLockfile> for Lockfile {
         let mut packages = Vec::with_capacity(raw_lockfile.package.len());
 
         for raw_package in &raw_lockfile.package {
-            packages.push(match version {
+            packages.push(if version == ResolveVersion::V1 {
                 // In the V1 format, all dependencies are fully qualified with
                 // their versions, but their checksums are stored in metadata.
-                ResolveVersion::V1 => {
-                    let mut pkg = Package::try_from(raw_package)?;
-                    pkg.checksum = raw_lockfile.find_checksum(&pkg);
-                    pkg
-                }
-
-                // In the V2 format, we may need to look up dependency versions
+                let mut pkg = Package::try_from(raw_package)?;
+                pkg.checksum = raw_lockfile.find_checksum(&pkg);
+                pkg
+            } else {
+                // In newer versions, we may need to look up dependency versions
                 // from the other packages listed in the lockfile
-                ResolveVersion::V2 => raw_package.resolve(&raw_lockfile.package)?,
-            });
+                raw_package.resolve(&raw_lockfile.package)?
+            })
         }
 
         Ok(Lockfile {
@@ -113,29 +114,32 @@ impl From<&Lockfile> for EncodableLockfile {
             let mut raw_pkg = EncodablePackage::from(package);
             let checksum_key = metadata::Key::for_checksum(&Dependency::from(package));
 
-            match lockfile.version {
+            if lockfile.version == ResolveVersion::V1 {
                 // In the V1 format, we need to remove the checksum from
                 // packages and add it to metadata
-                ResolveVersion::V1 => {
-                    if let Some(checksum) = raw_pkg.checksum.take() {
-                        let value = checksum.to_string().parse::<metadata::Value>().unwrap();
-                        metadata.insert(checksum_key, value);
-                    }
+                if let Some(checksum) = raw_pkg.checksum.take() {
+                    let value = checksum.to_string().parse::<metadata::Value>().unwrap();
+                    metadata.insert(checksum_key, value);
                 }
-
-                // In the V2 format, we need to remove the version/source from
+            } else {
+                // In newer versions, we need to remove the version/source from
                 // unambiguous dependencies, and remove checksums from the
                 // metadata table if present
-                ResolveVersion::V2 => {
-                    raw_pkg.v2_deps(&lockfile.packages);
-                    metadata.remove(&checksum_key);
-                }
+                raw_pkg.v2_deps(&lockfile.packages);
+                metadata.remove(&checksum_key);
             }
 
             packages.push(raw_pkg);
         }
 
+        let version = if lockfile.version.is_explicit() {
+            Some(lockfile.version.into())
+        } else {
+            None
+        };
+
         EncodableLockfile {
+            version,
             package: packages,
             root: lockfile.root.as_ref().map(|root| root.into()),
             metadata,
