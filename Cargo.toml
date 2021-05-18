@@ -8,3 +8,6 @@ members = [
     "platforms/markdown-table-gen",
     "rustsec"
 ]
+
+[patch.crates-io]
+semver = { git = 'https://github.com/Shnatsel/semver.git' }
