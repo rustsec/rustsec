@@ -7,8 +7,8 @@
 //! which `semver` crate does not allow doing directly.
 //! See https://github.com/steveklabnik/semver/issues/172
 
-use semver::Version;
 use semver::version_req::Op;
+use semver::Version;
 
 /// A range of affected versions.
 /// If any of the bounds is unspecified, that means ALL versions
@@ -32,7 +32,10 @@ pub struct UnaffectedRange {
 
 impl Default for UnaffectedRange {
     fn default() -> Self {
-        UnaffectedRange {start: Bound::Unbounded, end: Bound::Unbounded}
+        UnaffectedRange {
+            start: Bound::Unbounded,
+            end: Bound::Unbounded,
+        }
     }
 }
 
@@ -48,7 +51,7 @@ impl UnaffectedRange {
                 (Bound::Exclusive(v_start), Bound::Inclusive(v_end)) => v_start == v_end,
                 (Bound::Inclusive(v_start), Bound::Exclusive(v_end)) => v_start == v_end,
                 (Bound::Inclusive(v_start), Bound::Inclusive(v_end)) => v_start == v_end,
-                (_, _) => false
+                (_, _) => false,
             }
         }
     }
@@ -59,7 +62,7 @@ impl UnaffectedRange {
     fn overlaps(&self, other: &UnaffectedRange) -> bool {
         assert!(self.is_valid());
         assert!(other.is_valid());
-        
+
         // range check for well-formed ranges is `(Start1 <= End2) && (Start2 <= End1)`
         // but it's complicated by our inclusive/exclusive bounds and unbounded ranges,
         // So we define a custom less_or_equal for this comparison
@@ -80,7 +83,7 @@ impl UnaffectedRange {
                     } else {
                         true
                     }
-                },
+                }
                 _ => true, // if one of the bounds is None
             }
         }
@@ -93,7 +96,7 @@ impl UnaffectedRange {
 enum Bound {
     Unbounded,
     Exclusive(Version),
-    Inclusive(Version)
+    Inclusive(Version),
 }
 
 impl Bound {
@@ -118,25 +121,40 @@ impl Bound {
 // This is fine for the advisory database as of May 2021.
 impl From<semver::Range> for UnaffectedRange {
     fn from(input: semver::Range) -> Self {
-        assert!(input.predicates.len() <= 2, "Unsupported version specification: too many predicates");
+        assert!(
+            input.predicates.len() <= 2,
+            "Unsupported version specification: too many predicates"
+        );
         let mut result = UnaffectedRange::default();
         for predicate in input.predicates {
             match predicate.op {
-                Op::Ex => {todo!()}
+                Op::Ex => todo!(),
                 Op::Gt => {
-                    assert!(result.start == Bound::Unbounded, "More than one lower bound in the same range!");
+                    assert!(
+                        result.start == Bound::Unbounded,
+                        "More than one lower bound in the same range!"
+                    );
                     result.start = Bound::Exclusive(predicate.into());
                 }
                 Op::GtEq => {
-                    assert!(result.start == Bound::Unbounded, "More than one lower bound in the same range!");
+                    assert!(
+                        result.start == Bound::Unbounded,
+                        "More than one lower bound in the same range!"
+                    );
                     result.start = Bound::Inclusive(predicate.into());
                 }
                 Op::Lt => {
-                    assert!(result.end == Bound::Unbounded, "More than one upper bound in the same range!");
+                    assert!(
+                        result.end == Bound::Unbounded,
+                        "More than one upper bound in the same range!"
+                    );
                     result.end = Bound::Exclusive(predicate.into());
                 }
                 Op::LtEq => {
-                    assert!(result.end == Bound::Unbounded, "More than one upper bound in the same range!");
+                    assert!(
+                        result.end == Bound::Unbounded,
+                        "More than one upper bound in the same range!"
+                    );
                     result.end = Bound::Inclusive(predicate.into());
                 }
             }
@@ -157,9 +175,9 @@ pub fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange>
     // The current impl has quadratic complexity, but since we have like 4 ranges at most, this doesn't matter.
     // We can optimize this later if it starts showing up on profiles.
     assert!(unaffected.len() > 0); //TODO: maybe don't panic?
-    for a in unaffected[..unaffected.len()-1].iter() {
+    for a in unaffected[..unaffected.len() - 1].iter() {
         for b in unaffected[1..].iter() {
-            assert!( ! a.overlaps(b));
+            assert!(!a.overlaps(b));
         }
     }
 
@@ -187,13 +205,15 @@ pub fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange>
 
     // Handle the start bound of the first element, since it's not handled by the main loop
     match &unaffected.first().unwrap().start {
-        Bound::Unbounded => {}, // Nothing to do
-        Bound::Exclusive(v) => {
-            result.push(OsvRange{start: None, end: Some(increment(v))})
-        }
-        Bound::Inclusive(v) => {
-            result.push(OsvRange{start: None, end: Some(v.clone())})
-        }
+        Bound::Unbounded => {} // Nothing to do
+        Bound::Exclusive(v) => result.push(OsvRange {
+            start: None,
+            end: Some(increment(v)),
+        }),
+        Bound::Inclusive(v) => result.push(OsvRange {
+            start: None,
+            end: Some(v.clone()),
+        }),
     }
 
     // Iterate over pairs of UnaffectedRange and turn the space between each pair into an OsvRange
@@ -209,18 +229,23 @@ pub fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange>
             Bound::Exclusive(v) => v.clone(),
             Bound::Inclusive(v) => increment(v),
         };
-        result.push(OsvRange{start: Some(start), end: Some(end)});
+        result.push(OsvRange {
+            start: Some(start),
+            end: Some(end),
+        });
     }
 
     // Handle the end bound of the last element, since it's not handled by the main loop
     match &unaffected.last().unwrap().end {
-        Bound::Unbounded => {}, // Nothing to do
-        Bound::Exclusive(v) => {
-            result.push(OsvRange{start: Some(v.clone()), end: None})
-        }
-        Bound::Inclusive(v) => {
-            result.push(OsvRange{start: Some(increment(v)), end: None})
-        }
+        Bound::Unbounded => {} // Nothing to do
+        Bound::Exclusive(v) => result.push(OsvRange {
+            start: Some(v.clone()),
+            end: None,
+        }),
+        Bound::Inclusive(v) => result.push(OsvRange {
+            start: Some(increment(v)),
+            end: None,
+        }),
     }
 
     result
@@ -249,24 +274,42 @@ mod tests {
 
     #[test]
     fn both_unbounded() {
-        let range1 = UnaffectedRange{start: Bound::Unbounded, end: Bound::Unbounded};
-        let range2 = UnaffectedRange{start: Bound::Unbounded, end: Bound::Unbounded};
+        let range1 = UnaffectedRange {
+            start: Bound::Unbounded,
+            end: Bound::Unbounded,
+        };
+        let range2 = UnaffectedRange {
+            start: Bound::Unbounded,
+            end: Bound::Unbounded,
+        };
         assert!(range1.overlaps(&range2));
         assert!(range2.overlaps(&range1));
     }
 
     #[test]
     fn barely_not_overlapping() {
-        let range1 = UnaffectedRange{start: Bound::Inclusive(Version::parse("1.2.3").unwrap()), end: Bound::Unbounded};
-        let range2 = UnaffectedRange{start: Bound::Unbounded, end: Bound::Exclusive(Version::parse("1.2.3").unwrap())};
-        assert!( ! range1.overlaps(&range2));
-        assert!( ! range2.overlaps(&range1));
+        let range1 = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.3").unwrap()),
+            end: Bound::Unbounded,
+        };
+        let range2 = UnaffectedRange {
+            start: Bound::Unbounded,
+            end: Bound::Exclusive(Version::parse("1.2.3").unwrap()),
+        };
+        assert!(!range1.overlaps(&range2));
+        assert!(!range2.overlaps(&range1));
     }
 
     #[test]
     fn barely_overlapping() {
-        let range1 = UnaffectedRange{start: Bound::Inclusive(Version::parse("1.2.3").unwrap()), end: Bound::Unbounded};
-        let range2 = UnaffectedRange{start: Bound::Unbounded, end: Bound::Inclusive(Version::parse("1.2.3").unwrap())};
+        let range1 = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.3").unwrap()),
+            end: Bound::Unbounded,
+        };
+        let range2 = UnaffectedRange {
+            start: Bound::Unbounded,
+            end: Bound::Inclusive(Version::parse("1.2.3").unwrap()),
+        };
         assert!(range1.overlaps(&range2));
         assert!(range2.overlaps(&range1));
     }
@@ -275,25 +318,25 @@ mod tests {
     fn clearly_not_overlapping() {
         let range1 = UnaffectedRange {
             start: Bound::Inclusive(Version::parse("0.1.0").unwrap()),
-            end: Bound::Inclusive(Version::parse("0.3.0").unwrap())
+            end: Bound::Inclusive(Version::parse("0.3.0").unwrap()),
         };
         let range2 = UnaffectedRange {
             start: Bound::Inclusive(Version::parse("1.1.0").unwrap()),
-            end: Bound::Inclusive(Version::parse("1.3.0").unwrap())
+            end: Bound::Inclusive(Version::parse("1.3.0").unwrap()),
         };
-        assert!( ! range1.overlaps(&range2));
-        assert!( ! range2.overlaps(&range1));
+        assert!(!range1.overlaps(&range2));
+        assert!(!range2.overlaps(&range1));
     }
 
     #[test]
     fn clearly_overlapping() {
         let range1 = UnaffectedRange {
             start: Bound::Inclusive(Version::parse("0.1.0").unwrap()),
-            end: Bound::Inclusive(Version::parse("1.1.0").unwrap())
+            end: Bound::Inclusive(Version::parse("1.1.0").unwrap()),
         };
         let range2 = UnaffectedRange {
             start: Bound::Inclusive(Version::parse("0.2.0").unwrap()),
-            end: Bound::Inclusive(Version::parse("1.3.0").unwrap())
+            end: Bound::Inclusive(Version::parse("1.3.0").unwrap()),
         };
         assert!(range1.overlaps(&range2));
         assert!(range2.overlaps(&range1));

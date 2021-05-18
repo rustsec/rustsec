@@ -9,8 +9,8 @@ pub mod keyword;
 pub mod linter;
 pub mod metadata;
 pub mod parser;
-pub mod versions;
 pub mod version_ranges;
+pub mod versions;
 
 pub use self::{
     affected::Affected, category::Category, date::Date, id::Id, informational::Informational,
