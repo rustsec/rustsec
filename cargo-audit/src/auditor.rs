@@ -1,7 +1,7 @@
 //! Core auditing functionality
 
-use crate::{config::AuditConfig, error::Error, lockfile, prelude::*, presenter::Presenter};
-use rustsec::{lockfile::Lockfile, registry, report, warning, Warning};
+use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
+use rustsec::{error, lockfile::Lockfile, registry, report, warning, Warning};
 use std::{
     collections::btree_map as map,
     io::{self, Read},
@@ -120,21 +120,30 @@ impl Auditor {
     }
 
     /// Perform audit
-    pub fn audit(&mut self, maybe_lockfile_path: Option<&Path>) -> rustsec::Report {
-        let lockfile_path = maybe_lockfile_path.unwrap_or_else(|| {
-            let path = Path::new(CARGO_LOCK_FILE);
-
-            if !path.exists() && Path::new("Cargo.toml").exists() {
-                lockfile::generate();
+    pub fn audit(
+        &mut self,
+        maybe_lockfile_path: Option<&Path>,
+    ) -> Result<rustsec::Report, error::Error> {
+        let lockfile_path = match maybe_lockfile_path {
+            Some(p) => p,
+            None => {
+                let path = Path::new(CARGO_LOCK_FILE);
+                if !path.exists() && Path::new("Cargo.toml").exists() {
+                    lockfile::generate()?;
+                }
+                path
             }
+        };
 
-            path
-        });
-
-        let lockfile = self.load_lockfile(lockfile_path).unwrap_or_else(|e| {
-            status_err!("Couldn't load {}: {}", lockfile_path.display(), e);
-            exit(1);
-        });
+        let lockfile = match self.load_lockfile(lockfile_path) {
+            Ok(l) => l,
+            Err(e) => {
+                return Err(error::Error::new(
+                    error::ErrorKind::NotFound,
+                    &format!("Couldn't load {}: {}", lockfile_path.display(), e),
+                ))
+            }
+        };
 
         self.presenter.before_report(&lockfile_path, &lockfile);
 
@@ -164,11 +173,11 @@ impl Auditor {
         self.presenter
             .print_report(&report, self_advisories.as_slice(), &lockfile);
 
-        report
+        Ok(report)
     }
 
     /// Load the lockfile to be audited
-    fn load_lockfile(&self, lockfile_path: &Path) -> Result<Lockfile, Error> {
+    fn load_lockfile(&self, lockfile_path: &Path) -> Result<Lockfile, error::Error> {
         if lockfile_path == Path::new("-") {
             // Read Cargo.lock from STDIN
             let mut lockfile_toml = String::new();

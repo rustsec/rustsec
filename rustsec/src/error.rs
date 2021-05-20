@@ -114,6 +114,12 @@ impl From<cargo_edit::Error> for Error {
     }
 }
 
+impl From<cargo_lock::Error> for Error {
+    fn from(other: cargo_lock::Error) -> Self {
+        format_err!(ErrorKind::Io, &other)
+    }
+}
+
 impl From<fmt::Error> for Error {
     fn from(other: fmt::Error) -> Self {
         format_err!(ErrorKind::Io, &other)

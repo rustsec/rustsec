@@ -1,28 +1,30 @@
 //! Cargo.lock-related utilities
 
-use crate::prelude::*;
-use std::process::{exit, Command};
+use rustsec::error::{Error, ErrorKind};
+use std::process::Command;
 
 /// Run `cargo generate-lockfile`
-pub fn generate() {
-    let status = Command::new("cargo")
-        .arg("generate-lockfile")
-        .status()
-        .unwrap_or_else(|e| {
-            status_err!("couldn't run `cargo generate-lockfile`: {}", e);
-            exit(1);
-        });
+pub fn generate() -> Result<(), Error> {
+    let status = Command::new("cargo").arg("generate-lockfile").status();
+
+    if let Err(e) = status {
+        return Err(Error::new(
+            ErrorKind::Io,
+            &format!("couldn't run `cargo generate-lockfile`: {}", e),
+        ));
+    }
+    let status = status.unwrap();
 
     if !status.success() {
-        if let Some(code) = status.code() {
-            status_err!(
+        let msg = match status.code() {
+            Some(code) => format!(
                 "non-zero exit status running `cargo generate-lockfile`: {}",
                 code
-            );
-        } else {
-            status_err!("no exit status running `cargo generate-lockfile`!");
-        }
+            ),
+            _ => "no exit status running `cargo generate-lockfile`!".to_string(),
+        };
 
-        exit(1);
+        return Err(Error::new(ErrorKind::Io, &msg));
     }
+    Ok(())
 }
