@@ -237,9 +237,18 @@ impl Runnable for AuditCommand {
         let lockfile_path = self.file.as_deref();
         let report = self.auditor().audit(lockfile_path);
 
-        if report.vulnerabilities.found {
-            exit(1)
-        }
+        match report {
+            Ok(report) => {
+                if report.vulnerabilities.found {
+                    exit(1);
+                }
+                exit(0);
+            }
+            Err(e) => {
+                status_err!("{}", e);
+                exit(2);
+            }
+        };
     }
 }
 

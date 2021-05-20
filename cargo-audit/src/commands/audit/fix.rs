@@ -51,9 +51,18 @@ impl Runnable for FixCommand {
 
         let report = self.auditor().audit(self.cargo_lock_path());
 
-        if report.vulnerabilities.list.is_empty() {
-            exit(0);
-        }
+        let report = match report {
+            Ok(report) => {
+                if report.vulnerabilities.list.is_empty() {
+                    exit(0);
+                }
+                report
+            }
+            Err(e) => {
+                status_err!("{}", e);
+                exit(2);
+            }
+        };
 
         let mut fixer = Fixer::new(self.cargo_toml_path()).unwrap_or_else(|e| {
             status_err!(
@@ -80,6 +89,9 @@ impl Runnable for FixCommand {
             }
         }
 
-        lockfile::generate();
+        if let Err(e) = lockfile::generate() {
+            status_err!("{}", e);
+            exit(2);
+        }
     }
 }
