@@ -32,9 +32,8 @@ pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
 });
 
 /// Get a `CmdRunner` configured to point at a project with or without vulns
-pub fn new_cmd_runner(has_vulns: bool) -> CmdRunner {
+fn new_cmd_runner(project: &str) -> CmdRunner {
     let mut runner = RUNNER.clone();
-    let project = if has_vulns { "base64_vuln" } else { "no_vulns" };
 
     let tests_data_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "support"]
         .iter()
@@ -48,6 +47,21 @@ pub fn new_cmd_runner(has_vulns: bool) -> CmdRunner {
     runner
 }
 
+/// Get a `CmdRunner` to a project which contains vulnerabilities.
+pub fn vulnerable_cmd_runner() -> CmdRunner {
+    new_cmd_runner("base64_vuln")
+}
+
+/// Get a `CmdRunner` to a project without vulnerabilities.
+pub fn secure_cmd_runner() -> CmdRunner {
+    new_cmd_runner("no_vulns")
+}
+
+/// Get a `CmdRunner` to a project without any Cargo.toml or Cargo.lock.
+pub fn failing_cmd_runner() -> CmdRunner {
+    new_cmd_runner("empty")
+}
+
 /// Get the advisory JSON output from a `CmdRunner`
 pub fn get_advisories_json(process: &mut Process) -> serde_json::Value {
     let mut output = String::new();
@@ -57,17 +71,22 @@ pub fn get_advisories_json(process: &mut Process) -> serde_json::Value {
 
 #[test]
 fn no_advisories_found_exit_success() {
-    new_cmd_runner(false).status().expect_success();
+    secure_cmd_runner().status().expect_success();
 }
 
 #[test]
 fn advisories_found_exit_error() {
-    new_cmd_runner(true).status().expect_code(1);
+    vulnerable_cmd_runner().status().expect_code(1);
+}
+
+#[test]
+fn no_lockfile_exit_error() {
+    failing_cmd_runner().status().expect_code(2);
 }
 
 #[test]
 fn no_advisories_found_empty_json() {
-    let mut runner = new_cmd_runner(false);
+    let mut runner = secure_cmd_runner();
     runner.arg("--json");
 
     let mut process = runner.run();
@@ -93,7 +112,7 @@ fn no_advisories_found_empty_json() {
 
 #[test]
 fn advisories_found_json() {
-    let mut runner = new_cmd_runner(true);
+    let mut runner = vulnerable_cmd_runner();
     runner.arg("--json");
 
     let mut process = runner.run();
@@ -135,7 +154,7 @@ fn version() {
 
 #[test]
 fn advisories_found_but_ignored_json() {
-    let mut runner = new_cmd_runner(true);
+    let mut runner = vulnerable_cmd_runner();
     runner.arg("--json");
     runner.arg("--ignore").arg("RUSTSEC-2017-0004");
 
