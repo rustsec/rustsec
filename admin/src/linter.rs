@@ -155,8 +155,9 @@ impl Linter {
 
         let url = format!("https://crates.io/api/v1/crates/{}", name);
         let response: CrateResponse = self.http_client.get(&url).call()?.into_json()?;
-        // FIXME: I've ported this equality check from legacy code
-        // and I have no idea what it does or why it's needed
+        // This check verifies name normalization.
+        // A request for https://crates.io/api/v1/crates/serde-json will return "serde_json",
+        // and we want to catch use a non-canonical name and report it as an error.
         Ok(response.crate_info.name == name)
     }
 }
