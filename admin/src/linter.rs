@@ -4,7 +4,11 @@ use crate::{
     error::{Error, ErrorKind},
     prelude::*,
 };
-use std::{fs, path::{Path, PathBuf}, time::Duration};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 /// List of "collections" within the Advisory DB
 // TODO(tarcieri): provide some other means of iterating over the collections?
@@ -30,7 +34,10 @@ impl Linter {
     /// Create a new linter for the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let http_client = ureq::AgentBuilder::new().user_agent("RustSec advisory database linter").timeout(Duration::from_secs(20)).build();
+        let http_client = ureq::AgentBuilder::new()
+            .user_agent("RustSec advisory database linter")
+            .timeout(Duration::from_secs(20))
+            .build();
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
@@ -143,10 +150,10 @@ impl Linter {
 
         #[derive(serde::Deserialize)]
         struct CrateInfo {
-            name: String // there are more fields, but this is the only one we need
+            name: String, // there are more fields, but this is the only one we need
         }
 
-        let url =  format!("https://crates.io/api/v1/crates/{}", name);
+        let url = format!("https://crates.io/api/v1/crates/{}", name);
         let response: CrateResponse = self.http_client.get(&url).call()?.into_json()?;
         // FIXME: I've ported this equality check from legacy code
         // and I have no idea what it does or why it's needed
