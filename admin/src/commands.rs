@@ -4,8 +4,9 @@ mod assign_id;
 mod lint;
 mod version;
 mod web;
+mod osv;
 
-use self::{assign_id::AssignIdCmd, lint::LintCmd, version::VersionCmd, web::WebCmd};
+use self::{assign_id::AssignIdCmd, lint::LintCmd, version::VersionCmd, web::WebCmd, osv::OsvCmd};
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
 use std::path::PathBuf;
@@ -32,6 +33,10 @@ pub enum AdminCmd {
     /// The `assign-id` subcommand
     #[options(help = "assigning RUSTSEC ids to new vulnerabilities")]
     AssignId(AssignIdCmd),
+
+    /// The `osv` subcommand
+    #[options(help = "export advisories to OSV format")]
+    Osv(OsvCmd),
 }
 
 impl Configurable<AppConfig> for AdminCmd {
