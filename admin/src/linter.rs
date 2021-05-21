@@ -35,9 +35,7 @@ impl Linter {
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
         let crates_index = crates_index::Index::new_cargo_default();
-        if !crates_index.exists() {
-            crates_index.retrieve()?;
-        }
+        crates_index.retrieve_or_update()?;
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
