@@ -66,8 +66,8 @@ impl From<Context<ErrorKind>> for Error {
     }
 }
 
-impl From<ureq::Error> for Error {
-    fn from(other: ureq::Error) -> Self {
+impl From<crates_index::Error> for Error {
+    fn from(other: crates_index::Error) -> Self {
         format_err!(ErrorKind::CratesIo, "{}", other).into()
     }
 }

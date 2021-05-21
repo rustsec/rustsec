@@ -36,8 +36,7 @@ impl Linter {
         let repo_path = repo_path.into();
         let crates_index = crates_index::Index::new_cargo_default();
         if !crates_index.exists() {
-            // FIXME
-            crates_index.retrieve().expect("Could not fetch crates.io index");
+            crates_index.retrieve()?;
         }
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
