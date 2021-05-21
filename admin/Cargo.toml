@@ -12,6 +12,7 @@ edition     = "2018"
 [dependencies]
 abscissa_core = "0.5"
 ureq = { version = "2.1", default-features=false, features = ["tls", "json"] }
+crates-index = "0.16"
 gumdrop = "0.7"
 rustsec = "0.23"
 serde = { version = "1", features = ["serde_derive"] }

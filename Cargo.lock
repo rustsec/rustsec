@@ -1848,6 +1848,7 @@ dependencies = [
  "atom_syndication",
  "chrono",
  "comrak",
+ "crates-index",
  "gumdrop 0.7.0",
  "once_cell",
  "rust-embed",
