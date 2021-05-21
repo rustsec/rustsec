@@ -137,7 +137,8 @@ impl Linter {
 
         #[derive(serde::Deserialize)]
         struct CrateResponse {
-            crates: CrateInfo, // there are more fields, but this is the only one we need
+            #[serde(alias = "crate")] // "crate" is a reserved keyword and cannot be used as a name
+            crate_info: CrateInfo, // there are more fields, but this is the only one we need
         }
 
         #[derive(serde::Deserialize)]
@@ -149,6 +150,6 @@ impl Linter {
         let response: CrateResponse = self.http_client.get(&url).call()?.into_json()?;
         // FIXME: I've ported this equality check from legacy code
         // and I have no idea what it does or why it's needed
-        Ok(response.crates.name == name)
+        Ok(response.crate_info.name == name)
     }
 }
