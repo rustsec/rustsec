@@ -7,6 +7,7 @@ use crate::{
 use std::{
     fs,
     path::{Path, PathBuf},
+    time::Duration,
 };
 
 /// List of "collections" within the Advisory DB
@@ -19,8 +20,8 @@ pub struct Linter {
     /// Path to the advisory database
     repo_path: PathBuf,
 
-    /// Crates.io client
-    cratesio_client: crates_io_api::SyncClient,
+    /// HTTP client for crates.io requests, persisted for connection pooling
+    http_client: ureq::Agent,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -33,12 +34,15 @@ impl Linter {
     /// Create a new linter for the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let cratesio_client = crates_io_api::SyncClient::new();
+        let http_client = ureq::AgentBuilder::new()
+            .user_agent("RustSec advisory database linter")
+            .timeout(Duration::from_secs(20))
+            .build();
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
             repo_path,
-            cratesio_client,
+            http_client,
             advisory_db,
             invalid_advisories: 0,
         })
@@ -118,11 +122,7 @@ impl Linter {
 
     /// Perform lints that connect to https://crates.io
     fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
-        let response = self
-            .cratesio_client
-            .get_crate(advisory.metadata.package.as_str())?;
-
-        if response.crate_data.name != advisory.metadata.package.as_str() {
+        if !self.name_exists_on_crates_io(advisory.metadata.package.as_str())? {
             self.invalid_advisories += 1;
 
             fail!(
@@ -133,5 +133,31 @@ impl Linter {
         }
 
         Ok(())
+    }
+
+    /// Checks if a crate with this name is present on crates.io
+    fn name_exists_on_crates_io(&self, name: &str) -> Result<bool, Error> {
+        // This contains a homebrew crates.io API client.
+        // It was created because `crates_io_api` is bloated (async!)
+        // and breaks any time crates.io changes any fields at all,
+        // even the ones we don't use. And we literally need ONE field.
+
+        #[derive(serde::Deserialize)]
+        struct CrateResponse {
+            #[serde(alias = "crate")] // "crate" is a reserved keyword and cannot be used as a name
+            crate_info: CrateInfo, // there are more fields, but this is the only one we need
+        }
+
+        #[derive(serde::Deserialize)]
+        struct CrateInfo {
+            name: String, // there are more fields, but this is the only one we need
+        }
+
+        let url = format!("https://crates.io/api/v1/crates/{}", name);
+        let response: CrateResponse = self.http_client.get(&url).call()?.into_json()?;
+        // This check verifies name normalization.
+        // A request for https://crates.io/api/v1/crates/serde-json will return "serde_json",
+        // and we want to catch use a non-canonical name and report it as an error.
+        Ok(response.crate_info.name == name)
     }
 }
