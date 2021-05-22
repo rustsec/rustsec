@@ -3,9 +3,10 @@
 mod assign_id;
 mod lint;
 mod version;
+mod list_affected_versions;
 mod web;
 
-use self::{assign_id::AssignIdCmd, lint::LintCmd, version::VersionCmd, web::WebCmd};
+use self::{assign_id::AssignIdCmd, lint::LintCmd, version::VersionCmd, web::WebCmd, list_affected_versions::ListAffectedVersionsCmd};
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
 use std::path::PathBuf;
@@ -32,6 +33,10 @@ pub enum AdminCmd {
     /// The `assign-id` subcommand
     #[options(help = "assigning RUSTSEC ids to new vulnerabilities")]
     AssignId(AssignIdCmd),
+
+    /// The `version` subcommand
+    #[options(help = "list affected crate versions")]
+    ListAffectedVersions(ListAffectedVersionsCmd),
 }
 
 impl Configurable<AppConfig> for AdminCmd {
