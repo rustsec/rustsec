@@ -1,7 +1,5 @@
 //! Backend for the `list-affected-versions` subcommand.
 
-#![allow(missing_docs)] //TODO
-
 use std::path::PathBuf;
 
 use crates_index::Index;
@@ -9,6 +7,7 @@ use rustsec::{Advisory, Database};
 
 use crate::{error::Error, prelude::*};
 
+/// Lists all versions for a crate and prints info on which ones are affected
 pub struct AffectedVersionLister {
     /// Loaded crates.io index
     crates_index: Index,
@@ -18,6 +17,7 @@ pub struct AffectedVersionLister {
 }
 
 impl AffectedVersionLister {
+    /// Load the the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
         let crates_index = crates_index::Index::new_cargo_default();
@@ -34,6 +34,7 @@ impl AffectedVersionLister {
         &self.advisory_db
     }
 
+    /// List affected and unaffected crate versions for a given advisory
     pub fn process_one_advisory(&self, advisory: &Advisory) {
         status_ok!("Loaded", "{}", advisory.id());
         let crate_name = advisory.metadata.package.as_str();
@@ -48,6 +49,7 @@ impl AffectedVersionLister {
         }
     }
 
+    /// List affected and unaffected crate versions for all advisories
     pub fn process_all_advisories(&self) -> Result<(), Error> {
         let crates_index = crates_index::Index::new_cargo_default();
         crates_index.retrieve_or_update()?;
