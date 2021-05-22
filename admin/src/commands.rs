@@ -2,11 +2,14 @@
 
 mod assign_id;
 mod lint;
-mod version;
 mod list_affected_versions;
+mod version;
 mod web;
 
-use self::{assign_id::AssignIdCmd, lint::LintCmd, version::VersionCmd, web::WebCmd, list_affected_versions::ListAffectedVersionsCmd};
+use self::{
+    assign_id::AssignIdCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
+    version::VersionCmd, web::WebCmd,
+};
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
 use std::path::PathBuf;
