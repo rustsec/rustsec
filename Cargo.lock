@@ -449,9 +449,9 @@ checksum = "ea221b5284a47e40033bf9b66f35f984ec0ea2931eb03505246cd27a963f981b"
 
 [[package]]
 name = "crates-index"
-version = "0.16.5"
+version = "0.16.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b8921b4ef00013adbfeb803c4a23c5f311eaaaa06b38826e4f887aadbfd3f1d"
+checksum = "d9880def1f3f60a7774aeccc2965f4609292dbf49dbfab2cc1f63e474a531b2e"
 dependencies = [
  "git2",
  "glob",
