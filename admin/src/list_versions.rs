@@ -36,7 +36,12 @@ impl AffectedVersionLister {
 
     /// List affected and unaffected crate versions for a given advisory
     pub fn process_one_advisory(&self, advisory: &Advisory) {
-        status_ok!("Loaded", "{}", advisory.id());
+        status_ok!(
+            "Loaded",
+            "{} for '{}'",
+            advisory.id(),
+            advisory.metadata.package
+        );
         let crate_name = advisory.metadata.package.as_str();
         let crate_info = self.crates_index.crate_(crate_name).unwrap();
         for version in crate_info.versions() {
