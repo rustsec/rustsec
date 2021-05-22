@@ -13,7 +13,7 @@ use std::{
 
 use abscissa_core::{Command, Options, Runnable};
 
-use crate::list_versions;
+use crate::list_versions::AffectedVersionLister;
 use crate::prelude::*;
 
 /// `rustsec-admin list-affected-versions` subcommand
@@ -32,9 +32,9 @@ impl Runnable for ListAffectedVersionsCmd {
             _ => Self::print_usage_and_exit(&[]),
         };
 
-        let advisory_db = rustsec::Database::open(&repo_path).unwrap_or_else(|e| {
+        let lister = AffectedVersionLister::new(&repo_path).unwrap_or_else(|e| {
             status_err!(
-                "Failed to open advisory database at {}: {}",
+                "error loading advisory DB repo from {}: {}",
                 repo_path.display(),
                 e
             );
@@ -42,13 +42,13 @@ impl Runnable for ListAffectedVersionsCmd {
         });
 
         // Ensure we're parsing some advisories
-        let advisories = advisory_db.iter();
+        let advisories = lister.advisory_db().iter();
         if advisories.len() == 0 {
             status_err!("no advisories found in {}", repo_path.display());
             exit(1);
         }
 
-        list_versions::do_it(advisory_db).unwrap_or_else(|e| {
+        lister.process_all_advisories().unwrap_or_else(|e| {
             status_err!(
                 "error listing affected versions for DB {}: {}",
                 repo_path.display(),
