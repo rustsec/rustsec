@@ -20,7 +20,7 @@ pub struct Linter {
     /// Path to the advisory database
     repo_path: PathBuf,
 
-    /// HTTP client for crates.io requests, persisted for connection pooling
+    /// Loaded crates.io index
     crates_index: Index,
 
     /// Loaded Advisory DB

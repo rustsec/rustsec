@@ -16,7 +16,7 @@ pub enum ErrorKind {
     #[error("config error")]
     Config,
 
-    /// crates.io API error
+    /// crates.io index error
     #[error("crates.io index error")]
     CratesIo,
 
