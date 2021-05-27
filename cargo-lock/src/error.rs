@@ -59,14 +59,8 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<semver::SemVerError> for Error {
-    fn from(other: semver::SemVerError) -> Self {
-        format_err!(ErrorKind::Version, &other)
-    }
-}
-
-impl From<semver::ReqParseError> for Error {
-    fn from(other: semver::ReqParseError) -> Self {
+impl From<semver::Error> for Error {
+    fn from(other: semver::Error) -> Self {
         format_err!(ErrorKind::Version, &other)
     }
 }
