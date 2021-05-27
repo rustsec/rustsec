@@ -11,6 +11,7 @@ pub mod commands;
 pub mod config;
 pub mod error;
 pub mod linter;
+pub mod list_versions;
 pub mod prelude;
 pub mod web;
 
