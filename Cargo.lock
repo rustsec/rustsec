@@ -306,10 +306,10 @@ dependencies = [
 [[package]]
 name = "cargo-lock"
 version = "6.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e6f16e7adc20969298b1e137ac21ab3a7e7a9412fec71f963ff2fdc41663d70f"
 dependencies = [
- "gumdrop 0.8.0",
- "petgraph",
- "semver 1.0.0",
+ "semver 0.11.0",
  "serde",
  "toml",
  "url",
@@ -317,11 +317,11 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "6.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6f16e7adc20969298b1e137ac21ab3a7e7a9412fec71f963ff2fdc41663d70f"
+version = "7.0.0"
 dependencies = [
- "semver 0.11.0",
+ "gumdrop 0.8.0",
+ "petgraph",
+ "semver 1.0.0",
  "serde",
  "toml",
  "url",
@@ -1762,7 +1762,7 @@ name = "rustsec"
 version = "0.23.3"
 dependencies = [
  "cargo-edit",
- "cargo-lock 6.0.1",
+ "cargo-lock 7.0.0",
  "crates-index",
  "cvss 1.0.2",
  "fs-err",
@@ -1787,7 +1787,7 @@ version = "0.23.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09ca2e5b11f379d6f091b029f4efbcf77c2e5ce61628a3512944ac1718eafba5"
 dependencies = [
- "cargo-lock 6.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 6.0.1",
  "crates-index",
  "cvss 1.0.1",
  "fs-err",
