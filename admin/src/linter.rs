@@ -4,6 +4,7 @@ use crate::{
     error::{Error, ErrorKind},
     prelude::*,
 };
+use crates_index::Index;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -19,8 +20,8 @@ pub struct Linter {
     /// Path to the advisory database
     repo_path: PathBuf,
 
-    /// Crates.io client
-    cratesio_client: crates_io_api::SyncClient,
+    /// Loaded crates.io index
+    crates_index: Index,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -33,12 +34,13 @@ impl Linter {
     /// Create a new linter for the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let cratesio_client = crates_io_api::SyncClient::new();
+        let crates_index = crates_index::Index::new_cargo_default();
+        crates_index.retrieve_or_update()?;
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
             repo_path,
-            cratesio_client,
+            crates_index,
             advisory_db,
             invalid_advisories: 0,
         })
@@ -118,11 +120,7 @@ impl Linter {
 
     /// Perform lints that connect to https://crates.io
     fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
-        let response = self
-            .cratesio_client
-            .get_crate(advisory.metadata.package.as_str())?;
-
-        if response.crate_data.name != advisory.metadata.package.as_str() {
+        if !self.name_exists_on_crates_io(advisory.metadata.package.as_str()) {
             self.invalid_advisories += 1;
 
             fail!(
@@ -133,5 +131,17 @@ impl Linter {
         }
 
         Ok(())
+    }
+
+    /// Checks if a crate with this name is present on crates.io
+    fn name_exists_on_crates_io(&self, name: &str) -> bool {
+        if let Some(crate_) = self.crates_index.crate_(name) {
+            // This check verifies name normalization.
+            // A request for "serde-json" might return "serde_json",
+            // and we want to catch use a non-canonical name and report it as an error.
+            crate_.name() == name
+        } else {
+            false
+        }
     }
 }

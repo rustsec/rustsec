@@ -16,8 +16,8 @@ pub enum ErrorKind {
     #[error("config error")]
     Config,
 
-    /// crates.io API error
-    #[error("crates.io error")]
+    /// crates.io index error
+    #[error("crates.io index error")]
     CratesIo,
 
     /// Input/output error
@@ -66,8 +66,8 @@ impl From<Context<ErrorKind>> for Error {
     }
 }
 
-impl From<crates_io_api::Error> for Error {
-    fn from(other: crates_io_api::Error) -> Self {
+impl From<crates_index::Error> for Error {
+    fn from(other: crates_index::Error) -> Self {
         format_err!(ErrorKind::CratesIo, "{}", other).into()
     }
 }
