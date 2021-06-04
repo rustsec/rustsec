@@ -267,7 +267,7 @@ dependencies = [
  "home",
  "lazy_static",
  "once_cell",
- "rustsec 0.23.3",
+ "rustsec",
  "serde",
  "serde_json",
  "tempfile",
@@ -300,18 +300,6 @@ dependencies = [
  "termcolor",
  "toml",
  "toml_edit",
- "url",
-]
-
-[[package]]
-name = "cargo-lock"
-version = "6.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6f16e7adc20969298b1e137ac21ab3a7e7a9412fec71f963ff2fdc41663d70f"
-dependencies = [
- "semver 0.11.0",
- "serde",
- "toml",
  "url",
 ]
 
@@ -468,15 +456,6 @@ dependencies = [
 [[package]]
 name = "cvss"
 version = "1.0.2"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "cvss"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "829862dabeab142ae0efd558d42d8fd874659268ccd810809ac6f1ee6bfcbd3f"
 dependencies = [
  "serde",
 ]
@@ -1178,7 +1157,7 @@ checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
 name = "markdown-table-gen"
 version = "0.0.0"
 dependencies = [
- "platforms 1.1.0",
+ "platforms",
 ]
 
 [[package]]
@@ -1520,15 +1499,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "platforms"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "989d43012e2ca1c4a02507c67282691a0a3207f9dc67cec596b43fe925b3d325"
-dependencies = [
- "serde",
-]
-
-[[package]]
 name = "ppv-lite86"
 version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1765,43 +1735,20 @@ name = "rustsec"
 version = "0.23.3"
 dependencies = [
  "cargo-edit",
- "cargo-lock 7.0.0",
+ "cargo-lock",
  "crates-index",
- "cvss 1.0.2",
+ "cvss",
  "fs-err",
  "git2",
  "home",
  "humantime",
  "humantime-serde",
  "once_cell",
- "platforms 1.1.0",
+ "platforms",
  "semver 1.0.3",
  "serde",
  "smol_str",
  "tempfile",
- "thiserror",
- "toml",
- "url",
-]
-
-[[package]]
-name = "rustsec"
-version = "0.23.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09ca2e5b11f379d6f091b029f4efbcf77c2e5ce61628a3512944ac1718eafba5"
-dependencies = [
- "cargo-lock 6.0.1",
- "crates-index",
- "cvss 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "fs-err",
- "git2",
- "home",
- "humantime",
- "humantime-serde",
- "platforms 1.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "semver 0.11.0",
- "serde",
- "smol_str",
  "thiserror",
  "toml",
  "url",
@@ -1820,7 +1767,7 @@ dependencies = [
  "gumdrop 0.7.0",
  "once_cell",
  "rust-embed",
- "rustsec 0.23.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rustsec",
  "serde",
  "termcolor",
  "thiserror",
