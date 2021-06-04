@@ -143,10 +143,13 @@ impl Bound {
 //    Which is probably not a great idea in retrospect.
 // 2. There is at most one upper and at most one lower bound in each range.
 //    Stuff like `>= 1.0, >= 2.0` is nonsense.
+// 3. If the requirement is "1.0" or "^1.0" that defines both the lower and upper bound,
+//    it is the only one in its range.
 // If any of those assumptions are violated, it will panic.
 // This is fine for the advisory database as of May 2021.
 impl From<&semver::VersionReq> for UnaffectedRange {
     fn from(input: &semver::VersionReq) -> Self {
+        //println!("Comparators in `from`: {:?}", &input.comparators);
         assert!(
             input.comparators.len() <= 2,
             "Unsupported version specification: too many comparators"
@@ -155,7 +158,6 @@ impl From<&semver::VersionReq> for UnaffectedRange {
         for comparator in &input.comparators {
             match comparator.op {
                 Op::Exact => todo!(), // having a single exact unaffected version would be weird
-                Op::Caret => panic!("If you see this, semver 1.0 doesn't resolve requirements to ranges anymore. Damn."),
                 Op::Greater => {
                     assert!(
                         result.start == Bound::Unbounded,
@@ -183,6 +185,20 @@ impl From<&semver::VersionReq> for UnaffectedRange {
                         "More than one upper bound in the same range!"
                     );
                     result.end = Bound::Inclusive(comp_to_ver(comparator));
+                },
+                Op::Caret => {
+                    assert!(
+                        input.comparators.len() == 1,
+                        "Selectors that define both the upper and lower bound (e.g. '^1.0') must be alone in their range"
+                    );
+                    let start_version = comp_to_ver(comparator);
+                    let end_version = if start_version.major == 0 {
+                        Version::new(0,start_version.minor+1,0)
+                    } else {
+                        Version::new(&start_version.major+1, 0,0)
+                    };
+                    result.start = Bound::Inclusive(start_version);
+                    result.end = Bound::Exclusive(end_version);
                 },
                 _ => todo!(), // the struct is non-exhaustive, we have to do this
             }
@@ -216,11 +232,14 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
         return vec![OsvRange{start: None, end: None}];
     }
 
+    //println!("Comparators in `unaff_to_osv`: {:?}", &unaffected);
+
     // Verify that the incoming ranges do not overlap. This is required for the correctness of the algoritm.
     // The current impl has quadratic complexity, but since we have like 4 ranges at most, this doesn't matter.
     // We can optimize this later if it starts showing up on profiles.
-    for a in unaffected[..unaffected.len() - 1].iter() {
-        for b in unaffected[1..].iter() {
+    for (idx, a) in unaffected[..unaffected.len() - 1].iter().enumerate() {
+        for b in unaffected[idx+1..].iter() {
+            //println!("comparing {:?} to {:?}", a, b);
             assert!(!a.overlaps(b));
         }
     }
