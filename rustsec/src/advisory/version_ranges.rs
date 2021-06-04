@@ -243,6 +243,7 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     for (idx, a) in unaffected[..unaffected.len() - 1].iter().enumerate() {
         for b in unaffected[idx+1..].iter() {
             //println!("comparing {:?} to {:?}", a, b);
+            // TODO: better message because it might be shown to users
             assert!(!a.overlaps(b));
         }
     }
