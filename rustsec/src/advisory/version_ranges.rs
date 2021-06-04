@@ -7,7 +7,7 @@
 //! which `semver` crate does not allow doing directly.
 //! See https://github.com/steveklabnik/semver/issues/172
 
-use semver::{Comparator, Op, Version};
+use semver::{Comparator, Op, Version, Prerelease};
 
 /// Returns OSV ranges for all affected versions in the given advisory.
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
@@ -192,11 +192,14 @@ impl From<&semver::VersionReq> for UnaffectedRange {
                         "Selectors that define both the upper and lower bound (e.g. '^1.0') must be alone in their range"
                     );
                     let start_version = comp_to_ver(comparator);
-                    let end_version = if start_version.major == 0 {
+                    let mut end_version = if start_version.major == 0 {
                         Version::new(0,start_version.minor+1,0)
                     } else {
                         Version::new(&start_version.major+1, 0,0)
                     };
+                    // -0 is the lowest possible prerelease.
+                    // If we didn't append it, e.g. ^1.0.0 would match 2.0.0-pre
+                    end_version.pre = Prerelease::new("0").unwrap();
                     result.start = Bound::Inclusive(start_version);
                     result.end = Bound::Exclusive(end_version);
                 },
@@ -323,10 +326,9 @@ fn increment(v: &Version) -> Version {
         let mut v = v.clone();
         v.build = Default::default(); // Clear any build metadata, it's not used to determine precedence
         v.patch += 1;
-        // add pre-release version in string form because I really don't want to mess with private types in semver crate
-        let mut serialized = v.to_string();
-        serialized.push_str("-0");
-        Version::parse(&serialized).unwrap()
+        // add pre-release version in string form because these types are private in semver crate
+        v.pre = Prerelease::new("0").unwrap();
+        v
     } else {
         todo!() //TODO: increment pre-release version
     }
