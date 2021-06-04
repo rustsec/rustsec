@@ -35,6 +35,19 @@ pub struct OsvRange {
     end: Option<Version>,
 }
 
+impl OsvRange {
+    /// Returns true if the given version is affected
+    pub fn contains(&self, v: &Version) -> bool {
+        (match &self.start {
+            None => true,
+            Some(start_v) => v >= start_v,
+        }) && (match &self.end {
+            None => true,
+            Some(end_v) => v < end_v,
+        })
+    }
+}
+
 /// A range of unaffected versions, used by either `patched`
 /// or `unaffected` fields in the security advisory.
 /// Bounds may be inclusive or exclusive.
