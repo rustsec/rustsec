@@ -7,8 +7,7 @@
 //! which `semver` crate does not allow doing directly.
 //! See https://github.com/steveklabnik/semver/issues/172
 
-use semver::version_req::Op;
-use semver::Version;
+use semver::{Comparator, Op, Version};
 
 /// A range of affected versions.
 /// If any of the bounds is unspecified, that means ALL versions
@@ -119,48 +118,62 @@ impl Bound {
 //    Stuff like `>= 1.0, >= 2.0` is nonsense.
 // If any of those assumptions are violated, it will panic.
 // This is fine for the advisory database as of May 2021.
-impl From<semver::Range> for UnaffectedRange {
-    fn from(input: semver::Range) -> Self {
+impl From<semver::VersionReq> for UnaffectedRange {
+    fn from(input: semver::VersionReq) -> Self {
         assert!(
-            input.predicates.len() <= 2,
-            "Unsupported version specification: too many predicates"
+            input.comparators.len() <= 2,
+            "Unsupported version specification: too many comparators"
         );
         let mut result = UnaffectedRange::default();
-        for predicate in input.predicates {
-            match predicate.op {
-                Op::Ex => todo!(),
-                Op::Gt => {
+        for comparator in input.comparators {
+            match comparator.op {
+                Op::Exact => todo!(), // having a single exact unaffected version would be weird
+                Op::Caret => panic!("If you see this, semver 1.0 doesn't resolve requirements to ranges anymore. Damn."),
+                Op::Greater => {
                     assert!(
                         result.start == Bound::Unbounded,
                         "More than one lower bound in the same range!"
                     );
-                    result.start = Bound::Exclusive(predicate.into());
+                    result.start = Bound::Exclusive(comp_to_ver(comparator));
                 }
-                Op::GtEq => {
+                Op::GreaterEq => {
                     assert!(
                         result.start == Bound::Unbounded,
                         "More than one lower bound in the same range!"
                     );
-                    result.start = Bound::Inclusive(predicate.into());
+                    result.start = Bound::Inclusive(comp_to_ver(comparator));
                 }
-                Op::Lt => {
+                Op::Less => {
                     assert!(
                         result.end == Bound::Unbounded,
                         "More than one upper bound in the same range!"
                     );
-                    result.end = Bound::Exclusive(predicate.into());
+                    result.end = Bound::Exclusive(comp_to_ver(comparator));
                 }
-                Op::LtEq => {
+                Op::LessEq => {
                     assert!(
                         result.end == Bound::Unbounded,
                         "More than one upper bound in the same range!"
                     );
-                    result.end = Bound::Inclusive(predicate.into());
-                }
+                    result.end = Bound::Inclusive(comp_to_ver(comparator));
+                },
+                _ => todo!(), // the struct is non-exhaustive, we have to do this
             }
         }
         assert!(result.is_valid());
         result
+    }
+}
+
+/// Strips comparison operators from a Comparator and turns it into a Version.
+/// Would have been better implemented by `into` but these are foreign types
+fn comp_to_ver(c: Comparator) -> Version {
+    Version {
+        major: c.major,
+        minor: c.minor.unwrap_or(0),
+        patch: c.patch.unwrap_or(0),
+        pre: c.pre,
+        build: Default::default(),
     }
 }
 
@@ -252,19 +265,20 @@ pub fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange>
 }
 
 fn increment(v: &Version) -> Version {
-    if v.is_prerelease() {
-        todo!() //TODO: increment pre-release version
-    } else {
-        // increment the last version and add "0" as pre-release specifier.
+    if v.pre.is_empty() {
+        // Not a pre-release.
+        // Increment the last version and add "0" as pre-release specifier.
         // E.g. "1.2.3" is transformed to "1.2.4-0".
         // This seems to be the lowest possible version that's above 1.2.3 according to semver 2.0 spec
         let mut v = v.clone();
-        v.build = Vec::new(); // Clear any build metadata, it's not used to determine precedence
-        v.increment_patch();
+        v.build = Default::default(); // Clear any build metadata, it's not used to determine precedence
+        v.patch += 1;
         // add pre-release version in string form because I really don't want to mess with private types in semver crate
         let mut serialized = v.to_string();
         serialized.push_str("-0");
         Version::parse(&serialized).unwrap()
+    } else {
+        todo!() //TODO: increment pre-release version
     }
 }
 

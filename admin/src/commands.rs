@@ -3,13 +3,13 @@
 mod assign_id;
 mod lint;
 mod list_affected_versions;
+mod osv;
 mod version;
 mod web;
-mod osv;
 
 use self::{
     assign_id::AssignIdCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
-    version::VersionCmd, web::WebCmd, osv::OsvCmd
+    osv::OsvCmd, version::VersionCmd, web::WebCmd,
 };
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
