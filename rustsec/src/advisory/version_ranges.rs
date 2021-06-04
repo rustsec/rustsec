@@ -9,6 +9,21 @@
 
 use semver::{Comparator, Op, Version};
 
+use crate::Advisory;
+
+/// Returns OSV ranges for all affected versions in the given advisory.
+/// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
+pub fn ranges_for_advisory(advisory: Advisory) -> Vec<OsvRange> {
+    let mut unaffected: Vec<UnaffectedRange> = Vec::new();
+    for req in advisory.versions.unaffected {
+        unaffected.push(req.into());
+    }
+    for req in advisory.versions.patched {
+        unaffected.push(req.into());
+    }
+    unaffected_to_osv_ranges(&unaffected)
+}
+
 /// A range of affected versions.
 /// If any of the bounds is unspecified, that means ALL versions
 /// in that direction are affected.
