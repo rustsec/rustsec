@@ -9,16 +9,14 @@
 
 use semver::{Comparator, Op, Version};
 
-use crate::Advisory;
-
 /// Returns OSV ranges for all affected versions in the given advisory.
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
-pub fn ranges_for_advisory(advisory: Advisory) -> Vec<OsvRange> {
+pub fn ranges_for_advisory(versions: &super::Versions) -> Vec<OsvRange> {
     let mut unaffected: Vec<UnaffectedRange> = Vec::new();
-    for req in advisory.versions.unaffected {
+    for req in &versions.unaffected {
         unaffected.push(req.into());
     }
-    for req in advisory.versions.patched {
+    for req in &versions.patched {
         unaffected.push(req.into());
     }
     unaffected_to_osv_ranges(&unaffected)
@@ -147,14 +145,14 @@ impl Bound {
 //    Stuff like `>= 1.0, >= 2.0` is nonsense.
 // If any of those assumptions are violated, it will panic.
 // This is fine for the advisory database as of May 2021.
-impl From<semver::VersionReq> for UnaffectedRange {
-    fn from(input: semver::VersionReq) -> Self {
+impl From<&semver::VersionReq> for UnaffectedRange {
+    fn from(input: &semver::VersionReq) -> Self {
         assert!(
             input.comparators.len() <= 2,
             "Unsupported version specification: too many comparators"
         );
         let mut result = UnaffectedRange::default();
-        for comparator in input.comparators {
+        for comparator in &input.comparators {
             match comparator.op {
                 Op::Exact => todo!(), // having a single exact unaffected version would be weird
                 Op::Caret => panic!("If you see this, semver 1.0 doesn't resolve requirements to ranges anymore. Damn."),
@@ -196,12 +194,12 @@ impl From<semver::VersionReq> for UnaffectedRange {
 
 /// Strips comparison operators from a Comparator and turns it into a Version.
 /// Would have been better implemented by `into` but these are foreign types
-fn comp_to_ver(c: Comparator) -> Version {
+fn comp_to_ver(c: &Comparator) -> Version {
     Version {
         major: c.major,
         minor: c.minor.unwrap_or(0),
         patch: c.patch.unwrap_or(0),
-        pre: c.pre,
+        pre: c.pre.clone(),
         build: Default::default(),
     }
 }
