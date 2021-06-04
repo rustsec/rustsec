@@ -211,10 +211,14 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     // Verify that all incoming ranges are valid. TODO: a checked constructor or something.
     unaffected.iter().for_each(|r| assert!(r.is_valid()));
 
+    // Edge case: no unaffected ranges specified. That means that ALL versions are affected.
+    if unaffected.is_empty() {
+        return vec![OsvRange{start: None, end: None}];
+    }
+
     // Verify that the incoming ranges do not overlap. This is required for the correctness of the algoritm.
     // The current impl has quadratic complexity, but since we have like 4 ranges at most, this doesn't matter.
     // We can optimize this later if it starts showing up on profiles.
-    assert!(unaffected.len() > 0); //TODO: maybe don't panic?
     for a in unaffected[..unaffected.len() - 1].iter() {
         for b in unaffected[1..].iter() {
             assert!(!a.overlaps(b));
