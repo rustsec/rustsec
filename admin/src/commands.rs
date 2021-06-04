@@ -2,11 +2,15 @@
 
 mod assign_id;
 mod lint;
+mod list_affected_versions;
 mod version;
 mod web;
 mod osv;
 
-use self::{assign_id::AssignIdCmd, lint::LintCmd, version::VersionCmd, web::WebCmd, osv::OsvCmd};
+use self::{
+    assign_id::AssignIdCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
+    version::VersionCmd, web::WebCmd, osv::OsvCmd
+};
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
 use std::path::PathBuf;
@@ -37,6 +41,10 @@ pub enum AdminCmd {
     /// The `osv` subcommand
     #[options(help = "export advisories to OSV format")]
     Osv(OsvCmd),
+
+    /// The `version` subcommand
+    #[options(help = "list affected crate versions")]
+    ListAffectedVersions(ListAffectedVersionsCmd),
 }
 
 impl Configurable<AppConfig> for AdminCmd {
