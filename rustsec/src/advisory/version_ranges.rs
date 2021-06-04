@@ -149,7 +149,6 @@ impl Bound {
 // This is fine for the advisory database as of May 2021.
 impl From<&semver::VersionReq> for UnaffectedRange {
     fn from(input: &semver::VersionReq) -> Self {
-        //println!("Comparators in `from`: {:?}", &input.comparators);
         assert!(
             input.comparators.len() <= 2,
             "Unsupported version specification: too many comparators"
@@ -235,14 +234,11 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
         return vec![OsvRange{start: None, end: None}];
     }
 
-    //println!("Comparators in `unaff_to_osv`: {:?}", &unaffected);
-
     // Verify that the incoming ranges do not overlap. This is required for the correctness of the algoritm.
     // The current impl has quadratic complexity, but since we have like 4 ranges at most, this doesn't matter.
     // We can optimize this later if it starts showing up on profiles.
     for (idx, a) in unaffected[..unaffected.len() - 1].iter().enumerate() {
         for b in unaffected[idx+1..].iter() {
-            //println!("comparing {:?} to {:?}", a, b);
             // TODO: better message because it might be shown to users
             assert!(!a.overlaps(b));
         }
