@@ -38,8 +38,9 @@ pub struct OsvRange {
 /// A range of unaffected versions, used by either `patched`
 /// or `unaffected` fields in the security advisory.
 /// Bounds may be inclusive or exclusive.
+/// This is an intermediate representation private to this module.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-pub struct UnaffectedRange {
+struct UnaffectedRange {
     start: Bound,
     end: Bound,
 }
@@ -195,7 +196,7 @@ fn comp_to_ver(c: Comparator) -> Version {
 /// Converts a list of unaffected ranges to a range of affected OSV ranges.
 /// Since OSV ranges are a negation of the UNaffected ranges that RustSec stores,
 /// the entire list has to be passed at once, both patched and unaffected ranges.
-pub fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
+fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     // Verify that all incoming ranges are valid. TODO: a checked constructor or something.
     unaffected.iter().for_each(|r| assert!(r.is_valid()));
 
