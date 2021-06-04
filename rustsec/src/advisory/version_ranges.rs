@@ -261,13 +261,13 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
         let start = match &r[0].end {
             // ranges are ordered, so Unbounded can only appear in the first or last element, which are handled outside the loop
             Bound::Unbounded => unreachable!(),
-            Bound::Exclusive(v) => increment(v),
-            Bound::Inclusive(v) => v.clone(),
+            Bound::Exclusive(v) => v.clone(),
+            Bound::Inclusive(v) => increment(v),
         };
         let end = match &r[1].start {
             Bound::Unbounded => unreachable!(),
-            Bound::Exclusive(v) => v.clone(),
-            Bound::Inclusive(v) => increment(v),
+            Bound::Exclusive(v) => increment(v),
+            Bound::Inclusive(v) => v.clone(),
         };
         result.push(OsvRange {
             start: Some(start),
