@@ -5,10 +5,11 @@ use serde::Serialize;
 
 use super::{OsvRange, ranges_for_advisory};
 
-use crate::{Advisory, repository::git::GitModificationTimes};
+use crate::{Advisory, advisory::Metadata, repository::git::GitModificationTimes};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
+/// Security advisory in the format defined by https://github.com/google/osv
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvAdvisory {
     id: String,
@@ -77,18 +78,25 @@ impl OsvAdvisory {
             },
             summary: advisory.metadata.title.clone(),
             details: advisory.metadata.description.clone(),
-            references: rustsec_to_osv_references(&advisory.metadata.references),
+            references: osv_references(&advisory.metadata),
         }
     }
 }
 
-fn rustsec_to_osv_references(refs: &[url::Url]) -> Vec<OsvReference> {
-    refs.iter().map(|rustsec_url| {
-        OsvReference {
-            kind: OsvReferenceKind::WEB, //TODO: guess kind
-            url: rustsec_url.as_str().to_string(),
-        }
-    }).collect()
+fn osv_references(meta: &Metadata) -> Vec<OsvReference> {
+    let mut result: Vec<OsvReference> = Vec::new();
+    if let Some(url) = &meta.url {
+        result.push(rustsec_to_osv_reference(url));
+    }
+    result.extend(meta.references.iter().map(rustsec_to_osv_reference));
+    result
+}
+
+fn rustsec_to_osv_reference(url: &url::Url) -> OsvReference {
+    OsvReference {
+        kind: OsvReferenceKind::WEB, //TODO: guess kind
+        url: url.as_str().to_string(),
+    }
 }
 
 fn git2_time_to_chrono(time: &git2::Time) -> DateTime::<Utc> {
