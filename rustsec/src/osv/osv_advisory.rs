@@ -3,9 +3,9 @@ use std::path::Path;
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use serde::Serialize;
 
-use super::{OsvRange, ranges_for_advisory};
+use super::{ranges_for_advisory, OsvRange};
 
-use crate::{Advisory, advisory::Metadata, repository::git::GitModificationTimes};
+use crate::{advisory::Metadata, repository::git::GitModificationTimes, Advisory};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
@@ -13,7 +13,7 @@ const ECOSYSTEM: &'static str = "crates.io";
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvAdvisory {
     id: String,
-    modified: String, // maybe add an rfc3339 newtype?
+    modified: String,  // maybe add an rfc3339 newtype?
     published: String, // maybe add an rfc3339 newtype?
     #[serde(skip_serializing_if = "Option::is_none")]
     withdrawn: Option<String>, // maybe add an rfc3339 newtype?
@@ -23,7 +23,7 @@ pub struct OsvAdvisory {
     summary: String,
     details: String,
     affects: OsvAffected,
-    references: Vec<OsvReference>
+    references: Vec<OsvReference>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -36,7 +36,7 @@ pub struct OsvPackage {
 pub struct OsvAffected {
     // Other fields are specified, but we never use them.
     // Ranges alone are sufficient.
-    ranges: Vec<OsvRange>
+    ranges: Vec<OsvRange>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -44,7 +44,7 @@ pub struct OsvReference {
     // 'type' is a reserved keyword in Rust
     #[serde(alias = "type")]
     kind: OsvReferenceKind,
-    url: String
+    url: String,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -54,7 +54,7 @@ pub enum OsvReferenceKind {
     REPORT,
     FIX,
     PACKAGE,
-    WEB
+    WEB,
 }
 
 impl OsvAdvisory {
@@ -68,13 +68,20 @@ impl OsvAdvisory {
             id: advisory.metadata.id.to_string(),
             modified: git2_time_to_chrono(mtime).to_rfc3339(),
             published: rustsec_date_to_chrono(&advisory.metadata.date).to_rfc3339(),
-            affects: OsvAffected{ranges: ranges_for_advisory(&advisory.versions)},
+            affects: OsvAffected {
+                ranges: ranges_for_advisory(&advisory.versions),
+            },
             withdrawn: None, //TODO: actually populate this
-            aliases: advisory.metadata.aliases.iter().map(|id| id.to_string()).collect(),
+            aliases: advisory
+                .metadata
+                .aliases
+                .iter()
+                .map(|id| id.to_string())
+                .collect(),
             related: Vec::new(), //TODO: do we even track this?
             package: OsvPackage {
                 ecosystem: ECOSYSTEM.to_string(),
-                name: advisory.metadata.package.to_string()
+                name: advisory.metadata.package.to_string(),
             },
             summary: advisory.metadata.title.clone(),
             details: advisory.metadata.description.clone(),
@@ -99,13 +106,13 @@ fn rustsec_to_osv_reference(url: &url::Url) -> OsvReference {
     }
 }
 
-fn git2_time_to_chrono(time: &git2::Time) -> DateTime::<Utc> {
+fn git2_time_to_chrono(time: &git2::Time) -> DateTime<Utc> {
     let unix_timestamp = time.seconds();
     DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(unix_timestamp, 0), Utc)
 }
 
-fn rustsec_date_to_chrono(date: &crate::advisory::Date) -> DateTime::<Utc> {
+fn rustsec_date_to_chrono(date: &crate::advisory::Date) -> DateTime<Utc> {
     let pub_date: NaiveDate = date.into();
-    let pub_time = NaiveDateTime::new(pub_date, NaiveTime::from_hms(12,0,0));
+    let pub_time = NaiveDateTime::new(pub_date, NaiveTime::from_hms(12, 0, 0));
     DateTime::<Utc>::from_utc(pub_time, Utc)
 }
