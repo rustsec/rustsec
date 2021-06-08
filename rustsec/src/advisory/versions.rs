@@ -7,7 +7,7 @@
 use semver::{Version, VersionReq};
 use serde::{Deserialize, Serialize};
 
-use super::version_ranges;
+use crate::osv;
 
 /// The `[versions]` subsection of an advisory: future home to information
 /// about which versions are patched and/or unaffected.
@@ -24,7 +24,7 @@ pub struct Versions {
 impl Versions {
     /// Is the given version of a package vulnerable?
     pub fn is_vulnerable(&self, version: &Version) -> bool {
-        for range in version_ranges::ranges_for_advisory(self).iter() {
+        for range in osv::ranges_for_advisory(self).iter() {
             if range.contains(version) {
                 return true;
             }

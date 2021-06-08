@@ -21,6 +21,7 @@ pub mod report;
 pub mod repository;
 pub mod vulnerability;
 pub mod warning;
+pub mod osv;
 
 #[cfg(feature = "fix")]
 pub mod fixer;

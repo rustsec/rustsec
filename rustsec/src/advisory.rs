@@ -9,7 +9,6 @@ pub mod keyword;
 pub mod linter;
 pub mod metadata;
 pub mod parser;
-pub mod version_ranges;
 pub mod versions;
 
 pub use self::{
