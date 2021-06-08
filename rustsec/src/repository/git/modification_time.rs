@@ -7,7 +7,7 @@ use std::{
 };
 
 /// Tracks the time of latest modification of files in git.
-pub(crate) struct GitModificationTime {
+pub struct GitModificationTime {
     mtimes: HashMap<PathBuf, Time>,
 }
 
@@ -50,6 +50,8 @@ impl GitModificationTime {
         Ok(GitModificationTime { mtimes })
     }
 
+    /// Looks up the Git modification time for a given file path.
+    /// The path must be relative to the root of the repository.
     pub fn for_path(&self, path: &Path) -> Option<&Time> {
         self.mtimes.get(path)
     }
