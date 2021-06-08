@@ -61,7 +61,7 @@ pub enum OsvReferenceKind {
 impl OsvAdvisory {
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
-    pub fn from_rustsec(advisory: Advisory, mod_times: GitModificationTimes, path: &Path) -> Self {
+    pub fn from_rustsec(advisory: Advisory, mod_times: &GitModificationTimes, path: &Path) -> Self {
         let metadata = advisory.metadata;
         let mtime = mod_times.for_path(path)
             .expect(&format!("Could not find file {:?}, make sure the path is specified relative to the git repo root", path));
