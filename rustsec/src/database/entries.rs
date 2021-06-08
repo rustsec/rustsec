@@ -151,4 +151,11 @@ impl Entries {
     pub fn iter(&self) -> Iter<'_> {
         self.advisories.iter()
     }
+
+    /// Iterate over all of the advisories in the database.
+    /// The database struct is destroyed and ownership of all the
+    /// advisory objects is transferred to the caller.
+    pub fn into_iter(self) -> std::vec::IntoIter<Advisory> {
+        self.advisories.into_iter()
+    }
 }
