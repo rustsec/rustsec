@@ -96,7 +96,7 @@ fn osv_references(meta: &Metadata) -> Vec<OsvReference> {
     result
 }
 
-fn rustsec_to_osv_reference(url: &url::Url) -> OsvReference {
+fn rustsec_to_osv_reference(url: &Url) -> OsvReference {
     OsvReference {
         kind: OsvReferenceKind::WEB, //TODO: guess kind
         url: url.clone(),
