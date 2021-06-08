@@ -7,9 +7,11 @@
 //! See https://github.com/dtolnay/semver/issues/172
 
 // These are implementation details and are not exported outside OSV module
+mod osv_advisory;
 mod osv_range;
 mod range_conversion;
 mod unaffected_range;
 
 pub use osv_range::OsvRange;
+pub use osv_advisory::OsvAdvisory;
 pub use range_conversion::ranges_for_advisory;

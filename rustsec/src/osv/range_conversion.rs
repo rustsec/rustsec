@@ -26,8 +26,8 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     // Edge case: no unaffected ranges specified. That means that ALL versions are affected.
     if unaffected.is_empty() {
         return vec![OsvRange {
-            start: None,
-            end: None,
+            introduced: None,
+            fixed: None,
         }];
     }
 
@@ -67,12 +67,12 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     match &unaffected.first().unwrap().start {
         Bound::Unbounded => {} // Nothing to do
         Bound::Exclusive(v) => result.push(OsvRange {
-            start: None,
-            end: Some(increment(v)),
+            introduced: None,
+            fixed: Some(increment(v)),
         }),
         Bound::Inclusive(v) => result.push(OsvRange {
-            start: None,
-            end: Some(v.clone()),
+            introduced: None,
+            fixed: Some(v.clone()),
         }),
     }
 
@@ -90,8 +90,8 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
             Bound::Inclusive(v) => v.clone(),
         };
         result.push(OsvRange {
-            start: Some(start),
-            end: Some(end),
+            introduced: Some(start),
+            fixed: Some(end),
         });
     }
 
@@ -99,12 +99,12 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     match &unaffected.last().unwrap().end {
         Bound::Unbounded => {} // Nothing to do
         Bound::Exclusive(v) => result.push(OsvRange {
-            start: Some(v.clone()),
-            end: None,
+            introduced: Some(v.clone()),
+            fixed: None,
         }),
         Bound::Inclusive(v) => result.push(OsvRange {
-            start: Some(increment(v)),
-            end: None,
+            introduced: Some(increment(v)),
+            fixed: None,
         }),
     }
 

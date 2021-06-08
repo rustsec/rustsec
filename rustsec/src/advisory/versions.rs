@@ -25,7 +25,7 @@ impl Versions {
     /// Is the given version of a package vulnerable?
     pub fn is_vulnerable(&self, version: &Version) -> bool {
         for range in osv::ranges_for_advisory(self).iter() {
-            if range.contains(version) {
+            if range.affects(version) {
                 return true;
             }
         }
