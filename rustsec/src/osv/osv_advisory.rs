@@ -2,23 +2,24 @@ use std::path::Path;
 
 use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use serde::Serialize;
+use url::Url;
 
 use super::{ranges_for_advisory, OsvRange};
 
-use crate::{advisory::Metadata, repository::git::GitModificationTimes, Advisory};
+use crate::{Advisory, advisory::{Id, Metadata}, repository::git::GitModificationTimes};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
 /// Security advisory in the format defined by https://github.com/google/osv
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvAdvisory {
-    id: String,
+    id: Id,
     modified: String,  // maybe add an rfc3339 newtype?
     published: String, // maybe add an rfc3339 newtype?
     #[serde(skip_serializing_if = "Option::is_none")]
     withdrawn: Option<String>, // maybe add an rfc3339 newtype?
-    aliases: Vec<String>,
-    related: Vec<String>,
+    aliases: Vec<Id>,
+    related: Vec<Id>,
     package: OsvPackage,
     summary: String,
     details: String,
@@ -44,7 +45,7 @@ pub struct OsvReference {
     // 'type' is a reserved keyword in Rust
     #[serde(alias = "type")]
     kind: OsvReferenceKind,
-    url: String,
+    url: Url,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -66,15 +67,15 @@ impl OsvAdvisory {
             .expect(&format!("Could not find file {:?}, make sure the path is specified relative to the git repo root", path));
 
         OsvAdvisory {
-            id: metadata.id.to_string(),
+            id: metadata.id.clone(),
             modified: git2_time_to_rfc3339(mtime),
             published: rustsec_date_to_rfc3339(&metadata.date),
             affects: OsvAffected {
                 ranges: ranges_for_advisory(&advisory.versions),
             },
             withdrawn: None, //TODO: actually populate this
-            aliases: metadata.aliases.iter().map(|id| id.to_string()).collect(),
-            related: metadata.related.iter().map(|id| id.to_string()).collect(),
+            aliases: metadata.aliases.clone(),
+            related: metadata.related.clone(),
             package: OsvPackage {
                 ecosystem: ECOSYSTEM.to_string(),
                 name: metadata.package.to_string(),
@@ -98,7 +99,7 @@ fn osv_references(meta: &Metadata) -> Vec<OsvReference> {
 fn rustsec_to_osv_reference(url: &url::Url) -> OsvReference {
     OsvReference {
         kind: OsvReferenceKind::WEB, //TODO: guess kind
-        url: url.as_str().to_string(),
+        url: url.clone(),
     }
 }
 
