@@ -2,8 +2,8 @@
 
 mod authentication;
 mod commit;
-mod repository;
 mod modification_time;
+mod repository;
 
 pub use self::{authentication::with_authentication, commit::Commit, repository::Repository};
 

@@ -1,10 +1,14 @@
 use crate::error::Error;
-use std::{cmp::max, collections::HashMap, path::{Path, PathBuf}};
 use git2::Time;
+use std::{
+    cmp::max,
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 /// Tracks the time of latest modification of files in git.
 pub(crate) struct GitModificationTime {
-    mtimes: HashMap<PathBuf, Time>
+    mtimes: HashMap<PathBuf, Time>,
 }
 
 impl GitModificationTime {
@@ -43,7 +47,7 @@ impl GitModificationTime {
                 }
             }
         }
-        Ok(GitModificationTime{mtimes})
+        Ok(GitModificationTime { mtimes })
     }
 
     pub fn for_path(&self, path: &Path) -> Option<&Time> {
