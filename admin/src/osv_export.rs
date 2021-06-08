@@ -5,7 +5,11 @@
 
 use std::path::{Path, PathBuf};
 
-use rustsec::{Database, osv::OsvAdvisory, repository::git::{Repository, GitModificationTimes}};
+use rustsec::{
+    osv::OsvAdvisory,
+    repository::git::{GitModificationTimes, Repository},
+    Database,
+};
 
 use crate::{error::Error, prelude::*};
 
@@ -27,7 +31,7 @@ impl OsvExporter {
         let mod_times = GitModificationTimes::new(&repo)?;
         Ok(Self {
             advisory_db,
-            mod_times
+            mod_times,
         })
     }
 

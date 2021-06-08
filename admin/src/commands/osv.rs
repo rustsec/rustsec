@@ -22,6 +22,5 @@ impl Runnable for OsvCmd {
             1 => self.path[0].as_path(),
             _ => Self::print_usage_and_exit(&[]),
         };
-
     }
 }
