@@ -1770,6 +1770,7 @@ dependencies = [
  "rust-embed",
  "rustsec",
  "serde",
+ "serde_json",
  "termcolor",
  "thiserror",
  "toml",
