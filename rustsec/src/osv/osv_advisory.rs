@@ -5,17 +5,17 @@ use serde::Serialize;
 
 use super::{OsvRange, ranges_for_advisory};
 
-use crate::{Advisory, advisory, repository::git::GitModificationTimes};
+use crate::{Advisory, repository::git::GitModificationTimes};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvAdvisory {
     id: String,
-    modified: String, // TODO: rfc3339 newtype?
-    published: String, // TODO: rfc3339 newtype?
+    modified: String, // maybe add an rfc3339 newtype?
+    published: String, // maybe add an rfc3339 newtype?
     #[serde(skip_serializing_if = "Option::is_none")]
-    withdrawn: Option<String>, // TODO: rfc3339 newtype?
+    withdrawn: Option<String>, // maybe add an rfc3339 newtype?
     aliases: Vec<String>,
     related: Vec<String>,
     package: OsvPackage,
@@ -57,6 +57,8 @@ pub enum OsvReferenceKind {
 }
 
 impl OsvAdvisory {
+    /// Converts a single RustSec advisory to OSV format.
+    /// `path` must be relative to the git repository root.
     pub fn from_rustsec(advisory: &Advisory, mod_times: GitModificationTimes, path: &Path) -> Self {
         let mtime = mod_times.for_path(path)
             .expect(&format!("Could not find file {:?}, make sure the path is specified relative to the git repo root", path));
