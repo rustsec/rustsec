@@ -1,9 +1,7 @@
 use semver::{Version, Prerelease};
 
-use crate::osv::unaffected_range::Bound;
-
 use super::osv_range::OsvRange;
-use super::unaffected_range::UnaffectedRange;
+use super::unaffected_range::{Bound, UnaffectedRange};
 
 /// Returns OSV ranges for all affected versions in the given advisory.
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
