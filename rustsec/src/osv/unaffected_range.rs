@@ -49,6 +49,7 @@ impl UnaffectedRange {
             true
         } else {
             match (&r.start, &r.end) {
+                // check that at least one bound is inclusive. TODO: possibly tighten this invariant
                 (Bound::Exclusive(v_start), Bound::Inclusive(v_end)) => v_start == v_end,
                 (Bound::Inclusive(v_start), Bound::Exclusive(v_end)) => v_start == v_end,
                 (Bound::Inclusive(v_start), Bound::Inclusive(v_end)) => v_start == v_end,
