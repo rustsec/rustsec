@@ -3,11 +3,15 @@
 //! Exports all advisories to the OSV format defined at
 //! https://github.com/google/osv
 
-#![allow(unused_variables)] //TODO
+#![allow(warnings)] //TODO
+#![warn(warnings)] //TODO
 
 use std::path::{Path, PathBuf};
 
 use abscissa_core::{Command, Options, Runnable};
+
+use crate::osv_export::OsvExporter;
+
 #[derive(Command, Debug, Default, Options)]
 pub struct OsvCmd {
     /// Path to the advisory database
@@ -22,5 +26,9 @@ impl Runnable for OsvCmd {
             1 => self.path[0].as_path(),
             _ => Self::print_usage_and_exit(&[]),
         };
+
+        let exporter = OsvExporter::new(repo_path).unwrap(); //TODO
+        let out_path = Path::new("/tmp/osv"); //TODO
+        exporter.export_all(out_path).unwrap(); //TODO
     }
 }

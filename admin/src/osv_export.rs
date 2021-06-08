@@ -1,8 +1,5 @@
 //! Backend for the `osv` subcommand.
 
-#![allow(warnings)] //TODO
-#![warn(warnings)]
-
 use std::path::{Path, PathBuf};
 
 use rustsec::{
