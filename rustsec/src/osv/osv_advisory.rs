@@ -5,7 +5,7 @@ use serde::Serialize;
 
 use super::{OsvRange, ranges_for_advisory};
 
-use crate::{Advisory, repository::git::GitModificationTimes};
+use crate::{Advisory, advisory, repository::git::GitModificationTimes};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
@@ -75,9 +75,18 @@ impl OsvAdvisory {
             },
             summary: advisory.metadata.title.clone(),
             details: advisory.metadata.description.clone(),
-            references: Vec::new(), //TODO: actually populate this
+            references: rustsec_to_osv_references(&advisory.metadata.references),
         }
     }
+}
+
+fn rustsec_to_osv_references(refs: &[url::Url]) -> Vec<OsvReference> {
+    refs.iter().map(|rustsec_url| {
+        OsvReference {
+            kind: OsvReferenceKind::WEB, //TODO: guess kind
+            url: rustsec_url.as_str().to_string(),
+        }
+    }).collect()
 }
 
 fn git2_time_to_chrono(time: &git2::Time) -> DateTime::<Utc> {
