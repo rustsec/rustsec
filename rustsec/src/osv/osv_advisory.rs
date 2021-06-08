@@ -74,7 +74,7 @@ impl OsvAdvisory {
             },
             withdrawn: None, //TODO: actually populate this
             aliases: metadata.aliases.iter().map(|id| id.to_string()).collect(),
-            related: Vec::new(), //TODO: do we even track this?
+            related: metadata.related.iter().map(|id| id.to_string()).collect(),
             package: OsvPackage {
                 ecosystem: ECOSYSTEM.to_string(),
                 name: metadata.package.to_string(),
