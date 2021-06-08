@@ -17,11 +17,11 @@ pub mod error;
 pub mod advisory;
 pub mod collection;
 pub mod database;
+pub mod osv;
 pub mod report;
 pub mod repository;
 pub mod vulnerability;
 pub mod warning;
-pub mod osv;
 
 #[cfg(feature = "fix")]
 pub mod fixer;

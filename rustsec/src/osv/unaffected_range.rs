@@ -1,4 +1,4 @@
-use semver::{Version, Op, Comparator, Prerelease};
+use semver::{Comparator, Op, Prerelease, Version};
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub enum Bound {
@@ -141,7 +141,7 @@ impl From<&semver::VersionReq> for UnaffectedRange {
                         "More than one upper bound in the same range!"
                     );
                     result.end = Bound::Inclusive(comp_to_ver(comparator));
-                },
+                }
                 Op::Caret => {
                     assert!(
                         input.comparators.len() == 1,
@@ -149,16 +149,16 @@ impl From<&semver::VersionReq> for UnaffectedRange {
                     );
                     let start_version = comp_to_ver(comparator);
                     let mut end_version = if start_version.major == 0 {
-                        Version::new(0,start_version.minor+1,0)
+                        Version::new(0, start_version.minor + 1, 0)
                     } else {
-                        Version::new(&start_version.major+1, 0,0)
+                        Version::new(&start_version.major + 1, 0, 0)
                     };
                     // -0 is the lowest possible prerelease.
                     // If we didn't append it, e.g. ^1.0.0 would match 2.0.0-pre
                     end_version.pre = Prerelease::new("0").unwrap();
                     result.start = Bound::Inclusive(start_version);
                     result.end = Bound::Exclusive(end_version);
-                },
+                }
                 _ => todo!(), // the struct is non-exhaustive, we have to do this
             }
         }

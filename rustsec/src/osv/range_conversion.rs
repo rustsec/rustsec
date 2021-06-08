@@ -1,4 +1,4 @@
-use semver::{Version, Prerelease};
+use semver::{Prerelease, Version};
 
 use super::osv_range::OsvRange;
 use super::unaffected_range::{Bound, UnaffectedRange};
@@ -25,14 +25,17 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
 
     // Edge case: no unaffected ranges specified. That means that ALL versions are affected.
     if unaffected.is_empty() {
-        return vec![OsvRange{start: None, end: None}];
+        return vec![OsvRange {
+            start: None,
+            end: None,
+        }];
     }
 
     // Verify that the incoming ranges do not overlap. This is required for the correctness of the algoritm.
     // The current impl has quadratic complexity, but since we have like 4 ranges at most, this doesn't matter.
     // We can optimize this later if it starts showing up on profiles.
     for (idx, a) in unaffected[..unaffected.len() - 1].iter().enumerate() {
-        for b in unaffected[idx+1..].iter() {
+        for b in unaffected[idx + 1..].iter() {
             // TODO: better message because it might be shown to users
             assert!(!a.overlaps(b));
         }
