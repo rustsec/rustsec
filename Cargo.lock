@@ -1736,6 +1736,7 @@ version = "0.23.3"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
+ "chrono",
  "crates-index",
  "cvss",
  "fs-err",

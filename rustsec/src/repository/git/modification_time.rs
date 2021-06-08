@@ -7,11 +7,11 @@ use std::{
 };
 
 /// Tracks the time of latest modification of files in git.
-pub struct GitModificationTime {
+pub struct GitModificationTimes {
     mtimes: HashMap<PathBuf, Time>,
 }
 
-impl GitModificationTime {
+impl GitModificationTimes {
     /// Performance: collects all modification times on creation
     /// and caches them. This is more efficient for looking up lots of files,
     /// but wasteful if you just need to look up a couple files.
@@ -47,7 +47,7 @@ impl GitModificationTime {
                 }
             }
         }
-        Ok(GitModificationTime { mtimes })
+        Ok(GitModificationTimes { mtimes })
     }
 
     /// Looks up the Git modification time for a given file path.
@@ -56,8 +56,3 @@ impl GitModificationTime {
         self.mtimes.get(path)
     }
 }
-
-// fn git2_time_to_chrono(time: &Time) -> DateTime::<Utc> {
-//     let unix_timestamp = time.seconds();
-//     DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(unix_timestamp, 0), Utc)
-// }

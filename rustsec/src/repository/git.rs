@@ -6,7 +6,7 @@ mod modification_time;
 mod repository;
 
 pub use self::{
-    authentication::with_authentication, commit::Commit, modification_time::GitModificationTime,
+    authentication::with_authentication, commit::Commit, modification_time::GitModificationTimes,
     repository::Repository,
 };
 
