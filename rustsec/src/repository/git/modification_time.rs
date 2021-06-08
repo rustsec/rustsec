@@ -1,10 +1,8 @@
 use crate::error::Error;
 use git2::Time;
-use std::{
-    cmp::max,
-    collections::HashMap,
-    path::{Path, PathBuf},
-};
+use std::{cmp::max, collections::HashMap, path::PathBuf};
+
+use super::GitPath;
 
 /// Tracks the time of latest modification of files in git.
 pub struct GitModificationTimes {
@@ -52,7 +50,7 @@ impl GitModificationTimes {
 
     /// Looks up the Git modification time for a given file path.
     /// The path must be relative to the root of the repository.
-    pub fn for_path(&self, path: &Path) -> Option<&Time> {
-        self.mtimes.get(path)
+    pub fn for_path(&self, path: GitPath<'_>) -> &Time {
+        self.mtimes.get(path.path()).unwrap()
     }
 }
