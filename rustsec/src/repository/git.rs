@@ -2,12 +2,13 @@
 
 mod authentication;
 mod commit;
+mod gitpath;
 mod modification_time;
 mod repository;
 
 pub use self::{
-    authentication::with_authentication, commit::Commit, modification_time::GitModificationTimes,
-    repository::Repository,
+    authentication::with_authentication, commit::Commit, gitpath::GitPath,
+    modification_time::GitModificationTimes, repository::Repository,
 };
 
 /// Location of the RustSec advisory database for crates.io
