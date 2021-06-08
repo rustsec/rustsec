@@ -6,7 +6,7 @@ use url::Url;
 
 use super::{ranges_for_advisory, OsvRange};
 
-use crate::{Advisory, advisory::{Id, Metadata}, repository::git::GitModificationTimes};
+use crate::{advisory::Id, repository::git::GitModificationTimes, Advisory};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
@@ -61,45 +61,45 @@ pub enum OsvReferenceKind {
 impl OsvAdvisory {
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
-    pub fn from_rustsec(advisory: &Advisory, mod_times: GitModificationTimes, path: &Path) -> Self {
-        let metadata = &advisory.metadata;
+    pub fn from_rustsec(advisory: Advisory, mod_times: GitModificationTimes, path: &Path) -> Self {
+        let metadata = advisory.metadata;
         let mtime = mod_times.for_path(path)
             .expect(&format!("Could not find file {:?}, make sure the path is specified relative to the git repo root", path));
 
         OsvAdvisory {
-            id: metadata.id.clone(),
+            id: metadata.id,
             modified: git2_time_to_rfc3339(mtime),
             published: rustsec_date_to_rfc3339(&metadata.date),
             affects: OsvAffected {
                 ranges: ranges_for_advisory(&advisory.versions),
             },
             withdrawn: None, //TODO: actually populate this
-            aliases: metadata.aliases.clone(),
-            related: metadata.related.clone(),
+            aliases: metadata.aliases,
+            related: metadata.related,
             package: OsvPackage {
                 ecosystem: ECOSYSTEM.to_string(),
                 name: metadata.package.to_string(),
             },
-            summary: metadata.title.clone(),
-            details: metadata.description.clone(),
-            references: osv_references(&metadata),
+            summary: metadata.title,
+            details: metadata.description,
+            references: osv_references(metadata.url, metadata.references),
         }
     }
 }
 
-fn osv_references(meta: &Metadata) -> Vec<OsvReference> {
+fn osv_references(url: Option<Url>, references: Vec<Url>) -> Vec<OsvReference> {
     let mut result: Vec<OsvReference> = Vec::new();
-    if let Some(url) = &meta.url {
+    if let Some(url) = url {
         result.push(rustsec_to_osv_reference(url));
     }
-    result.extend(meta.references.iter().map(rustsec_to_osv_reference));
+    result.extend(references.into_iter().map(rustsec_to_osv_reference));
     result
 }
 
-fn rustsec_to_osv_reference(url: &Url) -> OsvReference {
+fn rustsec_to_osv_reference(url: Url) -> OsvReference {
     OsvReference {
         kind: OsvReferenceKind::WEB, //TODO: guess kind
-        url: url.clone(),
+        url: url,
     }
 }
 
