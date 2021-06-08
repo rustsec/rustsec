@@ -6,7 +6,6 @@ use super::Repository;
 
 /// A path *relative to the root of the git repository*
 /// that's guaranteed to exist in the given repository.
-/// It cannot start with ".." or "/".
 pub struct GitPath<'a> {
     repo: &'a Repository,
     path: &'a Path,
