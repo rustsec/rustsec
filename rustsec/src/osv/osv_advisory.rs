@@ -61,31 +61,27 @@ impl OsvAdvisory {
     /// Converts a single RustSec advisory to OSV format.
     /// `path` must be relative to the git repository root.
     pub fn from_rustsec(advisory: &Advisory, mod_times: GitModificationTimes, path: &Path) -> Self {
+        let metadata = &advisory.metadata;
         let mtime = mod_times.for_path(path)
             .expect(&format!("Could not find file {:?}, make sure the path is specified relative to the git repo root", path));
 
         OsvAdvisory {
-            id: advisory.metadata.id.to_string(),
+            id: metadata.id.to_string(),
             modified: git2_time_to_chrono(mtime).to_rfc3339(),
-            published: rustsec_date_to_chrono(&advisory.metadata.date).to_rfc3339(),
+            published: rustsec_date_to_chrono(&metadata.date).to_rfc3339(),
             affects: OsvAffected {
                 ranges: ranges_for_advisory(&advisory.versions),
             },
             withdrawn: None, //TODO: actually populate this
-            aliases: advisory
-                .metadata
-                .aliases
-                .iter()
-                .map(|id| id.to_string())
-                .collect(),
+            aliases: metadata.aliases.iter().map(|id| id.to_string()).collect(),
             related: Vec::new(), //TODO: do we even track this?
             package: OsvPackage {
                 ecosystem: ECOSYSTEM.to_string(),
-                name: advisory.metadata.package.to_string(),
+                name: metadata.package.to_string(),
             },
-            summary: advisory.metadata.title.clone(),
-            details: advisory.metadata.description.clone(),
-            references: osv_references(&advisory.metadata),
+            summary: metadata.title.clone(),
+            details: metadata.description.clone(),
+            references: osv_references(&metadata),
         }
     }
 }
