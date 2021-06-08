@@ -67,8 +67,8 @@ impl OsvAdvisory {
 
         OsvAdvisory {
             id: metadata.id.to_string(),
-            modified: git2_time_to_chrono(mtime).to_rfc3339(),
-            published: rustsec_date_to_chrono(&metadata.date).to_rfc3339(),
+            modified: git2_time_to_rfc3339(mtime),
+            published: rustsec_date_to_rfc3339(&metadata.date),
             affects: OsvAffected {
                 ranges: ranges_for_advisory(&advisory.versions),
             },
@@ -102,13 +102,14 @@ fn rustsec_to_osv_reference(url: &url::Url) -> OsvReference {
     }
 }
 
-fn git2_time_to_chrono(time: &git2::Time) -> DateTime<Utc> {
+fn git2_time_to_rfc3339(time: &git2::Time) -> String {
     let unix_timestamp = time.seconds();
-    DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(unix_timestamp, 0), Utc)
+    let time = NaiveDateTime::from_timestamp(unix_timestamp, 0);
+    DateTime::<Utc>::from_utc(time, Utc).to_rfc3339()
 }
 
-fn rustsec_date_to_chrono(date: &crate::advisory::Date) -> DateTime<Utc> {
+fn rustsec_date_to_rfc3339(date: &crate::advisory::Date) -> String {
     let pub_date: NaiveDate = date.into();
     let pub_time = NaiveDateTime::new(pub_date, NaiveTime::from_hms(12, 0, 0));
-    DateTime::<Utc>::from_utc(pub_time, Utc)
+    DateTime::<Utc>::from_utc(pub_time, Utc).to_rfc3339()
 }
