@@ -33,8 +33,22 @@ pub struct OsvAdvisory {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvPackage {
+    /// Must be set to a constant identifying crates.io
     ecosystem: String,
+    /// Crate name
     name: String,
+    /// https://github.com/package-url/purl-spec derived from the other two
+    purl: String,
+}
+
+impl From<&cargo_lock::Name> for OsvPackage {
+    fn from(package: &cargo_lock::Name) -> Self {
+        OsvPackage {
+            ecosystem: ECOSYSTEM.to_string(),
+            name: package.to_string(),
+            purl: "pkg:cargo/".to_string() + package.as_str(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -104,10 +118,7 @@ impl OsvAdvisory {
             withdrawn: None, //TODO: actually populate this
             aliases: metadata.aliases,
             related: metadata.related,
-            package: OsvPackage {
-                ecosystem: ECOSYSTEM.to_string(),
-                name: metadata.package.to_string(),
-            },
+            package: (&metadata.package).into(),
             summary: metadata.title,
             details: metadata.description,
             references: osv_references(reference_urls),
