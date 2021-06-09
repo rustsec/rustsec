@@ -44,6 +44,8 @@ impl OsvExporter {
         if let Ok(collection_entry) = fs::read_dir(&collection_path) {
             for dir_entry in collection_entry {
                 for advisory_entry in fs::read_dir(dir_entry?.path())? {
+                    // TODO: fail if this isn't reached at least once
+
                     // Load the RustSec advisory
                     let advisory_path = advisory_entry?.path();
                     let advisory = Advisory::load_file(&advisory_path)?;
