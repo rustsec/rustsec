@@ -52,6 +52,15 @@ pub struct OsvReference {
     url: Url,
 }
 
+impl From<Url> for OsvReference {
+    fn from(url: Url) -> Self {
+        OsvReference {
+            kind: guess_url_kind(&url),
+            url: url,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub enum OsvReferenceKind {
     ADVISORY,
@@ -74,7 +83,10 @@ impl OsvAdvisory {
 
         // Assemble the URLs to put into 'references' field
         let mut reference_urls: Vec<Url> = Vec::new();
-        let url_string = format!("https://rustsec.org/advisories/{}.html", metadata.id.as_str());
+        let url_string = format!(
+            "https://rustsec.org/advisories/{}.html",
+            metadata.id.as_str()
+        );
         reference_urls.push(Url::parse(&url_string).unwrap());
         if let Some(url) = metadata.url {
             reference_urls.push(url);
@@ -103,21 +115,17 @@ impl OsvAdvisory {
 }
 
 fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
-    references.into_iter().map(rustsec_to_osv_reference).collect()
-}
-
-fn rustsec_to_osv_reference(url: Url) -> OsvReference {
-    OsvReference {
-        kind: guess_url_kind(&url),
-        url: url,
-    }
+    references.into_iter().map(|u| u.into()).collect()
 }
 
 fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     let str = url.as_str();
-    if str.contains("://github.com/") && str.contains("/issues/") {
+    if (str.contains("://github.com/") || str.contains("://gitlab.")) && str.contains("/issues/") {
         OsvReferenceKind::REPORT
-    } else if str.contains("://rustsec.org/advisories/") || str.contains("/security/advisories/GHSA") {
+    } else if str.contains("://rustsec.org/advisories/")
+        || str.contains("/security/advisories/GHSA-")
+        || str.contains("://cve.mitre.org/")
+    {
         OsvReferenceKind::ADVISORY
     } else {
         OsvReferenceKind::WEB
