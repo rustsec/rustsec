@@ -4,8 +4,8 @@ use crate::{Error, ErrorKind};
 
 use super::Repository;
 
-/// A path *relative to the root of the git repository*
-/// that's guaranteed to be tracked by Git.
+/// A path *relative to the root of the git repository* that is guaranteed to be tracked by Git.
+/// This type is immutable.
 pub struct GitPath<'a> {
     repo: &'a Repository,
     path: &'a Path,
@@ -28,10 +28,12 @@ impl<'a> GitPath<'a> {
         Ok(GitPath { repo, path })
     }
 
+    /// A path *relative to the root of the git repository* that is guaranteed to be tracked by Git
     pub fn path(&self) -> &'a Path {
         self.path
     }
 
+    /// The git repository the path is tracked by
     pub fn repository(&self) -> &'a Repository {
         self.repo
     }
