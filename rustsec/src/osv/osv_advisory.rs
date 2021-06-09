@@ -61,6 +61,7 @@ impl From<Url> for OsvReference {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Serialize)]
 pub enum OsvReferenceKind {
     ADVISORY,
