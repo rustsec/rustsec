@@ -9,8 +9,10 @@ use serde::Serialize;
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvRange {
     /// Inclusive
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub introduced: Option<Version>,
     /// Exclusive
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub fixed: Option<Version>,
 }
 

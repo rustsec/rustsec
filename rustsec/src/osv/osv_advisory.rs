@@ -27,6 +27,8 @@ pub struct OsvAdvisory {
     details: String,
     affects: OsvAffected,
     references: Vec<OsvReference>,
+    //ecosystem_specific: TODO,
+    //database_specific: TODO,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -69,11 +71,19 @@ impl OsvAdvisory {
         path: GitPath<'_>,
     ) -> Self {
         let metadata = advisory.metadata;
-        let mtime = mod_times.for_path(path);
+
+        // Assemble the URLs to put into 'references' field
+        let mut reference_urls: Vec<Url> = Vec::new();
+        let url_string = format!("https://rustsec.org/advisories/{}.html", metadata.id.as_str());
+        reference_urls.push(Url::parse(&url_string).unwrap());
+        if let Some(url) = metadata.url {
+            reference_urls.push(url);
+        }
+        reference_urls.extend(metadata.references.into_iter());
 
         OsvAdvisory {
             id: metadata.id,
-            modified: git2_time_to_rfc3339(mtime),
+            modified: git2_time_to_rfc3339(mod_times.for_path(path)),
             published: rustsec_date_to_rfc3339(&metadata.date),
             affects: OsvAffected {
                 ranges: ranges_for_advisory(&advisory.versions),
@@ -87,24 +97,30 @@ impl OsvAdvisory {
             },
             summary: metadata.title,
             details: metadata.description,
-            references: osv_references(metadata.url, metadata.references),
+            references: osv_references(reference_urls),
         }
     }
 }
 
-fn osv_references(url: Option<Url>, references: Vec<Url>) -> Vec<OsvReference> {
-    let mut result: Vec<OsvReference> = Vec::new();
-    if let Some(url) = url {
-        result.push(rustsec_to_osv_reference(url));
-    }
-    result.extend(references.into_iter().map(rustsec_to_osv_reference));
-    result
+fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
+    references.into_iter().map(rustsec_to_osv_reference).collect()
 }
 
 fn rustsec_to_osv_reference(url: Url) -> OsvReference {
     OsvReference {
-        kind: OsvReferenceKind::WEB, //TODO: guess kind
+        kind: guess_url_kind(&url),
         url: url,
+    }
+}
+
+fn guess_url_kind(url: &Url) -> OsvReferenceKind {
+    let str = url.as_str();
+    if str.contains("://github.com/") && str.contains("/issues/") {
+        OsvReferenceKind::REPORT
+    } else if str.contains("://rustsec.org/advisories/") || str.contains("/security/advisories/GHSA") {
+        OsvReferenceKind::ADVISORY
+    } else {
+        OsvReferenceKind::WEB
     }
 }
 
