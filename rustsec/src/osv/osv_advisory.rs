@@ -134,8 +134,7 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     let str = url.as_str();
     if (str.contains("://github.com/") || str.contains("://gitlab.")) && str.contains("/issues/") {
         OsvReferenceKind::REPORT
-    } else if str.contains("://rustsec.org/advisories/")
-        || str.contains("/security/advisories/GHSA-")
+    } else if str.contains("/advisories/") // catches both RustSec and GHSA
         || str.contains("://cve.mitre.org/")
     {
         OsvReferenceKind::ADVISORY
