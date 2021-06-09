@@ -1,7 +1,9 @@
 use semver::{Comparator, Op, Prerelease, Version};
 
+use crate::Error;
+
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
-pub enum Bound {
+pub(crate) enum Bound {
     Unbounded,
     Exclusive(Version),
     Inclusive(Version),
@@ -16,81 +18,57 @@ impl Bound {
             Bound::Inclusive(v) => Some(v),
         }
     }
-}
 
-/// A range of unaffected versions, used by either `patched`
-/// or `unaffected` fields in the security advisory.
-/// Bounds may be inclusive or exclusive.
-/// This is an intermediate representation private to this module.
-#[derive(Clone, PartialEq, Eq, Hash, Debug)]
-pub struct UnaffectedRange {
-    pub start: Bound,
-    pub end: Bound,
-}
-
-impl Default for UnaffectedRange {
-    fn default() -> Self {
-        UnaffectedRange {
-            start: Bound::Unbounded,
-            end: Bound::Unbounded,
-        }
-    }
-}
-
-impl UnaffectedRange {
-    /// Checks that `start <= end`
-    /// TODO: fancy checked constructor for ranges or something,
-    /// so we wouldn't have to call `.is_valid()` manually
-    pub fn is_valid(&self) -> bool {
-        let r = self;
-        if r.start == Bound::Unbounded || r.end == Bound::Unbounded {
+    /// We don't actually need full-blown `Ord`
+    fn less_or_equal(&self, other: &Bound) -> bool {
+        let start = self;
+        let end = other;
+        if start == &Bound::Unbounded || end == &Bound::Unbounded {
             true
-        } else if r.start.version().unwrap() < r.end.version().unwrap() {
+        } else if start.version().unwrap() < end.version().unwrap() {
             true
         } else {
-            match (&r.start, &r.end) {
-                // check that at least one bound is inclusive. TODO: possibly tighten this invariant
-                (Bound::Exclusive(v_start), Bound::Inclusive(v_end)) => v_start == v_end,
-                (Bound::Inclusive(v_start), Bound::Exclusive(v_end)) => v_start == v_end,
+            match (&start, &end) {
                 (Bound::Inclusive(v_start), Bound::Inclusive(v_end)) => v_start == v_end,
                 (_, _) => false,
             }
         }
     }
+}
 
-    /// Requires ranges to be valid (i.e. `start <= end`) to work properly
-    /// TODO: fancy checked constructor for ranges or something,
-    /// so we wouldn't have to call `.is_valid()` manually
-    pub fn overlaps(&self, other: &UnaffectedRange) -> bool {
-        assert!(self.is_valid());
-        assert!(other.is_valid());
+/// A range of unaffected versions, used by either `patched`
+/// or `unaffected` fields in the security advisory.
+/// Bounds may be inclusive or exclusive.
+/// If `start == end`, both bounds must be inclusive.
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
+pub(crate) struct UnaffectedRange {
+    start: Bound,
+    end: Bound,
+}
 
-        // range check for well-formed ranges is `(Start1 <= End2) && (Start2 <= End1)`
-        // but it's complicated by our inclusive/exclusive bounds and unbounded ranges,
-        // So we define a custom less_or_equal for this comparison
-
-        fn less_or_equal(a: &Bound, b: &Bound) -> bool {
-            match (a.version(), b.version()) {
-                (Some(a_version), Some(b_version)) => {
-                    if a_version > b_version {
-                        false
-                    } else if b_version == a_version {
-                        match (a, b) {
-                            (Bound::Inclusive(_), Bound::Inclusive(_)) => true,
-                            // at least one of the fields is exclusive, and
-                            // we've already checked that these fields are not unbounded,
-                            // so they don't overlap
-                            _ => false,
-                        }
-                    } else {
-                        true
-                    }
-                }
-                _ => true, // if one of the bounds is None
-            }
+impl UnaffectedRange {
+    pub fn new(start: Bound, end: Bound) -> Result<Self, Error> {
+        if start.less_or_equal(&end) {
+            Ok(UnaffectedRange { start, end })
+        } else {
+            Err(format_err!(
+                crate::ErrorKind::BadParam,
+                "Invalid range: start must be <= end; if equal, both bounds must be inclusive"
+            ))
         }
+    }
 
-        less_or_equal(&self.start, &other.end) && less_or_equal(&other.start, &self.end)
+    pub fn start(&self) -> &Bound {
+        &self.start
+    }
+
+    pub fn end(&self) -> &Bound {
+        &self.end
+    }
+
+    pub fn overlaps(&self, other: &UnaffectedRange) -> bool {
+        // range check for well-formed ranges is `(Start1 <= End2) && (Start2 <= End1)`
+        self.start.less_or_equal(&other.end) && other.start.less_or_equal(&self.end)
     }
 }
 
@@ -111,37 +89,38 @@ impl From<&semver::VersionReq> for UnaffectedRange {
             input.comparators.len() <= 2,
             "Unsupported version specification: too many comparators"
         );
-        let mut result = UnaffectedRange::default();
+        let mut start = Bound::Unbounded;
+        let mut end = Bound::Unbounded;
         for comparator in &input.comparators {
             match comparator.op {
                 Op::Exact => todo!(), // having a single exact unaffected version would be weird
                 Op::Greater => {
                     assert!(
-                        result.start == Bound::Unbounded,
+                        start == Bound::Unbounded,
                         "More than one lower bound in the same range!"
                     );
-                    result.start = Bound::Exclusive(comp_to_ver(comparator));
+                    start = Bound::Exclusive(comp_to_ver(comparator));
                 }
                 Op::GreaterEq => {
                     assert!(
-                        result.start == Bound::Unbounded,
+                        start == Bound::Unbounded,
                         "More than one lower bound in the same range!"
                     );
-                    result.start = Bound::Inclusive(comp_to_ver(comparator));
+                    start = Bound::Inclusive(comp_to_ver(comparator));
                 }
                 Op::Less => {
                     assert!(
-                        result.end == Bound::Unbounded,
+                        end == Bound::Unbounded,
                         "More than one upper bound in the same range!"
                     );
-                    result.end = Bound::Exclusive(comp_to_ver(comparator));
+                    end = Bound::Exclusive(comp_to_ver(comparator));
                 }
                 Op::LessEq => {
                     assert!(
-                        result.end == Bound::Unbounded,
+                        end == Bound::Unbounded,
                         "More than one upper bound in the same range!"
                     );
-                    result.end = Bound::Inclusive(comp_to_ver(comparator));
+                    end = Bound::Inclusive(comp_to_ver(comparator));
                 }
                 Op::Caret => {
                     assert!(
@@ -157,14 +136,13 @@ impl From<&semver::VersionReq> for UnaffectedRange {
                     // -0 is the lowest possible prerelease.
                     // If we didn't append it, e.g. ^1.0.0 would match 2.0.0-pre
                     end_version.pre = Prerelease::new("0").unwrap();
-                    result.start = Bound::Inclusive(start_version);
-                    result.end = Bound::Exclusive(end_version);
+                    start = Bound::Inclusive(start_version);
+                    end = Bound::Exclusive(end_version);
                 }
                 _ => todo!(), // the struct is non-exhaustive, we have to do this
             }
         }
-        assert!(result.is_valid());
-        result
+        UnaffectedRange::new(start, end).unwrap()
     }
 }
 

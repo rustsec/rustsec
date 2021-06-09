@@ -20,9 +20,6 @@ pub fn ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvRange
 /// Since OSV ranges are a negation of the UNaffected ranges that RustSec stores,
 /// the entire list has to be passed at once, both patched and unaffected ranges.
 fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
-    // Verify that all incoming ranges are valid. TODO: a checked constructor or something.
-    unaffected.iter().for_each(|r| assert!(r.is_valid()));
-
     // Edge case: no unaffected ranges specified. That means that ALL versions are affected.
     if unaffected.is_empty() {
         return vec![OsvRange {
@@ -46,7 +43,7 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     let mut unaffected = unaffected.to_vec();
     use std::cmp::Ordering;
     unaffected.sort_unstable_by(|a, b| {
-        match (a.start.version(), b.start.version()) {
+        match (a.start().version(), b.start().version()) {
             (None, _) => Ordering::Less,
             (_, None) => Ordering::Greater,
             (Some(v1), Some(v2)) => {
@@ -64,7 +61,7 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     let mut result = Vec::new();
 
     // Handle the start bound of the first element, since it's not handled by the main loop
-    match &unaffected.first().unwrap().start {
+    match &unaffected.first().unwrap().start() {
         Bound::Unbounded => {} // Nothing to do
         Bound::Exclusive(v) => result.push(OsvRange {
             introduced: None,
@@ -78,13 +75,13 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
 
     // Iterate over pairs of UnaffectedRange and turn the space between each pair into an OsvRange
     for r in unaffected.windows(2) {
-        let start = match &r[0].end {
+        let start = match &r[0].end() {
             // ranges are ordered, so Unbounded can only appear in the first or last element, which are handled outside the loop
             Bound::Unbounded => unreachable!(),
             Bound::Exclusive(v) => v.clone(),
             Bound::Inclusive(v) => increment(v),
         };
-        let end = match &r[1].start {
+        let end = match &r[1].start() {
             Bound::Unbounded => unreachable!(),
             Bound::Exclusive(v) => increment(v),
             Bound::Inclusive(v) => v.clone(),
@@ -96,7 +93,7 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     }
 
     // Handle the end bound of the last element, since it's not handled by the main loop
-    match &unaffected.last().unwrap().end {
+    match &unaffected.last().unwrap().end() {
         Bound::Unbounded => {} // Nothing to do
         Bound::Exclusive(v) => result.push(OsvRange {
             introduced: Some(v.clone()),
