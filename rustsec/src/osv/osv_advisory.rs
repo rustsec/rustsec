@@ -4,11 +4,7 @@ use url::Url;
 
 use super::{ranges_for_advisory, OsvRange};
 
-use crate::{
-    advisory::Id,
-    repository::git::{GitModificationTimes, GitPath},
-    Advisory,
-};
+use crate::{Advisory, advisory::{Affected, Id, Informational, affected::FunctionPath}, repository::git::{GitModificationTimes, GitPath}};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
@@ -27,7 +23,7 @@ pub struct OsvAdvisory {
     details: String,
     affects: OsvAffected,
     references: Vec<OsvReference>,
-    //ecosystem_specific: TODO,
+    ecosystem_specific: OsvEcosystemSpecific,
     //database_specific: TODO,
 }
 
@@ -86,6 +82,31 @@ pub enum OsvReferenceKind {
     WEB,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct OsvEcosystemSpecific {
+    affects: OsvEcosystemSpecificAffected,
+    informational: Option<Informational>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct OsvEcosystemSpecificAffected {
+    arch: Vec<platforms::target::Arch>,
+    os: Vec<platforms::target::OS>,
+    /// We include function names only in order to allow changing
+    /// the way versions are specified without an API break
+    functions: Vec<FunctionPath>,
+}
+
+impl From<Affected> for OsvEcosystemSpecificAffected {
+    fn from(a: Affected) -> Self {
+        OsvEcosystemSpecificAffected {
+            arch: a.arch,
+            os: a.os,
+            functions: a.functions.into_iter().map(|(f, _v)| f).collect(),
+        }
+    }
+}
+
 impl OsvAdvisory {
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
@@ -122,6 +143,10 @@ impl OsvAdvisory {
             summary: metadata.title,
             details: metadata.description,
             references: osv_references(reference_urls),
+            ecosystem_specific: OsvEcosystemSpecific {
+                affects: advisory.affected.unwrap_or_default().into(),
+                informational: metadata.informational,
+            }
         }
     }
 }
@@ -134,8 +159,8 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     let str = url.as_str();
     if (str.contains("://github.com/") || str.contains("://gitlab.")) && str.contains("/issues/") {
         OsvReferenceKind::REPORT
-    } else if str.contains("/advisories/") // catches both RustSec and GHSA
-        || str.contains("://cve.mitre.org/")
+    // the check for "/advisories/" matches both RustSec and GHSA URLs
+    } else if str.contains("/advisories/") || str.contains("://cve.mitre.org/")
     {
         OsvReferenceKind::ADVISORY
     } else {
