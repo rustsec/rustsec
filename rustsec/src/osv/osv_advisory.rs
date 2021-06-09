@@ -4,7 +4,7 @@ use url::Url;
 
 use super::{ranges_for_advisory, OsvRange};
 
-use crate::{Advisory, advisory::{Affected, Id, Informational, affected::FunctionPath}, repository::git::{GitModificationTimes, GitPath}};
+use crate::{Advisory, advisory::{Affected, Category, Id, Informational, affected::FunctionPath}, repository::git::{GitModificationTimes, GitPath}};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
@@ -24,7 +24,7 @@ pub struct OsvAdvisory {
     affects: OsvAffected,
     references: Vec<OsvReference>,
     ecosystem_specific: OsvEcosystemSpecific,
-    //database_specific: TODO,
+    database_specific: OsvDatabaseSpecific,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -85,7 +85,6 @@ pub enum OsvReferenceKind {
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvEcosystemSpecific {
     affects: OsvEcosystemSpecificAffected,
-    informational: Option<Informational>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -105,6 +104,13 @@ impl From<Affected> for OsvEcosystemSpecificAffected {
             functions: a.functions.into_iter().map(|(f, _v)| f).collect(),
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct OsvDatabaseSpecific {
+    categories: Vec<Category>,
+    cvss: Option<cvss::v3::Base>,
+    informational: Option<Informational>,
 }
 
 impl OsvAdvisory {
@@ -145,6 +151,10 @@ impl OsvAdvisory {
             references: osv_references(reference_urls),
             ecosystem_specific: OsvEcosystemSpecific {
                 affects: advisory.affected.unwrap_or_default().into(),
+            },
+            database_specific: OsvDatabaseSpecific {
+                categories: metadata.categories,
+                cvss: metadata.cvss,
                 informational: metadata.informational,
             }
         }
