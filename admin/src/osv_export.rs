@@ -6,7 +6,7 @@ use rustsec::{
     fs,
     osv::OsvAdvisory,
     repository::git::{GitModificationTimes, GitPath, Repository},
-    Advisory, Collection, Database,
+    Advisory, Collection,
 };
 
 use crate::{
@@ -16,9 +16,6 @@ use crate::{
 
 /// Lists all versions for a crate and prints info on which ones are affected
 pub struct OsvExporter {
-    /// Loaded Advisory DB
-    advisory_db: Database,
-
     /// Loaded git repository
     repository: Repository,
 
@@ -31,18 +28,11 @@ impl OsvExporter {
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
         let repository = Repository::open(&repo_path)?;
-        let advisory_db = Database::open(&repo_path)?;
         let mod_times = GitModificationTimes::new(&repository)?;
         Ok(Self {
-            advisory_db,
             repository,
             mod_times,
         })
-    }
-
-    /// Borrow the loaded advisory database
-    pub fn advisory_db(&self) -> &Database {
-        &self.advisory_db
     }
 
     /// Exports all advisories to OSV JSON format to the specified directory.
