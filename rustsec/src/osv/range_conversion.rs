@@ -10,16 +10,17 @@ use super::unaffected_range::{Bound, UnaffectedRange};
 
 /// Returns OSV ranges for all affected versions in the given advisory.
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
-/// Returns an error if the ranges are malformed or range specification syntax is not supported
-pub fn ranges_for_advisory(versions: &Versions) -> Result<Vec<OsvRange>, Error> {
+/// Panics if the ranges are malformed or range specification syntax is not supported,
+/// since that has been validated on deserialization.
+pub fn ranges_for_advisory(versions: &Versions) -> Vec<OsvRange> {
     let mut unaffected: Vec<UnaffectedRange> = Vec::new();
     for req in &versions.unaffected {
-        unaffected.push(req.try_into()?);
+        unaffected.push(req.try_into().unwrap());
     }
     for req in &versions.patched {
-        unaffected.push(req.try_into()?);
+        unaffected.push(req.try_into().unwrap());
     }
-    Ok(unaffected_to_osv_ranges(&unaffected))
+    unaffected_to_osv_ranges(&unaffected)
 }
 
 /// Converts a list of unaffected ranges to a range of affected OSV ranges.
