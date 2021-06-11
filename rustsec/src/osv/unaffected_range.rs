@@ -79,17 +79,16 @@ impl UnaffectedRange {
     }
 }
 
-// To keep the algorithm simple, we make several assumptions:
-// 1. There are at most two version boundaries per `VersionReq`.
-//    This means that stuff like `>= 1.0 < 1.5 || >= 2.0 || 2.5`
-//    is not supported. RustSec format uses a list of ranges for that instead...
-//    Which is probably not a great idea in retrospect.
-// 2. There is at most one upper and at most one lower bound in each range.
-//    Stuff like `>= 1.0, >= 2.0` is nonsense.
-// 3. If the requirement is "1.0" or "^1.0" that defines both the lower and upper bound,
-//    it is the only one in its range.
-// If any of those assumptions are violated, it will panic.
-// This is fine for the advisory database as of May 2021.
+/// To keep the algorithm simple, we make several assumptions:
+/// 1. There are at most two version boundaries per `VersionReq`.
+///    This means that stuff like `>= 1.0, < 1.5 || >= 2.0, < 2.5`
+///    is not supported. RustSec format uses a list of ranges for that instead.
+/// 2. There is at most one upper and at most one lower bound in each range.
+///    Stuff like `>= 1.0, >= 2.0` is nonsense.
+/// 3. If the requirement is "1.0" or "^1.0" that defines both the lower and upper bound,
+///    it is the only one in its range.
+/// If any of those assumptions are violated, it return an error.
+/// This is fine for the advisory database as of June 2021.
 impl TryFrom<&semver::VersionReq> for UnaffectedRange {
     type Error = Error;
 
