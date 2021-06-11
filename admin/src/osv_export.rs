@@ -39,7 +39,7 @@ impl OsvExporter {
     pub fn export_all(&self, destination_folder: &Path) -> Result<(), Error> {
         let repo_path = self.repository.path();
         let collection_path = repo_path.join(Collection::Crates.as_str());
-        let mut found_at_least_one_advisory = true;
+        let mut found_at_least_one_advisory = false;
 
         if let Ok(collection_entry) = fs::read_dir(&collection_path) {
             for dir_entry in collection_entry {
