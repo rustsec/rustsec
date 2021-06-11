@@ -108,6 +108,10 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     result
 }
 
+/// Returns the lowest possible version greater than the input according to
+/// [the SemVer 2.0 precedence rules](https://semver.org/#spec-item-11).
+/// This is not the intutive "increment": this function returns a pre-release version!
+/// E.g. "1.2.3" is transformed to "1.2.4-0".
 fn increment(v: &Version) -> Version {
     if v.pre.is_empty() {
         // Not a pre-release.
@@ -117,10 +121,21 @@ fn increment(v: &Version) -> Version {
         let mut v = v.clone();
         v.build = Default::default(); // Clear any build metadata, it's not used to determine precedence
         v.patch += 1;
-        // add pre-release version in string form because these types are private in semver crate
         v.pre = Prerelease::new("0").unwrap();
         v
     } else {
         todo!() //TODO: increment pre-release version
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::osv::range_conversion::increment;
+
+    #[test]
+    fn increment_simple() {
+        let input = semver::Version::parse("1.2.3").unwrap();
+        let expected = semver::Version::parse("1.2.4-0").unwrap();
+        assert_eq!(expected, increment(&input));
     }
 }
