@@ -3,9 +3,6 @@
 //! Exports all advisories to the OSV format defined at
 //! https://github.com/google/osv
 
-#![allow(warnings)] //TODO
-#![warn(warnings)] //TODO
-
 use std::{
     path::{Path, PathBuf},
     process::exit,
