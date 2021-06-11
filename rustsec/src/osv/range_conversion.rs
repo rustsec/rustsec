@@ -1,19 +1,25 @@
+use std::convert::TryInto;
+
 use semver::{Prerelease, Version};
+
+use crate::Error;
+use crate::advisory::Versions;
 
 use super::osv_range::OsvRange;
 use super::unaffected_range::{Bound, UnaffectedRange};
 
 /// Returns OSV ranges for all affected versions in the given advisory.
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
-pub fn ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvRange> {
+/// Returns an error if the ranges are malformed or range specification syntax is not supported
+pub fn ranges_for_advisory(versions: &Versions) -> Result<Vec<OsvRange>, Error> {
     let mut unaffected: Vec<UnaffectedRange> = Vec::new();
     for req in &versions.unaffected {
-        unaffected.push(req.into());
+        unaffected.push(req.try_into()?);
     }
     for req in &versions.patched {
-        unaffected.push(req.into());
+        unaffected.push(req.try_into()?);
     }
-    unaffected_to_osv_ranges(&unaffected)
+    Ok(unaffected_to_osv_ranges(&unaffected))
 }
 
 /// Converts a list of unaffected ranges to a range of affected OSV ranges.

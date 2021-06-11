@@ -2,6 +2,8 @@
 //! Cargo-style version selectors (`>=`, `^`, `<`, etc) to OSV rang es.
 //! It is an implementation detail and is not exported outside OSV module.
 
+use std::convert::TryFrom;
+
 use semver::{Comparator, Op, Prerelease, Version};
 
 use crate::Error;
@@ -88,8 +90,10 @@ impl UnaffectedRange {
 //    it is the only one in its range.
 // If any of those assumptions are violated, it will panic.
 // This is fine for the advisory database as of May 2021.
-impl From<&semver::VersionReq> for UnaffectedRange {
-    fn from(input: &semver::VersionReq) -> Self {
+impl TryFrom<&semver::VersionReq> for UnaffectedRange {
+    type Error = Error;
+
+    fn try_from(input: &semver::VersionReq) -> Result<Self, Self::Error> {
         assert!(
             input.comparators.len() <= 2,
             "Unsupported version specification: too many comparators"
@@ -147,7 +151,8 @@ impl From<&semver::VersionReq> for UnaffectedRange {
                 _ => todo!(), // the struct is non-exhaustive, we have to do this
             }
         }
-        UnaffectedRange::new(start, end).unwrap()
+        // TODO: validate, don't unwrap
+        Ok(UnaffectedRange::new(start, end).unwrap())
     }
 }
 

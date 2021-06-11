@@ -21,10 +21,17 @@ pub struct Versions {
     pub unaffected: Vec<VersionReq>,
 }
 
+// TODO: deserialization with validation of range sanity.
+// Ideally this needs an immutable type (i.e. with private fields)
+// so that it would be impossible to construct invalid range requirements at any point,
+// but that would require an API break.
+
 impl Versions {
     /// Is the given version of a package vulnerable?
     pub fn is_vulnerable(&self, version: &Version) -> bool {
-        for range in osv::ranges_for_advisory(self).iter() {
+        // We .unwrap() here because ranges are validated on deserialization
+        let ranges = osv::ranges_for_advisory(self).unwrap();
+        for range in ranges.iter() {
             if range.affects(version) {
                 return true;
             }

@@ -204,9 +204,10 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     }
 }
 
-/// Same as ``ranges_for_advisory``, but also converts from ``OsvRange`` to ``OsvJsonRange``
+/// Like ``ranges_for_advisory``, but also converts from ``OsvRange`` to ``OsvJsonRange``
+/// Assumes that the input has already been validated; panics if passed an invalid advisory.
 fn json_ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvJsonRange>{
-    ranges_for_advisory(versions).into_iter().map(|x| x.into()).collect()
+    ranges_for_advisory(versions).unwrap().into_iter().map(|x| x.into()).collect()
 }
 
 fn git2_time_to_rfc3339(time: &git2::Time) -> String {
