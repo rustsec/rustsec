@@ -2,7 +2,6 @@ use std::convert::TryInto;
 
 use semver::{Prerelease, Version};
 
-use crate::Error;
 use crate::advisory::Versions;
 
 use super::osv_range::OsvRange;

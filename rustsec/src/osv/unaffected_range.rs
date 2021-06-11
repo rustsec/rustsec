@@ -6,7 +6,7 @@ use std::convert::TryFrom;
 
 use semver::{Comparator, Op, Prerelease, Version};
 
-use crate::Error;
+use crate::{Error, ErrorKind::BadParam};
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub(crate) enum Bound {
@@ -59,7 +59,7 @@ impl UnaffectedRange {
             Ok(UnaffectedRange { start, end })
         } else {
             Err(format_err!(
-                crate::ErrorKind::BadParam,
+                BadParam,
                 "Invalid range: start must be <= end; if equal, both bounds must be inclusive"
             ))
         }
@@ -88,53 +88,47 @@ impl UnaffectedRange {
 /// 3. If the requirement is "1.0" or "^1.0" that defines both the lower and upper bound,
 ///    it is the only one in its range.
 /// If any of those assumptions are violated, it return an error.
-/// This is fine for the advisory database as of June 2021.
+/// This is fine for the advisory database as of June 2021,
+/// and supporting even more complex version specification would probably be detrimental.
 impl TryFrom<&semver::VersionReq> for UnaffectedRange {
     type Error = Error;
 
     fn try_from(input: &semver::VersionReq) -> Result<Self, Self::Error> {
-        assert!(
-            input.comparators.len() <= 2,
-            "Unsupported version specification: too many comparators"
-        );
+        if input.comparators.len() > 2 {
+            fail!(BadParam, format!("Too many comparators in version specification: {}", input));
+        }
         let mut start = Bound::Unbounded;
         let mut end = Bound::Unbounded;
         for comparator in &input.comparators {
             match comparator.op {
-                Op::Exact => todo!(), // having a single exact unaffected version would be weird
                 Op::Greater => {
-                    assert!(
-                        start == Bound::Unbounded,
-                        "More than one lower bound in the same range!"
-                    );
+                    if start != Bound::Unbounded {
+                        fail!(BadParam, format!("More than one lower bound in the same range: {}", input));
+                    }
                     start = Bound::Exclusive(comp_to_ver(comparator));
                 }
                 Op::GreaterEq => {
-                    assert!(
-                        start == Bound::Unbounded,
-                        "More than one lower bound in the same range!"
-                    );
+                    if start != Bound::Unbounded {
+                        fail!(BadParam, format!("More than one lower bound in the same range: {}", input));
+                    }
                     start = Bound::Inclusive(comp_to_ver(comparator));
                 }
                 Op::Less => {
-                    assert!(
-                        end == Bound::Unbounded,
-                        "More than one upper bound in the same range!"
-                    );
+                    if end != Bound::Unbounded {
+                        fail!(BadParam, format!("More than one upper bound in the same range: {}", input));
+                    }
                     end = Bound::Exclusive(comp_to_ver(comparator));
                 }
                 Op::LessEq => {
-                    assert!(
-                        end == Bound::Unbounded,
-                        "More than one upper bound in the same range!"
-                    );
+                    if end != Bound::Unbounded {
+                        fail!(BadParam, format!("More than one upper bound in the same range: {}", input));
+                    }
                     end = Bound::Inclusive(comp_to_ver(comparator));
                 }
                 Op::Caret => {
-                    assert!(
-                        input.comparators.len() == 1,
-                        "Selectors that define both the upper and lower bound (e.g. '^1.0') must be alone in their range"
-                    );
+                    if input.comparators.len() != 1 {
+                        fail!(BadParam, "Selectors that define both the upper and lower bound (e.g. '^1.0') must be alone in their range");
+                    }
                     let start_version = comp_to_ver(comparator);
                     let mut end_version = if start_version.major == 0 {
                         Version::new(0, start_version.minor + 1, 0)
@@ -147,11 +141,13 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                     start = Bound::Inclusive(start_version);
                     end = Bound::Exclusive(end_version);
                 }
-                _ => todo!(), // the struct is non-exhaustive, we have to do this
+                _ => {
+                    // the struct is non-exhaustive, we have to do this
+                    fail!(BadParam, "Unsupported operator in version specification: '{}'", comparator);
+                }
             }
         }
-        // TODO: validate, don't unwrap
-        Ok(UnaffectedRange::new(start, end).unwrap())
+        UnaffectedRange::new(start, end)
     }
 }
 
