@@ -209,7 +209,6 @@ fn json_ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvJson
     ranges_for_advisory(versions).into_iter().map(|x| x.into()).collect()
 }
 
-
 fn git2_time_to_rfc3339(time: &git2::Time) -> String {
     let unix_timestamp = time.seconds();
     let time = NaiveDateTime::from_timestamp(unix_timestamp, 0);
