@@ -14,3 +14,4 @@ mod unaffected_range;
 pub use osv_advisory::OsvAdvisory;
 pub use osv_range::OsvRange;
 pub use range_conversion::ranges_for_advisory;
+pub(crate) use range_conversion::ranges_for_unvalidated_advisory;

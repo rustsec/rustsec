@@ -1,9 +1,11 @@
 use std::convert::TryInto;
 
+use semver::VersionReq;
 use semver::{Prerelease, Version};
 
 use crate::Error;
 use crate::advisory::Versions;
+use crate::advisory::versions::RawVersions;
 
 use super::osv_range::OsvRange;
 use super::unaffected_range::{Bound, UnaffectedRange};
@@ -12,21 +14,30 @@ use super::unaffected_range::{Bound, UnaffectedRange};
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
 /// Panics if the ranges are malformed or range specification syntax is not supported,
 /// since that has been validated on deserialization.
-pub fn ranges_for_advisory(versions: &Versions) -> Result<Vec<OsvRange>, Error> {
-    let mut unaffected: Vec<UnaffectedRange> = Vec::new();
-    for req in &versions.unaffected {
-        unaffected.push(req.try_into()?);
-    }
-    for req in &versions.patched {
-        unaffected.push(req.try_into()?);
-    }
-    unaffected_to_osv_ranges(&unaffected)
+pub fn ranges_for_advisory(versions: &Versions) -> Vec<OsvRange> {
+    unaffected_to_osv_ranges(&versions.unaffected, &versions.patched).unwrap()
+}
+
+/// Returns OSV ranges for all affected versions in the given advisory.
+/// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
+/// Errors if the ranges are malformed or range specification syntax is not supported.
+pub(crate) fn ranges_for_unvalidated_advisory(versions: &RawVersions) -> Result<Vec<OsvRange>, Error> {
+    unaffected_to_osv_ranges(&versions.unaffected, &versions.patched)
 }
 
 /// Converts a list of unaffected ranges to a range of affected OSV ranges.
 /// Since OSV ranges are a negation of the UNaffected ranges that RustSec stores,
 /// the entire list has to be passed at once, both patched and unaffected ranges.
-fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Result<Vec<OsvRange>, Error> {
+fn unaffected_to_osv_ranges(unaffected_req: &[VersionReq], patched_req: &[VersionReq]) -> Result<Vec<OsvRange>, Error> {
+    // Consolidate ranges for all versions that aren't affected
+    let mut unaffected: Vec<UnaffectedRange> = Vec::new();
+    for req in unaffected_req {
+        unaffected.push(req.try_into()?);
+    }
+    for req in patched_req {
+        unaffected.push(req.try_into()?);
+    }
+
     // Edge case: no unaffected ranges specified. That means that ALL versions are affected.
     if unaffected.is_empty() {
         return Ok(vec![OsvRange {
