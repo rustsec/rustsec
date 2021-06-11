@@ -25,8 +25,13 @@ impl Bound {
         }
     }
 
-    /// We don't actually need full-blown `Ord`
+    /// The handling of `Bound::Unbounded` in this function assumes that
+    /// the first bound is start of a range, and the other bound is the end of a range.
+    /// **Make sure** this is the way you call it.
+    /// This is also why we don't define PartialOrd.
     fn less_or_equal(&self, other: &Bound) -> bool {
+        // It's defined on Bound and not UnaffectedRange
+        // so that it could be used on bounds from different ranges.
         let start = self;
         let end = other;
         if start == &Bound::Unbounded || end == &Bound::Unbounded {
