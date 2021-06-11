@@ -2,7 +2,7 @@
 //! Cargo-style version selectors (`>=`, `^`, `<`, etc) to OSV rang es.
 //! It is an implementation detail and is not exported outside OSV module.
 
-use std::convert::TryFrom;
+use std::{convert::TryFrom, fmt::Display};
 
 use semver::{Comparator, Op, Prerelease, Version};
 
@@ -76,6 +76,22 @@ impl UnaffectedRange {
     pub fn overlaps(&self, other: &UnaffectedRange) -> bool {
         // range check for well-formed ranges is `(Start1 <= End2) && (Start2 <= End1)`
         self.start.less_or_equal(&other.end) && other.start.less_or_equal(&self.end)
+    }
+}
+
+impl Display for UnaffectedRange {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.start {
+            Bound::Unbounded => f.write_str("[0"),
+            Bound::Exclusive(v) => f.write_fmt(format_args!("({}", v)),
+            Bound::Inclusive(v) => f.write_fmt(format_args!("[{}", v)),
+        }?;
+        f.write_str(", ")?;
+        match &self.end {
+            Bound::Unbounded => f.write_str("∞)"),
+            Bound::Exclusive(v) => f.write_fmt(format_args!("{})", v)),
+            Bound::Inclusive(v) => f.write_fmt(format_args!("{}]", v)),
+        }
     }
 }
 

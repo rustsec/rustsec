@@ -2,6 +2,7 @@ use std::convert::TryInto;
 
 use semver::{Prerelease, Version};
 
+use crate::Error;
 use crate::advisory::Versions;
 
 use super::osv_range::OsvRange;
@@ -11,13 +12,13 @@ use super::unaffected_range::{Bound, UnaffectedRange};
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
 /// Panics if the ranges are malformed or range specification syntax is not supported,
 /// since that has been validated on deserialization.
-pub fn ranges_for_advisory(versions: &Versions) -> Vec<OsvRange> {
+pub fn ranges_for_advisory(versions: &Versions) -> Result<Vec<OsvRange>, Error> {
     let mut unaffected: Vec<UnaffectedRange> = Vec::new();
     for req in &versions.unaffected {
-        unaffected.push(req.try_into().unwrap());
+        unaffected.push(req.try_into()?);
     }
     for req in &versions.patched {
-        unaffected.push(req.try_into().unwrap());
+        unaffected.push(req.try_into()?);
     }
     unaffected_to_osv_ranges(&unaffected)
 }
@@ -25,13 +26,13 @@ pub fn ranges_for_advisory(versions: &Versions) -> Vec<OsvRange> {
 /// Converts a list of unaffected ranges to a range of affected OSV ranges.
 /// Since OSV ranges are a negation of the UNaffected ranges that RustSec stores,
 /// the entire list has to be passed at once, both patched and unaffected ranges.
-fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
+fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Result<Vec<OsvRange>, Error> {
     // Edge case: no unaffected ranges specified. That means that ALL versions are affected.
     if unaffected.is_empty() {
-        return vec![OsvRange {
+        return Ok(vec![OsvRange {
             introduced: None,
             fixed: None,
-        }];
+        }]);
     }
 
     // Verify that the incoming ranges do not overlap. This is required for the correctness of the algoritm.
@@ -39,8 +40,10 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
     // We can optimize this later if it starts showing up on profiles.
     for (idx, a) in unaffected[..unaffected.len() - 1].iter().enumerate() {
         for b in unaffected[idx + 1..].iter() {
-            // TODO: better message because it might be shown to users
-            assert!(!a.overlaps(b));
+            if a.overlaps(b) {
+                fail!(crate::ErrorKind::BadParam,
+                    format!("Overlapping version ranges: {} and {}", a, b));
+            }
         }
     }
 
@@ -111,7 +114,7 @@ fn unaffected_to_osv_ranges(unaffected: &[UnaffectedRange]) -> Vec<OsvRange> {
         }),
     }
 
-    result
+    Ok(result)
 }
 
 /// Returns the lowest possible version greater than the input according to

@@ -29,7 +29,8 @@ pub struct Versions {
 impl Versions {
     /// Is the given version of a package vulnerable?
     pub fn is_vulnerable(&self, version: &Version) -> bool {
-        for range in osv::ranges_for_advisory(self).iter() {
+        // we .unwrap() here because the version specification has been validated on deserialization
+        for range in osv::ranges_for_advisory(self).unwrap().iter() {
             if range.affects(version) {
                 return true;
             }
