@@ -31,18 +31,6 @@ pub struct Versions {
     pub unaffected: Vec<VersionReq>,
 }
 
-impl TryFrom<RawVersions> for Versions {
-    type Error = crate::Error;
-
-    fn try_from(raw: RawVersions) -> Result<Self, Self::Error> {
-        validate_ranges(&raw)?;
-        Ok(Versions {
-            patched: raw.patched,
-            unaffected: raw.unaffected,
-        })
-    }
-}
-
 impl Versions {
     /// Is the given version of a package vulnerable?
     pub fn is_vulnerable(&self, version: &Version) -> bool {
@@ -53,6 +41,18 @@ impl Versions {
             }
         }
         false
+    }
+}
+
+impl TryFrom<RawVersions> for Versions {
+    type Error = crate::Error;
+
+    fn try_from(raw: RawVersions) -> Result<Self, Self::Error> {
+        validate_ranges(&raw)?;
+        Ok(Versions {
+            patched: raw.patched,
+            unaffected: raw.unaffected,
+        })
     }
 }
 
