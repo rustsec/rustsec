@@ -59,7 +59,7 @@ impl OsvExporter {
                     let osv = OsvAdvisory::from_rustsec(advisory, &self.mod_times, gitpath);
 
                     // Serialize the OSV advisory to JSON and write it to file
-                    let mut output_path: PathBuf = destination_folder.join(id.to_string());
+                    let mut output_path: PathBuf = destination_folder.join(id.as_str());
                     output_path.set_extension("json");
                     let output_file = fs::File::create(output_path)?;
                     let writer = std::io::BufWriter::new(output_file);
