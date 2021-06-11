@@ -1,5 +1,5 @@
 //! This is an intermediate representation used for converting from
-//! Cargo-style version selectors (`>=`, `^`, `<`, etc) to OSV rang es.
+//! Cargo-style version selectors (`>=`, `^`, `<`, etc) to OSV ranges.
 //! It is an implementation detail and is not exported outside OSV module.
 
 use std::{convert::TryFrom, fmt::Display};
