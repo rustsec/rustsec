@@ -1,3 +1,7 @@
+//! This is an intermediate representation used for converting from
+//! Cargo-style version selectors (`>=`, `^`, `<`, etc) to OSV rang es.
+//! It is an implementation detail and is not exported outside OSV module.
+
 use semver::{Comparator, Op, Prerelease, Version};
 
 use crate::Error;

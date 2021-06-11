@@ -6,7 +6,6 @@
 //! which `semver` crate does not allow doing directly.
 //! See https://github.com/dtolnay/semver/issues/172
 
-// These are implementation details and are not exported outside OSV module
 mod osv_advisory;
 mod osv_range;
 mod range_conversion;
