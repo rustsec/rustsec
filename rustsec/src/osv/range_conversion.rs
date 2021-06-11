@@ -73,10 +73,6 @@ fn unaffected_to_osv_ranges(unaffected_req: &[VersionReq], patched_req: &[Versio
         }
     });
 
-    // Unhandled edge case in increment logic: two ranges back to back, one inclusive other exclusive
-    // This does not cause overlap in UnaffectedRange representation, but would result in overlapping OSV ranges.
-    // This can be fixed by coalescing such ranges, and it's just an O(n) pass!
-    // TODO: coalesce such ranges
 
     let mut result = Vec::new();
 
