@@ -22,7 +22,7 @@ pub struct OsvCmd {
         required,
         short = "o",
         long = "out-dir",
-        help = "filesystem path where OSV JSON files will be written"
+        help = "filesystem directory where OSV JSON files will be written"
     )]
     out_dir: PathBuf,
     /// Path to the advisory database
