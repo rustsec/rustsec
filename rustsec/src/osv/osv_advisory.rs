@@ -29,8 +29,8 @@ pub struct OsvAdvisory {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvPackage {
-    /// Must be set to a constant identifying crates.io
-    ecosystem: String,
+    /// Set to a constant identifying crates.io
+    ecosystem: &'static str,
     /// Crate name
     name: String,
     /// https://github.com/package-url/purl-spec derived from the other two
@@ -40,7 +40,7 @@ pub struct OsvPackage {
 impl From<&cargo_lock::Name> for OsvPackage {
     fn from(package: &cargo_lock::Name) -> Self {
         OsvPackage {
-            ecosystem: ECOSYSTEM.to_string(),
+            ecosystem: ECOSYSTEM,
             name: package.to_string(),
             purl: "pkg:cargo/".to_string() + package.as_str(),
         }
@@ -51,7 +51,26 @@ impl From<&cargo_lock::Name> for OsvPackage {
 pub struct OsvAffected {
     // Other fields are specified, but we never use them.
     // Ranges alone are sufficient.
-    ranges: Vec<OsvRange>,
+    ranges: Vec<OsvJsonRange>,
+}
+
+/// Same as `OsvRange`, but also has `type` field specified
+/// which is required in the OSV JSON representation.
+#[derive(Debug, Clone, Serialize)]
+pub struct OsvJsonRange {
+    // 'type' is a reserved keyword in Rust
+    #[serde(alias = "type")]
+    kind: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    introduced: Option<semver::Version>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    fixed: Option<semver::Version>,
+}
+
+impl From<OsvRange> for OsvJsonRange {
+    fn from(range: OsvRange) -> Self {
+        OsvJsonRange { kind: "SEMVER", introduced: range.introduced, fixed: range.fixed }
+    }
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -140,7 +159,7 @@ impl OsvAdvisory {
             modified: git2_time_to_rfc3339(mod_times.for_path(path)),
             published: rustsec_date_to_rfc3339(&metadata.date),
             affects: OsvAffected {
-                ranges: ranges_for_advisory(&advisory.versions),
+                ranges: json_ranges_for_advisory(&advisory.versions),
             },
             withdrawn: None, //TODO: actually populate this
             aliases: metadata.aliases,
@@ -176,6 +195,12 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
         OsvReferenceKind::WEB
     }
 }
+
+/// Same as ``ranges_for_advisory``, but also converts from ``OsvRange`` to ``OsvJsonRange``
+fn json_ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvJsonRange>{
+    ranges_for_advisory(versions).into_iter().map(|x| x.into()).collect()
+}
+
 
 fn git2_time_to_rfc3339(time: &git2::Time) -> String {
     let unix_timestamp = time.seconds();

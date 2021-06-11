@@ -1,18 +1,15 @@
 use semver::Version;
-use serde::Serialize;
 
 /// A range of affected versions.
 /// If any of the bounds is unspecified, that means ALL versions
 /// in that direction are affected.
 ///
 /// This format is defined by https://github.com/google/osv
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
 pub struct OsvRange {
     /// Inclusive
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub introduced: Option<Version>,
     /// Exclusive
-    #[serde(skip_serializing_if = "Option::is_none")]
     pub fixed: Option<Version>,
 }
 
