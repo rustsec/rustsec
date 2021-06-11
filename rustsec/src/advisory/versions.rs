@@ -13,7 +13,7 @@ use crate::osv;
 
 // Right now ranges are only validated during deserialization;
 // since the fields are public, it's possible to mutate them and
-// set them to invalid ranges.
+// set them to invalid ranges, causing a panic down the line.
 // TODO: Ideally this needs an immutable type (i.e. with private fields)
 // so that it would be impossible to construct invalid range requirements at any point,
 // but that would require an API break.
