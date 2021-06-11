@@ -14,6 +14,9 @@ use crate::osv_export::OsvExporter;
 
 #[derive(Command, Debug, Default, Options)]
 pub struct OsvCmd {
+    /// Path to the output directory
+    #[options(required, short = "o", long = "out-dir", help ="filesystem path where OSV JSON files will be written")]
+    out_dir: PathBuf,
     /// Path to the advisory database
     #[options(free, help = "filesystem path to the RustSec advisory DB git repo")]
     path: Vec<PathBuf>,
@@ -28,7 +31,7 @@ impl Runnable for OsvCmd {
         };
 
         let exporter = OsvExporter::new(repo_path).unwrap(); //TODO
-        let out_path = Path::new("/tmp/osv"); //TODO
+        let out_path = &self.out_dir;
         exporter.export_all(out_path).unwrap(); //TODO
     }
 }
