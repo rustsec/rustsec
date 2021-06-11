@@ -43,6 +43,7 @@ impl Bound {
 /// A range of unaffected versions, used by either `patched`
 /// or `unaffected` fields in the security advisory.
 /// Bounds may be inclusive or exclusive.
+/// `start` is guaranteed to be less than or equal to `end`.
 /// If `start == end`, both bounds must be inclusive.
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub(crate) struct UnaffectedRange {
