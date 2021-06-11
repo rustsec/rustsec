@@ -144,14 +144,20 @@ impl OsvAdvisory {
 
         // Assemble the URLs to put into 'references' field
         let mut reference_urls: Vec<Url> = Vec::new();
-        let url_string = format!(
+        // link to the package on crates.io
+        let package_url = "https://crates.io/crates/".to_owned() + metadata.package.as_str();
+        reference_urls.push(Url::parse(&package_url).unwrap());
+        // link to human-readable RustSec advisory
+        let advisory_url = format!(
             "https://rustsec.org/advisories/{}.html",
             metadata.id.as_str()
         );
-        reference_urls.push(Url::parse(&url_string).unwrap());
+        reference_urls.push(Url::parse(&advisory_url).unwrap());
+        // primary URL for the issue specified in the advisory
         if let Some(url) = metadata.url {
             reference_urls.push(url);
         }
+        // other references
         reference_urls.extend(metadata.references.into_iter());
 
         OsvAdvisory {
@@ -191,6 +197,8 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     // the check for "/advisories/" matches both RustSec and GHSA URLs
     } else if str.contains("/advisories/") || str.contains("://cve.mitre.org/") {
         OsvReferenceKind::ADVISORY
+    } else if str.contains("://crates.io/crates/") {
+        OsvReferenceKind::PACKAGE
     } else {
         OsvReferenceKind::WEB
     }
