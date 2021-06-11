@@ -36,7 +36,6 @@ impl OsvExporter {
     }
 
     /// Exports all advisories to OSV JSON format to the specified directory.
-    /// The destination directory must exist.
     pub fn export_all(&self, destination_folder: &Path) -> Result<(), Error> {
         let repo_path = self.repository.path();
         let collection_path = repo_path.join(Collection::Crates.as_str());
