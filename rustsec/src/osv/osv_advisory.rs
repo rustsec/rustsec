@@ -216,8 +216,8 @@ fn git2_time_to_rfc3339(time: &git2::Time) -> String {
     DateTime::<Utc>::from_utc(time, Utc).to_rfc3339()
 }
 
-fn rustsec_date_to_rfc3339(date: &crate::advisory::Date) -> String {
-    let pub_date: NaiveDate = date.into();
+fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
+    let pub_date: NaiveDate = NaiveDate::from_ymd(d.year() as i32, d.month(), d.day());
     let pub_time = NaiveDateTime::new(pub_date, NaiveTime::from_hms(12, 0, 0));
     DateTime::<Utc>::from_utc(pub_time, Utc).to_rfc3339()
 }

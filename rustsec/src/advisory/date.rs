@@ -75,12 +75,6 @@ impl Into<String> for Date {
     }
 }
 
-impl From<&Date> for chrono::NaiveDate {
-    fn from(d: &Date) -> Self {
-        Self::from_ymd(d.year() as i32, d.month(), d.day())
-    }
-}
-
 macro_rules! check_date_part {
     ($name:expr, $string:expr, $parts:expr, $len:expr, $min:expr, $max:expr) => {
         let part = $parts
