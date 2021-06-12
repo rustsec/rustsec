@@ -227,6 +227,15 @@ mod tests {
     }
 
     #[test]
+    fn increment_prerelease_numeric_multipart() {
+        let input = Version::parse("1.2.3-4.5.6").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.3-4.5.7").unwrap();
+        assert_eq!(expected, incremented);
+    }
+
+    #[test]
     fn increment_prerelease_alphanumeric() {
         let input = Version::parse("1.2.3-alpha1").unwrap();
         let incremented = increment(&input);
@@ -245,6 +254,15 @@ mod tests {
     }
 
     #[test]
+    fn increment_prerelease_textual_multipart() {
+        let input = Version::parse("1.2.3-alpha.1.foo").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.3-alpha.1.fop").unwrap();
+        assert_eq!(expected, incremented);
+    }
+
+    #[test]
     fn increment_prerelease_textual_weird() {
         let input = Version::parse("1.2.3-buzz").unwrap();
         let incremented = increment(&input);
@@ -254,7 +272,7 @@ mod tests {
     }
 
     #[test]
-    fn increment_prerelease_textual_edgecase() {
+    fn increment_prerelease_textual_zzzz() {
         let input = Version::parse("1.2.3-zzzz").unwrap();
         let incremented = increment(&input);
         assert!(incremented > input);
