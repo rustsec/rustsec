@@ -136,12 +136,12 @@ fn unaffected_to_osv_ranges(
 /// E.g. "1.2.3" is transformed to "1.2.4-0".
 fn increment(v: &Version) -> Version {
     let mut v = v.clone();
+    v.build = Default::default(); // Clear any build metadata, it's not used to determine precedence
     if v.pre.is_empty() {
         // Not a pre-release.
         // Increment the last version and add "0" as pre-release specifier.
         // E.g. "1.2.3" is transformed to "1.2.4-0".
         // This seems to be the lowest possible version that's above 1.2.3 according to semver 2.0 spec
-        v.build = Default::default(); // Clear any build metadata, it's not used to determine precedence
         v.patch += 1;
         v.pre = Prerelease::new("0").unwrap();
     } else {
