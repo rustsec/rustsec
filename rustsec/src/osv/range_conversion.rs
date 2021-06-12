@@ -140,42 +140,125 @@ fn increment(v: &Version) -> Version {
         v.pre = Prerelease::new("0").unwrap();
         v
     } else {
+        // It's a pre-release
         let mut parts: Vec<&str> = v.pre.split('.').collect();
         let last = parts.last().unwrap(); // we've already checked that it's a pre-release
         if let Ok(numeric_version) = last.parse::<u64>() {
+            // The last part is all numeric
             let incremented_last = &(numeric_version+1).to_string();
             *parts.last_mut().unwrap() = incremented_last;
             v.pre = Prerelease::new(&parts.join(".")).unwrap();
             v
         } else {
-            // implementing this would really suck,
-            // and create rather unreadable specs too.
-            // Like, 1.0-beta would turn into 1.0-betb, which is weird.
-            // I think I'm just gonna emulate the inclusive range by
-            // adding an affected standalone version...
-            // Oh hell, I might need to increment the lower bound too,
-            // if it originally was exclusive. Buck.
-            // Looks like I'll have to implement it after all. TODO
-            todo!();
+            // The last part is not a number, increment it lexicographically
+            let mut replaced_a_char = false;
+            let mut chars: Vec<char> = last.chars().collect();
+            for c in chars.iter_mut().rev() {
+                if let Some(next_char) = next_valid_char(*c) {
+                    *c = next_char;
+                    replaced_a_char = true;
+                    break;
+                }
+            }
+            // edge case: all chars are at maximum, like 'zzzzzz'
+            if replaced_a_char == false {
+                chars.push(ORDERED_VALID_CHARS[0]);
+            }
+            let incremented_last: String = chars.into_iter().collect();
+            *parts.last_mut().unwrap() = &incremented_last;
+            v.pre = Prerelease::new(&parts.join(".")).unwrap();
+            v
         }
     }
 }
 
+// // Lookup tables were generated using this code:
+// fn main() {
+//     let mut arr = Vec::new();
+//     for c in 'a'..='z' {
+//         arr.push(c);
+//     }
+//     for c in 'A'..='Z' {
+//         arr.push(c);
+//     }
+//     for c in '0'..='9' {
+//         arr.push(c);
+//     }
+//     arr.push('-');
+//     arr.push('_');
+//     arr.sort();
+//     println!("{:?}", arr);
+//     let mut look: Vec<Option<usize>> = vec![None; ('z' as usize)+1];
+//     for (idx, valid_char) in arr.iter().enumerate() {
+//         look[*valid_char as usize] = Some(idx);
+//     }
+//     println!("{:?}", look);
+// }
+
+const ORDERED_VALID_CHARS: [char; 64] = ['-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+const INDEX_FOR_CHAR: [Option<usize>; 123] = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, Some(0), None, None, Some(1), Some(2), Some(3), Some(4), Some(5), Some(6), Some(7), Some(8), Some(9), Some(10), None, None, None, None, None, None, None, Some(11), Some(12), Some(13), Some(14), Some(15), Some(16), Some(17), Some(18), Some(19), Some(20), Some(21), Some(22), Some(23), Some(24), Some(25), Some(26), Some(27), Some(28), Some(29), Some(30), Some(31), Some(32), Some(33), Some(34), Some(35), Some(36), None, None, None, None, Some(37), None, Some(38), Some(39), Some(40), Some(41), Some(42), Some(43), Some(44), Some(45), Some(46), Some(47), Some(48), Some(49), Some(50), Some(51), Some(52), Some(53), Some(54), Some(55), Some(56), Some(57), Some(58), Some(59), Some(60), Some(61), Some(62), Some(63)];
+
+fn next_valid_char(current: char) -> Option<char> {
+    let idx = INDEX_FOR_CHAR.get(current as usize)?.clone()?;
+    ORDERED_VALID_CHARS.get(idx+1).copied()
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::osv::range_conversion::increment;
+    use semver::Version;
+    use super::increment;
 
     #[test]
     fn increment_simple() {
-        let input = semver::Version::parse("1.2.3").unwrap();
-        let expected = semver::Version::parse("1.2.4-0").unwrap();
-        assert_eq!(expected, increment(&input));
+        let input = Version::parse("1.2.3").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.4-0").unwrap();
+        assert_eq!(expected, incremented);
     }
 
     #[test]
     fn increment_prerelease_numeric() {
-        let input = semver::Version::parse("1.2.3-9").unwrap();
-        let expected = semver::Version::parse("1.2.3-10").unwrap();
-        assert_eq!(expected, increment(&input));
+        let input = Version::parse("1.2.3-9").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.3-10").unwrap();
+        assert_eq!(expected, incremented);
+    }
+
+    #[test]
+    fn increment_prerelease_alphanumeric() {
+        let input = Version::parse("1.2.3-alpha1").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.3-alpha2").unwrap();
+        assert_eq!(expected, incremented);
+    }
+
+    #[test]
+    fn increment_prerelease_textual() {
+        let input = Version::parse("1.2.3-alpha").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.3-alphb").unwrap();
+        assert_eq!(expected, incremented);
+    }
+
+    #[test]
+    fn increment_prerelease_textual_weird() {
+        let input = Version::parse("1.2.3-buzz").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.3-bvzz").unwrap();
+        assert_eq!(expected, incremented);
+    }
+
+    #[test]
+    fn increment_prerelease_textual_edgecase() {
+        let input = Version::parse("1.2.3-zzzz").unwrap();
+        let incremented = increment(&input);
+        assert!(incremented > input);
+        let expected = Version::parse("1.2.3-zzzz-").unwrap();
+        assert_eq!(expected, incremented);
     }
 }
