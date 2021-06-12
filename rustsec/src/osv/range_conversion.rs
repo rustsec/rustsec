@@ -143,12 +143,9 @@ fn increment(v: &Version) -> Version {
         // It's a pre-release
         let mut parts: Vec<&str> = v.pre.split('.').collect();
         let last = parts.last().unwrap(); // we've already checked that it's a pre-release
-        if let Ok(numeric_version) = last.parse::<u64>() {
+        let incremented_last: String = if let Ok(numeric_version) = last.parse::<u64>() {
             // The last part is all numeric
-            let incremented_last = &(numeric_version+1).to_string();
-            *parts.last_mut().unwrap() = incremented_last;
-            v.pre = Prerelease::new(&parts.join(".")).unwrap();
-            v
+            (numeric_version+1).to_string()
         } else {
             // The last part is not a number, increment it lexicographically
             let mut replaced_a_char = false;
@@ -164,11 +161,11 @@ fn increment(v: &Version) -> Version {
             if replaced_a_char == false {
                 chars.push(ORDERED_VALID_CHARS[0]);
             }
-            let incremented_last: String = chars.into_iter().collect();
-            *parts.last_mut().unwrap() = &incremented_last;
-            v.pre = Prerelease::new(&parts.join(".")).unwrap();
-            v
-        }
+            chars.into_iter().collect()
+        };
+        *parts.last_mut().unwrap() = &incremented_last;
+        v.pre = Prerelease::new(&parts.join(".")).unwrap();
+        v
     }
 }
 
