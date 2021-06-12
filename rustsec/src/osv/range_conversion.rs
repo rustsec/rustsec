@@ -148,6 +148,14 @@ fn increment(v: &Version) -> Version {
             v.pre = Prerelease::new(&parts.join(".")).unwrap();
             v
         } else {
+            // implementing this would really suck,
+            // and create rather unreadable specs too.
+            // Like, 1.0-beta would turn into 1.0-betb, which is weird.
+            // I think I'm just gonna emulate the inclusive range by
+            // adding an affected standalone version...
+            // Oh hell, I might need to increment the lower bound too,
+            // if it originally was exclusive. Buck.
+            // Looks like I'll have to implement it after all. TODO
             todo!();
         }
     }
