@@ -163,7 +163,8 @@ fn increment(v: &Version) -> Version {
                     break;
                 }
             }
-            // edge case: all chars are at maximum, like 'zzzzzz'
+            // Edge case: all chars are at maximum, like 'zzzzzz'
+            // We need to append the lowest valid character to the string
             if replaced_a_char == false {
                 chars.push(ORDERED_VALID_CHARS[0]);
             }
