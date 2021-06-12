@@ -129,18 +129,27 @@ fn unaffected_to_osv_ranges(unaffected_req: &[VersionReq], patched_req: &[Versio
 /// This is not the intutive "increment": this function returns a pre-release version!
 /// E.g. "1.2.3" is transformed to "1.2.4-0".
 fn increment(v: &Version) -> Version {
+    let mut v = v.clone();
     if v.pre.is_empty() {
         // Not a pre-release.
         // Increment the last version and add "0" as pre-release specifier.
         // E.g. "1.2.3" is transformed to "1.2.4-0".
         // This seems to be the lowest possible version that's above 1.2.3 according to semver 2.0 spec
-        let mut v = v.clone();
         v.build = Default::default(); // Clear any build metadata, it's not used to determine precedence
         v.patch += 1;
         v.pre = Prerelease::new("0").unwrap();
         v
     } else {
-        todo!() //TODO: increment pre-release version
+        let mut parts: Vec<&str> = v.pre.split('.').collect();
+        let last = parts.last().unwrap(); // we've already checked that it's a pre-release
+        if let Ok(numeric_version) = last.parse::<u64>() {
+            let incremented_last = &(numeric_version+1).to_string();
+            *parts.last_mut().unwrap() = incremented_last;
+            v.pre = Prerelease::new(&parts.join(".")).unwrap();
+            v
+        } else {
+            todo!();
+        }
     }
 }
 
@@ -152,6 +161,13 @@ mod tests {
     fn increment_simple() {
         let input = semver::Version::parse("1.2.3").unwrap();
         let expected = semver::Version::parse("1.2.4-0").unwrap();
+        assert_eq!(expected, increment(&input));
+    }
+
+    #[test]
+    fn increment_prerelease_numeric() {
+        let input = semver::Version::parse("1.2.3-9").unwrap();
+        let expected = semver::Version::parse("1.2.3-10").unwrap();
         assert_eq!(expected, increment(&input));
     }
 }
