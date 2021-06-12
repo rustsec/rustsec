@@ -3,3 +3,4 @@
  - [ ] Validate the JSON we export against the schema once that's available
  - [ ] Support even more semver operators in version specification? Current DB is covered but we could also support weird stuff like `~`
  - [ ] CI job to export to OSV continously
+ - [ ] Make OSV export an optional feature
