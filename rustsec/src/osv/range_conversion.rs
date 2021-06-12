@@ -144,7 +144,6 @@ fn increment(v: &Version) -> Version {
         v.build = Default::default(); // Clear any build metadata, it's not used to determine precedence
         v.patch += 1;
         v.pre = Prerelease::new("0").unwrap();
-        v
     } else {
         // It's a pre-release
         let mut parts: Vec<&str> = v.pre.split('.').collect();
@@ -172,8 +171,8 @@ fn increment(v: &Version) -> Version {
         };
         *parts.last_mut().unwrap() = &incremented_last;
         v.pre = Prerelease::new(&parts.join(".")).unwrap();
-        v
     }
+    v
 }
 
 // // Lookup tables were generated using this code:
