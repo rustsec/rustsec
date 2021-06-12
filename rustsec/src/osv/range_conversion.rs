@@ -3,9 +3,9 @@ use std::convert::TryInto;
 use semver::VersionReq;
 use semver::{Prerelease, Version};
 
-use crate::Error;
-use crate::advisory::Versions;
 use crate::advisory::versions::RawVersions;
+use crate::advisory::Versions;
+use crate::Error;
 
 use super::osv_range::OsvRange;
 use super::unaffected_range::{Bound, UnaffectedRange};
@@ -21,14 +21,19 @@ pub fn ranges_for_advisory(versions: &Versions) -> Vec<OsvRange> {
 /// Returns OSV ranges for all affected versions in the given advisory.
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
 /// Errors if the ranges are malformed or range specification syntax is not supported.
-pub(crate) fn ranges_for_unvalidated_advisory(versions: &RawVersions) -> Result<Vec<OsvRange>, Error> {
+pub(crate) fn ranges_for_unvalidated_advisory(
+    versions: &RawVersions,
+) -> Result<Vec<OsvRange>, Error> {
     unaffected_to_osv_ranges(&versions.unaffected, &versions.patched)
 }
 
 /// Converts a list of unaffected ranges to a range of affected OSV ranges.
 /// Since OSV ranges are a negation of the UNaffected ranges that RustSec stores,
 /// the entire list has to be passed at once, both patched and unaffected ranges.
-fn unaffected_to_osv_ranges(unaffected_req: &[VersionReq], patched_req: &[VersionReq]) -> Result<Vec<OsvRange>, Error> {
+fn unaffected_to_osv_ranges(
+    unaffected_req: &[VersionReq],
+    patched_req: &[VersionReq],
+) -> Result<Vec<OsvRange>, Error> {
     // Consolidate ranges for all versions that aren't affected
     let mut unaffected: Vec<UnaffectedRange> = Vec::new();
     for req in unaffected_req {
@@ -52,8 +57,10 @@ fn unaffected_to_osv_ranges(unaffected_req: &[VersionReq], patched_req: &[Versio
     for (idx, a) in unaffected[..unaffected.len() - 1].iter().enumerate() {
         for b in unaffected[idx + 1..].iter() {
             if a.overlaps(b) {
-                fail!(crate::ErrorKind::BadParam,
-                    format!("Overlapping version ranges: {} and {}", a, b));
+                fail!(
+                    crate::ErrorKind::BadParam,
+                    format!("Overlapping version ranges: {} and {}", a, b)
+                );
             }
         }
     }
@@ -72,7 +79,6 @@ fn unaffected_to_osv_ranges(unaffected_req: &[VersionReq], patched_req: &[Versio
             }
         }
     });
-
 
     let mut result = Vec::new();
 
@@ -145,7 +151,7 @@ fn increment(v: &Version) -> Version {
         let last = parts.last().unwrap(); // we've already checked that it's a pre-release
         let incremented_last: String = if let Ok(numeric_version) = last.parse::<u64>() {
             // The last part is all numeric
-            (numeric_version+1).to_string()
+            (numeric_version + 1).to_string()
         } else {
             // The last part is not a number, increment it lexicographically
             let mut replaced_a_char = false;
@@ -192,18 +198,24 @@ fn increment(v: &Version) -> Version {
 //     println!("{:?}", look);
 // }
 
-const ORDERED_VALID_CHARS: [char; 64] = ['-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+const ORDERED_VALID_CHARS: [char; 64] = [
+    '-', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+    'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '_',
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
+    't', 'u', 'v', 'w', 'x', 'y', 'z',
+];
+#[rustfmt::skip] //otherwise it makes this take up 123 lines
 const INDEX_FOR_CHAR: [Option<usize>; 123] = [None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, Some(0), None, None, Some(1), Some(2), Some(3), Some(4), Some(5), Some(6), Some(7), Some(8), Some(9), Some(10), None, None, None, None, None, None, None, Some(11), Some(12), Some(13), Some(14), Some(15), Some(16), Some(17), Some(18), Some(19), Some(20), Some(21), Some(22), Some(23), Some(24), Some(25), Some(26), Some(27), Some(28), Some(29), Some(30), Some(31), Some(32), Some(33), Some(34), Some(35), Some(36), None, None, None, None, Some(37), None, Some(38), Some(39), Some(40), Some(41), Some(42), Some(43), Some(44), Some(45), Some(46), Some(47), Some(48), Some(49), Some(50), Some(51), Some(52), Some(53), Some(54), Some(55), Some(56), Some(57), Some(58), Some(59), Some(60), Some(61), Some(62), Some(63)];
 
 fn next_valid_char(current: char) -> Option<char> {
     let idx = INDEX_FOR_CHAR.get(current as usize)?.clone()?;
-    ORDERED_VALID_CHARS.get(idx+1).copied()
+    ORDERED_VALID_CHARS.get(idx + 1).copied()
 }
 
 #[cfg(test)]
 mod tests {
-    use semver::Version;
     use super::increment;
+    use semver::Version;
 
     #[test]
     fn increment_simple() {

@@ -116,7 +116,10 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
 
     fn try_from(input: &semver::VersionReq) -> Result<Self, Self::Error> {
         if input.comparators.len() > 2 {
-            fail!(BadParam, format!("Too many comparators in version specification: {}", input));
+            fail!(
+                BadParam,
+                format!("Too many comparators in version specification: {}", input)
+            );
         }
         let mut start = Bound::Unbounded;
         let mut end = Bound::Unbounded;
@@ -124,25 +127,37 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
             match comparator.op {
                 Op::Greater => {
                     if start != Bound::Unbounded {
-                        fail!(BadParam, format!("More than one lower bound in the same range: {}", input));
+                        fail!(
+                            BadParam,
+                            format!("More than one lower bound in the same range: {}", input)
+                        );
                     }
                     start = Bound::Exclusive(comp_to_ver(comparator));
                 }
                 Op::GreaterEq => {
                     if start != Bound::Unbounded {
-                        fail!(BadParam, format!("More than one lower bound in the same range: {}", input));
+                        fail!(
+                            BadParam,
+                            format!("More than one lower bound in the same range: {}", input)
+                        );
                     }
                     start = Bound::Inclusive(comp_to_ver(comparator));
                 }
                 Op::Less => {
                     if end != Bound::Unbounded {
-                        fail!(BadParam, format!("More than one upper bound in the same range: {}", input));
+                        fail!(
+                            BadParam,
+                            format!("More than one upper bound in the same range: {}", input)
+                        );
                     }
                     end = Bound::Exclusive(comp_to_ver(comparator));
                 }
                 Op::LessEq => {
                     if end != Bound::Unbounded {
-                        fail!(BadParam, format!("More than one upper bound in the same range: {}", input));
+                        fail!(
+                            BadParam,
+                            format!("More than one upper bound in the same range: {}", input)
+                        );
                     }
                     end = Bound::Inclusive(comp_to_ver(comparator));
                 }
@@ -164,7 +179,11 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                 }
                 _ => {
                     // the struct is non-exhaustive, we have to do this
-                    fail!(BadParam, "Unsupported operator in version specification: '{}'", comparator);
+                    fail!(
+                        BadParam,
+                        "Unsupported operator in version specification: '{}'",
+                        comparator
+                    );
                 }
             }
         }

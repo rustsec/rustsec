@@ -4,7 +4,11 @@ use url::Url;
 
 use super::{ranges_for_advisory, OsvRange};
 
-use crate::{Advisory, advisory::{Affected, Category, Id, Informational, affected::FunctionPath}, repository::git::{GitModificationTimes, GitPath}};
+use crate::{
+    advisory::{affected::FunctionPath, Affected, Category, Id, Informational},
+    repository::git::{GitModificationTimes, GitPath},
+    Advisory,
+};
 
 const ECOSYSTEM: &'static str = "crates.io";
 
@@ -69,7 +73,11 @@ pub struct OsvJsonRange {
 
 impl From<OsvRange> for OsvJsonRange {
     fn from(range: OsvRange) -> Self {
-        OsvJsonRange { kind: "SEMVER", introduced: range.introduced, fixed: range.fixed }
+        OsvJsonRange {
+            kind: "SEMVER",
+            introduced: range.introduced,
+            fixed: range.fixed,
+        }
     }
 }
 
@@ -181,7 +189,7 @@ impl OsvAdvisory {
                 categories: metadata.categories,
                 cvss: metadata.cvss,
                 informational: metadata.informational,
-            }
+            },
         }
     }
 }
@@ -206,8 +214,11 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
 
 /// Like ``ranges_for_advisory``, but also converts from ``OsvRange`` to ``OsvJsonRange``
 /// Assumes that the input has already been validated; panics if passed an invalid advisory.
-fn json_ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvJsonRange>{
-    ranges_for_advisory(versions).into_iter().map(|x| x.into()).collect()
+fn json_ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvJsonRange> {
+    ranges_for_advisory(versions)
+        .into_iter()
+        .map(|x| x.into())
+        .collect()
 }
 
 fn git2_time_to_rfc3339(time: &git2::Time) -> String {
