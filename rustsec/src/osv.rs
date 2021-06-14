@@ -8,10 +8,10 @@
 
 mod osv_advisory;
 mod osv_range;
-mod range_conversion;
+mod ranges_for_advisory;
 mod unaffected_range;
 
 pub use osv_advisory::OsvAdvisory;
 pub use osv_range::OsvRange;
-pub use range_conversion::ranges_for_advisory;
-pub(crate) use range_conversion::ranges_for_unvalidated_advisory;
+pub use ranges_for_advisory::ranges_for_advisory;
+pub(crate) use ranges_for_advisory::ranges_for_unvalidated_advisory;
