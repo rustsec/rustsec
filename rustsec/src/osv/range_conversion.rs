@@ -146,11 +146,13 @@ fn increment(v: &Version) -> Version {
         v.pre = Prerelease::new("0").unwrap();
     } else {
         // It's a pre-release.
-        // Lexicographic sort will be used to compare versions, per component.
-        // So to increment the version we need to append the lowest possible suffix
-        // to the end of the string, which happens to be ".0".
-        // Technically it's possible to get *even lower* versions by appending ".0.0",
-        // but that is exceedingly unlikely to ever be used in practice.
+        // We take advantage of the fact that a version with more pre-release components
+        // has a higher precedence than one with fewer components,
+        // but *only* when all the preceding fields are equal,
+        // as per https://semver.org/#spec-item-11
+        // Therefore appending a new component with the lowest possible value
+        // creates the next version according to semver precedence rules.
+        // This is confirmed by the unit tests below.
         let incremented =  v.pre.to_string() + ".0";
         v.pre = Prerelease::new(&incremented).unwrap();
     }
@@ -178,6 +180,8 @@ mod tests {
         assert!(incremented > input);
         let intuitively_next = Version::parse("1.2.3-10").unwrap();
         assert!(incremented < intuitively_next);
+        let lots_of_zeroes = Version::parse("1.2.3-9.0.0.0").unwrap();
+        assert!(incremented < lots_of_zeroes);
         let expected = Version::parse("1.2.3-9.0").unwrap();
         assert_eq!(expected, incremented);
     }
