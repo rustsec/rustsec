@@ -101,16 +101,14 @@ impl Display for UnaffectedRange {
 }
 
 /// To keep the algorithm simple, we make several assumptions:
-/// 1. There are at most two version boundaries per `VersionReq`.
-///    This means that stuff like `>= 1.0, < 1.5 || >= 2.0, < 2.5`
-///    is not supported. RustSec format uses a list of ranges for that instead.
-/// 2. There is at most one upper and at most one lower bound in each range.
-///    Stuff like `>= 1.0, >= 2.0` is nonsense.
-/// 3. If the requirement is "1.0" or "^1.0" that defines both the lower and upper bound,
+/// 1. There is at most one upper and at most one lower bound in each range.
+///    Stuff like `>= 1.0, >= 2.0` is nonsense and is not supported.
+/// 2. If the requirement is "1.0" or "^1.0" that defines both the lower and upper bound,
 ///    it is the only one in its range.
-/// If any of those assumptions are violated, it return an error.
-/// This is fine for the advisory database as of June 2021,
-/// and supporting even more complex version specification would probably be detrimental.
+/// If any of those assumptions are violated, an error will be returned.
+//
+// This is fine for the advisory database as of June 2021,
+// and supporting even more complex version specification would probably be detrimental.
 impl TryFrom<&semver::VersionReq> for UnaffectedRange {
     type Error = Error;
 
@@ -121,10 +119,17 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                 format!("Too many comparators in version specification: {}", input)
             );
         }
+        // If one of the bounds is not specified, it's unbounded,
+        // e.g. ["> 0.5"] means the lower bound is 0.5 and there is no upper bound
         let mut start = Bound::Unbounded;
         let mut end = Bound::Unbounded;
         for comparator in &input.comparators {
             match comparator.op {
+                // Full list of operators supported by Cargo can be found here:
+                // https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
+                // One of the Cargo developers has confirmed that the list is complete:
+                // https://internals.rust-lang.org/t/changing-cargo-semver-compatibility-for-pre-releases/14820/14
+                // However, `semver` crate recognizes more operators than Cargo supports
                 Op::Greater => {
                     if start != Bound::Unbounded {
                         fail!(
@@ -172,7 +177,7 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                         Version::new(&start_version.major + 1, 0, 0)
                     };
                     // -0 is the lowest possible prerelease.
-                    // If we didn't append it, e.g. ^1.0.0 would match 2.0.0-pre
+                    // If we didn't append it, e.g. ^1.0.0 would match 2.0.0-alpha1
                     end_version.pre = Prerelease::new("0").unwrap();
                     start = Bound::Inclusive(start_version);
                     end = Bound::Exclusive(end_version);
