@@ -145,22 +145,14 @@ fn increment(v: &Version) -> Version {
         v.patch += 1;
         v.pre = Prerelease::new("0").unwrap();
     } else {
-        // It's a pre-release
-        let mut parts: Vec<&str> = v.pre.split('.').collect();
-        let last = parts.last().unwrap(); // we've already checked that it's a pre-release
-        let incremented_last: String = if let Ok(numeric_version) = last.parse::<u64>() {
-            // The last part is all numeric
-            (numeric_version + 1).to_string()
-        } else {
-            // The last part is not a number.
-            // Lexicographic sort will be used to compare versions.
-            // The ordering goes `"alpha1" < "alpha11" < "alpha2"`.
-            // So to increment the version we need to append the lowest possible symbol
-            // to the end of the string, which happens to be "-".
-            last.to_string() + "-"
-        };
-        *parts.last_mut().unwrap() = &incremented_last;
-        v.pre = Prerelease::new(&parts.join(".")).unwrap();
+        // It's a pre-release.
+        // Lexicographic sort will be used to compare versions, per component.
+        // So to increment the version we need to append the lowest possible suffix
+        // to the end of the string, which happens to be ".0".
+        // Technically it's possible to get *even lower* versions by appending ".0.0",
+        // but that is exceedingly unlikely to ever be used in practice.
+        let incremented =  v.pre.to_string() + ".0";
+        v.pre = Prerelease::new(&incremented).unwrap();
     }
     v
 }
@@ -184,7 +176,9 @@ mod tests {
         let input = Version::parse("1.2.3-9").unwrap();
         let incremented = increment(&input);
         assert!(incremented > input);
-        let expected = Version::parse("1.2.3-10").unwrap();
+        let intuitively_next = Version::parse("1.2.3-10").unwrap();
+        assert!(incremented < intuitively_next);
+        let expected = Version::parse("1.2.3-9.0").unwrap();
         assert_eq!(expected, incremented);
     }
 
@@ -193,7 +187,9 @@ mod tests {
         let input = Version::parse("1.2.3-4.5.6").unwrap();
         let incremented = increment(&input);
         assert!(incremented > input);
-        let expected = Version::parse("1.2.3-4.5.7").unwrap();
+        let intuitively_next = Version::parse("1.2.3-4.5.7").unwrap();
+        assert!(incremented < intuitively_next);
+        let expected = Version::parse("1.2.3-4.5.6.0").unwrap();
         assert_eq!(expected, incremented);
     }
 
@@ -204,18 +200,9 @@ mod tests {
         assert!(incremented > input);
         let intuitively_next = Version::parse("1.2.3-alpha2").unwrap();
         assert!(incremented < intuitively_next);
-        let expected = Version::parse("1.2.3-alpha1-").unwrap();
-        assert_eq!(expected, incremented);
-    }
-
-    #[test]
-    fn increment_prerelease_textual() {
-        let input = Version::parse("1.2.3-alpha").unwrap();
-        let incremented = increment(&input);
-        assert!(incremented > input);
-        let intuitively_next = Version::parse("1.2.3-alphb").unwrap();
-        assert!(incremented < intuitively_next);
-        let expected = Version::parse("1.2.3-alpha-").unwrap();
+        let lexicographically_next = Version::parse("1.2.3-alpha1-").unwrap();
+        assert!(incremented < lexicographically_next);
+        let expected = Version::parse("1.2.3-alpha1.0").unwrap();
         assert_eq!(expected, incremented);
     }
 
@@ -224,9 +211,7 @@ mod tests {
         let input = Version::parse("1.2.3-alpha.1.foo").unwrap();
         let incremented = increment(&input);
         assert!(incremented > input);
-        let intuitively_next = Version::parse("1.2.3-alpha.1.fop").unwrap();
-        assert!(incremented < intuitively_next);
-        let expected = Version::parse("1.2.3-alpha.1.foo-").unwrap();
+        let expected = Version::parse("1.2.3-alpha.1.foo.0").unwrap();
         assert_eq!(expected, incremented);
     }
 }
