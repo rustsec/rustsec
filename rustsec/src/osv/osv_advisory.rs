@@ -63,7 +63,7 @@ pub struct OsvAffected {
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvJsonRange {
     // 'type' is a reserved keyword in Rust
-    #[serde(alias = "type")]
+    #[serde(rename = "type")]
     kind: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
     introduced: Option<semver::Version>,
@@ -84,7 +84,7 @@ impl From<OsvRange> for OsvJsonRange {
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvReference {
     // 'type' is a reserved keyword in Rust
-    #[serde(alias = "type")]
+    #[serde(rename = "type")]
     kind: OsvReferenceKind,
     url: Url,
 }
