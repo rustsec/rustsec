@@ -114,22 +114,22 @@
 
       <dt id="patched">Patched</dt>
       <dd>
-        {% if advisory.versions.patched.len() == 0 %}
+        {% if advisory.versions.patched().len() == 0 %}
         no patched versions
         {% else %}
         <ul>
-          {% for patched in advisory.versions.patched %}
+          {% for patched in advisory.versions.patched() %}
           <li><code>{{ patched }}</code></li>
           {% endfor %}
         </ul>
         {% endif %}
       </dd>
 
-      {% if advisory.versions.unaffected.len() > 0 %}
+      {% if advisory.versions.unaffected().len() > 0 %}
       <dt id="unaffected">Unaffected</dt>
       <dd>
         <ul>
-          {% for unaffected in advisory.versions.unaffected %}
+          {% for unaffected in advisory.versions.unaffected() %}
           <li><code>{{ unaffected }}</code></li>
           {% endfor %}
         </ul>
