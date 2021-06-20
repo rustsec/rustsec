@@ -4,19 +4,12 @@
 //! and `unaffected_versions` sections of the `[advisory]`, but can't be
 //! used
 
-use std::convert::TryFrom;
+use std::convert::{TryFrom, TryInto};
 
 use semver::{Version, VersionReq};
 use serde::{Deserialize, Serialize};
 
 use crate::osv;
-
-// Right now ranges are only validated during deserialization;
-// since the fields are public, it's possible to mutate them and
-// set them to invalid ranges, causing a panic down the line.
-// TODO: Ideally this needs an immutable type (i.e. with private fields)
-// so that it would be impossible to construct invalid range requirements at any point,
-// but that would require an API break.
 
 /// The `[versions]` subsection of an advisory: future home to information
 /// about which versions are patched and/or unaffected.
@@ -24,23 +17,38 @@ use crate::osv;
 #[serde(try_from = "RawVersions")]
 pub struct Versions {
     /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
-    pub patched: Vec<VersionReq>,
+    patched: Vec<VersionReq>,
 
     /// Versions which were never affected in the first place
     #[serde(default)]
-    pub unaffected: Vec<VersionReq>,
+    unaffected: Vec<VersionReq>,
 }
 
 impl Versions {
     /// Is the given version of a package vulnerable?
     pub fn is_vulnerable(&self, version: &Version) -> bool {
-        // we .unwrap() here because the version specification has been validated on deserialization
         for range in osv::ranges_for_advisory(self).iter() {
             if range.affects(version) {
                 return true;
             }
         }
         false
+    }
+
+    /// Creates a new `[versions]` entry.
+    /// Checks consistency of the passed version requirements.
+    pub fn new(patched: Vec<VersionReq>, unaffected: Vec<VersionReq>) -> Result<Self, crate::Error> {
+        RawVersions {patched, unaffected}.try_into()
+    }
+
+    /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
+    pub fn patched(&self) -> &[VersionReq] {
+        self.patched.as_slice()
+    }
+
+    /// Versions which were never affected in the first place
+    pub fn unaffected(&self) -> &[VersionReq] {
+        self.unaffected.as_slice()
     }
 }
 
