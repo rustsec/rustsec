@@ -70,9 +70,10 @@ pub struct Metadata {
     #[serde(default)]
     pub references: Vec<Url>,
 
-    /// Has this advisory (i.e. itself, regardless of the crate) been yanked?
+    /// Was this advisory (i.e. itself, regardless of the crate) withdrawn?
+    /// If yes, when?
     ///
     /// This can be used to soft-delete advisories which were filed in error.
     #[serde(default)]
-    pub yanked: bool,
+    pub withdrawn: Option<Date>,
 }
