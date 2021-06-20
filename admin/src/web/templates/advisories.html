@@ -19,10 +19,10 @@
         </time>
 
         {% if advisory.withdrawn() %}
-        <h3><a class="yanked" href="/advisories/{{ advisory.id() }}.html">
+        <h3><a class="withdrawn" href="/advisories/{{ advisory.id() }}.html">
             {{ advisory.id() }}
           </a></h3>
-        (yanked advisory)
+        (withdrawn advisory)
         {% else %}
         <h3>
           <a href="/advisories/{{ advisory.id() }}.html">

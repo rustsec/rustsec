@@ -2,7 +2,7 @@
     <header>
       <h1>
         {% if advisory.withdrawn() %}
-        <span class="yanked">{{ advisory.id() }}</span>
+        <span class="withdrawn">{{ advisory.id() }}</span>
         {% else %}
         {{ advisory.id() }}
         {% endif %}
@@ -12,7 +12,7 @@
 
     {% if advisory.withdrawn() %}
     <hr>
-    <p class="warning">This advisory has been yanked and should be ignored. It is kept only for reference.</p>
+    <p class="warning">This advisory has been withdrawn and should be ignored. It is kept only for reference.</p>
     <hr>
     {% endif %}
 
