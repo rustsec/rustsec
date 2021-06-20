@@ -9,7 +9,7 @@ use std::convert::{TryFrom, TryInto};
 use semver::{Version, VersionReq};
 use serde::{Deserialize, Serialize};
 
-use crate::osv;
+use crate::{osv, Error};
 
 /// The `[versions]` subsection of an advisory: future home to information
 /// about which versions are patched and/or unaffected.
@@ -37,8 +37,12 @@ impl Versions {
 
     /// Creates a new `[versions]` entry.
     /// Checks consistency of the passed version requirements.
-    pub fn new(patched: Vec<VersionReq>, unaffected: Vec<VersionReq>) -> Result<Self, crate::Error> {
-        RawVersions {patched, unaffected}.try_into()
+    pub fn new(patched: Vec<VersionReq>, unaffected: Vec<VersionReq>) -> Result<Self, Error> {
+        RawVersions {
+            patched,
+            unaffected,
+        }
+        .try_into()
     }
 
     /// Versions which are patched and not vulnerable (expressed as semantic version requirements)
@@ -53,7 +57,7 @@ impl Versions {
 }
 
 impl TryFrom<RawVersions> for Versions {
-    type Error = crate::Error;
+    type Error = Error;
 
     fn try_from(raw: RawVersions) -> Result<Self, Self::Error> {
         validate_ranges(&raw)?;

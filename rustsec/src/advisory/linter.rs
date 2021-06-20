@@ -197,7 +197,7 @@ impl Linter {
                                 Some(value) => match value {
                                     toml::Value::Boolean(true) => true,
                                     _ => false,
-                                }
+                                },
                             }
                         };
                         if !yanked_set_to_true {
