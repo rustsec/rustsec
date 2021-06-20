@@ -18,7 +18,7 @@
           {{ advisory.date() | friendly_date }}
         </time>
 
-        {% if advisory.metadata.yanked %}
+        {% if advisory.metadata.withdrawn.is_some() %}
         <h3><a class="yanked" href="/advisories/{{ advisory.id() }}.html">
             {{ advisory.id() }}
           </a></h3>

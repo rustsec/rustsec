@@ -1,7 +1,7 @@
   <article>
     <header>
       <h1>
-        {% if advisory.metadata.yanked %}
+        {% if advisory.metadata.withdrawn.is_some() %}
         <span class="yanked">{{ advisory.id() }}</span>
         {% else %}
         {{ advisory.id() }}
@@ -10,7 +10,7 @@
       <span class="subtitle">{{ rendered_title|safe }}</span>
     </header>
 
-    {% if advisory.metadata.yanked %}
+    {% if advisory.metadata.withdrawn.is_some() %}
     <hr>
     <p class="warning">This advisory has been yanked and should be ignored. It is kept only for reference.</p>
     <hr>
