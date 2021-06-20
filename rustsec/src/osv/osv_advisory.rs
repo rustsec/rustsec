@@ -93,7 +93,7 @@ impl From<Url> for OsvReference {
     fn from(url: Url) -> Self {
         OsvReference {
             kind: guess_url_kind(&url),
-            url: url,
+            url,
         }
     }
 }
