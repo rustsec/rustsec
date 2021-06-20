@@ -62,8 +62,7 @@ struct AdvisoryContentTemplate<'a> {
 pub fn render_advisories(output_folder: PathBuf) {
     let mut advisories: Vec<rustsec::Advisory> = rustsec::Database::fetch()
         .unwrap()
-        .iter()
-        .map(|advisory| advisory.to_owned())
+        .into_iter()
         .collect();
 
     // Render individual advisory pages (/advisories/${id}.html)
