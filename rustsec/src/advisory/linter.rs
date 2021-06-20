@@ -193,11 +193,8 @@ impl Linter {
                     "withdrawn" => {
                         let yanked_set_to_true = {
                             match table.get("yanked") {
-                                None => false,
-                                Some(value) => match value {
-                                    toml::Value::Boolean(true) => true,
-                                    _ => false,
-                                },
+                                Some(toml::Value::Boolean(true)) => true,
+                                _ => false,
                             }
                         };
                         if !yanked_set_to_true {
