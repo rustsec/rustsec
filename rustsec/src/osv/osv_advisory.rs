@@ -175,7 +175,7 @@ impl OsvAdvisory {
             affects: OsvAffected {
                 ranges: json_ranges_for_advisory(&advisory.versions),
             },
-            withdrawn: None, //TODO: actually populate this
+            withdrawn: metadata.withdrawn.map(|d| rustsec_date_to_rfc3339(&d)),
             aliases: metadata.aliases,
             related: metadata.related,
             package: (&metadata.package).into(),
