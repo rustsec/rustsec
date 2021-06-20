@@ -77,7 +77,7 @@ pub(crate) struct RawVersions {
     pub unaffected: Vec<VersionReq>,
 }
 
-fn validate_ranges(versions: &RawVersions) -> Result<(), crate::Error> {
+fn validate_ranges(versions: &RawVersions) -> Result<(), Error> {
     let _ = osv::ranges_for_unvalidated_advisory(versions)?;
     Ok(())
 }
