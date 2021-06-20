@@ -3,6 +3,7 @@
 use std::path::{Path, PathBuf};
 
 use rustsec::{
+    advisory::Informational,
     fs,
     osv::OsvAdvisory,
     repository::git::{GitModificationTimes, GitPath, Repository},
@@ -50,6 +51,15 @@ impl OsvExporter {
                     let advisory_path = advisory_entry?.path();
                     let advisory = Advisory::load_file(&advisory_path)?;
                     let id = advisory.id().clone();
+
+                    if let Some(kind) = &advisory.metadata.informational {
+                        match kind {
+                            Informational::Unmaintained => (),
+                            Informational::Unsound => (),
+                            // If not `Unmaintained` or `Unsound`, don't export it to OSV
+                            _ => continue,
+                        }
+                    }
 
                     // Transform the advisory to OSV format
                     // We've been simply pushing things to the end of the path, so in theory
