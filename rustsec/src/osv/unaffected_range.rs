@@ -34,6 +34,9 @@ impl Bound {
         // so that it could be used on bounds from different ranges.
         let start = self;
         let end = other;
+        // This appears to be a false positive in Clippy:
+        // https://github.com/rust-lang/rust-clippy/issues/7383
+        #[allow(clippy::if_same_then_else)]
         if start == &Bound::Unbounded || end == &Bound::Unbounded {
             true
         } else if start.version().unwrap() < end.version().unwrap() {

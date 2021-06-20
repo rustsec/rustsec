@@ -10,7 +10,7 @@ use crate::{
     Advisory,
 };
 
-const ECOSYSTEM: &'static str = "crates.io";
+const ECOSYSTEM: &str = "crates.io";
 
 /// Security advisory in the format defined by https://github.com/google/osv
 #[derive(Debug, Clone, Serialize)]
