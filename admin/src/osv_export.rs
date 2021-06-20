@@ -54,9 +54,12 @@ impl OsvExporter {
 
                     if let Some(kind) = &advisory.metadata.informational {
                         match kind {
+                            // If not `Unmaintained` or `Unsound` or `Notice`, don't export it to OSV
+                            // to make the output format stable.
+                            // Adding new types should be accompanied by a version bump.
                             Informational::Unmaintained => (),
                             Informational::Unsound => (),
-                            // If not `Unmaintained` or `Unsound`, don't export it to OSV
+                            Informational::Notice => (),
                             _ => continue,
                         }
                     }
