@@ -153,7 +153,7 @@ fn increment(v: &Version) -> Version {
         // Therefore appending a new component with the lowest possible value
         // creates the next version according to semver precedence rules.
         // This is confirmed by the unit tests below.
-        let incremented =  v.pre.to_string() + ".0";
+        let incremented = v.pre.to_string() + ".0";
         v.pre = Prerelease::new(&incremented).unwrap();
     }
     v
