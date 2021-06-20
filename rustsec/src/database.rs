@@ -171,16 +171,19 @@ impl Database {
         self.advisories.iter()
     }
 
-    /// Iterate over all of the advisories in the database.
-    /// The database struct is destroyed and ownership of all the
-    /// advisory objects is transferred to the caller.
-    pub fn into_iter(self) -> std::vec::IntoIter<Advisory> {
-        self.advisories.into_iter()
-    }
-
     /// Get information about the latest commit to the repo
     #[cfg(feature = "git")]
     pub fn latest_commit(&self) -> Option<&git::Commit> {
         self.latest_commit.as_ref()
+    }
+}
+
+impl IntoIterator for Database {
+    type Item = Advisory;
+
+    type IntoIter = std::vec::IntoIter<Advisory>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.advisories.into_iter()
     }
 }
