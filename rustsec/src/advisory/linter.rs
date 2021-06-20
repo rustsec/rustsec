@@ -182,7 +182,7 @@ impl Linter {
                         }
                     }
                     "yanked" => {
-                        if !self.advisory.metadata.withdrawn.is_some() {
+                        if self.advisory.metadata.withdrawn.is_none() {
                             self.errors.push(Error {
                                 kind: ErrorKind::Malformed,
                                 section: Some("metadata"),
