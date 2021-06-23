@@ -1,5 +1,4 @@
  - [x] Implement translation of RustSec `yanked` to OSV `withdrawn`
- - [ ] Revamp timestamping logic for the `modified` field
  - [x] Implement pre-release version increment logic
  - [ ] Validate the JSON we export against the schema once that's available
  - [ ] Support even more semver operators in version specification? Current DB is covered but we could also support weird stuff like `~`
