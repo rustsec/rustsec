@@ -6,7 +6,6 @@
 //! which `semver` crate does not allow doing directly.
 //! See https://github.com/dtolnay/semver/issues/172
 
-
 #[cfg(feature = "osv-I-know-this-is-unstable")]
 mod osv_advisory;
 #[cfg(feature = "osv-I-know-this-is-unstable")]
