@@ -14,6 +14,9 @@ use crate::osv_export::OsvExporter;
 
 #[derive(Command, Debug, Default, Options)]
 pub struct OsvCmd {
+    /// Path to the advisory database
+    #[options(long = "db", help = "filesystem path to the RustSec advisory DB git repo")]
+    repo_path: Option<PathBuf>,
     /// Path to the output directory
     #[options(
         free,
@@ -30,7 +33,8 @@ impl Runnable for OsvCmd {
             _ => Self::print_usage_and_exit(&[]),
         };
 
-        let exporter = OsvExporter::new().unwrap_or_else(|e| {
+        let repo_path: Option<&Path> = self.repo_path.as_ref().map(|p| p.as_path());
+        let exporter = OsvExporter::new(repo_path).unwrap_or_else(|e| {
             status_err!("Failed to fetch the advisory database: {}", e);
             exit(1);
         });
