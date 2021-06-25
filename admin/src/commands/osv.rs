@@ -15,7 +15,10 @@ use crate::osv_export::OsvExporter;
 #[derive(Command, Debug, Default, Options)]
 pub struct OsvCmd {
     /// Path to the output directory
-    #[options(free, help = "filesystem directory where OSV JSON files will be written")]
+    #[options(
+        free,
+        help = "filesystem directory where OSV JSON files will be written"
+    )]
     path: Vec<PathBuf>,
 }
 
@@ -28,9 +31,7 @@ impl Runnable for OsvCmd {
         };
 
         let exporter = OsvExporter::new().unwrap_or_else(|e| {
-            status_err!(                "Failed to fetch the advisory database: {}",
-                e
-            );
+            status_err!("Failed to fetch the advisory database: {}", e);
             exit(1);
         });
         exporter.export_all(out_path).unwrap_or_else(|e| {
