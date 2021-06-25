@@ -36,7 +36,7 @@ impl Runnable for OsvCmd {
             _ => Self::print_usage_and_exit(&[]),
         };
 
-        let repo_path: Option<&Path> = self.repo_path.as_ref().map(|p| p.as_path());
+        let repo_path: Option<&Path> = self.repo_path.as_deref();
         let exporter = OsvExporter::new(repo_path).unwrap_or_else(|e| {
             status_err!("Failed to fetch the advisory database: {}", e);
             exit(1);
