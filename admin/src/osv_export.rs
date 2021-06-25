@@ -26,9 +26,8 @@ pub struct OsvExporter {
 
 impl OsvExporter {
     /// Load the the database at the given path
-    pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
-        let repo_path = repo_path.into();
-        let repository = Repository::open(&repo_path)?;
+    pub fn new() -> Result<Self, Error> {
+        let repository = Repository::fetch_default_repo()?;
         let mod_times = GitModificationTimes::new(&repository)?;
         Ok(Self {
             repository,
