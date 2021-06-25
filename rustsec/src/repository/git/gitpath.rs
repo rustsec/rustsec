@@ -1,3 +1,5 @@
+#![cfg(feature = "osv-I-know-this-is-unstable")]
+
 use std::path::Path;
 
 use crate::{Error, ErrorKind};

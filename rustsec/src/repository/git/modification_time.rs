@@ -1,3 +1,5 @@
+#![cfg(feature = "osv-I-know-this-is-unstable")]
+
 use crate::error::Error;
 use git2::Time;
 use std::{cmp::max, collections::HashMap, path::PathBuf};
