@@ -29,7 +29,7 @@ impl OsvExporter {
     pub fn new(repo_path: Option<&Path>) -> Result<Self, Error> {
         let repository = match repo_path {
             Some(path) => Repository::open(path)?,
-            None => Repository::fetch_default_repo()?
+            None => Repository::fetch_default_repo()?,
         };
         let mod_times = GitModificationTimes::new(&repository)?;
         Ok(Self {
