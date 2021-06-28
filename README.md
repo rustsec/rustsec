@@ -1,4 +1,4 @@
-# RustSec Crates 📦
+# RustSec Crates 🦀🛡️📦
 
 The RustSec Advisory Database is a repository of security advisories filed
 against Rust crates published via [crates.io](https://crates.io).
