@@ -3,12 +3,13 @@
 mod assign_id;
 mod lint;
 mod list_affected_versions;
+mod osv;
 mod version;
 mod web;
 
 use self::{
     assign_id::AssignIdCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
-    version::VersionCmd, web::WebCmd,
+    osv::OsvCmd, version::VersionCmd, web::WebCmd,
 };
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
@@ -36,6 +37,10 @@ pub enum AdminCmd {
     /// The `assign-id` subcommand
     #[options(help = "assigning RUSTSEC ids to new vulnerabilities")]
     AssignId(AssignIdCmd),
+
+    /// The `osv` subcommand
+    #[options(help = "export advisories to OSV format")]
+    Osv(OsvCmd),
 
     /// The `version` subcommand
     #[options(help = "list affected crate versions")]

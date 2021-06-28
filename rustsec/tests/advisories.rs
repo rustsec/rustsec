@@ -96,7 +96,8 @@ fn parse_cvss_vector_string() {
 /// Parsing of patched version reqs
 #[test]
 fn parse_patched_version_reqs() {
-    let req = &load_example_v3_advisory().versions.patched[0];
+    let advisory = load_example_v3_advisory();
+    let req = &advisory.versions.patched()[0];
     assert!(!req.matches(&"1.2.2".parse().unwrap()));
     assert!(req.matches(&"1.2.3".parse().unwrap()));
     assert!(req.matches(&"1.2.4".parse().unwrap()));

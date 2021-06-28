@@ -152,3 +152,13 @@ impl Entries {
         self.advisories.iter()
     }
 }
+
+impl IntoIterator for Entries {
+    type Item = Advisory;
+
+    type IntoIter = std::vec::IntoIter<Advisory>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.advisories.into_iter()
+    }
+}

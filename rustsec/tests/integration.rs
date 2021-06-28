@@ -26,7 +26,7 @@ fn verify_rustsec_2017_0001(db: &Database) {
     assert_eq!(example_advisory.metadata.id, example_advisory_id);
     assert_eq!(example_advisory.metadata.package, example_package);
     assert_eq!(
-        example_advisory.versions.patched[0],
+        example_advisory.versions.patched()[0],
         VersionReq::parse(">= 0.0.14").unwrap()
     );
     assert_eq!(example_advisory.metadata.date.as_str(), "2017-01-26");
@@ -75,7 +75,7 @@ fn verify_cve_2018_1000810(db: &Database) {
     assert_eq!(example_advisory.metadata.id, example_advisory_id);
     assert_eq!(example_advisory.metadata.package, example_package);
     assert_eq!(
-        example_advisory.versions.patched[0],
+        example_advisory.versions.patched()[0],
         VersionReq::parse(">= 1.29.1").unwrap()
     );
     assert_eq!(example_advisory.metadata.date.as_str(), "2018-09-21");

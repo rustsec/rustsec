@@ -17,7 +17,7 @@ use std::{
 /// The `[affected]` subsection of an advisory: additional metadata detailing
 /// the specifics of what is impacted by this advisory (e.g. operating systems,
 /// what functions in the crate)
-#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Affected {
     /// CPU architectures that this vulnerability is specific to
     #[serde(default)]

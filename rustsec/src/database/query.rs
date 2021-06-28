@@ -33,9 +33,10 @@ pub struct Query {
     /// Year associated with the advisory ID
     year: Option<u32>,
 
-    /// Query for yanked advisories (i.e. advisories which were soft-deleted
-    /// from the database, as opposed to yanked crates)
-    yanked: Option<bool>,
+    /// Query for withdrawn advisories
+    /// (i.e. advisories which were soft-deleted from the database,
+    /// as opposed to yanked crates)
+    withdrawn: Option<bool>,
 
     /// Query for informational advisories
     informational: Option<bool>,
@@ -53,12 +54,12 @@ impl Query {
     /// Create a new query which uses the default scope rules for crates:
     ///
     /// - Only `Collection::Crates`
-    /// - Ignore yanked advisories
+    /// - Ignore withdrawn advisories
     /// - Ignore informational advisories
     pub fn crate_scope() -> Self {
         Self::new()
             .collection(Collection::Crates)
-            .yanked(false)
+            .withdrawn(false)
             .informational(false)
     }
 
@@ -113,11 +114,11 @@ impl Query {
         self
     }
 
-    /// Query for yanked advisories.
+    /// Query for withdrawn advisories.
     ///
     /// By default they will be omitted from query results.
-    pub fn yanked(mut self, setting: bool) -> Self {
-        self.yanked = Some(setting);
+    pub fn withdrawn(mut self, setting: bool) -> Self {
+        self.withdrawn = Some(setting);
         self
     }
 
@@ -178,8 +179,8 @@ impl Query {
             }
         }
 
-        if let Some(yanked) = self.yanked {
-            if yanked != advisory.metadata.yanked {
+        if let Some(withdrawn) = self.withdrawn {
+            if withdrawn != advisory.metadata.withdrawn.is_some() {
                 return false;
             }
         }
