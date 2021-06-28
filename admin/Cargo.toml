@@ -13,7 +13,7 @@ edition     = "2018"
 abscissa_core = "0.5"
 crates-index = "0.16"
 gumdrop = "0.7"
-rustsec = { version = "0.24.0-beta.1", path = "../rustsec", features = ["osv-I-know-this-is-unstable"] }
+rustsec = { version = "0.24", path = "../rustsec", features = ["osv-I-know-this-is-unstable"] }
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 termcolor = "1"
