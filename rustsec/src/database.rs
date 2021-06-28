@@ -177,3 +177,13 @@ impl Database {
         self.latest_commit.as_ref()
     }
 }
+
+impl IntoIterator for Database {
+    type Item = Advisory;
+
+    type IntoIter = std::vec::IntoIter<Advisory>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.advisories.into_iter()
+    }
+}

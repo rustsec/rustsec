@@ -186,7 +186,7 @@ impl Presenter {
         );
         self.print_metadata(&vulnerability.advisory, Red);
 
-        if vulnerability.versions.patched.is_empty() {
+        if vulnerability.versions.patched().is_empty() {
             self.print_attr(Red, "Solution:     ", "No safe upgrade is available!");
         } else {
             self.print_attr(
@@ -196,7 +196,7 @@ impl Presenter {
                     "Upgrade to {}",
                     vulnerability
                         .versions
-                        .patched
+                        .patched()
                         .iter()
                         .map(ToString::to_string)
                         .collect::<Vec<_>>()

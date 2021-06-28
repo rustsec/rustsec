@@ -75,6 +75,11 @@ impl Advisory {
     pub fn severity(&self) -> Option<Severity> {
         self.metadata.cvss.as_ref().map(|cvss| cvss.severity())
     }
+
+    /// Whether the advisory has been withdrawn, i.e. soft-deleted
+    pub fn withdrawn(&self) -> bool {
+        self.metadata.withdrawn.is_some()
+    }
 }
 
 impl FromStr for Advisory {

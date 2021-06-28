@@ -2,9 +2,14 @@
 
 mod authentication;
 mod commit;
+mod gitpath;
+mod modification_time;
 mod repository;
 
 pub use self::{authentication::with_authentication, commit::Commit, repository::Repository};
+
+#[cfg(feature = "osv-I-know-this-is-unstable")]
+pub use self::{gitpath::GitPath, modification_time::GitModificationTimes};
 
 /// Location of the RustSec advisory database for crates.io
 pub const DEFAULT_URL: &str = "https://github.com/RustSec/advisory-db.git";
