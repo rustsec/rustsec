@@ -10,7 +10,7 @@ use std::{
 use askama::Template;
 use atom_syndication::{
     CategoryBuilder, ContentBuilder, Entry, EntryBuilder, FeedBuilder, FixedDateTime, LinkBuilder,
-    PersonBuilder,
+    PersonBuilder, Text,
 };
 use chrono::{Date, Duration, NaiveDate, Utc};
 use comrak::{markdown_to_html, ComrakOptions};
@@ -219,7 +219,7 @@ fn title_type(advisory: &rustsec::Advisory) -> String {
 /// Renders an Atom feed of advisories
 fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
     let mut entries: Vec<Entry> = vec![];
-    let author = PersonBuilder::default().name("RustSec").build().unwrap();
+    let author = PersonBuilder::default().name("RustSec").build();
 
     // Used as latest update to feed
     let latest_advisory_date =
@@ -236,16 +236,14 @@ fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
             .mime_type(Some("text/html".to_owned()))
             .title(escaped_title_type.clone())
             .href(url.clone())
-            .build()
-            .unwrap();
+            .build();
 
         let mut categories = vec![];
         for category in &advisory.metadata.categories {
             categories.push(
                 CategoryBuilder::default()
                     .term(category.to_string())
-                    .build()
-                    .unwrap(),
+                    .build(),
             );
         }
 
@@ -260,22 +258,24 @@ fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
         let html = escape_str_attribute(&advisory_tmpl.render().unwrap()).into_owned();
         let content = ContentBuilder::default()
             .content_type(Some("html".to_owned()))
+            .lang("en".to_owned())
             .value(Some(html))
-            .build()
-            .unwrap();
+            .build();
+
+        let mut summary = Text::plain(escaped_title);
+        summary.lang = Some("en".to_owned());
 
         let item = EntryBuilder::default()
             .id(url)
             .title(escaped_title_type)
-            .summary(Some(escaped_title))
+            .summary(Some(summary))
             .links(vec![link])
             .categories(categories)
             .published(Some(FixedDateTime::from_str(&date_time).unwrap()))
             // required but we don't have precise data here
             .updated(FixedDateTime::from_str(&date_time).unwrap())
             .content(Some(content))
-            .build()
-            .unwrap();
+            .build();
         entries.push(item);
     }
 
@@ -284,28 +284,26 @@ fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
         .href("https://rustsec.org/")
         .rel("alternate")
         .mime_type(Some("text/html".to_owned()))
-        .build()
-        .unwrap();
+        .build();
     let self_link = LinkBuilder::default()
         .href(self_url)
         .rel("self")
         .mime_type(Some("application/atom+xml".to_owned()))
-        .build()
-        .unwrap();
+        .build();
+
+    let mut subtitle = Text::plain("Security advisories filed against Rust crates".to_owned());
+    subtitle.lang = Some("en".to_owned());
 
     let feed = FeedBuilder::default()
         .id(self_url)
         .title("RustSec Advisories")
-        .subtitle(Some(
-            "Security advisories filed against Rust crates".to_owned(),
-        ))
+        .subtitle(Some(subtitle))
         .links(vec![self_link, alternate_link])
         .icon("https://rustsec.org/favicon.ico".to_owned())
         .entries(entries)
         .updated(FixedDateTime::from_str(&latest_advisory_date).unwrap())
         .authors(vec![author])
-        .build()
-        .unwrap();
+        .build();
 
     let file = File::create(&output_path).unwrap();
     feed.write_to(file).unwrap();
