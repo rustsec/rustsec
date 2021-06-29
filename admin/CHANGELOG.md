@@ -1,3 +1,10 @@
+## 0.5.0 (2021-06-28)
+- OSV export ([#366])
+- Bump `rustsec` to v0.24.0 ([#388])
+
+[#366]: https://github.com/RustSec/rustsec/pull/366
+[#388]: https://github.com/RustSec/rustsec/pull/388
+
 ## 0.4.3 (2021-05-22)
 - Use crates index instead of crates.io api ([#372])
 
