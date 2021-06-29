@@ -24,7 +24,7 @@ chrono = { version = "0.4", optional = true }
 platforms = { version = "1", features = ["serde"], path = "../platforms" }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
-smol_str = "=0.1.17" # Pinned to avoid MSRV breakages
+smol_str = "=0.1.18" # Pinned to avoid MSRV breakages
 thiserror = "1"
 toml = "0.5"
 url = { version = "2", features = ["serde"] }
