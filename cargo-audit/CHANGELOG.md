@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.15.0 (2021-07-01)
+### Added
+- New exit status (2) for Cargo.lock parsing errors ([#368])
+
+### Changed
+- Bump `rustsec` crate dependency to v0.24 ([#388])
+
+[#368]: https://github.com/RustSec/cargo-audit/pull/368
+[#388]: https://github.com/RustSec/cargo-audit/pull/388
+
 ## 0.14.1 (2021-04-29)
 ### Added
 - Generate release builds with github actions ([#337])
