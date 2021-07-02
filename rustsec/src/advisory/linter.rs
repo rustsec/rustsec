@@ -110,16 +110,21 @@ impl Linter {
                                 message: Some("unknown advisory ID type"),
                             });
                         } else if let Some(y1) = self.advisory.metadata.id.year() {
-                            if let Some(y2) = year {
-                                if y1 != y2 {
-                                    self.errors.push(Error {
-                                        kind: ErrorKind::value("id", value.to_string()),
-                                        section: Some("advisory"),
-                                        message: Some("year in advisory ID does not match date"),
-                                    });
+                            // Exclude CVE IDs, since the year from CVE ID may not match the report date
+                            if !self.advisory.metadata.id.is_cve() {
+                                if let Some(y2) = year {
+                                    if y1 != y2 {
+                                        self.errors.push(Error {
+                                            kind: ErrorKind::value("id", value.to_string()),
+                                            section: Some("advisory"),
+                                            message: Some(
+                                                "year in advisory ID does not match date",
+                                            ),
+                                        });
+                                    }
+                                } else {
+                                    year = Some(y1);
                                 }
-                            } else {
-                                year = Some(y1);
                             }
                         }
                     }
