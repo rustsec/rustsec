@@ -1744,7 +1744,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec-admin"
-version = "0.5.0"
+version = "0.5.1"
 dependencies = [
  "abscissa_core",
  "askama",
