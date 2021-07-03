@@ -1,3 +1,8 @@
+## 0.5.1 (2021-07-03)
+- Bump `rustsec` to v0.24.1 ([#394])
+
+[#394]: https://github.com/RustSec/rustsec/pull/394
+
 ## 0.5.0 (2021-06-28)
 - OSV export ([#366])
 - Bump `rustsec` to v0.24.0 ([#388])
