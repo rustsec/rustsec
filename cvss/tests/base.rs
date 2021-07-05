@@ -208,3 +208,21 @@ fn cve_2012_5376() {
     assert_eq!(&base.to_string(), cvss_for_cve_2012_5376);
     assert_eq!(base.score().value(), 9.6);
 }
+
+/// No impact scope changed
+#[test]
+fn no_impact_scope_changed() {
+    let cvss_for_no_impact_scope_changed = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:N/I:N/A:N";
+    let base = cvss::v3::Base::from_str(cvss_for_no_impact_scope_changed).unwrap();
+    assert_eq!(&base.to_string(), cvss_for_no_impact_scope_changed);
+    assert_eq!(base.score().value(), 0.0);
+}
+
+/// No impact scope unchanged
+#[test]
+fn no_impact_scope_unchanged() {
+    let cvss_for_no_impact_scope_changed = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N";
+    let base = cvss::v3::Base::from_str(cvss_for_no_impact_scope_changed).unwrap();
+    assert_eq!(&base.to_string(), cvss_for_no_impact_scope_changed);
+    assert_eq!(base.score().value(), 0.0);
+}
