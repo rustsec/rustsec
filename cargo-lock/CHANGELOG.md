@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 7.0.0 (2021-05-27)
+## 7.0.1 (2021-07-05)
+### Changed
+- Bump `petgraph` dependency from 0.5.1 to 0.6.0 ([#396])
+
+[#396]: https://github.com/RustSec/rustsec/pull/396
+
+## 7.0.0 (2021-05-27) [YANKED]
 ### Added
 - Support for V3 lockfile format ([#363])
 
