@@ -212,6 +212,7 @@ fn cve_2012_5376() {
 /// No impact scope changed
 #[test]
 fn no_impact_scope_changed() {
+    // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:N/I:N/A:N => 0.0
     let cvss_for_no_impact_scope_changed = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:N/I:N/A:N";
     let base = cvss::v3::Base::from_str(cvss_for_no_impact_scope_changed).unwrap();
     assert_eq!(&base.to_string(), cvss_for_no_impact_scope_changed);
@@ -221,8 +222,27 @@ fn no_impact_scope_changed() {
 /// No impact scope unchanged
 #[test]
 fn no_impact_scope_unchanged() {
-    let cvss_for_no_impact_scope_changed = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N";
+    // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N => 0.0
+    let cvss_for_no_impact_scope_unchanged = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N";
     let base = cvss::v3::Base::from_str(cvss_for_no_impact_scope_unchanged).unwrap();
     assert_eq!(&base.to_string(), cvss_for_no_impact_scope_unchanged);
     assert_eq!(base.score().value(), 0.0);
+}
+
+#[test]
+fn low_scope_unchanged() {
+    // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:P/AC:H/PR:H/UI:R/S:U/C:N/I:N/A:L => 1.6
+    let cvss_for_low_scope_unchanged = "CVSS:3.1/AV:P/AC:H/PR:H/UI:R/S:U/C:N/I:N/A:L";
+    let base = cvss::v3::Base::from_str(cvss_for_low_scope_unchanged).unwrap();
+    assert_eq!(&base.to_string(), cvss_for_low_scope_unchanged);
+    assert_eq!(base.score().value(), 1.6);
+}
+
+#[test]
+fn low_scope_changed() {
+    // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:P/AC:H/PR:H/UI:R/S:C/C:N/I:N/A:L => 1.8
+    let cvss_for_low_scope_changed = "CVSS:3.1/AV:P/AC:H/PR:H/UI:R/S:C/C:N/I:N/A:L";
+    let base = cvss::v3::Base::from_str(cvss_for_low_scope_changed).unwrap();
+    assert_eq!(&base.to_string(), cvss_for_low_scope_changed);
+    assert_eq!(base.score().value(), 1.8);
 }
