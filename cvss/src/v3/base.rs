@@ -99,10 +99,10 @@ impl Base {
         let iss_scoped = if !self.is_scope_changed() {
             6.42 * iss
         } else {
-            (7.52 * (iss - 0.029).abs()) - (3.25 * (iss - 0.02).abs().powf(15.0))
+            (7.52 * (iss - 0.029)) - (3.25 * (iss - 0.02).powf(15.0))
         };
 
-        let score = if iss_scoped < 0.0 {
+        let score = if iss_scoped <= 0.0 {
             0.0
         } else if !self.is_scope_changed() {
             (iss_scoped + exploitability).min(10.0)
