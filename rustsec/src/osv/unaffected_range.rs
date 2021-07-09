@@ -103,15 +103,12 @@ impl Display for UnaffectedRange {
     }
 }
 
-/// To keep the algorithm simple, we make several assumptions:
+/// To keep the algorithm simple, we impose several constraints:
 /// 1. There is at most one upper and at most one lower bound in each range.
 ///    Stuff like `>= 1.0, >= 2.0` is nonsense and is not supported.
 /// 2. If the requirement is "1.0" or "^1.0" that defines both the lower and upper bound,
 ///    it is the only one in its range.
-/// If any of those assumptions are violated, an error will be returned.
-//
-// This is fine for the advisory database as of June 2021,
-// and supporting even more complex version specification would probably be detrimental.
+/// If any of those constraints are unmet, an error will be returned.
 impl TryFrom<&semver::VersionReq> for UnaffectedRange {
     type Error = Error;
 
@@ -169,18 +166,54 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                     }
                     end = Bound::Inclusive(comp_to_ver(comparator));
                 }
+                Op::Exact => {
+                    if input.comparators.len() != 1 {
+                        fail!(BadParam, "Selectors that define an exact version (e.g. '=1.0') must be alone in their range");
+                    }
+                    start = Bound::Inclusive(comp_to_ver(comparator));
+                    end = Bound::Inclusive(comp_to_ver(comparator));
+                }
                 Op::Caret => {
                     if input.comparators.len() != 1 {
                         fail!(BadParam, "Selectors that define both the upper and lower bound (e.g. '^1.0') must be alone in their range");
                     }
                     let start_version = comp_to_ver(comparator);
                     let mut end_version = if start_version.major == 0 {
-                        Version::new(0, start_version.minor + 1, 0)
+                        match (comparator.minor, comparator.patch) {
+                            // ^0.0.x
+                            (Some(0), Some(patch)) => Version::new(0, 0, patch + 1),
+                            // ^0.x and ^0.x.x
+                            (Some(minor), _) => Version::new(0, minor + 1, 0),
+                            // ^0
+                            (None, None) => Version::new(1, 0, 0),
+                            (None, Some(_)) => unreachable!(
+                                "Comparator specifies patch version but not minor version"
+                            ),
+                        }
                     } else {
                         Version::new(&start_version.major + 1, 0, 0)
                     };
                     // -0 is the lowest possible prerelease.
                     // If we didn't append it, e.g. ^1.0.0 would match 2.0.0-alpha1
+                    end_version.pre = Prerelease::new("0").unwrap();
+                    start = Bound::Inclusive(start_version);
+                    end = Bound::Exclusive(end_version);
+                }
+                Op::Tilde => {
+                    if input.comparators.len() != 1 {
+                        fail!(BadParam, "Selectors that define both the upper and lower bound (e.g. '~1.0') must be alone in their range");
+                    }
+                    let start_version = comp_to_ver(comparator);
+                    let major = comparator.major;
+                    let mut end_version = match (comparator.minor, comparator.patch) {
+                        (None, None) => Version::new(major + 1, 0, 0),
+                        (Some(minor), _) => Version::new(major, minor + 1, 0),
+                        (None, Some(_)) => {
+                            unreachable!("Comparator specifies patch version but not minor version")
+                        }
+                    };
+                    // -0 is the lowest possible prerelease.
+                    // If we didn't append it, e.g. ~1.2 would match 1.3.0-alpha1
                     end_version.pre = Prerelease::new("0").unwrap();
                     start = Bound::Inclusive(start_version);
                     end = Bound::Exclusive(end_version);
@@ -213,6 +246,10 @@ fn comp_to_ver(c: &Comparator) -> Version {
 
 #[cfg(test)]
 mod tests {
+    use std::convert::TryInto;
+
+    use semver::VersionReq;
+
     use super::*;
 
     #[test]
@@ -283,5 +320,147 @@ mod tests {
         };
         assert!(range1.overlaps(&range2));
         assert!(range2.overlaps(&range1));
+    }
+
+    #[test]
+    fn exact_requirement_10() {
+        let input = VersionReq::parse("=1.0").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+            end: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    // Test data for caret requirements is taken from the Cargo spec
+    // https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#caret-requirements
+    // but adjusted to correctly handle pre-releases under semver precedence rules:
+    // https://semver.org/#spec-item-11
+
+    #[test]
+    fn caret_requirement_123() {
+        let input = VersionReq::parse("^1.2.3").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.3").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_12() {
+        let input = VersionReq::parse("^1.2").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_1() {
+        let input = VersionReq::parse("^1").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_023() {
+        let input = VersionReq::parse("^0.2.3").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("0.2.3").unwrap()),
+            end: Bound::Exclusive(Version::parse("0.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_02() {
+        let input = VersionReq::parse("^0.2").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("0.2.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("0.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_003() {
+        let input = VersionReq::parse("^0.0.3").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("0.0.3").unwrap()),
+            end: Bound::Exclusive(Version::parse("0.0.4-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_00() {
+        let input = VersionReq::parse("^0.0").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("0.0.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("0.1.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_0() {
+        let input = VersionReq::parse("^0").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("0.0.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("1.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    // Test data for tilde requirements is taken from the Cargo spec
+    // https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#tilde-requirements
+    // but adjusted to correctly handle pre-releases under semver precedence rules:
+    // https://semver.org/#spec-item-11
+
+    #[test]
+    fn tilde_requirement_123() {
+        let input = VersionReq::parse("~1.2.3").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.3").unwrap()),
+            end: Bound::Exclusive(Version::parse("1.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn tilde_requirement_12() {
+        let input = VersionReq::parse("~1.2").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("1.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn tilde_requirement_1() {
+        let input = VersionReq::parse("~1").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
     }
 }
