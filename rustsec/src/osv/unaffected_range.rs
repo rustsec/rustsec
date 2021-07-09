@@ -200,6 +200,23 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                     start = Bound::Inclusive(start_version);
                     end = Bound::Exclusive(end_version);
                 }
+                Op::Tilde => {
+                    if input.comparators.len() != 1 {
+                        fail!(BadParam, "Selectors that define both the upper and lower bound (e.g. '~1.0') must be alone in their range");
+                    }
+                    let start_version = comp_to_ver(comparator);
+                    let major = comparator.major;
+                    let mut end_version = match (comparator.minor, comparator.patch) {
+                        (None, None) => Version::new(major + 1, 0, 0),
+                        (Some(minor), _) => Version::new(major, minor + 1, 0),
+                        (None, Some(_)) => unreachable!(),
+                    };
+                    // -0 is the lowest possible prerelease.
+                    // If we didn't append it, e.g. ~1.2 would match 1.3.0-alpha1
+                    end_version.pre = Prerelease::new("0").unwrap();
+                    start = Bound::Inclusive(start_version);
+                    end = Bound::Exclusive(end_version);
+                }
                 _ => {
                     // the struct is non-exhaustive, we have to do this
                     fail!(
@@ -315,10 +332,10 @@ mod tests {
         assert_eq!(expected, result);
     }
 
-    /// Test data for caret requirements is taken from the Cargo spec
-    /// https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#caret-requirements
-    /// but adjusted to correctly handle pre-releases under semver precedence rules:
-    /// https://semver.org/#spec-item-11
+    // Test data for caret requirements is taken from the Cargo spec
+    // https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#caret-requirements
+    // but adjusted to correctly handle pre-releases under semver precedence rules:
+    // https://semver.org/#spec-item-11
 
     #[test]
     fn caret_requirement_123() {
@@ -403,6 +420,44 @@ mod tests {
         let expected = UnaffectedRange {
             start: Bound::Inclusive(Version::parse("0.0.0").unwrap()),
             end: Bound::Exclusive(Version::parse("1.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    // Test data for tilde requirements is taken from the Cargo spec
+    // https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#tilde-requirements
+    // but adjusted to correctly handle pre-releases under semver precedence rules:
+    // https://semver.org/#spec-item-11
+
+    #[test]
+    fn tilde_requirement_123() {
+        let input = VersionReq::parse("~1.2.3").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.3").unwrap()),
+            end: Bound::Exclusive(Version::parse("1.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn tilde_requirement_12() {
+        let input = VersionReq::parse("~1.2").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("1.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn tilde_requirement_1() {
+        let input = VersionReq::parse("~1").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
         };
         let result: UnaffectedRange = (&input).try_into().unwrap();
         assert_eq!(expected, result);
