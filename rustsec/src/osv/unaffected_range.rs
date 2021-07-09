@@ -208,7 +208,9 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                     let mut end_version = match (comparator.minor, comparator.patch) {
                         (None, None) => Version::new(major + 1, 0, 0),
                         (Some(minor), _) => Version::new(major, minor + 1, 0),
-                        (None, Some(_)) => unreachable!(),
+                        (None, Some(_)) => {
+                            unreachable!("Comparator specifies patch version but not minor version")
+                        }
                     };
                     // -0 is the lowest possible prerelease.
                     // If we didn't append it, e.g. ~1.2 would match 1.3.0-alpha1
