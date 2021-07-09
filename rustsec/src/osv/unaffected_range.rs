@@ -166,6 +166,14 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                     }
                     end = Bound::Inclusive(comp_to_ver(comparator));
                 }
+                Op::Exact => {
+                    if input.comparators.len() != 1 {
+                        fail!(BadParam, "Selectors that define an exact version (e.g. '=1.0') must be alone in their range");
+                    }
+                    start = Bound::Inclusive(comp_to_ver(comparator));
+                    end = Bound::Inclusive(comp_to_ver(comparator));
+
+                }
                 Op::Caret => {
                     if input.comparators.len() != 1 {
                         fail!(BadParam, "Selectors that define both the upper and lower bound (e.g. '^1.0') must be alone in their range");
@@ -296,7 +304,18 @@ mod tests {
         assert!(range2.overlaps(&range1));
     }
 
-    /// Test data for caret and tilde requirements is taken from the Cargo spec
+    #[test]
+    fn exact_requirement_10() {
+        let input = VersionReq::parse("=1.0").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+            end: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    /// Test data for caret requirements is taken from the Cargo spec
     /// https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#caret-requirements
     /// but adjusted to correctly handle pre-releases under semver precedence rules:
     /// https://semver.org/#spec-item-11
