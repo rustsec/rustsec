@@ -172,7 +172,6 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                     }
                     start = Bound::Inclusive(comp_to_ver(comparator));
                     end = Bound::Inclusive(comp_to_ver(comparator));
-
                 }
                 Op::Caret => {
                     if input.comparators.len() != 1 {
