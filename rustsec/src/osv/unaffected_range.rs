@@ -210,6 +210,10 @@ fn comp_to_ver(c: &Comparator) -> Version {
 
 #[cfg(test)]
 mod tests {
+    use std::convert::TryInto;
+
+    use semver::VersionReq;
+
     use super::*;
 
     #[test]
@@ -280,5 +284,65 @@ mod tests {
         };
         assert!(range1.overlaps(&range2));
         assert!(range2.overlaps(&range1));
+    }
+
+    /// Test data for caret and tilde requirements is taken from the Cargo spec
+    /// https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#caret-requirements
+    /// but adjusted to correctly handle pre-releases under semver precedence rules:
+    /// https://semver.org/#spec-item-11
+
+    #[test]
+    fn caret_requirement_123() {
+        let input = VersionReq::parse("^1.2.3").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.3").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_12() {
+        let input = VersionReq::parse("^1.2").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.2.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_1() {
+        let input = VersionReq::parse("^1").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("1.0.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("2.0.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_023() {
+        let input = VersionReq::parse("^0.2.3").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("0.2.3").unwrap()),
+            end: Bound::Exclusive(Version::parse("0.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn caret_requirement_02() {
+        let input = VersionReq::parse("^0.2").unwrap();
+        let expected = UnaffectedRange {
+            start: Bound::Inclusive(Version::parse("0.2.0").unwrap()),
+            end: Bound::Exclusive(Version::parse("0.3.0-0").unwrap()),
+        };
+        let result: UnaffectedRange = (&input).try_into().unwrap();
+        assert_eq!(expected, result);
     }
 }
