@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.24.2 (2021-07-20)
+### Changed
+- Support `~` and `=` operators in version specification ([#402])
+- Bump `crates-index` from 0.16.7 to 0.17.0 ([#403])
+
+[#402]: https://github.com/RustSec/rustsec-crate/pull/402
+[#403]: https://github.com/RustSec/rustsec-crate/pull/403
+
 ## 0.24.1 (2021-07-02)
 ### Changed
 - Do not lint year in CVE IDs ([#393])
