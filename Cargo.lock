@@ -306,7 +306,7 @@ version = "7.0.1"
 dependencies = [
  "gumdrop 0.8.0",
  "petgraph",
- "semver 1.0.3",
+ "semver 1.0.4",
  "serde",
  "toml",
  "url",
@@ -440,7 +440,7 @@ dependencies = [
  "hex",
  "home",
  "memchr",
- "semver 1.0.3",
+ "semver 1.0.4",
  "serde",
  "serde_derive",
  "serde_json",
@@ -1781,7 +1781,7 @@ dependencies = [
  "humantime-serde",
  "once_cell",
  "platforms",
- "semver 1.0.3",
+ "semver 1.0.4",
  "serde",
  "smol_str",
  "tempfile",
@@ -1902,9 +1902,9 @@ dependencies = [
 
 [[package]]
 name = "semver"
-version = "1.0.3"
+version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f3aac57ee7f3272d8395c6e4f502f434f0e289fcd62876f70daa008c20dcabe"
+checksum = "568a8e6258aa33c13358f81fd834adb854c6f7c9468520910a9b1e8fac068012"
 dependencies = [
  "serde",
 ]
