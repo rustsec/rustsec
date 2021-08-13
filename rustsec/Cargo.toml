@@ -25,7 +25,7 @@ platforms = { version = "1", features = ["serde"], path = "../platforms" }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
 smol_str = "=0.1.17" # Pinned to avoid MSRV breakages
-thiserror = "1"
+thiserror = "=1.0.25" # Pinned to avoid MSRV breakages
 toml = "0.5"
 url = { version = "2", features = ["serde"] }
 
