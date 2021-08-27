@@ -205,7 +205,8 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     }
 }
 
-/// Assumes that the input has already been validated; panics if passed an invalid advisory.
+/// Generates the timeline of the bug being introduced and fixed for the 
+/// [`affected[].ranges[].events`](https://github.com/ossf/osv-schema/blob/main/schema.md#affectedrangesevents-fields) field.
 fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
     let ranges = ranges_for_advisory(versions);
     assert!(!ranges.is_empty()); // zero ranges means nothing is affected, so why even have an advisory?
@@ -219,7 +220,7 @@ fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
         }
         match range.fixed {
             Some(ver) => timeline.push(OsvTimelineEvent::Fixed(ver)),
-            None => (), // "everything past this point is affected" is implicit in OSV
+            None => (), // "everything after 'introduced' is affected" is implicit in OSV
         }
     }
     OsvJsonRange {
