@@ -205,7 +205,7 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     }
 }
 
-/// Generates the timeline of the bug being introduced and fixed for the 
+/// Generates the timeline of the bug being introduced and fixed for the
 /// [`affected[].ranges[].events`](https://github.com/ossf/osv-schema/blob/main/schema.md#affectedrangesevents-fields) field.
 fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
     let ranges = ranges_for_advisory(versions);
