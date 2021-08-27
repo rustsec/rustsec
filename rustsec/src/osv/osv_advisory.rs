@@ -22,13 +22,10 @@ pub struct OsvAdvisory {
     withdrawn: Option<String>, // maybe add an rfc3339 newtype?
     aliases: Vec<Id>,
     related: Vec<Id>,
-    package: OsvPackage,
     summary: String,
     details: String,
-    affects: OsvAffected,
+    affected: Vec<OsvAffected>,
     references: Vec<OsvReference>,
-    ecosystem_specific: OsvEcosystemSpecific,
-    database_specific: OsvDatabaseSpecific,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -53,9 +50,11 @@ impl From<&cargo_lock::Name> for OsvPackage {
 
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvAffected {
-    // Other fields are specified, but we never use them.
-    // Ranges alone are sufficient.
+    package: OsvPackage,
+    ecosystem_specific: OsvEcosystemSpecific,
+    database_specific: OsvDatabaseSpecific,
     ranges: Vec<OsvJsonRange>,
+    // 'versions' field is not needed because we use semver ranges
 }
 
 /// Same as `OsvRange`, but also has `type` field specified
@@ -172,24 +171,24 @@ impl OsvAdvisory {
             id: metadata.id,
             modified: git2_time_to_rfc3339(mod_times.for_path(path)),
             published: rustsec_date_to_rfc3339(&metadata.date),
-            affects: OsvAffected {
+            affected: vec![OsvAffected {
+                package: (&metadata.package).into(),
                 ranges: json_ranges_for_advisory(&advisory.versions),
-            },
+                ecosystem_specific: OsvEcosystemSpecific {
+                    affects: advisory.affected.unwrap_or_default().into(),
+                },
+                database_specific: OsvDatabaseSpecific {
+                    categories: metadata.categories,
+                    cvss: metadata.cvss,
+                    informational: metadata.informational,
+                },
+            }],
             withdrawn: metadata.withdrawn.map(|d| rustsec_date_to_rfc3339(&d)),
             aliases: metadata.aliases,
             related: metadata.related,
-            package: (&metadata.package).into(),
             summary: metadata.title,
             details: metadata.description,
             references: osv_references(reference_urls),
-            ecosystem_specific: OsvEcosystemSpecific {
-                affects: advisory.affected.unwrap_or_default().into(),
-            },
-            database_specific: OsvDatabaseSpecific {
-                categories: metadata.categories,
-                cvss: metadata.cvss,
-                informational: metadata.informational,
-            },
         }
     }
 }
