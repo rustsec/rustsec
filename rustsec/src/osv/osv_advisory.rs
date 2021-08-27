@@ -218,6 +218,7 @@ fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
                 semver::Version::parse("0.0.0-0").unwrap(),
             )),
         }
+        #[allow(clippy::single_match)]
         match range.fixed {
             Some(ver) => timeline.push(OsvTimelineEvent::Fixed(ver)),
             None => (), // "everything after 'introduced' is affected" is implicit in OSV
