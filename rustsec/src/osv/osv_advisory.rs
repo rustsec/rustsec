@@ -2,7 +2,7 @@ use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
 use serde::Serialize;
 use url::Url;
 
-use super::{ranges_for_advisory, OsvRange};
+use super::ranges_for_advisory;
 
 use crate::{
     advisory::{affected::FunctionPath, Affected, Category, Id, Informational},
@@ -57,27 +57,21 @@ pub struct OsvAffected {
     // 'versions' field is not needed because we use semver ranges
 }
 
-/// Same as `OsvRange`, but also has `type` field specified
-/// which is required in the OSV JSON representation.
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvJsonRange {
     // 'type' is a reserved keyword in Rust
     #[serde(rename = "type")]
     kind: &'static str,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    introduced: Option<semver::Version>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    fixed: Option<semver::Version>,
+    events: Vec<OsvTimelineEvent>,
+    // 'repo' field is not used because we don't track or export git commit data
 }
 
-impl From<OsvRange> for OsvJsonRange {
-    fn from(range: OsvRange) -> Self {
-        OsvJsonRange {
-            kind: "SEMVER",
-            introduced: range.introduced,
-            fixed: range.fixed,
-        }
-    }
+#[derive(Debug, Clone, Serialize)]
+pub enum OsvTimelineEvent {
+    #[serde(rename = "introduced")]
+    Introduced(semver::Version),
+    #[serde(rename = "fixed")]
+    Fixed(semver::Version),
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -173,7 +167,7 @@ impl OsvAdvisory {
             published: rustsec_date_to_rfc3339(&metadata.date),
             affected: vec![OsvAffected {
                 package: (&metadata.package).into(),
-                ranges: json_ranges_for_advisory(&advisory.versions),
+                ranges: vec![timeline_for_advisory(&advisory.versions)],
                 ecosystem_specific: OsvEcosystemSpecific {
                     affects: advisory.affected.unwrap_or_default().into(),
                 },
@@ -211,13 +205,27 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     }
 }
 
-/// Like ``ranges_for_advisory``, but also converts from ``OsvRange`` to ``OsvJsonRange``
 /// Assumes that the input has already been validated; panics if passed an invalid advisory.
-fn json_ranges_for_advisory(versions: &crate::advisory::Versions) -> Vec<OsvJsonRange> {
-    ranges_for_advisory(versions)
-        .into_iter()
-        .map(|x| x.into())
-        .collect()
+fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
+    let ranges = ranges_for_advisory(versions);
+    assert!(!ranges.is_empty()); // zero ranges means nothing is affected, so why even have an advisory?
+    let mut timeline = Vec::new();
+    for range in ranges {
+        match range.introduced {
+            Some(ver) => timeline.push(OsvTimelineEvent::Introduced(ver)),
+            None => timeline.push(OsvTimelineEvent::Introduced(
+                semver::Version::parse("0.0.0-0").unwrap(),
+            )),
+        }
+        match range.fixed {
+            Some(ver) => timeline.push(OsvTimelineEvent::Fixed(ver)),
+            None => (), // "everything past this point is affected" is implicit in OSV
+        }
+    }
+    OsvJsonRange {
+        kind: "SEMVER",
+        events: timeline,
+    }
 }
 
 fn git2_time_to_rfc3339(time: &git2::Time) -> String {
