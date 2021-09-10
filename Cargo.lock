@@ -406,9 +406,9 @@ dependencies = [
 
 [[package]]
 name = "comrak"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e555945b4dd9dbe376aeec3c701ba248a95b5479124d16fef575cb3483fae062"
+checksum = "ff3c476e1a33eb4df1212a02db79d0f788bbd760901f34f5897644623e0e4e74"
 dependencies = [
  "clap",
  "entities",
