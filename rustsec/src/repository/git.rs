@@ -8,7 +8,7 @@ mod repository;
 
 pub use self::{authentication::with_authentication, commit::Commit, repository::Repository};
 
-#[cfg(feature = "osv-I-know-this-is-unstable")]
+#[cfg(feature = "osv-export")]
 pub use self::{gitpath::GitPath, modification_time::GitModificationTimes};
 
 /// Location of the RustSec advisory database for crates.io
