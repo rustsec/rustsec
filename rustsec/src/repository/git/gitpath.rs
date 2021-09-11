@@ -1,4 +1,4 @@
-#![cfg(feature = "osv-I-know-this-is-unstable")]
+#![cfg(feature = "osv-export")]
 
 use std::path::Path;
 
