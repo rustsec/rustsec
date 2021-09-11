@@ -6,9 +6,9 @@
 //! which `semver` crate does not allow doing directly.
 //! See https://github.com/dtolnay/semver/issues/172
 
-#[cfg(feature = "osv-I-know-this-is-unstable")]
+#[cfg(feature = "osv-export")]
 mod osv_advisory;
-#[cfg(feature = "osv-I-know-this-is-unstable")]
+#[cfg(feature = "osv-export")]
 pub use osv_advisory::OsvAdvisory;
 
 // The rest are enabled unconditionally because the OSV range format
