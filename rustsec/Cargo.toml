@@ -44,6 +44,7 @@ default = ["git"]
 fix = ["cargo-edit"]
 git = ["crates-index", "git2", "home", "humantime", "humantime-serde"]
 dependency-tree = ["cargo-lock/dependency-tree"]
+vendored-libgit2 = ["git2/vendored-libgit2"]
 vendored-openssl = ["git2/vendored-openssl"]
 osv-I-know-this-is-unstable = ["git", "chrono"]
 
