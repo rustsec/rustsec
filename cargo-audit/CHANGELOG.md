@@ -4,11 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.15.2 (2021-09-11)
+### Added
+- `vendored-libgit2` feature ([#432])
+
+[#432]: https://github.com/rustsec/rustsec/pull/432
+
 ## 0.15.1 (2021-09-10)
 ### Changed
 - Pin `thiserror` and `zeroize` to avoid MSRV breakages ([#415])
 
-[#415]: https://github.com/rustsec/rustsec/pull/415/
+[#415]: https://github.com/rustsec/rustsec/pull/415
 
 ## 0.15.0 (2021-07-01)
 ### Added
