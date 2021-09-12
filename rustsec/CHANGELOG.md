@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `vendored-libgit2` feature ([#432])
 
 ### Changed
-- OSV v0.8 ([#421])
+- OSV v1.0 ([#421])
 
 [#421]: https://github.com/RustSec/rustsec/pull/421
 [#432]: https://github.com/RustSec/rustsec/pull/432
