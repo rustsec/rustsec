@@ -322,8 +322,8 @@ fn copy_static_assets(output_folder: &Path) {
             fs::create_dir_all(output_folder.join(containing_folder)).unwrap();
         }
 
-        let asset_contents = StaticAsset::get(file.as_ref()).unwrap();
-        fs::write(output_folder.join(file.as_ref()), asset_contents).unwrap();
+        let asset = StaticAsset::get(file.as_ref()).unwrap();
+        fs::write(output_folder.join(file.as_ref()), asset.data).unwrap();
     }
 }
 
