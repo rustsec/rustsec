@@ -149,6 +149,7 @@ impl AuditCommand {
     pub fn color_config(&self) -> Option<ColorChoice> {
         self.color.as_ref().map(|colors| match colors.as_ref() {
             "always" => ColorChoice::Always,
+            "auto" => ColorChoice::Auto,
             "never" => ColorChoice::Never,
             _ => panic!("invalid color choice setting: {}", &colors),
         })
