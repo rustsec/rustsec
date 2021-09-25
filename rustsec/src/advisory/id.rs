@@ -95,6 +95,7 @@ impl Id {
                 "https://cve.mitre.org/cgi-bin/cvename.cgi?name={}",
                 &self.string
             )),
+            Kind::GHSA => Some(format!("https://github.com/advisories/{}", &self.string)),
             Kind::TALOS => Some(format!(
                 "https://www.talosintelligence.com/reports/{}",
                 &self.string
@@ -292,7 +293,10 @@ mod tests {
         let ghsa_id = EXAMPLE_GHSA_ID.parse::<Id>().unwrap();
         assert!(ghsa_id.is_ghsa());
         assert!(ghsa_id.year().is_none());
-        assert!(ghsa_id.url().is_none());
+        assert_eq!(
+            ghsa_id.url().unwrap(),
+            "https://github.com/advisories/GHSA-4mmc-49vf-jmcp"
+        );
         assert!(ghsa_id.numerical_part().is_none());
     }
 
