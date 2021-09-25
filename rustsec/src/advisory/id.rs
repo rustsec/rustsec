@@ -95,6 +95,10 @@ impl Id {
                 "https://cve.mitre.org/cgi-bin/cvename.cgi?name={}",
                 &self.string
             )),
+            Kind::GHSA => Some(format!(
+                "https://github.com/advisories/{}",
+                &self.string
+            )),
             Kind::TALOS => Some(format!(
                 "https://www.talosintelligence.com/reports/{}",
                 &self.string
