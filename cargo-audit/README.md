@@ -16,6 +16,8 @@ Audit `Cargo.lock` files for crates with security vulnerabilities reported to th
 
 ## Installation
 
+<a href="https://repology.org/project/cargo-audit/versions"><img align="right" src="https://repology.org/badge/vertical-allrepos/cargo-audit.svg" alt="Packaging status"></a>
+
 `cargo audit` is a Cargo subcommand and can be installed with `cargo install`:
 
 ```
