@@ -26,6 +26,30 @@ $ cargo install cargo-audit
 
 Once installed, run `cargo audit` at the toplevel of any Cargo project.
 
+### Alpine Linux
+
+```
+# apk add cargo-audit
+```
+
+### Arch Linux
+
+```
+# pacman -S cargo-audit
+```
+
+### MacOS
+
+```
+$ brew install cargo-audit
+```
+
+### OpenBSD
+
+```
+# pkg_add cargo-audit
+```
+
 ## Screenshot
 
 <img src="https://raw.githubusercontent.com/RustSec/cargo-audit/c857beb/img/screenshot.png" alt="Screenshot" style="max-width:100%;">
