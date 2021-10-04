@@ -101,7 +101,7 @@ jobs:
           ext=""
           [[ "${{ matrix.name }}" == windows-* ]] && ext=".exe"
           bin="target/${{ matrix.target }}/release/cargo-audit${ext}"
-          version=$(echo "${{ github.ref }}" | cut -d/ -f3)
+          version=$(echo "${{ github.ref }}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           mkdir "$dst"
           mv "$bin" "$dst/"
