@@ -97,7 +97,6 @@ jobs:
       - name: Package
         shell: bash
         run: |
-          set -eux
           ext=""
           [[ "${{ matrix.name }}" == windows-* ]] && ext=".exe"
           bin="../target/${{ matrix.target }}/release/cargo-audit${ext}"
@@ -112,14 +111,14 @@ jobs:
         run: |
           version=$(echo "${{ github.ref }}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
-          tar cavf "$dst.tgz" "$dst"
+          tar cavf "../$dst.tgz" "$dst"
       - name: Archive (zip)
         if: startsWith(matrix.name, 'windows-')
         shell: bash
         run: |
           version=$(echo "${{ github.ref }}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
-          7z a "$dst.zip" "$dst"
+          7z a "../$dst.zip" "$dst"
       - uses: softprops/action-gh-release@91409e712cf565ce9eff10c87a8d1b11b81757ae
         with:
           files: |
