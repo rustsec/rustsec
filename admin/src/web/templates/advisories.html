@@ -25,6 +25,11 @@
         (withdrawn advisory)
         {% else %}
         <h3>
+          {% match advisory.severity() %}
+            {% when Some with (severity) %}
+            <span class="tag {{ severity }}">{{ advisory.severity().unwrap() | upper }}</span>
+            {% when None %}
+          {% endmatch %}
           <a href="/advisories/{{ advisory.id() }}.html">
             {{ advisory_title_type }}
           </a>

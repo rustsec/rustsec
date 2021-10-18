@@ -143,3 +143,24 @@ header span.subtitle p {
   font-size: 1.5em;
   margin: 0;
 }
+
+.tag {
+  background: #535353;
+  padding: 3px;
+}
+
+.critical {
+  background: darkred;
+}
+
+.high {
+  background: #b90000;
+}
+
+.medium {
+  background: #c68000;
+}
+
+.low {
+  background: #b5b500;
+}
