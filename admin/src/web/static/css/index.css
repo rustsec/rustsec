@@ -117,3 +117,7 @@ nav, body > footer {
 .advisories time {
   font-weight: 600;
 }
+
+.tag {
+  font-size: 16px;
+}
