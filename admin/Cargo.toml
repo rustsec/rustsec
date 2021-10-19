@@ -11,7 +11,7 @@ edition     = "2018"
 
 [dependencies]
 abscissa_core = "0.5"
-crates-index = "0.17"
+crates-index = "0.18"
 gumdrop = "0.7"
 rustsec = { version = "0.24.3", path = "../rustsec", features = ["osv-export"] }
 serde = { version = "1", features = ["serde_derive"] }

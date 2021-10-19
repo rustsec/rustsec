@@ -13,7 +13,7 @@ edition     = "2018"
 
 [dependencies]
 cargo-lock = { version = "7", default-features = false, path = "../cargo-lock" }
-crates-index = { version = "0.17", optional = true }
+crates-index = { version = "0.18", optional = true }
 cvss = { version = "1", features = ["serde"], path = "../cvss" }
 fs-err = "2.5"
 git2 = { version = "0.13", optional = true }
