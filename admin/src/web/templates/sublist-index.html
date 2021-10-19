@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<main>
+  <article>
+
+    <header>
+      {% include "menu.html" %}
+      <h1>{{ title }}</h1>
+    </header>
+
+    <ul>
+      {% for (name, url, count) in items %}
+      <li><a href="{{ url }}">{{ name }}</a>
+      {% match count %}
+      {% when Some with (c) %}
+        ({{ c }})
+      {% else %}
+      {% endmatch %}
+      </li>
+      {% endfor %}
+    </ul>
+  </article>
+</main>
+{% endblock %}

@@ -1,4 +1,12 @@
   <article>
+    {% match advisory.metadata.collection %}
+    {% when Some with (collection) %}
+        <span class="floating-menu"><a
+          href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">History</a> ⋅ <a
+          href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a></span>
+    {% when None %}
+    {% endmatch %}
+
     <header>
       <h1>
         {% if advisory.withdrawn() %}
@@ -54,9 +62,18 @@
       <dd>
         <ul>
           {% for category in advisory.metadata.categories %}
-          <li>{{ category.to_string() }}</li>
+          <li><a href="/categories/{{ category.to_string() }}.html">{{ category.to_string() }}</a></li>
           {% endfor %}
         </ul>
+      </dd>
+      {% endif %}
+
+      {% if advisory.metadata.keywords.len() > 0 %}
+      <dt id="keywords">Keywords</dt>
+      <dd>
+        {% for keyword in advisory.metadata.keywords %}
+          <a href="/keywords/{{ keyword.as_str() | safe_keyword }}.html">#{{ keyword.as_str() | safe_keyword }}</a>
+        {% endfor %}
       </dd>
       {% endif %}
 
@@ -198,11 +215,9 @@
       {% if advisory.metadata.keywords.len() > 0 %}
       <dt id="keywords">Keywords</dt>
       <dd>
-        <ul>
-          {% for keyword in advisory.metadata.keywords %}
-          <li>{{ keyword.as_str() }}</li>
-          {% endfor %}
-        </ul>
+        {% for keyword in advisory.metadata.keywords %}
+          <a href="/keywords/{{ keyword.as_str() | safe_keyword }}.html">#{{ keyword.as_str() | safe_keyword }}</a>
+        {% endfor %}
       </dd>
       {% endif %}
 
@@ -257,19 +272,4 @@
 
     <h3 id="description">Description</h3>
     {{ rendered_description|safe }}
-
-    {% match advisory.metadata.collection %}
-    {% when Some with (collection) %}
-    <h3 id="more">More</h3>
-
-    <ul>
-      <li><a
-          href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Advisory
-          History</a></li>
-      <li><a
-          href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit
-          Advisory</a></li>
-    </ul>
-    {% when None %}
-    {% endmatch %}
   </article>

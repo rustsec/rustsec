@@ -1,0 +1,27 @@
+<li>
+  <time datetime="{{ advisory.date().as_str() }}">
+    {{ advisory.date() | friendly_date }}
+  </time>
+
+  {% if advisory.withdrawn() %}
+  <h3><a class="withdrawn" href="/advisories/{{ advisory.id() }}.html">
+      {{ advisory.id() }}
+  </a></h3>
+  (withdrawn advisory)
+  {% else %}
+  <h3>
+    {% match advisory.severity() %}
+      {% when Some with (severity) %}
+      <span class="tag {{ severity }}">{{ advisory.severity().unwrap() | upper }}</span>
+      {% when None %}
+        {% if advisory.metadata.informational.is_some() %}
+          <span class="tag info">INFO</span>
+        {% endif %}
+    {% endmatch %}
+    <a href="/advisories/{{ advisory.id() }}.html">
+      {{ advisory_title_type }}
+    </a>
+  </h3>
+  <span>{{ rendered_title|safe }}</span>
+  {% endif %}
+</li>
