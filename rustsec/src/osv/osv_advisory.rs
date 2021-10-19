@@ -1,4 +1,5 @@
-use chrono::{DateTime, NaiveDate, NaiveDateTime, NaiveTime, Utc};
+use std::{convert::TryInto, ops::Add};
+
 use serde::Serialize;
 use url::Url;
 
@@ -230,14 +231,12 @@ fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
     }
 }
 
-fn git2_time_to_rfc3339(time: &git2::Time) -> String {
-    let unix_timestamp = time.seconds();
-    let time = NaiveDateTime::from_timestamp(unix_timestamp, 0);
-    DateTime::<Utc>::from_utc(time, Utc).to_rfc3339()
+fn git2_time_to_rfc3339(git_timestamp: &git2::Time) -> String {
+    let unix_timestamp: u64 = git_timestamp.seconds().try_into().unwrap();
+    let duration_from_epoch = std::time::Duration::from_secs(unix_timestamp);
+    humantime::format_rfc3339(std::time::UNIX_EPOCH.add(duration_from_epoch)).to_string()
 }
 
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
-    let pub_date: NaiveDate = NaiveDate::from_ymd(d.year() as i32, d.month(), d.day());
-    let pub_time = NaiveDateTime::new(pub_date, NaiveTime::from_hms(12, 0, 0));
-    DateTime::<Utc>::from_utc(pub_time, Utc).to_rfc3339()
+    format!("{}-{:02}-{:02}T12:00:00Z", d.year(), d.month(), d.day())
 }
