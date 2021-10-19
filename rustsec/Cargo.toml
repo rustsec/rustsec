@@ -20,7 +20,6 @@ git2 = { version = "0.13", optional = true }
 home = { version = "0.5", optional = true }
 humantime = { version = "2", optional = true }
 humantime-serde = { version = "1", optional = true }
-chrono = { version = "0.4", optional = true }
 platforms = { version = "1", features = ["serde"], path = "../platforms" }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
@@ -46,7 +45,7 @@ git = ["crates-index", "git2", "home", "humantime", "humantime-serde"]
 dependency-tree = ["cargo-lock/dependency-tree"]
 vendored-libgit2 = ["git2/vendored-libgit2"]
 vendored-openssl = ["git2/vendored-openssl"]
-osv-export = ["git", "chrono"]
+osv-export = ["git"]
 
 [package.metadata.docs.rs]
 all-features = true
