@@ -4,8 +4,10 @@ ignore = [
     "RUSTSEC-2020-0016", # `net2` unmaintained (need to update to Tokio 1.0)
     "RUSTSEC-2020-0036", # `failure` unmaintained (used by `cargo-edit`)
     "RUSTSEC-2020-0053", # `dirs` unmaintained (used by `cargo-edit`)
+    "RUSTSEC-2020-0071", # `time` localtime_r segfault
     "RUSTSEC-2021-0078", # `hyper` request smuggling (used by `cargo-edit`)
     "RUSTSEC-2021-0079", # `hyper` data loss (used by `cargo-edit`)
+    "RUSTSEC-2020-0159", # `chrono` localtime_r segfault
 ]
 
 [output]
