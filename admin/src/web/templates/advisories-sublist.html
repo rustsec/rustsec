@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<main class="advisories">
+  <article>
+
+    <header>
+      {% include "menu.html" %}
+      <h1>{{ title }}</h1>
+    </header>
+
+    <ul>
+      {% for (advisory, rendered_title, advisory_title_type) in advisories %}
+      {% include "advisory-list-entry.html" %}
+      {% endfor %}
+    </ul>
+  </article>
+</main>
+{% endblock %}
