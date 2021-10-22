@@ -1,3 +1,21 @@
+## 0.5.3 (2021-10-22)
+- Bump `rust-embed` from 5.9.0 to 6.2.0 ([#437])
+- Add information about CVSS score and metrics ([#452])
+- Add severity tag for informational advisories ([#458])
+- Index pages by keyword and category ([#459])
+
+[#437]: https://github.com/RustSec/rustsec/pull/437
+[#452]: https://github.com/RustSec/rustsec/pull/452
+[#458]: https://github.com/RustSec/rustsec/pull/458
+[#459]: https://github.com/RustSec/rustsec/pull/459
+
+## 0.5.2 (2021-09-12)
+- Update `atom_syndication` to 0.10 ([#390])
+- Don't label OSV feature as unstable, since OSV 1.0 has shipped ([#434])
+
+[#390]: https://github.com/RustSec/rustsec/pull/390
+[#434]: https://github.com/RustSec/rustsec/pull/434
+
 ## 0.5.1 (2021-07-03)
 - Bump `rustsec` to v0.24.1 ([#394])
 
