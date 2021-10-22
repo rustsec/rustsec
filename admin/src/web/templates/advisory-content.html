@@ -1,9 +1,10 @@
   <article>
     {% match advisory.metadata.collection %}
     {% when Some with (collection) %}
-        <span class="floating-menu"><a
-          href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">History</a> ⋅ <a
-          href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a></span>
+        <span class="floating-menu">
+          <a href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">History</a> ⋅ 
+          <a href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a>
+        </span>
     {% when None %}
     {% endmatch %}
 
@@ -51,6 +52,7 @@
       <dd>
         {% match advisory.metadata.informational %}
         {% when Some with (informational) %}
+        <span class="tag info">INFO</span>
         {{ informational.to_string() | capitalize }}
         {% when None %}
         Vulnerability
