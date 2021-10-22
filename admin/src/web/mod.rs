@@ -34,9 +34,10 @@ struct AdvisoriesPerYear {
 }
 
 #[derive(Template)]
-#[template(path = "package-advisories.html")]
-struct AdvisoriesPerPackage {
-    package: String,
+#[template(path = "advisories-sublist.html")]
+struct AdvisoriesSubList {
+    title: String,
+    group_by: String,
     /// `Vec<(advisory, rendered_title, advisory_title_type)>`
     advisories: Vec<(rustsec::Advisory, String, String)>,
 }
@@ -56,6 +57,25 @@ struct AdvisoryContentTemplate<'a> {
     advisory: &'a rustsec::Advisory,
     rendered_description: String,
     rendered_title: String,
+}
+
+#[derive(Template)]
+#[template(path = "sublist-index.html")]
+struct ItemsList {
+    title: String,
+    /// `Vec<(name, url, option(count))>`
+    items: Vec<(String, String, Option<usize>)>,
+}
+
+fn render_list_index(title: &str, mut items: Vec<(String, String, Option<usize>)>, folder: &Path) {
+    items.sort_by(|a, b| a.0.to_lowercase().partial_cmp(&b.0.to_lowercase()).unwrap());
+    let index_data = ItemsList {
+        title: title.to_owned(),
+        items,
+    };
+    let index_path = folder.join("index.html");
+    fs::write(&index_path, index_data.render().unwrap()).unwrap();
+    status_ok!("Rendered", "{}", index_path.display());
 }
 
 /// Render all advisories using the Markdown template
@@ -133,41 +153,171 @@ pub fn render_advisories(output_folder: PathBuf) {
     );
 
     // Render the per-package pages (/packages/${package}.html).
-    let mut advisories_per_package = Vec::<AdvisoriesPerPackage>::new();
-
+    let mut advisories_per_package = Vec::<AdvisoriesSubList>::new();
+    let mut packages = Vec::<(String, String, Option<usize>)>::new();
     for advisory in advisories.clone() {
         let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
         let advisory_title_type = title_type(&advisory);
+        let package = advisory.metadata.package.to_string();
 
+        match packages.iter_mut().find(|(n, _, _)| *n == package) {
+            Some(p) => p.2 = Some(p.2.unwrap() + 1),
+            None => packages.push((
+                package.clone(),
+                format!("/packages/{}.html", package.clone()),
+                Some(1),
+            )),
+        }
         match advisories_per_package
             .iter_mut()
-            .find(|package_advisories| {
-                package_advisories.package == advisory.metadata.package.to_string()
-            }) {
-            Some(package_advisories) => {
-                package_advisories
+            .find(|advisories| advisories.group_by == advisory.metadata.package.to_string())
+        {
+            Some(advisories) => {
+                advisories
                     .advisories
                     .push((advisory, rendered_title, advisory_title_type))
             }
-            None => advisories_per_package.push(AdvisoriesPerPackage {
-                package: advisory.metadata.package.to_string(),
+            None => advisories_per_package.push(AdvisoriesSubList {
+                title: format!("Advisories for package '{}'", advisory.metadata.package),
+                group_by: advisory.metadata.package.to_string(),
                 advisories: vec![(advisory, rendered_title, advisory_title_type)],
             }),
         }
     }
-
-    let packages_folder = output_folder.join("packages");
-    fs::create_dir_all(&packages_folder).unwrap();
-    for package_tpl in &advisories_per_package {
-        let output_path = packages_folder.join(package_tpl.package.clone() + ".html");
-        fs::write(&output_path, package_tpl.render().unwrap()).unwrap();
-
+    let folder = output_folder.join("packages");
+    fs::create_dir_all(&folder).unwrap();
+    // index
+    render_list_index("Packages", packages, folder.as_ref());
+    // per package page
+    for tpl in &advisories_per_package {
+        let output_path = folder.join(tpl.group_by.clone() + ".html");
+        fs::write(&output_path, tpl.render().unwrap()).unwrap();
         status_ok!("Rendered", "{}", output_path.display());
     }
     status_ok!(
         "Completed",
         "{} packages rendered as HTML",
         advisories_per_package.len()
+    );
+
+    // Render the per-keyword pages (/keywords/${keyword}.html).
+    let mut advisories_per_keyword = Vec::<AdvisoriesSubList>::new();
+    let mut keywords = Vec::<(String, String, Option<usize>)>::new();
+    for advisory in advisories.clone() {
+        let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
+        let advisory_title_type = title_type(&advisory);
+
+        // merge keywords with the same slug
+        let mut slug_keywords = advisory
+            .metadata
+            .keywords
+            .as_slice()
+            .iter()
+            .map(|k| filters::safe_keyword(k.as_str()).unwrap())
+            .collect::<Vec<String>>();
+        slug_keywords.sort();
+        slug_keywords.dedup();
+
+        for keyword in slug_keywords {
+            if keywords.iter().find(|(n, _, _)| *n == keyword).is_none() {
+                keywords.push((
+                    keyword.clone(),
+                    format!("/keywords/{}.html", keyword.clone()),
+                    None,
+                ));
+            }
+
+            match advisories_per_keyword
+                .iter_mut()
+                .find(|advisories| advisories.group_by == keyword.as_str())
+            {
+                Some(advisories) => advisories.advisories.push((
+                    advisory.clone(),
+                    rendered_title.clone(),
+                    advisory_title_type.clone(),
+                )),
+                None => advisories_per_keyword.push(AdvisoriesSubList {
+                    title: format!("Advisories with keyword '{}'", keyword.as_str()),
+                    group_by: keyword.as_str().to_string(),
+                    advisories: vec![(
+                        advisory.clone(),
+                        rendered_title.clone(),
+                        advisory_title_type.clone(),
+                    )],
+                }),
+            }
+        }
+    }
+    let folder = output_folder.join("keywords");
+    fs::create_dir_all(&folder).unwrap();
+    render_list_index("Keywords", keywords, folder.as_ref());
+    for tpl in &advisories_per_keyword {
+        let output_path = folder.join(tpl.group_by.clone() + ".html");
+        fs::write(&output_path, tpl.render().unwrap()).unwrap();
+        status_ok!("Rendered", "{}", output_path.display());
+    }
+    status_ok!(
+        "Completed",
+        "{} packages rendered as HTML",
+        advisories_per_keyword.len()
+    );
+
+    // Render the per-category pages (/categories/${category}.html).
+    let mut advisories_per_category = Vec::<AdvisoriesSubList>::new();
+    let mut categories = Vec::<(String, String, Option<usize>)>::new();
+    for advisory in advisories.clone() {
+        let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
+        let advisory_title_type = title_type(&advisory);
+
+        for category in advisory.metadata.categories.as_slice() {
+            if categories
+                .iter()
+                .find(|(n, _, _)| n == category.name())
+                .is_none()
+            {
+                categories.push((
+                    category.name().to_owned(),
+                    format!("/categories/{}.html", category.name()),
+                    None,
+                ));
+            }
+
+            match advisories_per_category
+                .iter_mut()
+                .find(|advisories| advisories.group_by == category.name())
+            {
+                Some(advisories) => advisories.advisories.push((
+                    advisory.clone(),
+                    rendered_title.clone(),
+                    advisory_title_type.clone(),
+                )),
+                None => advisories_per_category.push(AdvisoriesSubList {
+                    title: format!("Advisories in category '{}'", category.name()),
+                    group_by: category.name().to_string(),
+                    advisories: vec![(
+                        advisory.clone(),
+                        rendered_title.clone(),
+                        advisory_title_type.clone(),
+                    )],
+                }),
+            }
+        }
+    }
+    let folder = output_folder.join("categories");
+    fs::create_dir_all(&folder).unwrap();
+
+    // index
+    render_list_index("Categories", categories, folder.as_ref());
+    // par value page
+    for tpl in &advisories_per_category {
+        let output_path = folder.join(tpl.group_by.clone() + ".html");
+        fs::write(&output_path, tpl.render().unwrap()).unwrap();
+        status_ok!("Rendered", "{}", output_path.display());
+    }
+    status_ok!(
+        "Completed",
+        "{} packages rendered as HTML",
+        advisories_per_category.len() + 1
     );
 
     // Feed
@@ -337,5 +487,17 @@ mod filters {
                 .format("%B %e, %Y")
                 .to_string(),
         )
+    }
+
+    pub fn safe_keyword(s: &str) -> ::askama::Result<String> {
+        Ok(s.chars()
+            .map(|c| {
+                if c.is_ascii_alphanumeric() || c == '-' || c == '_' {
+                    c
+                } else {
+                    '-'
+                }
+            })
+            .collect())
     }
 }
