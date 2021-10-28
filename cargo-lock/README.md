@@ -8,9 +8,9 @@
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Project Chat][zulip-image]][zulip-link]
 
-Self-contained [serde]-powered `Cargo.lock` parser/serializer with support for
-both the V1 and V2 (merge-friendly) formats, as well as optional dependency
-tree analysis features. Used by [RustSec].
+Self-contained [serde]-powered `Cargo.lock` parser/serializer with support
+for the V1, V2 (merge-friendly) and V3 formats, as well as optional
+dependency tree analysis features. Used by [RustSec].
 
 When the `dependency-tree` feature of this crate is enabled, it supports
 computing a directed graph of the dependency tree, modeled using the
