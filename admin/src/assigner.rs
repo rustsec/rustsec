@@ -58,7 +58,7 @@ pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
         let id = metadata.id;
         let year = metadata.date.year();
 
-        if let Kind::RUSTSEC = id.kind() {
+        if let Kind::RustSec = id.kind() {
             let id_num = id.numerical_part().unwrap();
 
             if let Some(&number) = highest_id.get(&year) {
