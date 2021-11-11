@@ -11,52 +11,52 @@ use serde::{de, ser, Deserialize, Serialize};
 #[non_exhaustive]
 pub enum Arch {
     /// `aarch64`: ARMv8 64-bit architecture
-    AARCH64,
+    AArch64,
 
     /// `arm`: 32-bit ARM architecture
-    ARM,
+    Arm,
 
     /// `asm`: asm.js output
-    ASMJS,
+    AsmJs,
 
     /// `mips`: 32-bit MIPS CPU architecture
-    MIPS,
+    Mips,
 
     /// `mips64`: 64-bit MIPS CPU architecture
-    MIPS64,
+    Mips64,
 
     /// `msp430`: 16-bit MSP430 microcontrollers
-    MSP430,
+    Msp430,
 
     /// `nvptx64`: 64-bit NVIDIA PTX
-    NVPTX64,
+    Nvptx64,
 
     /// `powerpc`: 32-bit POWERPC platform
-    POWERPC,
+    PowerPc,
 
     /// `powerpc64`: 64-bit POWERPC platform
-    POWERPC64,
+    PowerPc64,
 
     /// `riscv`: RISC-V CPU architecture
-    RISCV,
+    RiscV,
 
     /// `s390x`: 64-bit IBM z/Architecture
     S390X,
 
     /// `sparc`: 32-bit SPARC CPU architecture
-    SPARC,
+    Sparc,
 
     /// `sparc64`: 64-bit SPARC CPU architecture
-    SPARC64,
+    Sparc64,
 
     /// `thumbv6`: 16-bit ARM CPU architecture subset
-    THUMBV6,
+    ThumbV6,
 
     /// `thumbv7`: 16-bit ARM CPU architecture subset
-    THUMBV7,
+    ThumbV7,
 
     /// `wasm32`: Web Assembly (32-bit)
-    WASM32,
+    Wasm32,
 
     /// `x86`: Generic x86 CPU architecture
     X86,
@@ -72,22 +72,22 @@ impl Arch {
     /// String representing this target architecture which matches `cfg(target_arch)`
     pub fn as_str(self) -> &'static str {
         match self {
-            Arch::AARCH64 => "aarch64",
-            Arch::ARM => "arm",
-            Arch::ASMJS => "asmjs",
-            Arch::MIPS => "mips",
-            Arch::MIPS64 => "mips64",
-            Arch::MSP430 => "msp430",
-            Arch::NVPTX64 => "nvptx64",
-            Arch::POWERPC => "powerpc",
-            Arch::POWERPC64 => "powerpc64",
-            Arch::RISCV => "riscv",
+            Arch::AArch64 => "aarch64",
+            Arch::Arm => "arm",
+            Arch::AsmJs => "asmjs",
+            Arch::Mips => "mips",
+            Arch::Mips64 => "mips64",
+            Arch::Msp430 => "msp430",
+            Arch::Nvptx64 => "nvptx64",
+            Arch::PowerPc => "powerpc",
+            Arch::PowerPc64 => "powerpc64",
+            Arch::RiscV => "riscv",
             Arch::S390X => "s390x",
-            Arch::SPARC => "sparc",
-            Arch::SPARC64 => "sparc64",
-            Arch::THUMBV6 => "thumbv6",
-            Arch::THUMBV7 => "thumbv7",
-            Arch::WASM32 => "wasm32",
+            Arch::Sparc => "sparc",
+            Arch::Sparc64 => "sparc64",
+            Arch::ThumbV6 => "thumbv6",
+            Arch::ThumbV7 => "thumbv7",
+            Arch::Wasm32 => "wasm32",
             Arch::X86 => "x86",
             Arch::X86_64 => "x86_64",
             Arch::Unknown => "unknown",
@@ -101,22 +101,22 @@ impl FromStr for Arch {
     /// Create a new `Arch` from the given string
     fn from_str(arch_name: &str) -> Result<Self, Self::Err> {
         let arch = match arch_name {
-            "aarch64" => Arch::AARCH64,
-            "arm" => Arch::ARM,
-            "asmjs" => Arch::ASMJS,
-            "mips" => Arch::MIPS,
-            "mips64" => Arch::MIPS64,
-            "msp430" => Arch::MSP430,
-            "nvptx64" => Arch::NVPTX64,
-            "powerpc" => Arch::POWERPC,
-            "powerpc64" => Arch::POWERPC64,
-            "riscv" => Arch::RISCV,
+            "aarch64" => Arch::AArch64,
+            "arm" => Arch::Arm,
+            "asmjs" => Arch::AsmJs,
+            "mips" => Arch::Mips,
+            "mips64" => Arch::Mips64,
+            "msp430" => Arch::Msp430,
+            "nvptx64" => Arch::Nvptx64,
+            "powerpc" => Arch::PowerPc,
+            "powerpc64" => Arch::PowerPc64,
+            "riscv" => Arch::RiscV,
             "s390x" => Arch::S390X,
-            "sparc" => Arch::SPARC,
-            "sparc64" => Arch::SPARC64,
-            "thumbv6" => Arch::THUMBV6,
-            "thumbv7" => Arch::THUMBV7,
-            "wasm32" => Arch::WASM32,
+            "sparc" => Arch::Sparc,
+            "sparc64" => Arch::Sparc64,
+            "thumbv6" => Arch::ThumbV6,
+            "thumbv7" => Arch::ThumbV7,
+            "wasm32" => Arch::Wasm32,
             "x86" => Arch::X86,
             "x86_64" => Arch::X86_64,
             _ => return Err(Error),
@@ -153,43 +153,43 @@ impl<'de> Deserialize<'de> for Arch {
 
 #[cfg(target_arch = "aarch64")]
 /// `target_arch` when building this crate: `x86_64`
-pub const TARGET_ARCH: Arch = Arch::AARCH64;
+pub const TARGET_ARCH: Arch = Arch::AArch64;
 
 #[cfg(target_arch = "arm")]
 /// `target_arch` when building this crate: `arm`
-pub const TARGET_ARCH: Arch = Arch::ARM;
+pub const TARGET_ARCH: Arch = Arch::Arm;
 
 #[cfg(target_arch = "asmjs")]
 /// `target_arch` when building this crate: `asmjs`
-pub const TARGET_ARCH: Arch = Arch::ASMJS;
+pub const TARGET_ARCH: Arch = Arch::AsmJs;
 
 #[cfg(target_arch = "mips")]
 /// `target_arch` when building this crate: `mips`
-pub const TARGET_ARCH: Arch = Arch::MIPS;
+pub const TARGET_ARCH: Arch = Arch::Mips;
 
 #[cfg(target_arch = "mips64")]
 /// `target_arch` when building this crate: `mips64`
-pub const TARGET_ARCH: Arch = Arch::MIPS64;
+pub const TARGET_ARCH: Arch = Arch::Mips64;
 
 #[cfg(target_arch = "msp430")]
 /// `target_arch` when building this crate: `msp430`
-pub const TARGET_ARCH: Arch = Arch::MSP430;
+pub const TARGET_ARCH: Arch = Arch::Msp430;
 
 #[cfg(target_arch = "nvptx64")]
 /// `target_arch` when building this crate: `nvptx64`
-pub const TARGET_ARCH: Arch = Arch::NVPTX64;
+pub const TARGET_ARCH: Arch = Arch::Nvptx64;
 
 #[cfg(target_arch = "powerpc")]
 /// `target_arch` when building this crate: `powerpc`
-pub const TARGET_ARCH: Arch = Arch::POWERPC;
+pub const TARGET_ARCH: Arch = Arch::PowerPc;
 
 #[cfg(target_arch = "powerpc64")]
 /// `target_arch` when building this crate: `powerpc64`
-pub const TARGET_ARCH: Arch = Arch::POWERPC64;
+pub const TARGET_ARCH: Arch = Arch::PowerPc64;
 
 #[cfg(target_arch = "riscv")]
 /// `target_arch` when building this crate: `riscv`
-pub const TARGET_ARCH: Arch = Arch::RISCV;
+pub const TARGET_ARCH: Arch = Arch::RiscV;
 
 #[cfg(target_arch = "s390x")]
 /// `target_arch` when building this crate: `s390x`
@@ -197,15 +197,15 @@ pub const TARGET_ARCH: Arch = Arch::S390X;
 
 #[cfg(target_arch = "sparc")]
 /// `target_arch` when building this crate: `sparc`
-pub const TARGET_ARCH: Arch = Arch::SPARC;
+pub const TARGET_ARCH: Arch = Arch::Sparc;
 
 #[cfg(target_arch = "sparc64")]
 /// `target_arch` when building this crate: `sparc64`
-pub const TARGET_ARCH: Arch = Arch::SPARC64;
+pub const TARGET_ARCH: Arch = Arch::Sparc64;
 
 #[cfg(target_arch = "wasm32")]
 /// `target_arch` when building this crate: `wasm32`
-pub const TARGET_ARCH: Arch = Arch::WASM32;
+pub const TARGET_ARCH: Arch = Arch::Wasm32;
 
 #[cfg(target_arch = "x86")]
 /// `target_arch` when building this crate: `x86`
