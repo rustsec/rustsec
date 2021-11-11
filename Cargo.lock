@@ -1909,7 +1909,6 @@ dependencies = [
  "platforms",
  "semver 1.0.4",
  "serde",
- "smol_str",
  "tempfile",
  "thiserror",
  "toml",
@@ -2172,15 +2171,6 @@ checksum = "31aa6a31c0c2b21327ce875f7e8952322acfcfd0c27569a6e18a647281352c9b"
 dependencies = [
  "serde",
  "static_assertions",
-]
-
-[[package]]
-name = "smol_str"
-version = "0.1.21"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61d15c83e300cce35b7c8cd39ff567c1ef42dde6d4a1a38dbdbf9a59902261bd"
-dependencies = [
- "serde",
 ]
 
 [[package]]
