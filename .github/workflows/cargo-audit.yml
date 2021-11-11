@@ -39,7 +39,7 @@ jobs:
           - macos-latest
           #- windows-latest # TODO(tarcieri): re-enable Windows tests
         toolchain:
-          - 1.46.0
+          - 1.47.0 # MSRV
           - stable
     runs-on: ${{ matrix.platform }}
     steps:

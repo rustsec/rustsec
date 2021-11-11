@@ -21,7 +21,7 @@ the [`cargo-tree`] crate.
 
 ## Minimum Supported Rust Version
 
-Rust **1.41** or higher.
+Rust **1.42** or higher.
 
 Minimum supported Rust version can be changed in the future, but it will be
 done with a minor version bump.
@@ -73,7 +73,7 @@ additional terms or conditions.
 [build-image]: https://github.com/RustSec/rustsec/actions/workflows/cargo-lock.yml/badge.svg
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/cargo-lock.yml
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.41+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.42+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
