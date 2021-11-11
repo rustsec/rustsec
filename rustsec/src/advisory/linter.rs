@@ -196,13 +196,7 @@ impl Linter {
                         }
                     }
                     "withdrawn" => {
-                        let yanked_set_to_true = {
-                            match table.get("yanked") {
-                                Some(toml::Value::Boolean(true)) => true,
-                                _ => false,
-                            }
-                        };
-                        if !yanked_set_to_true {
+                        if !matches!(table.get("yanked"), Some(toml::Value::Boolean(true))) {
                             self.errors.push(Error {
                                 kind: ErrorKind::Malformed,
                                 section: Some("metadata"),

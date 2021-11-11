@@ -57,10 +57,7 @@ impl Informational {
 
     /// Is this informational advisory of an unknown kind?
     pub fn is_other(&self) -> bool {
-        match self {
-            Self::Other(_) => true,
-            _ => false,
-        }
+        matches!(self, Self::Other(_))
     }
 
     /// Get a warning kind for this informational type (if applicable)

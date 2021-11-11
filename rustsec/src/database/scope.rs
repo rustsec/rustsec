@@ -41,10 +41,9 @@ pub struct Package {
 impl Package {
     /// Is the scope only for remote crates?
     pub fn is_remote(&self) -> bool {
-        self.source.iter().any(|source| match source {
-            Registry::Public | Registry::Private { .. } => true,
-            _ => false,
-        })
+        self.source
+            .iter()
+            .any(|source| matches!(source, Registry::Public | Registry::Private { .. }))
     }
 }
 

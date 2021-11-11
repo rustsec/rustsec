@@ -178,10 +178,7 @@ impl SourceId {
 
     /// Returns `true` if this source is from a registry (either local or not).
     pub fn is_registry(&self) -> bool {
-        match self.kind {
-            SourceKind::Registry | SourceKind::LocalRegistry => true,
-            _ => false,
-        }
+        matches!(self.kind, SourceKind::Registry | SourceKind::LocalRegistry)
     }
 
     /// Returns `true` if this source is a "remote" registry.
@@ -189,15 +186,12 @@ impl SourceId {
     /// "remote" may also mean a file URL to a git index, so it is not
     /// necessarily "remote". This just means it is not `local-registry`.
     pub fn is_remote_registry(&self) -> bool {
-        self.kind == SourceKind::Registry
+        matches!(self.kind, SourceKind::Registry)
     }
 
     /// Returns `true` if this source from a Git repository.
     pub fn is_git(&self) -> bool {
-        match self.kind {
-            SourceKind::Git(_) => true,
-            _ => false,
-        }
+        matches!(self.kind, SourceKind::Git(_))
     }
 
     /// Gets the value of the precise field.
