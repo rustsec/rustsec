@@ -95,12 +95,12 @@ impl From<Url> for OsvReference {
 #[allow(dead_code)] // we don't (yet) construct all the variants
 #[derive(Debug, Clone, Serialize)]
 pub enum OsvReferenceKind {
-    ADVISORY,
-    ARTICLE,
-    REPORT,
-    FIX,
-    PACKAGE,
-    WEB,
+    Advisory,
+    Article,
+    Report,
+    Fix,
+    Package,
+    Web,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -195,14 +195,14 @@ fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
 fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     let str = url.as_str();
     if (str.contains("://github.com/") || str.contains("://gitlab.")) && str.contains("/issues/") {
-        OsvReferenceKind::REPORT
+        OsvReferenceKind::Report
     // the check for "/advisories/" matches both RustSec and GHSA URLs
     } else if str.contains("/advisories/") || str.contains("://cve.mitre.org/") {
-        OsvReferenceKind::ADVISORY
+        OsvReferenceKind::Advisory
     } else if str.contains("://crates.io/crates/") {
-        OsvReferenceKind::PACKAGE
+        OsvReferenceKind::Package
     } else {
-        OsvReferenceKind::WEB
+        OsvReferenceKind::Web
     }
 }
 
