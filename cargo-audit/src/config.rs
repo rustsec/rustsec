@@ -45,11 +45,13 @@ pub struct AuditConfig {
 impl AuditConfig {
     /// Get audit report settings from the configuration
     pub fn report_settings(&self) -> report::Settings {
-        let mut settings = rustsec::report::Settings::default();
-        settings.ignore = self.advisories.ignore.clone();
-        settings.severity = self.advisories.severity_threshold;
-        settings.target_arch = self.target.arch;
-        settings.target_os = self.target.os;
+        let mut settings = rustsec::report::Settings {
+            ignore: self.advisories.ignore.clone(),
+            severity: self.advisories.severity_threshold,
+            target_arch: self.target.arch,
+            target_os: self.target.os,
+            ..Default::default()
+        };
 
         if let Some(source) = &self.packages.source {
             settings.package_scope = Some(source.clone().into());

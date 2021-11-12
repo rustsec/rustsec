@@ -123,7 +123,7 @@ impl Default for Id {
 
 impl Display for Id {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.string.fmt(f)
+        f.write_str(self.as_str())
     }
 }
 
@@ -152,12 +152,6 @@ impl FromStr for Id {
     }
 }
 
-impl Into<String> for Id {
-    fn into(self) -> String {
-        self.string
-    }
-}
-
 impl Serialize for Id {
     fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(&self.string)
@@ -166,8 +160,7 @@ impl Serialize for Id {
 
 impl<'de> Deserialize<'de> for Id {
     fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Self::from_str(&String::deserialize(deserializer)?)
-            .map_err(|e| D::Error::custom(format!("{}", e)))
+        Self::from_str(&String::deserialize(deserializer)?).map_err(D::Error::custom)
     }
 }
 
