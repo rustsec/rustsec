@@ -3,7 +3,7 @@
 //!
 //! This is run in CI at the time advisories are submitted.
 
-use super::{parser, Advisory, Category};
+use super::{parts, Advisory, Category};
 use crate::fs;
 use std::{fmt, path::Path};
 
@@ -49,7 +49,7 @@ impl Linter {
         let advisory = s.parse::<Advisory>()?;
 
         // Get advisory "front matter" (TOML formatted)
-        let advisory_parts = parser::Parts::parse(&s)?;
+        let advisory_parts = parts::Parts::parse(&s)?;
         let front_matter = advisory_parts.front_matter.parse::<toml::Value>()?;
 
         let mut linter = Self {

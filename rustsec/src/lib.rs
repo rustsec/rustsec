@@ -12,19 +12,19 @@
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
 #[macro_use]
-pub mod error;
+mod error;
 
 pub mod advisory;
-pub mod collection;
+mod collection;
 pub mod database;
 pub mod osv;
 pub mod report;
 pub mod repository;
-pub mod vulnerability;
+mod vulnerability;
 pub mod warning;
 
 #[cfg(feature = "fix")]
-pub mod fixer;
+mod fixer;
 
 #[cfg(feature = "git")]
 pub mod registry;
@@ -38,11 +38,14 @@ pub use crate::{
     advisory::Advisory,
     collection::Collection,
     database::Database,
-    error::{Error, ErrorKind},
+    error::{Error, ErrorKind, Result},
     report::Report,
     vulnerability::Vulnerability,
     warning::Warning,
 };
+
+#[cfg(feature = "fix")]
+pub use crate::fixer::Fixer;
 
 #[cfg(feature = "git")]
 pub use crate::repository::git::Repository;

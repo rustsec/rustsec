@@ -3,7 +3,7 @@
 use crate::{auditor::Auditor, lockfile, prelude::*};
 use abscissa_core::{Command, Runnable};
 use gumdrop::Options;
-use rustsec::fixer::Fixer;
+use rustsec::Fixer;
 use std::{
     path::{Path, PathBuf},
     process::exit,
