@@ -291,7 +291,6 @@ dependencies = [
  "tempfile",
  "thiserror",
  "toml",
- "zeroize",
 ]
 
 [[package]]
@@ -1610,7 +1609,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.24.3"
+version = "0.25.0"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
