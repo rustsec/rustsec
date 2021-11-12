@@ -92,12 +92,13 @@ impl From<Url> for OsvReference {
     }
 }
 
-#[allow(dead_code)] // we don't (yet) construct all the variants
 #[derive(Debug, Clone, Serialize)]
 pub enum OsvReferenceKind {
     ADVISORY,
+    #[allow(dead_code)]
     ARTICLE,
     REPORT,
+    #[allow(dead_code)]
     FIX,
     PACKAGE,
     WEB,

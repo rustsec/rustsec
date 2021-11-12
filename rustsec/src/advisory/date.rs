@@ -1,9 +1,11 @@
 //! Advisory dates
 
 use crate::error::{Error, ErrorKind};
-
 use serde::{de, Deserialize, Serialize};
-use std::str::FromStr;
+use std::{
+    fmt::{self, Display},
+    str::FromStr,
+};
 
 /// Minimum allowed year on advisory dates
 pub(crate) const YEAR_MIN: u32 = 2000;
@@ -45,17 +47,15 @@ impl Date {
     }
 }
 
-impl<'de> Deserialize<'de> for Date {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use de::Error;
-        let string = String::deserialize(deserializer)?;
-        string.parse().map_err(D::Error::custom)
-    }
-}
-
 impl AsRef<str> for Date {
     fn as_ref(&self) -> &str {
         self.as_str()
+    }
+}
+
+impl Display for Date {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
     }
 }
 
@@ -69,9 +69,12 @@ impl FromStr for Date {
     }
 }
 
-impl Into<String> for Date {
-    fn into(self) -> String {
-        self.0
+impl<'de> Deserialize<'de> for Date {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        use de::Error;
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(D::Error::custom)
     }
 }
 
