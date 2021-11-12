@@ -2,9 +2,8 @@
 
 use crate::{error::ErrorKind, prelude::*, Map};
 use rustsec::{
-    advisory::{id::Kind, parser},
-    collection::Collection,
-    Advisory,
+    advisory::{id::Kind, Parts},
+    Advisory, Collection,
 };
 use std::{
     fs::{self, File},
@@ -130,7 +129,7 @@ fn assign_ids_across_directory(
                         })
                         .unwrap();
 
-                    let advisory_parts = parser::Parts::parse(&advisory_data).unwrap();
+                    let advisory_parts = Parts::parse(&advisory_data).unwrap();
                     let advisory: Advisory = toml::from_str(&advisory_parts.front_matter).unwrap();
                     let date = advisory.metadata.date;
                     let year = date.year();

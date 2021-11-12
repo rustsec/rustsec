@@ -23,7 +23,7 @@ humantime-serde = { version = "1", optional = true }
 platforms = { version = "1", features = ["serde"] }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
-thiserror = "1.0.25"
+thiserror = "1"
 toml = "0.5"
 url = { version = "2", features = ["serde"] }
 
