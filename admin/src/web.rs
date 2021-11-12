@@ -404,7 +404,7 @@ fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
             rendered_description,
             rendered_title,
         };
-        let html = escape_str_attribute(&advisory_tmpl.render().unwrap()).into_owned();
+        let html = advisory_tmpl.render().unwrap();
         let content = ContentBuilder::default()
             .content_type(Some("html".to_owned()))
             .lang("en".to_owned())
