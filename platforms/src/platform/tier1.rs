@@ -19,9 +19,9 @@ use crate::{
 /// `aarch64-unknown-linux-gnu`: ARM64 Linux
 pub const AARCH64_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "aarch64-unknown-linux-gnu",
-    target_arch: Arch::AARCH64,
+    target_arch: Arch::AArch64,
     target_os: OS::Linux,
-    target_env: Some(Env::GNU),
+    target_env: Some(Env::Gnu),
     tier: Tier::One,
 };
 
@@ -30,7 +30,7 @@ pub const I686_PC_WINDOWS_GNU: Platform = Platform {
     target_triple: "i686-pc-windows-gnu",
     target_arch: Arch::X86,
     target_os: OS::Windows,
-    target_env: Some(Env::GNU),
+    target_env: Some(Env::Gnu),
     tier: Tier::One,
 };
 
@@ -39,7 +39,7 @@ pub const I686_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "i686-pc-windows-msvc",
     target_arch: Arch::X86,
     target_os: OS::Windows,
-    target_env: Some(Env::MSVC),
+    target_env: Some(Env::Msvc),
     tier: Tier::One,
 };
 
@@ -48,7 +48,7 @@ pub const I686_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "i686-unknown-linux-gnu",
     target_arch: Arch::X86,
     target_os: OS::Linux,
-    target_env: Some(Env::GNU),
+    target_env: Some(Env::Gnu),
     tier: Tier::One,
 };
 
@@ -66,7 +66,7 @@ pub const X86_64_PC_WINDOWS_GNU: Platform = Platform {
     target_triple: "x86_64-pc-windows-gnu",
     target_arch: Arch::X86_64,
     target_os: OS::Windows,
-    target_env: Some(Env::GNU),
+    target_env: Some(Env::Gnu),
     tier: Tier::One,
 };
 
@@ -75,7 +75,7 @@ pub const X86_64_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "x86_64-pc-windows-msvc",
     target_arch: Arch::X86_64,
     target_os: OS::Windows,
-    target_env: Some(Env::MSVC),
+    target_env: Some(Env::Msvc),
     tier: Tier::One,
 };
 
@@ -84,6 +84,6 @@ pub const X86_64_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "x86_64-unknown-linux-gnu",
     target_arch: Arch::X86_64,
     target_os: OS::Linux,
-    target_env: Some(Env::GNU),
+    target_env: Some(Env::Gnu),
     tier: Tier::One,
 };
