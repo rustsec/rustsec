@@ -14,20 +14,19 @@ use serde::{de, ser, Deserialize, Serialize};
 #[non_exhaustive]
 pub enum Env {
     /// `gnu`: The GNU C Library (glibc)
-    GNU,
+    Gnu,
 
     /// `msvc`: Microsoft Visual C(++)
-    MSVC,
+    Msvc,
 
     /// `musl`: Clean, efficient, standards-conformant libc implementation.
     Musl,
 
     /// `sgx`: Intel Software Guard Extensions (SGX) Enclave
-    SGX,
+    Sgx,
 
     /// `uclibc`: C library for developing embedded Linux systems
-    #[allow(non_camel_case_types)]
-    uClibc,
+    UClibc,
 
     /// Unknown target environment
     Unknown,
@@ -37,11 +36,11 @@ impl Env {
     /// String representing this environment which matches `#[cfg(target_env)]`
     pub fn as_str(self) -> &'static str {
         match self {
-            Env::GNU => "gnu",
-            Env::MSVC => "msvc",
+            Env::Gnu => "gnu",
+            Env::Msvc => "msvc",
             Env::Musl => "musl",
-            Env::SGX => "sgx",
-            Env::uClibc => "uclibc",
+            Env::Sgx => "sgx",
+            Env::UClibc => "uclibc",
             Env::Unknown => "unknown",
         }
     }
@@ -53,11 +52,11 @@ impl FromStr for Env {
     /// Create a new `Env` from the given string
     fn from_str(env_name: &str) -> Result<Self, Self::Err> {
         let env = match env_name {
-            "gnu" => Env::GNU,
-            "msvc" => Env::MSVC,
+            "gnu" => Env::Gnu,
+            "msvc" => Env::Msvc,
             "musl" => Env::Musl,
-            "sgx" => Env::SGX,
-            "uclibc" => Env::uClibc,
+            "sgx" => Env::Sgx,
+            "uclibc" => Env::UClibc,
             _ => return Err(Error),
         };
 
@@ -92,11 +91,11 @@ impl<'de> Deserialize<'de> for Env {
 
 #[cfg(target_env = "gnu")]
 /// `target_env` when building this crate: `gnu`
-pub const TARGET_ENV: Option<Env> = Some(Env::GNU);
+pub const TARGET_ENV: Option<Env> = Some(Env::Gnu);
 
 #[cfg(target_env = "msvc")]
 /// `target_env` when building this crate: `msvc`
-pub const TARGET_ENV: Option<Env> = Some(Env::MSVC);
+pub const TARGET_ENV: Option<Env> = Some(Env::Msvc);
 
 #[cfg(target_env = "musl")]
 /// `target_env` when building this crate: `musl`
@@ -104,11 +103,11 @@ pub const TARGET_ENV: Option<Env> = Some(Env::Musl);
 
 #[cfg(target_env = "sgx")]
 /// `target_env` when building this crate: `sgx`
-pub const TARGET_ENV: Option<Env> = Some(Env::SGX);
+pub const TARGET_ENV: Option<Env> = Some(Env::Sgx);
 
 #[cfg(target_env = "uclibc")]
 /// `target_env` when building this crate: `uclibc`
-pub const TARGET_ENV: Option<Env> = Some(Env::uClibc);
+pub const TARGET_ENV: Option<Env> = Some(Env::UClibc);
 
 #[cfg(not(any(
     target_env = "gnu",
