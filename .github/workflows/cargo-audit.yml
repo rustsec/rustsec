@@ -36,7 +36,7 @@ jobs:
       matrix:
         platform:
           - ubuntu-latest
-          - macos-latest
+          #- macos-latest # TODO(tarcieri): re-enable macOS tests
           #- windows-latest # TODO(tarcieri): re-enable Windows tests
         toolchain:
           - 1.47.0 # MSRV
