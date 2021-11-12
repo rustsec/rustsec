@@ -1,10 +1,10 @@
 //! Cargo.lock-related utilities
 
-use rustsec::error::{Error, ErrorKind};
+use rustsec::{Error, ErrorKind};
 use std::process::Command;
 
 /// Run `cargo generate-lockfile`
-pub fn generate() -> Result<(), Error> {
+pub fn generate() -> rustsec::Result<()> {
     let status = Command::new("cargo").arg("generate-lockfile").status();
 
     if let Err(e) = status {

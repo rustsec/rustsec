@@ -1,7 +1,7 @@
 //! Core auditing functionality
 
 use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
-use rustsec::{error, lockfile::Lockfile, registry, report, warning, Warning};
+use rustsec::{lockfile::Lockfile, registry, report, warning, Error, ErrorKind, Warning};
 use std::{
     collections::btree_map as map,
     io::{self, Read},
@@ -123,7 +123,7 @@ impl Auditor {
     pub fn audit(
         &mut self,
         maybe_lockfile_path: Option<&Path>,
-    ) -> Result<rustsec::Report, error::Error> {
+    ) -> rustsec::Result<rustsec::Report> {
         let lockfile_path = match maybe_lockfile_path {
             Some(p) => p,
             None => {
@@ -138,8 +138,8 @@ impl Auditor {
         let lockfile = match self.load_lockfile(lockfile_path) {
             Ok(l) => l,
             Err(e) => {
-                return Err(error::Error::new(
-                    error::ErrorKind::NotFound,
+                return Err(Error::new(
+                    ErrorKind::NotFound,
                     &format!("Couldn't load {}: {}", lockfile_path.display(), e),
                 ))
             }
@@ -177,7 +177,7 @@ impl Auditor {
     }
 
     /// Load the lockfile to be audited
-    fn load_lockfile(&self, lockfile_path: &Path) -> Result<Lockfile, error::Error> {
+    fn load_lockfile(&self, lockfile_path: &Path) -> rustsec::Result<Lockfile> {
         if lockfile_path == Path::new("-") {
             // Read Cargo.lock from STDIN
             let mut lockfile_toml = String::new();

@@ -1,19 +1,19 @@
 //! Security advisories in the RustSec database
 
 pub mod affected;
-pub mod category;
-pub mod date;
+mod category;
+mod date;
 pub mod id;
-pub mod informational;
-pub mod keyword;
+mod informational;
+mod keyword;
 pub mod linter;
-pub mod metadata;
-pub mod parser;
-pub mod versions;
+mod metadata;
+mod parts;
+pub(crate) mod versions;
 
 pub use self::{
     affected::Affected, category::Category, date::Date, id::Id, informational::Informational,
-    keyword::Keyword, linter::Linter, metadata::Metadata, versions::Versions,
+    keyword::Keyword, linter::Linter, metadata::Metadata, parts::Parts, versions::Versions,
 };
 pub use cvss::Severity;
 
@@ -86,7 +86,7 @@ impl FromStr for Advisory {
     type Err = Error;
 
     fn from_str(advisory_data: &str) -> Result<Self, Error> {
-        let parts = parser::Parts::parse(&advisory_data)?;
+        let parts = parts::Parts::parse(&advisory_data)?;
 
         // V4 advisories omit the leading `[advisory]` TOML table
         let front_matter = if parts.front_matter.starts_with("[advisory]") {

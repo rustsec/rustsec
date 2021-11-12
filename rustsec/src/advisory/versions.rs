@@ -1,8 +1,4 @@
 //! The `[versions]` subsection of an advisory.
-//!
-//! This is meant to eventually take the place of the `patched_versions`
-//! and `unaffected_versions` sections of the `[advisory]`, but can't be
-//! used
 
 use std::convert::{TryFrom, TryInto};
 

@@ -1,12 +1,6 @@
 //! Code relating to the generation of the https://rustsec.org web site.
-//!
-use crate::prelude::*;
-use std::str::FromStr;
-use std::{
-    fs::{self, File},
-    path::{Path, PathBuf},
-};
 
+use crate::prelude::*;
 use askama::Template;
 use atom_syndication::{
     CategoryBuilder, ContentBuilder, Entry, EntryBuilder, FeedBuilder, FixedDateTime, LinkBuilder,
@@ -15,6 +9,11 @@ use atom_syndication::{
 use chrono::{Date, Duration, NaiveDate, Utc};
 use comrak::{markdown_to_html, ComrakOptions};
 use rust_embed::RustEmbed;
+use std::str::FromStr;
+use std::{
+    fs::{self, File},
+    path::{Path, PathBuf},
+};
 use xml::escape::escape_str_attribute;
 
 #[derive(Template)]
@@ -350,7 +349,7 @@ pub fn render_advisories(output_folder: PathBuf) {
 
 /// Title with the id, the package name and the advisory type
 fn title_type(advisory: &rustsec::Advisory) -> String {
-    use rustsec::advisory::informational::Informational;
+    use rustsec::advisory::Informational;
 
     let id = advisory.id().as_str();
     let package = advisory.metadata.package.as_str();

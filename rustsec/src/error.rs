@@ -30,6 +30,9 @@ macro_rules! fail {
     };
 }
 
+/// Result alias with the `rustsec` crate's `Error` type.
+pub type Result<T> = std::result::Result<T, Error>;
+
 /// Error type
 #[derive(Debug)]
 pub struct Error {
