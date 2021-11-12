@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.25.0 (2021-11-12)
+### Changed
+- Bump cargo-edit from 0.7.0 to 0.8.0 ([#439])
+- Make `advisory::id::Kind` lowercase ([#471])
+- Bump MSRV to 1.52 ([#476])
+- Flatten API: make modules with one type non-`pub`; re-export type from parent ([#478])
+
+[#439]: https://github.com/RustSec/rustsec/pull/439
+[#471]: https://github.com/RustSec/rustsec/pull/471
+[#476]: https://github.com/RustSec/rustsec/pull/476
+[#478]: https://github.com/RustSec/rustsec/pull/478
+
 ## 0.24.3 (2021-09-11)
 ### Added
 - `vendored-libgit2` feature ([#432])
