@@ -302,7 +302,7 @@ checksum = "047ae122855956fb253d35948213830c3b21a38b3f69eedec78eba2f3171657a"
 dependencies = [
  "atty",
  "cargo_metadata",
- "crates-index",
+ "crates-index 0.17.0",
  "dirs-next",
  "dunce",
  "env_proxy",
@@ -472,6 +472,23 @@ checksum = "8ad4af5c8dd9940a497ef4473e6e558b660a4a1b6e5ce2cb9d85454e2aaaf947"
 dependencies = [
  "git2",
  "glob",
+ "hex",
+ "home",
+ "memchr",
+ "semver 1.0.4",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "smartstring",
+]
+
+[[package]]
+name = "crates-index"
+version = "0.18.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87c1041763543466e437ad3212f1dbfd73c0ae4f7323e44ff584c5273d1b39c8"
+dependencies = [
+ "git2",
  "hex",
  "home",
  "memchr",
@@ -1614,7 +1631,7 @@ version = "0.24.3"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
- "crates-index",
+ "crates-index 0.18.1",
  "cvss",
  "fs-err",
  "git2",
@@ -1640,7 +1657,7 @@ dependencies = [
  "atom_syndication",
  "chrono",
  "comrak",
- "crates-index",
+ "crates-index 0.18.1",
  "gumdrop 0.7.0",
  "once_cell",
  "rust-embed",
