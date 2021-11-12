@@ -92,6 +92,7 @@ impl From<Url> for OsvReference {
     }
 }
 
+#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, Serialize)]
 pub enum OsvReferenceKind {
     ADVISORY,
