@@ -39,7 +39,7 @@ additional terms or conditions.
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/admin.yml
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.52+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [chat-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
 [chat-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
