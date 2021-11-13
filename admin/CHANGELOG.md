@@ -1,3 +1,10 @@
+## 0.6.0 (2021-11-13)
+- Update `rustsec` crate to v0.25 ([#480])
+- Update `atom_syndication` to 0.11 ([#481])
+
+[#480]: https://github.com/RustSec/rustsec/pull/480
+[#481]: https://github.com/RustSec/rustsec/pull/481
+
 ## 0.5.3 (2021-10-22)
 - Bump `rust-embed` from 5.9.0 to 6.2.0 ([#437])
 - Add information about CVSS score and metrics ([#452])
