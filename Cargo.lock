@@ -1100,7 +1100,7 @@ checksum = "3e2e65a1a2e43cfcb47a895c4c8b10d1f4a61097f9f254f183aee60cad9c651d"
 name = "markdown-table-gen"
 version = "0.0.0"
 dependencies = [
- "platforms 2.0.0-pre",
+ "platforms",
 ]
 
 [[package]]
@@ -1344,16 +1344,7 @@ checksum = "12295df4f294471248581bc09bef3c38a5e46f1e36d6a37353621a0c6c357e1f"
 
 [[package]]
 name = "platforms"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "989d43012e2ca1c4a02507c67282691a0a3207f9dc67cec596b43fe925b3d325"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "platforms"
-version = "2.0.0-pre"
+version = "2.0.0"
 dependencies = [
  "serde",
 ]
@@ -1621,7 +1612,7 @@ dependencies = [
  "humantime",
  "humantime-serde",
  "once_cell",
- "platforms 1.1.0",
+ "platforms",
  "semver 1.0.4",
  "serde",
  "tempfile",
