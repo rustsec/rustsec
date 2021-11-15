@@ -4,9 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.25.0 (2021-11-12)
+## 0.25.1 (2021-11-15)
 ### Changed
-- Bump cargo-edit from 0.7.0 to 0.8.0 ([#439])
+- Bump `platforms` dependency to v2.0.0 ([#485])
+
+[#485]: https://github.com/RustSec/rustsec/pull/485
+
+## 0.25.0 (2021-11-12) [YANKED]
+### Changed
+- Bump `cargo-edit` dependency from 0.7.0 to 0.8.0 ([#439])
 - Make `advisory::id::Kind` lowercase ([#471])
 - Bump MSRV to 1.52 ([#476])
 - Flatten API: make modules with one type non-`pub`; re-export type from parent ([#478])
