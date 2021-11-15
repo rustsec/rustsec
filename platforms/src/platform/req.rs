@@ -2,7 +2,7 @@
 
 use crate::error::Error;
 use crate::platform::Platform;
-use std::{fmt, str::FromStr, string::String, vec::Vec};
+use std::{fmt, str::FromStr, string::String};
 
 #[cfg(feature = "serde")]
 use serde::{de, ser, Deserialize, Serialize};
@@ -70,11 +70,10 @@ impl PlatformReq {
     }
 
     /// Expand glob expressions into a list of all known matching platforms
-    pub fn matching_platforms(&self) -> Vec<&'static Platform> {
-        Platform::all()
+    pub fn matching_platforms(&self) -> impl Iterator<Item = &Platform> {
+        Platform::ALL
             .iter()
-            .filter(|platform| self.matches(*platform))
-            .collect()
+            .filter(move |&platform| self.matches(platform))
     }
 }
 
@@ -89,7 +88,7 @@ impl FromStr for PlatformReq {
     fn from_str(req_str: &str) -> Result<PlatformReq, Error> {
         let platform_req = PlatformReq(req_str.into());
 
-        if platform_req.0.is_empty() || platform_req.matching_platforms().is_empty() {
+        if platform_req.0.is_empty() || platform_req.matching_platforms().next().is_none() {
             Err(Error)
         } else {
             Ok(platform_req)
@@ -131,7 +130,6 @@ mod tests {
 
         assert_eq!(
             req.matching_platforms()
-                .iter()
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
@@ -149,7 +147,6 @@ mod tests {
 
         assert_eq!(
             req.matching_platforms()
-                .iter()
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
@@ -173,7 +170,6 @@ mod tests {
 
         assert_eq!(
             req.matching_platforms()
-                .iter()
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
@@ -194,7 +190,6 @@ mod tests {
 
         assert_eq!(
             req.matching_platforms()
-                .iter()
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             ["x86_64-unknown-dragonfly"]
@@ -204,14 +199,20 @@ mod tests {
     #[test]
     fn wildcard_test() {
         let req = PlatformReq::from_str("*").unwrap();
-        assert_eq!(req.matching_platforms().len(), Platform::all().len())
+        assert_eq!(
+            req.matching_platforms().collect::<Vec<_>>().len(),
+            Platform::ALL.len()
+        )
     }
 
     // How to handle this is debatable...
     #[test]
     fn double_wildcard_test() {
         let req = PlatformReq::from_str("**").unwrap();
-        assert_eq!(req.matching_platforms().len(), Platform::all().len())
+        assert_eq!(
+            req.matching_platforms().collect::<Vec<_>>().len(),
+            Platform::ALL.len()
+        )
     }
 
     #[test]
