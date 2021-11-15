@@ -17,7 +17,7 @@ const TARGET_ENV_WIDTH: usize = 10;
 fn main() {
     // TODO: double check the others are aligned
     assert_eq!(
-        Platform::all()
+        Platform::ALL
             .iter()
             .map(|p| p.target_triple.len())
             .max()
@@ -26,7 +26,7 @@ fn main() {
     );
 
     assert_eq!(
-        Platform::all()
+        Platform::ALL
             .iter()
             .map(|p| p.target_os.as_str().len())
             .max()
@@ -41,7 +41,7 @@ fn main() {
 fn print_platforms_table() {
     let mut current_tier: Option<Tier> = None;
 
-    for platform in Platform::all() {
+    for platform in Platform::ALL {
         // Print headers if we're on a different tier from before
         if current_tier != Some(platform.tier) {
             if current_tier.is_some() {
@@ -101,11 +101,10 @@ fn print_platform_entry(platform: &Platform) {
 fn print_platform_links() {
     println!();
 
-    for platform in Platform::all() {
+    for platform in Platform::ALL {
         println!(
-            "[{}]: https://docs.rs/platforms/latest/platforms/platform/tier{}/constant.{}.html",
+            "[{}]: https://docs.rs/platforms/latest/platforms/platform/constant.{}.html",
             platform.target_triple,
-            platform.tier.to_usize(),
             platform.target_triple.to_uppercase().replace('-', "_")
         );
     }
