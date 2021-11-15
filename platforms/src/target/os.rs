@@ -61,8 +61,7 @@ pub enum OS {
     Solaris,
 
     /// `tvOS`: AppleTV operating system
-    #[allow(non_camel_case_types)]
-    tvOS,
+    TvOS,
 
     /// `wasi`: The WebAssembly System Interface
     Wasi,
@@ -97,7 +96,7 @@ impl OS {
             OS::OpenBSD => "openbsd",
             OS::Redox => "redox",
             OS::Solaris => "solaris",
-            OS::tvOS => "tvos",
+            OS::TvOS => "tvos",
             OS::Wasi => "wasi",
             OS::Windows => "windows",
             OS::VxWorks => "vxworks",
@@ -128,7 +127,7 @@ impl FromStr for OS {
             "openbsd" => OS::OpenBSD,
             "redox" => OS::Redox,
             "solaris" => OS::Solaris,
-            "tvos" => OS::tvOS,
+            "tvos" => OS::TvOS,
             "wasi" => OS::Wasi,
             "windows" => OS::Windows,
             "vxworks" => OS::VxWorks,
@@ -230,7 +229,7 @@ pub const TARGET_OS: OS = OS::Solaris;
 
 #[cfg(target_os = "tvos")]
 /// `target_os` when building this crate: `tvos`
-pub const TARGET_OS: OS = OS::tvOS;
+pub const TARGET_OS: OS = OS::TvOS;
 
 #[cfg(target_os = "wasi")]
 /// `target_os` when building this crate: `wasi`
