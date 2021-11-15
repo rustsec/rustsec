@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.16.0 (2021-11-15)
+### Changed
+- Bump `rustsec` dependency to v0.25; MSRV 1.52 ([#480])
+
+### Fixed
+- Parse `--color=auto` correctly ([#436])
+
+[#436]: https://github.com/rustsec/rustsec/pull/436
+[#480]: https://github.com/rustsec/rustsec/pull/480
+
 ## 0.15.2 (2021-09-11)
 ### Added
 - `vendored-libgit2` feature ([#432])
@@ -56,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON serialization ([#277])
 
 [#278]: https://github.com/RustSec/cargo-audit/pull/278
-[#277]: https://github.com/RustSec/cargo-audit/pull/277
+[#a277]: https://github.com/RustSec/cargo-audit/pull/277
 
 ## 0.13.0 (2020-10-26) [YANKED]
 ### Added
