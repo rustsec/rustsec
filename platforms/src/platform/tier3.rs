@@ -33,7 +33,7 @@ pub const AARCH64_APPLE_IOS_SIM: Platform = Platform {
 pub const AARCH64_APPLE_TVOS: Platform = Platform {
     target_triple: "aarch64-apple-tvos",
     target_arch: Arch::AArch64,
-    target_os: OS::tvOS,
+    target_os: OS::TvOS,
     target_env: None,
     tier: Tier::Three,
 };
