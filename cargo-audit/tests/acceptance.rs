@@ -10,7 +10,9 @@
 use abscissa_core::testing::prelude::*;
 use once_cell::sync::Lazy;
 use std::{io::BufRead, path::PathBuf};
+use std::fs::File;
 use tempfile::TempDir;
+use rustsec::Report;
 
 /// Directory containing the advisory database.
 ///
@@ -169,4 +171,15 @@ fn advisories_found_but_ignored_json() {
             .unwrap(),
         0
     );
+}
+
+#[test]
+fn parse_affected_from_json() {
+    let path: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "support", "json", "audit.json"]
+        .iter()
+        .collect();
+    let file = File::open(path)
+        .expect("cannot open file");
+    let report = serde_json::from_reader::<_, Report>(file);
+    assert!(report.is_ok())
 }

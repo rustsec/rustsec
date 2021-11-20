@@ -2,6 +2,7 @@
 
 use crate::error::Error;
 use core::{fmt, str::FromStr};
+use std::string::String;
 
 #[cfg(feature = "serde")]
 use serde::{de, ser, Deserialize, Serialize};
@@ -142,7 +143,7 @@ impl Serialize for Arch {
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Arch {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(<&str>::deserialize(deserializer)?
+        Ok(String::deserialize(deserializer)?
             .parse()
             .unwrap_or(Arch::Unknown))
     }
@@ -234,3 +235,26 @@ pub const TARGET_ARCH: Arch = Arch::X86_64;
 )))]
 /// `target_arch` when building this crate: unknown!
 pub const TARGET_ARCH: Arch = Arch::Unknown;
+
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::target::Arch;
+
+    #[test]
+    fn valid_os_tests() {
+        assert!(Arch::from_str("aarch64").is_ok());
+        assert!(Arch::from_str("x86").is_ok());
+    }
+
+    #[test]
+    fn invalid_os_tests() {
+        assert!(Arch::from_str("").is_err());
+        assert!(Arch::from_str(" ").is_err());
+        assert!(Arch::from_str("derp").is_err());
+        assert!(Arch::from_str("***").is_err());
+        assert!(Arch::from_str("unknown").is_err());
+    }
+}

@@ -1,0 +1,122 @@
+{
+	"database": {
+		"advisory-count": 123,
+		"last-commit": "812e7ad54c1af98bd8a7caqwe997222e2a5b14",
+		"last-updated": "2021-11-18T14:04:01Z"
+	},
+	"lockfile": {
+		"dependency-count": 123
+	},
+	"settings": {
+		"target_arch": null,
+		"target_os": null,
+		"severity": null,
+		"ignore": [],
+		"informational_warnings": ["unmaintained"],
+		"package_scope": null
+	},
+	"vulnerabilities": {
+		"found": true,
+		"count": 1,
+		"list": [{
+			"advisory": {
+				"id": "RUSTSEC-2020-0071",
+				"package": "time",
+				"title": "Potential segfault in the time crate",
+				"description": "### Impact\n\nUnix-like operating systems may segfault due to dereferencing a dangling pointer in specific circumstances. This requires an environment variable to be set in a different thread than the affected functions. This may occur without the user's knowledge, notably in a third-party library.\n\nThe affected functions from time 0.2.7 through 0.2.22 are:\n\n- `time::UtcOffset::local_offset_at`\n- `time::UtcOffset::try_local_offset_at`\n- `time::UtcOffset::current_local_offset`\n- `time::UtcOffset::try_current_local_offset`\n- `time::OffsetDateTime::now_local`\n- `time::OffsetDateTime::try_now_local`\n\nThe affected functions in time 0.1 (all versions) are:\n\n- `at`\n- `at_utc`\n- `now`\n\nNon-Unix targets (including Windows and wasm) are unaffected.\n\n### Patches\n\nPending a proper fix, the internal method that determines the local offset has been modified to always return `None` on the affected operating systems. This has the effect of returning an `Err` on the `try_*` methods and `UTC` on the non-`try_*` methods.\n\nUsers and library authors with time in their dependency tree should perform `cargo update`, which will pull in the updated, unaffected code.\n\nUsers of time 0.1 do not have a patch and should upgrade to an unaffected version: time 0.2.23 or greater or the 0.3 series.\n\n### Workarounds\n\nNo workarounds are known.\n\n### References\n\ntime-rs/time#293",
+				"date": "2020-11-18",
+				"aliases": ["CVE-2020-26235"],
+				"related": [],
+				"collection": "crates",
+				"categories": ["code-execution", "memory-corruption"],
+				"keywords": ["segfault"],
+				"cvss": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+				"informational": null,
+				"url": "https://github.com/time-rs/time/issues/293",
+				"references": [],
+				"withdrawn": null
+			},
+			"versions": {
+				"patched": [">=0.2.23"],
+				"unaffected": ["=0.2.0", "=0.2.1", "=0.2.2", "=0.2.3", "=0.2.4", "=0.2.5", "=0.2.6"]
+			},
+			"affected": {
+				"arch": ["x86", "aarch64"],
+				"os": ["linux", "unknown", "unknown", "android", "ios", "macos", "netbsd", "openbsd", "unknown", "freebsd"],
+				"functions": {
+					"time::OffsetDateTime::now_local": ["<0.2.23"],
+					"time::OffsetDateTime::try_now_local": ["<0.2.23"],
+					"time::UtcOffset::current_local_offset": ["<0.2.23"],
+					"time::UtcOffset::local_offset_at": ["<0.2.23"],
+					"time::UtcOffset::try_current_local_offset": ["<0.2.23"],
+					"time::UtcOffset::try_local_offset_at": ["<0.2.23"],
+					"time::at": ["^0.1"],
+					"time::at_utc": ["^0.1"],
+					"time::now": ["^0.1"]
+				}
+			},
+			"package": {
+				"name": "time",
+				"version": "0.1.43",
+				"source": "registry+https://github.com/rust-lang/crates.io-index",
+				"checksum": "ca8a50ef2360fbd1eeb0ecd46795a87a19024eb4b53c5dc916ca1fd95fe62438",
+				"dependencies": [{
+					"name": "libc",
+					"version": "0.2.107",
+					"source": "registry+https://github.com/rust-lang/crates.io-index"
+				}, {
+					"name": "winapi",
+					"version": "0.3.9",
+					"source": null
+				}],
+				"replace": null
+			}
+		}]
+	},
+	"warnings": {
+		"unmaintained": [{
+			"kind": "unmaintained",
+			"package": {
+				"name": "net2",
+				"version": "0.2.37",
+				"source": "registry+https://github.com/rust-lang/crates.io-index",
+				"checksum": "391630d12b68002ae1e25e8f974306474966550ad82dac6886fb8910c19568ae",
+				"dependencies": [{
+					"name": "cfg-if",
+					"version": "0.1.10",
+					"source": null
+				}, {
+					"name": "libc",
+					"version": "0.2.107",
+					"source": "registry+https://github.com/rust-lang/crates.io-index"
+				}, {
+					"name": "winapi",
+					"version": "0.3.9",
+					"source": null
+				}],
+				"replace": null
+			},
+			"advisory": {
+				"id": "RUSTSEC-2020-0016",
+				"package": "net2",
+				"title": "`net2` crate has been deprecated; use `socket2` instead",
+				"description": "The [`net2`](https://crates.io/crates/net2) crate has been deprecated\nand users are encouraged to considered [`socket2`](https://crates.io/crates/socket2) instead.",
+				"date": "2020-05-01",
+				"aliases": [],
+				"related": [],
+				"collection": "crates",
+				"categories": [],
+				"keywords": [],
+				"cvss": null,
+				"informational": "unmaintained",
+				"url": "https://github.com/deprecrated/net2-rs/commit/3350e3819adf151709047e93f25583a5df681091",
+				"references": [],
+				"withdrawn": null
+			},
+			"versions": {
+				"patched": [],
+				"unaffected": []
+			}
+		}]
+	}
+}

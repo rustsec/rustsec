@@ -2,6 +2,7 @@
 
 use crate::error::Error;
 use core::{fmt, str::FromStr};
+use std::string::String;
 
 #[cfg(feature = "serde")]
 use serde::{de, ser, Deserialize, Serialize};
@@ -80,7 +81,7 @@ impl Serialize for Env {
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Env {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(<&str>::deserialize(deserializer)?
+        Ok(String::deserialize(deserializer)?
             .parse()
             .unwrap_or(Env::Unknown))
     }
@@ -118,3 +119,26 @@ pub const TARGET_ENV: Option<Env> = Some(Env::UClibc);
 )))]
 /// `target_env` when building this crate: none
 pub const TARGET_ENV: Option<Env> = None;
+
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::target::Env;
+
+    #[test]
+    fn valid_os_tests() {
+        assert!(Env::from_str("gnu").is_ok());
+        assert!(Env::from_str("uclibc").is_ok());
+    }
+
+    #[test]
+    fn invalid_os_tests() {
+        assert!(Env::from_str("").is_err());
+        assert!(Env::from_str(" ").is_err());
+        assert!(Env::from_str("derp").is_err());
+        assert!(Env::from_str("***").is_err());
+        assert!(Env::from_str("unknown").is_err());
+    }
+}

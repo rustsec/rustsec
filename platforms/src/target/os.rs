@@ -2,6 +2,7 @@
 
 use crate::error::Error;
 use core::{fmt, str::FromStr};
+use std::string::String;
 
 #[cfg(feature = "serde")]
 use serde::{de, ser, Deserialize, Serialize};
@@ -154,7 +155,7 @@ impl Serialize for OS {
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for OS {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(<&str>::deserialize(deserializer)?
+        Ok(String::deserialize(deserializer)?
             .parse()
             .unwrap_or(OS::Unknown))
     }
@@ -266,3 +267,27 @@ pub const TARGET_OS: OS = OS::VxWorks;
 )))]
 /// `target_os` when building this crate: unknown!
 pub const TARGET_OS: OS = OS::Unknown;
+
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::target::OS;
+
+    #[test]
+    fn valid_os_tests() {
+        assert!(OS::from_str("linux").is_ok());
+        assert!(OS::from_str("ios").is_ok());
+        assert!(OS::from_str("windows").is_ok());
+    }
+
+    #[test]
+    fn invalid_os_tests() {
+        assert!(OS::from_str("").is_err());
+        assert!(OS::from_str(" ").is_err());
+        assert!(OS::from_str("derp").is_err());
+        assert!(OS::from_str("***").is_err());
+        assert!(OS::from_str("unknown").is_err());
+    }
+}
