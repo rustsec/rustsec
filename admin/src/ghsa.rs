@@ -18,6 +18,7 @@ use crate::{
 };
 
 use serde::Deserialize;
+use serde_json;
 use ureq;
 
 const INITIAL_QUERY: &str = "
@@ -45,6 +46,37 @@ const INITIAL_QUERY: &str = "
     }
   }
 ";
+
+/// Same as INITIAL_QUERY, but with an 'after' field.
+fn follow_up_query(cursor: &str) -> String {
+    // Sadly this has to be a function because the format! macro doesn't like all the { braces } in the query
+    "{
+      securityVulnerabilities(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}, ecosystem: RUST, after: ".to_owned() +
+      serde_json::to_string(cursor).unwrap().as_str() // serializing to JSON sanitizes the input string, just in case
+      + ") {
+        nodes {
+          advisory {
+            publishedAt
+            updatedAt
+            withdrawnAt
+            references {
+              url
+            }
+            identifiers {
+              value
+            }
+            permalink
+            ghsaId
+          }
+        }
+        pageInfo {
+          hasNextPage
+          endCursor
+        }
+      }
+    }
+  "
+}
 
 #[derive(Debug, Deserialize)]
 pub struct Identifier {
@@ -138,15 +170,27 @@ impl GhsaImporter {
     }
 
     pub fn do_stuff(&self, token: &str) {
-        loop {
-            let response: Response = graphql_request(INITIAL_QUERY, token).into_json().unwrap();
+        let response: Response = graphql_request(INITIAL_QUERY, token).into_json().unwrap();
+        let data = response.data.securityVulnerabilities;
+        for node in data.nodes {
+            self.process_ghsa_advisory(node.advisory);
+        }
+        let mut cursor = data.pageInfo.endCursor;
+        let mut has_next_page = data.pageInfo.hasNextPage;
+        while has_next_page {
+            let query = follow_up_query(&cursor);
+            let response_str = graphql_request(&query, token).into_string().unwrap();
+            let response: Response = serde_json::from_str(&response_str).unwrap_or_else(|_|{
+                println!("{}", &response_str);
+                panic!("Oh no")
+            });
+            //let response: Response = graphql_request(&query, token).into_json().unwrap();
             let data = response.data.securityVulnerabilities;
             for node in data.nodes {
                 self.process_ghsa_advisory(node.advisory);
             }
-            if !data.pageInfo.hasNextPage {
-                break;
-            }
+            cursor = data.pageInfo.endCursor;
+            has_next_page = data.pageInfo.hasNextPage;
         }
     }
 
