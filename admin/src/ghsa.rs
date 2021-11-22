@@ -76,7 +76,7 @@ pub struct GhsaAdvisory {
 #[derive(Debug, Deserialize)]
 #[allow(non_snake_case)] // needs to map directly to GHSA return format
 struct Node {
-    advisory: GhsaAdvisory
+    advisory: GhsaAdvisory,
 }
 
 #[derive(Debug, Deserialize)]
@@ -144,16 +144,24 @@ impl GhsaImporter {
             for node in data.nodes {
                 self.process_node(node);
             }
-            if ! data.pageInfo.hasNextPage {
+            if !data.pageInfo.hasNextPage {
                 break;
             }
         }
     }
 
     fn process_node(&self, node: Node) {
-        let advisory = node.advisory.references.iter().find_map(|url| self.advisory_for_url(url));
+        let advisory = node
+            .advisory
+            .references
+            .iter()
+            .find_map(|url| self.advisory_for_url(url));
         if let Some(advisory) = advisory {
-            println!("Found match for {}: {}", node.advisory.ghsa_id, advisory.id());
+            println!(
+                "Found match for {}: {}",
+                node.advisory.ghsa_id,
+                advisory.id()
+            );
         } else {
             println!("No match found for {}", node.advisory.ghsa_id);
         }
