@@ -4,10 +4,10 @@
 #![allow(dead_code)] //TODO
 #![allow(missing_docs)] //TODO
 
-use std::path::{Path, PathBuf};
+use std::{path::{Path, PathBuf}, str::FromStr};
 
 use crates_index::Index;
-use rustsec::{Database, Repository};
+use rustsec::{Advisory, Database, Repository, advisory::Id};
 
 use crate::{
     error::{Error, ErrorKind},
@@ -118,6 +118,21 @@ impl GhsaImporter {
         Ok(Self {
             advisory_db
         })
+    }
+
+    pub fn advisory_for_url(&self, url: Url) -> Option<&Advisory> {
+        let url = &url.url;
+        if url.starts_with("https://rustsec.org/advisories/RUSTSEC") {
+            let prefix_len = "https://rustsec.org/advisories/".len();
+            let id_len = "RUSTSEC-0000-0000".len();
+            let id: String = url.chars().skip(prefix_len).take(id_len).collect();
+            match Id::from_str(&id) {
+                Ok(id) => self.advisory_db.get(&id),
+                Err(_) => None
+            }
+        } else {
+            None
+        }
     }
 }
 
