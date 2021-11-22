@@ -21,7 +21,7 @@ use serde::Deserialize;
 use ureq;
 
 const QUERY: &str = "
-{
+  {
     securityAdvisories(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
       pageInfo {
         startCursor
@@ -145,12 +145,11 @@ impl GhsaImporter {
     }
 
     fn process_node(&self, node: Node) {
-        for url in node.references {
-            if let Some(advisory) = self.advisory_for_url(&url) {
-                println!("Found match for {}: {}", node.ghsa_id, advisory.id());
-            } else {
-                println!("No match found for {}", node.ghsa_id);
-            }
+        let advisory = node.references.iter().find_map(|url| self.advisory_for_url(url));
+        if let Some(advisory) = advisory {
+            println!("Found match for {}: {}", node.ghsa_id, advisory.id());
+        } else {
+            println!("No match found for {}", node.ghsa_id);
         }
     }
 }
