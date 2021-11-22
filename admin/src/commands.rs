@@ -1,6 +1,7 @@
 //! `rustsec-admin` CLI subcommands
 
 mod assign_id;
+mod ghsa;
 mod lint;
 mod list_affected_versions;
 mod osv;
@@ -8,7 +9,7 @@ mod version;
 mod web;
 
 use self::{
-    assign_id::AssignIdCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
+    assign_id::AssignIdCmd, ghsa::GhsaCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
     osv::OsvCmd, version::VersionCmd, web::WebCmd,
 };
 use crate::config::AppConfig;
@@ -41,6 +42,10 @@ pub enum AdminCmd {
     /// The `osv` subcommand
     #[options(help = "export advisories to OSV format")]
     Osv(OsvCmd),
+
+    /// The `ghsa` subcommand
+    #[options(help = "import advisories from GHSA")]
+    Ghsa(GhsaCmd),
 
     /// The `version` subcommand
     #[options(help = "list affected crate versions")]

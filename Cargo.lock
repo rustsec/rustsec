@@ -318,7 +318,7 @@ dependencies = [
  "subprocess",
  "termcolor",
  "toml_edit",
- "ureq",
+ "ureq 1.5.5",
  "url",
 ]
 
@@ -1594,8 +1594,20 @@ dependencies = [
  "base64",
  "log",
  "ring",
- "sct",
- "webpki",
+ "sct 0.6.1",
+ "webpki 0.21.4",
+]
+
+[[package]]
+name = "rustls"
+version = "0.20.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d37e5e2290f3e040b594b1a9e04377c2c671f1a1cfd9bfdef82106ac1c113f84"
+dependencies = [
+ "log",
+ "ring",
+ "sct 0.7.0",
+ "webpki 0.22.0",
 ]
 
 [[package]]
@@ -1640,6 +1652,7 @@ dependencies = [
  "termcolor",
  "thiserror",
  "toml",
+ "ureq 2.3.1",
  "xml-rs",
 ]
 
@@ -1669,6 +1682,16 @@ name = "sct"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b362b83898e0e69f38515b82ee15aa80636befe47c3b6d3d89a911e78fc228ce"
+dependencies = [
+ "ring",
+ "untrusted",
+]
+
+[[package]]
+name = "sct"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d53dcdb7c9f8158937a7981b48accfd39a43af418591a5d008c7b22b5e1b7ca4"
 dependencies = [
  "ring",
  "untrusted",
@@ -2202,13 +2225,31 @@ dependencies = [
  "log",
  "once_cell",
  "qstring",
- "rustls",
+ "rustls 0.19.1",
  "serde",
  "serde_json",
  "socks",
  "url",
- "webpki",
- "webpki-roots",
+ "webpki 0.21.4",
+ "webpki-roots 0.21.1",
+]
+
+[[package]]
+name = "ureq"
+version = "2.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c5c448dcb78ec38c7d59ec61f87f70a98ea19171e06c139357e012ee226fec90"
+dependencies = [
+ "base64",
+ "chunked_transfer",
+ "log",
+ "once_cell",
+ "rustls 0.20.2",
+ "serde",
+ "serde_json",
+ "url",
+ "webpki 0.22.0",
+ "webpki-roots 0.22.1",
 ]
 
 [[package]]
@@ -2349,12 +2390,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "webpki"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f095d78192e208183081cc07bc5515ef55216397af48b873e5edcd72637fa1bd"
+dependencies = [
+ "ring",
+ "untrusted",
+]
+
+[[package]]
 name = "webpki-roots"
 version = "0.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aabe153544e473b775453675851ecc86863d2a81d786d741f6b76778f2a48940"
 dependencies = [
- "webpki",
+ "webpki 0.21.4",
+]
+
+[[package]]
+name = "webpki-roots"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c475786c6f47219345717a043a37ec04cb4bc185e28853adcc4fa0a947eba630"
+dependencies = [
+ "webpki 0.22.0",
 ]
 
 [[package]]

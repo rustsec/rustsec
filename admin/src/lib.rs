@@ -10,6 +10,7 @@ pub mod assigner;
 pub mod commands;
 pub mod config;
 pub mod error;
+pub mod ghsa;
 pub mod linter;
 pub mod list_versions;
 pub mod osv_export;
