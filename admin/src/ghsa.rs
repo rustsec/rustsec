@@ -180,7 +180,7 @@ impl GhsaImporter {
         while has_next_page {
             let query = follow_up_query(&cursor);
             let response_str = graphql_request(&query, token).into_string().unwrap();
-            let response: Response = serde_json::from_str(&response_str).unwrap_or_else(|_|{
+            let response: Response = serde_json::from_str(&response_str).unwrap_or_else(|_| {
                 println!("{}", &response_str);
                 panic!("Oh no")
             });
