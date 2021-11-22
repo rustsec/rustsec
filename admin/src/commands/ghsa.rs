@@ -1,7 +1,7 @@
 //! `rustsec-admin ghsa` subcommand
 //!
 //! Imports advisory data from GHSA to RustSec.
-//! 
+//!
 //! Requires the GITHUB_TOKEN environment variable to be set, see
 //! https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token
 //! Do not grant any access scopes to the token! We only need read-only access to public data.

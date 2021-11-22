@@ -4,18 +4,21 @@
 #![allow(dead_code)] //TODO
 #![allow(missing_docs)] //TODO
 
-use std::{path::{Path, PathBuf}, str::FromStr};
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 use crates_index::Index;
-use rustsec::{Advisory, Database, Repository, advisory::Id};
+use rustsec::{advisory::Id, Advisory, Database, Repository};
 
 use crate::{
     error::{Error, ErrorKind},
     prelude::*,
 };
 
-use ureq;
 use serde::Deserialize;
+use ureq;
 
 const QUERY: &str = "
 {
@@ -44,12 +47,12 @@ const QUERY: &str = "
 
 #[derive(Debug, Deserialize)]
 pub struct Identifier {
-    pub value: String
+    pub value: String,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct Url {
-    pub url: String
+    pub url: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -74,7 +77,7 @@ pub struct Node {
 struct PageInfo {
     startCursor: String,
     endCursor: String,
-    hasNextPage: bool
+    hasNextPage: bool,
 }
 
 #[derive(Debug, Deserialize)]
@@ -87,20 +90,21 @@ struct SecurityAdvisories {
 #[derive(Debug, Deserialize)]
 #[allow(non_snake_case)] // needs to map directly to GHSA return format
 struct Data {
-    securityAdvisories: SecurityAdvisories
+    securityAdvisories: SecurityAdvisories,
 }
 
 #[derive(Debug, Deserialize)]
 struct Response {
-    data: Data
+    data: Data,
 }
 
 fn graphql_request(request: &str, token: &str) -> ureq::Response {
     ureq::post("https://api.github.com/graphql")
-      .set("Authorization", &("bearer ".to_owned() + token))
-      .send_json(ureq::json!({
-          "query": request,
-      })).unwrap() // TODO
+        .set("Authorization", &("bearer ".to_owned() + token))
+        .send_json(ureq::json!({
+            "query": request,
+        }))
+        .unwrap() // TODO
 }
 
 pub struct GhsaImporter {
@@ -117,11 +121,8 @@ impl GhsaImporter {
             Some(path) => Repository::open(path)?,
             None => Repository::fetch_default_repo()?,
         };
-        let advisory_db = Database::load_from_repo(&repo)?;    
-        Ok(Self {
-            repo,
-            advisory_db
-        })
+        let advisory_db = Database::load_from_repo(&repo)?;
+        Ok(Self { repo, advisory_db })
     }
 
     pub fn advisory_for_url(&self, url: Url) -> Option<&Advisory> {
@@ -132,7 +133,7 @@ impl GhsaImporter {
             let id: String = url.chars().skip(prefix_len).take(id_len).collect();
             match Id::from_str(&id) {
                 Ok(id) => self.advisory_db.get(&id),
-                Err(_) => None
+                Err(_) => None,
             }
         } else {
             None

@@ -9,8 +9,8 @@ mod version;
 mod web;
 
 use self::{
-    assign_id::AssignIdCmd, ghsa::GhsaCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
-    osv::OsvCmd, version::VersionCmd, web::WebCmd,
+    assign_id::AssignIdCmd, ghsa::GhsaCmd, lint::LintCmd,
+    list_affected_versions::ListAffectedVersionsCmd, osv::OsvCmd, version::VersionCmd, web::WebCmd,
 };
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Help, Options, Runnable};
