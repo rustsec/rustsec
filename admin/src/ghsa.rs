@@ -98,15 +98,6 @@ struct Response {
     data: Data,
 }
 
-fn graphql_request(request: &str, token: &str) -> ureq::Response {
-    ureq::post("https://api.github.com/graphql")
-        .set("Authorization", &("bearer ".to_owned() + token))
-        .send_json(ureq::json!({
-            "query": request,
-        }))
-        .unwrap() // TODO
-}
-
 pub struct GhsaImporter {
     /// Loaded advisory DB repository
     repo: Repository,
@@ -125,7 +116,7 @@ impl GhsaImporter {
         Ok(Self { repo, advisory_db })
     }
 
-    pub fn advisory_for_url(&self, url: Url) -> Option<&Advisory> {
+    pub fn advisory_for_url(&self, url: &Url) -> Option<&Advisory> {
         let url = &url.url;
         if url.starts_with("https://rustsec.org/advisories/RUSTSEC") {
             let prefix_len = "https://rustsec.org/advisories/".len();
@@ -139,9 +130,41 @@ impl GhsaImporter {
             None
         }
     }
+
+    pub fn do_stuff(&self, token: &str) {
+        loop {
+            let response: Response = graphql_request(QUERY, token).into_json().unwrap();
+            let data = response.data.securityAdvisories;
+            for node in data.nodes {
+                self.process_node(node);
+            }
+            if ! data.pageInfo.hasNextPage {
+                break;
+            }
+        }
+    }
+
+    fn process_node(&self, node: Node) {
+        for url in node.references {
+            if let Some(advisory) = self.advisory_for_url(&url) {
+                println!("Found match for {}: {}", node.ghsa_id, advisory.id());
+            } else {
+                println!("No match found for {}", node.ghsa_id);
+            }
+        }
+    }
 }
 
-pub fn fetch_stuff(token: &str) {
+fn graphql_request(request: &str, token: &str) -> ureq::Response {
+    ureq::post("https://api.github.com/graphql")
+        .set("Authorization", &("bearer ".to_owned() + token))
+        .send_json(ureq::json!({
+            "query": request,
+        }))
+        .unwrap() // TODO
+}
+
+pub fn fetch_one_page(token: &str) {
     let response: Response = graphql_request(QUERY, token).into_json().unwrap();
     dbg!(response.data);
 }

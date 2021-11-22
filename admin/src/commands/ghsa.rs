@@ -30,19 +30,12 @@ pub struct GhsaCmd {
 
 impl Runnable for GhsaCmd {
     fn run(&self) {
-        let repo_path: Option<&Path> = self.repo_path.as_deref();
+        let repo_path = self.repo_path.clone();
         let token = std::env::var("GITHUB_TOKEN").unwrap_or_else(|_| {
             status_err!("GITHUB_TOKEN env variable must be set");
             exit(1);
         });
-        ghsa::fetch_stuff(&token);
-        // let exporter = OsvExporter::new(repo_path).unwrap_or_else(|e| {
-        //     status_err!("Failed to fetch the advisory database: {}", e);
-        //     exit(1);
-        // });
-        // exporter.export_all(out_path).unwrap_or_else(|e| {
-        //     status_err!("failed not export to '{}': {}", out_path.display(), e);
-        //     exit(1);
-        // });
+        let importer = ghsa::GhsaImporter::new(repo_path).unwrap();
+        importer.do_stuff(&token);
     }
 }
