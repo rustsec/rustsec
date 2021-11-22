@@ -20,26 +20,27 @@ use crate::{
 use serde::Deserialize;
 use ureq;
 
-const QUERY: &str = "
+const INITIAL_QUERY: &str = "
   {
-    securityAdvisories(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
-      pageInfo {
-        startCursor
-        endCursor
-        hasNextPage
-      }
+    securityVulnerabilities(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}, ecosystem: RUST) {
       nodes {
-        publishedAt
-        updatedAt
-        withdrawnAt
-        references {
-          url
+        advisory {
+          publishedAt
+          updatedAt
+          withdrawnAt
+          references {
+            url
+          }
+          identifiers {
+            value
+          }
+          permalink
+          ghsaId
         }
-        identifiers {
-          value
-        }
-        permalink
-        ghsaId
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
       }
     }
   }
@@ -56,7 +57,7 @@ pub struct Url {
 }
 
 #[derive(Debug, Deserialize)]
-pub struct Node {
+pub struct GhsaAdvisory {
     #[serde(rename = "publishedAt")]
     published_at: String, //TODO: date
     #[serde(rename = "updatedAt")]
@@ -74,15 +75,20 @@ pub struct Node {
 
 #[derive(Debug, Deserialize)]
 #[allow(non_snake_case)] // needs to map directly to GHSA return format
+struct Node {
+    advisory: GhsaAdvisory
+}
+
+#[derive(Debug, Deserialize)]
+#[allow(non_snake_case)] // needs to map directly to GHSA return format
 struct PageInfo {
-    startCursor: String,
     endCursor: String,
     hasNextPage: bool,
 }
 
 #[derive(Debug, Deserialize)]
 #[allow(non_snake_case)] // needs to map directly to GHSA return format
-struct SecurityAdvisories {
+struct SecurityVulnerabilities {
     pageInfo: PageInfo,
     nodes: Vec<Node>,
 }
@@ -90,7 +96,7 @@ struct SecurityAdvisories {
 #[derive(Debug, Deserialize)]
 #[allow(non_snake_case)] // needs to map directly to GHSA return format
 struct Data {
-    securityAdvisories: SecurityAdvisories,
+    securityVulnerabilities: SecurityVulnerabilities,
 }
 
 #[derive(Debug, Deserialize)]
@@ -133,8 +139,8 @@ impl GhsaImporter {
 
     pub fn do_stuff(&self, token: &str) {
         loop {
-            let response: Response = graphql_request(QUERY, token).into_json().unwrap();
-            let data = response.data.securityAdvisories;
+            let response: Response = graphql_request(INITIAL_QUERY, token).into_json().unwrap();
+            let data = response.data.securityVulnerabilities;
             for node in data.nodes {
                 self.process_node(node);
             }
@@ -145,11 +151,11 @@ impl GhsaImporter {
     }
 
     fn process_node(&self, node: Node) {
-        let advisory = node.references.iter().find_map(|url| self.advisory_for_url(url));
+        let advisory = node.advisory.references.iter().find_map(|url| self.advisory_for_url(url));
         if let Some(advisory) = advisory {
-            println!("Found match for {}: {}", node.ghsa_id, advisory.id());
+            println!("Found match for {}: {}", node.advisory.ghsa_id, advisory.id());
         } else {
-            println!("No match found for {}", node.ghsa_id);
+            println!("No match found for {}", node.advisory.ghsa_id);
         }
     }
 }
@@ -164,6 +170,6 @@ fn graphql_request(request: &str, token: &str) -> ureq::Response {
 }
 
 pub fn fetch_one_page(token: &str) {
-    let response: Response = graphql_request(QUERY, token).into_json().unwrap();
+    let response: Response = graphql_request(INITIAL_QUERY, token).into_json().unwrap();
     dbg!(response.data);
 }
