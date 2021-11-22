@@ -104,18 +104,22 @@ fn graphql_request(request: &str, token: &str) -> ureq::Response {
 }
 
 pub struct GhsaImporter {
+    /// Loaded advisory DB repository
+    repo: Repository,
+
     /// Loaded Advisory DB
     advisory_db: Database,
 }
 
 impl GhsaImporter {
     pub fn new(repo_path: Option<PathBuf>) -> Result<Self, Error> {
-        let repository = match repo_path {
+        let repo = match repo_path {
             Some(path) => Repository::open(path)?,
             None => Repository::fetch_default_repo()?,
         };
-        let advisory_db = Database::load_from_repo(&repository)?;    
+        let advisory_db = Database::load_from_repo(&repo)?;    
         Ok(Self {
+            repo,
             advisory_db
         })
     }
