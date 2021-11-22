@@ -179,12 +179,7 @@ impl GhsaImporter {
         let mut has_next_page = data.pageInfo.hasNextPage;
         while has_next_page {
             let query = follow_up_query(&cursor);
-            let response_str = graphql_request(&query, token).into_string().unwrap();
-            let response: Response = serde_json::from_str(&response_str).unwrap_or_else(|_| {
-                println!("{}", &response_str);
-                panic!("Oh no")
-            });
-            //let response: Response = graphql_request(&query, token).into_json().unwrap();
+            let response: Response = graphql_request(&query, token).into_json().unwrap();
             let data = response.data.securityVulnerabilities;
             for node in data.nodes {
                 self.process_ghsa_advisory(node.advisory);
