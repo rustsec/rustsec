@@ -119,7 +119,7 @@ impl GhsaImporter {
     pub fn new(repo_path: Option<PathBuf>) -> Result<Self, Error> {
         let repo = match repo_path {
             Some(path) => Repository::open(path)?,
-            None => Repository::fetch_default_repo()?,
+            None => Repository::fetch_default_repo()?, //TODO: check if modifying causes issues for `cargo audit`
         };
         let advisory_db = Database::load_from_repo(&repo)?;
         Ok(Self { repo, advisory_db })
