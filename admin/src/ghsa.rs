@@ -142,7 +142,7 @@ impl GhsaImporter {
             let response: Response = graphql_request(INITIAL_QUERY, token).into_json().unwrap();
             let data = response.data.securityVulnerabilities;
             for node in data.nodes {
-                self.process_node(node);
+                self.process_ghsa_advisory(node.advisory);
             }
             if !data.pageInfo.hasNextPage {
                 break;
@@ -150,20 +150,19 @@ impl GhsaImporter {
         }
     }
 
-    fn process_node(&self, node: Node) {
-        let advisory = node
-            .advisory
+    fn process_ghsa_advisory(&self, gsha_advisory: GhsaAdvisory) {
+        let advisory = gsha_advisory
             .references
             .iter()
             .find_map(|url| self.advisory_for_url(url));
         if let Some(advisory) = advisory {
             println!(
                 "Found match for {}: {}",
-                node.advisory.ghsa_id,
+                gsha_advisory.ghsa_id,
                 advisory.id()
             );
         } else {
-            println!("No match found for {}", node.advisory.ghsa_id);
+            println!("No match found for {}", gsha_advisory.ghsa_id);
         }
     }
 }
