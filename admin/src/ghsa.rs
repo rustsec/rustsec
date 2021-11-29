@@ -219,3 +219,16 @@ pub fn fetch_one_page(token: &str) {
     let response: Response = graphql_request(INITIAL_QUERY, token).into_json().unwrap();
     dbg!(response.data);
 }
+
+/// Checks if this is a valid crate name according to crates.io constraints.
+/// Also happens to prevent directory traversal attacks by prohibiting '/' and '.'
+pub fn is_valid_crate_name(name: &str) -> bool {
+    !name.is_empty()
+    && name.len() <= 64
+    // Could be optimized into a fancy lookup table and become branchless.
+    // But this is unlikely to become a bottleneck, so simplicity is best.
+    && name
+        .chars()
+        .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+    // TODO: also handle Windows reserved filenames?
+}
