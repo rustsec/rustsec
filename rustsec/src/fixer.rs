@@ -15,7 +15,8 @@ pub struct Fixer {
 impl Fixer {
     /// Create a new [`Fixer`] for the given `Cargo.toml` file
     pub fn new(cargo_toml: impl AsRef<Path>) -> Result<Self, Error> {
-        let manifest = cargo_edit::LocalManifest::try_new(cargo_toml.as_ref())?;
+        let manifest =
+            cargo_edit::LocalManifest::try_new(cargo_toml.as_ref().canonicalize()?.as_ref())?;
         Ok(Self { manifest })
     }
 
