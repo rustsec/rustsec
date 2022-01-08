@@ -256,7 +256,7 @@ mod tests {
             rustsec_id.url().unwrap(),
             "https://rustsec.org/advisories/RUSTSEC-2018-0001"
         );
-        assert_eq!(rustsec_id.numerical_part().unwrap(), 0001);
+        assert_eq!(rustsec_id.numerical_part().unwrap(), 1);
     }
 
     // The RUSTSEC-0000-0000 ID is a placeholder we need to treat as valid
@@ -302,7 +302,7 @@ mod tests {
             talos_id.url().unwrap(),
             "https://www.talosintelligence.com/reports/TALOS-2017-0468"
         );
-        assert_eq!(talos_id.numerical_part().unwrap(), 0468);
+        assert_eq!(talos_id.numerical_part().unwrap(), 468);
     }
 
     #[test]

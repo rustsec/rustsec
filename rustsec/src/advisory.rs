@@ -86,7 +86,7 @@ impl FromStr for Advisory {
     type Err = Error;
 
     fn from_str(advisory_data: &str) -> Result<Self, Error> {
-        let parts = parts::Parts::parse(&advisory_data)?;
+        let parts = parts::Parts::parse(advisory_data)?;
 
         // V4 advisories omit the leading `[advisory]` TOML table
         let front_matter = if parts.front_matter.starts_with("[advisory]") {

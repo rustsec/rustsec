@@ -130,7 +130,6 @@ impl Database {
     }
 
     /// Find vulnerabilities in the provided `Lockfile` which match a given query.
-    // TODO(tarcieri): move `package_scope` into `Query`?
     pub fn query_vulnerabilities(
         &self,
         lockfile: &Lockfile,
