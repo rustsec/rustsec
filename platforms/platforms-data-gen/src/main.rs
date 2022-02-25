@@ -10,7 +10,7 @@ fn main() {
     let targets_info = rustc_target_info::targets_info(&triples);
 
     for key in FIELDS_WITH_ENUMS.iter() {
-        println!("pub enum {} {{", enum_name(key));
+        println!("pub enum {} {{", to_enum_name(key));
         for variant_name in enum_variant_names(key, &targets_info) {
             println!("    {},", variant_name);
         }
@@ -18,11 +18,16 @@ fn main() {
     }
     // Print list of platforms with all the data about them
     for (triple, info) in triples.iter().zip(targets_info) {
-        println!("{{\n    target_triple: \"{}\",", &triple);
+        println!("pub const {}: Platform = Platform {{
+    target_triple: \"{}\",", to_const_variable_name(triple), triple);
     for key in FIELDS_WITH_ENUMS.iter() {
         let value = enumify_value(key, &info[*key]);
         println!("    {}: {},", key, value);
     }
     println!("}};\n")
     }
+}
+
+fn to_const_variable_name(input: &str) -> String {
+    input.to_ascii_uppercase().replace("-", "_")
 }

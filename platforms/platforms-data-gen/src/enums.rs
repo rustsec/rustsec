@@ -4,7 +4,7 @@ use crate::rustc_target_info::RustcTargetsInfo;
 
 
 pub(crate) fn enum_variant_names(key: &str, info: &RustcTargetsInfo) -> Vec<String> {
-    distinct_values(key, info).iter().map(|v| enum_variant_name(v)).collect()
+    distinct_values(key, info).iter().map(|v| to_enum_variant_name(v)).collect()
 }
 
 fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
@@ -12,10 +12,10 @@ fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
 }
 
 pub(crate) fn enumify_value(key: &str, value: &str) -> String {
-    format!("{}::{}", enum_name(key), enum_variant_name(value))
+    format!("{}::{}", to_enum_name(key), to_enum_variant_name(value))
 }
 
-pub(crate) fn enum_name(key: &str) -> &'static str {
+pub(crate) fn to_enum_name(key: &str) -> &'static str {
     match key {
         "target_arch" => "Arch",
         "target_os" => "OS",
@@ -27,7 +27,7 @@ pub(crate) fn enum_name(key: &str) -> &'static str {
     }
 }
 
-fn enum_variant_name(value: &str) -> String {
+fn to_enum_variant_name(value: &str) -> String {
     // TODO: there are some exceptions but this is the general trend
     let mut name = value.to_string();
     make_ascii_titlecase(&mut name);
