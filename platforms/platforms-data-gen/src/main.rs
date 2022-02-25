@@ -1,18 +1,28 @@
 mod rustc_target_info;
 mod enums;
 
+use enums::*;
+
+const FIELDS_WITH_ENUMS: [&'static str; 5] = ["target_arch", "target_os", "target_env", "target_endian", "target_pointer_width"];
+
 fn main() {
     let triples = rustc_target_info::target_triples();
     let targets_info = rustc_target_info::targets_info(&triples);
+
+    for key in FIELDS_WITH_ENUMS.iter() {
+        println!("pub enum {} {{", enum_name(key));
+        for variant_name in enum_variant_names(key, &targets_info) {
+            println!("    {},", variant_name);
+        }
+        println!("}}\n");
+    }
+    // Print list of platforms with all the data about them
     for (triple, info) in triples.iter().zip(targets_info) {
-        println!("{{
-    target_triple: \"{}\",
-    target_arch: \"{}\",
-    target_os: \"{}\",
-    target_env: \"{}\",
-    target_endian: \"{}\",
-    target_pointer_width: \"{}\",
-}};
-", &triple, info["target_arch"], info["target_os"], info["target_env"], info["target_endian"], info["target_pointer_width"]);
+        println!("{{\n    target_triple: \"{}\",", &triple);
+    for key in FIELDS_WITH_ENUMS.iter() {
+        let value = enumify_value(key, &info[*key]);
+        println!("    {}: {},", key, value);
+    }
+    println!("}};\n")
     }
 }

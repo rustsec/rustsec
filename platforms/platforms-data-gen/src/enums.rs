@@ -2,23 +2,20 @@ use std::collections::BTreeSet;
 
 use crate::rustc_target_info::RustcTargetsInfo;
 
-#[derive(Debug, Clone)]
-pub(crate) struct EnumData {
-    pub name: &'static str,
-    pub variant_names: Vec<String>
-}
 
-fn enum_definition(key: &str, info: &RustcTargetsInfo) -> EnumData {
-    let name = enum_name(key);
-    let variant_names: Vec<String> = distinct_values(key, info).iter().map(|v| enum_variant_name(v)).collect();
-    EnumData {name, variant_names }
+pub(crate) fn enum_variant_names(key: &str, info: &RustcTargetsInfo) -> Vec<String> {
+    distinct_values(key, info).iter().map(|v| enum_variant_name(v)).collect()
 }
 
 fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
     info.iter().map(|t| &t[key]).cloned().collect()
 }
 
-fn enum_name(key: &str) -> &'static str {
+pub(crate) fn enumify_value(key: &str, value: &str) -> String {
+    format!("{}::{}", enum_name(key), enum_variant_name(value))
+}
+
+pub(crate) fn enum_name(key: &str) -> &'static str {
     match key {
         "target_arch" => "Arch",
         "target_os" => "OS",
