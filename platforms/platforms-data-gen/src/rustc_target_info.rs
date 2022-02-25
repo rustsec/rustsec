@@ -1,6 +1,7 @@
 use std::{io::BufRead, process::Child};
 
-pub type RustcTargetInfo = std::collections::HashMap<String, String>;
+type RustcTargetInfo = std::collections::HashMap<String, String>;
+pub type RustcTargetsInfo = Vec<RustcTargetInfo>;
 pub type TargetTriple = String;
 
 pub fn target_triples() -> Vec<TargetTriple> {
