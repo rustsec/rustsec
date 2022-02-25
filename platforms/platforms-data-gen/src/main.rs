@@ -8,9 +8,11 @@ fn main() {
     target_triple: \"{}\",
     target_arch: \"{}\",
     target_os: \"{}\",
-    target_env: \"{}\"
+    target_env: \"{}\",
+    target_endian: \"{}\",
+    target_pointer_width: \"{}\",
 }};
-", &triple, info["target_arch"], info["target_os"], info["target_env"]);
+", &triple, info["target_arch"], info["target_os"], info["target_env"], info["target_endian"], info["target_pointer_width"]);
     }
 }
 
