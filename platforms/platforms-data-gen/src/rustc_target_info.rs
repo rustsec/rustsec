@@ -17,7 +17,6 @@ pub fn target_triples() -> Vec<TargetTriple> {
 pub fn targets_info(triples: &[TargetTriple]) -> Vec<RustcTargetInfo> {
     // Spawn all queries at once to make use of all available cores.
     // No it's not premature optimization, it lets me iterate faster okay?
-    // Plus I'm really curious if this is actually going to work...
     let child_processes: Vec<Child> = triples.iter().map(|t| spawn_rustc_target_info_query(t)).collect();
     child_processes.into_iter().map(|c| {
         let output = c.wait_with_output().unwrap();
