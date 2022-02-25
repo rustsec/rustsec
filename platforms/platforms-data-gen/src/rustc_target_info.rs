@@ -4,7 +4,7 @@ type RustcTargetInfo = std::collections::HashMap<String, String>;
 pub type RustcTargetsInfo = Vec<RustcTargetInfo>;
 pub type TargetTriple = String;
 
-pub fn target_triples() -> Vec<TargetTriple> {
+pub(crate) fn target_triples() -> Vec<TargetTriple> {
     std::process::Command::new("rustc")
         .arg("--print=target-list")
         .output()
@@ -15,7 +15,7 @@ pub fn target_triples() -> Vec<TargetTriple> {
         .collect()
 }
 
-pub fn targets_info(triples: &[TargetTriple]) -> Vec<RustcTargetInfo> {
+pub(crate) fn targets_info(triples: &[TargetTriple]) -> Vec<RustcTargetInfo> {
     // Spawn all queries at once to make use of all available cores.
     // No it's not premature optimization, it lets me iterate faster okay?
     let child_processes: Vec<Child> = triples.iter().map(|t| spawn_rustc_target_info_query(t)).collect();
