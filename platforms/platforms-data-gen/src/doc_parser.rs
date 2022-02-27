@@ -38,7 +38,7 @@ fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     assert!(sections.iter().any(|section| table_header_regex.is_match(section)));
 
     // Locate and parse the tables describing architectures and tiers
-    for (section, header) in section_headers.iter().zip(sections) {
+    for (header, section) in section_headers.iter().zip(sections) {
         // There are no Tier 1 platforms without host tools, so that header does not contain a table
         if let Some(table_header) = table_header_regex.find(section) {
             let after_table_header = &section[table_header.end()..];
