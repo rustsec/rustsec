@@ -1,5 +1,6 @@
 mod rustc_target_info;
 mod enums;
+mod doc_parser;
 
 use enums::*;
 
