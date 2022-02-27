@@ -28,13 +28,14 @@ fn do_the_thing(file: &Path) -> HashMap<String, DocTargetInfo> {
 fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     // compile the regex once outside the loop; not that it really matters
     let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
-    assert!(table_header_regex.is_match(input));
 
     let mut result: HashMap<String, DocTargetInfo> = HashMap::new();
 
     // find the headers delineating the support tiers
     let section_headers = section_headers(input);
     let sections = sections(input);
+
+    assert!(sections.iter().any(|section| table_header_regex.is_match(section)));
 
     // Locate and parse the tables describing architectures and tiers
     for (section, header) in section_headers.iter().zip(sections) {
@@ -186,8 +187,12 @@ blah blah I guess
 
     #[test]
     fn test_section_parser() {
-        assert_eq!(section_headers(SAMPLE_DATA).len(), 5);
-        assert_eq!(sections(SAMPLE_DATA).len(), 5);
+        let section_headers = section_headers(SAMPLE_DATA);
+        assert_eq!(section_headers.len(), 5);
+
+        let sections = sections(SAMPLE_DATA);
+        assert_eq!(sections.len(), 5);
+        assert_eq!(sections[0].lines().count(), 7);
     }
 
     #[test]
