@@ -2,9 +2,11 @@ use std::collections::BTreeSet;
 
 use crate::rustc_target_info::RustcTargetsInfo;
 
-
 pub(crate) fn enum_variant_names(key: &str, info: &RustcTargetsInfo) -> Vec<String> {
-    distinct_values(key, info).iter().map(|v| to_enum_variant_name(v)).collect()
+    distinct_values(key, info)
+        .iter()
+        .map(|v| to_enum_variant_name(v))
+        .collect()
 }
 
 fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
@@ -23,7 +25,7 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
         "tier" => "Tier",
         "target_endian" => "Endian",
         "target_pointer_width" => "Bits",
-        _ => unreachable!(format!("unknown enum name: {}", key))
+        _ => unreachable!(format!("unknown enum name: {}", key)),
     }
 }
 
