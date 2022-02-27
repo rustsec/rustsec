@@ -1,10 +1,10 @@
 //! Parses the Markdown file
 //! https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
 //! to extract platform tiers and notes.
-//! 
+//!
 //! There is extra information contained there like std support that we currently do not parse;
 //! it might be added in the future.
-//! 
+//!
 //! The file must be downloaded and a local copy to it must be provided.
 
 use std::path::Path;
@@ -20,14 +20,10 @@ fn do_the_thing(file: &Path) {
 
 fn parse_file(raw: &str) {
     let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
-    for section in raw.split("\n## Tier") {
-        
-    }
+    for section in raw.split("\n## Tier") {}
 }
 
-fn parse_table_line() {
-
-}
+fn parse_table_line() {}
 
 #[cfg(test)]
 mod tests {
@@ -98,12 +94,15 @@ blah blah I guess
     #[test]
     fn test_header_regex() {
         let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
-        let found: Vec<&str> = table_header_regex.find_iter(SAMPLE_DATA).map(|m| m.as_str() ).collect();
+        let found: Vec<&str> = table_header_regex
+            .find_iter(SAMPLE_DATA)
+            .map(|m| m.as_str())
+            .collect();
         let expected = [
             "target | notes",
             "target | notes",
             "target | std | notes",
-            "target | std | host | notes", 
+            "target | std | host | notes",
         ];
         assert_eq!(found, expected);
     }

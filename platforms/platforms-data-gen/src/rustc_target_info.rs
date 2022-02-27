@@ -18,21 +18,27 @@ pub(crate) fn target_triples() -> Vec<TargetTriple> {
 pub(crate) fn targets_info(triples: &[TargetTriple]) -> Vec<RustcTargetInfo> {
     // Spawn all queries at once to make use of all available cores.
     // No it's not premature optimization, it lets me iterate faster okay?
-    let child_processes: Vec<Child> = triples.iter().map(|t| spawn_rustc_target_info_query(t)).collect();
-    child_processes.into_iter().map(|c| {
-        let output = c.wait_with_output().unwrap();
-        assert_eq!(output.status.code(), Some(0));
-        parse_rustc_target_info(&output.stdout)
-    }).collect()
+    let child_processes: Vec<Child> = triples
+        .iter()
+        .map(|t| spawn_rustc_target_info_query(t))
+        .collect();
+    child_processes
+        .into_iter()
+        .map(|c| {
+            let output = c.wait_with_output().unwrap();
+            assert_eq!(output.status.code(), Some(0));
+            parse_rustc_target_info(&output.stdout)
+        })
+        .collect()
 }
 
 fn spawn_rustc_target_info_query(target_triple: &str) -> Child {
     std::process::Command::new("rustc")
-    .arg("--print=cfg")
-    .arg(format!("--target={}", target_triple)) //not being parsed by the shell, so not a vulnerability
-    .stdout( std::process::Stdio::piped())
-    .spawn()
-    .expect("Failed to invoke rustc; make sure it's in $PATH")
+        .arg("--print=cfg")
+        .arg(format!("--target={}", target_triple)) //not being parsed by the shell, so not a vulnerability
+        .stdout(std::process::Stdio::piped())
+        .spawn()
+        .expect("Failed to invoke rustc; make sure it's in $PATH")
 }
 
 fn parse_rustc_target_info(rustc_output: &[u8]) -> RustcTargetInfo {
