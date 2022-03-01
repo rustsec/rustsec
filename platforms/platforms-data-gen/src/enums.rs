@@ -25,7 +25,7 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
         "tier" => "Tier",
         "target_endian" => "Endian",
         "target_pointer_width" => "Bits",
-        _ => unreachable!(format!("unknown enum name: {}", key)),
+        _ => unreachable!("unknown enum name: {}", key),
     }
 }
 
