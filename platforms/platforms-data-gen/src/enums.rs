@@ -31,6 +31,24 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
 
 fn to_enum_variant_name(value: &str) -> String {
     // TODO: there are some exceptions but this is the general trend
+    // TODO: list of exceptions as of platforms v2.0 obtained via
+    // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
+    // is:
+    // AArch64,
+    // AsmJs,
+    // PowerPc,
+    // PowerPc64,
+    // RiscV,
+    // S390X,
+    // ThumbV6,
+    // ThumbV7,
+    // UClibc,
+    // FreeBSD,
+    // MacOS,
+    // NetBSD,
+    // OpenBSD,
+    // TvOS,
+    // VxWorks,
     let mut name = value.to_string();
     make_ascii_titlecase(&mut name);
     name
