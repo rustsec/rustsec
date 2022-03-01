@@ -2,7 +2,10 @@ mod doc_parser;
 mod enums;
 mod rustc_target_info;
 
-use std::{env::args_os, collections::{HashSet, HashMap}};
+use std::{
+    collections::{HashMap, HashSet},
+    env::args_os,
+};
 
 use doc_parser::DocTargetInfo;
 use enums::*;
@@ -16,18 +19,19 @@ const FIELDS_WITH_ENUMS: [&'static str; 5] = [
 ];
 
 fn main() {
-    let file = args_os().nth(1).expect("No path to .md file specified!\n
+    let file = args_os().nth(1).expect(
+        "No path to .md file specified!\n
 Please download a local copy of
 https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
-and pass it as an argument to this program.");
+and pass it as an argument to this program.",
+    );
     let doc_content = std::fs::read_to_string(file).unwrap();
     let doc_info = doc_parser::parse_file(&doc_content);
     let triples = rustc_target_info::target_triples();
 
     ensure_rustc_and_docs_agree(&triples, &doc_info);
-    
-    let targets_info = rustc_target_info::targets_info(&triples);
 
+    let targets_info = rustc_target_info::targets_info(&triples);
 
     for key in FIELDS_WITH_ENUMS.iter() {
         println!("pub enum {} {{", to_enum_name(key));
@@ -61,7 +65,10 @@ fn to_const_variable_name(input: &str) -> String {
     input.to_ascii_uppercase().replace("-", "_")
 }
 
-fn ensure_rustc_and_docs_agree(rustc_triples: &[String], doc_triples: &HashMap<String, DocTargetInfo>) {
+fn ensure_rustc_and_docs_agree(
+    rustc_triples: &[String],
+    doc_triples: &HashMap<String, DocTargetInfo>,
+) {
     // Verify that all target triples known to the compiler are documented
     // and that all documented triples are recognized by rustc
     let rustc_triples: HashSet<String> = rustc_triples.iter().cloned().collect();
@@ -73,12 +80,12 @@ fn ensure_rustc_and_docs_agree(rustc_triples: &[String], doc_triples: &HashMap<S
 Please make sure your markdown file up to date. It should be available from
 https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md", triple);
                 std::process::exit(1);
-            },
+            }
             (None, Some(_)) => {
                 eprintln!("Error: Target triple '{}' is documented, but is not recognized by the compiler.
 Please make sure your Rust compiler version is up to date.", triple);
                 std::process::exit(1);
-            },
+            }
             (Some(_), Some(_)) => (), // present in both, nothing to complain about
             (None, None) => unreachable!(),
         }
