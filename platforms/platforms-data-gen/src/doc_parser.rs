@@ -13,8 +13,8 @@ use regex::Regex;
 /// https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DocTargetInfo {
-    tier: u8,
-    notes: String,
+    pub tier: u8,
+    pub notes: String,
 }
 
 const TABLE_HEADER_REGEX: &'static str = r"target\s+\|.*\s+notes";
