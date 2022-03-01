@@ -20,6 +20,7 @@ pub struct DocTargetInfo {
 const TABLE_HEADER_REGEX: &'static str = r"target\s+\|.*\s+notes";
 
 #[must_use]
+#[rustfmt::skip]
 pub fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     // compile the regex once outside the loop; not that it really matters
     let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
@@ -30,7 +31,9 @@ pub fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     let section_headers = section_headers(input);
     let sections = sections(input);
 
-    assert!(sections.iter().any(|section| table_header_regex.is_match(section)));
+    assert!(sections
+        .iter()
+        .any(|section| table_header_regex.is_match(section)));
 
     // Locate and parse the tables describing architectures and tiers
     for (header, section) in section_headers.iter().zip(sections) {
@@ -61,7 +64,10 @@ const SECTION_HEADER_REGEX: &'static str = r"## ?Tier \d";
 fn section_headers(input: &str) -> Vec<&str> {
     let section_header_regex = Regex::new(SECTION_HEADER_REGEX).unwrap();
     assert!(section_header_regex.is_match(input));
-    section_header_regex.find_iter(input).map(|m| m.as_str()).collect()
+    section_header_regex
+        .find_iter(input)
+        .map(|m| m.as_str())
+        .collect()
 }
 
 #[must_use]
@@ -81,7 +87,14 @@ fn parse_table_row(line: &str) -> (&str, &str) {
 
 #[must_use]
 fn header_to_tier(header: &str) -> u8 {
-    header.chars().last().unwrap().to_digit(10).unwrap().try_into().unwrap()
+    header
+        .chars()
+        .last()
+        .unwrap()
+        .to_digit(10)
+        .unwrap()
+        .try_into()
+        .unwrap()
 }
 
 #[cfg(test)]
@@ -195,9 +208,15 @@ blah blah I guess
         let result = parse_file(SAMPLE_DATA);
         assert_ne!(result, HashMap::new());
         assert_eq!(result["aarch64-unknown-linux-gnu"].tier, 1);
-        assert_eq!(&result["aarch64-unknown-linux-gnu"].notes, "ARM64 Linux (kernel 4.2, glibc 2.17+) [^missing-stack-probes]");
+        assert_eq!(
+            &result["aarch64-unknown-linux-gnu"].notes,
+            "ARM64 Linux (kernel 4.2, glibc 2.17+) [^missing-stack-probes]"
+        );
 
         assert_eq!(result["i686-pc-windows-gnu"].tier, 1);
-        assert_eq!(&result["i686-pc-windows-gnu"].notes, "32-bit MinGW (Windows 7+)");
+        assert_eq!(
+            &result["i686-pc-windows-gnu"].notes,
+            "32-bit MinGW (Windows 7+)"
+        );
     }
 }
