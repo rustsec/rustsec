@@ -1,16 +1,16 @@
-//! Parses the Markdown file
+//! Parses the contents of the Markdown file
 //! https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
 //! to extract platform tiers and notes.
 //!
 //! There is extra information contained there like std support that we currently do not parse;
 //! it might be added in the future.
-//!
-//! The file must be downloaded and a local copy to it must be provided.
 
-use std::{path::Path, collections::HashMap};
+use std::collections::HashMap;
 
 use regex::Regex;
 
+/// Information about a given target triple extracted from tier documentation located at
+/// https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DocTargetInfo {
     tier: u8,
@@ -19,13 +19,8 @@ pub struct DocTargetInfo {
 
 const TABLE_HEADER_REGEX: &'static str = r"target\s+\|.*\s+notes";
 
-fn do_the_thing(file: &Path) -> HashMap<String, DocTargetInfo> {
-    let contents = std::fs::read_to_string(file).unwrap();
-    parse_file(&contents)
-}
-
 #[must_use]
-fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
+pub fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     // compile the regex once outside the loop; not that it really matters
     let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
 
