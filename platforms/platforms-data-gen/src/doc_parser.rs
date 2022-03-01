@@ -31,6 +31,7 @@ pub fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     let section_headers = section_headers(input);
     let sections = sections(input);
 
+    // Make sure the format hasn't changed drastically, and that we can still extract data
     assert!(sections
         .iter()
         .any(|section| table_header_regex.is_match(section)));
