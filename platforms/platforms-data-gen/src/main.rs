@@ -20,14 +20,14 @@ fn main() {
 Please download a local copy of
 https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
 and pass it as an argument to this program.");
-    let contents = std::fs::read_to_string(file).unwrap();
-    let doc_info = doc_parser::parse_file(&contents);
+    let doc_content = std::fs::read_to_string(file).unwrap();
+    let doc_info = doc_parser::parse_file(&doc_content);
     let triples = rustc_target_info::target_triples();
 
     ensure_rustc_and_docs_agree(&triples, &doc_info);
     
     let targets_info = rustc_target_info::targets_info(&triples);
-    
+
 
     for key in FIELDS_WITH_ENUMS.iter() {
         println!("pub enum {} {{", to_enum_name(key));
@@ -38,6 +38,10 @@ and pass it as an argument to this program.");
     }
     // Print list of platforms with all the data about them
     for (triple, info) in triples.iter().zip(targets_info) {
+        let doc_data = &doc_info[triple];
+        if doc_data.notes != "" {
+            println!("/// {}", doc_data.notes);
+        }
         println!(
             "pub const {}: Platform = Platform {{
     target_triple: \"{}\",",
@@ -48,6 +52,7 @@ and pass it as an argument to this program.");
             let value = enumify_value(key, &info[*key]);
             println!("    {}: {},", key, value);
         }
+        println!("    tier: {},", tier_to_enum_variant(doc_data.tier));
         println!("}};\n")
     }
 }
@@ -77,5 +82,14 @@ Please make sure your Rust compiler version is up to date.", triple);
             (Some(_), Some(_)) => (), // present in both, nothing to complain about
             (None, None) => unreachable!(),
         }
+    }
+}
+
+fn tier_to_enum_variant(tier: u8) -> &'static str {
+    match tier {
+        1 => "Tier::One",
+        2 => "Tier::Two",
+        3 => "Tier::Three",
+        _ => unreachable!("Unknown tier: {}", tier),
     }
 }
