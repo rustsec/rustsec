@@ -61,7 +61,7 @@ pub(crate) fn write_enum_definition<W: Write>(
 ) -> Result<()> {
     writeln!(out, "pub enum {} {{", to_enum_name(key))?;
     for variant_name in enum_variant_names(key, info) {
-        writeln!(out, "    {},", variant_name)?;
+        writeln!(out, "    {variant_name},")?;
     }
     writeln!(out, "}}\n")?;
     Ok(())
@@ -77,21 +77,22 @@ pub(crate) fn write_enum_string_conversions<W: Write>(
     let enum_name = to_enum_name(key);
 
     // write as_str()
-    writeln!(out, "impl {} {{", &enum_name)?;
-    writeln!(out, "    /// String representing this {} which matches `#[cfg({})]`", enum_name, key)?;
-    writeln!(out, "    pub fn as_str(self) -> &'static str {{")?;
-    writeln!(out, "        match self {{")?;
+    writeln!(out, "\
+impl {enum_name} {{
+    /// String representing this {enum_name} which matches `#[cfg({key})]`
+    pub fn as_str(self) -> &'static str {{
+        match self {{")?;
     for raw_string in &raw_strings {
         let variant= enumify_value(key, &raw_string);
         // OS::Android => "android",
-        writeln!(out, "            {} => \"{}\",", &variant, &raw_string)?;
+        writeln!(out, "            {variant} => \"{raw_string}\",")?;
     }
-    writeln!(out, "            _ => \"unknown\",")?;
-    writeln!(out, "        }}
+    writeln!(out, "            {enum_name}::Unknown => \"unknown\",
+        }}
     }}
 }}\n")?;
 
-    // TODO: write `from_str()` impl
+    // write `from_str()` impl
     Ok(())
 }
 
