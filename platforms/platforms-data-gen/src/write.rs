@@ -2,8 +2,8 @@ use std::io::Result;
 use std::io::Write;
 
 use crate::doc_target_info::DocTargetInfo;
-use crate::enums::enumify_value;
-use crate::rustc_target_info::RustcTargetInfo;
+use crate::enums::*;
+use crate::rustc_target_info::{RustcTargetInfo, RustcTargetsInfo};
 
 pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_arch",
@@ -36,6 +36,21 @@ pub(crate) fn write_target_struct<W: Write>(
     }
     writeln!(out, "    tier: {},", tier_to_enum_variant(doc_info.tier))?;
     writeln!(out, "}};\n")?;
+    Ok(())
+}
+
+/// Accepts the key from the `rustc` output and generates an enum from it
+#[must_use]
+pub(crate) fn write_enum<W: Write>(
+    key: &str,
+    rustc_info: &RustcTargetsInfo,
+    out: &mut W,
+) -> Result<()> {
+    writeln!(out, "pub enum {} {{", to_enum_name(key))?;
+    for variant_name in enum_variant_names(key, rustc_info) {
+        writeln!(out, "    {},", variant_name)?;
+    }
+    writeln!(out, "}}\n")?;
     Ok(())
 }
 
