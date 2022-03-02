@@ -2,6 +2,7 @@ use std::collections::BTreeSet;
 
 use crate::rustc_target_info::RustcTargetsInfo;
 
+#[must_use]
 pub(crate) fn enum_variant_names(key: &str, info: &RustcTargetsInfo) -> Vec<String> {
     distinct_values(key, info)
         .iter()
@@ -9,14 +10,17 @@ pub(crate) fn enum_variant_names(key: &str, info: &RustcTargetsInfo) -> Vec<Stri
         .collect()
 }
 
+#[must_use]
 fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
     info.iter().map(|t| &t[key]).cloned().collect()
 }
 
+#[must_use]
 pub(crate) fn enumify_value(key: &str, value: &str) -> String {
     format!("{}::{}", to_enum_name(key), to_enum_variant_name(value))
 }
 
+#[must_use]
 pub(crate) fn to_enum_name(key: &str) -> &'static str {
     match key {
         "target_arch" => "Arch",
@@ -29,6 +33,7 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
     }
 }
 
+#[must_use]
 fn to_enum_variant_name(value: &str) -> String {
     let mut name = value.to_ascii_lowercase();
     match name.as_str() {
