@@ -5,14 +5,6 @@ use std::collections::BTreeSet;
 use crate::rustc_target_info::RustcTargetsInfo;
 
 #[must_use]
-pub(crate) fn enum_variant_names(key: &str, info: &RustcTargetsInfo) -> Vec<String> {
-    distinct_values(key, info)
-        .iter()
-        .map(|v| to_enum_variant_name(v))
-        .collect()
-}
-
-#[must_use]
 pub(crate) fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
     info.iter().map(|t| &t[key]).cloned().collect()
 }
@@ -36,10 +28,10 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
 }
 
 #[must_use]
-fn to_enum_variant_name(value: &str) -> String {
+pub(crate) fn to_enum_variant_name(value: &str) -> String {
     let mut name = value.to_ascii_lowercase();
     match name.as_str() {
-        "" => "None".to_owned(), // TODO: use Option instead?
+        "" => "Unspecified".to_owned(), // TODO: use Option instead?
         // list of exceptions to `Titlecase` enum naming from `platforms` v2.0, as gathered by
         // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
         "aarch64" => "AArch64".to_owned(),
