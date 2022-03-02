@@ -3,14 +3,11 @@ mod enums;
 mod rustc_target_info;
 mod write;
 
-use std::{
-    collections::HashSet,
-    env::args_os,
-};
+use std::{collections::HashSet, env::args_os};
 
 use doc_target_info::DocTargetsInfo;
 use enums::*;
-use write::{FIELDS_WITH_ENUMS, write_target_struct};
+use write::{write_target_struct, FIELDS_WITH_ENUMS};
 
 fn main() {
     let file = args_os().nth(1).expect(
@@ -41,13 +38,10 @@ and pass it as an argument to this program.",
 
     for (triple, info) in triples.iter().zip(rustc_info) {
         write_target_struct(&triple, &info, &doc_info[triple], &mut stdout).unwrap();
-    };
+    }
 }
 
-fn ensure_rustc_and_docs_agree(
-    rustc_triples: &[String],
-    doc_triples: &DocTargetsInfo,
-) {
+fn ensure_rustc_and_docs_agree(rustc_triples: &[String], doc_triples: &DocTargetsInfo) {
     // Verify that all target triples known to the compiler are documented
     // and that all documented triples are recognized by rustc
     let rustc_triples: HashSet<String> = rustc_triples.iter().cloned().collect();

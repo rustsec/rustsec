@@ -1,5 +1,5 @@
-use std::io::Write;
 use std::io::Result;
+use std::io::Write;
 
 use crate::doc_target_info::DocTargetInfo;
 use crate::enums::enumify_value;
@@ -14,11 +14,17 @@ pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
 ];
 
 #[must_use]
-pub(crate) fn write_target_struct<W: Write>(triple: &str, rustc_info: &RustcTargetInfo, doc_info: &DocTargetInfo, out: &mut W) -> Result<()> {
+pub(crate) fn write_target_struct<W: Write>(
+    triple: &str,
+    rustc_info: &RustcTargetInfo,
+    doc_info: &DocTargetInfo,
+    out: &mut W,
+) -> Result<()> {
     if doc_info.notes != "" {
         writeln!(out, "/// {}", doc_info.notes)?;
     }
-    writeln!(out, 
+    writeln!(
+        out,
         "pub const {}: Platform = Platform {{
     target_triple: \"{}\",",
         to_const_variable_name(triple),

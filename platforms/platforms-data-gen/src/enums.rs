@@ -59,10 +59,10 @@ fn to_enum_variant_name(value: &str) -> String {
             let len = name.len();
             if name.ends_with("os") {
                 // exceptions in v2.0: `MacOS`, `TvOS`
-                (&mut name[len-2..]).make_ascii_uppercase();
+                (&mut name[len - 2..]).make_ascii_uppercase();
             } else if name.ends_with("bsd") {
                 // exceptions in v2.0: `FreeBSD`, `NetBSD`, `OpenBSD`
-                (&mut name[len-3..]).make_ascii_uppercase();
+                (&mut name[len - 3..]).make_ascii_uppercase();
             }
             name
         }
