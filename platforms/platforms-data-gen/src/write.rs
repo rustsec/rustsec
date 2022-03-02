@@ -46,6 +46,18 @@ pub(crate) fn write_enum<W: Write>(
     rustc_info: &RustcTargetsInfo,
     out: &mut W,
 ) -> Result<()> {
+    write_enum_definition(key, rustc_info, out)?;
+    // TODO: write `as_str()` and `from_str()` impls
+    Ok(())
+}
+
+/// Accepts the key from the `rustc` output and generates an enum from it
+#[must_use]
+pub(crate) fn write_enum_definition<W: Write>(
+    key: &str,
+    rustc_info: &RustcTargetsInfo,
+    out: &mut W,
+) -> Result<()> {
     writeln!(out, "pub enum {} {{", to_enum_name(key))?;
     for variant_name in enum_variant_names(key, rustc_info) {
         writeln!(out, "    {},", variant_name)?;
