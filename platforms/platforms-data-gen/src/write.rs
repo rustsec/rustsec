@@ -63,6 +63,7 @@ pub(crate) fn write_enum_definition<W: Write>(
     for variant_name in enum_variant_names(key, info) {
         writeln!(out, "    {variant_name},")?;
     }
+    writeln!(out, "    Unknown,")?;
     writeln!(out, "}}\n")?;
     Ok(())
 }
