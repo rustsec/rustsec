@@ -2,9 +2,9 @@
 
 use std::{io::BufRead, process::Child};
 
-type RustcTargetInfo = std::collections::HashMap<String, String>;
-pub type RustcTargetsInfo = Vec<RustcTargetInfo>;
-pub type TargetTriple = String;
+pub(crate) type RustcTargetInfo = std::collections::HashMap<String, String>;
+pub(crate) type RustcTargetsInfo = Vec<RustcTargetInfo>;
+pub(crate) type TargetTriple = String;
 
 /// Returns a list of all known target triples.
 /// Obtains it by invoking `rustc --print=target-list`

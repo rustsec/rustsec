@@ -1,9 +1,9 @@
 use std::io::Write;
 use std::io::Result;
 
-use crate::doc_target_info::DocTargetsInfo;
+use crate::doc_target_info::DocTargetInfo;
 use crate::enums::enumify_value;
-use crate::rustc_target_info::RustcTargetsInfo;
+use crate::rustc_target_info::RustcTargetInfo;
 
 pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_arch",
@@ -14,26 +14,22 @@ pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
 ];
 
 #[must_use]
-pub(crate) fn write_target_structs<W: Write>(triples: &[String], rustc_info: RustcTargetsInfo, doc_info: DocTargetsInfo, out: &mut W) -> Result<()> {
-    // Print list of platforms with all the data about them
-    for (triple, info) in triples.iter().zip(rustc_info) {
-        let doc_data = &doc_info[triple];
-        if doc_data.notes != "" {
-            writeln!(out, "/// {}", doc_data.notes)?;
-        }
-        writeln!(out, 
-            "pub const {}: Platform = Platform {{
-    target_triple: \"{}\",",
-            to_const_variable_name(triple),
-            triple
-        )?;
-        for key in FIELDS_WITH_ENUMS.iter() {
-            let value = enumify_value(key, &info[*key]);
-            writeln!(out, "    {}: {},", key, value)?;
-        }
-        writeln!(out, "    tier: {},", tier_to_enum_variant(doc_data.tier))?;
-        writeln!(out, "}};\n")?;
+pub(crate) fn write_target_struct<W: Write>(triple: &str, rustc_info: &RustcTargetInfo, doc_info: &DocTargetInfo, out: &mut W) -> Result<()> {
+    if doc_info.notes != "" {
+        writeln!(out, "/// {}", doc_info.notes)?;
     }
+    writeln!(out, 
+        "pub const {}: Platform = Platform {{
+    target_triple: \"{}\",",
+        to_const_variable_name(triple),
+        triple
+    )?;
+    for key in FIELDS_WITH_ENUMS.iter() {
+        let value = enumify_value(key, &rustc_info[*key]);
+        writeln!(out, "    {}: {},", key, value)?;
+    }
+    writeln!(out, "    tier: {},", tier_to_enum_variant(doc_info.tier))?;
+    writeln!(out, "}};\n")?;
     Ok(())
 }
 

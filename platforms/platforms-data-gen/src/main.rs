@@ -10,7 +10,7 @@ use std::{
 
 use doc_target_info::DocTargetsInfo;
 use enums::*;
-use write::{FIELDS_WITH_ENUMS, write_target_structs};
+use write::{FIELDS_WITH_ENUMS, write_target_struct};
 
 fn main() {
     let file = args_os().nth(1).expect(
@@ -39,7 +39,9 @@ and pass it as an argument to this program.",
         println!("}}\n");
     }
 
-    write_target_structs(&triples, rustc_info, doc_info, &mut stdout).unwrap();
+    for (triple, info) in triples.iter().zip(rustc_info) {
+        write_target_struct(&triple, &info, &doc_info[triple], &mut stdout).unwrap();
+    };
 }
 
 fn ensure_rustc_and_docs_agree(
