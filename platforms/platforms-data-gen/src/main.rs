@@ -6,17 +6,16 @@ mod write;
 use std::{collections::HashSet, env::args_os};
 
 use doc_target_info::DocTargetsInfo;
-use enums::*;
-use write::{write_target_struct, FIELDS_WITH_ENUMS};
+use write::{write_enum, write_target_struct, FIELDS_WITH_ENUMS};
 
-fn main() {
+fn main() -> std::io::Result<()> {
     let file = args_os().nth(1).expect(
         "No path to .md file specified!\n
 Please download a local copy of
 https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
 and pass it as an argument to this program.",
     );
-    let doc_content = std::fs::read_to_string(file).unwrap();
+    let doc_content = std::fs::read_to_string(file)?;
     let doc_info = doc_target_info::parse_file(&doc_content);
     let triples = rustc_target_info::target_triples();
 
@@ -29,16 +28,13 @@ and pass it as an argument to this program.",
     let rustc_info = rustc_target_info::targets_info(&triples);
 
     for key in FIELDS_WITH_ENUMS.iter() {
-        println!("pub enum {} {{", to_enum_name(key));
-        for variant_name in enum_variant_names(key, &rustc_info) {
-            println!("    {},", variant_name);
-        }
-        println!("}}\n");
+        write_enum(key, &rustc_info, &mut stdout)?;
     }
 
     for (triple, info) in triples.iter().zip(rustc_info) {
-        write_target_struct(&triple, &info, &doc_info[triple], &mut stdout).unwrap();
+        write_target_struct(&triple, &info, &doc_info[triple], &mut stdout)?;
     }
+    Ok(())
 }
 
 fn ensure_rustc_and_docs_agree(rustc_triples: &[String], doc_triples: &DocTargetsInfo) {
