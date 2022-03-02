@@ -45,7 +45,7 @@ pub(crate) fn to_enum_variant_name(value: &str) -> String {
         "thumbv7" => "ThumbV7".to_owned(),
         "uclibc" => "UClibc".to_owned(),
         "vxworks" => "VxWorks".to_owned(),
-        // Things ending with "BSD", "OS" are handled later
+        // Things ending with "BSD", "OS" are handled below
         _ => {
             // Convert to `Titlecase` as per the Rust enum value convention
             make_ascii_titlecase(&mut name);
