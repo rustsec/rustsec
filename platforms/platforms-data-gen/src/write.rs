@@ -21,21 +21,21 @@ pub(crate) fn write_target_struct<W: Write>(
     out: &mut W,
 ) -> Result<()> {
     if doc_info.notes != "" {
-        writeln!(out, "/// {}", doc_info.notes)?;
+        write!(out, "\n/// {}", doc_info.notes)?;
     }
     writeln!(
         out,
-        "pub const {}: Platform = Platform {{
-    target_triple: \"{}\",",
+        "
+pub const {}: Platform = Platform {{
+    target_triple: \"{triple}\",",
         to_const_variable_name(triple),
-        triple
     )?;
     for key in FIELDS_WITH_ENUMS.iter() {
         let value = enumify_value(key, &rustc_info[*key]);
         writeln!(out, "    {}: {},", key, value)?;
     }
     writeln!(out, "    tier: {},", tier_to_enum_variant(doc_info.tier))?;
-    writeln!(out, "}};\n")?;
+    writeln!(out, "}};")?;
     Ok(())
 }
 
@@ -64,7 +64,7 @@ pub(crate) fn write_enum_definition<W: Write>(
         writeln!(out, "    {variant_name},")?;
     }
     writeln!(out, "    Unknown,")?;
-    writeln!(out, "}}\n")?;
+    writeln!(out, "}}")?;
     Ok(())
 }
 
@@ -78,7 +78,7 @@ pub(crate) fn write_enum_string_conversions<W: Write>(
     let enum_name = to_enum_name(key);
 
     // write as_str()
-    writeln!(out, "\
+    writeln!(out, "
 impl {enum_name} {{
     /// String representing this {enum_name} which matches `#[cfg({key})]`
     pub fn as_str(self) -> &'static str {{
@@ -91,7 +91,7 @@ impl {enum_name} {{
     writeln!(out, "            {enum_name}::Unknown => \"unknown\",
         }}
     }}
-}}\n")?;
+}}")?;
 
     // write `from_str()` impl
     Ok(())
