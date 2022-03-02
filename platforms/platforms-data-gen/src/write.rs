@@ -42,11 +42,7 @@ pub const {}: Platform = Platform {{
 /// Accepts the key from the `rustc` output and generates an enum from it,
 /// including all `impl`s that depend on the info about available targets
 #[must_use]
-pub(crate) fn write_enum<W: Write>(
-    key: &str,
-    info: &RustcTargetsInfo,
-    out: &mut W,
-) -> Result<()> {
+pub(crate) fn write_enum<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut W) -> Result<()> {
     write_enum_definition(key, info, out)?;
     write_enum_string_conversions(key, info, out)?;
     Ok(())
@@ -77,39 +73,51 @@ pub(crate) fn write_enum_string_conversions<W: Write>(
     let enum_name = to_enum_name(key);
 
     // write as_str()
-    writeln!(out, "
+    writeln!(
+        out,
+        "
 impl {enum_name} {{
     /// String representing this {enum_name} which matches `#[cfg({key})]`
     pub fn as_str(self) -> &'static str {{
-        match self {{")?;
+        match self {{"
+    )?;
     for raw_string in &raw_strings {
-        let variant= enumify_value(key, &raw_string);
+        let variant = enumify_value(key, &raw_string);
         //                       OS::Android => "android",
         writeln!(out, "            {variant} => \"{raw_string}\",")?;
     }
-    writeln!(out, "        }}
+    writeln!(
+        out,
+        "        }}
     }}
-}}")?;
+}}"
+    )?;
 
     // write `from_str()` impl
-    writeln!(out, "
+    writeln!(
+        out,
+        "
 impl FromStr for {enum_name} {{
     type Err = Error;
 
     /// Create a new `{enum_name}` from the given string
     fn from_str(name: &str) -> Result<Self, Self::Err> {{
-        let result = match name {{")?;
+        let result = match name {{"
+    )?;
     for raw_string in &raw_strings {
-        let variant= enumify_value(key, &raw_string);
+        let variant = enumify_value(key, &raw_string);
         //                            "android" => OS::Android,
         writeln!(out, "            {raw_string} => \"{variant}\",")?;
     }
-    writeln!(out, "            _ => return Err(Error),
+    writeln!(
+        out,
+        "            _ => return Err(Error),
         }};
 
         Ok(result)
     }}
-}}")?;
+}}"
+    )?;
     Ok(())
 }
 
