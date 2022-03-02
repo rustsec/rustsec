@@ -39,30 +39,59 @@ pub(crate) fn write_target_struct<W: Write>(
     Ok(())
 }
 
-/// Accepts the key from the `rustc` output and generates an enum from it
+/// Accepts the key from the `rustc` output and generates an enum from it,
+/// including all `impl`s that depend on the info about available targets
 #[must_use]
 pub(crate) fn write_enum<W: Write>(
     key: &str,
-    rustc_info: &RustcTargetsInfo,
+    info: &RustcTargetsInfo,
     out: &mut W,
 ) -> Result<()> {
-    write_enum_definition(key, rustc_info, out)?;
-    // TODO: write `as_str()` and `from_str()` impls
+    write_enum_definition(key, info, out)?;
+    write_enum_string_conversions(key, info, out)?;
     Ok(())
 }
 
-/// Accepts the key from the `rustc` output and generates an enum from it
+/// Accepts the key from the `rustc` output and generates an enum definition from it
 #[must_use]
 pub(crate) fn write_enum_definition<W: Write>(
     key: &str,
-    rustc_info: &RustcTargetsInfo,
+    info: &RustcTargetsInfo,
     out: &mut W,
 ) -> Result<()> {
     writeln!(out, "pub enum {} {{", to_enum_name(key))?;
-    for variant_name in enum_variant_names(key, rustc_info) {
+    for variant_name in enum_variant_names(key, info) {
         writeln!(out, "    {},", variant_name)?;
     }
     writeln!(out, "}}\n")?;
+    Ok(())
+}
+
+#[must_use]
+pub(crate) fn write_enum_string_conversions<W: Write>(
+    key: &str,
+    info: &RustcTargetsInfo,
+    out: &mut W,
+) -> Result<()> {
+    let raw_strings = distinct_values(key, info);
+    let enum_name = to_enum_name(key);
+
+    // write as_str()
+    writeln!(out, "impl {} {{", &enum_name)?;
+    writeln!(out, "    /// String representing this {} which matches `#[cfg({})]`", enum_name, key)?;
+    writeln!(out, "    pub fn as_str(self) -> &'static str {{")?;
+    writeln!(out, "        match self {{")?;
+    for raw_string in &raw_strings {
+        let variant= enumify_value(key, &raw_string);
+        // OS::Android => "android",
+        writeln!(out, "            {} => \"{}\",", &variant, &raw_string)?;
+    }
+    writeln!(out, "            _ => \"unknown\",")?;
+    writeln!(out, "        }}
+    }}
+}}\n")?;
+
+    // TODO: write `from_str()` impl
     Ok(())
 }
 

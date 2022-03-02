@@ -13,7 +13,7 @@ pub(crate) fn enum_variant_names(key: &str, info: &RustcTargetsInfo) -> Vec<Stri
 }
 
 #[must_use]
-fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
+pub(crate) fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
     info.iter().map(|t| &t[key]).cloned().collect()
 }
 
