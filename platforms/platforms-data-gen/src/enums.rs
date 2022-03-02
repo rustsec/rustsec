@@ -31,7 +31,7 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
 pub(crate) fn to_enum_variant_name(value: &str) -> String {
     let mut name = value.to_ascii_lowercase();
     match name.as_str() {
-        "" => "None".to_owned(),
+        "" => "None".to_owned(), // This is used for `Env` which is set to empty string by default
         // list of exceptions to `Titlecase` enum naming from `platforms` v2.0, as gathered by
         // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
         "aarch64" => "AArch64".to_owned(),
