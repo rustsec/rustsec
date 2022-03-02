@@ -1,9 +1,9 @@
+mod comments;
+mod data;
 mod doc_target_info;
 mod enums;
 mod rustc_target_info;
 mod write;
-mod comments;
-mod data;
 
 use std::{collections::HashSet, env::args_os};
 

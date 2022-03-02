@@ -1,10 +1,10 @@
 use std::io::Result;
 use std::io::Write;
 
+use crate::comments::Comments;
 use crate::doc_target_info::DocTargetInfo;
 use crate::enums::*;
 use crate::rustc_target_info::{RustcTargetInfo, RustcTargetsInfo};
-use crate::comments::Comments;
 
 pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_arch",
