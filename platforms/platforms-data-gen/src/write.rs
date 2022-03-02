@@ -84,7 +84,7 @@ impl {enum_name} {{
         match self {{")?;
     for raw_string in &raw_strings {
         let variant= enumify_value(key, &raw_string);
-        // OS::Android => "android",
+        //                       OS::Android => "android",
         writeln!(out, "            {variant} => \"{raw_string}\",")?;
     }
     writeln!(out, "        }}
@@ -92,6 +92,24 @@ impl {enum_name} {{
 }}")?;
 
     // write `from_str()` impl
+    writeln!(out, "
+impl FromStr for {enum_name} {{
+    type Err = Error;
+
+    /// Create a new `{enum_name}` from the given string
+    fn from_str(name: &str) -> Result<Self, Self::Err> {{
+        let result = match name {{")?;
+    for raw_string in &raw_strings {
+        let variant= enumify_value(key, &raw_string);
+        //                            "android" => OS::Android,
+        writeln!(out, "            {raw_string} => \"{variant}\",")?;
+    }
+    writeln!(out, "            _ => return Err(Error),
+        }};
+
+        Ok(result)
+    }}
+}}")?;
     Ok(())
 }
 
