@@ -3,8 +3,8 @@
 //! It is not required for auto-generation to succeed,
 //! but it does augment the auto-populated data for human readability.
 
-use std::collections::HashMap;
 use crate::data::enum_variant_comments::COMMENTS;
+use std::collections::HashMap;
 
 pub(crate) struct Comments {
     data: HashMap<&'static str, &'static str>,
@@ -12,8 +12,8 @@ pub(crate) struct Comments {
 
 impl Comments {
     pub fn new() -> Self {
-        let data= COMMENTS.to_owned().into_iter().collect();
-        Comments {data}
+        let data = COMMENTS.to_owned().into_iter().collect();
+        Comments { data }
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
