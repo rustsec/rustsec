@@ -1,9 +1,13 @@
+//! Invokes `rustc --print=cfg` to get info about a given target and parses its output.
+
 use std::{io::BufRead, process::Child};
 
 type RustcTargetInfo = std::collections::HashMap<String, String>;
 pub type RustcTargetsInfo = Vec<RustcTargetInfo>;
 pub type TargetTriple = String;
 
+/// Returns a list of all known target triples.
+/// Obtains it by invoking `rustc --print=target-list`
 pub(crate) fn target_triples() -> Vec<TargetTriple> {
     std::process::Command::new("rustc")
         .arg("--print=target-list")
@@ -15,6 +19,7 @@ pub(crate) fn target_triples() -> Vec<TargetTriple> {
         .collect()
 }
 
+/// Returns detailed information about all targets.
 pub(crate) fn targets_info(triples: &[TargetTriple]) -> Vec<RustcTargetInfo> {
     // Spawn all queries at once to make use of all available cores.
     // No it's not premature optimization, it lets me iterate faster okay?

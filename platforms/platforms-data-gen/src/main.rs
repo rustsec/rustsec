@@ -3,11 +3,11 @@ mod enums;
 mod rustc_target_info;
 
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     env::args_os,
 };
 
-use doc_target_info::{DocTargetInfo, DocTargetsInfo};
+use doc_target_info::DocTargetsInfo;
 use enums::*;
 
 const FIELDS_WITH_ENUMS: [&'static str; 5] = [
