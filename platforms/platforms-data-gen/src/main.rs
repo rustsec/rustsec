@@ -1,4 +1,4 @@
-mod doc_parser;
+mod doc_target_info;
 mod enums;
 mod rustc_target_info;
 
@@ -7,7 +7,7 @@ use std::{
     env::args_os,
 };
 
-use doc_parser::DocTargetInfo;
+use doc_target_info::{DocTargetInfo, DocTargetsInfo};
 use enums::*;
 
 const FIELDS_WITH_ENUMS: [&'static str; 5] = [
@@ -26,7 +26,7 @@ https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support
 and pass it as an argument to this program.",
     );
     let doc_content = std::fs::read_to_string(file).unwrap();
-    let doc_info = doc_parser::parse_file(&doc_content);
+    let doc_info = doc_target_info::parse_file(&doc_content);
     let triples = rustc_target_info::target_triples();
 
     ensure_rustc_and_docs_agree(&triples, &doc_info);
@@ -68,7 +68,7 @@ fn to_const_variable_name(input: &str) -> String {
 
 fn ensure_rustc_and_docs_agree(
     rustc_triples: &[String],
-    doc_triples: &HashMap<String, DocTargetInfo>,
+    doc_triples: &DocTargetsInfo,
 ) {
     // Verify that all target triples known to the compiler are documented
     // and that all documented triples are recognized by rustc
