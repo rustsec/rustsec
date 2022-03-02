@@ -1,3 +1,5 @@
+//! Utilities for generating enums from raw info about targets
+
 use std::collections::BTreeSet;
 
 use crate::rustc_target_info::RustcTargetsInfo;
