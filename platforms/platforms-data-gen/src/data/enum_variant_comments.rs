@@ -42,6 +42,7 @@ pub(crate) const COMMENTS: &[(&'static str, &'static str)] = &[
 ("x86", "Generic x86 CPU architecture"),
 ("x86_64", "'AMD64' CPU architecture"),
 // Env
+("", "None"),
 ("gnu", "The GNU C Library (glibc)"),
 ("msvc", "Microsoft Visual C(++)"),
 ("musl", "Clean, efficient, standards-conformant libc implementation."),

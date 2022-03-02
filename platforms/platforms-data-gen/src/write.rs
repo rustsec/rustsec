@@ -65,7 +65,7 @@ pub(crate) fn write_enum_definition<W: Write>(
         } else {
             writeln!(out, "    /// `{raw_string}`")?;
         }
-        writeln!(out, "    {},", to_enum_variant_name(raw_string))?;
+        writeln!(out, "    {},\n", to_enum_variant_name(raw_string))?;
     }
     writeln!(out, "}}")?;
     Ok(())
