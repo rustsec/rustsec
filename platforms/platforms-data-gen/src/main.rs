@@ -61,6 +61,7 @@ and pass it as an argument to this program.",
     }
 }
 
+#[must_use]
 fn to_const_variable_name(input: &str) -> String {
     input.to_ascii_uppercase().replace("-", "_")
 }
@@ -92,6 +93,7 @@ Please make sure your Rust compiler version is up to date.", triple);
     }
 }
 
+#[must_use]
 fn tier_to_enum_variant(tier: u8) -> &'static str {
     match tier {
         1 => "Tier::One",
