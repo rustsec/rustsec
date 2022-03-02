@@ -36,6 +36,7 @@ pub(crate) fn to_enum_variant_name(value: &str) -> String {
         // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
         "aarch64" => "AArch64".to_owned(),
         "asmjs" => "AsmJs".to_owned(),
+        "ios" => "iOS".to_owned(),
         "powerpc" => "PowerPc".to_owned(),
         "powerpc64" => "PowerPc64".to_owned(),
         "riscv" => "RiscV".to_owned(),
