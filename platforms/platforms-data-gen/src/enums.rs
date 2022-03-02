@@ -30,34 +30,59 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
 }
 
 fn to_enum_variant_name(value: &str) -> String {
-    // TODO: there are some exceptions but this is the general trend
-    // TODO: list of exceptions as of platforms v2.0 obtained via
-    // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
-    // is:
-    // AArch64,
-    // AsmJs,
-    // PowerPc,
-    // PowerPc64,
-    // RiscV,
-    // S390X,
-    // ThumbV6,
-    // ThumbV7,
-    // UClibc,
-    // FreeBSD,
-    // MacOS,
-    // NetBSD,
-    // OpenBSD,
-    // TvOS,
-    // VxWorks,
-    let mut name = value.to_string();
-    make_ascii_titlecase(&mut name);
-    name
+    let mut name = value.to_ascii_lowercase();
+    match name.as_str() {
+        // list of exceptions to `Titlecase` enum naming from `platforms` v2.0, as gathered by
+        // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
+        // with things ending with "BSD", "OS" removed
+        "aarch64" => "AArch64".to_owned(),
+        "asmjs" => "AsmJs".to_owned(),
+        "powerpc" => "PowerPc".to_owned(),
+        "powerpc64" => "PowerPc64".to_owned(),
+        "riscv" => "RiscV".to_owned(),
+        "s390x" => "S390X".to_owned(),
+        "thumbv6" => "ThumbV6".to_owned(),
+        "thumbv7" => "ThumbV7".to_owned(),
+        "uclibc" => "UClibc".to_owned(),
+        "vxworks" => "VxWorks".to_owned(),
+        _ => {
+            // Convert to `Titlecase` as per the Rust enum value convention
+            make_ascii_titlecase(&mut name);
+            // Apply generalizable exceptions to `Titlecase`
+            let len = name.len();
+            if name.ends_with("os") {
+                // exceptions in v2.0: `MacOS`, `TvOS`
+                (&mut name[len-2..]).make_ascii_uppercase();
+            } else if name.ends_with("bsd") {
+                // exceptions in v2.0: `FreeBSD`, `NetBSD`, `OpenBSD`
+                (&mut name[len-3..]).make_ascii_uppercase();
+            }
+            name
+        }
+    }
 }
 
 fn make_ascii_titlecase(s: &mut str) {
-    // based on https://stackoverflow.com/a/53571882
     s.make_ascii_lowercase();
     if let Some(r) = s.get_mut(0..1) {
         r.make_ascii_uppercase();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_variant_naming() {
+        assert_eq!(&to_enum_variant_name("foobar"), "Foobar");
+        assert_eq!(&to_enum_variant_name("fooBar"), "Foobar");
+        assert_eq!(&to_enum_variant_name("FOOBAR"), "Foobar");
+        assert_eq!(&to_enum_variant_name("freebsd"), "FreeBSD");
+        assert_eq!(&to_enum_variant_name("nonexistentbsd"), "NonexistentBSD");
+        assert_eq!(&to_enum_variant_name("macos"), "MacOS");
+        assert_eq!(&to_enum_variant_name("nonexistentos"), "NonexistentOS");
+        assert_eq!(&to_enum_variant_name("riscv"), "RiscV");
+        assert_eq!(&to_enum_variant_name("PoWeRpC"), "PowerPc");
     }
 }
