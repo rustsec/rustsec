@@ -107,7 +107,7 @@ impl FromStr for {enum_name} {{
     for raw_string in &raw_strings {
         let variant = enumify_value(key, &raw_string);
         //                            "android" => OS::Android,
-        writeln!(out, "            {raw_string} => \"{variant}\",")?;
+        writeln!(out, "            \"{raw_string}\" => {variant},")?;
     }
     writeln!(
         out,
