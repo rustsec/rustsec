@@ -85,7 +85,7 @@ pub(crate) fn write_enum_string_conversions<W: Write>(
         out,
         "
 impl {enum_name} {{
-    /// String representing this {enum_name} which matches `#[cfg({key})]`
+    /// String representing this `{enum_name}` which matches `#[cfg({key})]`
     pub fn as_str(self) -> &'static str {{
         match self {{"
     )?;
