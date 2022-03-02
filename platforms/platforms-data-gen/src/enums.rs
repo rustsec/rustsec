@@ -39,7 +39,6 @@ fn to_enum_variant_name(value: &str) -> String {
     match name.as_str() {
         // list of exceptions to `Titlecase` enum naming from `platforms` v2.0, as gathered by
         // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
-        // with things ending with "BSD", "OS" removed
         "aarch64" => "AArch64".to_owned(),
         "asmjs" => "AsmJs".to_owned(),
         "powerpc" => "PowerPc".to_owned(),
@@ -50,6 +49,7 @@ fn to_enum_variant_name(value: &str) -> String {
         "thumbv7" => "ThumbV7".to_owned(),
         "uclibc" => "UClibc".to_owned(),
         "vxworks" => "VxWorks".to_owned(),
+        // Things ending with "BSD", "OS" are handled later
         _ => {
             // Convert to `Titlecase` as per the Rust enum value convention
             make_ascii_titlecase(&mut name);
