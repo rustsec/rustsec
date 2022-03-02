@@ -4,6 +4,7 @@ use std::io::Write;
 use crate::doc_target_info::DocTargetInfo;
 use crate::enums::*;
 use crate::rustc_target_info::{RustcTargetInfo, RustcTargetsInfo};
+use crate::comments::Comments;
 
 pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_arch",
@@ -56,8 +57,15 @@ pub(crate) fn write_enum_definition<W: Write>(
     out: &mut W,
 ) -> Result<()> {
     writeln!(out, "pub enum {} {{", to_enum_name(key))?;
-    for variant_name in enum_variant_names(key, info) {
-        writeln!(out, "    {variant_name},")?;
+    let comments = Comments::new();
+    let raw_strings = distinct_values(key, info);
+    for raw_string in &raw_strings {
+        if let Some(comment) = comments.enum_variant_comment(raw_string) {
+            writeln!(out, "    /// `{raw_string}`: {comment}")?;
+        } else {
+            writeln!(out, "    /// `{raw_string}`")?;
+        }
+        writeln!(out, "    {},", to_enum_variant_name(raw_string))?;
     }
     writeln!(out, "}}")?;
     Ok(())
