@@ -1,19 +1,19 @@
 
-impl fmt::Display for Bits {
+impl fmt::Display for PointerWidth {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
 #[cfg(feature = "serde")]
-impl Serialize for Bits {
+impl Serialize for PointerWidth {
     fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
 #[cfg(feature = "serde")]
-impl<'de> Deserialize<'de> for Bits {
+impl<'de> Deserialize<'de> for PointerWidth {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = <&str>::deserialize(deserializer)?;
         if cfg!(feature = "std") {
