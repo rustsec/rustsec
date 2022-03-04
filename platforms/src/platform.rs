@@ -35,7 +35,11 @@ pub struct Platform {
     /// Target environment `cfg` attribute (i.e. `cfg(target_env)`).
     /// Only used when needed for disambiguation, e.g. on many GNU platforms
     /// this value will be `None`.
-    pub target_env: Option<Env>,
+    pub target_env: Env,
+
+    pub target_pointer_width: PointerWidth,
+
+    pub target_endian: Endian,
 
     /// Tier of this platform:
     ///
