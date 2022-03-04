@@ -4,16 +4,28 @@ pub const HEADERS: &[(&'static str, &'static [u8])] = &[
     ("target_arch", include_bytes!("../templates/arch_header.rs")),
     ("target_os", include_bytes!("../templates/os_header.rs")),
     ("target_env", include_bytes!("../templates/env_header.rs")),
-    ("target_endian", include_bytes!("../templates/endian_header.rs")),
-    ("target_pointer_width", include_bytes!("../templates/bits_header.rs")),
+    (
+        "target_endian",
+        include_bytes!("../templates/endian_header.rs"),
+    ),
+    (
+        "target_pointer_width",
+        include_bytes!("../templates/bits_header.rs"),
+    ),
 ];
 
 pub const FOOTERS: &[(&'static str, &'static [u8])] = &[
     ("target_arch", include_bytes!("../templates/arch_footer.rs")),
     ("target_os", include_bytes!("../templates/os_footer.rs")),
     ("target_env", include_bytes!("../templates/env_footer.rs")),
-    ("target_endian", include_bytes!("../templates/endian_footer.rs")),
-    ("target_pointer_width", include_bytes!("../templates/bits_footer.rs")),
+    (
+        "target_endian",
+        include_bytes!("../templates/endian_footer.rs"),
+    ),
+    (
+        "target_pointer_width",
+        include_bytes!("../templates/bits_footer.rs"),
+    ),
 ];
 
 use std::collections::HashMap;

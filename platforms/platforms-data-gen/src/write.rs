@@ -23,7 +23,9 @@ pub(crate) fn write_targets_file<W: Write>(
     out: &mut W,
 ) -> Result<()> {
     // write the header
-    write!(out, "\
+    write!(
+        out,
+        "\
 //! The list of targets.
 
 // Note: this file is auto-generated. Do not edit it manually!
@@ -31,7 +33,8 @@ pub(crate) fn write_targets_file<W: Write>(
 
 use crate::{{
     platform::{{Platform, Tier}},
-    target::{{")?;
+    target::{{"
+    )?;
     // write the names of the enums we need to import
     for field in FIELDS_WITH_ENUMS.iter() {
         let name = to_enum_name(field);
@@ -90,11 +93,7 @@ pub(crate) fn write_enum_file<W: Write>(
 
 /// Accepts the key from the `rustc` output and generates an enum definition from it
 #[must_use]
-fn write_enum_definition<W: Write>(
-    key: &str,
-    info: &RustcTargetsInfo,
-    out: &mut W,
-) -> Result<()> {
+fn write_enum_definition<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut W) -> Result<()> {
     writeln!(out, "pub enum {} {{", to_enum_name(key))?;
     let comments = Comments::new();
     let raw_strings = distinct_values(key, info);
@@ -170,7 +169,10 @@ impl FromStr for {enum_name} {{
 
 #[must_use]
 fn to_const_variable_name(input: &str) -> String {
-    input.to_ascii_uppercase().replace("-", "_").replace(".", "_")
+    input
+        .to_ascii_uppercase()
+        .replace("-", "_")
+        .replace(".", "_")
 }
 
 #[must_use]

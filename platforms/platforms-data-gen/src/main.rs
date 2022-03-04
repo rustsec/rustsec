@@ -9,7 +9,7 @@ mod write;
 use std::{collections::HashSet, env::args_os, fs::File};
 
 use doc_target_info::DocTargetsInfo;
-use write::{write_enum_file, FIELDS_WITH_ENUMS, write_targets_file};
+use write::{write_enum_file, write_targets_file, FIELDS_WITH_ENUMS};
 
 fn main() -> std::io::Result<()> {
     let file = args_os().nth(1).expect(
@@ -27,7 +27,10 @@ and pass it as an argument to this program.",
     let rustc_info = rustc_target_info::targets_info(&triples);
 
     for key in FIELDS_WITH_ENUMS.iter() {
-        let filename = format!("../src/target/{}.rs", enums::to_enum_name(key).to_lowercase());
+        let filename = format!(
+            "../src/target/{}.rs",
+            enums::to_enum_name(key).to_lowercase()
+        );
         let mut file = File::create(filename)?;
         write_enum_file(key, &rustc_info, &mut file)?;
     }
