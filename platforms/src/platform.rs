@@ -202,9 +202,4 @@ mod tests {
             );
         }
     }
-
-    #[test]
-    fn guesses_current() {
-        assert!(Platform::guess_current().is_some());
-    }
 }
