@@ -22,7 +22,7 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
         "target_env" => "Env",
         "tier" => "Tier",
         "target_endian" => "Endian",
-        "target_pointer_width" => "Bits",
+        "target_pointer_width" => "PointerWidth",
         _ => unreachable!("unknown enum name: {}", key),
     }
 }
@@ -32,6 +32,10 @@ pub(crate) fn to_enum_variant_name(value: &str) -> String {
     let mut name = value.to_ascii_lowercase();
     match name.as_str() {
         "" => "None".to_owned(), // This is used for `Env` which is set to empty string by default
+        // Numbers cannot be used as enum discriminants, so for `PointerWidth` enum we need this hack
+        "16" => "U16".to_owned(),
+        "32" => "U32".to_owned(),
+        "64" => "U64".to_owned(),
         // list of exceptions to `Titlecase` enum naming from `platforms` v2.0, as gathered by
         // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
         "aarch64" => "AArch64".to_owned(),
