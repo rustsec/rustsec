@@ -36,6 +36,9 @@ pub(crate) fn to_enum_variant_name(value: &str) -> String {
         "16" => "U16".to_owned(),
         "32" => "U32".to_owned(),
         "64" => "U64".to_owned(),
+        // This is special-cased because making a general rule for this without breaking x86_64 is not easy
+        // and there's only one of these bad boys right now anyway
+        "solid_asp3" => "SolidAsp3".to_owned(),
         // list of exceptions to `Titlecase` enum naming from `platforms` v2.0, as gathered by
         // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
         "aarch64" => "AArch64".to_owned(),
@@ -89,5 +92,7 @@ mod tests {
         assert_eq!(&to_enum_variant_name("nonexistentos"), "NonexistentOS");
         assert_eq!(&to_enum_variant_name("riscv"), "RiscV");
         assert_eq!(&to_enum_variant_name("PoWeRpC"), "PowerPc");
+        assert_eq!(&to_enum_variant_name("x86_64"), "X86_64");
+        assert_eq!(&to_enum_variant_name("solid_asp3"), "SolidAsp3");
     }
 }
