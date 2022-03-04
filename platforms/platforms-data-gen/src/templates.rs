@@ -1,22 +1,22 @@
 //! TODO: documentation
 
-pub const HEADERS: &[(&'static str, &'static str)] = &[
-("target_arch", include_str!("../templates/arch_header.rs")),
-("target_os", include_str!("../templates/os_header.rs")),
-("target_env", include_str!("../templates/env_header.rs")),
+pub const HEADERS: &[(&'static str, &'static [u8])] = &[
+("target_arch", include_bytes!("../templates/arch_header.rs")),
+("target_os", include_bytes!("../templates/os_header.rs")),
+("target_env", include_bytes!("../templates/env_header.rs")),
 ];
 
-pub const FOOTERS: &[(&'static str, &'static str)] = &[
-("target_arch", include_str!("../templates/arch_footer.rs")),
-("target_os", include_str!("../templates/os_footer.rs")),
-("target_env", include_str!("../templates/env_footer.rs")),
+pub const FOOTERS: &[(&'static str, &'static [u8])] = &[
+("target_arch", include_bytes!("../templates/arch_footer.rs")),
+("target_os", include_bytes!("../templates/os_footer.rs")),
+("target_env", include_bytes!("../templates/env_footer.rs")),
 ];
 
 use std::collections::HashMap;
 
 pub(crate) struct Templates {
-    headers: HashMap<&'static str, &'static str>,
-    footers: HashMap<&'static str, &'static str>,
+    headers: HashMap<&'static str, &'static [u8]>,
+    footers: HashMap<&'static str, &'static [u8]>,
 }
 
 impl Templates {
@@ -27,12 +27,12 @@ impl Templates {
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
-    pub fn header(&self, key: &str) -> Option<&'static str> {
+    pub fn header(&self, key: &str) -> Option<&'static [u8]> {
         self.headers.get(key).cloned()
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
-    pub fn footer(&self, key: &str) -> Option<&'static str> {
+    pub fn footer(&self, key: &str) -> Option<&'static [u8]> {
         self.footers.get(key).cloned()
     }
 }

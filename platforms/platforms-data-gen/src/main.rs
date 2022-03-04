@@ -9,7 +9,7 @@ mod templates;
 use std::{collections::HashSet, env::args_os};
 
 use doc_target_info::DocTargetsInfo;
-use write::{write_enum, write_target_struct, FIELDS_WITH_ENUMS};
+use write::{write_enum_file, write_target_struct, FIELDS_WITH_ENUMS};
 
 fn main() -> std::io::Result<()> {
     let file = args_os().nth(1).expect(
@@ -31,7 +31,7 @@ and pass it as an argument to this program.",
     let rustc_info = rustc_target_info::targets_info(&triples);
 
     for key in FIELDS_WITH_ENUMS.iter() {
-        write_enum(key, &rustc_info, &mut stdout)?;
+        write_enum_file(key, &rustc_info, &mut stdout)?;
     }
 
     for (triple, info) in triples.iter().zip(rustc_info) {

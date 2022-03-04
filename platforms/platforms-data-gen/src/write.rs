@@ -5,6 +5,8 @@ use crate::comments::Comments;
 use crate::doc_target_info::DocTargetInfo;
 use crate::enums::*;
 use crate::rustc_target_info::{RustcTargetInfo, RustcTargetsInfo};
+use crate::templates;
+use crate::templates::Templates;
 
 pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_arch",
@@ -43,9 +45,12 @@ pub const {}: Platform = Platform {{
 /// Accepts the key from the `rustc` output and generates an enum from it,
 /// including all `impl`s that depend on the info about available targets
 #[must_use]
-pub(crate) fn write_enum<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut W) -> Result<()> {
+pub(crate) fn write_enum_file<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut W) -> Result<()> {
+    let templates = Templates::new();
+    out.write_all(templates.header(key).unwrap())?;
     write_enum_definition(key, info, out)?;
     write_enum_string_conversions(key, info, out)?;
+    out.write_all(templates.footer(key).unwrap())?;
     Ok(())
 }
 
