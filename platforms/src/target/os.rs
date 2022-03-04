@@ -76,7 +76,7 @@ pub enum OS {
     Solaris,
 
     /// `solid_asp3`
-    Solid_asp3,
+    SolidAsp3,
 
     /// `tvos`
     TvOS,
@@ -123,7 +123,7 @@ impl OS {
             OS::Psp => "psp",
             OS::Redox => "redox",
             OS::Solaris => "solaris",
-            OS::Solid_asp3 => "solid_asp3",
+            OS::SolidAsp3 => "solid_asp3",
             OS::TvOS => "tvos",
             OS::Uefi => "uefi",
             OS::Unknown => "unknown",
@@ -161,7 +161,7 @@ impl FromStr for OS {
             "psp" => OS::Psp,
             "redox" => OS::Redox,
             "solaris" => OS::Solaris,
-            "solid_asp3" => OS::Solid_asp3,
+            "solid_asp3" => OS::SolidAsp3,
             "tvos" => OS::TvOS,
             "uefi" => OS::Uefi,
             "unknown" => OS::Unknown,
