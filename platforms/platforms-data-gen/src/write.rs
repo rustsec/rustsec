@@ -59,7 +59,7 @@ pub(crate) fn write_enum_file<W: Write>(
 
 /// Accepts the key from the `rustc` output and generates an enum definition from it
 #[must_use]
-pub(crate) fn write_enum_definition<W: Write>(
+fn write_enum_definition<W: Write>(
     key: &str,
     info: &RustcTargetsInfo,
     out: &mut W,
@@ -80,7 +80,7 @@ pub(crate) fn write_enum_definition<W: Write>(
 }
 
 #[must_use]
-pub(crate) fn write_enum_string_conversions<W: Write>(
+fn write_enum_string_conversions<W: Write>(
     key: &str,
     info: &RustcTargetsInfo,
     out: &mut W,
