@@ -6,9 +6,13 @@
 mod arch;
 mod env;
 mod os;
+mod pointerwidth;
+mod endian;
 
 pub use self::{
-    arch::{Arch, TARGET_ARCH},
-    env::{Env, TARGET_ENV},
-    os::{OS, TARGET_OS},
+    arch::Arch,
+    env::Env,
+    os::OS,
+    pointerwidth::PointerWidth,
+    endian::Endian,
 };
