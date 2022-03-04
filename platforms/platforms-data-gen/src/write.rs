@@ -41,9 +41,10 @@ use crate::{{
         let name = to_enum_name(field);
         write!(out, " {name},")?;
     }
-    // close the list of enums and the imports
     writeln!(out, "}},\n}};\n")?;
+
     write_list_of_targets(triples, out)?;
+
     // write the actual targets
     for (triple, info) in triples.iter().zip(rustc_info) {
         write_target_struct(&triple, &info, &(doc_info[triple]), out)?;
@@ -56,7 +57,9 @@ pub(crate) fn write_list_of_targets<W: Write>(
     triples: &[String],
     out: &mut W,
 ) -> Result<()> {
-    writeln!(out, "\npub const ALL: &'static [Platform] = &[")?;
+    writeln!(out, "
+/// The list of all targets recognized by the Rust compiler
+pub const ALL: &'static [Platform] = &[")?;
     for triple in triples {
         writeln!(out, "    {},", to_const_variable_name(triple))?;
     }
