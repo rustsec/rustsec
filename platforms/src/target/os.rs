@@ -45,6 +45,7 @@ pub enum OS {
     IllumOS,
 
     /// `ios`: Apple's iOS mobile operating system
+    #[allow(non_camel_case_types)]
     iOS,
 
     /// `l4re`

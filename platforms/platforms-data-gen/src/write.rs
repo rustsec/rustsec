@@ -114,11 +114,18 @@ fn write_enum_definition<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut
     let raw_strings = distinct_values(key, info);
     for raw_string in &raw_strings {
         if let Some(comment) = comments.enum_variant_comment(raw_string) {
+            // if there is a manually added comment for this enum variant in our data, add it
             writeln!(out, "    /// `{raw_string}`: {comment}")?;
         } else {
+            // otherwise just write out the raw value from rustc for reference
             writeln!(out, "    /// `{raw_string}`")?;
         }
-        writeln!(out, "    {},\n", to_enum_variant_name(raw_string))?;
+        let enum_variant = to_enum_variant_name(raw_string);
+        // deal with names like 'iOS' that violate Rust naming conventions
+        if enum_variant.chars().nth(0).unwrap().is_lowercase() {
+            writeln!(out, "    #[allow(non_camel_case_types)]")?;
+        }
+        writeln!(out, "    {enum_variant},\n")?;
     }
     writeln!(out, "}}")?;
     Ok(())
