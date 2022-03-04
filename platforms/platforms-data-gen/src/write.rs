@@ -16,6 +16,7 @@ pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_pointer_width",
 ];
 
+#[must_use]
 pub(crate) fn write_targets_file<W: Write>(
     triples: &[String],
     rustc_info: &RustcTargetsInfo,
@@ -42,10 +43,24 @@ use crate::{{
     }
     // close the list of enums and the imports
     writeln!(out, "}},\n}};\n")?;
+    write_list_of_targets(triples, out)?;
     // write the actual targets
     for (triple, info) in triples.iter().zip(rustc_info) {
         write_target_struct(&triple, &info, &(doc_info[triple]), out)?;
     }
+    Ok(())
+}
+
+#[must_use]
+pub(crate) fn write_list_of_targets<W: Write>(
+    triples: &[String],
+    out: &mut W,
+) -> Result<()> {
+    writeln!(out, "\npub const ALL: &'static [Platform] = &[")?;
+    for triple in triples {
+        writeln!(out, "    {},", to_const_variable_name(triple))?;
+    }
+    writeln!(out, "];")?;
     Ok(())
 }
 
