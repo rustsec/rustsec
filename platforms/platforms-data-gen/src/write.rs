@@ -45,7 +45,11 @@ pub const {}: Platform = Platform {{
 /// Accepts the key from the `rustc` output and generates an enum from it,
 /// including all `impl`s that depend on the info about available targets
 #[must_use]
-pub(crate) fn write_enum_file<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut W) -> Result<()> {
+pub(crate) fn write_enum_file<W: Write>(
+    key: &str,
+    info: &RustcTargetsInfo,
+    out: &mut W,
+) -> Result<()> {
     let templates = Templates::new();
     out.write_all(templates.header(key).unwrap())?;
     write_enum_definition(key, info, out)?;

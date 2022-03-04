@@ -3,8 +3,8 @@ mod data;
 mod doc_target_info;
 mod enums;
 mod rustc_target_info;
-mod write;
 mod templates;
+mod write;
 
 use std::{collections::HashSet, env::args_os};
 
