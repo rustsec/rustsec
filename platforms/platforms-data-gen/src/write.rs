@@ -3,6 +3,7 @@ use std::io::Write;
 
 use crate::comments::Comments;
 use crate::doc_target_info::DocTargetInfo;
+use crate::doc_target_info::DocTargetsInfo;
 use crate::enums::*;
 use crate::rustc_target_info::{RustcTargetInfo, RustcTargetsInfo};
 use crate::templates::Templates;
@@ -15,8 +16,38 @@ pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_pointer_width",
 ];
 
+pub(crate) fn write_targets_file<W: Write>(
+    triples: &[String],
+    rustc_info: &RustcTargetsInfo,
+    doc_info: &DocTargetsInfo,
+    out: &mut W,
+) -> Result<()> {
+    // write the header
+    write!(out, "\
+//! The list of targets.
+
+// Note: this file is auto-generated. Do not edit it manually!
+// If you need to referesh it, re-run the generator included in the source tree.
+
+use crate::{{
+    platform::{{Platform, Tier}},
+    target::{{")?;
+    // write the names of the enums we need to import
+    for field in FIELDS_WITH_ENUMS.iter() {
+        let name = to_enum_name(field);
+        write!(out, " {name},")?;
+    }
+    // close the list of enums and the imports
+    writeln!(out, "}},\n}};\n")?;
+    // write the actual targets
+    for (triple, info) in triples.iter().zip(rustc_info) {
+        write_target_struct(&triple, &info, &(doc_info[triple]), out)?;
+    }
+    Ok(())
+}
+
 #[must_use]
-pub(crate) fn write_target_struct<W: Write>(
+fn write_target_struct<W: Write>(
     triple: &str,
     rustc_info: &RustcTargetInfo,
     doc_info: &DocTargetInfo,

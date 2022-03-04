@@ -21,7 +21,7 @@ pub(crate) fn target_triples() -> Vec<TargetTriple> {
 
 /// Returns detailed information about all targets.
 /// Since it invokes `rustc` for every target, it may take a while.
-pub(crate) fn targets_info(triples: &[TargetTriple]) -> Vec<RustcTargetInfo> {
+pub(crate) fn targets_info(triples: &[TargetTriple]) -> RustcTargetsInfo {
     // Spawn all queries at once to make use of all available cores.
     // No it's not premature optimization, it lets me iterate faster okay?
     let child_processes: Vec<Child> = triples

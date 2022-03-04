@@ -9,7 +9,7 @@ mod write;
 use std::{collections::HashSet, env::args_os, fs::File};
 
 use doc_target_info::DocTargetsInfo;
-use write::{write_enum_file, write_target_struct, FIELDS_WITH_ENUMS};
+use write::{write_enum_file, FIELDS_WITH_ENUMS, write_targets_file};
 
 fn main() -> std::io::Result<()> {
     let file = args_os().nth(1).expect(
@@ -32,13 +32,8 @@ and pass it as an argument to this program.",
         write_enum_file(key, &rustc_info, &mut file)?;
     }
 
-    // TODO: write to files instead of stdout
-    let stdout = std::io::stdout();
-    let mut stdout = stdout.lock();
-
-    for (triple, info) in triples.iter().zip(rustc_info) {
-        write_target_struct(&triple, &info, &doc_info[triple], &mut stdout)?;
-    }
+    let mut file = File::create("../src/platform/platforms.rs")?;
+    write_targets_file(&triples, &rustc_info, &doc_info, &mut file)?;
     Ok(())
 }
 
