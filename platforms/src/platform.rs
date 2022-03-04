@@ -18,6 +18,7 @@ use core::fmt;
 ///
 /// Sourced from <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub struct Platform {
     /// "Target triple" string uniquely identifying the platform. See:
     /// <https://github.com/rust-lang/rfcs/blob/master/text/0131-target-specification.md>
