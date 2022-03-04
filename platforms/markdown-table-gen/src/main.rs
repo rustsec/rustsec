@@ -90,9 +90,7 @@ fn print_platform_entry(platform: &Platform) {
     );
 
     let target_env = platform
-        .target_env
-        .map(|env| env.as_str())
-        .unwrap_or("\"\"");
+        .target_env.as_str();
 
     println!("{:width$} |", target_env, width = TARGET_ENV_WIDTH);
 }
