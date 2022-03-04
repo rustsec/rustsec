@@ -176,17 +176,6 @@ impl Platform {
             .iter()
             .find(|platform| platform.target_triple == target_triple)
     }
-
-    /// Attempt to guess the current `Platform`. May give inaccurate results.
-    pub fn guess_current() -> Option<&'static Platform> {
-        Self::find(env!("TARGET")).or_else(|| {
-            Self::ALL.iter().find(|&platform| {
-                platform.target_arch == TARGET_ARCH
-                    && platform.target_env == TARGET_ENV
-                    && platform.target_os == TARGET_OS
-            })
-        })
-    }
 }
 
 impl fmt::Display for Platform {
