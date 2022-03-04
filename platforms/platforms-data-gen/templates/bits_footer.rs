@@ -1,22 +1,12 @@
+//! Pointer width of the target architecture
 
-impl fmt::Display for Bits {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str(self.as_str())
-    }
-}
+use crate::error::Error;
+use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-impl Serialize for Bits {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        serializer.serialize_str(self.as_str())
-    }
-}
+use serde::{de, ser, Deserialize, Serialize};
 
-#[cfg(feature = "serde")]
-impl<'de> Deserialize<'de> for Bits {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(<&str>::deserialize(deserializer)?
-            .parse()
-            .unwrap_or(Bits::Unknown))
-    }
-}
+/// `target_pointer_width`: Size of native pointer types (`usize`, `isize`) in bits
+/// 64 bits for modern desktops and phones, 32-bits for older devices, 16 bits for certain microcontrollers
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
