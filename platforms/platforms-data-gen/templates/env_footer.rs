@@ -15,8 +15,11 @@ impl Serialize for Env {
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Env {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(<&str>::deserialize(deserializer)?
-            .parse()
-            .unwrap_or(Env::Unknown))
+        let string = <&str>::deserialize(deserializer)?;
+        if cfg!(std) {
+            Ok(string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_env", string)))?)
+        } else {
+            Ok(string.parse().map_err(|_| D::Error::custom("Unrecognized value for target_env"))?)
+        }
     }
 }
