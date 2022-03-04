@@ -170,7 +170,7 @@ impl FromStr for {enum_name} {{
 
 #[must_use]
 fn to_const_variable_name(input: &str) -> String {
-    input.to_ascii_uppercase().replace("-", "_")
+    input.to_ascii_uppercase().replace("-", "_").replace(".", "_")
 }
 
 #[must_use]
