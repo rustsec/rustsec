@@ -6,7 +6,7 @@ mod rustc_target_info;
 mod templates;
 mod write;
 
-use std::{collections::HashSet, env::args_os};
+use std::{collections::HashSet, env::args_os, fs::File};
 
 use doc_target_info::DocTargetsInfo;
 use write::{write_enum_file, write_target_struct, FIELDS_WITH_ENUMS};
@@ -24,15 +24,17 @@ and pass it as an argument to this program.",
 
     ensure_rustc_and_docs_agree(&triples, &doc_info);
 
-    // TODO: write to files instead of stdout
-    let stdout = std::io::stdout();
-    let mut stdout = stdout.lock();
-
     let rustc_info = rustc_target_info::targets_info(&triples);
 
     for key in FIELDS_WITH_ENUMS.iter() {
-        write_enum_file(key, &rustc_info, &mut stdout)?;
+        let filename = format!("../src/target/{}.rs", enums::to_enum_name(key).to_lowercase());
+        let mut file = File::create(filename)?;
+        write_enum_file(key, &rustc_info, &mut file)?;
     }
+
+    // TODO: write to files instead of stdout
+    let stdout = std::io::stdout();
+    let mut stdout = stdout.lock();
 
     for (triple, info) in triples.iter().zip(rustc_info) {
         write_target_struct(&triple, &info, &doc_info[triple], &mut stdout)?;
