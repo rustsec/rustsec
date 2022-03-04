@@ -1,9 +1,9 @@
 //! This module serves manually populated data
 //! that we add to auto-generated data.
-//! 
+//!
 //! The source for the data is in the `crate::data::*` modules;
 //! this module only provides convenient utilities to serve it.
-//! 
+//!
 //! It is not required for auto-generation to succeed,
 //! but it does augment the auto-populated data for human readability.
 
