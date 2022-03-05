@@ -5,9 +5,8 @@
 
 use crate::{
     platform::{Platform, Tier},
-    target::{ Arch, OS, Env, Endian, PointerWidth,},
+    target::{Arch, Endian, Env, PointerWidth, OS},
 };
-
 
 /// The list of all targets recognized by the Rust compiler
 pub(crate) const ALL: &'static [Platform] = &[

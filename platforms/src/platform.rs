@@ -6,7 +6,7 @@ mod platforms;
 mod req;
 mod tier;
 
-pub use self::{tier::Tier, platforms::*};
+pub use self::{platforms::*, tier::Tier};
 
 #[cfg(feature = "std")]
 pub use self::req::PlatformReq;
