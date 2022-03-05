@@ -3,10 +3,16 @@
 // Note: this file is auto-generated. Do not edit it manually!
 // If you need to referesh it, re-run the generator included in the source tree.
 
+// Comments on targets are sourced from
+// https://doc.rust-lang.org/nightly/rustc/platform-support.html
+// and some of the more obscure targets do not have a comment on them
+#![allow(missing_docs)]
+
 use crate::{
     platform::{Platform, Tier},
-    target::{Arch, Endian, Env, PointerWidth, OS},
+    target::{ Arch, OS, Env, Endian, PointerWidth,},
 };
+
 
 /// The list of all targets recognized by the Rust compiler
 pub(crate) const ALL: &'static [Platform] = &[

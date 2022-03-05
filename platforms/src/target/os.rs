@@ -4,7 +4,7 @@ use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
+use serde::{de, ser, de::Error as DeError, Deserialize, Serialize};
 
 /// `target_os`: Operating system of the target. This value is closely related to the second
 /// and third element of the platform target triple, though it is not identical.
@@ -95,6 +95,7 @@ pub enum OS {
 
     /// `windows`: Microsoft's Windows operating system
     Windows,
+
 }
 
 impl OS {
@@ -192,16 +193,9 @@ impl<'de> Deserialize<'de> for OS {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = <&str>::deserialize(deserializer)?;
         if cfg!(feature = "std") {
-            Ok(string.parse().map_err(|_| {
-                D::Error::custom(std::format!(
-                    "Unrecognized value '{}' for target_os",
-                    string
-                ))
-            })?)
+            Ok(string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_os", string)))?)
         } else {
-            Ok(string
-                .parse()
-                .map_err(|_| D::Error::custom("Unrecognized value for target_os"))?)
+            Ok(string.parse().map_err(|_| D::Error::custom("Unrecognized value for target_os"))?)
         }
     }
 }

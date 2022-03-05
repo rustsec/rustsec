@@ -4,7 +4,7 @@ use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
+use serde::{de, ser, de::Error as DeError, Deserialize, Serialize};
 
 /// `target_pointer_width`: Size of native pointer types (`usize`, `isize`) in bits
 /// 64 bits for modern desktops and phones, 32-bits for older devices, 16 bits for certain microcontrollers
@@ -19,6 +19,7 @@ pub enum PointerWidth {
 
     /// `64`
     U64,
+
 }
 
 impl PointerWidth {
@@ -91,16 +92,9 @@ impl<'de> Deserialize<'de> for PointerWidth {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = <&str>::deserialize(deserializer)?;
         if cfg!(feature = "std") {
-            Ok(string.parse().map_err(|_| {
-                D::Error::custom(std::format!(
-                    "Unrecognized value '{}' for target_pointer_width",
-                    string
-                ))
-            })?)
+            Ok(string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_pointer_width", string)))?)
         } else {
-            Ok(string
-                .parse()
-                .map_err(|_| D::Error::custom("Unrecognized value for target_pointer_width"))?)
+            Ok(string.parse().map_err(|_| D::Error::custom("Unrecognized value for target_pointer_width"))?)
         }
     }
 }
