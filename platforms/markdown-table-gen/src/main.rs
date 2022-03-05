@@ -41,7 +41,9 @@ fn main() {
 fn print_platforms_table() {
     let mut current_tier: Option<Tier> = None;
 
-    for platform in Platform::ALL {
+    let mut platforms = Platform::ALL.to_owned();
+    platforms.sort_by_key(|p| p.tier);
+    for platform in &platforms {
         // Print headers if we're on a different tier from before
         if current_tier != Some(platform.tier) {
             if current_tier.is_some() {
