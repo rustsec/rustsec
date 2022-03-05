@@ -91,8 +91,7 @@ fn print_platform_entry(platform: &Platform) {
         width = TARGET_OS_WIDTH
     );
 
-    let target_env = platform
-        .target_env.as_str();
+    let target_env = platform.target_env.as_str();
 
     println!("{:width$} |", target_env, width = TARGET_ENV_WIDTH);
 }
