@@ -6,6 +6,5 @@ members = [
     "cvss",
     "platforms",
     "platforms/markdown-table-gen",
-    "platforms/platforms-data-gen",
     "rustsec"
 ]
