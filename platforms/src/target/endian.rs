@@ -4,7 +4,7 @@ use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, ser, de::Error as DeError, Deserialize, Serialize};
+use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
 
 /// `target_endian`: [Endianness](https://en.wikipedia.org/wiki/Endianness) of the target.
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -15,7 +15,6 @@ pub enum Endian {
 
     /// `little`
     Little,
-
 }
 
 impl Endian {
@@ -61,9 +60,16 @@ impl<'de> Deserialize<'de> for Endian {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = <&str>::deserialize(deserializer)?;
         if cfg!(feature = "std") {
-            Ok(string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_endian", string)))?)
+            Ok(string.parse().map_err(|_| {
+                D::Error::custom(std::format!(
+                    "Unrecognized value '{}' for target_endian",
+                    string
+                ))
+            })?)
         } else {
-            Ok(string.parse().map_err(|_| D::Error::custom("Unrecognized value for target_endian"))?)
+            Ok(string
+                .parse()
+                .map_err(|_| D::Error::custom("Unrecognized value for target_endian"))?)
         }
     }
 }
