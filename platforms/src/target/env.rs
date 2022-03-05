@@ -4,7 +4,7 @@ use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, ser, de::Error as DeError, Deserialize, Serialize};
+use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
 
 /// `target_env`: target enviroment that disambiguates the target platform by ABI / libc.
 /// This value is closely related to the fourth element of the platform target triple,
@@ -42,7 +42,6 @@ pub enum Env {
 
     /// `uclibc`: C library for developing embedded Linux systems
     UClibc,
-
 }
 
 impl Env {
@@ -104,9 +103,16 @@ impl<'de> Deserialize<'de> for Env {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = <&str>::deserialize(deserializer)?;
         if cfg!(feature = "std") {
-            Ok(string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_env", string)))?)
+            Ok(string.parse().map_err(|_| {
+                D::Error::custom(std::format!(
+                    "Unrecognized value '{}' for target_env",
+                    string
+                ))
+            })?)
         } else {
-            Ok(string.parse().map_err(|_| D::Error::custom("Unrecognized value for target_env"))?)
+            Ok(string
+                .parse()
+                .map_err(|_| D::Error::custom("Unrecognized value for target_env"))?)
         }
     }
 }
