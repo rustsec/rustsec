@@ -49,6 +49,31 @@ impl FromStr for PointerWidth {
     }
 }
 
+use std::convert::TryFrom;
+
+impl TryFrom<u8> for PointerWidth {
+    type Error = &'static str;
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            64 => Ok(PointerWidth::U64),
+            32 => Ok(PointerWidth::U32),
+            16 => Ok(PointerWidth::U16),
+            _ => Err("Invalid pointer width!"),
+        }
+    }
+}
+
+impl From<PointerWidth> for u8 {
+    fn from(value: PointerWidth) -> Self {
+        match value {
+            PointerWidth::U64 => 64,
+            PointerWidth::U32 => 32,
+            PointerWidth::U16 => 16,
+        }
+    }
+}
+
 impl fmt::Display for PointerWidth {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
