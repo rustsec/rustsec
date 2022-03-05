@@ -3,7 +3,7 @@
 use platforms::{Platform, Tier};
 
 /// Max width for target triples
-const TARGET_TRIPLE_WIDTH: usize = 35;
+const TARGET_TRIPLE_WIDTH: usize = 36;
 
 /// Max width for `target_arch`
 const TARGET_ARCH_WIDTH: usize = 11;
