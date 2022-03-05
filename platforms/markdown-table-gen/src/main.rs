@@ -66,8 +66,8 @@ fn print_table_header(tier: Tier) {
     println!("### Tier {}\n", tier.to_usize());
 
     println!(
-        "| target triple                         | target_arch | target_os  | target_env |\n\
-         |---------------------------------------|-------------|------------|------------|"
+        "| target triple                          | target_arch | target_os  | target_env |\n\
+         |----------------------------------------|-------------|------------|------------|"
     );
 }
 
