@@ -7,3 +7,7 @@ edition = "2021"
 
 [dependencies]
 regex = "1.5.4"
+
+# exclude this crate from the parent workspace
+# because 2021 edition breaks CI which runs on rustc 1.40
+[workspace]
