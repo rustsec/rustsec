@@ -48,7 +48,7 @@ impl FromStr for PointerWidth {
     }
 }
 
-use std::convert::TryFrom;
+use core::convert::TryFrom;
 
 impl TryFrom<u8> for PointerWidth {
     type Error = &'static str;
