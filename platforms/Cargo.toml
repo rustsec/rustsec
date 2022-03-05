@@ -4,7 +4,7 @@ description = """
 Rust platform registry with information about valid Rust platforms (target
 triple, target_arch, target_os) sourced from Rust Forge.
 """
-version    = "2.0.0" # Also update html_root_url in lib.rs when bumping this
+version    = "3.0.0-alpha.1" # Also update html_root_url in lib.rs when bumping this
 authors    = ["Tony Arcieri <bascule@gmail.com>"]
 license    = "Apache-2.0 OR MIT"
 homepage   = "https://rustsec.org"
