@@ -71,10 +71,19 @@ impl PlatformReq {
 
     /// Expand glob expressions into a list of all known matching platforms
     pub fn matching_platforms(&self) -> impl Iterator<Item = &Platform> {
-        Platform::ALL
-            .iter()
-            .filter(move |&platform| self.matches(platform))
+        matching_platforms(self, Platform::ALL)
     }
+}
+
+// Split into its own function for unit testing
+#[inline]
+fn matching_platforms<'a>(
+    req: &'a PlatformReq,
+    platforms: &'a [Platform],
+) -> impl Iterator<Item = &'a Platform> {
+    platforms
+        .iter()
+        .filter(move |&platform| req.matches(platform))
 }
 
 impl FromStr for PlatformReq {
@@ -121,22 +130,48 @@ impl<'de> Deserialize<'de> for PlatformReq {
 
 #[cfg(test)]
 mod tests {
-    use super::{Platform, PlatformReq};
+    use super::*;
     use std::{str::FromStr, vec::Vec};
+
+    use crate::platform::platforms::*;
+    const TEST_PLATFORM_LIST: &[Platform] = &[
+        AARCH64_PC_WINDOWS_MSVC,
+        AARCH64_UNKNOWN_LINUX_MUSL,
+        ARMV7_UNKNOWN_LINUX_MUSLEABI,
+        ARMV7_UNKNOWN_LINUX_MUSLEABIHF,
+        SPARC_UNKNOWN_LINUX_GNU,
+        SPARC64_UNKNOWN_LINUX_GNU,
+        SPARC64_UNKNOWN_NETBSD,
+        SPARC64_UNKNOWN_OPENBSD,
+        SPARCV9_SUN_SOLARIS,
+        AARCH64_UWP_WINDOWS_MSVC,
+        I586_PC_WINDOWS_MSVC,
+        I686_PC_WINDOWS_GNU,
+        I686_PC_WINDOWS_MSVC,
+        I686_UWP_WINDOWS_GNU,
+        I686_UWP_WINDOWS_MSVC,
+        MIPS64_UNKNOWN_LINUX_GNUABI64,
+        MIPS64_UNKNOWN_LINUX_MUSLABI64,
+        THUMBV7A_PC_WINDOWS_MSVC,
+        THUMBV7A_UWP_WINDOWS_MSVC,
+        RISCV64GC_UNKNOWN_LINUX_MUSL,
+        X86_64_PC_WINDOWS_GNU,
+    ];
 
     #[test]
     fn prefix_glob_test() {
         let req = PlatformReq::from_str("sparc*").unwrap();
 
         assert_eq!(
-            req.matching_platforms()
+            matching_platforms(&req, TEST_PLATFORM_LIST)
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
-                "sparc64-unknown-linux-gnu",
-                "sparcv9-sun-solaris",
                 "sparc-unknown-linux-gnu",
-                "sparc64-unknown-netbsd"
+                "sparc64-unknown-linux-gnu",
+                "sparc64-unknown-netbsd",
+                "sparc64-unknown-openbsd",
+                "sparcv9-sun-solaris"
             ]
         );
     }
@@ -146,20 +181,12 @@ mod tests {
         let req = PlatformReq::from_str("*-musl").unwrap();
 
         assert_eq!(
-            req.matching_platforms()
+            matching_platforms(&req, TEST_PLATFORM_LIST)
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
                 "aarch64-unknown-linux-musl",
-                "i586-unknown-linux-musl",
-                "i686-unknown-linux-musl",
-                "mips-unknown-linux-musl",
-                "mipsel-unknown-linux-musl",
-                "x86_64-unknown-linux-musl",
-                "powerpc-unknown-linux-musl",
-                "powerpc64-unknown-linux-musl",
-                "powerpc64le-unknown-linux-musl",
-                "s390x-unknown-linux-musl"
+                "riscv64gc-unknown-linux-musl"
             ]
         );
     }
@@ -169,17 +196,20 @@ mod tests {
         let req = PlatformReq::from_str("*windows*").unwrap();
 
         assert_eq!(
-            req.matching_platforms()
+            matching_platforms(&req, TEST_PLATFORM_LIST)
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
+                "aarch64-pc-windows-msvc",
+                "aarch64-uwp-windows-msvc",
+                "i586-pc-windows-msvc",
                 "i686-pc-windows-gnu",
                 "i686-pc-windows-msvc",
+                "i686-uwp-windows-gnu",
+                "i686-uwp-windows-msvc",
+                "thumbv7a-pc-windows-msvc",
+                "thumbv7a-uwp-windows-msvc",
                 "x86_64-pc-windows-gnu",
-                "x86_64-pc-windows-msvc",
-                "aarch64-pc-windows-msvc",
-                "i586-pc-windows-msvc",
-                "aarch64-uwp-windows-msvc"
             ]
         );
     }
