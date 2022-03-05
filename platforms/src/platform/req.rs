@@ -133,11 +133,10 @@ mod tests {
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
-                "sparc-unknown-linux-gnu",
                 "sparc64-unknown-linux-gnu",
-                "sparc64-unknown-netbsd",
-                "sparc64-unknown-openbsd",
-                "sparcv9-sun-solaris"
+                "sparcv9-sun-solaris",
+                "sparc-unknown-linux-gnu",
+                "sparc64-unknown-netbsd"
             ]
         );
     }
@@ -152,19 +151,15 @@ mod tests {
                 .collect::<Vec<_>>(),
             [
                 "aarch64-unknown-linux-musl",
-                "hexagon-unknown-linux-musl",
                 "i586-unknown-linux-musl",
                 "i686-unknown-linux-musl",
                 "mips-unknown-linux-musl",
-                "mips64-openwrt-linux-musl",
                 "mipsel-unknown-linux-musl",
+                "x86_64-unknown-linux-musl",
                 "powerpc-unknown-linux-musl",
                 "powerpc64-unknown-linux-musl",
                 "powerpc64le-unknown-linux-musl",
-                "riscv32gc-unknown-linux-musl",
-                "riscv64gc-unknown-linux-musl",
-                "s390x-unknown-linux-musl",
-                "x86_64-unknown-linux-musl"
+                "s390x-unknown-linux-musl"
             ]
         );
     }
@@ -178,19 +173,13 @@ mod tests {
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
             [
-                "aarch64-pc-windows-msvc",
-                "aarch64-uwp-windows-msvc",
-                "i586-pc-windows-msvc",
                 "i686-pc-windows-gnu",
                 "i686-pc-windows-msvc",
-                "i686-uwp-windows-gnu",
-                "i686-uwp-windows-msvc",
-                "thumbv7a-pc-windows-msvc",
-                "thumbv7a-uwp-windows-msvc",
                 "x86_64-pc-windows-gnu",
                 "x86_64-pc-windows-msvc",
-                "x86_64-uwp-windows-gnu",
-                "x86_64-uwp-windows-msvc"
+                "aarch64-pc-windows-msvc",
+                "i586-pc-windows-msvc",
+                "aarch64-uwp-windows-msvc"
             ]
         );
     }
