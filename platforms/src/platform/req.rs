@@ -184,10 +184,7 @@ mod tests {
             matching_platforms(&req, TEST_PLATFORM_LIST)
                 .map(|p| p.target_triple)
                 .collect::<Vec<_>>(),
-            [
-                "aarch64-unknown-linux-musl",
-                "riscv64gc-unknown-linux-musl"
-            ]
+            ["aarch64-unknown-linux-musl", "riscv64gc-unknown-linux-musl"]
         );
     }
 
