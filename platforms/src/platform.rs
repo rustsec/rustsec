@@ -38,8 +38,12 @@ pub struct Platform {
     /// this value will be `None`.
     pub target_env: Env,
 
+    /// Target pointer width `cfg` attribute, in bits (i.e. `cfg(target_pointer_width)`).
+    /// Typically 64 on modern platforms, 32 on older platforms, 16 on some microcontrollers.
     pub target_pointer_width: PointerWidth,
 
+    /// Target [endianness](https://en.wikipedia.org/wiki/Endianness) `cfg` attribute (i.e. `cfg(target_endian)`).
+    /// Set to "little" on the vast majority of modern platforms.
     pub target_endian: Endian,
 
     /// Tier of this platform:
