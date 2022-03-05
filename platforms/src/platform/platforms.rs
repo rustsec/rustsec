@@ -943,7 +943,7 @@ pub const I686_PC_WINDOWS_GNU: Platform = Platform {
     tier: Tier::One,
 };
 
-/// 32-bit Windows XP support
+/// 32-bit MSVC (Windows 7+)
 pub const I686_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "i686-pc-windows-msvc",
     target_arch: Arch::X86,
@@ -951,7 +951,7 @@ pub const I686_PC_WINDOWS_MSVC: Platform = Platform {
     target_env: Env::Msvc,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::One,
 };
 
 /// 32-bit FreeBSD
@@ -1916,7 +1916,7 @@ pub const X86_64_PC_WINDOWS_GNU: Platform = Platform {
     tier: Tier::One,
 };
 
-/// 64-bit Windows XP support
+/// 64-bit MSVC (Windows 7+)
 pub const X86_64_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "x86_64-pc-windows-msvc",
     target_arch: Arch::X86_64,
@@ -1924,7 +1924,7 @@ pub const X86_64_PC_WINDOWS_MSVC: Platform = Platform {
     target_env: Env::Msvc,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::One,
 };
 
 /// Deprecated target for 64-bit Solaris 10/11, illumos

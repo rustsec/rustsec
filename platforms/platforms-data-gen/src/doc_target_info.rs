@@ -53,7 +53,11 @@ pub fn parse_file(input: &str) -> DocTargetsInfo {
                     tier: header_to_tier(header),
                     notes: notes.to_string(),
                 };
-                result.insert(arch.to_string(), target_info);
+                // The same target triple can appear several times in the documentation.
+                // For example, `i686-pc-windows-msvc` is both tier 1 and tier 3,
+                // with the tier 3 version being for Windows XP only.
+                // To deal with that, we only keep the first (highest) tier encountered.
+                result.entry(arch.to_string()).or_insert(target_info);
             }
         }
     }
@@ -115,6 +119,7 @@ target | notes
 -------|-------
 `aarch64-unknown-linux-gnu` | ARM64 Linux (kernel 4.2, glibc 2.17+) [^missing-stack-probes]
 `i686-pc-windows-gnu` | 32-bit MinGW (Windows 7+)
+`i686-pc-windows-msvc` | 32-bit MSVC (Windows 7+)
 
 ## Tier 1
 
@@ -164,6 +169,7 @@ target | std | host | notes
 `aarch64-apple-ios-macabi` | ? |  | Apple Catalyst on ARM64
 `aarch64-apple-tvos` | * |  | ARM64 tvOS
 [`aarch64-kmc-solid_asp3`](platform-support/kmc-solid.md) | ✓ |  | ARM64 SOLID with TOPPERS/ASP3
+`i686-pc-windows-msvc` | * |  | 32-bit Windows XP support
 
 blah blah I guess
 ";
@@ -203,7 +209,7 @@ blah blah I guess
 
         let sections = sections(SAMPLE_DATA);
         assert_eq!(sections.len(), 5);
-        assert_eq!(sections[0].lines().count(), 7);
+        assert_eq!(sections[0].lines().count(), 8);
     }
 
     #[test]
@@ -220,6 +226,12 @@ blah blah I guess
         assert_eq!(
             &result["i686-pc-windows-gnu"].notes,
             "32-bit MinGW (Windows 7+)"
+        );
+
+        assert_eq!(result["i686-pc-windows-msvc"].tier, 1);
+        assert_eq!(
+            &result["i686-pc-windows-msvc"].notes,
+            "32-bit MSVC (Windows 7+)"
         );
     }
 }
