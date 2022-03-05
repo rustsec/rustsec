@@ -4,7 +4,7 @@ use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
+use serde::{de, ser, de::Error as DeError, Deserialize, Serialize};
 
 /// `target_arch`: Target CPU architecture
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -72,6 +72,7 @@ pub enum Arch {
 
     /// `x86_64`: 'AMD64' CPU architecture
     X86_64,
+
 }
 
 impl Arch {
@@ -155,16 +156,9 @@ impl<'de> Deserialize<'de> for Arch {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = <&str>::deserialize(deserializer)?;
         if cfg!(feature = "std") {
-            Ok(string.parse().map_err(|_| {
-                D::Error::custom(std::format!(
-                    "Unrecognized value '{}' for target_arch",
-                    string
-                ))
-            })?)
+            Ok(string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_arch", string)))?)
         } else {
-            Ok(string
-                .parse()
-                .map_err(|_| D::Error::custom("Unrecognized value for target_arch"))?)
+            Ok(string.parse().map_err(|_| D::Error::custom("Unrecognized value for target_arch"))?)
         }
     }
 }
