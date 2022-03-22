@@ -2,25 +2,22 @@
 
 use crate::{auditor::Auditor, lockfile, prelude::*};
 use abscissa_core::{Command, Runnable};
-use gumdrop::Options;
+use clap::Parser;
 use rustsec::Fixer;
 use std::{
     path::{Path, PathBuf},
     process::exit,
 };
 
-#[derive(Command, Default, Debug, Options)]
+#[derive(Command, Default, Debug, Parser)]
+#[clap(author, version, about)]
 pub struct FixCommand {
-    /// Get help information
-    #[options(short = "h", long = "help", help = "output help information and exit")]
-    help: bool,
-
     /// Path to `Cargo.lock`
-    #[options(short = "f", long = "file", help = "Cargo lockfile to inspect")]
+    #[clap(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
     file: Option<PathBuf>,
 
     /// Perform a dry run
-    #[options(no_short, long = "dry-run", help = "perform a dry run for the fix")]
+    #[clap(long = "dry-run", help = "perform a dry run for the fix")]
     dry_run: bool,
 }
 
@@ -45,10 +42,6 @@ impl FixCommand {
 
 impl Runnable for FixCommand {
     fn run(&self) {
-        if self.help {
-            Self::print_usage_and_exit(&[]);
-        }
-
         let report = self.auditor().audit(self.cargo_lock_path());
 
         let report = match report {

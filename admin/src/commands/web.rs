@@ -5,13 +5,13 @@
 use std::path::PathBuf;
 
 use abscissa_core::{Command, Runnable};
-use gumdrop::Options;
+use clap::Parser;
 
 /// `rustsec-admin web` subcommand
-#[derive(Command, Debug, Default, Options)]
+#[derive(Command, Debug, Default, Parser)]
 pub struct WebCmd {
-    #[options(
-        free,
+    #[clap(
+        min_values = 1,
         help = "path to output the generated website (defaults to _site/)"
     )]
     path: Vec<PathBuf>,
@@ -22,7 +22,7 @@ impl Runnable for WebCmd {
         let output_folder = match self.path.len() {
             0 => PathBuf::from("_site/"),
             1 => self.path[0].clone(),
-            _ => Self::print_usage_and_exit(&[]),
+            _ => unreachable!(),
         };
         crate::web::render_advisories(output_folder);
     }

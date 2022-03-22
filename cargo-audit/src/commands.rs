@@ -4,7 +4,8 @@ mod audit;
 
 use self::audit::AuditCommand;
 use crate::config::AuditConfig;
-use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Options, Runnable};
+use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Runnable};
+use clap::Parser;
 use std::{ops::Deref, path::PathBuf};
 
 /// Name of the configuration file (located in `~/.cargo`)
@@ -13,11 +14,29 @@ use std::{ops::Deref, path::PathBuf};
 pub const CONFIG_FILE: &str = "audit.toml";
 
 /// `cargo audit` subcommands (presently only `audit`)
-#[derive(Command, Debug, Options, Runnable)]
-pub enum CargoAuditCommand {
+#[derive(Command, Debug, Parser, Runnable)]
+pub enum CargoAuditSubCommand {
     /// The `cargo audit` subcommand
-    #[options(help = "Audit Cargo.lock files for vulnerable crates")]
+    #[clap(about = "Audit Cargo.lock files for vulnerable crates")]
     Audit(AuditCommand),
+}
+
+/// `cargo audit` entrypoint
+#[derive(Command, Debug, Parser)]
+#[clap(author, version, about)]
+pub struct CargoAuditCommand {
+    #[clap(subcommand)]
+    cmd: CargoAuditSubCommand,
+
+    /// Increase verbosity setting
+    #[clap(short = 'v', long, help = "Increase verbosity")]
+    pub verbose: bool,
+}
+
+impl Runnable for CargoAuditCommand {
+    fn run(&self) {
+        self.cmd.run()
+    }
 }
 
 impl Configurable<AuditConfig> for CargoAuditCommand {
@@ -47,8 +66,8 @@ impl Configurable<AuditConfig> for CargoAuditCommand {
 
     /// Override loaded config with explicit command-line arguments
     fn process_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
-        match self {
-            CargoAuditCommand::Audit(cmd) => cmd.override_config(config),
+        match &self.cmd {
+            CargoAuditSubCommand::Audit(cmd) => cmd.override_config(config),
         }
     }
 }
@@ -57,8 +76,8 @@ impl Deref for CargoAuditCommand {
     type Target = AuditCommand;
 
     fn deref(&self) -> &AuditCommand {
-        match self {
-            CargoAuditCommand::Audit(cmd) => cmd,
+        match &self.cmd {
+            CargoAuditSubCommand::Audit(cmd) => &cmd,
         }
     }
 }
