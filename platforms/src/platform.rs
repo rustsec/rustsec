@@ -101,6 +101,10 @@ mod tests {
     ///
     /// Turns out that as of v3.0 this is infeasible,
     /// even though the list of supported cfg values was expanded.
+    ///
+    /// I have also verified that no possible expansion of the supported cfg fields
+    /// will lets uniquely identify the platform based on cfg values using a shell script:
+    /// `rustc --print=target-list | parallel 'rustc --print=cfg --target={} > ./{}'; fdupes`
     #[test]
     #[ignore]
     fn test_detection_feasibility() {
