@@ -2146,36 +2146,3 @@ pub const X86_64_WRS_VXWORKS: Platform = Platform {
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
 };
-
-#[cfg(test)]
-mod tests {
-    use std::collections::HashMap;
-
-    use super::*;
-
-    /// `platforms` v2.0 used to provide various constants passed as `cfg` values,
-    /// and attempted to detect the target triple based on that.
-    /// This test is meant to check whether such detection can be accurate.
-    ///
-    /// Turns out that as of v3.0 this is infeasible,
-    /// even though the list of supported cfg values was expanded.
-    #[test]
-    #[ignore]
-    fn test_detection_feasibility() {
-        let mut all_platforms = HashMap::new();
-        for p in ALL {
-            if let Some(other_p) = all_platforms.insert(
-                (
-                    p.target_arch,
-                    p.target_os,
-                    p.target_env,
-                    p.target_endian,
-                    p.target_pointer_width,
-                ),
-                p.target_triple,
-            ) {
-                panic!("{} and {} have identical properties, and cannot be distinguished based on properties alone", p.target_triple, other_p);
-            }
-        }
-    }
-}
