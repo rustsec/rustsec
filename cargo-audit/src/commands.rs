@@ -77,7 +77,7 @@ impl Deref for CargoAuditCommand {
 
     fn deref(&self) -> &AuditCommand {
         match &self.cmd {
-            CargoAuditSubCommand::Audit(cmd) => &cmd,
+            CargoAuditSubCommand::Audit(cmd) => cmd,
         }
     }
 }
