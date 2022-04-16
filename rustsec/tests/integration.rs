@@ -62,10 +62,9 @@ fn verify_rustsec_2017_0001(db: &Database) {
     assert_eq!(
         vulns
             .iter()
-            .filter(|v| !["RUSTSEC-2021-0055", "RUSTSEC-2021-0056"]
+            .find(|v| !["RUSTSEC-2021-0055", "RUSTSEC-2021-0056"]
                 .iter()
-                .any(|id| v.advisory.id == id.parse().unwrap()))
-            .next(),
+                .any(|id| v.advisory.id == id.parse().unwrap())),
         None
     );
 }
