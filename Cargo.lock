@@ -296,7 +296,6 @@ dependencies = [
  "abscissa_core",
  "gumdrop 0.7.0",
  "home",
- "lazy_static",
  "once_cell",
  "rustsec",
  "serde",
