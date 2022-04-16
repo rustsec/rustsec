@@ -49,7 +49,7 @@ impl Linter {
         let advisory = s.parse::<Advisory>()?;
 
         // Get advisory "front matter" (TOML formatted)
-        let advisory_parts = parts::Parts::parse(&s)?;
+        let advisory_parts = parts::Parts::parse(s)?;
         let front_matter = advisory_parts.front_matter.parse::<toml::Value>()?;
 
         let mut linter = Self {

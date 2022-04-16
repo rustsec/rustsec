@@ -15,7 +15,7 @@ use super::unaffected_range::{Bound, UnaffectedRange};
 /// Panics if the ranges are malformed or range specification syntax is not supported,
 /// since that has been validated on deserialization.
 pub fn ranges_for_advisory(versions: &Versions) -> Vec<OsvRange> {
-    unaffected_to_osv_ranges(&versions.unaffected(), &versions.patched()).unwrap()
+    unaffected_to_osv_ranges(versions.unaffected(), versions.patched()).unwrap()
 }
 
 /// Returns OSV ranges for all affected versions in the given advisory.

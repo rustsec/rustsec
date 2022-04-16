@@ -114,7 +114,7 @@ pub fn render_advisories(output_folder: PathBuf) {
 
     // Sort the advisories by date in descending order for the big listing.
     #[allow(clippy::unnecessary_sort_by)]
-    advisories.sort_by(|a, b| b.date().cmp(&a.date()));
+    advisories.sort_by(|a, b| b.date().cmp(a.date()));
 
     let mut advisories_per_year = Vec::<AdvisoriesPerYear>::new();
     for advisory in advisories.clone() {
@@ -218,7 +218,7 @@ pub fn render_advisories(output_folder: PathBuf) {
         slug_keywords.dedup();
 
         for keyword in slug_keywords {
-            if keywords.iter().find(|(n, _, _)| *n == keyword).is_none() {
+            if !keywords.iter().any(|(n, _, _)| *n == keyword) {
                 keywords.push((
                     keyword.clone(),
                     format!("/keywords/{}.html", keyword.clone()),
@@ -269,11 +269,7 @@ pub fn render_advisories(output_folder: PathBuf) {
         let advisory_title_type = title_type(&advisory);
 
         for category in advisory.metadata.categories.as_slice() {
-            if categories
-                .iter()
-                .find(|(n, _, _)| n == category.name())
-                .is_none()
-            {
+            if !categories.iter().any(|(n, _, _)| n == category.name()) {
                 categories.push((
                     category.name().to_owned(),
                     format!("/categories/{}.html", category.name()),

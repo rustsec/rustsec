@@ -145,7 +145,7 @@ impl Auditor {
             }
         };
 
-        self.presenter.before_report(&lockfile_path, &lockfile);
+        self.presenter.before_report(lockfile_path, &lockfile);
 
         let mut report =
             rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
