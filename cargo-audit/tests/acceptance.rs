@@ -20,10 +20,11 @@ static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 
 /// Executes target binary via `cargo run`.
 ///
-/// Storing this value in a `lazy_static!` ensures that all instances of
-/// the runner acquire a mutex when executing commands and inspecting
-/// exit statuses, serializing what would otherwise be multithreaded
-/// invocations as `cargo test` executes tests in parallel by default.
+/// Storing this value in a `once_cell::sync::Lazy` ensures that all
+/// instances of the runner acquire a mutex when executing commands
+/// and inspecting exit statuses, serializing what would otherwise
+/// be multithreaded invocations as `cargo test` executes tests in
+/// parallel by default.
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
     let mut runner = CmdRunner::default();
     runner.arg("audit").arg("--db").arg(ADVISORY_DB_DIR.path());
