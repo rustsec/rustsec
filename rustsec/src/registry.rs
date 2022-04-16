@@ -9,30 +9,17 @@ use crate::{
 pub struct Index(crates_index::Index);
 
 impl Index {
-    /// Open the local crates.io index, fetching it if it doesn't exist, and
-    /// updating it if it does.
+    /// Open the local crates.io index, updating it.
     pub fn fetch() -> Result<Self, Error> {
-        let index = crates_index::Index::new_cargo_default();
-
-        if index.exists() {
-            index.update()?;
-        } else {
-            index.retrieve()?;
-        }
+        let mut index = crates_index::Index::new_cargo_default()?;
+        index.update()?;
 
         Ok(Index(index))
     }
 
-    /// Open the local crates.io index, erroring if it hasn't been fetched yet
+    /// Open the local crates.io index
     pub fn open() -> Result<Self, Error> {
-        let index = crates_index::Index::new_cargo_default();
-
-        if !index.exists() {
-            fail!(
-                ErrorKind::Registry,
-                "crates.io registry has not been fetched yet"
-            );
-        }
+        let index = crates_index::Index::new_cargo_default()?;
 
         Ok(Index(index))
     }

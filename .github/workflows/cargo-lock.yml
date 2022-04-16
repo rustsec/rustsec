@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.42.0 # MSRV
+          - 1.49.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@v1
@@ -39,7 +39,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.42.0 # MSRV
+          - 1.49.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@v1
@@ -48,6 +48,7 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
+      - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
       - run: cargo check
       - run: cargo test --release
       - run: cargo test --all-features --release
