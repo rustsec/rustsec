@@ -15,7 +15,7 @@ edition     = "2018"
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-abscissa_core = "0.5.2"
+abscissa_core = "0.6.0"
 gumdrop = "0.7"
 home = "0.5"
 rustsec = { version = "0.25", features = ["dependency-tree"], path = "../rustsec" }
@@ -29,7 +29,7 @@ tempfile = "3"
 toml = "0.5"
 
 [dev-dependencies.abscissa_core]
-version = "0.5"
+version = "0.6"
 features = ["testing"]
 
 [features]
