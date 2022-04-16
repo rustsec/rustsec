@@ -20,8 +20,8 @@ impl AffectedVersionLister {
     /// Load the the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let crates_index = crates_index::Index::new_cargo_default();
-        crates_index.retrieve_or_update()?;
+        let mut crates_index = crates_index::Index::new_cargo_default()?;
+        crates_index.update()?;
         let advisory_db = Database::open(&repo_path)?;
         Ok(Self {
             crates_index,
@@ -56,9 +56,6 @@ impl AffectedVersionLister {
 
     /// List affected and unaffected crate versions for all advisories
     pub fn process_all_advisories(&self) -> Result<(), Error> {
-        let crates_index = crates_index::Index::new_cargo_default();
-        crates_index.retrieve_or_update()?;
-
         for advisory in self.advisory_db.iter() {
             // We currently only support crate versions, not advisories against Rust versions
             if advisory.metadata.collection.unwrap() != rustsec::Collection::Crates {
