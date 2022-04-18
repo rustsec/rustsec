@@ -63,7 +63,7 @@ pub(crate) fn write_list_of_targets<W: Write>(triples: &[String], out: &mut W) -
         out,
         "
 /// The list of all targets recognized by the Rust compiler
-pub(crate) const ALL: &'static [Platform] = &["
+pub(crate) const ALL: &[Platform] = &["
     )?;
     for triple in triples {
         writeln!(out, "    {},", to_const_variable_name(triple))?;

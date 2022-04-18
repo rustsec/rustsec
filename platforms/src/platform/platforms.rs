@@ -14,7 +14,7 @@ use crate::{
 };
 
 /// The list of all targets recognized by the Rust compiler
-pub(crate) const ALL: &'static [Platform] = &[
+pub(crate) const ALL: &[Platform] = &[
     AARCH64_APPLE_DARWIN,
     AARCH64_APPLE_IOS,
     AARCH64_APPLE_IOS_MACABI,
