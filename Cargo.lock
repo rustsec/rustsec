@@ -296,7 +296,7 @@ name = "cargo-audit"
 version = "0.16.0"
 dependencies = [
  "abscissa_core",
- "gumdrop 0.7.0",
+ "gumdrop 0.8.1",
  "home",
  "once_cell",
  "rustsec",
@@ -1833,7 +1833,7 @@ dependencies = [
  "chrono",
  "comrak",
  "crates-index",
- "gumdrop 0.7.0",
+ "gumdrop 0.8.1",
  "once_cell",
  "rust-embed",
  "rustsec",
