@@ -1,3 +1,5 @@
+//! Generates and writes contents of the auto-generated files
+
 use std::io::Result;
 use std::io::Write;
 

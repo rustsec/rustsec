@@ -1,4 +1,5 @@
-//! TODO: documentation
+//! Provides a convenient interface atop of code-generation templates.
+//! The templates themselves are in the `templates` folder.
 
 pub const HEADERS: &[(&'static str, &'static [u8])] = &[
     ("target_arch", include_bytes!("../templates/arch_header.rs")),
