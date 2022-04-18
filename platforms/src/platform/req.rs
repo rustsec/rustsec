@@ -226,20 +226,14 @@ mod tests {
     #[test]
     fn wildcard_test() {
         let req = PlatformReq::from_str("*").unwrap();
-        assert_eq!(
-            req.matching_platforms().collect::<Vec<_>>().len(),
-            Platform::ALL.len()
-        )
+        assert_eq!(req.matching_platforms().count(), Platform::ALL.len())
     }
 
     // How to handle this is debatable...
     #[test]
     fn double_wildcard_test() {
         let req = PlatformReq::from_str("**").unwrap();
-        assert_eq!(
-            req.matching_platforms().collect::<Vec<_>>().len(),
-            Platform::ALL.len()
-        )
+        assert_eq!(req.matching_platforms().count(), Platform::ALL.len())
     }
 
     #[test]

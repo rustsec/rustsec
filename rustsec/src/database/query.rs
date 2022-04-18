@@ -42,7 +42,7 @@ pub struct Query {
     informational: Option<bool>,
 
     /// Scope of packages which should be considered for audit
-    package_scope: Option<scope::Package>,
+    _package_scope: Option<scope::Package>,
 }
 
 impl Query {
