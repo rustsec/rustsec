@@ -12,39 +12,54 @@ use self::{
     osv::OsvCmd, version::VersionCmd, web::WebCmd,
 };
 use crate::config::AppConfig;
-use abscissa_core::{Command, Configurable, Help, Options, Runnable};
+use abscissa_core::{Command, Configurable, Runnable};
+use clap::Parser;
 use std::path::PathBuf;
 
 /// `rustsec-admin` CLI subcommands
-#[derive(Command, Debug, Options, Runnable)]
-pub enum AdminCmd {
+#[derive(Command, Debug, Parser, Runnable)]
+pub enum AdminSubCmd {
     /// The `lint` subcommand
-    #[options(help = "lint Advisory DB and ensure is well-formed")]
+    #[clap(about = "lint Advisory DB and ensure is well-formed")]
     Lint(LintCmd),
 
     /// The `web` subcommand
-    #[options(help = "render advisory Markdown files for the rustsec.org web site")]
+    #[clap(about = "render advisory Markdown files for the rustsec.org web site")]
     Web(WebCmd),
 
-    /// The `help` subcommand
-    #[options(help = "get usage information")]
-    Help(Help<Self>),
-
     /// The `version` subcommand
-    #[options(help = "display version information")]
+    #[clap(about = "display version information")]
     Version(VersionCmd),
 
     /// The `assign-id` subcommand
-    #[options(help = "assigning RUSTSEC ids to new vulnerabilities")]
+    #[clap(about = "assigning RUSTSEC ids to new vulnerabilities")]
     AssignId(AssignIdCmd),
 
     /// The `osv` subcommand
-    #[options(help = "export advisories to OSV format")]
+    #[clap(about = "export advisories to OSV format")]
     Osv(OsvCmd),
 
     /// The `version` subcommand
-    #[options(help = "list affected crate versions")]
+    #[clap(about = "list affected crate versions")]
     ListAffectedVersions(ListAffectedVersionsCmd),
+}
+
+/// `rustsec-admin` CLI commands
+#[derive(Command, Debug, Parser)]
+#[clap(author, version, about)]
+pub struct AdminCmd {
+    #[clap(subcommand)]
+    cmd: AdminSubCmd,
+
+    /// Increase verbosity setting
+    #[clap(short = 'v', long, help = "Increase verbosity")]
+    pub verbose: bool,
+}
+
+impl Runnable for AdminCmd {
+    fn run(&self) {
+        self.cmd.run()
+    }
 }
 
 impl Configurable<AppConfig> for AdminCmd {
