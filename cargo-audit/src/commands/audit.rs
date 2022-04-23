@@ -11,7 +11,7 @@ use crate::{
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
 use clap::Parser;
 use rustsec::database::scope;
-use rustsec::platforms::{Arch, OS};
+use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
 #[cfg(feature = "fix")]

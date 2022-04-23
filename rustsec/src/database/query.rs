@@ -6,7 +6,7 @@ use crate::{
     database::scope,
     package,
 };
-use platforms::{Arch, OS};
+use platforms::target::{Arch, OS};
 use semver::Version;
 
 /// Queries against the RustSec database
