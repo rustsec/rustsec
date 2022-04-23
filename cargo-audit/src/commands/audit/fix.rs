@@ -24,8 +24,7 @@ pub struct FixCommand {
 impl FixCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
-        let config = app_config();
-        Auditor::new(&config)
+        Auditor::new(&APP.config())
     }
 
     /// Locate `Cargo.toml`
