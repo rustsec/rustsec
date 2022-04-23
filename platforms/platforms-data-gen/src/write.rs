@@ -87,7 +87,7 @@ fn write_target_struct<W: Write>(
     writeln!(
         out,
         "
-pub const {}: Platform = Platform {{
+pub(crate) const {}: Platform = Platform {{
     target_triple: \"{triple}\",",
         to_const_variable_name(triple),
     )?;
