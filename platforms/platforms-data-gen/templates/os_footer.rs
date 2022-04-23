@@ -12,14 +12,10 @@ impl Serialize for OS {
     }
 }
 
-#[cfg(feature = "serde")]
+#[cfg(all(feature = "serde", feature = "std"))]
 impl<'de> Deserialize<'de> for OS {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let string = <&str>::deserialize(deserializer)?;
-        if cfg!(feature = "std") {
-            Ok(string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_os", string)))?)
-        } else {
-            Ok(string.parse().map_err(|_| D::Error::custom("Unrecognized value for target_os"))?)
-        }
+        let string = std::string::String::deserialize(deserializer)?;
+        string.parse().map_err(|_| D::Error::custom(std::format!("Unrecognized value '{}' for target_os", string)))
     }
 }
