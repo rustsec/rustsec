@@ -18,6 +18,7 @@ use core::fmt;
 /// Rust platforms supported by mainline rustc
 ///
 /// Sourced from <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
+/// as well as the latest nightly version of `rustc`
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub struct Platform {
