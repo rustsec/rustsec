@@ -6,12 +6,13 @@ mod platforms;
 mod req;
 mod tier;
 
-pub use self::{platforms::*, tier::Tier};
+pub use self::tier::Tier;
 
 #[cfg(feature = "std")]
 pub use self::req::PlatformReq;
 
 use crate::target::*;
+use self::platforms::ALL;
 use core::fmt;
 
 /// Rust platforms supported by mainline rustc
