@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 7.1.0 (2022-04-23)
+### Added
+- `SourceId::default()` ([#536])
+
+### Changed
+- MSRV is now 1.49 ([#524])
+
+### Fixed
+- V3 lockfile handling and tests ([#535])
+
+[#524]: https://github.com/RustSec/rustsec/pull/524
+[#535]: https://github.com/RustSec/rustsec/pull/535
+[#536]: https://github.com/RustSec/rustsec/pull/536
+
 ## 7.0.1 (2021-07-05)
 ### Changed
 - Bump `petgraph` dependency from 0.5.1 to 0.6.0 ([#396])
