@@ -57,7 +57,9 @@ pub struct Platform {
 }
 
 impl Platform {
-    /// All valid Rust platforms usable from the mainline compiler
+    /// All valid Rust platforms usable from the mainline compiler.
+    ///
+    /// Note that this list will evolve over time, and platforms will be both added and removed.
     pub const ALL: &'static [Platform] = ALL;
 
     /// Find a Rust platform by its "target triple", e.g. `i686-apple-darwin`
