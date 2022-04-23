@@ -31,7 +31,6 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_LINUX_MUSL,
     AARCH64_UNKNOWN_NETBSD,
     AARCH64_UNKNOWN_NONE,
-    AARCH64_UNKNOWN_NONE_HERMITKERNEL,
     AARCH64_UNKNOWN_NONE_SOFTFLOAT,
     AARCH64_UNKNOWN_OPENBSD,
     AARCH64_UNKNOWN_REDOX,
@@ -133,6 +132,7 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV32GC_UNKNOWN_LINUX_GNU,
     RISCV32GC_UNKNOWN_LINUX_MUSL,
     RISCV32I_UNKNOWN_NONE_ELF,
+    RISCV32IM_UNKNOWN_NONE_ELF,
     RISCV32IMAC_UNKNOWN_NONE_ELF,
     RISCV32IMC_ESP_ESPIDF,
     RISCV32IMC_UNKNOWN_NONE_ELF,
@@ -187,7 +187,6 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_LINUX_MUSL,
     X86_64_UNKNOWN_NETBSD,
     X86_64_UNKNOWN_NONE,
-    X86_64_UNKNOWN_NONE_HERMITKERNEL,
     X86_64_UNKNOWN_NONE_LINUXKERNEL,
     X86_64_UNKNOWN_OPENBSD,
     X86_64_UNKNOWN_REDOX,
@@ -370,17 +369,6 @@ pub const AARCH64_UNKNOWN_NONE: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
-};
-
-/// ARM64 HermitCore kernel
-pub const AARCH64_UNKNOWN_NONE_HERMITKERNEL: Platform = Platform {
-    target_triple: "aarch64-unknown-none-hermitkernel",
-    target_arch: Arch::AArch64,
-    target_os: OS::None,
-    target_env: Env::None,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
 };
 
 /// Bare ARM64, softfloat
@@ -936,7 +924,7 @@ pub const I686_LINUX_ANDROID: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 32-bit MinGW (Windows 7+)
+/// 32-bit MinGW (Windows 7+) [^windows-support]
 pub const I686_PC_WINDOWS_GNU: Platform = Platform {
     target_triple: "i686-pc-windows-gnu",
     target_arch: Arch::X86,
@@ -947,7 +935,7 @@ pub const I686_PC_WINDOWS_GNU: Platform = Platform {
     tier: Tier::One,
 };
 
-/// 32-bit MSVC (Windows 7+)
+/// 32-bit MSVC (Windows 7+) [^windows-support]
 pub const I686_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "i686-pc-windows-msvc",
     target_arch: Arch::X86,
@@ -1471,6 +1459,17 @@ pub const RISCV32I_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// Bare RISC-V (RV32IM ISA)
+pub const RISCV32IM_UNKNOWN_NONE_ELF: Platform = Platform {
+    target_triple: "riscv32im-unknown-none-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// Bare RISC-V (RV32IMAC ISA)
 pub const RISCV32IMAC_UNKNOWN_NONE_ELF: Platform = Platform {
     target_triple: "riscv32imac-unknown-none-elf",
@@ -1909,7 +1908,7 @@ pub const X86_64_PC_SOLARIS: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 64-bit MinGW (Windows 7+)
+/// 64-bit MinGW (Windows 7+) [^windows-support]
 pub const X86_64_PC_WINDOWS_GNU: Platform = Platform {
     target_triple: "x86_64-pc-windows-gnu",
     target_arch: Arch::X86_64,
@@ -1920,7 +1919,7 @@ pub const X86_64_PC_WINDOWS_GNU: Platform = Platform {
     tier: Tier::One,
 };
 
-/// 64-bit MSVC (Windows 7+)
+/// 64-bit MSVC (Windows 7+) [^windows-support]
 pub const X86_64_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "x86_64-pc-windows-msvc",
     target_arch: Arch::X86_64,
@@ -2059,18 +2058,7 @@ pub const X86_64_UNKNOWN_NONE: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
-};
-
-/// HermitCore kernel
-pub const X86_64_UNKNOWN_NONE_HERMITKERNEL: Platform = Platform {
-    target_triple: "x86_64-unknown-none-hermitkernel",
-    target_arch: Arch::X86_64,
-    target_os: OS::None,
-    target_env: Env::None,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// Linux kernel modules
