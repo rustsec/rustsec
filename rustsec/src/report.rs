@@ -8,7 +8,7 @@ use crate::{
     database::{scope, Database, Query},
     lockfile::Lockfile,
     map,
-    platforms::{Arch, OS},
+    platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
     warning::{self, Warning},
     Map,
