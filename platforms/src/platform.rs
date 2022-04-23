@@ -6,17 +6,19 @@ mod platforms;
 mod req;
 mod tier;
 
-pub use self::{platforms::*, tier::Tier};
+pub use self::tier::Tier;
 
 #[cfg(feature = "std")]
 pub use self::req::PlatformReq;
 
+use self::platforms::ALL;
 use crate::target::*;
 use core::fmt;
 
 /// Rust platforms supported by mainline rustc
 ///
 /// Sourced from <https://doc.rust-lang.org/nightly/rustc/platform-support.html>
+/// as well as the latest nightly version of `rustc`
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub struct Platform {
@@ -55,7 +57,9 @@ pub struct Platform {
 }
 
 impl Platform {
-    /// All valid Rust platforms usable from the mainline compiler
+    /// All valid Rust platforms usable from the mainline compiler.
+    ///
+    /// Note that this list will evolve over time, and platforms will be both added and removed.
     pub const ALL: &'static [Platform] = ALL;
 
     /// Find a Rust platform by its "target triple", e.g. `i686-apple-darwin`
