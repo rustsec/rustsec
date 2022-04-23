@@ -21,7 +21,7 @@
 //! ```
 //! use cargo_lock::Lockfile;
 //!
-//! let lockfile = Lockfile::load("Cargo.lock").unwrap();
+//! let lockfile = Lockfile::load("tests/examples/Cargo.lock").unwrap();
 //! println!("number of dependencies: {}", lockfile.packages.len());
 //! ```
 //!

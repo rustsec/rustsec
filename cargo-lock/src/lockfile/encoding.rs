@@ -74,7 +74,11 @@ impl TryFrom<EncodableLockfile> for Lockfile {
     type Error = Error;
 
     fn try_from(raw_lockfile: EncodableLockfile) -> Result<Lockfile, Error> {
-        let version = ResolveVersion::detect(&raw_lockfile.package, &raw_lockfile.metadata)?;
+        let version = match raw_lockfile.version {
+            Some(n) => n.try_into()?,
+            None => ResolveVersion::detect(&raw_lockfile.package, &raw_lockfile.metadata)?,
+        };
+
         let mut packages = Vec::with_capacity(raw_lockfile.package.len());
 
         for raw_package in &raw_lockfile.package {
