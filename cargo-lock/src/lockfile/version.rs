@@ -58,16 +58,14 @@ impl ResolveVersion {
 
     /// Should this version be explicitly encoded?
     pub(super) fn is_explicit(self) -> bool {
-        u32::from(self) > 3
+        u32::from(self) >= 3
     }
 }
 
-/// V2 format is now the default.
-///
-///See: <https://github.com/rust-lang/cargo/pull/7579>
+/// V3 format is now the default.
 impl Default for ResolveVersion {
     fn default() -> Self {
-        ResolveVersion::V2
+        ResolveVersion::V3
     }
 }
 
