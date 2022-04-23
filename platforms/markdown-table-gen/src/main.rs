@@ -3,7 +3,7 @@
 use platforms::{Platform, Tier};
 
 /// Max width for target triples
-const TARGET_TRIPLE_WIDTH: usize = 35;
+const TARGET_TRIPLE_WIDTH: usize = 36;
 
 /// Max width for `target_arch`
 const TARGET_ARCH_WIDTH: usize = 11;
@@ -41,7 +41,9 @@ fn main() {
 fn print_platforms_table() {
     let mut current_tier: Option<Tier> = None;
 
-    for platform in Platform::ALL {
+    let mut platforms = Platform::ALL.to_owned();
+    platforms.sort_by_key(|p| p.tier);
+    for platform in &platforms {
         // Print headers if we're on a different tier from before
         if current_tier != Some(platform.tier) {
             if current_tier.is_some() {
@@ -64,8 +66,8 @@ fn print_table_header(tier: Tier) {
     println!("### Tier {}\n", tier.to_usize());
 
     println!(
-        "| target triple                         | target_arch | target_os  | target_env |\n\
-         |---------------------------------------|-------------|------------|------------|"
+        "| target triple                          | target_arch | target_os  | target_env |\n\
+         |----------------------------------------|-------------|------------|------------|"
     );
 }
 
@@ -89,10 +91,7 @@ fn print_platform_entry(platform: &Platform) {
         width = TARGET_OS_WIDTH
     );
 
-    let target_env = platform
-        .target_env
-        .map(|env| env.as_str())
-        .unwrap_or("\"\"");
+    let target_env = platform.target_env.as_str();
 
     println!("{:width$} |", target_env, width = TARGET_ENV_WIDTH);
 }

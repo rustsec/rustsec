@@ -4,7 +4,7 @@ use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, ser, Deserialize, Serialize};
+use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
 
 /// `target_env`: target enviroment that disambiguates the target platform by ABI / libc.
 /// This value is closely related to the fourth element of the platform target triple,
@@ -13,8 +13,17 @@ use serde::{de, ser, Deserialize, Serialize};
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum Env {
+    /// ``: None
+    None,
+
+    /// `eabihf`
+    Eabihf,
+
     /// `gnu`: The GNU C Library (glibc)
     Gnu,
+
+    /// `gnueabihf`
+    Gnueabihf,
 
     /// `msvc`: Microsoft Visual C(++)
     Msvc,
@@ -22,26 +31,33 @@ pub enum Env {
     /// `musl`: Clean, efficient, standards-conformant libc implementation.
     Musl,
 
+    /// `newlib`
+    Newlib,
+
+    /// `relibc`
+    Relibc,
+
     /// `sgx`: Intel Software Guard Extensions (SGX) Enclave
     Sgx,
 
     /// `uclibc`: C library for developing embedded Linux systems
     UClibc,
-
-    /// Unknown target environment
-    Unknown,
 }
 
 impl Env {
-    /// String representing this environment which matches `#[cfg(target_env)]`
+    /// String representing this `Env` which matches `#[cfg(target_env)]`
     pub fn as_str(self) -> &'static str {
         match self {
+            Env::None => "",
+            Env::Eabihf => "eabihf",
             Env::Gnu => "gnu",
+            Env::Gnueabihf => "gnueabihf",
             Env::Msvc => "msvc",
             Env::Musl => "musl",
+            Env::Newlib => "newlib",
+            Env::Relibc => "relibc",
             Env::Sgx => "sgx",
             Env::UClibc => "uclibc",
-            Env::Unknown => "unknown",
         }
     }
 }
@@ -50,17 +66,22 @@ impl FromStr for Env {
     type Err = Error;
 
     /// Create a new `Env` from the given string
-    fn from_str(env_name: &str) -> Result<Self, Self::Err> {
-        let env = match env_name {
+    fn from_str(name: &str) -> Result<Self, Self::Err> {
+        let result = match name {
+            "" => Env::None,
+            "eabihf" => Env::Eabihf,
             "gnu" => Env::Gnu,
+            "gnueabihf" => Env::Gnueabihf,
             "msvc" => Env::Msvc,
             "musl" => Env::Musl,
+            "newlib" => Env::Newlib,
+            "relibc" => Env::Relibc,
             "sgx" => Env::Sgx,
             "uclibc" => Env::UClibc,
             _ => return Err(Error),
         };
 
-        Ok(env)
+        Ok(result)
     }
 }
 
@@ -80,41 +101,18 @@ impl Serialize for Env {
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Env {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(<&str>::deserialize(deserializer)?
-            .parse()
-            .unwrap_or(Env::Unknown))
+        let string = <&str>::deserialize(deserializer)?;
+        if cfg!(feature = "std") {
+            Ok(string.parse().map_err(|_| {
+                D::Error::custom(std::format!(
+                    "Unrecognized value '{}' for target_env",
+                    string
+                ))
+            })?)
+        } else {
+            Ok(string
+                .parse()
+                .map_err(|_| D::Error::custom("Unrecognized value for target_env"))?)
+        }
     }
 }
-
-// Detect and expose `target_env` as a constant
-// Whether this is a good idea is somewhat debatable
-
-#[cfg(target_env = "gnu")]
-/// `target_env` when building this crate: `gnu`
-pub const TARGET_ENV: Option<Env> = Some(Env::Gnu);
-
-#[cfg(target_env = "msvc")]
-/// `target_env` when building this crate: `msvc`
-pub const TARGET_ENV: Option<Env> = Some(Env::Msvc);
-
-#[cfg(target_env = "musl")]
-/// `target_env` when building this crate: `musl`
-pub const TARGET_ENV: Option<Env> = Some(Env::Musl);
-
-#[cfg(target_env = "sgx")]
-/// `target_env` when building this crate: `sgx`
-pub const TARGET_ENV: Option<Env> = Some(Env::Sgx);
-
-#[cfg(target_env = "uclibc")]
-/// `target_env` when building this crate: `uclibc`
-pub const TARGET_ENV: Option<Env> = Some(Env::UClibc);
-
-#[cfg(not(any(
-    target_env = "gnu",
-    target_env = "msvc",
-    target_env = "musl",
-    target_env = "sgx",
-    target_env = "uclibc",
-)))]
-/// `target_env` when building this crate: none
-pub const TARGET_ENV: Option<Env> = None;

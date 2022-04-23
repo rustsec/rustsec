@@ -4,7 +4,7 @@ use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, ser, Deserialize, Serialize};
+use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
 
 /// `target_os`: Operating system of the target. This value is closely related to the second
 /// and third element of the platform target triple, though it is not identical.
@@ -23,6 +23,9 @@ pub enum OS {
     /// `emscripten`: The emscripten JavaScript transpiler
     Emscripten,
 
+    /// `espidf`
+    Espidf,
+
     /// `freebsd`: The FreeBSD operating system
     FreeBSD,
 
@@ -35,12 +38,18 @@ pub enum OS {
     /// `hermit`: HermitCore is a novel unikernel operating system targeting a scalable and predictable runtime behavior for HPC and cloud environments
     Hermit,
 
+    /// `horizon`
+    Horizon,
+
     /// `illumos`: illumos is a partly free and open-source Unix operating system based on OpenSolaris
-    Illumos,
+    IllumOS,
 
     /// `ios`: Apple's iOS mobile operating system
     #[allow(non_camel_case_types)]
     iOS,
+
+    /// `l4re`
+    L4re,
 
     /// `linux`: Linux
     Linux,
@@ -51,8 +60,14 @@ pub enum OS {
     /// `netbsd`: The NetBSD operating system
     NetBSD,
 
+    /// `none`
+    None,
+
     /// `openbsd`: The OpenBSD operating system
     OpenBSD,
+
+    /// `psp`
+    Psp,
 
     /// `redox`: Redox, a Unix-like OS written in Rust
     Redox,
@@ -60,47 +75,60 @@ pub enum OS {
     /// `solaris`: Oracle's (formerly Sun) Solaris operating system
     Solaris,
 
-    /// `tvOS`: AppleTV operating system
+    /// `solid_asp3`
+    SolidAsp3,
+
+    /// `tvos`
     TvOS,
+
+    /// `uefi`
+    Uefi,
+
+    /// `unknown`
+    Unknown,
+
+    /// `vxworks`: VxWorks is a deterministic, priority-based preemptive RTOS with low latency and minimal jitter
+    VxWorks,
 
     /// `wasi`: The WebAssembly System Interface
     Wasi,
 
     /// `windows`: Microsoft's Windows operating system
     Windows,
-
-    /// `vxworks`: VxWorks is a deterministic, priority-based preemptive RTOS with low latency and minimal jitter.
-    VxWorks,
-
-    /// Operating systems we don't know about
-    Unknown,
 }
 
 impl OS {
-    /// String representing this target OS which matches `#[cfg(target_os)]`
+    /// String representing this `OS` which matches `#[cfg(target_os)]`
     pub fn as_str(self) -> &'static str {
         match self {
             OS::Android => "android",
             OS::Cuda => "cuda",
             OS::Dragonfly => "dragonfly",
             OS::Emscripten => "emscripten",
+            OS::Espidf => "espidf",
             OS::FreeBSD => "freebsd",
             OS::Fuchsia => "fuchsia",
             OS::Haiku => "haiku",
             OS::Hermit => "hermit",
-            OS::Illumos => "illumos",
+            OS::Horizon => "horizon",
+            OS::IllumOS => "illumos",
             OS::iOS => "ios",
+            OS::L4re => "l4re",
             OS::Linux => "linux",
             OS::MacOS => "macos",
             OS::NetBSD => "netbsd",
+            OS::None => "none",
             OS::OpenBSD => "openbsd",
+            OS::Psp => "psp",
             OS::Redox => "redox",
             OS::Solaris => "solaris",
+            OS::SolidAsp3 => "solid_asp3",
             OS::TvOS => "tvos",
+            OS::Uefi => "uefi",
+            OS::Unknown => "unknown",
+            OS::VxWorks => "vxworks",
             OS::Wasi => "wasi",
             OS::Windows => "windows",
-            OS::VxWorks => "vxworks",
-            OS::Unknown => "unknown",
         }
     }
 }
@@ -108,33 +136,41 @@ impl OS {
 impl FromStr for OS {
     type Err = Error;
 
-    /// Create a new `Env` from the given string
-    fn from_str(os_name: &str) -> Result<Self, Self::Err> {
-        let os = match os_name {
+    /// Create a new `OS` from the given string
+    fn from_str(name: &str) -> Result<Self, Self::Err> {
+        let result = match name {
             "android" => OS::Android,
             "cuda" => OS::Cuda,
             "dragonfly" => OS::Dragonfly,
             "emscripten" => OS::Emscripten,
+            "espidf" => OS::Espidf,
             "freebsd" => OS::FreeBSD,
             "fuchsia" => OS::Fuchsia,
             "haiku" => OS::Haiku,
             "hermit" => OS::Hermit,
-            "illumos" => OS::Illumos,
+            "horizon" => OS::Horizon,
+            "illumos" => OS::IllumOS,
             "ios" => OS::iOS,
+            "l4re" => OS::L4re,
             "linux" => OS::Linux,
             "macos" => OS::MacOS,
             "netbsd" => OS::NetBSD,
+            "none" => OS::None,
             "openbsd" => OS::OpenBSD,
+            "psp" => OS::Psp,
             "redox" => OS::Redox,
             "solaris" => OS::Solaris,
+            "solid_asp3" => OS::SolidAsp3,
             "tvos" => OS::TvOS,
+            "uefi" => OS::Uefi,
+            "unknown" => OS::Unknown,
+            "vxworks" => OS::VxWorks,
             "wasi" => OS::Wasi,
             "windows" => OS::Windows,
-            "vxworks" => OS::VxWorks,
             _ => return Err(Error),
         };
 
-        Ok(os)
+        Ok(result)
     }
 }
 
@@ -154,115 +190,18 @@ impl Serialize for OS {
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for OS {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        Ok(<&str>::deserialize(deserializer)?
-            .parse()
-            .unwrap_or(OS::Unknown))
+        let string = <&str>::deserialize(deserializer)?;
+        if cfg!(feature = "std") {
+            Ok(string.parse().map_err(|_| {
+                D::Error::custom(std::format!(
+                    "Unrecognized value '{}' for target_os",
+                    string
+                ))
+            })?)
+        } else {
+            Ok(string
+                .parse()
+                .map_err(|_| D::Error::custom("Unrecognized value for target_os"))?)
+        }
     }
 }
-
-// Detect and expose `target_os` as a constant
-// Whether this is a good idea is somewhat debatable
-
-#[cfg(target_os = "android")]
-/// `target_os` when building this crate: `android`
-pub const TARGET_OS: OS = OS::Android;
-
-#[cfg(target_os = "cuda")]
-/// `target_os` when building this crate: `cuda`
-pub const TARGET_OS: OS = OS::Cuda;
-
-#[cfg(target_os = "dragonfly")]
-/// `target_os` when building this crate: `dragonfly`
-pub const TARGET_OS: OS = OS::Dragonfly;
-
-#[cfg(target_os = "emscripten")]
-/// `target_os` when building this crate: `emscripten`
-pub const TARGET_OS: OS = OS::Emscripten;
-
-#[cfg(target_os = "freebsd")]
-/// `target_os` when building this crate: `freebsd`
-pub const TARGET_OS: OS = OS::FreeBSD;
-
-#[cfg(target_os = "fuchsia")]
-/// `target_os` when building this crate: `fuchsia`
-pub const TARGET_OS: OS = OS::Fuchsia;
-
-#[cfg(target_os = "haiku")]
-/// `target_os` when building this crate: `haiku`
-pub const TARGET_OS: OS = OS::Haiku;
-
-#[cfg(target_os = "hermit")]
-/// `target_os` when building this crate: `hermit`
-pub const TARGET_OS: OS = OS::Hermit;
-
-#[cfg(target_os = "illumos")]
-/// `target_os` when building this crate: `illumos`
-pub const TARGET_OS: OS = OS::Illumos;
-
-#[cfg(target_os = "ios")]
-/// `target_os` when building this crate: `ios`
-pub const TARGET_OS: OS = OS::iOS;
-
-#[cfg(target_os = "linux")]
-/// `target_os` when building this crate: `linux`
-pub const TARGET_OS: OS = OS::Linux;
-
-#[cfg(target_os = "macos")]
-/// `target_os` when building this crate: `macos`
-pub const TARGET_OS: OS = OS::MacOS;
-
-#[cfg(target_os = "netbsd")]
-/// `target_os` when building this crate: `netbsd`
-pub const TARGET_OS: OS = OS::NetBSD;
-
-#[cfg(target_os = "openbsd")]
-/// `target_os` when building this crate: `openbsd`
-pub const TARGET_OS: OS = OS::OpenBSD;
-
-#[cfg(target_os = "redox")]
-/// `target_os` when building this crate: `redox`
-pub const TARGET_OS: OS = OS::Redox;
-
-#[cfg(target_os = "solaris")]
-/// `target_os` when building this crate: `solaris`
-pub const TARGET_OS: OS = OS::Solaris;
-
-#[cfg(target_os = "tvos")]
-/// `target_os` when building this crate: `tvos`
-pub const TARGET_OS: OS = OS::TvOS;
-
-#[cfg(target_os = "wasi")]
-/// `target_os` when building this crate: `wasi`
-pub const TARGET_OS: OS = OS::Wasi;
-
-#[cfg(target_os = "windows")]
-/// `target_os` when building this crate: `windows`
-pub const TARGET_OS: OS = OS::Windows;
-
-#[cfg(target_os = "vxworks")]
-/// `target_os` when building this crate: `vxworks`
-pub const TARGET_OS: OS = OS::VxWorks;
-
-#[cfg(not(any(
-    target_os = "android",
-    target_os = "dragonfly",
-    target_os = "emscripten",
-    target_os = "freebsd",
-    target_os = "fuchsia",
-    target_os = "haiku",
-    target_os = "hermit",
-    target_os = "illumos",
-    target_os = "ios",
-    target_os = "linux",
-    target_os = "macos",
-    target_os = "netbsd",
-    target_os = "openbsd",
-    target_os = "redox",
-    target_os = "solaris",
-    target_os = "tvos",
-    target_os = "wasi",
-    target_os = "windows",
-    target_os = "vxworks"
-)))]
-/// `target_os` when building this crate: unknown!
-pub const TARGET_OS: OS = OS::Unknown;

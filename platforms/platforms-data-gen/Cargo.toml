@@ -1,0 +1,13 @@
+[package]
+name = "platforms-data-gen"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+regex = "1.5.4"
+
+# exclude this crate from the parent workspace
+# because 2021 edition breaks CI which runs on rustc 1.40
+[workspace]
