@@ -222,6 +222,12 @@ impl SourceId {
     }
 }
 
+impl Default for SourceId {
+    fn default() -> SourceId {
+        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
+    }
+}
+
 impl FromStr for SourceId {
     type Err = Error;
 
@@ -346,5 +352,15 @@ impl<'a> IntoUrl for &'a Path {
     fn into_url(self) -> Result<Url, Error> {
         Url::from_file_path(self)
             .map_err(|()| format_err!(ErrorKind::Parse, "invalid path url `{}`", self.display()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::SourceId;
+
+    #[test]
+    fn default_works() {
+        SourceId::default();
     }
 }
