@@ -1,15 +1,16 @@
 [package]
-name        = "rustsec"
-description = "Client library for the RustSec security advisory database"
-version     = "0.25.2" # Also update html_root_url in lib.rs when bumping this
-authors     = ["Tony Arcieri <bascule@gmail.com>"]
-license     = "Apache-2.0 OR MIT"
-homepage    = "https://rustsec.org"
-repository  = "https://github.com/RustSec/rustsec/tree/main/rustsec"
-readme      = "README.md"
-categories  = ["api-bindings", "development-tools"]
-keywords    = ["audit", "rustsec", "security", "advisory", "vulnerability"]
-edition     = "2018"
+name         = "rustsec"
+description  = "Client library for the RustSec security advisory database"
+version      = "0.25.2" # Also update html_root_url in lib.rs when bumping this
+authors      = ["Tony Arcieri <bascule@gmail.com>"]
+license      = "Apache-2.0 OR MIT"
+homepage     = "https://rustsec.org"
+repository   = "https://github.com/RustSec/rustsec/tree/main/rustsec"
+readme       = "README.md"
+categories   = ["api-bindings", "development-tools"]
+keywords     = ["audit", "rustsec", "security", "advisory", "vulnerability"]
+edition      = "2021"
+rust-version = "1.57"
 
 [dependencies]
 cargo-lock = { version = "7", default-features = false, path = "../cargo-lock" }

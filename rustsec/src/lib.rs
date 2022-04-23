@@ -1,13 +1,5 @@
-//! `rustsec`: client library for the RustSec Security Advisory Database
-//!
-//! This crate is primarily intended for use with the cargo-audit tool:
-//!
-//! <https://crates.io/crates/cargo-audit>
-
-#![doc(
-    html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png",
-    html_root_url = "https://docs.rs/rustsec/0.25.2"
-)]
+#![doc = include_str!("../README.md")]
+#![doc(html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png")]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 

@@ -6,7 +6,7 @@ use std::{fmt, str::FromStr};
 
 /// Collections of packages (`crates` vs `rust`).
 ///
-/// Advisories are either filed against crates published to https://crates.io
+/// Advisories are either filed against crates published to <https://crates.io>
 /// or packages provided by the Rust language itself (e.g. `std`, `rustdoc`)
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub enum Collection {
