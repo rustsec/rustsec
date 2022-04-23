@@ -5,6 +5,5 @@ members = [
     "cargo-lock",
     "cvss",
     "platforms",
-    "platforms/markdown-table-gen",
     "rustsec"
 ]

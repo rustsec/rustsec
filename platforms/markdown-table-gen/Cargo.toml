@@ -8,3 +8,6 @@ edition     = "2018"
 
 [dependencies]
 platforms = { path = ".." }
+
+# Exclude this crate from the toplevel workspace
+[workspace]
