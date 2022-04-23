@@ -32,6 +32,14 @@ Rust **1.40** or higher.
 Minimum supported Rust version may be changed in the future, but it will be
 accompanied by a minor version bump.
 
+## SemVer Policy
+
+We reserve the right to add and remove platforms from the registry without
+bumping major versions. This doesn't change the API, but can break crates that
+expect platforms to be there if they are removed.
+
+If we remove platforms, we will bump the minor version of this crate.
+
 ## Registered Platforms
 
 ### Tier 1
@@ -127,6 +135,7 @@ accompanied by a minor version bump.
 | [x86_64-unknown-linux-gnux32]          | x86_64      | linux      | gnu        |
 | [x86_64-unknown-linux-musl]            | x86_64      | linux      | musl       |
 | [x86_64-unknown-netbsd]                | x86_64      | netbsd     |            |
+| [x86_64-unknown-none]                  | x86_64      | none       |            |
 | [x86_64-unknown-redox]                 | x86_64      | redox      | relibc     |
 
 ### Tier 3
@@ -140,7 +149,6 @@ accompanied by a minor version bump.
 | [aarch64-unknown-hermit]               | aarch64     | hermit     |            |
 | [aarch64-unknown-linux-gnu_ilp32]      | aarch64     | linux      | gnu        |
 | [aarch64-unknown-netbsd]               | aarch64     | netbsd     |            |
-| [aarch64-unknown-none-hermitkernel]    | aarch64     | none       |            |
 | [aarch64-unknown-openbsd]              | aarch64     | openbsd    |            |
 | [aarch64-unknown-redox]                | aarch64     | redox      | relibc     |
 | [aarch64-unknown-uefi]                 | aarch64     | uefi       |            |
@@ -201,6 +209,7 @@ accompanied by a minor version bump.
 | [powerpc64le-unknown-linux-musl]       | powerpc64   | linux      | musl       |
 | [riscv32gc-unknown-linux-gnu]          | riscv32     | linux      | gnu        |
 | [riscv32gc-unknown-linux-musl]         | riscv32     | linux      | musl       |
+| [riscv32im-unknown-none-elf]           | riscv32     | none       |            |
 | [riscv32imc-esp-espidf]                | riscv32     | espidf     | newlib     |
 | [riscv64gc-unknown-freebsd]            | riscv64     | freebsd    |            |
 | [riscv64gc-unknown-linux-musl]         | riscv64     | linux      | musl       |
@@ -220,15 +229,12 @@ accompanied by a minor version bump.
 | [x86_64-unknown-haiku]                 | x86_64      | haiku      |            |
 | [x86_64-unknown-hermit]                | x86_64      | hermit     |            |
 | [x86_64-unknown-l4re-uclibc]           | x86_64      | l4re       | uclibc     |
-| [x86_64-unknown-none]                  | x86_64      | none       |            |
-| [x86_64-unknown-none-hermitkernel]     | x86_64      | none       |            |
 | [x86_64-unknown-none-linuxkernel]      | x86_64      | none       | gnu        |
 | [x86_64-unknown-openbsd]               | x86_64      | openbsd    |            |
 | [x86_64-unknown-uefi]                  | x86_64      | uefi       |            |
 | [x86_64-uwp-windows-gnu]               | x86_64      | windows    | gnu        |
 | [x86_64-uwp-windows-msvc]              | x86_64      | windows    | msvc       |
 | [x86_64-wrs-vxworks]                   | x86_64      | vxworks    | gnu        |
-
 
 ## License
 
@@ -247,7 +253,7 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://img.shields.io/crates/v/platforms.svg
+[crate-image]: https://img.shields.io/crates/v/platforms.svg?logo=rust
 [crate-link]: https://crates.io/crates/platforms
 [docs-image]: https://docs.rs/platforms/badge.svg
 [docs-link]: https://docs.rs/platforms/
@@ -283,7 +289,6 @@ additional terms or conditions.
 [aarch64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_MUSL.html
 [aarch64-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NETBSD.html
 [aarch64-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NONE.html
-[aarch64-unknown-none-hermitkernel]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NONE_HERMITKERNEL.html
 [aarch64-unknown-none-softfloat]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NONE_SOFTFLOAT.html
 [aarch64-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_OPENBSD.html
 [aarch64-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_REDOX.html
@@ -385,6 +390,7 @@ additional terms or conditions.
 [riscv32gc-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32GC_UNKNOWN_LINUX_GNU.html
 [riscv32gc-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32GC_UNKNOWN_LINUX_MUSL.html
 [riscv32i-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32I_UNKNOWN_NONE_ELF.html
+[riscv32im-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IM_UNKNOWN_NONE_ELF.html
 [riscv32imac-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMAC_UNKNOWN_NONE_ELF.html
 [riscv32imc-esp-espidf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_ESP_ESPIDF.html
 [riscv32imc-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_UNKNOWN_NONE_ELF.html
@@ -439,7 +445,6 @@ additional terms or conditions.
 [x86_64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_MUSL.html
 [x86_64-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_NETBSD.html
 [x86_64-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_NONE.html
-[x86_64-unknown-none-hermitkernel]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_NONE_HERMITKERNEL.html
 [x86_64-unknown-none-linuxkernel]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_NONE_LINUXKERNEL.html
 [x86_64-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_OPENBSD.html
 [x86_64-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_REDOX.html
@@ -447,4 +452,3 @@ additional terms or conditions.
 [x86_64-uwp-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UWP_WINDOWS_GNU.html
 [x86_64-uwp-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UWP_WINDOWS_MSVC.html
 [x86_64-wrs-vxworks]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_WRS_VXWORKS.html
-
