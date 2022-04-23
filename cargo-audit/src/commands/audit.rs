@@ -244,7 +244,6 @@ impl Runnable for AuditCommand {
 impl AuditCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
-        let config = app_config();
-        Auditor::new(config.as_ref())
+        Auditor::new(&APP.config())
     }
 }

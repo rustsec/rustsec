@@ -2,38 +2,18 @@
 //!
 //! <https://docs.rs/abscissa_core>
 
-use std::ops::Deref;
 use std::sync::Arc;
 
 use crate::{commands::CargoAuditCommand, config::AuditConfig};
 use abscissa_core::{
     application::{self, AppCell},
-    config::{self, CfgCell},
+    config::CfgCell,
     terminal::ColorChoice,
     trace, Application, FrameworkError, StandardPaths,
 };
 
 /// Application state
-pub static APPLICATION: AppCell<CargoAuditApplication> = AppCell::new();
-
-/// Obtain a read-only (multi-reader) lock on the application state.
-///
-/// Panics if the application state has not been initialized.
-pub fn app_reader() -> &'static CargoAuditApplication {
-    APPLICATION.deref()
-}
-
-/// Obtain an exclusive mutable lock on the application state.
-pub fn app_writer() -> &'static CargoAuditApplication {
-    APPLICATION.deref()
-}
-
-/// Obtain a read-only (multi-reader) lock on the application configuration.
-///
-/// Panics if the application configuration has not been loaded.
-pub fn app_config() -> config::Reader<AuditConfig> {
-    APPLICATION.config.read()
-}
+pub static APP: AppCell<CargoAuditApplication> = AppCell::new();
 
 /// `cargo audit` application
 #[derive(Debug)]
