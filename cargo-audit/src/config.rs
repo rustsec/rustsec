@@ -4,7 +4,7 @@ use rustsec::warning;
 use rustsec::{
     advisory,
     database::scope,
-    platforms::target::{Arch, OS},
+    platforms::{Arch, OS},
     report, Error, ErrorKind,
 };
 use serde::{Deserialize, Serialize};

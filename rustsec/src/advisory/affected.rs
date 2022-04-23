@@ -5,7 +5,7 @@ use crate::{
     error::{Error, ErrorKind},
     Map,
 };
-use platforms::target::{Arch, OS};
+use platforms::{Arch, OS};
 use semver::VersionReq;
 use serde::{de::Error as DeError, Deserialize, Deserializer, Serialize, Serializer};
 use std::{

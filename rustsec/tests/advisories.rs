@@ -52,8 +52,8 @@ fn parse_metadata() {
 #[test]
 fn parse_affected() {
     let affected = load_example_v3_advisory().affected.unwrap();
-    assert_eq!(affected.arch[0], platforms::target::Arch::X86);
-    assert_eq!(affected.os[0], platforms::target::OS::Windows);
+    assert_eq!(affected.arch[0], platforms::Arch::X86);
+    assert_eq!(affected.os[0], platforms::OS::Windows);
 
     let example_function = "base::belongs::All".parse().unwrap();
     let req = &affected.functions.get(&example_function).unwrap()[0];
