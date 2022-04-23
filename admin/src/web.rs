@@ -476,7 +476,7 @@ mod filters {
     use chrono::NaiveDate;
     use std::convert::TryInto;
 
-    pub fn friendly_date(date: &&rustsec::advisory::Date) -> ::askama::Result<String> {
+    pub fn friendly_date(date: &rustsec::advisory::Date) -> ::askama::Result<String> {
         Ok(
             NaiveDate::from_ymd(date.year().try_into().unwrap(), date.month(), date.day())
                 .format("%B %e, %Y")

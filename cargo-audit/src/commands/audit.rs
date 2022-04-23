@@ -3,132 +3,129 @@
 #[cfg(feature = "fix")]
 mod fix;
 
-use super::CargoAuditCommand;
 use crate::{
     auditor::Auditor,
     config::{AuditConfig, DenyOption, OutputFormat},
     prelude::*,
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
-use gumdrop::Options;
+use clap::Parser;
 use rustsec::database::scope;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
 #[cfg(feature = "fix")]
 use self::fix::FixCommand;
+#[cfg(feature = "fix")]
+use clap::Subcommand;
 
 /// The `cargo audit` subcommand
-#[derive(Command, Default, Debug, Options)]
+#[derive(Command, Default, Debug, Parser)]
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix`)
     #[cfg(feature = "fix")]
-    #[options(command)]
+    #[clap(subcommand)]
     subcommand: Option<AuditSubcommand>,
 
     /// Get help information
-    #[options(short = "h", long = "help", help = "output help information and exit")]
+    #[clap(short = 'h', long = "help", help = "output help information and exit")]
     help: bool,
 
     /// Get version information
-    #[options(no_short, long = "version", help = "output version and exit")]
+    #[clap(long = "version", help = "output version and exit")]
     version: bool,
 
     /// Colored output configuration
-    #[options(
-        short = "c",
+    #[clap(
+        short = 'c',
         long = "color",
         help = "color configuration: always, never (default: auto)"
     )]
     color: Option<String>,
 
     /// Filesystem path to the advisory database git repository
-    #[options(
+    #[clap(
+        short,
         long = "db",
         help = "advisory database git repo path (default: ~/.cargo/advisory-db)"
     )]
     db: Option<PathBuf>,
 
     /// Deny flag
-    #[options(
-        short = "D",
+    #[clap(
+        short = 'D',
         long = "deny",
         help = "exit with an error on: warnings (any), unmaintained, unsound, yanked"
     )]
     deny: Vec<DenyOption>,
 
     /// Deny warnings (legacy)
-    #[options(
-        no_short,
+    #[clap(
         long = "deny-warnings",
         help = "deprecated legacy alternative to: --deny warnings"
     )]
     deny_warnings: bool,
 
     /// Path to `Cargo.lock`
-    #[options(
-        short = "f",
+    #[clap(
+        short = 'f',
         long = "file",
         help = "Cargo lockfile to inspect (or `-` for STDIN, default: Cargo.lock)"
     )]
     file: Option<PathBuf>,
 
     /// Advisory IDs to ignore
-    #[options(
-        no_short,
+    #[clap(
         long = "ignore",
-        meta = "ADVISORY_ID",
+        value_name = "ADVISORY_ID",
         help = "Advisory id to ignore (can be specified multiple times)"
     )]
     ignore: Vec<String>,
 
     /// Skip fetching the advisory database git repository
-    #[options(
-        short = "n",
+    #[clap(
+        short = 'n',
         long = "no-fetch",
         help = "do not perform a git fetch on the advisory DB"
     )]
     no_fetch: bool,
 
     /// Allow stale advisory databases that haven't been recently updated
-    #[options(no_short, long = "stale", help = "allow stale database")]
+    #[clap(long = "stale", help = "allow stale database")]
     stale: bool,
 
     /// Target CPU architecture to find vulnerabilities for
-    #[options(
-        no_short,
+    #[clap(
         long = "target-arch",
         help = "filter vulnerabilities by CPU (default: no filter)"
     )]
     target_arch: Option<Arch>,
 
     /// Target OS to find vulnerabilities for
-    #[options(
-        no_short,
+    #[clap(
         long = "target-os",
         help = "filter vulnerabilities by OS (default: no filter)"
     )]
     target_os: Option<OS>,
 
     /// URL to the advisory database git repository
-    #[options(short = "u", long = "url", help = "URL for advisory database git repo")]
+    #[clap(short = 'u', long = "url", help = "URL for advisory database git repo")]
     url: Option<String>,
 
     /// Quiet mode - avoids printing extraneous information
-    #[options(
-        short = "q",
+    #[clap(
+        short = 'q',
         long = "quiet",
         help = "Avoid printing unnecessary information"
     )]
     quiet: bool,
 
     /// Output reports as JSON
-    #[options(no_short, long = "json", help = "Output report in JSON format")]
+    #[clap(long = "json", help = "Output report in JSON format")]
     output_json: bool,
 
     /// Vulnerability querying does not consider local crates
-    #[options(
-        no_short,
+    #[clap(
         long = "no-local-crates",
         help = "Vulnerability querying does not consider local crates"
     )]
@@ -137,10 +134,10 @@ pub struct AuditCommand {
 
 /// Subcommands of `cargo audit`
 #[cfg(feature = "fix")]
-#[derive(Command, Debug, Options, Runnable)]
+#[derive(Subcommand, Debug, Runnable)]
 pub enum AuditSubcommand {
     /// `cargo audit fix` subcommand
-    #[options(help = "automatically upgrade vulnerable dependencies")]
+    #[clap(about = "automatically upgrade vulnerable dependencies")]
     Fix(FixCommand),
 }
 
@@ -226,15 +223,6 @@ impl Runnable for AuditCommand {
             None => (),
         }
 
-        if self.help {
-            Self::print_usage_and_exit(&[]);
-        }
-
-        if self.version {
-            println!("cargo-audit {}", CargoAuditCommand::version());
-            exit(0);
-        }
-
         let lockfile_path = self.file.as_deref();
         let report = self.auditor().audit(lockfile_path);
 
@@ -257,6 +245,6 @@ impl AuditCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
         let config = app_config();
-        Auditor::new(&config)
+        Auditor::new(config.as_ref())
     }
 }

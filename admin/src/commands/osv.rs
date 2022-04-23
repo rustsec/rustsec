@@ -8,21 +8,22 @@ use std::{
     process::exit,
 };
 
-use abscissa_core::{status_err, Command, Options, Runnable};
+use abscissa_core::{status_err, Command, Runnable};
+use clap::Parser;
 
 use crate::osv_export::OsvExporter;
 
-#[derive(Command, Debug, Default, Options)]
+#[derive(Command, Debug, Default, Parser)]
 pub struct OsvCmd {
     /// Path to the advisory database
-    #[options(
+    #[clap(
         long = "db",
         help = "filesystem path to the RustSec advisory DB git repo"
     )]
     repo_path: Option<PathBuf>,
     /// Path to the output directory
-    #[options(
-        free,
+    #[clap(
+        min_values = 1,
         help = "filesystem directory where OSV JSON files will be written"
     )]
     path: Vec<PathBuf>,
@@ -33,7 +34,7 @@ impl Runnable for OsvCmd {
         let out_path = match self.path.len() {
             0 => Path::new("."),
             1 => self.path[0].as_path(),
-            _ => Self::print_usage_and_exit(&[]),
+            _ => unreachable!(),
         };
 
         let repo_path: Option<&Path> = self.repo_path.as_deref();

@@ -11,16 +11,20 @@ use std::{
     process::exit,
 };
 
-use abscissa_core::{Command, Options, Runnable};
+use abscissa_core::{Command, Runnable};
+use clap::Parser;
 
 use crate::list_versions::AffectedVersionLister;
 use crate::prelude::*;
 
 /// `rustsec-admin list-affected-versions` subcommand
-#[derive(Command, Debug, Default, Options)]
+#[derive(Command, Debug, Default, Parser)]
 pub struct ListAffectedVersionsCmd {
     /// Path to the advisory database
-    #[options(free, help = "filesystem path to the RustSec advisory DB git repo")]
+    #[clap(
+        min_values = 1,
+        help = "filesystem path to the RustSec advisory DB git repo"
+    )]
     path: Vec<PathBuf>,
 }
 
@@ -29,7 +33,7 @@ impl Runnable for ListAffectedVersionsCmd {
         let repo_path = match self.path.len() {
             0 => Path::new("."),
             1 => self.path[0].as_path(),
-            _ => Self::print_usage_and_exit(&[]),
+            _ => unreachable!(),
         };
 
         let lister = AffectedVersionLister::new(&repo_path).unwrap_or_else(|e| {

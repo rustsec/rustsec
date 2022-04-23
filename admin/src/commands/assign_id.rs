@@ -3,16 +3,19 @@
 //! Assigns RUSTSEC ids to new vulnerabilities
 
 use abscissa_core::{Command, Runnable};
-use gumdrop::Options;
+use clap::Parser;
 use std::path::{Path, PathBuf};
 
 /// `rustsec-admin assign-id` subcommand
-#[derive(Command, Debug, Default, Options)]
+#[derive(Command, Debug, Default, Parser)]
 pub struct AssignIdCmd {
-    #[options(long = "github-actions-output")]
+    #[clap(long = "github-actions-output")]
     github_action_output: bool,
     /// Path to the advisory database
-    #[options(free, help = "filesystem path to the RustSec advisory DB git repo")]
+    #[clap(
+        min_values = 1,
+        help = "filesystem path to the RustSec advisory DB git repo"
+    )]
     path: Vec<PathBuf>,
 }
 
@@ -21,7 +24,7 @@ impl Runnable for AssignIdCmd {
         let repo_path = match self.path.len() {
             0 => Path::new("."),
             1 => self.path[0].as_path(),
-            _ => Self::print_usage_and_exit(&[]),
+            _ => unreachable!(),
         };
         let output_mode = if self.github_action_output {
             crate::assigner::OutputMode::GithubAction
