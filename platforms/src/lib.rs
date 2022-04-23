@@ -27,6 +27,7 @@ pub mod target;
 pub use crate::{
     error::Error,
     platform::{Platform, Tier},
+    target::{Arch, Endian, Env, PointerWidth, OS},
 };
 
 #[cfg(feature = "std")]
