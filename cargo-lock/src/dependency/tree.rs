@@ -190,7 +190,7 @@ mod tests {
 
     /// Load this crate's `Cargo.lock`
     fn load_lockfile() -> Lockfile {
-        Lockfile::load("Cargo.lock").unwrap()
+        Lockfile::load("tests/examples/Cargo.lock.v3").unwrap()
     }
 
     #[test]
