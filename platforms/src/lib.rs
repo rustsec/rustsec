@@ -13,7 +13,7 @@
 //! done with a minor version bump.
 
 #![no_std]
-#![doc(html_root_url = "https://docs.rs/platforms/3.0.0-alpha.1")]
+#![doc(html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png")]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, unused_qualifications, rust_2018_idioms)]
 

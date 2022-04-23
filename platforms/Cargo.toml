@@ -4,14 +4,14 @@ description = """
 Rust platform registry with information about valid Rust platforms (target
 triple, target_arch, target_os) sourced from the Rust compiler.
 """
-version    = "3.0.0-alpha.1" # Also update html_root_url in lib.rs when bumping this
+version    = "3.0.0"
 authors    = ["Tony Arcieri <bascule@gmail.com>"]
 license    = "Apache-2.0 OR MIT"
 homepage   = "https://rustsec.org"
 repository = "https://github.com/rustsec/rustsec/tree/main/platforms"
 readme     = "README.md"
 categories = ["development-tools", "no-std"]
-keywords   = ["architectures", "cpu", "platforms", "os", "targets"]
+keywords   = ["architectures", "cpu", "os", "targets", "triples"]
 edition    = "2018"
 
 [dependencies]

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 3.0.0 (2022-04-23)
+### Added
+- `target_endian` and `target_pointer_width` fields on `Platform` ([#516])
+
+### Changed
+- Auto-generate platforms registry from rustc ([#516])
+- Make `Platform` struct `#[non_exhaustive]` to allow new fields ([#516])
+- Make `Platform::env` field non-optional ([#516])
+
+### Fixed
+- `serde` deserializers ([#527])
+
+[#516]: https://github.com/rustsec/rustsec/pull/516
+[#527]: https://github.com/rustsec/rustsec/pull/527
+
 ## 2.0.0 (2021-11-15)
 ### Added
 - New tier 3 targets ([#357])
