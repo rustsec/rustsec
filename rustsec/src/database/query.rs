@@ -3,8 +3,8 @@
 use crate::{
     advisory::{Advisory, Severity},
     collection::Collection,
-    database::scope,
-    package,
+    package::{self, Package},
+    SourceId,
 };
 use platforms::target::{Arch, OS};
 use semver::Version;
@@ -16,10 +16,13 @@ pub struct Query {
     pub(super) collection: Option<Collection>,
 
     /// Package name to search for
-    pub(super) package: Option<package::Name>,
+    pub(super) package_name: Option<package::Name>,
 
-    /// Version of a package to search for
-    version: Option<Version>,
+    /// Package version to search for
+    package_version: Option<Version>,
+
+    /// Source of the package advisories should be matched against
+    package_source: Option<SourceId>,
 
     /// Severity threshold (i.e. minimum severity)
     severity: Option<Severity>,
@@ -40,9 +43,6 @@ pub struct Query {
 
     /// Query for informational advisories
     informational: Option<bool>,
-
-    /// Scope of packages which should be considered for audit
-    _package_scope: Option<scope::Package>,
 }
 
 impl Query {
@@ -88,20 +88,23 @@ impl Query {
         self
     }
 
-    /// Set package name to search for
-    pub fn package(mut self, package: impl Into<package::Name>) -> Self {
-        self.package = Some(package.into());
+    /// Provide a package and use all of its attributes as part of the query
+    pub fn package(mut self, package: &Package) -> Self {
+        self.package_name = Some(package.name.clone());
+        self.package_version = Some(package.version.clone());
+        self.package_source = package.source.clone();
         self
     }
 
-    /// Set package name to search for along with an associated version
-    pub fn package_version(
-        mut self,
-        package: impl Into<package::Name>,
-        version: impl Into<Version>,
-    ) -> Self {
-        self.package = Some(package.into());
-        self.version = Some(version.into());
+    /// Set package name to search for.
+    pub fn package_name(mut self, name: package::Name) -> Self {
+        self.package_name = Some(name);
+        self
+    }
+
+    /// Set package version to search for
+    pub fn package_version(mut self, version: Version) -> Self {
+        self.package_version = Some(version);
         self
     }
 
@@ -156,14 +159,28 @@ impl Query {
             }
         }
 
-        if let Some(package) = &self.package {
-            if package != &advisory.metadata.package {
+        if let Some(package_name) = &self.package_name {
+            if package_name != &advisory.metadata.package {
                 return false;
             }
         }
 
-        if let Some(version) = &self.version {
-            if !advisory.versions.is_vulnerable(version) {
+        if let Some(package_version) = &self.package_version {
+            if !advisory.versions.is_vulnerable(package_version) {
+                return false;
+            }
+        }
+
+        if let Some(package_source) = &self.package_source {
+            let default_registry_url = SourceId::default().url().clone();
+            let advisory_registry_url = advisory
+                .metadata
+                .registry
+                .as_ref()
+                .cloned()
+                .unwrap_or(default_registry_url);
+
+            if !package_source.is_registry() || package_source.url() != &advisory_registry_url {
                 return false;
             }
         }

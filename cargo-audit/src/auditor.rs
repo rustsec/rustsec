@@ -192,18 +192,15 @@ impl Auditor {
     fn self_advisories(&mut self) -> Vec<rustsec::Advisory> {
         let mut results = vec![];
 
-        for (package_str, version_str) in &[
+        for (package_name, package_version) in [
             ("cargo-audit", crate::VERSION),
             ("rustsec", rustsec::VERSION),
         ] {
-            let package: rustsec::package::Name = package_str.parse().unwrap();
-            let version: rustsec::Version = version_str.parse().unwrap();
-            let query = rustsec::database::Query::crate_scope();
+            let query = rustsec::database::Query::crate_scope()
+                .package_name(package_name.parse().unwrap())
+                .package_version(package_version.parse().unwrap());
 
-            for advisory in self
-                .database
-                .query(&query.package_version(package, version))
-            {
+            for advisory in self.database.query(&query) {
                 results.push(advisory.clone());
             }
         }

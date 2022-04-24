@@ -10,7 +10,6 @@ use crate::{
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
 use clap::Parser;
-use rustsec::database::scope;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
@@ -116,13 +115,6 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[clap(long = "json", help = "Output report in JSON format")]
     output_json: bool,
-
-    /// Vulnerability querying does not consider local crates
-    #[clap(
-        long = "no-local-crates",
-        help = "Vulnerability querying does not consider local crates"
-    )]
-    no_local_crates: bool,
 }
 
 /// Subcommands of `cargo audit`
@@ -189,10 +181,6 @@ impl Override<AuditConfig> for AuditCommand {
 
         if self.output_json {
             config.output.format = OutputFormat::Json;
-        }
-
-        if self.no_local_crates {
-            config.packages.source = Some(scope::Registry::Public)
         }
 
         Ok(config)

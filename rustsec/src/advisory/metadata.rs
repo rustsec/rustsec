@@ -63,12 +63,16 @@ pub struct Metadata {
     /// affecting a particular crate without failing the build.
     pub informational: Option<Informational>,
 
-    /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
-    pub url: Option<Url>,
-
     /// Additional reference URLs with more information related to this advisory
     #[serde(default)]
     pub references: Vec<Url>,
+
+    /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
+    pub url: Option<Url>,
+
+    /// URL for the source registry where the vulnerable package is published
+    /// (defaults to crates.io, i.e. `registry+https://github.com/rust-lang/crates.io-index`)
+    pub registry: Option<Url>,
 
     /// Was this advisory (i.e. itself, regardless of the crate) withdrawn?
     /// If yes, when?
