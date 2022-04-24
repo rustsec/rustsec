@@ -124,7 +124,7 @@ pub struct DatabaseConfig {
     /// Path to the local copy of advisory database's git repo (default: ~/.cargo/advisory-db)
     pub path: Option<PathBuf>,
 
-    /// URL to the advisory database's git repo (default: https://github.com/RustSec/advisory-db)
+    /// URL to the advisory database's git repo (default: <https://github.com/RustSec/advisory-db>)
     pub url: Option<String>,
 
     /// Perform a `git fetch` before auditing (default: true)
