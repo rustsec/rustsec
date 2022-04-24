@@ -4,7 +4,7 @@ use semver::Version;
 /// If any of the bounds is unspecified, that means ALL versions
 /// in that direction are affected.
 ///
-/// This format is defined by https://github.com/google/osv
+/// This format is defined by <https://github.com/google/osv>
 #[derive(Debug, Clone)]
 pub struct OsvRange {
     /// Inclusive

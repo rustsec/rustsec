@@ -2,11 +2,9 @@
 //! Cargo-style version selectors (`>=`, `^`, `<`, etc) to OSV ranges.
 //! It is an implementation detail and is not exported outside OSV module.
 
-use std::{convert::TryFrom, fmt::Display};
-
-use semver::{Comparator, Op, Prerelease, Version};
-
 use crate::{Error, ErrorKind::BadParam};
+use semver::{Comparator, Op, Prerelease, Version};
+use std::fmt::Display;
 
 #[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub(crate) enum Bound {
@@ -246,11 +244,8 @@ fn comp_to_ver(c: &Comparator) -> Version {
 
 #[cfg(test)]
 mod tests {
-    use std::convert::TryInto;
-
-    use semver::VersionReq;
-
     use super::*;
+    use semver::VersionReq;
 
     #[test]
     fn both_unbounded() {

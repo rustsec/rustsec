@@ -1,11 +1,8 @@
 //! The `[versions]` subsection of an advisory.
 
-use std::convert::{TryFrom, TryInto};
-
+use crate::{osv, Error};
 use semver::{Version, VersionReq};
 use serde::{Deserialize, Serialize};
-
-use crate::{osv, Error};
 
 /// The `[versions]` subsection of an advisory: future home to information
 /// about which versions are patched and/or unaffected.
