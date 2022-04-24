@@ -3,6 +3,7 @@ name: cargo-audit
 on:
   pull_request:
     paths:
+      - ".github/workflows/cargo-audit.yml"
       - "cargo-audit/**"
       - "rustsec/**"
       - "Cargo.*"
@@ -14,14 +15,14 @@ defaults:
     working-directory: cargo-audit
 
 env:
-  CARGO_INCREMENTAL: 0
   RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
 
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -43,7 +44,7 @@ jobs:
           - stable
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions/cache@v1
         with:
           path: ~/.cargo/registry
@@ -60,11 +61,22 @@ jobs:
       - run: cargo test --release
       - run: cargo test --all-features --release
 
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - run: cargo doc --all-features
+
 # TODO(tarcieri): re-enable after vulnerable deps have been upgraded
 #  self-audit:
 #    runs-on: ubuntu-latest
 #    steps:
-#      - uses: actions/checkout@v1
+#      - uses: actions/checkout@v2
 #      - uses: actions-rs/toolchain@v1
 #        with:
 #          toolchain: stable
