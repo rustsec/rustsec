@@ -1,19 +1,18 @@
-use std::{convert::TryInto, ops::Add};
-
-use serde::Serialize;
-use url::Url;
+//! OSV advisories.
 
 use super::ranges_for_advisory;
-
 use crate::{
     advisory::{affected::FunctionPath, Affected, Category, Id, Informational},
     repository::git::{GitModificationTimes, GitPath},
     Advisory,
 };
+use serde::Serialize;
+use std::ops::Add;
+use url::Url;
 
 const ECOSYSTEM: &str = "crates.io";
 
-/// Security advisory in the format defined by https://github.com/google/osv
+/// Security advisory in the format defined by <https://github.com/google/osv>
 #[derive(Debug, Clone, Serialize)]
 pub struct OsvAdvisory {
     id: Id,

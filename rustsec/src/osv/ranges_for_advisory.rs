@@ -1,14 +1,14 @@
-use std::convert::TryInto;
+//! Ranges for advisories.
 
-use semver::VersionReq;
-use semver::{Prerelease, Version};
-
-use crate::advisory::versions::RawVersions;
-use crate::advisory::Versions;
-use crate::Error;
-
-use super::osv_range::OsvRange;
-use super::unaffected_range::{Bound, UnaffectedRange};
+use super::{
+    osv_range::OsvRange,
+    unaffected_range::{Bound, UnaffectedRange},
+};
+use crate::{
+    advisory::{versions::RawVersions, Versions},
+    Error,
+};
+use semver::{Prerelease, Version, VersionReq};
 
 /// Returns OSV ranges for all affected versions in the given advisory.
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.

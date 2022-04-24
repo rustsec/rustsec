@@ -40,7 +40,7 @@ impl Repository {
         Self::fetch(DEFAULT_URL, Repository::default_path(), true)
     }
 
-    /// Create a new [`GitRepository`] with the given URL and path
+    /// Create a new [`Repository`] with the given URL and path
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
