@@ -1,15 +1,16 @@
 [package]
-name        = "cargo-audit"
-description = "Audit Cargo.lock for crates with security vulnerabilities"
-version     = "0.16.0"
-authors     = ["Tony Arcieri <bascule@gmail.com>"]
-license     = "Apache-2.0 OR MIT"
-homepage    = "https://rustsec.org"
-repository  = "https://github.com/RustSec/rustsec/tree/main/cargo-audit"
-readme      = "README.md"
-categories  = ["development-tools::cargo-plugins"]
-keywords    = ["cargo-subcommand", "security", "audit", "vulnerability"]
-edition     = "2018"
+name         = "cargo-audit"
+description  = "Audit Cargo.lock for crates with security vulnerabilities"
+version      = "0.16.0"
+authors      = ["Tony Arcieri <bascule@gmail.com>"]
+license      = "Apache-2.0 OR MIT"
+homepage     = "https://rustsec.org"
+repository   = "https://github.com/RustSec/rustsec/tree/main/cargo-audit"
+readme       = "README.md"
+categories   = ["development-tools::cargo-plugins"]
+keywords     = ["cargo-subcommand", "security", "audit", "vulnerability"]
+edition      = "2021"
+rust-version = "1.57"
 
 [badges]
 maintenance = { status = "actively-developed" }
