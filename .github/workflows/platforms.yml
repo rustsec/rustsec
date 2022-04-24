@@ -3,6 +3,7 @@ name: platforms
 on:
   pull_request:
     paths:
+      - ".github/workflows/platforms.yml"
       - "platforms/**"
       - "Cargo.*"
   push:
@@ -13,8 +14,8 @@ defaults:
     working-directory: platforms
 
 env:
-  CARGO_INCREMENTAL: 0
   RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
 
 jobs:
   test:
@@ -25,13 +26,25 @@ jobs:
           - 1.40.0 # MSRV
           - stable
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
           override: true
           profile: minimal
+      - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
       - run: cargo check --all-features
       - run: cargo test --no-default-features
       - run: cargo test
       - run: cargo test --all-features
+
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - run: cargo doc --all-features

@@ -3,6 +3,7 @@ name: cvss
 on:
   pull_request:
     paths:
+      - ".github/workflows/cvss.yml"
       - "cvss/**"
       - "Cargo.*"
   push:
@@ -13,8 +14,8 @@ defaults:
     working-directory: cvss
 
 env:
-  CARGO_INCREMENTAL: 0
   RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
 
 jobs:
   build:
@@ -25,13 +26,14 @@ jobs:
           - 1.41.0 # MSRV
           - stable
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           target: wasm32-unknown-unknown
           override: true
+      - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
       - run: cargo build --no-default-features --release --target wasm32-unknown-unknown
 
   test:
@@ -42,12 +44,24 @@ jobs:
           - 1.41.0 # MSRV
           - stable
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
+      - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
       - run: cargo check
       - run: cargo test --release
       - run: cargo test --all-features --release
+
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - run: cargo doc --all-features
