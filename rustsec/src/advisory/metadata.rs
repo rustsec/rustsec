@@ -3,7 +3,7 @@
 use super::{
     category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
 };
-use crate::{collection::Collection, package};
+use crate::{collection::Collection, package, SourceId};
 use serde::{Deserialize, Serialize};
 use url::Url;
 
@@ -67,12 +67,13 @@ pub struct Metadata {
     #[serde(default)]
     pub references: Vec<Url>,
 
+    /// Source URL where the vulnerable package is located/published.
+    ///
+    /// Defaults to crates.io, i.e. `registry+https://github.com/rust-lang/crates.io-index`
+    pub source: Option<SourceId>,
+
     /// URL with an announcement (e.g. blog post, PR, disclosure issue, CVE)
     pub url: Option<Url>,
-
-    /// URL for the source registry where the vulnerable package is published
-    /// (defaults to crates.io, i.e. `registry+https://github.com/rust-lang/crates.io-index`)
-    pub registry: Option<Url>,
 
     /// Was this advisory (i.e. itself, regardless of the crate) withdrawn?
     /// If yes, when?

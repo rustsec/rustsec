@@ -58,15 +58,15 @@ impl Query {
     pub fn new() -> Self {
         Self {
             collection: None,
-            package: None,
-            version: None,
+            package_name: None,
+            package_version: None,
+            package_source: None,
             severity: None,
             target_arch: None,
             target_os: None,
             year: None,
             withdrawn: None,
             informational: None,
-            _package_scope: None,
         }
     }
 
@@ -105,6 +105,12 @@ impl Query {
     /// Set package version to search for
     pub fn package_version(mut self, version: Version) -> Self {
         self.package_version = Some(version);
+        self
+    }
+
+    /// Set package source (e.g. registry) where this package is located
+    pub fn package_source(mut self, source: SourceId) -> Self {
+        self.package_source = Some(source);
         self
     }
 
@@ -172,15 +178,17 @@ impl Query {
         }
 
         if let Some(package_source) = &self.package_source {
-            let default_registry_url = SourceId::default().url().clone();
-            let advisory_registry_url = advisory
+            let advisory_source = advisory
                 .metadata
-                .registry
+                .source
                 .as_ref()
                 .cloned()
-                .unwrap_or(default_registry_url);
+                .unwrap_or_default();
 
-            if !package_source.is_registry() || package_source.url() != &advisory_registry_url {
+            // TODO(tarcieri): better source comparison?
+            if advisory_source.kind() != package_source.kind()
+                || advisory_source.url() != package_source.url()
+            {
                 return false;
             }
         }

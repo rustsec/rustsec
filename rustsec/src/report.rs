@@ -6,7 +6,6 @@
 use crate::{
     advisory,
     database::{Database, Query},
-    lockfile::Lockfile,
     map,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,

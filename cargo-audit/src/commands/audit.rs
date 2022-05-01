@@ -74,6 +74,13 @@ pub struct AuditCommand {
     )]
     ignore: Vec<String>,
 
+    /// Ignore the sources of packages in Cargo.toml
+    #[clap(
+        long = "ignore-source",
+        help = "Ignore sources of packages in Cargo.toml, matching advisories regardless of source"
+    )]
+    ignore_source: bool,
+
     /// Skip fetching the advisory database git repository
     #[clap(
         short = 'n',
@@ -154,6 +161,7 @@ impl Override<AuditConfig> for AuditCommand {
                 }));
         }
 
+        config.advisories.ignore_source |= self.ignore_source;
         config.database.fetch |= !self.no_fetch;
         config.database.stale |= self.stale;
 
