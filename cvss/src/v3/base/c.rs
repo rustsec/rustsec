@@ -1,9 +1,6 @@
 //! Confidentiality Impact (C)
 
-use crate::{
-    error::{Error, ErrorKind},
-    v3::Metric,
-};
+use crate::{Error, Metric, MetricType};
 use std::{fmt, str::FromStr};
 
 /// Confidentiality Impact (C) - CVSS v3.1 Base Metric Group
@@ -45,7 +42,7 @@ pub enum Confidentiality {
 }
 
 impl Metric for Confidentiality {
-    const NAME: &'static str = "C";
+    const TYPE: MetricType = MetricType::C;
 
     fn score(self) -> f64 {
         match self {
@@ -66,7 +63,7 @@ impl Metric for Confidentiality {
 
 impl fmt::Display for Confidentiality {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", Self::NAME, self.as_str())
+        write!(f, "{}:{}", Self::name(), self.as_str())
     }
 }
 
@@ -78,7 +75,10 @@ impl FromStr for Confidentiality {
             "N" => Ok(Confidentiality::None),
             "L" => Ok(Confidentiality::Low),
             "H" => Ok(Confidentiality::High),
-            other => fail!(ErrorKind::Parse, "invalid C (Base): {}", other),
+            _ => Err(Error::InvalidMetric {
+                metric_type: Self::TYPE,
+                value: s.to_owned(),
+            }),
         }
     }
 }

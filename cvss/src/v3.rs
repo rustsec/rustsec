@@ -5,7 +5,6 @@
 // TODO(tarcieri): Environmental and Temporal Metrics
 
 pub mod base;
-pub mod metric;
 pub mod score;
 
-pub use self::{base::Base, metric::Metric, score::Score};
+pub use self::{base::Base, score::Score};

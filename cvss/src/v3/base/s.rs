@@ -1,6 +1,6 @@
 //! Scope (S)
 
-use crate::error::{Error, ErrorKind};
+use crate::{Error, Metric, MetricType, Result};
 use std::{fmt, str::FromStr};
 
 /// Scope (S) - CVSS v3.1 Base Metric Group
@@ -57,6 +57,14 @@ impl Scope {
     pub fn is_changed(self) -> bool {
         self == Scope::Changed
     }
+}
+
+impl Metric for Scope {
+    const TYPE: MetricType = MetricType::S;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {
@@ -68,18 +76,21 @@ impl Scope {
 
 impl fmt::Display for Scope {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "S:{}", self.as_str())
+        write!(f, "{}:{}", Self::name(), self.as_str())
     }
 }
 
 impl FromStr for Scope {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "U" => Ok(Scope::Unchanged),
             "C" => Ok(Scope::Changed),
-            other => fail!(ErrorKind::Parse, "invalid S (Base): {}", other),
+            _ => Err(Error::InvalidMetric {
+                metric_type: Self::TYPE,
+                value: s.to_owned(),
+            }),
         }
     }
 }
