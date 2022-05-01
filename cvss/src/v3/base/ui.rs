@@ -1,9 +1,6 @@
 //! User Interaction (UI)
 
-use crate::{
-    error::{Error, ErrorKind},
-    v3::Metric,
-};
+use crate::{Error, Metric, MetricType, Result};
 use std::{fmt, str::FromStr};
 
 /// User Interaction (UI) - CVSS v3.1 Base Metric Group
@@ -34,7 +31,7 @@ pub enum UserInteraction {
 }
 
 impl Metric for UserInteraction {
-    const NAME: &'static str = "UI";
+    const TYPE: MetricType = MetricType::UI;
 
     fn score(self) -> f64 {
         match self {
@@ -53,18 +50,21 @@ impl Metric for UserInteraction {
 
 impl fmt::Display for UserInteraction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", Self::NAME, self.as_str())
+        write!(f, "{}:{}", Self::name(), self.as_str())
     }
 }
 
 impl FromStr for UserInteraction {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "R" => Ok(UserInteraction::Required),
             "N" => Ok(UserInteraction::None),
-            other => fail!(ErrorKind::Parse, "invalid UI (Base): {}", other),
+            _ => Err(Error::InvalidMetric {
+                metric_type: Self::TYPE,
+                value: s.to_owned(),
+            }),
         }
     }
 }

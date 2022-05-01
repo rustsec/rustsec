@@ -1,9 +1,6 @@
 //! Privileges Required (PR)
 
-use crate::{
-    error::{Error, ErrorKind},
-    v3::Metric,
-};
+use crate::{error::Error, Metric, MetricType};
 use std::{fmt, str::FromStr};
 
 /// Privileges Required (PR) - CVSS v3.1 Base Metric Group
@@ -63,7 +60,7 @@ impl PrivilegesRequired {
 }
 
 impl Metric for PrivilegesRequired {
-    const NAME: &'static str = "PR";
+    const TYPE: MetricType = MetricType::PR;
 
     fn score(self) -> f64 {
         self.scoped_score(false)
@@ -80,7 +77,7 @@ impl Metric for PrivilegesRequired {
 
 impl fmt::Display for PrivilegesRequired {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", Self::NAME, self.as_str())
+        write!(f, "{}:{}", Self::name(), self.as_str())
     }
 }
 
@@ -92,7 +89,10 @@ impl FromStr for PrivilegesRequired {
             "H" => Ok(PrivilegesRequired::High),
             "L" => Ok(PrivilegesRequired::Low),
             "N" => Ok(PrivilegesRequired::None),
-            other => fail!(ErrorKind::Parse, "invalid PR (Base): {}", other),
+            _ => Err(Error::InvalidMetric {
+                metric_type: Self::TYPE,
+                value: s.to_owned(),
+            }),
         }
     }
 }

@@ -1,9 +1,6 @@
 //! Availability Impact (A)
 
-use crate::{
-    error::{Error, ErrorKind},
-    v3::Metric,
-};
+use crate::{Error, Metric, MetricType, Result};
 use std::{fmt, str::FromStr};
 
 /// Availability Impact (A) - CVSS v3.1 Base Metric Group
@@ -59,7 +56,7 @@ pub enum Availability {
 }
 
 impl Metric for Availability {
-    const NAME: &'static str = "A";
+    const TYPE: MetricType = MetricType::A;
 
     fn score(self) -> f64 {
         match self {
@@ -80,19 +77,22 @@ impl Metric for Availability {
 
 impl fmt::Display for Availability {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", Self::NAME, self.as_str())
+        write!(f, "{}:{}", Self::name(), self.as_str())
     }
 }
 
 impl FromStr for Availability {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "N" => Ok(Availability::None),
             "L" => Ok(Availability::Low),
             "H" => Ok(Availability::High),
-            other => fail!(ErrorKind::Parse, "invalid A (Base): {}", other),
+            _ => Err(Error::InvalidMetric {
+                metric_type: Self::TYPE,
+                value: s.to_owned(),
+            }),
         }
     }
 }
