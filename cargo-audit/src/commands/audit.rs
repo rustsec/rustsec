@@ -59,13 +59,6 @@ pub struct AuditCommand {
     )]
     deny: Vec<DenyOption>,
 
-    /// Deny warnings (legacy)
-    #[clap(
-        long = "deny-warnings",
-        help = "deprecated legacy alternative to: --deny warnings"
-    )]
-    deny_warnings: bool,
-
     /// Path to `Cargo.lock`
     #[clap(
         short = 'f',
@@ -184,17 +177,11 @@ impl Override<AuditConfig> for AuditCommand {
             config.database.url = Some(url.clone())
         }
 
-        if self.deny_warnings {
-            // TODO(tarcieri): remove this in the next release of cargo-audit
-            status_warn!("the --deny-warnings flag is deprecated. Please use: --deny warnings");
-            config.output.deny = DenyOption::all();
-        } else {
-            for kind in &self.deny {
-                if *kind == DenyOption::Warnings {
-                    config.output.deny = DenyOption::all();
-                } else {
-                    config.output.deny.push(*kind);
-                }
+        for kind in &self.deny {
+            if *kind == DenyOption::Warnings {
+                config.output.deny = DenyOption::all();
+            } else {
+                config.output.deny.push(*kind);
             }
         }
 
