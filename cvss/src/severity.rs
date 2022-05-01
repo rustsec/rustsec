@@ -1,9 +1,10 @@
 //! Qualitative Severity Rating Scale
 
-use crate::error::{Error, ErrorKind};
+use crate::{Error, Result};
+use std::{fmt, str::FromStr};
+
 #[cfg(feature = "serde")]
 use serde::{de, ser, Deserialize, Serialize};
-use std::{fmt, str::FromStr};
 
 /// Qualitative Severity Rating Scale
 ///
@@ -46,40 +47,38 @@ impl Severity {
 impl FromStr for Severity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
-        Ok(match s.to_ascii_lowercase().as_str() {
-            "none" => Severity::None,
-            "low" => Severity::Low,
-            "medium" => Severity::Medium,
-            "high" => Severity::High,
-            "critical" => Severity::Critical,
-            _ => fail!(
-                ErrorKind::Parse,
-                "invalid CVSS Qualitative Severity Rating Scale value: {}",
-                s
-            ),
-        })
+    fn from_str(s: &str) -> Result<Self> {
+        match s.to_ascii_lowercase().as_str() {
+            "none" => Ok(Severity::None),
+            "low" => Ok(Severity::Low),
+            "medium" => Ok(Severity::Medium),
+            "high" => Ok(Severity::High),
+            "critical" => Ok(Severity::Critical),
+            _ => Err(Error::InvalidSeverity { name: s.to_owned() }),
+        }
     }
 }
 
 impl fmt::Display for Severity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
+        f.write_str(self.as_str())
     }
 }
 
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Severity {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use de::Error;
-        let string = String::deserialize(deserializer)?;
-        string.parse().map_err(D::Error::custom)
+    fn deserialize<D: de::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(de::Error::custom)
     }
 }
 
 #[cfg(feature = "serde")]
 impl Serialize for Severity {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        self.to_string().serialize(serializer)
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
+        self.as_str().serialize(serializer)
     }
 }

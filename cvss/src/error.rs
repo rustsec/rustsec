@@ -1,79 +1,82 @@
 //! Error types
 
+use crate::MetricType;
 use std::fmt;
 
-/// Create a new error (of a given enum variant) with a formatted message
-macro_rules! format_err {
-    ($kind:path, $msg:expr) => {
-        crate::error::Error::new(
-            $kind,
-            Some($msg.to_string())
-        )
-    };
-    ($kind:path, $fmt:expr, $($arg:tt)+) => {
-       format_err!($kind, format!($fmt, $($arg)+))
-    };
-}
+/// Result type with the `cvss` crate's [`Error`] type.
+pub type Result<T> = core::result::Result<T, Error>;
 
-/// Create and return an error with a formatted message
-macro_rules! fail {
-    ($kind:path, $msg:expr) => {
-        return Err(format_err!($kind, $msg))
-    };
-    ($kind:path, $fmt:expr, $($arg:tt)+) => {
-        fail!($kind, format!($fmt, $($arg)+))
-    };
-}
+/// Kinds of errors
+#[derive(Clone, Debug, Eq, PartialEq)]
+#[non_exhaustive]
+pub enum Error {
+    /// Invalid component of a CVSS metric group.
+    InvalidComponent {
+        /// Invalid component.
+        component: String,
+    },
 
-/// Error type
-#[derive(Clone, Debug)]
-pub struct Error {
-    /// Kinds of errors
-    kind: ErrorKind,
+    /// Invalid metric.
+    InvalidMetric {
+        /// The metric that was invalid.
+        metric_type: MetricType,
 
-    /// Message to associate with this error
-    msg: Option<String>,
-}
+        /// The value that was provided which is invalid.
+        value: String,
+    },
 
-impl Error {
-    /// Create a new error of this kind
-    pub fn new(kind: ErrorKind, msg: Option<String>) -> Self {
-        Error { kind, msg }
-    }
+    /// Invalid CVSS string prefix.
+    InvalidPrefix {
+        /// Prefix which is invalid.
+        prefix: String,
+    },
 
-    /// Get this error's kind
-    pub fn kind(&self) -> ErrorKind {
-        self.kind
-    }
+    /// Invalid severity
+    InvalidSeverity {
+        /// Provided name which was unrecognized.
+        name: String,
+    },
+
+    /// Unknown metric name.
+    UnknownMetric {
+        /// Provided name which was unrecognized.
+        name: String,
+    },
+
+    /// Unsupported CVSS version
+    UnsupportedVersion {
+        /// Provided version string.
+        version: String,
+    },
 }
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(ref msg) = self.msg {
-            write!(f, "{}: {}", self.kind, msg)
-        } else {
-            write!(f, "{}", self.kind)
+        match self {
+            Error::InvalidComponent { component } => {
+                write!(f, "invalid CVSS metric group component: `{}`", component)
+            }
+            Error::InvalidMetric { metric_type, value } => {
+                write!(
+                    f,
+                    "invalid CVSS {} ({}) metric: `{}`",
+                    metric_type.name(),
+                    metric_type.description(),
+                    value
+                )
+            }
+            Error::InvalidPrefix { prefix } => {
+                write!(f, "invalid CVSS string prefix: `{}`", prefix)
+            }
+            Error::InvalidSeverity { name } => {
+                write!(f, "invalid CVSS Qualitative Severity Rating: `{}`", name)
+            }
+            Error::UnknownMetric { name } => write!(f, "unknown CVSS metric name: `{}`", name),
+            Error::UnsupportedVersion { version } => {
+                write!(f, "unsupported CVSS version: {}", version)
+            }
         }
     }
 }
 
 impl std::error::Error for Error {}
-
-/// Kinds of errors
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum ErrorKind {
-    /// Parse errors
-    Parse,
-
-    /// Unsupported CVSS version
-    Version,
-}
-
-impl fmt::Display for ErrorKind {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            ErrorKind::Parse => write!(f, "parse error"),
-            ErrorKind::Version => write!(f, "unsupported CVSS version"),
-        }
-    }
-}

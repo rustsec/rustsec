@@ -1,9 +1,6 @@
 //! Attack Complexity (AC)
 
-use crate::{
-    error::{Error, ErrorKind},
-    v3::Metric,
-};
+use crate::{Error, Metric, MetricType, Result};
 use std::{fmt, str::FromStr};
 
 /// Attack Complexity (AC) - CVSS v3.1 Base Metric Group
@@ -59,7 +56,7 @@ impl Default for AttackComplexity {
 }
 
 impl Metric for AttackComplexity {
-    const NAME: &'static str = "AC";
+    const TYPE: MetricType = MetricType::AC;
 
     fn score(self) -> f64 {
         match self {
@@ -78,18 +75,21 @@ impl Metric for AttackComplexity {
 
 impl fmt::Display for AttackComplexity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", Self::NAME, self.as_str())
+        write!(f, "{}:{}", Self::name(), self.as_str())
     }
 }
 
 impl FromStr for AttackComplexity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "H" => Ok(AttackComplexity::High),
             "L" => Ok(AttackComplexity::Low),
-            other => fail!(ErrorKind::Parse, "invalid AC (Base): {}", other),
+            _ => Err(Error::InvalidMetric {
+                metric_type: Self::TYPE,
+                value: s.to_owned(),
+            }),
         }
     }
 }

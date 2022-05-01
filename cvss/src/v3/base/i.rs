@@ -1,9 +1,6 @@
 //! Integrity Impact (I)
 
-use crate::{
-    error::{Error, ErrorKind},
-    v3::Metric,
-};
+use crate::{Error, Metric, MetricType, Result};
 use std::{fmt, str::FromStr};
 
 /// Integrity Impact (I) - CVSS v3.1 Base Metric Group
@@ -41,7 +38,7 @@ pub enum Integrity {
 }
 
 impl Metric for Integrity {
-    const NAME: &'static str = "I";
+    const TYPE: MetricType = MetricType::I;
 
     fn score(self) -> f64 {
         match self {
@@ -62,19 +59,22 @@ impl Metric for Integrity {
 
 impl fmt::Display for Integrity {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:{}", Self::NAME, self.as_str())
+        write!(f, "{}:{}", Self::name(), self.as_str())
     }
 }
 
 impl FromStr for Integrity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "N" => Ok(Integrity::None),
             "L" => Ok(Integrity::Low),
             "H" => Ok(Integrity::High),
-            other => fail!(ErrorKind::Parse, "invalid I (Base): {}", other),
+            _ => Err(Error::InvalidMetric {
+                metric_type: Self::TYPE,
+                value: s.to_owned(),
+            }),
         }
     }
 }

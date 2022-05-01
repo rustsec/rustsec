@@ -18,14 +18,19 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
-#[macro_use]
-pub mod error;
 pub mod severity;
 
 #[cfg(feature = "v3")]
 pub mod v3;
 
-pub use self::severity::Severity;
+mod error;
+mod metric;
+
+pub use crate::{
+    error::{Error, Result},
+    metric::{Metric, MetricType},
+    severity::Severity,
+};
 
 /// Prefix used by all CVSS strings
 pub const PREFIX: &str = "CVSS";

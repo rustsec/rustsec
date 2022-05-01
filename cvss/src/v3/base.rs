@@ -9,19 +9,17 @@ pub mod pr;
 pub mod s;
 pub mod ui;
 
-use super::{metric::Metric, Score};
-use crate::{
-    error::{Error, ErrorKind},
-    Severity, PREFIX,
-};
-#[cfg(feature = "serde")]
-use serde::{de, ser, Deserialize, Serialize};
-use std::{fmt, str::FromStr};
-
 pub use self::{
     a::Availability, ac::AttackComplexity, av::AttackVector, c::Confidentiality, i::Integrity,
     pr::PrivilegesRequired, s::Scope, ui::UserInteraction,
 };
+
+use super::Score;
+use crate::{Error, Metric, MetricType, Result, Severity, PREFIX};
+use std::{fmt, str::FromStr};
+
+#[cfg(feature = "serde")]
+use serde::{de, ser, Deserialize, Serialize};
 
 /// CVSS v3.1 Base Metric Group
 ///
@@ -188,71 +186,67 @@ impl fmt::Display for Base {
 impl FromStr for Base {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
-        let mut components = s.split('/').map(|component| {
-            let mut parts = component.split(':');
+    fn from_str(s: &str) -> Result<Self> {
+        let component_vec = s
+            .split('/')
+            .map(|component| {
+                let mut parts = component.split(':');
 
-            let id = parts.next().ok_or_else(|| {
-                format_err!(ErrorKind::Parse, "empty component in CVSS vector: {}", s)
-            })?;
+                let id = parts.next().ok_or_else(|| Error::InvalidComponent {
+                    component: component.to_owned(),
+                })?;
 
-            let value = parts.next().ok_or_else(|| {
-                format_err!(
-                    ErrorKind::Parse,
-                    "empty value for CVSS vector component: {}",
-                    id
-                )
-            })?;
+                let value = parts.next().ok_or_else(|| Error::InvalidComponent {
+                    component: component.to_owned(),
+                })?;
 
-            if parts.next().is_some() {
-                fail!(
-                    ErrorKind::Parse,
-                    "malformed CVSS vector component: {}",
-                    component
-                );
-            }
+                if parts.next().is_some() {
+                    return Err(Error::InvalidComponent {
+                        component: component.to_owned(),
+                    });
+                }
 
-            Ok((id, value))
-        });
+                Ok((id, value))
+            })
+            .collect::<Result<Vec<_>>>()?;
 
-        let prefix = components
-            .next()
-            .ok_or_else(|| format_err!(ErrorKind::Parse, "empty CVSS string"))?;
-
-        let (id, version_string) = prefix?;
+        let mut components = component_vec.iter();
+        let &(id, version_string) = components.next().ok_or(Error::InvalidPrefix {
+            prefix: s.to_owned(),
+        })?;
 
         if id != PREFIX {
-            fail!(ErrorKind::Parse, "invalid CVSS prefix: {}", id);
+            return Err(Error::InvalidPrefix {
+                prefix: id.to_owned(),
+            });
         }
 
         let mut metrics = Self {
             minor_version: match version_string {
                 "3.0" => 0,
                 "3.1" => 1,
-                _ => fail!(
-                    ErrorKind::Version,
-                    "wrong CVSS version (expected one of '3.0' or '3.1'): '{}'",
-                    version_string
-                ),
+                _ => {
+                    return Err(Error::UnsupportedVersion {
+                        version: version_string.to_owned(),
+                    })
+                }
             },
             ..Default::default()
         };
 
-        for component in components {
-            let component = component?;
+        for &component in components {
             let id = component.0.to_ascii_uppercase();
             let value = component.1.to_ascii_uppercase();
 
-            match id.as_str() {
-                "AV" => metrics.av = Some(value.parse()?),
-                "AC" => metrics.ac = Some(value.parse()?),
-                "PR" => metrics.pr = Some(value.parse()?),
-                "UI" => metrics.ui = Some(value.parse()?),
-                "S" => metrics.s = Some(value.parse()?),
-                "C" => metrics.c = Some(value.parse()?),
-                "I" => metrics.i = Some(value.parse()?),
-                "A" => metrics.a = Some(value.parse()?),
-                other => fail!(ErrorKind::Parse, "unknown metric type: '{}'", other),
+            match id.parse::<MetricType>()? {
+                MetricType::AV => metrics.av = Some(value.parse()?),
+                MetricType::AC => metrics.ac = Some(value.parse()?),
+                MetricType::PR => metrics.pr = Some(value.parse()?),
+                MetricType::UI => metrics.ui = Some(value.parse()?),
+                MetricType::S => metrics.s = Some(value.parse()?),
+                MetricType::C => metrics.c = Some(value.parse()?),
+                MetricType::I => metrics.i = Some(value.parse()?),
+                MetricType::A => metrics.a = Some(value.parse()?),
             }
         }
 
@@ -262,7 +256,9 @@ impl FromStr for Base {
 
 #[cfg(feature = "serde")]
 impl<'de> Deserialize<'de> for Base {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+    fn deserialize<D: de::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
         use de::Error;
         let string = String::deserialize(deserializer)?;
         string.parse().map_err(D::Error::custom)
@@ -271,7 +267,7 @@ impl<'de> Deserialize<'de> for Base {
 
 #[cfg(feature = "serde")]
 impl Serialize for Base {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }
