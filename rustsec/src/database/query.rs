@@ -10,7 +10,7 @@ use platforms::target::{Arch, OS};
 use semver::Version;
 
 /// Queries against the RustSec database
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct Query {
     /// Collection to query against
     pub(super) collection: Option<Collection>,
@@ -46,9 +46,28 @@ pub struct Query {
 }
 
 impl Query {
-    /// Create a new query
+    /// Create a new query.
+    ///
+    /// This creates a "wildcard" query with no constraints. Use the various
+    /// builder methods of this type to restrict which advisories match.
+    ///
+    /// Note that this differs from [`Query::default()`], which scopes the
+    /// query to crates (i.e. [`Query::crate_scope`]).
+    ///
+    /// When in doubt, use [`Query::default()`].
     pub fn new() -> Self {
-        Self::default()
+        Self {
+            collection: None,
+            package: None,
+            version: None,
+            severity: None,
+            target_arch: None,
+            target_os: None,
+            year: None,
+            withdrawn: None,
+            informational: None,
+            _package_scope: None,
+        }
     }
 
     /// Create a new query which uses the default scope rules for crates:
@@ -192,5 +211,11 @@ impl Query {
         }
 
         true
+    }
+}
+
+impl Default for Query {
+    fn default() -> Query {
+        Query::crate_scope()
     }
 }
