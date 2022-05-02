@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.41.0 # MSRV
+          - 1.56.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@v2
@@ -33,7 +33,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
           target: wasm32-unknown-unknown
           override: true
-      - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
       - run: cargo build --no-default-features --release --target wasm32-unknown-unknown
 
   test:
@@ -41,7 +40,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.41.0 # MSRV
+          - 1.56.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@v2
@@ -50,7 +49,6 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
-      - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
       - run: cargo check
       - run: cargo test --release
       - run: cargo test --all-features --release
