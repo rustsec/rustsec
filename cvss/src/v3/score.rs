@@ -24,6 +24,7 @@ impl Score {
     /// CVSS v3.1: Appendix A - Floating Point Rounding.
     ///
     /// <https://www.first.org/cvss/specification-document#t25>
+    #[cfg(feature = "std")]
     pub fn roundup(self) -> Score {
         let score_int = (self.0 * 100_000.0) as u64;
 

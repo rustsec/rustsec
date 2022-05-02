@@ -1,7 +1,8 @@
 //! Attack Complexity (AC)
 
 use crate::{Error, Metric, MetricType, Result};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// Attack Complexity (AC) - CVSS v3.1 Base Metric Group
 ///

@@ -1,7 +1,8 @@
 //! Confidentiality Impact (C)
 
 use crate::{Error, Metric, MetricType};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// Confidentiality Impact (C) - CVSS v3.1 Base Metric Group
 ///

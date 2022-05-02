@@ -2,7 +2,7 @@
 ///
 /// NOTE: These CVEs are actually `CVSS:3.0` and have been modified for the
 /// purposes of these tests
-use std::str::FromStr;
+use core::str::FromStr;
 
 /// CVE-2013-1937
 #[test]

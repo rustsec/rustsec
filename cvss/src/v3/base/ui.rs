@@ -1,7 +1,8 @@
 //! User Interaction (UI)
 
 use crate::{Error, Metric, MetricType, Result};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// User Interaction (UI) - CVSS v3.1 Base Metric Group
 ///

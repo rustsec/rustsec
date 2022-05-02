@@ -1,7 +1,8 @@
 //! Availability Impact (A)
 
 use crate::{Error, Metric, MetricType, Result};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// Availability Impact (A) - CVSS v3.1 Base Metric Group
 ///
