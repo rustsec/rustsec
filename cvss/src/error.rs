@@ -1,7 +1,8 @@
 //! Error types
 
 use crate::MetricType;
-use std::fmt;
+use alloc::string::String;
+use core::fmt;
 
 /// Result type with the `cvss` crate's [`Error`] type.
 pub type Result<T> = core::result::Result<T, Error>;
@@ -79,4 +80,6 @@ impl fmt::Display for Error {
     }
 }
 
+#[cfg(feature = "std")]
+#[cfg_attr(docsrs, doc(cfg(feature = "std")))]
 impl std::error::Error for Error {}

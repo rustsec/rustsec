@@ -15,8 +15,10 @@ rust-version = "1.56"
 serde = { version = "1", optional = true }
 
 [features]
-default = ["v3"]
+default = ["std", "v3"]
 v3 = []
+std = []
 
 [package.metadata.docs.rs]
 all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

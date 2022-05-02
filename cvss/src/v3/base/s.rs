@@ -1,7 +1,8 @@
 //! Scope (S)
 
 use crate::{Error, Metric, MetricType, Result};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// Scope (S) - CVSS v3.1 Base Metric Group
 ///

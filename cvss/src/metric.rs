@@ -1,7 +1,8 @@
 //! CVSS metrics.
 
 use crate::{Error, Result};
-use std::{
+use alloc::borrow::ToOwned;
+use core::{
     fmt::{self, Debug, Display},
     str::FromStr,
 };

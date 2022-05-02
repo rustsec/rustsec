@@ -1,7 +1,8 @@
 //! Integrity Impact (I)
 
 use crate::{Error, Metric, MetricType, Result};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// Integrity Impact (I) - CVSS v3.1 Base Metric Group
 ///

@@ -1,7 +1,8 @@
 //! CVSS v3.1 Base Metric Group - Attack Vector (AV)
 
 use crate::{Error, Metric, MetricType};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// Attack Vector (AV) - CVSS v3.1 Base Metric Group
 ///

@@ -1,10 +1,14 @@
 //! Qualitative Severity Rating Scale
 
 use crate::{Error, Result};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, ser, Deserialize, Serialize};
+use {
+    alloc::string::String,
+    serde::{de, ser, Deserialize, Serialize},
+};
 
 /// Qualitative Severity Rating Scale
 ///
@@ -66,10 +70,11 @@ impl fmt::Display for Severity {
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de> Deserialize<'de> for Severity {
     fn deserialize<D: de::Deserializer<'de>>(
         deserializer: D,
-    ) -> std::result::Result<Self, D::Error> {
+    ) -> core::result::Result<Self, D::Error> {
         String::deserialize(deserializer)?
             .parse()
             .map_err(de::Error::custom)
@@ -77,8 +82,12 @@ impl<'de> Deserialize<'de> for Severity {
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl Serialize for Severity {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(
+        &self,
+        serializer: S,
+    ) -> core::result::Result<S::Ok, S::Error> {
         self.as_str().serialize(serializer)
     }
 }

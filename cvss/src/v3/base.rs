@@ -15,11 +15,18 @@ pub use self::{
 };
 
 use super::Score;
-use crate::{Error, Metric, MetricType, Result, Severity, PREFIX};
-use std::{fmt, str::FromStr};
+use crate::{Error, Metric, MetricType, Result, PREFIX};
+use alloc::{borrow::ToOwned, vec::Vec};
+use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
-use serde::{de, ser, Deserialize, Serialize};
+use {
+    alloc::string::{String, ToString},
+    serde::{de, ser, Deserialize, Serialize},
+};
+
+#[cfg(feature = "std")]
+use crate::Severity;
 
 /// CVSS v3.1 Base Metric Group
 ///
@@ -90,6 +97,8 @@ impl Base {
     /// > equation. The Exploitability sub-score equation is derived from the
     /// > Base Exploitability metrics, while the Impact sub-score equation is
     /// > derived from the Base Impact metrics.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn score(&self) -> Score {
         let exploitability = self.exploitability().value();
         let iss = self.impact().value();
@@ -143,6 +152,8 @@ impl Base {
     /// > of a successful exploit, and represent the consequence to the
     /// > *thing that suffers the impact*, which we refer to formally as the
     /// > *impacted component*.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn impact(&self) -> Score {
         let c_score = self.c.map(|c| c.score()).unwrap_or(0.0);
         let i_score = self.i.map(|i| i.score()).unwrap_or(0.0);
@@ -155,6 +166,8 @@ impl Base {
     ///
     /// Described in CVSS v3.1 Specification: Section 5:
     /// <https://www.first.org/cvss/specification-document#t17>
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn severity(&self) -> Severity {
         self.score().severity()
     }
@@ -255,19 +268,24 @@ impl FromStr for Base {
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de> Deserialize<'de> for Base {
     fn deserialize<D: de::Deserializer<'de>>(
         deserializer: D,
-    ) -> std::result::Result<Self, D::Error> {
-        use de::Error;
-        let string = String::deserialize(deserializer)?;
-        string.parse().map_err(D::Error::custom)
+    ) -> core::result::Result<Self, D::Error> {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(de::Error::custom)
     }
 }
 
 #[cfg(feature = "serde")]
+#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl Serialize for Base {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(
+        &self,
+        serializer: S,
+    ) -> core::result::Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }
