@@ -19,19 +19,6 @@ env:
   RUSTDOCFLAGS: -D warnings
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: check
-
   test:
     strategy:
       matrix:
@@ -40,24 +27,17 @@ jobs:
           - macos-latest
           #- windows-latest # TODO(tarcieri): debug Windows build timeouts
         toolchain:
-          - 1.57.0 # MSRV
+          #- 1.57.0 # MSRV
           - stable
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
-      - uses: actions/cache@v1
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
           profile: minimal
           override: true
+      - uses: rustsec/rust-cache@v1
       - run: cargo test --release
       - run: cargo test --all-features --release
 

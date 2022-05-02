@@ -51,7 +51,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
       - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
-      - run: cargo check
       - run: cargo test --release
       - run: cargo test --all-features --release
 

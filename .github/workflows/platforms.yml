@@ -33,7 +33,6 @@ jobs:
           override: true
           profile: minimal
       - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
-      - run: cargo check --all-features
       - run: cargo test --no-default-features
       - run: cargo test
       - run: cargo test --all-features

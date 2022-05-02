@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.57.0 # MSRV
+          #- 1.57.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@v2
@@ -35,7 +35,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           profile: minimal
-      - run: cargo check
+      - uses: rustsec/rust-cache@v1
       - run: cargo test --no-default-features --release
       - run: cargo test --release
       - run: cargo test --all-features --release

@@ -19,16 +19,6 @@ env:
   RUSTDOCFLAGS: -D warnings
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
-      - run: cargo check
-
   test:
     runs-on: ubuntu-latest
     steps:
@@ -37,4 +27,5 @@ jobs:
         with:
           toolchain: stable
           override: true
+      - uses: rustsec/rust-cache@v1
       - run: cargo test
