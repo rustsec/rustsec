@@ -1,13 +1,13 @@
 //! CVSS v3.1 Base Metric Group
 
-pub mod a;
-pub mod ac;
-pub mod av;
-pub mod c;
-pub mod i;
-pub mod pr;
-pub mod s;
-pub mod ui;
+mod a;
+mod ac;
+mod av;
+mod c;
+mod i;
+mod pr;
+mod s;
+mod ui;
 
 pub use self::{
     a::Availability, ac::AttackComplexity, av::AttackVector, c::Confidentiality, i::Integrity,
