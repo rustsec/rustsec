@@ -1,3 +1,5 @@
+#![no_std]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![doc = include_str!("../README.md")]
 #![doc(html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png")]
 #![forbid(unsafe_code)]
@@ -15,6 +17,11 @@
 //! [CVSS v3.1 Specification]: https://www.first.org/cvss/specification-document
 
 // TODO(tarcieri): other CVSS versions, CVSS v3.1 Temporal and Environmental Groups
+
+extern crate alloc;
+
+#[cfg(feature = "std")]
+extern crate std;
 
 #[cfg(feature = "v3")]
 pub mod v3;

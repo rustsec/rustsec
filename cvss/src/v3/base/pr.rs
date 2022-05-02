@@ -1,7 +1,8 @@
 //! Privileges Required (PR)
 
 use crate::{error::Error, Metric, MetricType};
-use std::{fmt, str::FromStr};
+use alloc::borrow::ToOwned;
+use core::{fmt, str::FromStr};
 
 /// Privileges Required (PR) - CVSS v3.1 Base Metric Group
 ///
