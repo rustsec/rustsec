@@ -1,14 +1,15 @@
 [package]
-name        = "cvss"
-description = "Common Vulnerability Scoring System parser/serializer"
-version     = "2.0.0-pre" # Also update html_root_url in lib.rs when bumping this
-authors     = ["Tony Arcieri <bascule@gmail.com>"]
-license     = "Apache-2.0 OR MIT"
-repository  = "https://github.com/RustSec/rustsec/tree/main/cvss"
-readme      = "README.md"
-categories  = ["parser-implementations"]
-keywords    = ["cvssv3", "security", "advisory", "vulnerability"]
-edition     = "2018"
+name         = "cvss"
+description  = "Common Vulnerability Scoring System parser/serializer"
+version      = "2.0.0-pre"
+authors      = ["Tony Arcieri <bascule@gmail.com>"]
+license      = "Apache-2.0 OR MIT"
+repository   = "https://github.com/RustSec/rustsec/tree/main/cvss"
+readme       = "README.md"
+categories   = ["parser-implementations"]
+keywords     = ["cvssv3", "security", "advisory", "vulnerability"]
+edition      = "2021"
+rust-version = "1.56"
 
 [dependencies]
 serde = { version = "1", optional = true }

@@ -12,16 +12,16 @@ Rust implementation of the [Common Vulnerability Scoring System (Version 3.1) Sp
 
 [Documentation][docs-link]
 
-## Requirements
+## Minimum Supported Rust Version
 
-- Rust **1.35+**
+Rust **1.56**
 
 ## License
 
 Licensed under either of:
 
-- Apache License, Version 2.0 ([LICENSE-APACHE] or https://www.apache.org/licenses/LICENSE-2.0)
-- MIT license ([LICENSE-MIT] or https://opensource.org/licenses/MIT)
+- Apache License, Version 2.0 ([LICENSE-APACHE] or <https://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([LICENSE-MIT] or <https://opensource.org/licenses/MIT>)
 
 at your option.
 
@@ -41,7 +41,7 @@ additional terms or conditions.
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/cvss.yml
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[rustc-image]: https://img.shields.io/badge/rustc-1.35+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.56+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
 [zulip-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
