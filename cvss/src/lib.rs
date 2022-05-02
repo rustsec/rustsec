@@ -16,13 +16,12 @@
 
 // TODO(tarcieri): other CVSS versions, CVSS v3.1 Temporal and Environmental Groups
 
-pub mod severity;
-
 #[cfg(feature = "v3")]
 pub mod v3;
 
 mod error;
 mod metric;
+mod severity;
 
 pub use crate::{
     error::{Error, Result},
