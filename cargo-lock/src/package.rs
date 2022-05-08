@@ -4,7 +4,11 @@ pub mod checksum;
 pub mod name;
 pub mod source;
 
-pub use self::{checksum::Checksum, name::Name, source::SourceId};
+pub use self::{
+    checksum::Checksum,
+    name::Name,
+    source::{SourceId, SourceKind},
+};
 pub use semver::Version;
 
 use crate::dependency::Dependency;
