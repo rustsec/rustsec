@@ -1,7 +1,7 @@
 //! Package metadata
 
 use crate::{
-    error::{Error, ErrorKind},
+    error::{Error, Result},
     lockfile::encoding::EncodableDependency,
     Checksum, Dependency, Map,
 };
@@ -30,7 +30,7 @@ impl MetadataKey {
     }
 
     /// Get the dependency for a particular checksum value (if applicable)
-    pub fn checksum_dependency(&self) -> Result<Dependency, Error> {
+    pub fn checksum_dependency(&self) -> Result<Dependency> {
         self.try_into()
     }
 }
@@ -50,7 +50,7 @@ impl fmt::Display for MetadataKey {
 impl FromStr for MetadataKey {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         Ok(MetadataKey(s.to_owned()))
     }
 }
@@ -58,12 +58,11 @@ impl FromStr for MetadataKey {
 impl TryFrom<&MetadataKey> for Dependency {
     type Error = Error;
 
-    fn try_from(key: &MetadataKey) -> Result<Dependency, Error> {
+    fn try_from(key: &MetadataKey) -> Result<Dependency> {
         if !key.is_checksum() {
-            fail!(
-                ErrorKind::Parse,
-                "can only parse dependencies from `checksum` metadata"
-            );
+            return Err(Error::Parse(
+                "can only parse dependencies from `checksum` metadata".to_owned(),
+            ));
         }
 
         let dep = EncodableDependency::from_str(&key.as_ref()[CHECKSUM_PREFIX.len()..])?;
@@ -72,15 +71,17 @@ impl TryFrom<&MetadataKey> for Dependency {
 }
 
 impl<'de> Deserialize<'de> for MetadataKey {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use de::Error;
-        let s = String::deserialize(deserializer)?;
-        s.parse().map_err(D::Error::custom)
+    fn deserialize<D: de::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(de::Error::custom)
     }
 }
 
 impl Serialize for MetadataKey {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }
@@ -91,7 +92,7 @@ pub struct MetadataValue(String);
 
 impl MetadataValue {
     /// Get the associated checksum for this value (if applicable)
-    pub fn checksum(&self) -> Result<Checksum, Error> {
+    pub fn checksum(&self) -> Result<Checksum> {
         self.try_into()
     }
 }
@@ -111,7 +112,7 @@ impl fmt::Display for MetadataValue {
 impl FromStr for MetadataValue {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         Ok(MetadataValue(s.to_owned()))
     }
 }
@@ -119,21 +120,23 @@ impl FromStr for MetadataValue {
 impl TryFrom<&MetadataValue> for Checksum {
     type Error = Error;
 
-    fn try_from(value: &MetadataValue) -> Result<Checksum, Error> {
+    fn try_from(value: &MetadataValue) -> Result<Checksum> {
         value.as_ref().parse()
     }
 }
 
 impl<'de> Deserialize<'de> for MetadataValue {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use de::Error;
-        let s = String::deserialize(deserializer)?;
-        s.parse().map_err(D::Error::custom)
+    fn deserialize<D: de::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(de::Error::custom)
     }
 }
 
 impl Serialize for MetadataValue {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }

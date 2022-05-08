@@ -10,21 +10,24 @@
 
 use super::{Lockfile, ResolveVersion};
 use crate::{
-    metadata, Checksum, Dependency, Error, ErrorKind, Metadata, Name, Package, Patch, SourceId,
+    metadata, Checksum, Dependency, Error, Metadata, Name, Package, Patch, Result, SourceId,
     Version,
 };
 use serde::{de, ser, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
 impl<'de> Deserialize<'de> for Lockfile {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        let raw_lockfile = EncodableLockfile::deserialize(deserializer)?;
-        raw_lockfile.try_into().map_err(de::Error::custom)
+    fn deserialize<D: de::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        EncodableLockfile::deserialize(deserializer)?
+            .try_into()
+            .map_err(de::Error::custom)
     }
 }
 
 impl Serialize for Lockfile {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         EncodableLockfile::from(self).serialize(serializer)
     }
 }
@@ -69,7 +72,7 @@ impl EncodableLockfile {
 impl TryFrom<EncodableLockfile> for Lockfile {
     type Error = Error;
 
-    fn try_from(raw_lockfile: EncodableLockfile) -> Result<Lockfile, Error> {
+    fn try_from(raw_lockfile: EncodableLockfile) -> Result<Lockfile> {
         let version = match raw_lockfile.version {
             Some(n) => n.try_into()?,
             None => ResolveVersion::detect(&raw_lockfile.package, &raw_lockfile.metadata)?,
@@ -258,7 +261,7 @@ pub(crate) struct EncodablePackage {
 impl EncodablePackage {
     /// Resolve all of the dependencies of a package, which in the V2 format
     /// may be abbreviated to prevent merge conflicts
-    fn resolve(&self, packages: &[EncodablePackage]) -> Result<Package, Error> {
+    fn resolve(&self, packages: &[EncodablePackage]) -> Result<Package> {
         let mut dependencies = Vec::with_capacity(self.dependencies.len());
 
         for dep in &self.dependencies {
@@ -291,7 +294,7 @@ impl EncodablePackage {
 impl TryFrom<&EncodablePackage> for Package {
     type Error = Error;
 
-    fn try_from(raw_package: &EncodablePackage) -> Result<Package, Error> {
+    fn try_from(raw_package: &EncodablePackage) -> Result<Package> {
         raw_package.resolve(&[])
     }
 }
@@ -329,7 +332,7 @@ pub(crate) struct EncodableDependency {
 impl EncodableDependency {
     /// Resolve this dependency, which in the V2 format may be abbreviated to
     /// prevent merge conflicts
-    pub fn resolve(&self, packages: &[EncodablePackage]) -> Result<Dependency, Error> {
+    pub fn resolve(&self, packages: &[EncodablePackage]) -> Result<Dependency> {
         let mut version = None;
         let mut source = None;
 
@@ -340,7 +343,7 @@ impl EncodableDependency {
             for pkg in packages {
                 if pkg.name == self.name {
                     if version.is_some() {
-                        fail!(ErrorKind::Parse, "ambiguous dependency: {}", self.name);
+                        return Err(Error::Parse(format!("ambiguous dependency: {}", self.name)));
                     }
 
                     version = Some(pkg.version.clone());
@@ -350,11 +353,10 @@ impl EncodableDependency {
         };
 
         if version.is_none() {
-            fail!(
-                ErrorKind::Parse,
+            return Err(Error::Parse(format!(
                 "couldn't resolve dependency: {}",
                 self.name
-            );
+            )));
         }
 
         Ok(Dependency {
@@ -385,12 +387,12 @@ impl EncodableDependency {
 impl FromStr for EncodableDependency {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         let mut parts = s.split_whitespace();
 
         let name = parts
             .next()
-            .ok_or_else(|| format_err!(ErrorKind::Parse, "empty dependency string"))?
+            .ok_or_else(|| Error::Parse("empty dependency string".to_owned()))?
             .parse()?;
 
         let version = parts.next().map(FromStr::from_str).transpose()?;
@@ -399,11 +401,10 @@ impl FromStr for EncodableDependency {
             .next()
             .map(|s| {
                 if s.len() < 2 || !s.starts_with('(') || !s.ends_with(')') {
-                    Err(format_err!(
-                        ErrorKind::Parse,
+                    Err(Error::Parse(format!(
                         "malformed source in dependency: {}",
                         s
-                    ))
+                    )))
                 } else {
                     s[1..(s.len() - 1)].parse()
                 }
@@ -411,7 +412,7 @@ impl FromStr for EncodableDependency {
             .transpose()?;
 
         if parts.next().is_some() {
-            fail!(ErrorKind::Parse, "malformed dependency: {}", s);
+            return Err(Error::Parse(format!("malformed dependency: {}", s)));
         }
 
         Ok(Self {
@@ -442,7 +443,7 @@ impl fmt::Display for EncodableDependency {
 impl TryFrom<&EncodableDependency> for Dependency {
     type Error = Error;
 
-    fn try_from(raw_dependency: &EncodableDependency) -> Result<Dependency, Error> {
+    fn try_from(raw_dependency: &EncodableDependency) -> Result<Dependency> {
         raw_dependency.resolve(&[])
     }
 }
@@ -458,15 +459,17 @@ impl From<&Dependency> for EncodableDependency {
 }
 
 impl<'de> Deserialize<'de> for EncodableDependency {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use de::Error;
-        let s = String::deserialize(deserializer)?;
-        s.parse().map_err(D::Error::custom)
+    fn deserialize<D: de::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
+        String::deserialize(deserializer)?
+            .parse()
+            .map_err(de::Error::custom)
     }
 }
 
 impl Serialize for EncodableDependency {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }

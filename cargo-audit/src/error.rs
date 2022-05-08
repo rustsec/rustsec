@@ -81,27 +81,28 @@ impl From<io::Error> for Error {
 }
 
 impl From<rustsec::Error> for Error {
-    fn from(other: rustsec::Error) -> Self {
-        match other.kind() {
+    fn from(err: rustsec::Error) -> Self {
+        match err.kind() {
             rustsec::ErrorKind::Io => ErrorKind::Io,
             rustsec::ErrorKind::Parse => ErrorKind::Parse,
             rustsec::ErrorKind::Repo => ErrorKind::Repo,
             rustsec::ErrorKind::Version => ErrorKind::Version,
             _ => ErrorKind::Other,
         }
-        .context(other)
+        .context(err)
         .into()
     }
 }
 
 impl From<rustsec::cargo_lock::Error> for Error {
-    fn from(other: rustsec::cargo_lock::Error) -> Self {
-        match other.kind() {
-            rustsec::cargo_lock::ErrorKind::Io => ErrorKind::Io,
-            rustsec::cargo_lock::ErrorKind::Parse => ErrorKind::Parse,
-            rustsec::cargo_lock::ErrorKind::Version => ErrorKind::Version,
+    fn from(err: rustsec::cargo_lock::Error) -> Self {
+        match err {
+            rustsec::cargo_lock::Error::Io(_) => ErrorKind::Io,
+            rustsec::cargo_lock::Error::Parse(_) => ErrorKind::Parse,
+            rustsec::cargo_lock::Error::Version(_) => ErrorKind::Version,
+            _ => ErrorKind::Other,
         }
-        .context(other)
+        .context(err)
         .into()
     }
 }
