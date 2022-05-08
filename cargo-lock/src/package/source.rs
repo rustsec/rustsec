@@ -37,10 +37,9 @@ pub struct SourceId {
     name: Option<String>,
 }
 
-/// The possible kinds of code source. Along with `SourceIdInner`, this fully defines the
-/// source.
+/// The possible kinds of code source.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-enum SourceKind {
+pub enum SourceKind {
     /// A git repository.
     Git(GitReference),
 
@@ -51,7 +50,6 @@ enum SourceKind {
     Registry,
 
     /// A local filesystem-based registry.
-    #[cfg_attr(target_arch = "wasm32", allow(dead_code))]
     LocalRegistry,
 
     /// A directory-based registry.
@@ -149,6 +147,11 @@ impl SourceId {
     /// Gets this source URL.
     pub fn url(&self) -> &Url {
         &self.url
+    }
+
+    /// Get the kind of source.
+    pub fn kind(&self) -> &SourceKind {
+        &self.kind
     }
 
     /// Human-friendly description of an index
