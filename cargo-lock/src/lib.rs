@@ -155,19 +155,17 @@
 //! [`petgraph`]: https://github.com/petgraph/petgraph
 //! [`cargo-tree`]: https://github.com/sfackler/cargo-tree
 
-#[macro_use]
-mod error;
-
 pub mod dependency;
 pub mod package;
 
+mod error;
 mod lockfile;
 mod metadata;
 mod patch;
 
-pub use self::{
+pub use crate::{
     dependency::Dependency,
-    error::{Error, ErrorKind},
+    error::{Error, Result},
     lockfile::{Lockfile, ResolveVersion},
     metadata::{Metadata, MetadataKey, MetadataValue},
     package::{Checksum, Name, Package, SourceId, Version},

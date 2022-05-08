@@ -7,7 +7,7 @@ pub use self::version::ResolveVersion;
 
 use self::encoding::EncodableLockfile;
 use crate::{
-    error::{Error, ErrorKind},
+    error::{Error, Result},
     metadata::Metadata,
     package::Package,
     patch::Patch,
@@ -38,16 +38,8 @@ pub struct Lockfile {
 
 impl Lockfile {
     /// Load lock data from a `Cargo.lock` file
-    pub fn load(path: impl AsRef<Path>) -> Result<Self, Error> {
-        match fs::read_to_string(path.as_ref()) {
-            Ok(s) => s.parse(),
-            Err(e) => fail!(
-                ErrorKind::Io,
-                "couldn't open {}: {}",
-                path.as_ref().display(),
-                e
-            ),
-        }
+    pub fn load(path: impl AsRef<Path>) -> Result<Self> {
+        fs::read_to_string(path.as_ref())?.parse()
     }
 
     /// Get the dependency tree for this `Lockfile`. Returns an error if the
@@ -55,7 +47,7 @@ impl Lockfile {
     ///
     /// The `dependency-tree` Cargo feature must be enabled to use this.
     #[cfg(feature = "dependency-tree")]
-    pub fn dependency_tree(&self) -> Result<Tree, Error> {
+    pub fn dependency_tree(&self) -> Result<Tree> {
         Tree::new(self)
     }
 }
@@ -63,7 +55,7 @@ impl Lockfile {
 impl FromStr for Lockfile {
     type Err = Error;
 
-    fn from_str(toml_string: &str) -> Result<Self, Error> {
+    fn from_str(toml_string: &str) -> Result<Self> {
         Ok(toml::from_str(toml_string)?)
     }
 }

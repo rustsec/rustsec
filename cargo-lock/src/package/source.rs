@@ -7,7 +7,7 @@
 //! Copyright (c) 2014 The Rust Project Developers
 //! Licensed under the same terms as the `cargo-lock` crate: Apache 2.0 + MIT
 
-use crate::error::{Error, ErrorKind};
+use crate::error::{Error, Result};
 use serde::{de, ser, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 use url::Url;
@@ -59,7 +59,7 @@ pub enum SourceKind {
 
 impl SourceId {
     /// Creates a `SourceId` object from the kind and URL.
-    fn new(kind: SourceKind, url: Url) -> Result<Self, Error> {
+    fn new(kind: SourceKind, url: Url) -> Result<Self> {
         Ok(Self {
             kind,
             url,
@@ -78,12 +78,12 @@ impl SourceId {
     ///                     libssh2-static-sys#80e71a3021618eb05\
     ///                     656c58fb7c5ef5f12bc747f");
     /// ```
-    pub fn from_url(string: &str) -> Result<Self, Error> {
+    pub fn from_url(string: &str) -> Result<Self> {
         let mut parts = string.splitn(2, '+');
         let kind = parts.next().unwrap();
         let url = parts
             .next()
-            .ok_or_else(|| format_err!(ErrorKind::Parse, "invalid source `{}`", string))?;
+            .ok_or_else(|| Error::Parse(format!("invalid source `{}`", string)))?;
 
         match kind {
             "git" => {
@@ -110,7 +110,10 @@ impl SourceId {
                     .with_precise(Some("locked".to_string())))
             }
             "path" => Self::new(SourceKind::Path, url.into_url()?),
-            kind => fail!(ErrorKind::Parse, "unsupported source protocol: {}", kind),
+            kind => Err(Error::Parse(format!(
+                "unsupported source protocol: {}",
+                kind
+            ))),
         }
     }
 
@@ -118,29 +121,29 @@ impl SourceId {
     ///
     /// `path`: an absolute path.
     #[cfg(any(unix, windows))]
-    pub fn for_path(path: &Path) -> Result<Self, Error> {
+    pub fn for_path(path: &Path) -> Result<Self> {
         Self::new(SourceKind::Path, path.into_url()?)
     }
 
     /// Creates a `SourceId` from a Git reference.
-    pub fn for_git(url: &Url, reference: GitReference) -> Result<Self, Error> {
+    pub fn for_git(url: &Url, reference: GitReference) -> Result<Self> {
         Self::new(SourceKind::Git(reference), url.clone())
     }
 
     /// Creates a SourceId from a registry URL.
-    pub fn for_registry(url: &Url) -> Result<Self, Error> {
+    pub fn for_registry(url: &Url) -> Result<Self> {
         Self::new(SourceKind::Registry, url.clone())
     }
 
     /// Creates a SourceId from a local registry path.
     #[cfg(any(unix, windows))]
-    pub fn for_local_registry(path: &Path) -> Result<Self, Error> {
+    pub fn for_local_registry(path: &Path) -> Result<Self> {
         Self::new(SourceKind::LocalRegistry, path.into_url()?)
     }
 
     /// Creates a `SourceId` from a directory path.
     #[cfg(any(unix, windows))]
-    pub fn for_directory(path: &Path) -> Result<Self, Error> {
+    pub fn for_directory(path: &Path) -> Result<Self> {
         Self::new(SourceKind::Directory, path.into_url()?)
     }
 
@@ -234,7 +237,7 @@ impl Default for SourceId {
 impl FromStr for SourceId {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         Self::from_url(s)
     }
 }
@@ -283,7 +286,7 @@ impl fmt::Display for SourceId {
 }
 
 impl Serialize for SourceId {
-    fn serialize<S: ser::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
         if self.is_path() {
             None::<String>.serialize(s)
         } else {
@@ -293,7 +296,7 @@ impl Serialize for SourceId {
 }
 
 impl<'de> Deserialize<'de> for SourceId {
-    fn deserialize<D: de::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+    fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
         let string = String::deserialize(d)?;
         SourceId::from_url(&string).map_err(de::Error::custom)
     }
@@ -341,20 +344,20 @@ impl<'a> fmt::Display for PrettyRef<'a> {
 /// A type that can be converted to a Url
 trait IntoUrl {
     /// Performs the conversion
-    fn into_url(self) -> Result<Url, Error>;
+    fn into_url(self) -> Result<Url>;
 }
 
 impl<'a> IntoUrl for &'a str {
-    fn into_url(self) -> Result<Url, Error> {
-        Url::parse(self).map_err(|s| format_err!(ErrorKind::Parse, "invalid url `{}`: {}", self, s))
+    fn into_url(self) -> Result<Url> {
+        Url::parse(self).map_err(|s| Error::Parse(format!("invalid url `{}`: {}", self, s)))
     }
 }
 
 #[cfg(any(unix, windows))]
 impl<'a> IntoUrl for &'a Path {
-    fn into_url(self) -> Result<Url, Error> {
+    fn into_url(self) -> Result<Url> {
         Url::from_file_path(self)
-            .map_err(|()| format_err!(ErrorKind::Parse, "invalid path url `{}`", self.display()))
+            .map_err(|_| Error::Parse(format!("invalid path url `{}`", self.display())))
     }
 }
 
