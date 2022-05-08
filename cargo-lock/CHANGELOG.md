@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 8.0.0 (2022-05-08)
+### Added
+- Expose `package::SourceKind` ([#557])
+
+### Changed
+- Flatten API ([#558])
+- 2021 edition upgrade; MSRV 1.56 ([#559])
+- Refactor error handling ([#560])
+
+[#557]: https://github.com/RustSec/rustsec/pull/557
+[#558]: https://github.com/RustSec/rustsec/pull/558
+[#559]: https://github.com/RustSec/rustsec/pull/559
+[#560]: https://github.com/RustSec/rustsec/pull/560
+
 ## 7.1.0 (2022-04-23)
 ### Added
 - `SourceId::default()` ([#536])
