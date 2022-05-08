@@ -1,6 +1,6 @@
 //! Package checksums (i.e. SHA-256 digests)
 
-use crate::{Error, ErrorKind};
+use crate::{Error, Result};
 use serde::{de, ser, Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
@@ -34,13 +34,12 @@ impl From<[u8; 32]> for Checksum {
 impl FromStr for Checksum {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         if s.len() != 64 {
-            fail!(
-                ErrorKind::Parse,
+            return Err(Error::Parse(format!(
                 "invalid checksum: expected 64 hex chars, got {}",
                 s.len()
-            );
+            )));
         }
 
         let mut digest = [0u8; 32];
@@ -96,22 +95,23 @@ impl fmt::UpperHex for Checksum {
 }
 
 impl<'de> Deserialize<'de> for Checksum {
-    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
-        use de::Error;
+    fn deserialize<D: de::Deserializer<'de>>(
+        deserializer: D,
+    ) -> std::result::Result<Self, D::Error> {
         let hex = String::deserialize(deserializer)?;
-        hex.parse().map_err(D::Error::custom)
+        hex.parse().map_err(de::Error::custom)
     }
 }
 
 impl Serialize for Checksum {
-    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{Checksum, ErrorKind};
+    use super::{Checksum, Error};
 
     #[test]
     fn checksum_round_trip() {
@@ -125,6 +125,6 @@ mod tests {
         // Missing one hex letter
         let invalid_str = "af6f3550d8dff9ef7dc34d384ac6f107e5d31c8f57d9f28e0081503f547ac8f";
         let error = invalid_str.parse::<Checksum>().err().unwrap();
-        assert_eq!(error.kind(), ErrorKind::Parse);
+        assert!(matches!(error, Error::Parse(_)));
     }
 }

@@ -2,7 +2,7 @@
 
 use super::encoding::EncodablePackage;
 use crate::{
-    error::{Error, ErrorKind},
+    error::{Error, Result},
     metadata::Metadata,
 };
 use serde::{Deserialize, Serialize};
@@ -34,10 +34,7 @@ pub enum ResolveVersion {
 
 impl ResolveVersion {
     /// Autodetect the version of a lockfile from the packages
-    pub(super) fn detect(
-        packages: &[EncodablePackage],
-        metadata: &Metadata,
-    ) -> Result<Self, Error> {
+    pub(super) fn detect(packages: &[EncodablePackage], metadata: &Metadata) -> Result<Self> {
         // V1: look for [[metadata]] keys beginning with checksum
         let is_v1 = metadata.keys().any(|key| key.is_checksum());
 
@@ -45,7 +42,7 @@ impl ResolveVersion {
         let is_v2 = packages.iter().any(|package| package.checksum.is_some());
 
         if is_v1 && is_v2 {
-            fail!(ErrorKind::Parse, "malformed lockfile: contains checksums in both [[package]] and [[metadata]] sections");
+            return Err(Error::Parse("malformed lockfile: contains checksums in both [[package]] and [[metadata]] sections".to_string()));
         }
 
         if is_v1 {
@@ -78,15 +75,9 @@ impl From<ResolveVersion> for u32 {
 impl FromStr for ResolveVersion {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         u32::from_str(s)
-            .map_err(|_| {
-                format_err!(
-                    ErrorKind::Parse,
-                    "invalid Cargo.lock format version: `{}`",
-                    s
-                )
-            })
+            .map_err(|_| Error::Parse(format!("invalid Cargo.lock format version: `{}`", s)))
             .and_then(Self::try_from)
     }
 }
@@ -94,16 +85,15 @@ impl FromStr for ResolveVersion {
 impl TryFrom<u32> for ResolveVersion {
     type Error = Error;
 
-    fn try_from(num: u32) -> Result<Self, Error> {
+    fn try_from(num: u32) -> Result<Self> {
         match num {
             1 => Ok(ResolveVersion::V1),
             2 => Ok(ResolveVersion::V2),
             3 => Ok(ResolveVersion::V3),
-            _ => fail!(
-                ErrorKind::Parse,
+            _ => Err(Error::Parse(format!(
                 "invalid Cargo.lock format version: `{}`",
                 num
-            ),
+            ))),
         }
     }
 }

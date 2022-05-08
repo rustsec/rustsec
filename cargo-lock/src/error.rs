@@ -1,115 +1,56 @@
 //! Error types
 
-use std::{
-    fmt::{self, Display},
-    io,
-};
+use std::{fmt, io};
 
-/// Create error with a formatted message
-macro_rules! format_err {
-    ($kind:path, $msg:expr) => {
-        crate::error::Error::new(
-            $kind,
-            &$msg.to_string()
-        )
-    };
-    ($kind:path, $fmt:expr, $($arg:tt)+) => {
-        format_err!($kind, &format!($fmt, $($arg)+))
-    };
-}
+/// Result type with the `cargo-lock` crate's [`Error`] type.
+pub type Result<T> = core::result::Result<T, Error>;
 
-/// Create and return an error with a formatted message
-macro_rules! fail {
-    ($kind:path, $msg:expr) => {
-        return Err(format_err!($kind, $msg).into())
-    };
-    ($kind:path, $fmt:expr, $($arg:tt)+) => {
-        fail!($kind, &format!($fmt, $($arg)+))
-    };
-}
-
-/// Custom error type for this library
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-pub enum ErrorKind {
+/// Error type.
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum Error {
     /// An error occurred performing an I/O operation (e.g. network, file)
-    Io,
+    Io(io::ErrorKind),
 
     /// Couldn't parse response data
-    Parse,
+    Parse(String),
 
     /// Errors related to versions
-    Version,
+    Version(semver::Error),
 }
 
-impl Display for ErrorKind {
+impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let msg = match self {
-            ErrorKind::Io => "I/O operation failed",
-            ErrorKind::Parse => "parse error",
-            ErrorKind::Version => "bad version",
-        };
-
-        write!(f, "{}", msg)
+        match self {
+            // TODO(tarcieri): use `Display` impl when MSRV 1.60
+            Error::Io(kind) => write!(f, "I/O operation failed: {:?}", kind),
+            Error::Parse(s) => write!(f, "parse error: {}", s),
+            Error::Version(err) => write!(f, "version error: {}", err),
+        }
     }
 }
 
 impl From<io::Error> for Error {
-    fn from(other: io::Error) -> Self {
-        format_err!(ErrorKind::Io, &other)
+    fn from(err: io::Error) -> Self {
+        Error::Io(err.kind())
     }
 }
 
 impl From<semver::Error> for Error {
-    fn from(other: semver::Error) -> Self {
-        format_err!(ErrorKind::Version, &other)
+    fn from(err: semver::Error) -> Self {
+        Error::Version(err)
     }
 }
 
 impl From<std::num::ParseIntError> for Error {
-    fn from(other: std::num::ParseIntError) -> Self {
-        format_err!(ErrorKind::Parse, &other)
+    fn from(err: std::num::ParseIntError) -> Self {
+        Error::Parse(err.to_string())
     }
 }
 
 impl From<toml::de::Error> for Error {
-    fn from(other: toml::de::Error) -> Self {
-        format_err!(ErrorKind::Parse, &other)
-    }
-}
-
-/// Error type
-#[derive(Debug)]
-pub struct Error {
-    /// Kind of error
-    kind: ErrorKind,
-
-    /// Message providing additional information
-    msg: String,
-}
-
-impl Error {
-    /// Create a new error with the given message
-    pub fn new<S: ToString>(kind: ErrorKind, msg: &S) -> Self {
-        Self {
-            kind,
-            msg: msg.to_string(),
-        }
-    }
-
-    /// Obtain the inner `ErrorKind` for this error
-    pub fn kind(&self) -> ErrorKind {
-        self.kind
-    }
-
-    /// Obtain the associated error message
-    pub fn msg(&self) -> &str {
-        &self.msg
-    }
-}
-
-impl Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: {}", &self.kind, &self.msg)
+    fn from(err: toml::de::Error) -> Self {
+        Error::Parse(err.to_string())
     }
 }
 
