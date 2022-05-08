@@ -21,10 +21,10 @@ the [`cargo-tree`] crate.
 
 ## Minimum Supported Rust Version
 
-Rust **1.49** or higher.
+Rust **1.56** or higher.
 
 Minimum supported Rust version can be changed in the future, but it will be
-done with a minor version bump.
+accompanied by a minor version bump.
 
 ## SemVer Policy
 
@@ -40,7 +40,7 @@ done with a minor version bump.
 
 This crate provides a `cargo lock` subcommand which can be installed with:
 
-```
+```text
 $ cargo install cargo-lock --features=cli
 ```
 
@@ -56,8 +56,8 @@ See the [crate documentation][docs-link] for more detailed usage information.
 
 Licensed under either of:
 
- * Apache License, Version 2.0 ([LICENSE-APACHE] or https://www.apache.org/licenses/LICENSE-2.0)
- * MIT license ([LICENSE-MIT] or https://opensource.org/licenses/MIT)
+- Apache License, Version 2.0 ([LICENSE-APACHE] or <https://www.apache.org/licenses/LICENSE-2.0>)
+- MIT license ([LICENSE-MIT] or <https://opensource.org/licenses/MIT>)
 
 at your option.
 

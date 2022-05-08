@@ -14,11 +14,7 @@ use crate::{
     Version,
 };
 use serde::{de, ser, Deserialize, Serialize};
-use std::{
-    convert::{TryFrom, TryInto},
-    fmt,
-    str::FromStr,
-};
+use std::{fmt, str::FromStr};
 
 impl<'de> Deserialize<'de> for Lockfile {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {

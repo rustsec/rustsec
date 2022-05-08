@@ -1,22 +1,10 @@
-//! `cargo-lock`: Self-contained `Cargo.lock` parser/serializer with support
-//! for both the V1 and V2 (merge-friendly) formats, as well as optional
-//! dependency tree analysis features. Used by [RustSec].
-//!
-//! ## Minimum Supported Rust Version
-//!
-//! Rust **1.41** or higher.
-//!
-//! Minimum supported Rust version can be changed in the future, but it will be
-//! done with a minor version bump.
-//!
-//! ## SemVer Policy
-//!
-//! - MSRV is considered exempt from SemVer as noted above
-//! - The `cargo lock` CLI interface is not considered to have a stable interface
-//!   and is also exempted from SemVer. We reserve the right to make substantial
-//!   changes to it at any time (for now)
-//!
-//! # Usage Example
+#![doc = include_str!("../README.md")]
+#![doc(html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![forbid(unsafe_code)]
+#![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
+
+//! # Usage
 //!
 //! ```
 //! use cargo_lock::Lockfile;
@@ -166,11 +154,6 @@
 //! [V2 format]: https://github.com/rust-lang/cargo/pull/7070
 //! [`petgraph`]: https://github.com/petgraph/petgraph
 //! [`cargo-tree`]: https://github.com/sfackler/cargo-tree
-
-#![cfg_attr(docsrs, feature(doc_cfg))]
-#![doc(html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png")]
-#![forbid(unsafe_code)]
-#![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
 #[macro_use]
 mod error;

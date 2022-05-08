@@ -6,11 +6,7 @@ use crate::{
     Checksum, Dependency, Map,
 };
 use serde::{de, ser, Deserialize, Serialize};
-use std::{
-    convert::{TryFrom, TryInto},
-    fmt,
-    str::FromStr,
-};
+use std::{fmt, str::FromStr};
 
 /// Prefix of metadata keys for checksum entries
 const CHECKSUM_PREFIX: &str = "checksum ";
