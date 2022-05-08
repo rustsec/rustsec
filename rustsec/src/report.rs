@@ -6,12 +6,11 @@
 use crate::{
     advisory,
     database::{scope, Database, Query},
-    lockfile::Lockfile,
     map,
     platforms::target::{Arch, OS},
     vulnerability::Vulnerability,
     warning::{self, Warning},
-    Map,
+    Lockfile, Map,
 };
 use serde::{Deserialize, Serialize};
 

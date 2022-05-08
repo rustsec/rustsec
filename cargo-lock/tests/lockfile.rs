@@ -2,7 +2,7 @@
 
 // TODO(tarcieri): add more example `Cargo.lock` files which cover more scenarios
 
-use cargo_lock::{metadata, Lockfile, ResolveVersion, Version};
+use cargo_lock::{Lockfile, MetadataKey, ResolveVersion, Version};
 
 /// Path to a V1 `Cargo.lock` file.
 const V1_LOCKFILE_PATH: &str = "tests/examples/Cargo.lock.v1";
@@ -26,7 +26,7 @@ fn load_example_v1_lockfile() {
     assert_eq!(package.name.as_ref(), "adler32");
     assert_eq!(package.version, Version::parse("1.0.4").unwrap());
 
-    let metadata_key: metadata::Key =
+    let metadata_key: MetadataKey =
         "checksum adler32 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)"
             .parse()
             .unwrap();

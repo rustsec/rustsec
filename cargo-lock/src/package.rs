@@ -1,8 +1,8 @@
 //! Rust packages enumerated in `Cargo.lock`
 
-pub mod checksum;
-pub mod name;
-pub mod source;
+mod checksum;
+mod name;
+mod source;
 
 pub use self::{
     checksum::Checksum,

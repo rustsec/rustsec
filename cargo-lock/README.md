@@ -32,6 +32,9 @@ done with a minor version bump.
 - The `cargo lock` CLI interface is not considered to have a stable interface
   and is also exempted from SemVer. We reserve the right to make substantial
   changes to it at any time (for now)
+- The `dependency-tree` feature depends on the pre-1.0 `petgraph` crate.
+  We reserve the right to update `petgraph`, however when we do it will be
+  accompanied by a minor version bump.
 
 ## Command Line Interface
 

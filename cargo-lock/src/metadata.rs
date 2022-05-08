@@ -16,16 +16,16 @@ use std::{
 const CHECKSUM_PREFIX: &str = "checksum ";
 
 /// Package metadata
-pub type Metadata = Map<Key, Value>;
+pub type Metadata = Map<MetadataKey, MetadataValue>;
 
 /// Keys for the `[metadata]` table
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct Key(String);
+pub struct MetadataKey(String);
 
-impl Key {
+impl MetadataKey {
     /// Create a metadata key for a checksum for the given dependency
     pub fn for_checksum(dep: &Dependency) -> Self {
-        Key(format!("{}{}", CHECKSUM_PREFIX, dep))
+        MetadataKey(format!("{}{}", CHECKSUM_PREFIX, dep))
     }
 
     /// Is this metadata key a checksum entry?
@@ -39,30 +39,30 @@ impl Key {
     }
 }
 
-impl AsRef<str> for Key {
+impl AsRef<str> for MetadataKey {
     fn as_ref(&self) -> &str {
         &self.0
     }
 }
 
-impl fmt::Display for Key {
+impl fmt::Display for MetadataKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl FromStr for Key {
+impl FromStr for MetadataKey {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Error> {
-        Ok(Key(s.to_owned()))
+        Ok(MetadataKey(s.to_owned()))
     }
 }
 
-impl TryFrom<&Key> for Dependency {
+impl TryFrom<&MetadataKey> for Dependency {
     type Error = Error;
 
-    fn try_from(key: &Key) -> Result<Dependency, Error> {
+    fn try_from(key: &MetadataKey) -> Result<Dependency, Error> {
         if !key.is_checksum() {
             fail!(
                 ErrorKind::Parse,
@@ -75,7 +75,7 @@ impl TryFrom<&Key> for Dependency {
     }
 }
 
-impl<'de> Deserialize<'de> for Key {
+impl<'de> Deserialize<'de> for MetadataKey {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use de::Error;
         let s = String::deserialize(deserializer)?;
@@ -83,7 +83,7 @@ impl<'de> Deserialize<'de> for Key {
     }
 }
 
-impl Serialize for Key {
+impl Serialize for MetadataKey {
     fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
@@ -91,44 +91,44 @@ impl Serialize for Key {
 
 /// Values in the `[metadata]` table
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub struct Value(String);
+pub struct MetadataValue(String);
 
-impl Value {
+impl MetadataValue {
     /// Get the associated checksum for this value (if applicable)
     pub fn checksum(&self) -> Result<Checksum, Error> {
         self.try_into()
     }
 }
 
-impl AsRef<str> for Value {
+impl AsRef<str> for MetadataValue {
     fn as_ref(&self) -> &str {
         &self.0
     }
 }
 
-impl fmt::Display for Value {
+impl fmt::Display for MetadataValue {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.0)
     }
 }
 
-impl FromStr for Value {
+impl FromStr for MetadataValue {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Error> {
-        Ok(Value(s.to_owned()))
+        Ok(MetadataValue(s.to_owned()))
     }
 }
 
-impl TryFrom<&Value> for Checksum {
+impl TryFrom<&MetadataValue> for Checksum {
     type Error = Error;
 
-    fn try_from(value: &Value) -> Result<Checksum, Error> {
+    fn try_from(value: &MetadataValue) -> Result<Checksum, Error> {
         value.as_ref().parse()
     }
 }
 
-impl<'de> Deserialize<'de> for Value {
+impl<'de> Deserialize<'de> for MetadataValue {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         use de::Error;
         let s = String::deserialize(deserializer)?;
@@ -136,7 +136,7 @@ impl<'de> Deserialize<'de> for Value {
     }
 }
 
-impl Serialize for Value {
+impl Serialize for MetadataValue {
     fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }

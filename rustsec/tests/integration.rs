@@ -3,8 +3,7 @@
 #![warn(rust_2018_idioms, unused_qualifications)]
 
 use rustsec::{
-    advisory, database::Query, lockfile::Lockfile, repository::git, Collection, Database,
-    VersionReq,
+    advisory, database::Query, repository::git, Collection, Database, Lockfile, VersionReq,
 };
 use tempfile::tempdir;
 

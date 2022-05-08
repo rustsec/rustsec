@@ -173,19 +173,20 @@
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
 #[macro_use]
-pub mod error;
+mod error;
 
 pub mod dependency;
-pub mod lockfile;
-pub mod metadata;
 pub mod package;
-pub mod patch;
+
+mod lockfile;
+mod metadata;
+mod patch;
 
 pub use self::{
     dependency::Dependency,
     error::{Error, ErrorKind},
     lockfile::{Lockfile, ResolveVersion},
-    metadata::Metadata,
+    metadata::{Metadata, MetadataKey, MetadataValue},
     package::{Checksum, Name, Package, SourceId, Version},
     patch::Patch,
 };

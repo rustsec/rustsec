@@ -116,13 +116,16 @@ impl From<&Lockfile> for EncodableLockfile {
 
         for package in &lockfile.packages {
             let mut raw_pkg = EncodablePackage::from(package);
-            let checksum_key = metadata::Key::for_checksum(&Dependency::from(package));
+            let checksum_key = metadata::MetadataKey::for_checksum(&Dependency::from(package));
 
             if lockfile.version == ResolveVersion::V1 {
                 // In the V1 format, we need to remove the checksum from
                 // packages and add it to metadata
                 if let Some(checksum) = raw_pkg.checksum.take() {
-                    let value = checksum.to_string().parse::<metadata::Value>().unwrap();
+                    let value = checksum
+                        .to_string()
+                        .parse::<metadata::MetadataValue>()
+                        .unwrap();
                     metadata.insert(checksum_key, value);
                 }
             } else {
