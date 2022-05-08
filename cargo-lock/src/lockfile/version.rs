@@ -6,7 +6,7 @@ use crate::{
     metadata::Metadata,
 };
 use serde::{Deserialize, Serialize};
-use std::{convert::TryFrom, str::FromStr};
+use std::str::FromStr;
 
 /// Lockfile versions
 #[derive(Copy, Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
