@@ -14,11 +14,11 @@ fn matches_name() {
     let advisory = load_advisory();
 
     let package_matches: package::Name = "base".parse().unwrap();
-    let query_matches = Query::new().package(package_matches);
+    let query_matches = Query::new().package_name(package_matches);
     assert!(query_matches.matches(&advisory));
 
     let package_nomatch: package::Name = "somethingelse".parse().unwrap();
-    let query_nomatch = Query::new().package(package_nomatch);
+    let query_nomatch = Query::new().package_name(package_nomatch);
     assert!(!query_nomatch.matches(&advisory));
 }
 

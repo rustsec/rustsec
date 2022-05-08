@@ -3,7 +3,6 @@
 use rustsec::warning;
 use rustsec::{
     advisory,
-    database::scope,
     platforms::target::{Arch, OS},
     report, Error, ErrorKind,
 };
@@ -33,10 +32,6 @@ pub struct AuditConfig {
     #[serde(default)]
     pub target: TargetConfig,
 
-    /// Packages-related configuration
-    #[serde(default)]
-    pub packages: PackageConfig,
-
     /// Configuration for auditing for yanked crates
     #[serde(default)]
     pub yanked: YankedConfig,
@@ -52,10 +47,6 @@ impl AuditConfig {
             target_os: self.target.os,
             ..Default::default()
         };
-
-        if let Some(source) = &self.packages.source {
-            settings.package_scope = Some(source.clone().into());
-        }
 
         if let Some(informational_warnings) = &self.advisories.informational_warnings {
             settings.informational_warnings = informational_warnings.clone();
@@ -103,6 +94,10 @@ pub struct AdvisoryConfig {
     /// Ignore advisories for the given IDs
     #[serde(default)]
     pub ignore: Vec<advisory::Id>,
+
+    /// Ignore the source of this advisory, matching any package of the same name.
+    #[serde(default)]
+    pub ignore_source: bool,
 
     /// Warn for the given types of informational advisories
     pub informational_warnings: Option<Vec<advisory::Informational>>,
@@ -245,14 +240,6 @@ pub struct TargetConfig {
 
     /// Target OS to find vulnerabilities for
     pub os: Option<OS>,
-}
-
-/// Packages configuration
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-pub struct PackageConfig {
-    /// Package scope which should be considered for querying for vulnerabilities.
-    pub source: Option<scope::Registry>,
 }
 
 /// Configuration for auditing for yanked crates

@@ -51,7 +51,7 @@ fn verify_rustsec_2017_0001(db: &Database) {
         Collection::Crates
     );
 
-    let crate_advisories = db.query(&Query::new().package(example_package).year(2017));
+    let crate_advisories = db.query(&Query::new().package_name(example_package).year(2017));
     assert_eq!(example_advisory, crate_advisories[0]);
 
     let lockfile = Lockfile::load("Cargo.lock").unwrap();

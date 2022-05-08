@@ -10,7 +10,6 @@ use crate::{
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
 use clap::Parser;
-use rustsec::database::scope;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
@@ -75,6 +74,13 @@ pub struct AuditCommand {
     )]
     ignore: Vec<String>,
 
+    /// Ignore the sources of packages in Cargo.toml
+    #[clap(
+        long = "ignore-source",
+        help = "Ignore sources of packages in Cargo.toml, matching advisories regardless of source"
+    )]
+    ignore_source: bool,
+
     /// Skip fetching the advisory database git repository
     #[clap(
         short = 'n',
@@ -116,13 +122,6 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[clap(long = "json", help = "Output report in JSON format")]
     output_json: bool,
-
-    /// Vulnerability querying does not consider local crates
-    #[clap(
-        long = "no-local-crates",
-        help = "Vulnerability querying does not consider local crates"
-    )]
-    no_local_crates: bool,
 }
 
 /// Subcommands of `cargo audit`
@@ -162,6 +161,7 @@ impl Override<AuditConfig> for AuditCommand {
                 }));
         }
 
+        config.advisories.ignore_source |= self.ignore_source;
         config.database.fetch |= !self.no_fetch;
         config.database.stale |= self.stale;
 
@@ -189,10 +189,6 @@ impl Override<AuditConfig> for AuditCommand {
 
         if self.output_json {
             config.output.format = OutputFormat::Json;
-        }
-
-        if self.no_local_crates {
-            config.packages.source = Some(scope::Registry::Public)
         }
 
         Ok(config)

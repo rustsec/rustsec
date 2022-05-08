@@ -4,8 +4,6 @@ mod entries;
 mod index;
 mod query;
 
-pub mod scope;
-
 pub use self::query::Query;
 
 use self::{entries::Entries, index::Index};
@@ -108,7 +106,7 @@ impl Database {
     /// Query the database according to the given query object
     pub fn query(&self, query: &Query) -> Vec<&Advisory> {
         // Use indexes if we know a package name and collection
-        if let Some(name) = &query.package {
+        if let Some(name) = &query.package_name {
             if let Some(collection) = query.collection {
                 return match collection {
                     Collection::Crates => self.crate_index.get(name),
@@ -130,25 +128,11 @@ impl Database {
     }
 
     /// Find vulnerabilities in the provided `Lockfile` which match a given query.
-    pub fn query_vulnerabilities(
-        &self,
-        lockfile: &Lockfile,
-        query: &Query,
-        package_scope: impl Into<scope::Package>,
-    ) -> Vec<Vulnerability> {
-        let package_scope = package_scope.into();
+    pub fn query_vulnerabilities(&self, lockfile: &Lockfile, query: &Query) -> Vec<Vulnerability> {
         let mut vulns = vec![];
 
         for package in &lockfile.packages {
-            if package_scope.is_remote() && package.source.is_none() {
-                continue;
-            }
-
-            let advisories = self.query(
-                &query
-                    .clone()
-                    .package_version(package.name.clone(), package.version.clone()),
-            );
+            let advisories = self.query(&query.clone().package(package));
 
             vulns.extend(
                 advisories
@@ -162,7 +146,7 @@ impl Database {
 
     /// Scan for vulnerabilities in the provided `Lockfile`.
     pub fn vulnerabilities(&self, lockfile: &Lockfile) -> Vec<Vulnerability> {
-        self.query_vulnerabilities(lockfile, &Query::crate_scope(), scope::Package::default())
+        self.query_vulnerabilities(lockfile, &Query::crate_scope())
     }
 
     /// Iterate over all of the advisories in the database

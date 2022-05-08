@@ -14,7 +14,7 @@ rust-version = "1.57"
 
 [dependencies]
 cargo-lock = { version = "8", default-features = false, path = "../cargo-lock" }
-crates-index = { version = "0.18.7", optional = true }
+crates-index = { version = "0.18", optional = true }
 cvss = { version = "2", features = ["serde"], path = "../cvss" }
 fs-err = "2.5"
 git2 = { version = "0.14", optional = true }
