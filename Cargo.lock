@@ -318,7 +318,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "7.1.0"
+version = "8.0.0-pre"
 dependencies = [
  "gumdrop",
  "petgraph",

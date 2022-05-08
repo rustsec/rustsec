@@ -14,8 +14,8 @@ use crate::{
     collection::Collection,
     error::Error,
     fs,
-    lockfile::Lockfile,
     vulnerability::Vulnerability,
+    Lockfile,
 };
 use std::path::Path;
 
