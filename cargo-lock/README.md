@@ -69,7 +69,7 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://img.shields.io/crates/v/cargo-lock.svg
+[crate-image]:  https://buildstats.info/crate/cargo-lock
 [crate-link]: https://crates.io/crates/cargo-lock
 [docs-image]: https://docs.rs/cargo-lock/badge.svg
 [docs-link]: https://docs.rs/cargo-lock/

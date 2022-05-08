@@ -253,7 +253,7 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://img.shields.io/crates/v/platforms.svg?logo=rust
+[crate-image]:  https://buildstats.info/crate/platforms
 [crate-link]: https://crates.io/crates/platforms
 [docs-image]: https://docs.rs/platforms/badge.svg
 [docs-link]: https://docs.rs/platforms/

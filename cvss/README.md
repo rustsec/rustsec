@@ -33,7 +33,7 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://img.shields.io/crates/v/cvss.svg
+[crate-image]:  https://buildstats.info/crate/cvss
 [crate-link]: https://crates.io/crates/cvss
 [docs-image]: https://docs.rs/cvss/badge.svg
 [docs-link]: https://docs.rs/cvss/

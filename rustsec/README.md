@@ -46,7 +46,7 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://img.shields.io/crates/v/rustsec.svg
+[crate-image]:  https://buildstats.info/crate/rustsec
 [crate-link]: https://crates.io/crates/rustsec
 [docs-image]: https://docs.rs/rustsec/badge.svg
 [docs-link]: https://docs.rs/rustsec/
