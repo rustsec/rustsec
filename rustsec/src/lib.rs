@@ -21,7 +21,7 @@ mod fixer;
 #[cfg(feature = "git")]
 pub mod registry;
 
-pub use cargo_lock::{self, lockfile, package};
+pub use cargo_lock::{self, package, Lockfile};
 pub use fs_err as fs;
 pub use platforms;
 pub use semver::{self, Version, VersionReq};

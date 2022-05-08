@@ -13,7 +13,7 @@ edition      = "2021"
 rust-version = "1.57"
 
 [dependencies]
-cargo-lock = { version = "7", default-features = false, path = "../cargo-lock" }
+cargo-lock = { version = "=8.0.0-pre", default-features = false, path = "../cargo-lock" }
 crates-index = { version = "0.18.7", optional = true }
 cvss = { version = "2", features = ["serde"], path = "../cvss" }
 fs-err = "2.5"
