@@ -214,15 +214,6 @@
       </dd>
       {% endif %}
 
-      {% if advisory.metadata.keywords.len() > 0 %}
-      <dt id="keywords">Keywords</dt>
-      <dd>
-        {% for keyword in advisory.metadata.keywords %}
-          <a href="/keywords/{{ keyword.as_str() | safe_keyword }}.html">#{{ keyword.as_str() | safe_keyword }}</a>
-        {% endfor %}
-      </dd>
-      {% endif %}
-
       {% match advisory.affected %}
       {% when Some with (affected) %}
       {% if affected.arch.len() > 0 %}
