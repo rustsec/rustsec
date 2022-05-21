@@ -1,6 +1,7 @@
 use semver::Version;
 
 /// A range of affected versions.
+///
 /// If any of the bounds is unspecified, that means ALL versions
 /// in that direction are affected.
 ///

@@ -14,6 +14,7 @@ const ECOSYSTEM: &str = "crates.io";
 
 /// Security advisory in the format defined by <https://github.com/google/osv>
 #[derive(Debug, Clone, Serialize)]
+#[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct OsvAdvisory {
     id: Id,
     modified: String,  // maybe add an rfc3339 newtype?

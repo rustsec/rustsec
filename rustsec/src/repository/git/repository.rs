@@ -16,7 +16,8 @@ const LOCAL_REF: &str = "refs/heads/main";
 /// Ref for the `main` branch in the remote repository
 const REMOTE_REF: &str = "refs/remotes/origin/main";
 
-/// Git repository for a Rust advisory DB
+/// Git repository for a Rust advisory DB.
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 pub struct Repository {
     /// Path to the Git repository
     pub(super) path: PathBuf,
