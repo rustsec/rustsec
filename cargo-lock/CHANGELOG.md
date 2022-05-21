@@ -4,7 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 8.0.0 (2022-05-08)
+## 8.0.1 (2022-05-21)
+### Fixed
+- Dependency source extraction for V2+ lockfiles ([#568])
+
+[#568]: https://github.com/RustSec/rustsec/pull/568
+
+## 8.0.0 (2022-05-08) [YANKED]
+NOTE: yanked due to bug fixed in v8.0.1.
+
 ### Added
 - Expose `package::SourceKind` ([#557])
 
