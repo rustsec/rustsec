@@ -334,9 +334,9 @@ impl EncodableDependency {
     /// prevent merge conflicts
     pub fn resolve(&self, packages: &[EncodablePackage]) -> Result<Dependency> {
         for pkg in packages {
-            // TODO(tarcieri): validate source?
             if pkg.name == self.name
                 && (self.version.is_none() || self.version.as_ref() == Some(&pkg.version))
+                && self.source.is_none()
             {
                 return Ok(Dependency {
                     name: pkg.name.clone(),
