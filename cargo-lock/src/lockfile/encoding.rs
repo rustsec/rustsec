@@ -333,36 +333,28 @@ impl EncodableDependency {
     /// Resolve this dependency, which in the V2 format may be abbreviated to
     /// prevent merge conflicts
     pub fn resolve(&self, packages: &[EncodablePackage]) -> Result<Dependency> {
-        let mut version = None;
-        let mut source = None;
-
-        if let Some(v) = &self.version {
-            version = Some(v.clone());
-            source = self.source.clone();
-        } else {
-            for pkg in packages {
-                if pkg.name == self.name {
-                    if version.is_some() {
-                        return Err(Error::Parse(format!("ambiguous dependency: {}", self.name)));
-                    }
-
-                    version = Some(pkg.version.clone());
-                    source = pkg.source.clone();
-                }
+        for pkg in packages {
+            // TODO(tarcieri): validate source?
+            if pkg.name == self.name
+                && (self.version.is_none() || self.version.as_ref() == Some(&pkg.version))
+            {
+                return Ok(Dependency {
+                    name: pkg.name.clone(),
+                    version: pkg.version.clone(),
+                    source: pkg.source.clone(),
+                });
             }
-        };
-
-        if version.is_none() {
-            return Err(Error::Parse(format!(
-                "couldn't resolve dependency: {}",
-                self.name
-            )));
         }
+
+        let version = self
+            .version
+            .clone()
+            .ok_or_else(|| Error::Parse(format!("couldn't resolve dependency: {}", self.name)))?;
 
         Ok(Dependency {
             name: self.name.clone(),
-            version: version.unwrap(),
-            source,
+            version,
+            source: self.source.clone(),
         })
     }
 
