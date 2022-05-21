@@ -32,6 +32,7 @@ use std::env;
 /// credentials until we give it a reason to not do so. To ensure we don't
 /// just sit here looping forever we keep track of authentications we've
 /// attempted and we don't try the same ones again.
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 pub fn with_authentication<T, F>(url: &str, cfg: &git2::Config, mut f: F) -> Result<T, Error>
 where
     F: FnMut(&mut git2::Credentials<'_>) -> Result<T, Error>,

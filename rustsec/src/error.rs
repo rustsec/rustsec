@@ -76,6 +76,7 @@ pub enum ErrorKind {
 
     /// Error performing an automatic fix
     #[cfg(feature = "fix")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
     #[error("fix failed")]
     Fix,
 
@@ -111,6 +112,7 @@ impl From<Utf8Error> for Error {
 }
 
 #[cfg(feature = "fix")]
+#[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
 impl From<cargo_edit::Error> for Error {
     fn from(other: cargo_edit::Error) -> Self {
         format_err!(ErrorKind::Fix, &other)
@@ -130,6 +132,7 @@ impl From<fmt::Error> for Error {
 }
 
 #[cfg(feature = "git")]
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 impl From<git2::Error> for Error {
     fn from(other: git2::Error) -> Self {
         format_err!(ErrorKind::Repo, &other)
@@ -143,6 +146,7 @@ impl From<io::Error> for Error {
 }
 
 #[cfg(feature = "git")]
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 impl From<crates_index::Error> for Error {
     fn from(other: crates_index::Error) -> Self {
         format_err!(ErrorKind::Registry, "{}", other)

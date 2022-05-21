@@ -8,6 +8,7 @@ use semver::VersionReq;
 use std::path::Path;
 
 /// Auto-fixer for vulnerable dependencies
+#[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
 pub struct Fixer {
     manifest: cargo_edit::LocalManifest,
 }

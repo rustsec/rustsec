@@ -1,13 +1,11 @@
-#![cfg(feature = "osv-export")]
-
+use super::Repository;
+use crate::{Error, ErrorKind};
 use std::path::Path;
 
-use crate::{Error, ErrorKind};
-
-use super::Repository;
-
 /// A path *relative to the root of the git repository* that is guaranteed to be tracked by Git.
+///
 /// This type is immutable.
+#[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct GitPath<'a> {
     repo: &'a Repository,
     path: &'a Path,

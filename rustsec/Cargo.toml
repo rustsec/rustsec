@@ -14,13 +14,8 @@ rust-version = "1.57"
 
 [dependencies]
 cargo-lock = { version = "8", default-features = false, path = "../cargo-lock" }
-crates-index = { version = "0.18", optional = true }
 cvss = { version = "2", features = ["serde"], path = "../cvss" }
 fs-err = "2.5"
-git2 = { version = "0.14", optional = true }
-home = { version = "0.5", optional = true }
-humantime = { version = "2", optional = true }
-humantime-serde = { version = "1", optional = true }
 platforms = { version = "3", features = ["serde"], path = "../platforms" }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
@@ -28,11 +23,13 @@ thiserror = "1"
 toml = "0.5"
 url = { version = "2", features = ["serde"] }
 
-[dependencies.cargo-edit]
-version = "0.9"
-optional = true
-default-features = false
-features = ["upgrade"]
+# optional dependencies
+cargo-edit = { version = "0.9", optional = true, default-features = false,  features = ["upgrade"] }
+crates-index = { version = "0.18", optional = true }
+git2 = { version = "0.14", optional = true }
+home = { version = "0.5", optional = true }
+humantime = { version = "2", optional = true }
+humantime-serde = { version = "1", optional = true }
 
 [dev-dependencies]
 tempfile = "3"
@@ -49,3 +46,4 @@ osv-export = ["git"]
 
 [package.metadata.docs.rs]
 all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
