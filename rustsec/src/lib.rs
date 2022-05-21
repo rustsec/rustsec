@@ -1,5 +1,6 @@
 #![doc = include_str!("../README.md")]
 #![doc(html_logo_url = "https://raw.githubusercontent.com/RustSec/logos/main/rustsec-logo-lg.png")]
+#![cfg_attr(docsrs, feature(doc_cfg))]
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, unused_qualifications)]
 
@@ -19,6 +20,7 @@ pub mod warning;
 mod fixer;
 
 #[cfg(feature = "git")]
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 pub mod registry;
 
 pub use cargo_lock::{self, package, Lockfile, SourceId};

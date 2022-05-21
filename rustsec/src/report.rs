@@ -22,6 +22,7 @@ use std::time::SystemTime;
 pub struct Report {
     /// Information about the advisory database
     #[cfg(feature = "git")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
     pub database: DatabaseInfo,
 
     /// Information about the audited lockfile
@@ -103,6 +104,7 @@ impl Settings {
 
 /// Information about the advisory database
 #[cfg(feature = "git")]
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DatabaseInfo {
     /// Number of advisories in the database

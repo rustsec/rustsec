@@ -2,7 +2,9 @@
 
 mod authentication;
 mod commit;
+#[cfg(feature = "osv-export")]
 mod gitpath;
+#[cfg(feature = "osv-export")]
 mod modification_time;
 mod repository;
 

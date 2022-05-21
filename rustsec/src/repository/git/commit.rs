@@ -11,6 +11,7 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 const STALE_AFTER: Duration = Duration::from_secs(90 * 86400);
 
 /// Information about a commit to the Git repository
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 #[derive(Debug)]
 pub struct Commit {
     /// ID (i.e. SHA-1 hash) of the latest commit

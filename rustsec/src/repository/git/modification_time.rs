@@ -1,5 +1,3 @@
-#![cfg(feature = "osv-export")]
-
 use crate::error::Error;
 use git2::Time;
 use std::{cmp::max, collections::HashMap, path::PathBuf};
@@ -7,6 +5,7 @@ use std::{cmp::max, collections::HashMap, path::PathBuf};
 use super::GitPath;
 
 /// Tracks the time of latest modification of files in git.
+#[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct GitModificationTimes {
     mtimes: HashMap<PathBuf, Time>,
 }

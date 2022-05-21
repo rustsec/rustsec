@@ -1,7 +1,7 @@
 //! Ranges for advisories.
 
 use super::{
-    osv_range::OsvRange,
+    range::OsvRange,
     unaffected_range::{Bound, UnaffectedRange},
 };
 use crate::{
@@ -11,6 +11,7 @@ use crate::{
 use semver::{Prerelease, Version, VersionReq};
 
 /// Returns OSV ranges for all affected versions in the given advisory.
+///
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
 /// Panics if the ranges are malformed or range specification syntax is not supported,
 /// since that has been validated on deserialization.
@@ -19,6 +20,7 @@ pub fn ranges_for_advisory(versions: &Versions) -> Vec<OsvRange> {
 }
 
 /// Returns OSV ranges for all affected versions in the given advisory.
+///
 /// OSV ranges are `[start, end)` intervals, and anything included in them is affected.
 /// Errors if the ranges are malformed or range specification syntax is not supported.
 pub(crate) fn ranges_for_unvalidated_advisory(
@@ -28,6 +30,7 @@ pub(crate) fn ranges_for_unvalidated_advisory(
 }
 
 /// Converts a list of unaffected ranges to a range of affected OSV ranges.
+///
 /// Since OSV ranges are a negation of the UNaffected ranges that RustSec stores,
 /// the entire list has to be passed at once, both patched and unaffected ranges.
 fn unaffected_to_osv_ranges(
