@@ -178,20 +178,20 @@ impl Presenter {
         vulnerability: &rustsec::Vulnerability,
         tree: &dependency::Tree,
     ) {
-        self.print_attr(Red, "Crate:        ", &vulnerability.package.name);
+        self.print_attr(Red, "Crate:    ", &vulnerability.package.name);
         self.print_attr(
             Red,
-            "Version:      ",
+            "Version:  ",
             &vulnerability.package.version.to_string(),
         );
         self.print_metadata(&vulnerability.advisory, Red);
 
         if vulnerability.versions.patched().is_empty() {
-            self.print_attr(Red, "Solution:     ", "No safe upgrade is available!");
+            self.print_attr(Red, "Solution: ", "No fixed upgrade is available!");
         } else {
             self.print_attr(
                 Red,
-                "Solution:     ",
+                "Solution: ",
                 format!(
                     "Upgrade to {}",
                     vulnerability
@@ -214,13 +214,9 @@ impl Presenter {
     fn print_warning(&mut self, warning: &rustsec::Warning, tree: &dependency::Tree) {
         let color = self.warning_color(self.deny_warning_kinds.contains(&warning.kind));
 
-        self.print_attr(color, "Crate:        ", &warning.package.name);
-        self.print_attr(
-            color,
-            "Version:      ",
-            &warning.package.version.to_string(),
-        );
-        self.print_attr(color, "Warning:      ", warning.kind.as_str());
+        self.print_attr(color, "Crate:    ", &warning.package.name);
+        self.print_attr(color, "Version:  ", &warning.package.version.to_string());
+        self.print_attr(color, "Warning:  ", warning.kind.as_str());
 
         if let Some(metadata) = &warning.advisory {
             self.print_metadata(metadata, color)
@@ -241,14 +237,14 @@ impl Presenter {
 
     /// Print a warning about a particular advisory
     fn print_metadata(&self, metadata: &rustsec::advisory::Metadata, color: Color) {
-        self.print_attr(color, "Title:        ", &metadata.title);
-        self.print_attr(color, "Date:         ", &metadata.date);
-        self.print_attr(color, "ID:           ", &metadata.id);
+        self.print_attr(color, "Title:    ", &metadata.title);
+        self.print_attr(color, "Date:     ", &metadata.date);
+        self.print_attr(color, "ID:       ", &metadata.id);
 
         if let Some(url) = metadata.id.url() {
-            self.print_attr(color, "URL:          ", &url);
+            self.print_attr(color, "URL:      ", &url);
         } else if let Some(url) = &metadata.url {
-            self.print_attr(color, "URL:          ", url);
+            self.print_attr(color, "URL:      ", url);
         }
     }
 
@@ -276,7 +272,7 @@ impl Presenter {
         terminal::status::Status::new()
             .bold()
             .color(color)
-            .status("Dependency tree:")
+            .status("Dependency tree:\n")
             .print_stdout("")
             .unwrap();
 
