@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.26.0 (2022-05-21)
+### Added
+- `[advisory.source]` ([#541])
+- `doc_cfg` annotations when building on docs.rs ([#571])
+
+### Changed
+- Bump `git2` dependency to v0.14; MSRV 1.57 ([#524])
+- Bump `platforms` dependency to v3.0 ([#532])
+- Update to 2021 edition ([#538])
+- Use `Query::crate_scope()` as the `Default` ([#544])
+- Bump `cvss` dependency to v2.0 ([#550])
+- Bump `cargo-lock` dependency to v8.0 ([#561])
+- Flatten `warnings` module; rename `WarningKind` ([#572])
+- Flatten `advisory::id` module; rename `IdKind` ([#573])
+
+### Removed
+- Legacy database scopes ([#541])
+
+[#524]: https://github.com/RustSec/rustsec/pull/524
+[#532]: https://github.com/RustSec/rustsec/pull/532
+[#538]: https://github.com/RustSec/rustsec/pull/538
+[#541]: https://github.com/RustSec/rustsec/pull/541
+[#544]: https://github.com/RustSec/rustsec/pull/544
+[#550]: https://github.com/RustSec/rustsec/pull/550
+[#561]: https://github.com/RustSec/rustsec/pull/561
+[#571]: https://github.com/RustSec/rustsec/pull/571
+[#572]: https://github.com/RustSec/rustsec/pull/572
+[#573]: https://github.com/RustSec/rustsec/pull/573
+
 ## 0.25.1 (2021-11-15)
 ### Changed
 - Bump `platforms` dependency to v2.0.0 ([#485])

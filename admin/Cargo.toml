@@ -11,19 +11,19 @@ edition     = "2018"
 
 [dependencies]
 abscissa_core = "0.6"
-crates-index = "0.18"
+askama = "0.11"
+atom_syndication = "0.11"
+chrono = { version = "0.4", features = ["serde"] }
 clap = "3"
-rustsec = { version = "0.25", path = "../rustsec", features = ["osv-export"] }
+comrak = "0.12"
+crates-index = "0.18"
+rust-embed = "6.4"
+rustsec = { version = "0.26", path = "../rustsec", features = ["osv-export"] }
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 termcolor = "1"
 thiserror = "1"
 toml = "0.5"
-chrono = { version = "0.4", features = ["serde"] }
-askama = "0.11"
-rust-embed="6.4"
-comrak = "0.12"
-atom_syndication = "0.11"
 xml-rs = "0.8"
 
 [dev-dependencies]
