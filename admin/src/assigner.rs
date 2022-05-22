@@ -2,7 +2,7 @@
 
 use crate::{error::ErrorKind, prelude::*, Map};
 use rustsec::{
-    advisory::{id::Kind, Parts},
+    advisory::{IdKind, Parts},
     Advisory, Collection,
 };
 use std::{
@@ -57,7 +57,7 @@ pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
         let id = metadata.id;
         let year = metadata.date.year();
 
-        if let Kind::RustSec = id.kind() {
+        if let IdKind::RustSec = id.kind() {
             let id_num = id.numerical_part().unwrap();
 
             if let Some(&number) = highest_id.get(&year) {

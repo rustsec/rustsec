@@ -3,7 +3,7 @@
 pub mod affected;
 mod category;
 mod date;
-pub mod id;
+mod id;
 mod informational;
 mod keyword;
 pub mod linter;
@@ -12,8 +12,16 @@ mod parts;
 pub(crate) mod versions;
 
 pub use self::{
-    affected::Affected, category::Category, date::Date, id::Id, informational::Informational,
-    keyword::Keyword, linter::Linter, metadata::Metadata, parts::Parts, versions::Versions,
+    affected::Affected,
+    category::Category,
+    date::Date,
+    id::{Id, IdKind},
+    informational::Informational,
+    keyword::Keyword,
+    linter::Linter,
+    metadata::Metadata,
+    parts::Parts,
+    versions::Versions,
 };
 pub use cvss::Severity;
 
