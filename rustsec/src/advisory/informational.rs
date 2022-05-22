@@ -61,11 +61,11 @@ impl Informational {
     }
 
     /// Get a warning kind for this informational type (if applicable)
-    pub fn warning_kind(&self) -> Option<warning::Kind> {
+    pub fn warning_kind(&self) -> Option<warning::WarningKind> {
         match self {
-            Self::Notice => Some(warning::Kind::Notice),
-            Self::Unmaintained => Some(warning::Kind::Unmaintained),
-            Self::Unsound => Some(warning::Kind::Unsound),
+            Self::Notice => Some(warning::WarningKind::Notice),
+            Self::Unmaintained => Some(warning::WarningKind::Unmaintained),
+            Self::Unsound => Some(warning::WarningKind::Unsound),
             Self::Other(_) => None,
         }
     }

@@ -1,14 +1,12 @@
 //! The `~/.cargo/audit.toml` configuration file
 
-use rustsec::warning;
 use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
-    report, Error, ErrorKind,
+    report, Error, ErrorKind, WarningKind,
 };
 use serde::{Deserialize, Serialize};
-use std::path::PathBuf;
-use std::str::FromStr;
+use std::{path::PathBuf, str::FromStr};
 
 /// `cargo audit` configuration:
 ///
@@ -186,12 +184,12 @@ impl DenyOption {
         ]
     }
     /// Get the warning::Kind that corresponds to self, if applicable
-    pub fn get_warning_kind(self) -> Option<warning::Kind> {
+    pub fn get_warning_kind(self) -> Option<WarningKind> {
         match self {
             DenyOption::Warnings => None,
-            DenyOption::Unmaintained => Some(warning::Kind::Unmaintained),
-            DenyOption::Unsound => Some(warning::Kind::Unsound),
-            DenyOption::Yanked => Some(warning::Kind::Yanked),
+            DenyOption::Unmaintained => Some(WarningKind::Unmaintained),
+            DenyOption::Unsound => Some(WarningKind::Unsound),
+            DenyOption::Yanked => Some(WarningKind::Yanked),
         }
     }
 }
