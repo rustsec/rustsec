@@ -174,7 +174,7 @@ impl VulnerabilityInfo {
 }
 
 /// Information about warnings
-pub type WarningInfo = Map<warning::Kind, Vec<Warning>>;
+pub type WarningInfo = Map<warning::WarningKind, Vec<Warning>>;
 
 /// Find warnings from the given advisory [`Database`] and [`Lockfile`]
 pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> WarningInfo {

@@ -1,7 +1,7 @@
 //! Core auditing functionality
 
 use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
-use rustsec::{registry, report, warning, Error, ErrorKind, Lockfile, Warning};
+use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     collections::btree_map as map,
     io::{self, Read},
@@ -151,17 +151,15 @@ impl Auditor {
             rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
 
         // Warn for yanked crates
-        // TODO(tarcieri): move this logic into the `rustsec` crate?
         if let Some(index) = &self.registry_index {
-            for package in &lockfile.packages {
-                if let Ok(pkg) = index.find(&package.name, &package.version) {
-                    if pkg.is_yanked {
-                        let warning = Warning::new(warning::Kind::Yanked, package, None, None);
-                        match report.warnings.entry(warning::Kind::Yanked) {
-                            map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
-                            map::Entry::Vacant(entry) => {
-                                entry.insert(vec![warning]);
-                            }
+            if let Ok(yanked) = index.find_yanked(&lockfile.packages) {
+                for pkg in yanked {
+                    let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
+
+                    match report.warnings.entry(WarningKind::Yanked) {
+                        map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
+                        map::Entry::Vacant(entry) => {
+                            entry.insert(vec![warning]);
                         }
                     }
                 }
