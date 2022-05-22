@@ -14,7 +14,7 @@ pub mod osv;
 pub mod report;
 pub mod repository;
 mod vulnerability;
-pub mod warning;
+mod warning;
 
 #[cfg(feature = "fix")]
 mod fixer;
@@ -35,7 +35,7 @@ pub use crate::{
     error::{Error, ErrorKind, Result},
     report::Report,
     vulnerability::Vulnerability,
-    warning::Warning,
+    warning::{Warning, WarningKind},
 };
 
 #[cfg(feature = "fix")]

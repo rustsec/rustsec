@@ -8,14 +8,15 @@ use abscissa_core::terminal::{
     self,
     Color::{self, Red, Yellow},
 };
-use rustsec::cargo_lock::{
-    dependency::{self, graph::EdgeDirection, Dependency},
-    Lockfile, Package,
+use rustsec::{
+    cargo_lock::{
+        dependency::{self, graph::EdgeDirection, Dependency},
+        Lockfile, Package,
+    },
+    WarningKind,
 };
 use std::{collections::BTreeSet as Set, io, path::Path};
-
-use std::io::Write as _;
-use std::string::ToString as _;
+use std::{io::Write as _, string::ToString as _};
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -25,7 +26,7 @@ pub struct Presenter {
     displayed_packages: Set<Dependency>,
 
     /// Keep track of the warning kinds that correspond to deny-warnings options
-    deny_warning_kinds: Set<rustsec::warning::Kind>,
+    deny_warning_kinds: Set<WarningKind>,
 
     /// Output configuration
     config: OutputConfig,

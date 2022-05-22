@@ -2,7 +2,7 @@
 
 use crate::{
     error::{Error, ErrorKind},
-    package,
+    package::{self, Package},
 };
 
 /// Crates.io registry index (local copy)
@@ -53,6 +53,29 @@ impl Index {
             })?;
 
         Ok(IndexPackage::from(crate_release))
+    }
+
+    /// Is the given package yanked?
+    pub fn is_yanked(&self, package: &Package) -> Result<bool, Error> {
+        // TODO(tarcieri): check source matches what we expect
+        Ok(self.find(&package.name, &package.version)?.is_yanked)
+    }
+
+    /// Iterate over the provided packages, returning a vector of the
+    /// packages which have been yanked.
+    pub fn find_yanked<'a, I>(&self, packages: I) -> Result<Vec<&'a Package>, Error>
+    where
+        I: IntoIterator<Item = &'a Package>,
+    {
+        let mut yanked = Vec::new();
+
+        for package in packages {
+            if self.is_yanked(package)? {
+                yanked.push(package);
+            }
+        }
+
+        Ok(yanked)
     }
 }
 
