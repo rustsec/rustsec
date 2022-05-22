@@ -8,14 +8,11 @@ use std::{
     str::FromStr,
 };
 
-/// Placeholder advisory name: shouldn't be used until an ID is assigned
-pub const PLACEHOLDER: &str = "RUSTSEC-0000-0000";
-
 /// An identifier for an individual advisory
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct Id {
     /// An autodetected identifier kind
-    kind: Kind,
+    kind: IdKind,
 
     /// Year this vulnerability was published
     year: Option<u32>,
@@ -25,39 +22,42 @@ pub struct Id {
 }
 
 impl Id {
+    /// Placeholder advisory name: shouldn't be used until an ID is assigned
+    pub const PLACEHOLDER: &'static str = "RUSTSEC-0000-0000";
+
     /// Get a string reference to this advisory ID
     pub fn as_str(&self) -> &str {
         self.string.as_ref()
     }
 
     /// Get the advisory kind for this advisory
-    pub fn kind(&self) -> Kind {
+    pub fn kind(&self) -> IdKind {
         self.kind
     }
 
     /// Is this advisory ID the `RUSTSEC-0000-0000` placeholder ID?
     pub fn is_placeholder(&self) -> bool {
-        self.string == PLACEHOLDER
+        self.string == Self::PLACEHOLDER
     }
 
     /// Is this advisory ID a RUSTSEC advisory?
     pub fn is_rustsec(&self) -> bool {
-        self.kind == Kind::RustSec
+        self.kind == IdKind::RustSec
     }
 
     /// Is this advisory ID a CVE?
     pub fn is_cve(&self) -> bool {
-        self.kind == Kind::Cve
+        self.kind == IdKind::Cve
     }
 
     /// Is this advisory ID a GHSA?
     pub fn is_ghsa(&self) -> bool {
-        self.kind == Kind::Ghsa
+        self.kind == IdKind::Ghsa
     }
 
     /// Is this an unknown kind of advisory ID?
     pub fn is_other(&self) -> bool {
-        self.kind == Kind::Other
+        self.kind == IdKind::Other
     }
 
     /// Get the year this vulnerability was published (if known)
@@ -84,19 +84,19 @@ impl Id {
     // <https://developer.github.com/v4/object/securityadvisory/>
     pub fn url(&self) -> Option<String> {
         match self.kind {
-            Kind::RustSec => {
+            IdKind::RustSec => {
                 if self.is_placeholder() {
                     None
                 } else {
                     Some(format!("https://rustsec.org/advisories/{}", &self.string))
                 }
             }
-            Kind::Cve => Some(format!(
+            IdKind::Cve => Some(format!(
                 "https://cve.mitre.org/cgi-bin/cvename.cgi?name={}",
                 &self.string
             )),
-            Kind::Ghsa => Some(format!("https://github.com/advisories/{}", &self.string)),
-            Kind::Talos => Some(format!(
+            IdKind::Ghsa => Some(format!("https://github.com/advisories/{}", &self.string)),
+            IdKind::Talos => Some(format!(
                 "https://www.talosintelligence.com/reports/{}",
                 &self.string
             )),
@@ -114,9 +114,9 @@ impl AsRef<str> for Id {
 impl Default for Id {
     fn default() -> Id {
         Id {
-            kind: Kind::RustSec,
+            kind: IdKind::RustSec,
             year: None,
-            string: PLACEHOLDER.into(),
+            string: Id::PLACEHOLDER.into(),
         }
     }
 }
@@ -132,15 +132,15 @@ impl FromStr for Id {
 
     /// Create an `Id` from the given string
     fn from_str(advisory_id: &str) -> Result<Self, Error> {
-        if advisory_id == PLACEHOLDER {
+        if advisory_id == Id::PLACEHOLDER {
             return Ok(Id::default());
         }
 
-        let kind = Kind::detect(advisory_id);
+        let kind = IdKind::detect(advisory_id);
 
         // Ensure known advisory types are well-formed
         let year = match kind {
-            Kind::RustSec | Kind::Cve | Kind::Talos => Some(parse_year(advisory_id)?),
+            IdKind::RustSec | IdKind::Cve | IdKind::Talos => Some(parse_year(advisory_id)?),
             _ => None,
         };
 
@@ -167,7 +167,7 @@ impl<'de> Deserialize<'de> for Id {
 /// Known kinds of advisory IDs
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
-pub enum Kind {
+pub enum IdKind {
     /// Our advisory namespace
     RustSec,
 
@@ -184,19 +184,19 @@ pub enum Kind {
     Other,
 }
 
-impl Kind {
+impl IdKind {
     /// Detect the identifier kind for the given string
     pub fn detect(string: &str) -> Self {
         if string.starts_with("RUSTSEC-") {
-            Kind::RustSec
+            IdKind::RustSec
         } else if string.starts_with("CVE-") {
-            Kind::Cve
+            IdKind::Cve
         } else if string.starts_with("TALOS-") {
-            Kind::Talos
+            IdKind::Talos
         } else if string.starts_with("GHSA-") {
-            Kind::Ghsa
+            IdKind::Ghsa
         } else {
-            Kind::Other
+            IdKind::Other
         }
     }
 }
@@ -239,7 +239,7 @@ fn parse_year(advisory_id: &str) -> Result<u32, Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{Id, Kind, PLACEHOLDER};
+    use super::{Id, IdKind};
 
     const EXAMPLE_RUSTSEC_ID: &str = "RUSTSEC-2018-0001";
     const EXAMPLE_CVE_ID: &str = "CVE-2017-1000168";
@@ -262,7 +262,7 @@ mod tests {
     // The RUSTSEC-0000-0000 ID is a placeholder we need to treat as valid
     #[test]
     fn rustsec_0000_0000_test() {
-        let rustsec_id = PLACEHOLDER.parse::<Id>().unwrap();
+        let rustsec_id = Id::PLACEHOLDER.parse::<Id>().unwrap();
         assert!(rustsec_id.is_rustsec());
         assert!(rustsec_id.year().is_none());
         assert!(rustsec_id.url().is_none());
@@ -296,7 +296,7 @@ mod tests {
     #[test]
     fn talos_id_test() {
         let talos_id = EXAMPLE_TALOS_ID.parse::<Id>().unwrap();
-        assert_eq!(talos_id.kind(), Kind::Talos);
+        assert_eq!(talos_id.kind(), IdKind::Talos);
         assert_eq!(talos_id.year().unwrap(), 2017);
         assert_eq!(
             talos_id.url().unwrap(),
