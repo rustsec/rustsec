@@ -1,3 +1,10 @@
+## 0.7.0 (2022-05-23)
+- Update Abscissa to 0.6; replace `gumdrop` with `clap` v3 ([#525])
+- Update `rustsec` crate to v0.26 ([#574])
+
+[#525]: https://github.com/RustSec/rustsec/pull/525
+[#574]: https://github.com/RustSec/rustsec/pull/574
+
 ## 0.6.0 (2021-11-13)
 - Update `rustsec` crate to v0.25 ([#480])
 - Update `atom_syndication` to 0.11 ([#481])
