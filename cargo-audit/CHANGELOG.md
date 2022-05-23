@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.17.0 (2022-05-23)
+### Changed
+- Update Abscissa to 0.6; replace `gumdrop` with `clap` v3 ([#525])
+- 2021 edition upgrade ([#539])
+- MSRV 1.57 ([#539], [#574])
+- Bump `rustsec` to v0.26 ([#574])
+
+### Fixed
+- Terminal output fixups ([#570])
+
+### Removed
+- Unused `lazy_static` from dependencies ([#500])
+- Deprecated `--deny-warnings` CLI option ([#545])
+
+[#500]: https://github.com/rustsec/rustsec/pull/500
+[#525]: https://github.com/rustsec/rustsec/pull/525
+[#539]: https://github.com/rustsec/rustsec/pull/539
+[#545]: https://github.com/rustsec/rustsec/pull/54qgq5
+[#570]: https://github.com/rustsec/rustsec/pull/570
+[#574]: https://github.com/rustsec/rustsec/pull/574
+
 ## 0.16.0 (2021-11-15)
 ### Changed
 - Bump `rustsec` dependency to v0.25; MSRV 1.52 ([#480])
