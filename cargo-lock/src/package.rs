@@ -7,7 +7,7 @@ mod source;
 pub use self::{
     checksum::Checksum,
     name::Name,
-    source::{SourceId, SourceKind},
+    source::{GitReference, SourceId, SourceKind},
 };
 pub use semver::Version;
 
