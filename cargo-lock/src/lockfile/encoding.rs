@@ -170,6 +170,14 @@ impl ToString for EncodableLockfile {
         out.push_str(extra_line);
         out.push('\n');
 
+        if let Some(value) = toml.get("version") {
+            if let Some(version) = value.as_integer() {
+                if version >= 3 {
+                    out.push_str(&format!("version = {}\n", version));
+                }
+            }
+        }
+
         let deps = toml["package"].as_array().unwrap();
         for dep in deps {
             let dep = dep.as_table().unwrap();

@@ -56,6 +56,16 @@ fn load_example_v3_lockfile() {
     assert_eq!(lockfile.metadata.len(), 0);
 }
 
+/// Ensure V3 lockfiles encode their version correctly.
+#[test]
+fn serialize_v3() {
+    let lockfile = Lockfile::load(V3_LOCKFILE_PATH).unwrap();
+    let reserialized = lockfile.to_string();
+    let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
+    assert_eq!(lockfile2.version, ResolveVersion::V3);
+    assert_eq!(lockfile2.packages, lockfile.packages);
+}
+
 /// Ensure we can serialize a V2 lockfile as a V1 lockfile
 #[test]
 fn serialize_v2_to_v1() {
