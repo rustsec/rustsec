@@ -7,4 +7,4 @@ publish = false
 path = "dummy.rs"
 
 [dependencies]
-base64 = "<0.5.2"
+base64 = "<0.5.3"
