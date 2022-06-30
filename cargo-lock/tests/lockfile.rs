@@ -89,6 +89,36 @@ fn serialize_v1_to_v2() {
     assert_eq!(lockfile.packages, lockfile2.packages);
 }
 
+/// Test that encoded V1 lockfiles match what Cargo would normally write.
+#[test]
+fn serde_matches_v1() {
+    let lockfile = Lockfile::load(V1_LOCKFILE_PATH).unwrap();
+    let reserialized = lockfile.to_string();
+    let file_content = std::fs::read_to_string(V1_LOCKFILE_PATH).unwrap();
+
+    assert_eq!(reserialized, file_content);
+}
+
+/// Test that encoded V2 lockfiles match what Cargo would normally write.
+#[test]
+fn serde_matches_v2() {
+    let lockfile = Lockfile::load(V2_LOCKFILE_PATH).unwrap();
+    let reserialized = lockfile.to_string();
+    let file_content = std::fs::read_to_string(V2_LOCKFILE_PATH).unwrap();
+
+    assert_eq!(reserialized, file_content);
+}
+
+/// Test that encoded V3 lockfiles match what Cargo would normally write.
+#[test]
+fn serde_matches_v3() {
+    let lockfile = Lockfile::load(V3_LOCKFILE_PATH).unwrap();
+    let reserialized = lockfile.to_string();
+    let file_content = std::fs::read_to_string(V3_LOCKFILE_PATH).unwrap();
+
+    assert_eq!(reserialized, file_content);
+}
+
 /// Dependency tree tests
 #[cfg(feature = "dependency-tree")]
 mod tree {

@@ -178,6 +178,8 @@ impl ToString for EncodableLockfile {
             }
         }
 
+        out.push('\n');
+
         let deps = toml["package"].as_array().unwrap();
         for dep in deps {
             let dep = dep.as_table().unwrap();
