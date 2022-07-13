@@ -15,7 +15,7 @@ askama = "0.11"
 atom_syndication = "0.11"
 chrono = { version = "0.4", features = ["serde"] }
 clap = "3"
-comrak = "0.13"
+comrak = "0.14"
 crates-index = "0.18"
 rust-embed = "6.4"
 rustsec = { version = "0.26", path = "../rustsec", features = ["osv-export"] }
