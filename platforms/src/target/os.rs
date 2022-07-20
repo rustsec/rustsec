@@ -95,8 +95,14 @@ pub enum OS {
     /// `wasi`: The WebAssembly System Interface
     Wasi,
 
+    /// `watchos`
+    WatchOS,
+
     /// `windows`: Microsoft's Windows operating system
     Windows,
+
+    /// `xous`
+    Xous,
 }
 
 impl OS {
@@ -130,7 +136,9 @@ impl OS {
             OS::Unknown => "unknown",
             OS::VxWorks => "vxworks",
             OS::Wasi => "wasi",
+            OS::WatchOS => "watchos",
             OS::Windows => "windows",
+            OS::Xous => "xous",
         }
     }
 }
@@ -168,7 +176,9 @@ impl FromStr for OS {
             "unknown" => OS::Unknown,
             "vxworks" => OS::VxWorks,
             "wasi" => OS::Wasi,
+            "watchos" => OS::WatchOS,
             "windows" => OS::Windows,
+            "xous" => OS::Xous,
             _ => return Err(Error),
         };
 
