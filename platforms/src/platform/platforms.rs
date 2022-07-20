@@ -20,9 +20,12 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_APPLE_IOS_MACABI,
     AARCH64_APPLE_IOS_SIM,
     AARCH64_APPLE_TVOS,
+    AARCH64_APPLE_WATCHOS_SIM,
     AARCH64_FUCHSIA,
     AARCH64_KMC_SOLID_ASP3,
     AARCH64_LINUX_ANDROID,
+    AARCH64_NINTENDO_SWITCH_FREESTANDING,
+    AARCH64_PC_WINDOWS_GNULLVM,
     AARCH64_PC_WINDOWS_MSVC,
     AARCH64_UNKNOWN_FREEBSD,
     AARCH64_UNKNOWN_HERMIT,
@@ -44,6 +47,7 @@ pub(crate) const ALL: &[Platform] = &[
     ARM_UNKNOWN_LINUX_GNUEABIHF,
     ARM_UNKNOWN_LINUX_MUSLEABI,
     ARM_UNKNOWN_LINUX_MUSLEABIHF,
+    ARM64_32_APPLE_WATCHOS,
     ARMEBV7R_NONE_EABI,
     ARMEBV7R_NONE_EABIHF,
     ARMV4T_UNKNOWN_LINUX_GNUEABI,
@@ -68,6 +72,7 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV7A_KMC_SOLID_ASP3_EABIHF,
     ARMV7A_NONE_EABI,
     ARMV7A_NONE_EABIHF,
+    ARMV7K_APPLE_WATCHOS,
     ARMV7R_NONE_EABI,
     ARMV7R_NONE_EABIHF,
     ARMV7S_APPLE_IOS,
@@ -134,6 +139,7 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV32I_UNKNOWN_NONE_ELF,
     RISCV32IM_UNKNOWN_NONE_ELF,
     RISCV32IMAC_UNKNOWN_NONE_ELF,
+    RISCV32IMAC_UNKNOWN_XOUS_ELF,
     RISCV32IMC_ESP_ESPIDF,
     RISCV32IMC_UNKNOWN_NONE_ELF,
     RISCV64GC_UNKNOWN_FREEBSD,
@@ -169,11 +175,13 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_APPLE_IOS,
     X86_64_APPLE_IOS_MACABI,
     X86_64_APPLE_TVOS,
+    X86_64_APPLE_WATCHOS_SIM,
     X86_64_FORTANIX_UNKNOWN_SGX,
     X86_64_FUCHSIA,
     X86_64_LINUX_ANDROID,
     X86_64_PC_SOLARIS,
     X86_64_PC_WINDOWS_GNU,
+    X86_64_PC_WINDOWS_GNULLVM,
     X86_64_PC_WINDOWS_MSVC,
     X86_64_SUN_SOLARIS,
     X86_64_UNKNOWN_DRAGONFLY,
@@ -251,6 +259,17 @@ pub(crate) const AARCH64_APPLE_TVOS: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// ARM64 Apple WatchOS Simulator
+pub(crate) const AARCH64_APPLE_WATCHOS_SIM: Platform = Platform {
+    target_triple: "aarch64-apple-watchos-sim",
+    target_arch: Arch::AArch64,
+    target_os: OS::WatchOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// ARM64 Fuchsia
 pub(crate) const AARCH64_FUCHSIA: Platform = Platform {
     target_triple: "aarch64-fuchsia",
@@ -282,6 +301,27 @@ pub(crate) const AARCH64_LINUX_ANDROID: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
+};
+
+/// ARM64 Nintendo Switch, Horizon
+pub(crate) const AARCH64_NINTENDO_SWITCH_FREESTANDING: Platform = Platform {
+    target_triple: "aarch64-nintendo-switch-freestanding",
+    target_arch: Arch::AArch64,
+    target_os: OS::Horizon,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+pub(crate) const AARCH64_PC_WINDOWS_GNULLVM: Platform = Platform {
+    target_triple: "aarch64-pc-windows-gnullvm",
+    target_arch: Arch::AArch64,
+    target_os: OS::Windows,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
 };
 
 /// ARM64 Windows MSVC
@@ -510,6 +550,17 @@ pub(crate) const ARM_UNKNOWN_LINUX_MUSLEABIHF: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Two,
+};
+
+/// ARM Apple WatchOS 64-bit with 32-bit pointers
+pub(crate) const ARM64_32_APPLE_WATCHOS: Platform = Platform {
+    target_triple: "arm64_32-apple-watchos",
+    target_arch: Arch::AArch64,
+    target_os: OS::WatchOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
 };
 
 /// Bare ARMv7-R, Big Endian
@@ -766,6 +817,17 @@ pub(crate) const ARMV7A_NONE_EABIHF: Platform = Platform {
     target_triple: "armv7a-none-eabihf",
     target_arch: Arch::Arm,
     target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// ARM Apple WatchOS
+pub(crate) const ARMV7K_APPLE_WATCHOS: Platform = Platform {
+    target_triple: "armv7k-apple-watchos",
+    target_arch: Arch::Arm,
+    target_os: OS::WatchOS,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
@@ -1481,6 +1543,17 @@ pub(crate) const RISCV32IMAC_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// RISC-V Xous (RV32IMAC ISA)
+pub(crate) const RISCV32IMAC_UNKNOWN_XOUS_ELF: Platform = Platform {
+    target_triple: "riscv32imac-unknown-xous-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::Xous,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RISC-V ESP-IDF
 pub(crate) const RISCV32IMC_ESP_ESPIDF: Platform = Platform {
     target_triple: "riscv32imc-esp-espidf",
@@ -1864,6 +1937,17 @@ pub(crate) const X86_64_APPLE_TVOS: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// x86 64-bit Apple WatchOS simulator
+pub(crate) const X86_64_APPLE_WATCHOS_SIM: Platform = Platform {
+    target_triple: "x86_64-apple-watchos-sim",
+    target_arch: Arch::X86_64,
+    target_os: OS::WatchOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// [Fortanix ABI] for 64-bit Intel SGX
 pub(crate) const X86_64_FORTANIX_UNKNOWN_SGX: Platform = Platform {
     target_triple: "x86_64-fortanix-unknown-sgx",
@@ -1917,6 +2001,16 @@ pub(crate) const X86_64_PC_WINDOWS_GNU: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::One,
+};
+
+pub(crate) const X86_64_PC_WINDOWS_GNULLVM: Platform = Platform {
+    target_triple: "x86_64-pc-windows-gnullvm",
+    target_arch: Arch::X86_64,
+    target_os: OS::Windows,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
 };
 
 /// 64-bit MSVC (Windows 7+) [^windows-support]
