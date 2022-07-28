@@ -24,7 +24,7 @@ toml = "0.5"
 url = { version = "2", features = ["serde"] }
 
 # optional dependencies
-cargo-edit = { version = "0.9", optional = true, default-features = false,  features = ["upgrade"] }
+cargo-edit = { version = "0.10", optional = true, default-features = false,  features = ["upgrade"] }
 crates-index = { version = "0.18", optional = true }
 git2 = { version = "0.14", optional = true }
 home = { version = "0.5", optional = true }
