@@ -118,16 +118,9 @@ impl Linter {
         Ok(())
     }
 
-    /// Skip crates.io name check if the name has been blackholed issue/619
-    fn skip_name_exists_on_crates_io(&self, advisory: &rustsec::Advisory) -> bool {
-        advisory.metadata.crates_io_blackhole
-    }
-
     /// Perform lints that connect to https://crates.io
     fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
-        if !self.skip_name_exists_on_crates_io(advisory)
-            && !self.name_exists_on_crates_io(advisory.metadata.package.as_str())
-        {
+        if !self.name_exists_on_crates_io(advisory.metadata.package.as_str()) {
             self.invalid_advisories += 1;
 
             fail!(
