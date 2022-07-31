@@ -81,4 +81,10 @@ pub struct Metadata {
     /// This can be used to soft-delete advisories which were filed in error.
     #[serde(default)]
     pub withdrawn: Option<Date>,
+
+    /// Was the associated crate blackholed by crates.io so we skip the crates.io check
+    ///
+    /// Defaults to false via bool::default
+    #[serde(default)]
+    pub crates_io_blackhole: bool,
 }

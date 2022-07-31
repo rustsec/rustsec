@@ -204,8 +204,15 @@ impl Linter {
                             });
                         }
                     }
-                    "aliases" | "cvss" | "keywords" | "package" | "references" | "related"
-                    | "title" | "description" => (),
+                    "aliases"
+                    | "cvss"
+                    | "keywords"
+                    | "package"
+                    | "references"
+                    | "related"
+                    | "title"
+                    | "description"
+                    | "crates_io_blackhole" => (),
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),
