@@ -145,7 +145,7 @@ impl Linter {
     /// Checks whether the name is in the skiplist
     fn name_is_skipped(&self, package_name: &str) -> bool {
         match &self.skip_namecheck {
-            Some(skips) => skips.split(",").any(|a| a == package_name),
+            Some(skips) => skips.split(',').any(|a| a == package_name),
             None => false,
         }
     }
