@@ -28,11 +28,17 @@ pub struct Linter {
 
     /// Total number of invalid advisories encountered
     invalid_advisories: usize,
+
+    /// Skip namecheck list
+    skip_namecheck: Option<String>,
 }
 
 impl Linter {
     /// Create a new linter for the database at the given path
-    pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
+    pub fn new(
+        repo_path: impl Into<PathBuf>,
+        skip_namecheck: Option<String>,
+    ) -> Result<Self, Error> {
         let repo_path = repo_path.into();
         let mut crates_index = crates_index::Index::new_cargo_default()?;
         crates_index.update()?;
@@ -43,6 +49,7 @@ impl Linter {
             crates_index,
             advisory_db,
             invalid_advisories: 0,
+            skip_namecheck,
         })
     }
 
@@ -120,7 +127,9 @@ impl Linter {
 
     /// Perform lints that connect to https://crates.io
     fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
-        if !self.name_exists_on_crates_io(advisory.metadata.package.as_str()) {
+        if !self.name_is_skipped(advisory.metadata.package.as_str())
+            && !self.name_exists_on_crates_io(advisory.metadata.package.as_str())
+        {
             self.invalid_advisories += 1;
 
             fail!(
@@ -131,6 +140,14 @@ impl Linter {
         }
 
         Ok(())
+    }
+
+    /// Checks whether the name is in the skiplist
+    fn name_is_skipped(&self, package_name: &str) -> bool {
+        match &self.skip_namecheck {
+            Some(skips) => skips.split(",").any(|a| a == package_name),
+            None => false,
+        }
     }
 
     /// Checks if a crate with this name is present on crates.io
