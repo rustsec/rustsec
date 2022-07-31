@@ -4,14 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.27.0 (2022-07-31)
-### Added
-- `crates_io_blackhole` metadata skip crates.io check ([#571]) 
-
-### Changed
-- Bump `comrak` to v0.13 ([#584])
-- Bump `clap` to v3.2 ([#592])
-
 ## 0.26.0 (2022-05-21)
 ### Added
 - `[advisory.source]` ([#541])
