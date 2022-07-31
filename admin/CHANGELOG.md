@@ -1,3 +1,7 @@
+## 0.8.0 (2022-07-31)
+- Fix [#619] by `crates_io_blackhole` = bool | false ([#620])
+- Add metadata lint skip option for crates.io blackholed crates
+
 ## 0.7.0 (2022-05-23)
 - Update Abscissa to 0.6; replace `gumdrop` with `clap` v3 ([#525])
 - Update `rustsec` crate to v0.26 ([#574])
