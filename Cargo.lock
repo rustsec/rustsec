@@ -1483,7 +1483,7 @@ checksum = "1df8c4ec4b0627e53bdf214615ad287367e482558cf84b109250b37464dc03ae"
 
 [[package]]
 name = "platforms"
-version = "3.0.1"
+version = "3.0.0"
 dependencies = [
  "serde",
 ]
@@ -1708,7 +1708,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.27.0"
+version = "0.26.0"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
@@ -1731,7 +1731,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec-admin"
-version = "0.8.0"
+version = "0.7.0"
 dependencies = [
  "abscissa_core",
  "askama",
