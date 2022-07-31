@@ -2,6 +2,9 @@
 - Fix 619 with rustsec-admin lint --skip-namecheck ([#620])
 - Add metadata lint skip option for crates.io blackholed crates ([#619])
 
+[#619]: https://github.com/RustSec/rustsec/issues/619
+[#620]: https://github.com/RustSec/rustsec/pull/620
+
 ## 0.7.0 (2022-05-23)
 - Update Abscissa to 0.6; replace `gumdrop` with `clap` v3 ([#525])
 - Update `rustsec` crate to v0.26 ([#574])
