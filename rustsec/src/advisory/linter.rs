@@ -186,24 +186,6 @@ impl Linter {
                             year = Some(y1);
                         }
                     }
-                    "yanked" => {
-                        if self.advisory.metadata.withdrawn.is_none() {
-                            self.errors.push(Error {
-                                kind: ErrorKind::Malformed,
-                                section: Some("metadata"),
-                                message: Some("Advisories with `yanked = true` must also set the `withdrawn` field"),
-                            });
-                        }
-                    }
-                    "withdrawn" => {
-                        if !matches!(table.get("yanked"), Some(toml::Value::Boolean(true))) {
-                            self.errors.push(Error {
-                                kind: ErrorKind::Malformed,
-                                section: Some("metadata"),
-                                message: Some("Advisories with the `withdrawn` field must also set `yanked = true`"),
-                            });
-                        }
-                    }
                     "aliases" | "cvss" | "keywords" | "package" | "references" | "related"
                     | "title" | "description" => (),
                     _ => self.errors.push(Error {
