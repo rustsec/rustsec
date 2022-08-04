@@ -191,7 +191,7 @@ impl Linter {
                             self.errors.push(Error {
                                 kind: ErrorKind::Malformed,
                                 section: Some("metadata"),
-                                message: Some("Advisories with `yanked = true` must set the `withdrawn` field instead"),
+                                message: Some("Field `yanked` is deprecated, use `withdrawn` field instead"),
                             });
                         }
                     }
