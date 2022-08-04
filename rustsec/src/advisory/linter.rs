@@ -186,6 +186,15 @@ impl Linter {
                             year = Some(y1);
                         }
                     }
+                    "yanked" => {
+                        if self.advisory.metadata.withdrawn.is_none() {
+                            self.errors.push(Error {
+                                kind: ErrorKind::Malformed,
+                                section: Some("metadata"),
+                                message: Some("Advisories with `yanked = true` must set the `withdrawn` field instead"),
+                            });
+                        }
+                    }
                     "aliases" | "cvss" | "keywords" | "package" | "references" | "related"
                     | "title" | "description" => (),
                     _ => self.errors.push(Error {
