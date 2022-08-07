@@ -149,7 +149,10 @@ fn advisories_found_json() {
 fn version() {
     let mut runner = RUNNER.clone();
     runner.arg("--version");
-    let process = runner.run();
+    let mut process = runner.run();
+    let mut version_information = String::new();
+    process.stdout().read_line(&mut version_information).unwrap();
+    assert_eq!(version_information, format!("cargo-audit-audit {}\n", env!("CARGO_PKG_VERSION")));
     process.wait().unwrap().expect_success();
 }
 

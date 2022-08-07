@@ -20,6 +20,7 @@ use clap::Subcommand;
 
 /// The `cargo audit` subcommand
 #[derive(Command, Default, Debug, Parser)]
+#[clap(version)]
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix`)
     #[cfg(feature = "fix")]
@@ -29,10 +30,6 @@ pub struct AuditCommand {
     /// Get help information
     #[clap(short = 'h', long = "help", help = "output help information and exit")]
     help: bool,
-
-    /// Get version information
-    #[clap(long = "version", help = "output version and exit")]
-    version: bool,
 
     /// Colored output configuration
     #[clap(
