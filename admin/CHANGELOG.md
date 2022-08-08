@@ -1,3 +1,8 @@
+## 0.8.1 (2022-08-09)
+- Adjust website templates to advertise OSV integration on rustsec.org ([#633])
+
+[#633]: https://github.com/rustsec/rustsec/pull/633
+
 ## 0.8.0 (2022-07-31)
 - Fix 619 with rustsec-admin lint --skip-namecheck ([#620])
 - Add metadata lint skip option for crates.io blackholed crates ([#619])
