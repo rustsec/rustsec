@@ -36,6 +36,15 @@ pub struct AuditCommand {
 
     /// Colored output configuration
     #[clap(
+        short = 'b',
+        long = "binary",
+        help = "Instead of scanning Cargo.lock, scan the specified binary built with 'cargo auditable'",
+        requires = "file",
+    )]
+    bin: bool,
+
+    /// Colored output configuration
+    #[clap(
         short = 'c',
         long = "color",
         help = "color configuration: always, never (default: auto)"
