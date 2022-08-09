@@ -1,12 +1,13 @@
 //! Core auditing functionality
 
 use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
+use miniz_oxide::inflate::decompress_to_vec_zlib_with_limit;
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     collections::btree_map as map,
-    io::{self, Read},
+    io::{self, Read, BufReader},
     path::Path,
-    process::exit,
+    process::exit, fs::File, str::FromStr,
 };
 
 /// Name of `Cargo.lock`
@@ -119,8 +120,8 @@ impl Auditor {
         }
     }
 
-    /// Perform audit
-    pub fn audit(
+    /// Perform an audit of a textual `Cargo.lock` file
+    pub fn audit_lockfile(
         &mut self,
         maybe_lockfile_path: Option<&Path>,
     ) -> rustsec::Result<rustsec::Report> {
@@ -145,8 +146,33 @@ impl Auditor {
             }
         };
 
-        self.presenter.before_report(lockfile_path, &lockfile);
+        self.presenter.before_lockfile_report(lockfile_path, &lockfile);
 
+        self.audit(&lockfile)
+    }
+
+    /// Perform an audit of a binary file with dependency data embedded by `cargo audit`
+    pub fn audit_binary(
+        &mut self,
+        binary_path: &Path,
+    ) -> rustsec::Result<rustsec::Report> {
+        let lockfile = match self.load_deps_from_binary(binary_path) {
+            Ok(l) => l,
+            Err(e) => {
+                return Err(Error::new(
+                    ErrorKind::NotFound, //TODO
+                    &format!("Couldn't load {}: {}", binary_path.display(), e), // TODO
+                ))
+            }
+        };
+
+        // self.presenter.before_lockfile_report(binary_path, &lockfile); // TODO
+
+        self.audit(&lockfile)
+    }
+
+    /// The part of the auditing process that is shared between auditing lockfiles and binary files
+    fn audit(&mut self, lockfile: &Lockfile) -> rustsec::Result<rustsec::Report> {
         let mut report =
             rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
 
@@ -184,6 +210,34 @@ impl Auditor {
         } else {
             Ok(Lockfile::load(lockfile_path)?)
         }
+    }
+
+    /// Load the dependency tree from a binary file built with `cargo auditable`
+    fn load_deps_from_binary(&self, binary_path: &Path) -> rustsec::Result<Lockfile> {
+        // Read the input
+        let binary = if binary_path == Path::new("-") {
+            let mut input = Vec::new();
+            let stdin = io::stdin();
+            let mut handle = stdin.lock();
+            handle.read_to_end(&mut input)?;
+            input
+        } else {
+            let f = File::open(binary_path)?;
+            let mut f = BufReader::new(f);
+            let mut input = Vec::new();
+            f.read_to_end(&mut input)?;
+            input
+        };
+        // Extract the compressed audit data
+        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary).unwrap(); // TODO
+        // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
+        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8).unwrap(); // TODO
+        let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text).unwrap(); // TODO
+        let lockfile = cargo_lock::Lockfile::try_from(&json_structs).unwrap();
+        // there's like 3 different `Lockfile` structs in this repo and they're all same but different
+        // and also not convertible into each other and I'm *really* confused
+        // so I'm just gonna roundtrip it through text to make it work. // FIXME
+        Ok(Lockfile::from_str(&lockfile.to_string()).unwrap())
     }
 
     /// Query the database for advisories about `cargo-audit` or `rustsec` itself

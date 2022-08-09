@@ -37,7 +37,7 @@ pub struct AuditCommand {
     /// Colored output configuration
     #[clap(
         short = 'b',
-        long = "binary",
+        long = "bin",
         help = "Instead of scanning Cargo.lock, scan the specified binary built with 'cargo auditable'",
         requires = "file",
     )]
@@ -215,8 +215,13 @@ impl Runnable for AuditCommand {
             None => (),
         }
 
-        let lockfile_path = self.file.as_deref();
-        let report = self.auditor().audit(lockfile_path);
+        let report=  if self.bin {
+            let path = self.file.clone().unwrap();
+            self.auditor().audit_binary(&path)
+        } else {
+            let path = self.file.as_deref();
+            self.auditor().audit_lockfile(path)
+        };
 
         match report {
             Ok(report) => {

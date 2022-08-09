@@ -41,7 +41,7 @@ impl FixCommand {
 
 impl Runnable for FixCommand {
     fn run(&self) {
-        let report = self.auditor().audit(self.cargo_lock_path());
+        let report = self.auditor().audit_lockfile(self.cargo_lock_path());
 
         let report = match report {
             Ok(report) => {
