@@ -237,7 +237,7 @@ impl Auditor {
         // there's like 3 different `Lockfile` structs in this repo and they're all same but different
         // and also not convertible into each other and I'm *really* confused
         // so I'm just gonna roundtrip it through text to make it work. // FIXME
-        Ok(Lockfile::from_str(&lockfile.to_string()).unwrap())
+        Ok(lockfile)
     }
 
     /// Query the database for advisories about `cargo-audit` or `rustsec` itself
