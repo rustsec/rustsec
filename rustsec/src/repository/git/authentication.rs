@@ -195,11 +195,13 @@ where
                 .map(|s| format!("`{}`", s))
                 .collect::<Vec<_>>()
                 .join(", ");
-            write!(msg,
+            write!(
+                msg,
                 "\nattempted ssh-agent authentication, but \
                  none of the usernames {} succeeded",
                 names
-            ).unwrap();
+            )
+            .unwrap();
         }
         if let Some(failed_cred_helper) = cred_helper_bad {
             if failed_cred_helper {
