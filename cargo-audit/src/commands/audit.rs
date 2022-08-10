@@ -34,7 +34,7 @@ pub struct AuditCommand {
     #[clap(long = "version", help = "output version and exit")]
     version: bool,
 
-    /// Colored output configuration
+    /// Scan a binary built with 'cargo auditable'
     #[clap(
         short = 'b',
         long = "bin",
