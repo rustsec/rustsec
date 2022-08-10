@@ -168,7 +168,13 @@ impl From<toml::de::Error> for Error {
 #[cfg(feature = "binary-scanning")]
 impl From<auditable_extract::Error> for Error {
     fn from(other: auditable_extract::Error) -> Self {
-        format_err!(ErrorKind::Parse, &other)
+        match other {
+            auditable_extract::Error::NoAuditData => Error::new(
+                ErrorKind::Parse,
+                &"No audit data found! Was the binary built with 'cargo auditable'?"
+            ),
+            other => format_err!(ErrorKind::Parse, &other),
+        }
     }
 }
 
