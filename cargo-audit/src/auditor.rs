@@ -5,9 +5,10 @@ use miniz_oxide::inflate::decompress_to_vec_zlib_with_limit;
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     collections::btree_map as map,
-    io::{self, Read, BufReader},
+    fs::File,
+    io::{self, BufReader, Read},
     path::Path,
-    process::exit, fs::File,
+    process::exit,
 };
 
 /// Name of `Cargo.lock`
@@ -146,16 +147,14 @@ impl Auditor {
             }
         };
 
-        self.presenter.before_lockfile_report(lockfile_path, &lockfile);
+        self.presenter
+            .before_lockfile_report(lockfile_path, &lockfile);
 
         self.audit(&lockfile)
     }
 
     /// Perform an audit of a binary file with dependency data embedded by `cargo audit`
-    pub fn audit_binary(
-        &mut self,
-        binary_path: &Path,
-    ) -> rustsec::Result<rustsec::Report> {
+    pub fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         let lockfile = self.load_deps_from_binary(binary_path)?;
 
         // self.presenter.before_lockfile_report(binary_path, &lockfile); // TODO

@@ -39,7 +39,7 @@ pub struct AuditCommand {
         short = 'b',
         long = "bin",
         help = "Instead of scanning Cargo.lock, scan the specified binary built with 'cargo auditable'",
-        requires = "file",
+        requires = "file"
     )]
     bin: bool,
 
@@ -215,7 +215,7 @@ impl Runnable for AuditCommand {
             None => (),
         }
 
-        let report=  if self.bin {
+        let report = if self.bin {
             let path = self.file.clone().unwrap();
             self.auditor().audit_binary(&path)
         } else {
