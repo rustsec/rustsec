@@ -147,8 +147,7 @@ impl Auditor {
             }
         };
 
-        self.presenter
-            .before_lockfile_report(lockfile_path, &lockfile);
+        self.presenter.before_report(lockfile_path, &lockfile);
 
         self.audit(&lockfile)
     }
@@ -157,7 +156,7 @@ impl Auditor {
     pub fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         let lockfile = self.load_deps_from_binary(binary_path)?;
 
-        // self.presenter.before_lockfile_report(binary_path, &lockfile); // TODO
+        self.presenter.before_report(binary_path, &lockfile);
 
         self.audit(&lockfile)
     }
