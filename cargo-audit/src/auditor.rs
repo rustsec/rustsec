@@ -1,12 +1,10 @@
 //! Core auditing functionality
 
 use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
-use miniz_oxide::inflate::decompress_to_vec_zlib_with_limit;
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     collections::btree_map as map,
-    fs::File,
-    io::{self, BufReader, Read},
+    io::{self, Read},
     path::Path,
     process::exit,
 };
@@ -152,6 +150,7 @@ impl Auditor {
         self.audit(&lockfile)
     }
 
+    #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo audit`
     pub fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         let lockfile = self.load_deps_from_binary(binary_path)?;
@@ -202,6 +201,7 @@ impl Auditor {
         }
     }
 
+    #[cfg(feature = "binary-scanning")]
     /// Load the dependency tree from a binary file built with `cargo auditable`
     fn load_deps_from_binary(&self, binary_path: &Path) -> rustsec::Result<Lockfile> {
         // Read the input
@@ -212,8 +212,8 @@ impl Auditor {
             handle.read_to_end(&mut input)?;
             input
         } else {
-            let f = File::open(binary_path)?;
-            let mut f = BufReader::new(f);
+            let f = std::fs::File::open(binary_path)?;
+            let mut f = std::io::BufReader::new(f);
             let mut input = Vec::new();
             f.read_to_end(&mut input)?;
             input
@@ -221,6 +221,7 @@ impl Auditor {
         // Extract the compressed audit data
         let compressed_audit_data = auditable_extract::raw_auditable_data(&binary)?;
         // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
+        use miniz_oxide::inflate::decompress_to_vec_zlib_with_limit;
         let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8)?;
         let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
         let lockfile = cargo_lock::Lockfile::try_from(&json_structs)?;

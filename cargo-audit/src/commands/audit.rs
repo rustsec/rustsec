@@ -216,8 +216,18 @@ impl Runnable for AuditCommand {
         }
 
         let report = if self.bin {
-            let path = self.file.clone().unwrap();
-            self.auditor().audit_binary(&path)
+            #[cfg(feature = "binary-scanning")]
+            {
+                let path = self.file.clone().unwrap();
+                self.auditor().audit_binary(&path)
+            }
+            #[cfg(not(feature = "binary-scanning"))]
+            {
+                status_err!(
+                    "Your copy of cargo-audit was compiled without support for scanning binaries"
+                );
+                exit(1);
+            }
         } else {
             let path = self.file.as_deref();
             self.auditor().audit_lockfile(path)
