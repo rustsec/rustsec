@@ -47,12 +47,12 @@ impl Presenter {
     }
 
     /// Information to display before a report is generated
-    pub fn before_lockfile_report(&mut self, lockfile_path: &Path, lockfile: &Lockfile) {
+    pub fn before_report(&mut self, path: &Path, lockfile: &Lockfile) {
         if !self.config.is_quiet() {
             status_ok!(
                 "Scanning",
                 "{} for vulnerabilities ({} crate dependencies)",
-                lockfile_path.display(),
+                path.display(),
                 lockfile.packages.len(),
             );
         }
