@@ -4,6 +4,7 @@
 
 use crate::error::{Error, ErrorKind};
 use std::env;
+use std::fmt::Write;
 
 /// Prepare the authentication callbacks for cloning a git repository.
 ///
@@ -194,11 +195,11 @@ where
                 .map(|s| format!("`{}`", s))
                 .collect::<Vec<_>>()
                 .join(", ");
-            msg.push_str(&format!(
+            write!(msg,
                 "\nattempted ssh-agent authentication, but \
                  none of the usernames {} succeeded",
                 names
-            ));
+            );
         }
         if let Some(failed_cred_helper) = cred_helper_bad {
             if failed_cred_helper {
