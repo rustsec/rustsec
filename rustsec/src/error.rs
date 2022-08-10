@@ -176,3 +176,13 @@ impl From<serde_json::Error> for Error {
         format_err!(ErrorKind::Parse, &other)
     }
 }
+
+impl From<miniz_oxide::inflate::TINFLStatus> for Error {
+    fn from(other: miniz_oxide::inflate::TINFLStatus) -> Self {
+        let message = match other {
+            miniz_oxide::inflate::TINFLStatus::HasMoreOutput => "The embedded audit data is too large",
+            _  => "Failed to decompress audit data",
+        };
+        Error::new(ErrorKind::Parse, &message)
+    }
+}

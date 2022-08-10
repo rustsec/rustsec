@@ -231,13 +231,7 @@ impl Auditor {
         // Extract the compressed audit data
         let compressed_audit_data = auditable_extract::raw_auditable_data(&binary)?;
         // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
-        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8).map_err(|e| {
-            let message = match e {
-                miniz_oxide::inflate::TINFLStatus::HasMoreOutput => "The embedded audit data is too large",
-                _  => "Failed to decompress audit data",
-            };
-            Error::new(ErrorKind::Parse, &message)
-        })?;
+        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8)?;
         let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
         let lockfile = cargo_lock::Lockfile::try_from(&json_structs)?;
         Ok(lockfile)
