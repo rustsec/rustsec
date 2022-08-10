@@ -7,7 +7,7 @@ use std::{
     collections::btree_map as map,
     io::{self, Read, BufReader},
     path::Path,
-    process::exit, fs::File, str::FromStr,
+    process::exit, fs::File,
 };
 
 /// Name of `Cargo.lock`
@@ -229,14 +229,17 @@ impl Auditor {
             input
         };
         // Extract the compressed audit data
-        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary).unwrap(); // TODO
+        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary)?;
         // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
-        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8).unwrap(); // TODO
-        let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text).unwrap(); // TODO
-        let lockfile = cargo_lock::Lockfile::try_from(&json_structs).unwrap();
-        // there's like 3 different `Lockfile` structs in this repo and they're all same but different
-        // and also not convertible into each other and I'm *really* confused
-        // so I'm just gonna roundtrip it through text to make it work. // FIXME
+        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8).map_err(|e| {
+            let message = match e {
+                miniz_oxide::inflate::TINFLStatus::HasMoreOutput => "The embedded audit data is too large",
+                _  => "Failed to decompress audit data",
+            };
+            Error::new(ErrorKind::Parse, &message)
+        })?;
+        let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
+        let lockfile = cargo_lock::Lockfile::try_from(&json_structs)?;
         Ok(lockfile)
     }
 
