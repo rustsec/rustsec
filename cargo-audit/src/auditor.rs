@@ -156,15 +156,7 @@ impl Auditor {
         &mut self,
         binary_path: &Path,
     ) -> rustsec::Result<rustsec::Report> {
-        let lockfile = match self.load_deps_from_binary(binary_path) {
-            Ok(l) => l,
-            Err(e) => {
-                return Err(Error::new(
-                    ErrorKind::NotFound, //TODO
-                    &format!("Couldn't load {}: {}", binary_path.display(), e), // TODO
-                ))
-            }
-        };
+        let lockfile = self.load_deps_from_binary(binary_path)?;
 
         // self.presenter.before_lockfile_report(binary_path, &lockfile); // TODO
 
@@ -229,7 +221,12 @@ impl Auditor {
             input
         };
         // Extract the compressed audit data
-        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary)?;
+        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary).map_err(|err| {
+            match err {
+                auditable_extract::Error::NoAuditData => Error::new(ErrorKind::Parse, &"No audit data found! Was the binary built with 'cargo auditable'?"),
+                other_err => Error::from(other_err),
+            }
+        })?;
         // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
         let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8)?;
         let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
