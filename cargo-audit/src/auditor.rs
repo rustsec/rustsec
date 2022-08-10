@@ -151,7 +151,7 @@ impl Auditor {
     }
 
     #[cfg(feature = "binary-scanning")]
-    /// Perform an audit of a binary file with dependency data embedded by `cargo audit`
+    /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     pub fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         let lockfile = self.load_deps_from_binary(binary_path)?;
 
