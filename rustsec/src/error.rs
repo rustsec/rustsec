@@ -165,18 +165,21 @@ impl From<toml::de::Error> for Error {
     }
 }
 
+#[cfg(feature = "binary-scanning")]
 impl From<auditable_extract::Error> for Error {
     fn from(other: auditable_extract::Error) -> Self {
         format_err!(ErrorKind::Parse, &other)
     }
 }
 
+#[cfg(feature = "binary-scanning")]
 impl From<serde_json::Error> for Error {
     fn from(other: serde_json::Error) -> Self {
         format_err!(ErrorKind::Parse, &other)
     }
 }
 
+#[cfg(feature = "binary-scanning")]
 impl From<miniz_oxide::inflate::TINFLStatus> for Error {
     fn from(other: miniz_oxide::inflate::TINFLStatus) -> Self {
         let message = match other {
