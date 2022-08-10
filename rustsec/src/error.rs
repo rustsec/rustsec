@@ -164,3 +164,15 @@ impl From<toml::de::Error> for Error {
         format_err!(ErrorKind::Parse, &other)
     }
 }
+
+impl From<auditable_extract::Error> for Error {
+    fn from(other: auditable_extract::Error) -> Self {
+        format_err!(ErrorKind::Parse, &other)
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(other: serde_json::Error) -> Self {
+        format_err!(ErrorKind::Parse, &other)
+    }
+}

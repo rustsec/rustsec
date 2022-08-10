@@ -304,6 +304,7 @@ dependencies = [
  "abscissa_core",
  "auditable-extract",
  "auditable-serde",
+ "binfarce",
  "cargo-lock 8.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap 3.2.6",
  "home",
@@ -366,6 +367,7 @@ version = "8.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c4c54d47a4532db3494ef7332c257ab57b02750daae3250d49e01ee55201ce8"
 dependencies = [
+ "petgraph",
  "semver",
  "serde",
  "toml",
@@ -1754,8 +1756,9 @@ dependencies = [
 name = "rustsec"
 version = "0.26.0"
 dependencies = [
+ "auditable-extract",
  "cargo-edit",
- "cargo-lock 8.0.2",
+ "cargo-lock 8.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "crates-index",
  "cvss",
  "fs-err",
@@ -1767,6 +1770,7 @@ dependencies = [
  "platforms",
  "semver",
  "serde",
+ "serde_json",
  "tempfile",
  "thiserror",
  "toml",
