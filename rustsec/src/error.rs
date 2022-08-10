@@ -171,7 +171,7 @@ impl From<auditable_extract::Error> for Error {
         match other {
             auditable_extract::Error::NoAuditData => Error::new(
                 ErrorKind::Parse,
-                &"No audit data found! Was the binary built with 'cargo auditable'?"
+                &"No audit data found! Was the binary built with 'cargo auditable'?",
             ),
             other => format_err!(ErrorKind::Parse, &other),
         }
@@ -189,8 +189,10 @@ impl From<serde_json::Error> for Error {
 impl From<miniz_oxide::inflate::TINFLStatus> for Error {
     fn from(other: miniz_oxide::inflate::TINFLStatus) -> Self {
         let message = match other {
-            miniz_oxide::inflate::TINFLStatus::HasMoreOutput => "The embedded audit data is too large",
-            _  => "Failed to decompress audit data",
+            miniz_oxide::inflate::TINFLStatus::HasMoreOutput => {
+                "The embedded audit data is too large"
+            }
+            _ => "Failed to decompress audit data",
         };
         Error::new(ErrorKind::Parse, &message)
     }
