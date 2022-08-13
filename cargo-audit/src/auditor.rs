@@ -151,12 +151,29 @@ impl Auditor {
     }
 
     #[cfg(feature = "binary-scanning")]
+    /// Perform an audit of multiple binary files with dependency data embedded by `cargo auditable`
+    pub fn audit_binaries<P>(&mut self, binaries: &[P]) -> MultiFileReportSummmary where P: AsRef<Path> {
+        let mut summary = MultiFileReportSummmary::default();
+            for path in binaries {
+                let result = self.audit_binary(path.as_ref());
+                match result {
+                    Ok(report) => if report.vulnerabilities.found {
+                        summary.vulnerabilities_found = true;
+                    },
+                    Err(e) => {
+                        status_err!("{}", e);
+                        summary.errors_encountered = true;
+                    } 
+                }
+            }
+        summary
+    }
+
+    #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
-    pub fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
+    fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
+        self.presenter.before_binary_scan(binary_path);
         let lockfile = self.load_deps_from_binary(binary_path)?;
-
-        self.presenter.before_report(binary_path, &lockfile);
-
         self.audit(&lockfile)
     }
 
@@ -246,4 +263,13 @@ impl Auditor {
 
         results
     }
+}
+
+/// Summary of the report over multiple scanned files
+#[derive(Clone, Copy, Debug, Default)]
+pub struct MultiFileReportSummmary {
+    /// Whether any vulnerabilities were found
+    pub vulnerabilities_found: bool,
+    /// Whether any errors were encountered during scanning
+    pub errors_encountered: bool,
 }
