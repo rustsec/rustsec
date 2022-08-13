@@ -39,7 +39,7 @@ pub struct AuditCommand {
         short = 'b',
         long = "bin",
         help = "Instead of scanning Cargo.lock, scan the specified binary built with 'cargo auditable'",
-        conflicts_with = "file",
+        conflicts_with = "file"
     )]
     bin: bool,
 

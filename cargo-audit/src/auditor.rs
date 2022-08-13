@@ -152,20 +152,25 @@ impl Auditor {
 
     #[cfg(feature = "binary-scanning")]
     /// Perform an audit of multiple binary files with dependency data embedded by `cargo auditable`
-    pub fn audit_binaries<P>(&mut self, binaries: &[P]) -> MultiFileReportSummmary where P: AsRef<Path> {
+    pub fn audit_binaries<P>(&mut self, binaries: &[P]) -> MultiFileReportSummmary
+    where
+        P: AsRef<Path>,
+    {
         let mut summary = MultiFileReportSummmary::default();
-            for path in binaries {
-                let result = self.audit_binary(path.as_ref());
-                match result {
-                    Ok(report) => if report.vulnerabilities.found {
+        for path in binaries {
+            let result = self.audit_binary(path.as_ref());
+            match result {
+                Ok(report) => {
+                    if report.vulnerabilities.found {
                         summary.vulnerabilities_found = true;
-                    },
-                    Err(e) => {
-                        status_err!("{}", e);
-                        summary.errors_encountered = true;
-                    } 
+                    }
+                }
+                Err(e) => {
+                    status_err!("{}", e);
+                    summary.errors_encountered = true;
                 }
             }
+        }
         summary
     }
 
