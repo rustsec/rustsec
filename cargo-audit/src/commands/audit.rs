@@ -8,8 +8,9 @@ mod binary_scanning;
 
 use crate::{
     auditor::Auditor,
+    cli_config::CliConfig,
     config::{AuditConfig, DenyOption},
-    prelude::*, cli_config::CliConfig,
+    prelude::*,
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
 use clap::Parser;

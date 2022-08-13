@@ -2,12 +2,12 @@
 
 use std::path::PathBuf;
 
-use abscissa_core::FrameworkError;
 use abscissa_core::error::context::Context;
 use abscissa_core::error::framework::FrameworkErrorKind;
+use abscissa_core::FrameworkError;
 use rustsec::platforms::target::{Arch, OS};
 
-use crate::config::{DenyOption, AuditConfig, OutputFormat};
+use crate::config::{AuditConfig, DenyOption, OutputFormat};
 
 #[derive(Debug, Clone)]
 pub struct CliConfig {
@@ -53,13 +53,11 @@ impl CliConfig {
         }
 
         for advisory_id in &self.ignore {
-            config
-                .advisories
-                .ignore
-                .push(advisory_id.parse().map_err(|e| Context::new(
-                    FrameworkErrorKind::ParseError,
-                    Some(Box::new(e))
-                ))?);
+            config.advisories.ignore.push(
+                advisory_id
+                    .parse()
+                    .map_err(|e| Context::new(FrameworkErrorKind::ParseError, Some(Box::new(e))))?,
+            );
         }
 
         config.advisories.ignore_source |= self.ignore_source;

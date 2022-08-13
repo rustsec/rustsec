@@ -2,8 +2,9 @@
 
 use crate::{
     auditor::Auditor,
+    cli_config::CliConfig,
     config::{AuditConfig, DenyOption},
-    prelude::*, cli_config::CliConfig,
+    prelude::*,
 };
 use abscissa_core::{config::Override, FrameworkError};
 use clap::Parser;
@@ -100,10 +101,7 @@ pub struct BinCommand {
     output_json: bool,
 
     /// Paths to the binaries to be scanned
-    #[clap(
-        value_parser,
-        help = "Paths to the binaries to be scanned"
-    )]
+    #[clap(value_parser, help = "Paths to the binaries to be scanned")]
     binary_paths: Vec<PathBuf>,
 }
 
