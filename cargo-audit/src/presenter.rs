@@ -58,6 +58,7 @@ impl Presenter {
         }
     }
 
+    #[cfg(feature = "binary-scanning")]
     /// Information to display before a binary file is scanned
     pub fn before_binary_scan(&mut self, path: &Path) {
         if !self.config.is_quiet() {
