@@ -39,7 +39,7 @@ pub struct AuditCommand {
         short = 'b',
         long = "bin",
         help = "Instead of scanning Cargo.lock, scan the specified binary built with 'cargo auditable'",
-        conflicts_with = "file",
+        conflicts_with = "file"
     )]
     bin: bool,
 
@@ -133,7 +133,11 @@ pub struct AuditCommand {
     output_json: bool,
 
     /// Paths to the binaries to be scanned
-    #[clap(value_parser, requires = "bin", help = "Paths to the binaries to be scanned; requires --bin")]
+    #[clap(
+        value_parser,
+        requires = "bin",
+        help = "Paths to the binaries to be scanned; requires --bin"
+    )]
     binary_paths: Vec<PathBuf>,
 }
 
