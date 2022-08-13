@@ -1,42 +1,22 @@
-//! The `cargo audit` subcommand
-
-#[cfg(feature = "fix")]
-mod fix;
-
-#[cfg(feature = "binary-scanning")]
-mod binary_scanning;
+//! The `cargo audit bin` subcommand
 
 use crate::{
     auditor::Auditor,
     config::{AuditConfig, DenyOption},
     prelude::*, cli_config::CliConfig,
 };
-use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
+use abscissa_core::{config::Override, FrameworkError};
 use clap::Parser;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
-use self::binary_scanning::BinCommand;
-#[cfg(feature = "fix")]
-use self::fix::FixCommand;
-#[cfg(any(feature = "fix", feature = "binary-scanning"))]
-use clap::Subcommand;
-
+#[cfg(feature = "binary-scanning")]
 /// The `cargo audit` subcommand
 #[derive(Command, Clone, Default, Debug, Parser)]
-pub struct AuditCommand {
-    /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
-    #[cfg(any(feature = "fix", feature = "binary-scanning"))]
-    #[clap(subcommand)]
-    subcommand: Option<AuditSubcommand>,
-
+pub struct BinCommand {
     /// Get help information
     #[clap(short = 'h', long = "help", help = "output help information and exit")]
     help: bool,
-
-    /// Get version information
-    #[clap(long = "version", help = "output version and exit")]
-    version: bool,
 
     /// Colored output configuration
     #[clap(
@@ -44,7 +24,7 @@ pub struct AuditCommand {
         long = "color",
         help = "color configuration: always, never (default: auto)"
     )]
-    color: Option<String>,
+    pub color: Option<String>,
 
     /// Filesystem path to the advisory database git repository
     #[clap(
@@ -62,14 +42,6 @@ pub struct AuditCommand {
     )]
     deny: Vec<DenyOption>,
 
-    /// Path to `Cargo.lock`
-    #[clap(
-        short = 'f',
-        long = "file",
-        help = "Cargo lockfile to inspect (or `-` for STDIN, default: Cargo.lock)"
-    )]
-    file: Option<PathBuf>,
-
     /// Advisory IDs to ignore
     #[clap(
         long = "ignore",
@@ -78,10 +50,10 @@ pub struct AuditCommand {
     )]
     ignore: Vec<String>,
 
-    /// Ignore the sources of packages in Cargo.toml
+    /// Ignore the sources of packages in the audit data
     #[clap(
         long = "ignore-source",
-        help = "Ignore sources of packages in Cargo.toml, matching advisories regardless of source"
+        help = "Ignore sources of packages in the audit data, matching advisories regardless of source"
     )]
     ignore_source: bool,
 
@@ -126,42 +98,30 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[clap(long = "json", help = "Output report in JSON format")]
     output_json: bool,
+
+    /// Paths to the binaries to be scanned
+    #[clap(
+        value_parser,
+        help = "Paths to the binaries to be scanned"
+    )]
+    binary_paths: Vec<PathBuf>,
 }
 
-/// Subcommands of `cargo audit`
-#[cfg(any(feature = "fix", feature = "binary-scanning"))]
-#[derive(Subcommand, Clone, Debug, Runnable)]
-pub enum AuditSubcommand {
-    /// `cargo audit fix` subcommand
-    #[cfg(feature = "fix")]
-    #[clap(about = "automatically upgrade vulnerable dependencies")]
-    Fix(FixCommand),
-
-    /// `cargo audit bin` subcommand
-    #[cfg(feature = "binary-scanning")]
-    #[clap(about = "scan binaries compiled with 'cargo auditable'")]
-    Bin(BinCommand),
-}
-
-impl AuditCommand {
-    /// Get the color configuration
-    pub fn color_config(&self) -> Option<ColorChoice> {
-        let mut raw_color_setting = self.color.as_ref();
-        #[cfg(feature = "binary-scanning")]
-        if let &Some(AuditSubcommand::Bin(ref command)) = &self.subcommand {
-            raw_color_setting = command.color.as_ref()
-        };
-        raw_color_setting.map(|colors| match colors.as_ref() {
-            "always" => ColorChoice::Always,
-            "auto" => ColorChoice::Auto,
-            "never" => ColorChoice::Never,
-            _ => panic!("invalid color choice setting: {}", &colors),
-        })
+impl Runnable for BinCommand {
+    fn run(&self) {
+        let report = self.auditor().audit_binaries(&self.binary_paths);
+        if report.vulnerabilities_found {
+            exit(1)
+        } else if report.errors_encountered {
+            exit(2)
+        } else {
+            exit(0)
+        }
     }
 }
 
-impl From<AuditCommand> for CliConfig {
-    fn from(c: AuditCommand) -> Self {
+impl From<BinCommand> for CliConfig {
+    fn from(c: BinCommand) -> Self {
         CliConfig {
             db: c.db,
             deny: c.deny,
@@ -178,44 +138,13 @@ impl From<AuditCommand> for CliConfig {
     }
 }
 
-impl Override<AuditConfig> for AuditCommand {
+impl Override<AuditConfig> for BinCommand {
     fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
         CliConfig::from(self.clone()).override_config(config)
     }
 }
 
-impl Runnable for AuditCommand {
-    fn run(&self) {
-        #[cfg(feature = "fix")]
-        if let Some(AuditSubcommand::Fix(fix)) = &self.subcommand {
-            fix.run();
-            exit(0)
-        }
-
-        #[cfg(feature = "binary-scanning")]
-        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
-            bin.run();
-            exit(0)
-        }
-
-        let path = self.file.as_deref();
-        let report = self.auditor().audit_lockfile(path);
-        match report {
-            Ok(report) => {
-                if report.vulnerabilities.found {
-                    exit(1);
-                }
-                exit(0);
-            }
-            Err(e) => {
-                status_err!("{}", e);
-                exit(2);
-            }
-        };
-    }
-}
-
-impl AuditCommand {
+impl BinCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
         Auditor::new(&APP.config())
