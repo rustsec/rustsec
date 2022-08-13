@@ -9,7 +9,7 @@ use std::{
     process::exit,
 };
 
-#[derive(Command, Default, Debug, Parser)]
+#[derive(Command, Clone, Default, Debug, Parser)]
 #[clap(author, version, about)]
 pub struct FixCommand {
     /// Path to `Cargo.lock`
