@@ -58,6 +58,17 @@ impl Presenter {
         }
     }
 
+    /// Information to display before a binary file is scanned
+    pub fn before_binary_scan(&mut self, path: &Path) {
+        if !self.config.is_quiet() {
+            status_ok!(
+                "Scanning",
+                "{} for vulnerabilities",
+                path.display(),
+            );
+        }
+    }
+
     fn warning_word(&self, count: u64) -> &str {
         if count != 1 {
             "warnings"

@@ -39,7 +39,7 @@ pub struct AuditCommand {
         short = 'b',
         long = "bin",
         help = "Instead of scanning Cargo.lock, scan the specified binary built with 'cargo auditable'",
-        conflicts_with = "file"
+        conflicts_with = "file",
     )]
     bin: bool,
 
@@ -223,34 +223,40 @@ impl Runnable for AuditCommand {
             None => (),
         }
 
-        let report = if self.bin {
+        if self.bin {
             #[cfg(feature = "binary-scanning")]
             {
-                self.auditor().audit_binary(&self.binary_paths[0]) // TODO
+                let report = self.auditor().audit_binaries(&self.binary_paths);
+                if report.vulnerabilities_found {
+                    exit(1)
+                } else if report.errors_encountered {
+                    exit(2)
+                } else {
+                    exit(0)
+                }
             }
             #[cfg(not(feature = "binary-scanning"))]
             {
                 status_err!(
                     "Your copy of cargo-audit was compiled without support for scanning binaries"
                 );
-                exit(1);
+                exit(2);
             }
         } else {
             let path = self.file.as_deref();
-            self.auditor().audit_lockfile(path)
-        };
-
-        match report {
-            Ok(report) => {
-                if report.vulnerabilities.found {
-                    exit(1);
+            let report = self.auditor().audit_lockfile(path);
+            match report {
+                Ok(report) => {
+                    if report.vulnerabilities.found {
+                        exit(1);
+                    }
+                    exit(0);
                 }
-                exit(0);
-            }
-            Err(e) => {
-                status_err!("{}", e);
-                exit(2);
-            }
+                Err(e) => {
+                    status_err!("{}", e);
+                    exit(2);
+                }
+            };
         };
     }
 }
