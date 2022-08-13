@@ -39,7 +39,7 @@ pub struct AuditCommand {
         short = 'b',
         long = "bin",
         help = "Instead of scanning Cargo.lock, scan the specified binary built with 'cargo auditable'",
-        requires = "file"
+        conflicts_with = "file",
     )]
     bin: bool,
 
@@ -131,6 +131,10 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[clap(long = "json", help = "Output report in JSON format")]
     output_json: bool,
+
+    /// Paths to the binaries to be scanned
+    #[clap(value_parser, requires = "bin", help = "Paths to the binaries to be scanned; requires --bin")]
+    binary_paths: Vec<PathBuf>,
 }
 
 /// Subcommands of `cargo audit`
@@ -218,8 +222,7 @@ impl Runnable for AuditCommand {
         let report = if self.bin {
             #[cfg(feature = "binary-scanning")]
             {
-                let path = self.file.clone().unwrap();
-                self.auditor().audit_binary(&path)
+                self.auditor().audit_binary(&self.binary_paths[0]) // TODO
             }
             #[cfg(not(feature = "binary-scanning"))]
             {
