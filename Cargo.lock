@@ -1708,7 +1708,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.26.0"
+version = "0.26.1"
 dependencies = [
  "cargo-edit",
  "cargo-lock",
@@ -1731,7 +1731,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec-admin"
-version = "0.7.0"
+version = "0.8.1"
 dependencies = [
  "abscissa_core",
  "askama",
