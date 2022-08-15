@@ -400,7 +400,7 @@ fn render_index(output_path: &Path, advisories: &[rustsec::Advisory]) {
         {
             ids.entry(alias.to_owned())
                 .and_modify(|v| v.push(id.clone()))
-                .or_insert(vec![id.clone()]);
+                .or_insert_with(|| vec![id.clone()]);
         }
         packages.insert(advisory.metadata.package.to_string());
     }
