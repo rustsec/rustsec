@@ -151,6 +151,37 @@ impl Auditor {
     }
 
     #[cfg(feature = "binary-scanning")]
+    /// Walk the directory recursively; audit each Rust binary with dependency data embedded by `cargo auditable`
+    pub fn audit_binaries_in_dir(&mut self, dir: &Path) -> MultiFileReportSummmary {
+        let mut summary = MultiFileReportSummmary::default();
+        for entry in walkdir::WalkDir::new(dir).into_iter() {
+            match entry {
+                Ok(entry) => {
+                    if entry.file_type().is_file() {
+                        match self.audit_binary_2(entry.path()) {
+                            Ok(Some(report)) => {
+                                if report.vulnerabilities.found {
+                                    summary.vulnerabilities_found = true;
+                                }
+                            },
+                            Ok(None) => (),
+                            Err(e) => {
+                                status_err!("{}", e);
+                                summary.errors_encountered = true;
+                            }
+                        }
+                    }
+                },
+                Err(e) => {
+                    summary.errors_encountered = true;
+                    status_err!("{}", e);
+                },
+            }
+        }
+        summary
+    }
+
+    #[cfg(feature = "binary-scanning")]
     /// Perform an audit of multiple binary files with dependency data embedded by `cargo auditable`
     pub fn audit_binaries<P>(&mut self, binaries: &[P]) -> MultiFileReportSummmary
     where
@@ -176,9 +207,30 @@ impl Auditor {
 
     #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
+    /// Returns Ok(None) if it is not a Rust binary, or no audit data was found.
+    fn audit_binary_2(&mut self, binary_path: &Path) -> rustsec::Result<Option<rustsec::Report>> {
+        // Read the first 8 bytes to detect the format
+        let mut prefix: [u8; 8] = [0; 8];
+        let mut file = std::fs::File::open(binary_path)?;
+        file.read(&mut prefix)?;
+        match binfarce::detect_format(&prefix) {
+            binfarce::Format::Unknown => Ok(None),
+            _ => {
+                self.presenter.before_binary_scan(binary_path);
+                let mut contents = Vec::from(prefix);
+                let mut file = std::io::BufReader::new(file);
+                file.read_to_end(&mut contents)?;
+                let lockfile = self.load_deps_from_binary_data(&contents)?;
+                Ok(Some(self.audit(&lockfile)?))
+            }
+        }
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         self.presenter.before_binary_scan(binary_path);
-        let lockfile = self.load_deps_from_binary(binary_path)?;
+        let lockfile = self.load_deps_from_binary_file(binary_path)?;
         self.audit(&lockfile)
     }
 
@@ -224,7 +276,7 @@ impl Auditor {
 
     #[cfg(feature = "binary-scanning")]
     /// Load the dependency tree from a binary file built with `cargo auditable`
-    fn load_deps_from_binary(&self, binary_path: &Path) -> rustsec::Result<Lockfile> {
+    fn load_deps_from_binary_file(&self, binary_path: &Path) -> rustsec::Result<Lockfile> {
         // Read the input
         let binary = if binary_path == Path::new("-") {
             let mut input = Vec::new();
@@ -239,14 +291,19 @@ impl Auditor {
             f.read_to_end(&mut input)?;
             input
         };
-        // Extract the compressed audit data
-        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary)?;
-        // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
-        use miniz_oxide::inflate::decompress_to_vec_zlib_with_limit;
-        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8)?;
-        let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
-        let lockfile = cargo_lock::Lockfile::try_from(&json_structs)?;
-        Ok(lockfile)
+        self.load_deps_from_binary_data(&binary)
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    fn load_deps_from_binary_data(&self, data: &[u8]) -> rustsec::Result<Lockfile>  {
+            // Extract the compressed audit data
+            let compressed_audit_data = auditable_extract::raw_auditable_data(data)?;
+            // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
+            use miniz_oxide::inflate::decompress_to_vec_zlib_with_limit;
+            let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8)?;
+            let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
+            let lockfile = cargo_lock::Lockfile::try_from(&json_structs)?;
+            Ok(lockfile)
     }
 
     /// Query the database for advisories about `cargo-audit` or `rustsec` itself
