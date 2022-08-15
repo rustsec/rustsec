@@ -17,6 +17,8 @@ fn lint_advisory_db() {
 
     runner
         .arg("lint")
+        .arg("--skip-namecheck")
+        .arg("rustdecimal")
         .arg(&git::Repository::default_path())
         .capture_stdout()
         .status()
