@@ -6,9 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.26.2 (TBD)
 ### Fixed
-- Fixed `withdrawn` ([#xxx])
+- Fixed `withdrawn` ([#642])
 
-[#xxx]: https://github.com/RustSec/rustsec/pull/xxx
+[#642]: https://github.com/RustSec/rustsec/pull/642
 	
 ## 0.26.1 (2022-08-14)
 ### Changed
