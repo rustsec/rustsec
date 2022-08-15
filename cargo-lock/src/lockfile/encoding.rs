@@ -14,7 +14,7 @@ use crate::{
     Version,
 };
 use serde::{de, ser, Deserialize, Serialize};
-use std::{fmt, str::FromStr};
+use std::{fmt, fmt::Write, str::FromStr};
 
 impl<'de> Deserialize<'de> for Lockfile {
     fn deserialize<D: de::Deserializer<'de>>(
@@ -173,7 +173,7 @@ impl ToString for EncodableLockfile {
         if let Some(value) = toml.get("version") {
             if let Some(version) = value.as_integer() {
                 if version >= 3 {
-                    out.push_str(&format!("version = {}\n", version));
+                    writeln!(out, "version = {}", version).unwrap();
                 }
             }
         }
@@ -216,14 +216,14 @@ impl ToString for EncodableLockfile {
 /// This method is adapted from the same-named method in upstream Cargo:
 /// <https://github.com/rust-lang/cargo/blob/0c70319/src/cargo/ops/lockfile.rs#L194-L221>
 fn emit_package(dep: &toml::value::Table, out: &mut String) {
-    out.push_str(&format!("name = {}\n", &dep["name"]));
-    out.push_str(&format!("version = {}\n", &dep["version"]));
+    writeln!(out, "name = {}", &dep["name"]).unwrap();
+    writeln!(out, "version = {}", &dep["version"]).unwrap();
 
     if dep.contains_key("source") {
-        out.push_str(&format!("source = {}\n", &dep["source"]));
+        writeln!(out, "source = {}", &dep["source"]).unwrap();
     }
     if dep.contains_key("checksum") {
-        out.push_str(&format!("checksum = {}\n", &dep["checksum"]));
+        writeln!(out, "checksum = {}", &dep["checksum"]).unwrap();
     }
 
     if let Some(s) = dep.get("dependencies") {
@@ -233,13 +233,13 @@ fn emit_package(dep: &toml::value::Table, out: &mut String) {
             out.push_str("dependencies = [\n");
 
             for child in slice.iter() {
-                out.push_str(&format!(" {},\n", child));
+                writeln!(out, " {},", child).unwrap();
             }
 
             out.push_str("]\n");
         }
     } else if dep.contains_key("replace") {
-        out.push_str(&format!("replace = {}\n", &dep["replace"]));
+        writeln!(out, "replace = {}", &dep["replace"]).unwrap();
     }
 
     out.push('\n');
