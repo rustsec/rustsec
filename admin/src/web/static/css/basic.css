@@ -66,6 +66,29 @@ hr {
   max-height: 100px;
 }
 
+.header-top {
+  position: relative;
+}
+
+#search {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+#search input[type=search] {
+  width: 100%;
+  padding: 8px 16px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  background-color : rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: 500;
+  font-size: .8em;
+  border: 2px solid white;
+  border-radius: 4px;
+}
+
 blockquote {
   border-left: 5px solid #68f;
   padding-left: 1.5em;
