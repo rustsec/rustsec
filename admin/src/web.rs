@@ -9,9 +9,12 @@ use atom_syndication::{
 use chrono::{Date, Duration, NaiveDate, Utc};
 use comrak::{markdown_to_html, ComrakOptions};
 use rust_embed::RustEmbed;
+use rustsec::advisory::Id;
+use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::{
     fs::{self, File},
+    iter,
     path::{Path, PathBuf},
 };
 use xml::escape::escape_str_attribute;
@@ -19,6 +22,10 @@ use xml::escape::escape_str_attribute;
 #[derive(Template)]
 #[template(path = "index.html")]
 struct IndexTemplate;
+
+#[derive(Template)]
+#[template(path = "search.html")]
+struct SearchTemplate;
 
 #[derive(Template)]
 #[template(path = "advisories.html")]
@@ -109,6 +116,10 @@ pub fn render_advisories(output_folder: PathBuf) {
     // Render the index.html (/) page.
     let index_page = IndexTemplate.render().unwrap();
     fs::write(output_folder.join("index.html"), index_page).unwrap();
+
+    // Render the search.html page.
+    let search_page = SearchTemplate.render().unwrap();
+    fs::write(output_folder.join("search.html"), search_page).unwrap();
 
     // Render the advisories.html (/advisories) page.
 
@@ -315,6 +326,16 @@ pub fn render_advisories(output_folder: PathBuf) {
         advisories_per_category.len() + 1
     );
 
+    // Index
+    let index_path = output_folder.join("js").join("index.js");
+    render_index(&index_path, &advisories);
+    status_ok!("Rendered", "{}", index_path.display());
+    status_ok!(
+        "Completed",
+        "{} advisories rendered in search index as JS",
+        advisories.len()
+    );
+
     // Feed
     let feed_path = output_folder.join("feed.xml");
     let min_feed_len = 10;
@@ -359,6 +380,35 @@ fn title_type(advisory: &rustsec::Advisory) -> String {
         // Not informational => vulnerability
         None => format!("{}: Vulnerability in {}", id, package),
     }
+}
+
+/// Renders the local search index
+fn render_index(output_path: &Path, advisories: &[rustsec::Advisory]) {
+    // Map of `ID -> related IDs` (including self, avoid redirecting to non-existent IDs)
+    let mut ids: HashMap<Id, Vec<Id>> = HashMap::new();
+    // List of packages
+    let mut packages = HashSet::new();
+
+    for advisory in advisories {
+        let id = advisory.id().to_owned();
+        for alias in advisory
+            .metadata
+            .aliases
+            .iter()
+            .chain(advisory.metadata.related.iter())
+            .chain(iter::once(&id))
+        {
+            ids.entry(alias.to_owned())
+                .and_modify(|v| v.push(id.clone()))
+                .or_insert(vec![id.clone()]);
+        }
+        packages.insert(advisory.metadata.package.to_string());
+    }
+    let ids_json = serde_json::to_string(&ids).unwrap();
+    let package_json = serde_json::to_string(&packages).unwrap();
+
+    let js = format!("var ids = {}\nvar packages = {}\n", ids_json, package_json);
+    fs::write(output_path, js).unwrap();
 }
 
 /// Renders an Atom feed of advisories
