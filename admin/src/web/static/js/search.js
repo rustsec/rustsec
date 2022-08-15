@@ -5,7 +5,7 @@ function search(term, redirect) {
         window.open('/packages/'+package+'.html','_self');
         return false;
     }
-    id = term.trim().toUpperCase()
+    id = term.trim()
     if (id in ids && ids[id].length == 1) {
         window.open('/advisories/'+ids[id][0]+'.html','_self');
         return false;
