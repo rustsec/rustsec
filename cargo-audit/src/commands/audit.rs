@@ -149,7 +149,7 @@ impl AuditCommand {
     pub fn color_config(&self) -> Option<ColorChoice> {
         let mut raw_color_setting = self.color.as_ref();
         #[cfg(feature = "binary-scanning")]
-        if let &Some(AuditSubcommand::Bin(ref command)) = &self.subcommand {
+        if let Some(AuditSubcommand::Bin(ref command)) = self.subcommand {
             raw_color_setting = command.color.as_ref()
         };
         raw_color_setting.map(|colors| match colors.as_ref() {
