@@ -89,6 +89,11 @@ hr {
   border-radius: 4px;
 }
 
+#search input[type=search]::placeholder {
+    opacity: .5;
+    color: white;
+}
+
 blockquote {
   border-left: 5px solid #68f;
   padding-left: 1.5em;
