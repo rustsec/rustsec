@@ -76,7 +76,7 @@ shows a preview of what dependencies would be upgraded, run
 
 ## Ignoring advisories
 
-The first and best way to fix a vulnerability is to upgrade vulnerable crate.
+The first and best way to fix a vulnerability is to upgrade the vulnerable crate.
 
 But there may be situations where an upgrade isn't available and the advisory doesn't affect your application. For example the advisory might involve a cargo feature or API that is unused.
 
