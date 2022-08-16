@@ -74,6 +74,20 @@ This will modify `Cargo.toml` in place. To perform a dry run instead, which
 shows a preview of what dependencies would be upgraded, run
 `cargo audit fix --dry-run`.
 
+## Ignoring advisories
+
+The first and best way to fix a vulnerability is to upgrade vulnerable crate.
+
+But there may be situations where an upgrade isn't available and the advisory doesn't affect your application. For example the advisory might involve a cargo feature or API that is unused.
+
+In these cases, you can ignore advisories using the `--ignore` option.
+
+```
+$ cargo audit --ignore RUSTSEC-2017-0001
+```
+
+This option can also be configured via the [`audit.toml`](./audit.toml.example) file.
+
 ## Using `cargo audit` on Travis CI
 
 To automatically run `cargo audit` on every build in Travis CI, you can add the following to your `.travis.yml`:
