@@ -215,3 +215,9 @@ impl Error {
         format_err!(crate::ErrorKind::Parse, &other)
     }
 }
+
+impl From<toml::ser::Error> for Error {
+    fn from(other: toml::ser::Error) -> Self {
+        format_err!(ErrorKind::Parse, &other)
+    }
+}
