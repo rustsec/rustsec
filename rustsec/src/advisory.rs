@@ -32,6 +32,8 @@ use crate::{
     fs,
 };
 use serde::{Deserialize, Serialize};
+use std::fs::File;
+use std::io::Write;
 use std::{path::Path, str::FromStr};
 
 /// RustSec Security Advisories
@@ -49,7 +51,7 @@ pub struct Advisory {
 }
 
 impl Advisory {
-    /// Load an advisory from a `RUSTSEC-20XX-NNNN.toml` file
+    /// Load an advisory from a `RUSTSEC-20XX-NNNN.md` file
     pub fn load_file(path: impl AsRef<Path>) -> Result<Self, Error> {
         let path = path.as_ref();
 
@@ -59,6 +61,28 @@ impl Advisory {
         advisory_data
             .parse()
             .map_err(|e| format_err!(ErrorKind::Parse, "error parsing {}: {}", path.display(), e))
+    }
+
+    /// Write an `RUSTSEC-20XX-NNNN.md` file
+    pub fn write_file(&self, path: impl AsRef<Path>) -> Result<(), Error> {
+        let path = path.as_ref();
+
+        //let updated = format!("```toml\n{}```\n\n{}", metadata, parts.markdown);
+        //fs::write(advisory_path, updated)?;
+
+        // FIXME properly serialize metadata
+
+        let metadata = toml::to_string(&self.metadata)?;
+
+        // If the crate folder does not exist
+        let prefix = path.parent().unwrap();
+        std::fs::create_dir_all(prefix).unwrap();
+
+        let mut file = File::create(path)
+            .map_err(|e| format_err!(ErrorKind::Io, "couldn't create {}: {}", path.display(), e))?;
+        file.write_all(metadata.as_bytes())?;
+        file.write_all(self.metadata.description.as_bytes())?;
+        Ok(())
     }
 
     /// Get advisory ID
