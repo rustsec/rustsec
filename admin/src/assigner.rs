@@ -13,7 +13,7 @@ use std::{
 };
 
 /// What sort of output should be generated on stdout.
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum OutputMode {
     /// Normal human readable logging
     HumanReadable,
