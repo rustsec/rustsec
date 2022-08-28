@@ -18,13 +18,15 @@
 <header>
   <div class="header-top">
     <h1><a href="/"><img class="logo-image" src="/img/rustsec-logo.svg" /></a></h1>
-    <div id="search">
+    {% block search %}
+    <div class="search">
       <form onsubmit="return searchform();">
         <input type="search" id="search-term"
                placeholder="Look up package or ID..." required
                size="20">
       </form>
     </div>
+    {% endblock %}
   </div>
   <nav>
     <div>

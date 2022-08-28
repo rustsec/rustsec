@@ -118,11 +118,44 @@ nav, body > footer {
   font-weight: 600;
 }
 
-.search ul {
+.search-page ul {
   list-style: none;
   padding-left: 0;
 }
 
 .tag {
   font-size: 16px;
+}
+
+.homepage {
+  text-align: center;
+}
+
+.homepage h1 {
+  font-size: 3rem;
+}
+
+.homepage h2 {
+  margin-top: 5rem;
+}
+
+pre {
+  text-align: left;
+}
+
+.row {
+  display: flex;
+  column-gap: 20px;
+  margin-top: 20px;
+}
+
+.column {
+  flex: auto;
+  flex: 1;
+  background-color: #282828;
+  padding: 15px;
+}
+
+.column > p {
+  text-align: left;
 }
