@@ -132,11 +132,19 @@ nav, body > footer {
 }
 
 .homepage h1 {
-  font-size: 3rem;
+  font-size: 3.5rem;
+  font-weight: 600;
 }
 
 .homepage h2 {
+  font-size: 3rem;
   margin-top: 5rem;
+  font-weight: 600;
+}
+
+.homepage h3 {
+  margin-top: 0;
+  font-weight: 600;
 }
 
 pre {
@@ -150,12 +158,71 @@ pre {
 }
 
 .column {
-  flex: auto;
   flex: 1;
   background-color: #282828;
-  padding: 15px;
+  padding: 25px;
+}
+
+.column > pre {
+  margin: 0;
 }
 
 .column > p {
   text-align: left;
+}
+
+.column > p.get-started-button {
+  text-align: center;
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  column-gap: 20px;
+  margin-top: 20px;
+  width: 60%;
+  margin: auto;
+}
+
+.header-column-text {
+  flex: 3;
+  padding: 15px;
+}
+
+.header-column-image {
+  flex: 1;
+  padding: 15px;
+}
+
+.header-column > img {
+  height: 300px;
+}
+
+.header-column-text > p {
+  text-align: left;
+}
+
+.search-footer {
+  margin-bottom: 3em;
+}
+
+a.button {
+    display: inline-block;
+    padding: 0.2em 1em;
+    margin: 0 0.1em 0.1em 0;
+    border: 3px solid rgba(255,255,255,0);
+    border-radius: 4px;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: #FFFFFF;
+    text-align: center;
+    background-color: #68f;
+}
+
+a.button.important {
+    background-color: #c1272d;
+}
+
+a.button:hover{
+    border-color: rgba(255,255,255,1);
 }
