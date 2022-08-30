@@ -166,6 +166,7 @@ nav, body > footer {
   flex: 1;
   background-color: #282828;
   padding: 25px;
+  border-radius: 4px;
 }
 
 .column > pre {
