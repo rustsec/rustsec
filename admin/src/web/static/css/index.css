@@ -127,8 +127,11 @@ nav, body > footer {
   font-size: 16px;
 }
 
+/* Specifics for homepage/about */
+
 .homepage {
   text-align: center;
+  margin-bottom: 5em;
 }
 
 .homepage h1 {
@@ -147,9 +150,11 @@ nav, body > footer {
   font-weight: 600;
 }
 
-pre {
+.homepage pre {
   text-align: left;
 }
+
+/* For blocks on the homepage */
 
 .row {
   display: flex;
@@ -174,6 +179,8 @@ pre {
 .column > p.get-started-button {
   text-align: center;
 }
+
+/* For smaller row without special background */
 
 .header-row {
   display: flex;
@@ -205,6 +212,8 @@ pre {
 .search-footer {
   margin-bottom: 3em;
 }
+
+/* Buttons */
 
 a.button {
     display: inline-block;
