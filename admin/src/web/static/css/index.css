@@ -229,10 +229,6 @@ a.button {
     background-color: #68f;
 }
 
-a.button.important {
-    background-color: #c1272d;
-}
-
 a.button:hover{
     border-color: rgba(255,255,255,1);
 }
