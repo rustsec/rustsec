@@ -21,9 +21,7 @@ use xml::escape::escape_str_attribute;
 
 #[derive(Template)]
 #[template(path = "index.html")]
-struct IndexTemplate {
-    advisories_count: usize,
-}
+struct IndexTemplate;
 
 #[derive(Template)]
 #[template(path = "search.html")]
@@ -137,9 +135,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     copy_static_assets(&output_folder);
 
     // Render the index.html (/) page.
-    let index_template = IndexTemplate {
-        advisories_count: advisories.len(),
-    };
+    let index_template = IndexTemplate;
     let index_page = index_template.render().unwrap();
     fs::write(output_folder.join("index.html"), index_page).unwrap();
 
