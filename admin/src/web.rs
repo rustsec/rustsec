@@ -28,6 +28,13 @@ struct IndexTemplate;
 struct SearchTemplate;
 
 #[derive(Template)]
+#[template(path = "static.html")]
+struct StaticTemplate {
+    title: String,
+    content: String,
+}
+
+#[derive(Template)]
 #[template(path = "advisories.html")]
 struct AdvisoriesListTemplate {
     advisories_per_year: Vec<AdvisoriesPerYear>,
@@ -86,8 +93,22 @@ fn render_list_index(title: &str, mut items: Vec<(String, String, Option<usize>)
 
 /// Render all advisories using the Markdown template
 pub fn render_advisories(output_folder: PathBuf) {
-    let mut advisories: Vec<rustsec::Advisory> =
-        rustsec::Database::fetch().unwrap().into_iter().collect();
+    // Get advisories
+    let db = rustsec::Database::fetch().unwrap();
+    let mut advisories: Vec<rustsec::Advisory> = db.into_iter().collect();
+
+    // Get static pages from repository
+    let repo = rustsec::repository::git::Repository::fetch_default_repo().unwrap();
+    let contributing_path = repo.path().join("CONTRIBUTING.md");
+
+    // Render static pages from repository
+    let contributing_md = fs::read_to_string(contributing_path).unwrap();
+    let static_template = StaticTemplate {
+        title: "Reporting Vulnerabilities".to_string(),
+        content: markdown_to_html(&contributing_md, &ComrakOptions::default()),
+    };
+    let contributing_page = static_template.render().unwrap();
+    fs::write(output_folder.join("contributing.html"), contributing_page).unwrap();
 
     // Render individual advisory pages (/advisories/${id}.html)
     let advisories_folder = output_folder.join("advisories");
@@ -114,7 +135,8 @@ pub fn render_advisories(output_folder: PathBuf) {
     copy_static_assets(&output_folder);
 
     // Render the index.html (/) page.
-    let index_page = IndexTemplate.render().unwrap();
+    let index_template = IndexTemplate;
+    let index_page = index_template.render().unwrap();
     fs::write(output_folder.join("index.html"), index_page).unwrap();
 
     // Render the search.html page.

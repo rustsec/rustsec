@@ -42,6 +42,13 @@ function searchform() {
     return false;
 }
 
+function searchformindex() {
+    var term = document.getElementById('search-term-index').value
+    search(term, true)
+    // Don't submit form with default behavior
+    return false;
+}
+
 if (window.location.pathname.endsWith("search.html")) {
     const term = new URLSearchParams(window.location.search).get("q");
     if (term != null){
