@@ -233,3 +233,7 @@ header span.subtitle p {
 .info {
   background: #190079;
 }
+
+.license {
+    font-style: italic;
+}

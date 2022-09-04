@@ -277,4 +277,14 @@
 
     <h3 id="description">Description</h3>
     {{ rendered_description|safe }}
+
+    <p id="license" class="license">Advisory available under <a href="https://spdx.org/licenses/{{ advisory.license() }}.html">{{ advisory.license() }}</a>
+    license.
+
+    {% match advisory.metadata.attribution_url %}
+      {% when Some with (url) %}
+    Source: <a href="{{ url }}">{{ url }}</a>
+      {% when None %}
+    {% endmatch %}
+    </p>
   </article>

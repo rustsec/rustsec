@@ -18,6 +18,14 @@ fn load_example_v4_advisory() -> rustsec::Advisory {
     rustsec::Advisory::load_file(Path::new("./tests/support/example_advisory_v4.md")).unwrap()
 }
 
+/// Load example V4 advisory from the filesystem
+fn load_example_v4_advisory_from_github() -> rustsec::Advisory {
+    rustsec::Advisory::load_file(Path::new(
+        "./tests/support/example_advisory_v4_from_ghsa.md",
+    ))
+    .unwrap()
+}
+
 /// Basic metadata
 #[test]
 fn parse_metadata() {
@@ -45,7 +53,18 @@ fn parse_metadata() {
         for (i, kw) in ["how", "are", "you", "gentlemen"].iter().enumerate() {
             assert_eq!(*kw, advisory.metadata.keywords[i].as_str());
         }
+
+        assert_eq!(advisory.license(), "CC0-1.0");
+        assert!(advisory.metadata.attribution_url.is_none());
     }
+
+    // Test fields specific to advisories imported from other sources
+    let ghsa = load_example_v4_advisory_from_github();
+    assert_eq!(ghsa.metadata.license.as_str(), "CC-BY-4.0");
+    assert_eq!(
+        ghsa.metadata.attribution_url.unwrap().as_str(),
+        "https://github.com/advisories/GHSA-f8vr-r385-rh5r"
+    );
 }
 
 /// Parsing of impact metadata

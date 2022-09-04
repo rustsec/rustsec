@@ -4,7 +4,9 @@
 //! This is run in CI at the time advisories are submitted.
 
 use super::{parts, Advisory, Category};
+use crate::advisory::license::License;
 use crate::fs;
+use std::str::FromStr;
 use std::{fmt, path::Path};
 
 /// Lint information about a particular advisory
@@ -160,7 +162,7 @@ impl Linter {
                             });
                         }
                     }
-                    "url" => {
+                    "url" | "attribution_url" => {
                         if let Some(url) = value.as_str() {
                             if !url.starts_with("https://") {
                                 self.errors.push(Error {
@@ -195,6 +197,20 @@ impl Linter {
                                     "Field `yanked` is deprecated, use `withdrawn` field instead",
                                 ),
                             });
+                        }
+                    }
+                    "license" => {
+                        if let Some(l) = value.as_str() {
+                            // We don't want to accept any license, only explicitly accepted ones
+                            let unknown_license =
+                                License::from_str(l).map(|l| l.is_other()).unwrap_or(true);
+                            if unknown_license {
+                                self.errors.push(Error {
+                                    kind: ErrorKind::value("license", l.to_string()),
+                                    section: Some("advisory"),
+                                    message: Some("Unknown license"),
+                                });
+                            }
                         }
                     }
                     "aliases" | "cvss" | "keywords" | "package" | "references" | "related"

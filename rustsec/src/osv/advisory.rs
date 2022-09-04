@@ -28,6 +28,7 @@ pub struct OsvAdvisory {
     severity: Vec<OsvSeverity>,
     affected: Vec<OsvAffected>,
     references: Vec<OsvReference>,
+    database_specific: MainOsvDatabaseSpecific,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -150,6 +151,13 @@ pub struct OsvDatabaseSpecific {
     informational: Option<Informational>,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct MainOsvDatabaseSpecific {
+    license: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    attribution_url: Option<Url>,
+}
+
 impl OsvAdvisory {
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
@@ -201,6 +209,10 @@ impl OsvAdvisory {
             severity: metadata.cvss.into_iter().map(|s| s.into()).collect(),
             details: metadata.description,
             references: osv_references(reference_urls),
+            database_specific: MainOsvDatabaseSpecific {
+                license: metadata.license.as_str().to_string(),
+                attribution_url: metadata.attribution_url.clone(),
+            },
         }
     }
 }
