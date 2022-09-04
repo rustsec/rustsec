@@ -186,9 +186,9 @@ impl From<serde_json::Error> for Error {
 }
 
 #[cfg(feature = "binary-scanning")]
-impl From<miniz_oxide::inflate::TINFLStatus> for Error {
-    fn from(other: miniz_oxide::inflate::TINFLStatus) -> Self {
-        let message = match other {
+impl From<miniz_oxide::inflate::DecompressError> for Error {
+    fn from(other: miniz_oxide::inflate::DecompressError) -> Self {
+        let message = match other.status {
             miniz_oxide::inflate::TINFLStatus::HasMoreOutput => {
                 "The embedded audit data is too large"
             }
