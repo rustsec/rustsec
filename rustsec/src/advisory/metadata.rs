@@ -3,6 +3,7 @@
 use super::{
     category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
 };
+use crate::advisory::license::License;
 use crate::{collection::Collection, package, SourceId};
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -81,4 +82,16 @@ pub struct Metadata {
     /// This can be used to soft-delete advisories which were filed in error.
     #[serde(default)]
     pub withdrawn: Option<Date>,
+
+    /// License under which the advisory content is available
+    #[serde(default)]
+    pub license: License,
+
+    /// Link to the original content, required by some licenses.
+    ///
+    /// For GitHub Security Advisories database,
+    /// providing a link is [documented](https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features#advisory-database)
+    /// as fulfilling the attribution obligation for the CC-BY 4.0 license used.
+    #[serde(default)]
+    pub attribution_url: Option<Url>,
 }

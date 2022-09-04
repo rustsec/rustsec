@@ -6,6 +6,7 @@ mod date;
 mod id;
 mod informational;
 mod keyword;
+mod license;
 pub mod linter;
 mod metadata;
 mod parts;
@@ -87,6 +88,11 @@ impl Advisory {
     /// Whether the advisory has been withdrawn, i.e. soft-deleted
     pub fn withdrawn(&self) -> bool {
         self.metadata.withdrawn.is_some()
+    }
+
+    /// License under which this advisory is available, represented as an SPDX identifier.
+    pub fn license(&self) -> &str {
+        self.metadata.license.as_str()
     }
 }
 
