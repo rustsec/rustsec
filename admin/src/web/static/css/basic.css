@@ -52,6 +52,17 @@ header a, footer a {
   font-weight: 500;
 }
 
+/* Add an icon after external links in advisory content */
+.advisory article a:not(.floating-menu a):not([href^="/"]):not([href^="#"])::after {
+  background: url("/img/external-link.svg") center right no-repeat;
+  display: inline-block;
+  content: " ";
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  vertical-align: middle;
+}
+
 .floating-menu {
   float: right;
 }
@@ -64,6 +75,52 @@ hr {
 .logo-image {
   max-width: 400px;
   max-height: 100px;
+}
+
+.header-top {
+  position: relative;
+}
+
+.search {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.search input[type=search] {
+  width: 100%;
+  padding: 8px 16px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  background-color : rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: 500;
+  font-size: .8em;
+  border: 2px solid white;
+  border-radius: 4px;
+}
+
+.search input[type=search]::placeholder {
+    opacity: .5;
+    color: white;
+}
+
+.search-index input[type=search] {
+  width: 60%;
+  padding: 8px 16px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  background-color : rgba(255, 255, 255, 0.3);
+  color: white;
+  font-weight: 500;
+  font-size: 1.1em;
+  border: 3px solid white;
+  border-radius: 4px;
+}
+
+.search-index input[type=search]::placeholder {
+    opacity: .5;
+    color: white;
 }
 
 blockquote {

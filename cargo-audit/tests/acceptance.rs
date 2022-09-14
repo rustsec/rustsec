@@ -67,6 +67,7 @@ pub fn failing_cmd_runner() -> CmdRunner {
 pub fn get_advisories_json(process: &mut Process) -> serde_json::Value {
     let mut output = String::new();
     process.stdout().read_line(&mut output).unwrap();
+    dbg!(&output);
     serde_json::from_str(&output).unwrap()
 }
 
