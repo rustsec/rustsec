@@ -1,4 +1,4 @@
-#![cfg(feature="binary-scanning")]
+#![cfg(feature = "binary-scanning")]
 
 use std::path::PathBuf;
 
@@ -13,12 +13,18 @@ use tempfile::TempDir;
 static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 
 fn binaries_dir() -> PathBuf {
-    [env!("CARGO_MANIFEST_DIR"), "tests", "support", "binaries"].iter().collect()
+    [env!("CARGO_MANIFEST_DIR"), "tests", "support", "binaries"]
+        .iter()
+        .collect()
 }
 
 fn cmd_runner() -> CmdRunner {
     let mut runner = CmdRunner::default();
-    runner.arg("audit").arg("bin").arg("--db").arg(ADVISORY_DB_DIR.path());
+    runner
+        .arg("audit")
+        .arg("bin")
+        .arg("--db")
+        .arg(ADVISORY_DB_DIR.path());
     runner.capture_stdout().capture_stderr();
     runner
 }
