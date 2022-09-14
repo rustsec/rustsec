@@ -9,3 +9,6 @@ edition = "2021"
 rustsec-example-crate = "0.0.1"
 
 [workspace]
+
+[profile.release]
+strip = true
