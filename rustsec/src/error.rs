@@ -164,36 +164,3 @@ impl From<toml::de::Error> for Error {
         format_err!(ErrorKind::Parse, &other)
     }
 }
-
-#[cfg(feature = "binary-scanning")]
-impl From<auditable_extract::Error> for Error {
-    fn from(other: auditable_extract::Error) -> Self {
-        match other {
-            auditable_extract::Error::NoAuditData => Error::new(
-                ErrorKind::Parse,
-                &"No audit data found! Was the binary built with 'cargo auditable'?",
-            ),
-            other => format_err!(ErrorKind::Parse, &other),
-        }
-    }
-}
-
-#[cfg(feature = "binary-scanning")]
-impl From<serde_json::Error> for Error {
-    fn from(other: serde_json::Error) -> Self {
-        format_err!(ErrorKind::Parse, &other)
-    }
-}
-
-#[cfg(feature = "binary-scanning")]
-impl From<miniz_oxide::inflate::DecompressError> for Error {
-    fn from(other: miniz_oxide::inflate::DecompressError) -> Self {
-        let message = match other.status {
-            miniz_oxide::inflate::TINFLStatus::HasMoreOutput => {
-                "The embedded audit data is too large"
-            }
-            _ => "Failed to decompress audit data",
-        };
-        Error::new(ErrorKind::Parse, &message)
-    }
-}

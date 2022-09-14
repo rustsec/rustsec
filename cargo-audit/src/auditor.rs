@@ -240,11 +240,26 @@ impl Auditor {
             input
         };
         // Extract the compressed audit data
-        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary)?;
+        let compressed_audit_data = auditable_extract::raw_auditable_data(&binary).map_err(|e| {
+            // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
+            // the public APIs of the crates involved are still somewhat unstable,
+            // and this way we don't expose the error types in any public APIs
+            match e {
+                auditable_extract::Error::NoAuditData => Error::new(
+                    ErrorKind::Parse,
+                    &"No audit data found! Was the binary built with 'cargo auditable'?",
+                ),
+                other => Error::new(ErrorKind::Parse, &other)
+            }
+        })?;
         // Decompress with a 8MiB size limit. Audit data JSONs don't get that large; anything this big is a DoS attempt
         use miniz_oxide::inflate::decompress_to_vec_zlib_with_limit;
-        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8)?;
-        let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
+        let text = decompress_to_vec_zlib_with_limit(compressed_audit_data, 1024 * 1024 * 8).map_err(|e| {
+            Error::new(ErrorKind::Parse, &e)
+        })?;
+        let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text).map_err(|e| {
+            Error::new(ErrorKind::Parse, &e)
+        })?;
         let lockfile = cargo_lock::Lockfile::try_from(&json_structs)?;
         Ok(lockfile)
     }
