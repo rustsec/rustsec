@@ -25,7 +25,6 @@ fn cmd_runner() -> CmdRunner {
         .arg("bin")
         .arg("--db")
         .arg(ADVISORY_DB_DIR.path());
-    runner.capture_stdout().capture_stderr();
     runner
 }
 
