@@ -172,39 +172,3 @@ fn advisories_found_but_ignored_json() {
         0
     );
 }
-
-#[cfg(feature = "binary-scanning")]
-fn binaries_dir() -> PathBuf {
-    [env!("CARGO_MANIFEST_DIR"), "tests", "support", "binaries"]
-        .iter()
-        .collect()
-}
-
-#[cfg(feature = "binary-scanning")]
-fn bin_cmd_runner() -> CmdRunner {
-    RUNNER.clone()
-}
-
-#[cfg(feature = "binary-scanning")]
-#[test]
-fn binary_without_audit_info_is_rejected() {
-    let mut binary_path = binaries_dir();
-    binary_path.push("binary-without-audit-info");
-    assert_eq!(bin_cmd_runner().arg(binary_path).status().code(), 2);
-}
-
-#[cfg(feature = "binary-scanning")]
-#[test]
-fn binary_without_vulnerabilities_passes() {
-    let mut binary_path = binaries_dir();
-    binary_path.push("binary-with-audit-info");
-    assert_eq!(bin_cmd_runner().arg(binary_path).status().code(), 0);
-}
-
-#[cfg(feature = "binary-scanning")]
-#[test]
-fn binary_with_vulnerabilities_fails() {
-    let mut binary_path = binaries_dir();
-    binary_path.push("binary-with-vuln");
-    assert_eq!(bin_cmd_runner().arg(binary_path).status().code(), 1);
-}
