@@ -28,6 +28,7 @@ static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
     let mut runner = CmdRunner::default();
     runner.arg("audit").arg("--db").arg(ADVISORY_DB_DIR.path());
+    runner.capture_stdout().capture_stderr();
     runner
 });
 
