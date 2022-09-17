@@ -21,10 +21,13 @@ static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 /// parallel by default.
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
     let mut runner = CmdRunner::default();
-    runner.arg("audit").arg("bin").arg("--db").arg(ADVISORY_DB_DIR.path());
+    runner
+        .arg("audit")
+        .arg("bin")
+        .arg("--db")
+        .arg(ADVISORY_DB_DIR.path());
     runner
 });
-
 
 fn binaries_dir() -> PathBuf {
     [env!("CARGO_MANIFEST_DIR"), "tests", "support", "binaries"]
