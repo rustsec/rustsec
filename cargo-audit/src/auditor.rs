@@ -242,9 +242,10 @@ impl Auditor {
             Ok(json_struct) => Ok(cargo_lock::Lockfile::try_from(&json_struct)?),
             Err(e) => match e {
                 NoAuditData => Err(Error::new(ErrorKind::NotFound, &e.to_string())),
+                Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
+                // Everything else is just Parse, but we enumerate them explicitly in case variant list changes
                 InputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
                 OutputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-                Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
                 BinaryParsing(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
                 Decompression(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
                 Json(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
