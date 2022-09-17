@@ -12,6 +12,20 @@ use tempfile::TempDir;
 /// Instead use a single DB we tear down on test suite exit.
 static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 
+/// Executes target binary via `cargo run`.
+///
+/// Storing this value in a `once_cell::sync::Lazy` ensures that all
+/// instances of the runner acquire a mutex when executing commands
+/// and inspecting exit statuses, serializing what would otherwise
+/// be multithreaded invocations as `cargo test` executes tests in
+/// parallel by default.
+pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
+    let mut runner = CmdRunner::default();
+    runner.arg("audit").arg("bin").arg("--db").arg(ADVISORY_DB_DIR.path());
+    runner
+});
+
+
 fn binaries_dir() -> PathBuf {
     [env!("CARGO_MANIFEST_DIR"), "tests", "support", "binaries"]
         .iter()
@@ -19,13 +33,7 @@ fn binaries_dir() -> PathBuf {
 }
 
 fn cmd_runner() -> CmdRunner {
-    let mut runner = CmdRunner::default();
-    runner
-        .arg("audit")
-        .arg("bin")
-        .arg("--db")
-        .arg(ADVISORY_DB_DIR.path());
-    runner
+    RUNNER.clone()
 }
 
 #[test]
