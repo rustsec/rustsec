@@ -249,6 +249,7 @@ impl Auditor {
                 BinaryParsing(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
                 Decompression(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
                 Json(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                Utf8(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
             },
         }
     }
