@@ -229,15 +229,15 @@ impl Auditor {
         let stuff = if binary_path == Path::new("-") {
             let stdin = io::stdin();
             let mut handle = stdin.lock();
-            audit_info::audit_info_from_reader(&mut handle, Default::default())
+            auditable_info::audit_info_from_reader(&mut handle, Default::default())
         } else {
-            audit_info::audit_info_from_file(binary_path, Default::default())
+            auditable_info::audit_info_from_file(binary_path, Default::default())
         };
 
         // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
         // the public APIs of the crates involved are still somewhat unstable,
         // and this way we don't expose the error types in any public APIs
-        use audit_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
+        use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
         match stuff {
             Ok(json_struct) => Ok(cargo_lock::Lockfile::try_from(&json_struct)?),
             Err(e) => match e {
