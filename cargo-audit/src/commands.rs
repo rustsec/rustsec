@@ -8,7 +8,7 @@ use abscissa_core::{config::Override, Command, Configurable, FrameworkError, Run
 use clap::Parser;
 use std::{ops::Deref, path::PathBuf};
 
-/// Name of the configuration file (located in `~/.cargo`)
+/// Name of the configuration file
 ///
 /// This file allows setting some default auditing options.
 pub const CONFIG_FILE: &str = "audit.toml";
