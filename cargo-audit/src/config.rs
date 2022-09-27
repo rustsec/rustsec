@@ -1,4 +1,4 @@
-//! The `~/.cargo/audit.toml` configuration file
+//! The configuration file
 
 use rustsec::{
     advisory,
@@ -10,7 +10,8 @@ use std::{path::PathBuf, str::FromStr};
 
 /// `cargo audit` configuration:
 ///
-/// An optional TOML config file located in `~/.cargo/audit.toml`
+/// An optional TOML config file located in `~/.cargo/audit.toml` or
+/// `.cargo/audit.toml`.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AuditConfig {
