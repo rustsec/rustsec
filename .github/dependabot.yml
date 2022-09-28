@@ -32,3 +32,8 @@ updates:
   - dependency-name: toml
     versions:
     - 0.5.8
+- package-ecosystem: "github-actions"
+  directory: "/"
+  schedule:
+    interval: "weekly"
+  open-pull-requests-limit: 10
