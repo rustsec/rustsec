@@ -11,6 +11,7 @@ categories   = ["development-tools::cargo-plugins"]
 keywords     = ["cargo-subcommand", "security", "audit", "vulnerability"]
 edition      = "2021"
 rust-version = "1.57"
+exclude      = ["tests/"]
 
 [badges]
 maintenance = { status = "actively-developed" }
