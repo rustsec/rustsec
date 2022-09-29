@@ -18,10 +18,10 @@
 //! When the `dependency-tree` feature of this crate is enabled, it supports
 //! computing a directed graph of the dependency tree expressed in the
 //! lockfile, modeled using the [`petgraph`] crate, along with support for
-//! printing dependency trees ala the [`cargo-tree`] crate, a CLI intreface
+//! printing dependency trees ala the [`cargo-tree`] crate, a CLI interface
 //! for which is provided by the `cargo lock tree` subcommand described above.
 //!
-//! This same graph representation of a `Cargo.lock` file is programatically
+//! This same graph representation of a `Cargo.lock` file is programmatically
 //! available via this crate's API.
 //!
 //! # Command Line Interface

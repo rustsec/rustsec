@@ -6,7 +6,7 @@ use core::{fmt, str::FromStr};
 #[cfg(feature = "serde")]
 use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
 
-/// `target_env`: target enviroment that disambiguates the target platform by ABI / libc.
+/// `target_env`: target environment that disambiguates the target platform by ABI / libc.
 ///
 /// This value is closely related to the fourth element of the platform target triple,
 /// though it is not identical. For example, embedded ABIs such as `gnueabihf` will simply
