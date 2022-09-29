@@ -74,6 +74,22 @@ This will modify `Cargo.toml` in place. To perform a dry run instead, which
 shows a preview of what dependencies would be upgraded, run
 `cargo audit fix --dry-run`.
 
+## `cargo audit bin` subcommand
+
+If your programs have been compiled with [`cargo auditable`](https://github.com/rust-secure-code/cargo-auditable),
+they can be audited even without having the original `Cargo.lock`,
+because all the necessary information is embedded in the compiled binary.
+
+To use it, install `cargo audit` with the `binary-scanning` feature enabled:
+
+```
+$ cargo install cargo-audit --features=binary-scanning
+```
+
+Once installed, run `cargo audit bin` followed by the paths to your binaries to audit them:
+
+**TODO:** screenshot
+
 ## Ignoring advisories
 
 The first and best way to fix a vulnerability is to upgrade the vulnerable crate.
