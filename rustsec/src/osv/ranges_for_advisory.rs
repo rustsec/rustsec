@@ -54,7 +54,7 @@ fn unaffected_to_osv_ranges(
         }]);
     }
 
-    // Verify that the incoming ranges do not overlap. This is required for the correctness of the algoritm.
+    // Verify that the incoming ranges do not overlap. This is required for the correctness of the algorithm.
     // The current impl has quadratic complexity, but since we have like 4 ranges at most, this doesn't matter.
     // We can optimize this later if it starts showing up on profiles.
     for (idx, a) in unaffected[..unaffected.len() - 1].iter().enumerate() {
@@ -135,7 +135,7 @@ fn unaffected_to_osv_ranges(
 
 /// Returns the lowest possible version greater than the input according to
 /// [the SemVer 2.0 precedence rules](https://semver.org/#spec-item-11).
-/// This is not the intutive "increment": this function returns a pre-release version!
+/// This is not the intuitive "increment": this function returns a pre-release version!
 /// E.g. "1.2.3" is transformed to "1.2.4-0".
 fn increment(v: &Version) -> Version {
     let mut v = v.clone();
