@@ -17,6 +17,7 @@ use clap::Parser;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
+#[cfg(feature = "binary-scanning")]
 use self::binary_scanning::BinCommand;
 #[cfg(feature = "fix")]
 use self::fix::FixCommand;
