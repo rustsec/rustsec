@@ -181,6 +181,10 @@ impl From<AuditCommand> for CliConfig {
 
 impl Override<AuditConfig> for AuditCommand {
     fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
+        #[cfg(feature = "binary-scanning")]
+        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
+            return CliConfig::from(bin.clone()).override_config(config);
+        }
         CliConfig::from(self.clone()).override_config(config)
     }
 }
