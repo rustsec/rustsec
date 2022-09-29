@@ -148,7 +148,8 @@ pub enum AuditSubcommand {
 impl AuditCommand {
     /// Get the color configuration
     pub fn color_config(&self) -> Option<ColorChoice> {
-        #[allow(unused_mut)] // because it triggers a warning with the `binary-scanning` feature disabled
+        // suppress the warning that occurs with the `binary-scanning` feature disabled
+        #[allow(unused_mut)]
         let mut raw_color_setting = self.color.as_ref();
         #[cfg(feature = "binary-scanning")]
         if let Some(AuditSubcommand::Bin(ref command)) = self.subcommand {
