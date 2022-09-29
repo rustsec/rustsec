@@ -3,9 +3,13 @@
 #[cfg(feature = "fix")]
 mod fix;
 
+#[cfg(feature = "binary-scanning")]
+mod binary_scanning;
+
 use crate::{
     auditor::Auditor,
-    config::{AuditConfig, DenyOption, OutputFormat},
+    cli_config::CliConfig,
+    config::{AuditConfig, DenyOption},
     prelude::*,
 };
 use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
@@ -13,16 +17,18 @@ use clap::Parser;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
 
+#[cfg(feature = "binary-scanning")]
+use self::binary_scanning::BinCommand;
 #[cfg(feature = "fix")]
 use self::fix::FixCommand;
-#[cfg(feature = "fix")]
+#[cfg(any(feature = "fix", feature = "binary-scanning"))]
 use clap::Subcommand;
 
 /// The `cargo audit` subcommand
-#[derive(Command, Default, Debug, Parser)]
+#[derive(Command, Clone, Default, Debug, Parser)]
 pub struct AuditCommand {
-    /// Optional subcommand (used for `cargo audit fix`)
-    #[cfg(feature = "fix")]
+    /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
+    #[cfg(any(feature = "fix", feature = "binary-scanning"))]
     #[clap(subcommand)]
     subcommand: Option<AuditSubcommand>,
 
@@ -125,18 +131,31 @@ pub struct AuditCommand {
 }
 
 /// Subcommands of `cargo audit`
-#[cfg(feature = "fix")]
-#[derive(Subcommand, Debug, Runnable)]
+#[cfg(any(feature = "fix", feature = "binary-scanning"))]
+#[derive(Subcommand, Clone, Debug, Runnable)]
 pub enum AuditSubcommand {
     /// `cargo audit fix` subcommand
+    #[cfg(feature = "fix")]
     #[clap(about = "automatically upgrade vulnerable dependencies")]
     Fix(FixCommand),
+
+    /// `cargo audit bin` subcommand
+    #[cfg(feature = "binary-scanning")]
+    #[clap(about = "scan binaries compiled with 'cargo auditable'")]
+    Bin(BinCommand),
 }
 
 impl AuditCommand {
     /// Get the color configuration
     pub fn color_config(&self) -> Option<ColorChoice> {
-        self.color.as_ref().map(|colors| match colors.as_ref() {
+        // suppress the warning that occurs with the `binary-scanning` feature disabled
+        #[allow(unused_mut)]
+        let mut raw_color_setting = self.color.as_ref();
+        #[cfg(feature = "binary-scanning")]
+        if let Some(AuditSubcommand::Bin(ref command)) = self.subcommand {
+            raw_color_setting = command.color.as_ref()
+        };
+        raw_color_setting.map(|colors| match colors.as_ref() {
             "always" => ColorChoice::Always,
             "auto" => ColorChoice::Auto,
             "never" => ColorChoice::Never,
@@ -145,70 +164,50 @@ impl AuditCommand {
     }
 }
 
+impl From<AuditCommand> for CliConfig {
+    fn from(c: AuditCommand) -> Self {
+        CliConfig {
+            db: c.db,
+            deny: c.deny,
+            ignore: c.ignore,
+            ignore_source: c.ignore_source,
+            no_fetch: c.no_fetch,
+            stale: c.stale,
+            target_arch: c.target_arch,
+            target_os: c.target_os,
+            url: c.url,
+            quiet: c.quiet,
+            output_json: c.output_json,
+        }
+    }
+}
+
 impl Override<AuditConfig> for AuditCommand {
-    fn override_config(&self, mut config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
-        if let Some(db) = &self.db {
-            config.database.path = Some(db.into());
+    fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
+        #[cfg(feature = "binary-scanning")]
+        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
+            return CliConfig::from(bin.clone()).override_config(config);
         }
-
-        for advisory_id in &self.ignore {
-            config
-                .advisories
-                .ignore
-                .push(advisory_id.parse().unwrap_or_else(|e| {
-                    status_err!("error parsing {}: {}", advisory_id, e);
-                    exit(1);
-                }));
-        }
-
-        config.advisories.ignore_source |= self.ignore_source;
-        config.database.fetch |= !self.no_fetch;
-        config.database.stale |= self.stale;
-
-        if let Some(target_arch) = self.target_arch {
-            config.target.arch = Some(target_arch);
-        }
-
-        if let Some(target_os) = self.target_os {
-            config.target.os = Some(target_os);
-        }
-
-        if let Some(url) = &self.url {
-            config.database.url = Some(url.clone())
-        }
-
-        for kind in &self.deny {
-            if *kind == DenyOption::Warnings {
-                config.output.deny = DenyOption::all();
-            } else {
-                config.output.deny.push(*kind);
-            }
-        }
-
-        config.output.quiet |= self.quiet;
-
-        if self.output_json {
-            config.output.format = OutputFormat::Json;
-        }
-
-        Ok(config)
+        CliConfig::from(self.clone()).override_config(config)
     }
 }
 
 impl Runnable for AuditCommand {
     fn run(&self) {
         #[cfg(feature = "fix")]
-        match &self.subcommand {
-            Some(AuditSubcommand::Fix(fix)) => {
-                fix.run();
-                exit(0)
-            }
-            None => (),
+        if let Some(AuditSubcommand::Fix(fix)) = &self.subcommand {
+            fix.run();
+            exit(0)
         }
 
-        let lockfile_path = self.file.as_deref();
-        let report = self.auditor().audit(lockfile_path);
+        #[cfg(feature = "binary-scanning")]
+        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
+            bin.run();
+            exit(0)
+        }
 
+        let path = self.file.as_deref();
+        let report = self.auditor().audit_lockfile(path);
         match report {
             Ok(report) => {
                 if report.vulnerabilities.found {

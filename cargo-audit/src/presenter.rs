@@ -47,14 +47,22 @@ impl Presenter {
     }
 
     /// Information to display before a report is generated
-    pub fn before_report(&mut self, lockfile_path: &Path, lockfile: &Lockfile) {
+    pub fn before_report(&mut self, path: &Path, lockfile: &Lockfile) {
         if !self.config.is_quiet() {
             status_ok!(
                 "Scanning",
                 "{} for vulnerabilities ({} crate dependencies)",
-                lockfile_path.display(),
+                path.display(),
                 lockfile.packages.len(),
             );
+        }
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    /// Information to display before a binary file is scanned
+    pub fn before_binary_scan(&mut self, path: &Path) {
+        if !self.config.is_quiet() {
+            status_ok!("Scanning", "{} for vulnerabilities", path.display(),);
         }
     }
 

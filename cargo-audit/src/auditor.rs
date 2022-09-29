@@ -119,8 +119,8 @@ impl Auditor {
         }
     }
 
-    /// Perform audit
-    pub fn audit(
+    /// Perform an audit of a textual `Cargo.lock` file
+    pub fn audit_lockfile(
         &mut self,
         maybe_lockfile_path: Option<&Path>,
     ) -> rustsec::Result<rustsec::Report> {
@@ -147,8 +147,44 @@ impl Auditor {
 
         self.presenter.before_report(lockfile_path, &lockfile);
 
-        let mut report =
-            rustsec::Report::generate(&self.database, &lockfile, &self.report_settings);
+        self.audit(&lockfile)
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    /// Perform an audit of multiple binary files with dependency data embedded by `cargo auditable`
+    pub fn audit_binaries<P>(&mut self, binaries: &[P]) -> MultiFileReportSummmary
+    where
+        P: AsRef<Path>,
+    {
+        let mut summary = MultiFileReportSummmary::default();
+        for path in binaries {
+            let result = self.audit_binary(path.as_ref());
+            match result {
+                Ok(report) => {
+                    if report.vulnerabilities.found {
+                        summary.vulnerabilities_found = true;
+                    }
+                }
+                Err(e) => {
+                    status_err!("{}", e);
+                    summary.errors_encountered = true;
+                }
+            }
+        }
+        summary
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
+    fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
+        self.presenter.before_binary_scan(binary_path);
+        let lockfile = self.load_deps_from_binary(binary_path)?;
+        self.audit(&lockfile)
+    }
+
+    /// The part of the auditing process that is shared between auditing lockfiles and binary files
+    fn audit(&mut self, lockfile: &Lockfile) -> rustsec::Result<rustsec::Report> {
+        let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         // Warn for yanked crates
         if let Some(index) = &self.registry_index {
@@ -169,7 +205,7 @@ impl Auditor {
         let self_advisories = self.self_advisories();
 
         self.presenter
-            .print_report(&report, self_advisories.as_slice(), &lockfile);
+            .print_report(&report, self_advisories.as_slice(), lockfile);
 
         Ok(report)
     }
@@ -183,6 +219,38 @@ impl Auditor {
             Ok(lockfile_toml.parse()?)
         } else {
             Ok(Lockfile::load(lockfile_path)?)
+        }
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    /// Load the dependency tree from a binary file built with `cargo auditable`
+    fn load_deps_from_binary(&self, binary_path: &Path) -> rustsec::Result<Lockfile> {
+        // Read the input
+        let stuff = if binary_path == Path::new("-") {
+            let stdin = io::stdin();
+            let mut handle = stdin.lock();
+            auditable_info::audit_info_from_reader(&mut handle, Default::default())
+        } else {
+            auditable_info::audit_info_from_file(binary_path, Default::default())
+        };
+
+        // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
+        // the public APIs of the crates involved are still somewhat unstable,
+        // and this way we don't expose the error types in any public APIs
+        use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
+        match stuff {
+            Ok(json_struct) => Ok(cargo_lock::Lockfile::try_from(&json_struct)?),
+            Err(e) => match e {
+                NoAuditData => Err(Error::new(ErrorKind::NotFound, &e.to_string())),
+                Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
+                // Everything else is just Parse, but we enumerate them explicitly in case variant list changes
+                InputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                OutputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                BinaryParsing(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                Decompression(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                Json(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                Utf8(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+            },
         }
     }
 
@@ -205,4 +273,13 @@ impl Auditor {
 
         results
     }
+}
+
+/// Summary of the report over multiple scanned files
+#[derive(Clone, Copy, Debug, Default)]
+pub struct MultiFileReportSummmary {
+    /// Whether any vulnerabilities were found
+    pub vulnerabilities_found: bool,
+    /// Whether any errors were encountered during scanning
+    pub errors_encountered: bool,
 }

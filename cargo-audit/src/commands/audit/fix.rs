@@ -9,7 +9,7 @@ use std::{
     process::exit,
 };
 
-#[derive(Command, Default, Debug, Parser)]
+#[derive(Command, Clone, Default, Debug, Parser)]
 #[clap(author, version, about)]
 pub struct FixCommand {
     /// Path to `Cargo.lock`
@@ -41,7 +41,7 @@ impl FixCommand {
 
 impl Runnable for FixCommand {
     fn run(&self) {
-        let report = self.auditor().audit(self.cargo_lock_path());
+        let report = self.auditor().audit_lockfile(self.cargo_lock_path());
 
         let report = match report {
             Ok(report) => {
