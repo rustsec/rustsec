@@ -22,6 +22,7 @@
 
 pub mod application;
 pub mod auditor;
+mod cli_config;
 pub mod commands;
 pub mod config;
 pub mod error;
