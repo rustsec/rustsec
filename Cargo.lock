@@ -12,7 +12,7 @@ dependencies = [
  "arc-swap",
  "backtrace",
  "canonical-path",
- "clap",
+ "clap 3.2.22",
  "color-eyre",
  "fs-err",
  "once_cell",
@@ -274,7 +274,7 @@ name = "cargo-audit"
 version = "0.17.0"
 dependencies = [
  "abscissa_core",
- "clap",
+ "clap 4.0.4",
  "home",
  "once_cell",
  "rustsec",
@@ -293,7 +293,7 @@ checksum = "34965aea9b211a43ace81105894e2e2d15103be244884b31f26065e7538fe30b"
 dependencies = [
  "anyhow",
  "cargo_metadata",
- "clap",
+ "clap 3.2.22",
  "concolor-control",
  "crates-index",
  "dirs-next",
@@ -392,13 +392,26 @@ dependencies = [
  "atty",
  "bitflags",
  "clap_derive",
- "clap_lex",
+ "clap_lex 0.2.3",
  "indexmap",
  "once_cell",
  "strsim",
  "termcolor",
  "terminal_size",
  "textwrap",
+]
+
+[[package]]
+name = "clap"
+version = "4.0.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f78ad8e84aa8e8aa3e821857be40eb4b925ff232de430d4dd2ae6aa058cbd92"
+dependencies = [
+ "atty",
+ "bitflags",
+ "clap_lex 0.3.0",
+ "strsim",
+ "termcolor",
 ]
 
 [[package]]
@@ -419,6 +432,15 @@ name = "clap_lex"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87eba3c8c7f42ef17f6c659fc7416d0f4758cd3e58861ee63c5fa4a4dde649e4"
+dependencies = [
+ "os_str_bytes",
+]
+
+[[package]]
+name = "clap_lex"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d4198f73e42b4936b35b5bb248d81d2b595ecb170da0bac7655c54eedfa8da8"
 dependencies = [
  "os_str_bytes",
 ]
@@ -1697,7 +1719,7 @@ dependencies = [
  "askama",
  "atom_syndication",
  "chrono",
- "clap",
+ "clap 4.0.4",
  "comrak",
  "crates-index",
  "once_cell",
