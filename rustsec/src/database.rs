@@ -50,8 +50,18 @@ impl Database {
 
             if let Ok(collection_entry) = fs::read_dir(&collection_path) {
                 for dir_entry in collection_entry {
-                    for advisory_entry in fs::read_dir(dir_entry?.path())? {
-                        advisory_paths.push(advisory_entry?.path().to_owned());
+                    let dir_entry = dir_entry?;
+                    if !dir_entry.file_type()?.is_dir() {
+                        continue;
+                    }
+                    for advisory_entry in fs::read_dir(dir_entry.path())? {
+                        let advisory_path = advisory_entry?.path();
+                        let file_name = advisory_path.file_name().and_then(|f| f.to_str());
+                        // skip dotfiles like .DS_Store
+                        if file_name.map_or(false, |f| f.starts_with('.')) {
+                            continue;
+                        }
+                        advisory_paths.push(advisory_path);
                     }
                 }
             }
