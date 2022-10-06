@@ -101,7 +101,11 @@ pub struct BinCommand {
     output_json: bool,
 
     /// Paths to the binaries to be scanned
-    #[clap(value_parser, help = "Paths to the binaries to be scanned")]
+    #[clap(
+        value_parser,
+        required = true,
+        help = "Paths to the binaries to be scanned"
+    )]
     binary_paths: Vec<PathBuf>,
 }
 
