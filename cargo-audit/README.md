@@ -88,7 +88,7 @@ $ cargo install cargo-audit --features=binary-scanning
 
 Once installed, run `cargo audit bin` followed by the paths to your binaries to audit them:
 
-**TODO:** screenshot
+<img src="https://github.com/rustsec/rustsec/raw/release-0.17.1/.img/screenshot-bin.png" alt="Screenshot" style="max-width:100%;">
 
 ## Ignoring advisories
 
