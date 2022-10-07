@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Search results{% endblock %}
+
+{% block content %}
+<main class="search-page">
+    <article>
+
+        <header>
+            {% include "menu.html" %}
+            <h1 id="searched-term">Search results</h1>
+        </header>
+
+        <div id="search-result"></div>
+    </article>
+</main>
+{% endblock %}

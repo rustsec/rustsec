@@ -74,6 +74,36 @@ This will modify `Cargo.toml` in place. To perform a dry run instead, which
 shows a preview of what dependencies would be upgraded, run
 `cargo audit fix --dry-run`.
 
+## `cargo audit bin` subcommand
+
+If your programs have been compiled with [`cargo auditable`](https://github.com/rust-secure-code/cargo-auditable),
+they can be audited even without having the original `Cargo.lock`,
+because all the necessary information is embedded in the compiled binary.
+
+To use it, install `cargo audit` with the `binary-scanning` feature enabled:
+
+```
+$ cargo install cargo-audit --features=binary-scanning
+```
+
+Once installed, run `cargo audit bin` followed by the paths to your binaries to audit them:
+
+<img src="https://github.com/rustsec/rustsec/raw/46eeb09cef411bbe926a82c8a0d678a3e43299a1/.img/screenshot-bin.png" alt="Screenshot" style="max-width:100%;">
+
+## Ignoring advisories
+
+The first and best way to fix a vulnerability is to upgrade the vulnerable crate.
+
+But there may be situations where an upgrade isn't available and the advisory doesn't affect your application. For example the advisory might involve a cargo feature or API that is unused.
+
+In these cases, you can ignore advisories using the `--ignore` option.
+
+```
+$ cargo audit --ignore RUSTSEC-2017-0001
+```
+
+This option can also be configured via the [`audit.toml`](./audit.toml.example) file.
+
 ## Using `cargo audit` on Travis CI
 
 To automatically run `cargo audit` on every build in Travis CI, you can add the following to your `.travis.yml`:

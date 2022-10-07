@@ -278,20 +278,14 @@ impl Auditor {
     /// Load the dependency tree from a binary file built with `cargo auditable`
     fn load_deps_from_binary_file(&self, binary_path: &Path) -> rustsec::Result<Lockfile> {
         // Read the input
-        let binary = if binary_path == Path::new("-") {
-            let mut input = Vec::new();
+        let stuff = if binary_path == Path::new("-") {
             let stdin = io::stdin();
             let mut handle = stdin.lock();
-            handle.read_to_end(&mut input)?;
-            input
+            auditable_info::audit_info_from_reader(&mut handle, Default::default())
         } else {
-            let f = std::fs::File::open(binary_path)?;
-            let mut f = std::io::BufReader::new(f);
-            let mut input = Vec::new();
-            f.read_to_end(&mut input)?;
-            input
+            auditable_info::audit_info_from_file(binary_path, Default::default())
         };
-        self.load_deps_from_binary_data(&binary)
+        handle_audit_info_errors(stuff)
     }
 
     #[cfg(feature = "binary-scanning")]
@@ -304,6 +298,28 @@ impl Auditor {
             let json_structs: auditable_serde::VersionInfo = serde_json::from_slice(&text)?;
             let lockfile = cargo_lock::Lockfile::try_from(&json_structs)?;
             Ok(lockfile)
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    fn handle_audit_info_errors(stuff: Result<auditable_info::VersionInfo, auditable_info::Error>) -> rustsec::Result<Lockfile> {
+        // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
+        // the public APIs of the crates involved are still somewhat unstable,
+        // and this way we don't expose the error types in any public APIs
+        use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
+        match stuff {
+            Ok(json_struct) => Ok(cargo_lock::Lockfile::try_from(&json_struct)?),
+            Err(e) => match e {
+                NoAuditData => Err(Error::new(ErrorKind::NotFound, &e.to_string())),
+                Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
+                // Everything else is just Parse, but we enumerate them explicitly in case variant list changes
+                InputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                OutputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                BinaryParsing(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                Decompression(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                Json(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+                Utf8(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+            },
+        }
     }
 
     /// Query the database for advisories about `cargo-audit` or `rustsec` itself

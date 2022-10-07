@@ -1,4 +1,8 @@
-# Example `~/.cargo/audit.toml` file
+# Example audit config file
+#
+# It may be located in the user home (`~/.cargo/audit.toml`) or in the project
+# root (`.cargo/audit.toml`).
+#
 # All of the options which can be passed via CLI arguments can also be
 # permanently specified in this file.
 
