@@ -18,7 +18,7 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 abscissa_core = "0.6"
-clap = "3"
+clap = "4"
 home = "0.5"
 rustsec = { version = "0.26", features = ["dependency-tree"], path = "../rustsec" }
 serde = { version = "1", features = ["serde_derive"] }
