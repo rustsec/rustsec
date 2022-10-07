@@ -43,7 +43,7 @@ version = "0.6"
 features = ["testing"]
 
 [features]
-default = []
+default = ["binary-scanning"]
 fix = ["rustsec/fix"]
 vendored-libgit2 = ["rustsec/vendored-libgit2"]
 vendored-openssl = ["rustsec/vendored-openssl"]
