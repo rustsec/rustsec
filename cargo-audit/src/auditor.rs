@@ -283,6 +283,7 @@ impl Auditor {
     #[cfg(feature = "binary-scanning")]
     /// Load the dependency tree from a binary file built with `cargo auditable`
     fn load_deps_from_binary<T: std::io::BufRead>(&self, binary: &mut T) -> rustsec::Result<Lockfile> {
+        // TODO: pass in limits from the outside, from the command line parameters
         let result = auditable_info::audit_info_from_reader(binary, Default::default());
         handle_audit_info_errors(result)
     }
