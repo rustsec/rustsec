@@ -163,7 +163,7 @@ impl Auditor {
                                 if report.vulnerabilities.found {
                                     summary.vulnerabilities_found = true;
                                 }
-                            },
+                            }
                             Ok(None) => (),
                             Err(e) => {
                                 status_err!("{}", e);
@@ -171,11 +171,11 @@ impl Auditor {
                             }
                         }
                     }
-                },
+                }
                 Err(e) => {
                     summary.errors_encountered = true;
                     status_err!("{}", e);
-                },
+                }
             }
         }
         summary
@@ -282,7 +282,10 @@ impl Auditor {
 
     #[cfg(feature = "binary-scanning")]
     /// Load the dependency tree from a binary file built with `cargo auditable`
-    fn load_deps_from_binary<T: std::io::BufRead>(&self, binary: &mut T) -> rustsec::Result<Lockfile> {
+    fn load_deps_from_binary<T: std::io::BufRead>(
+        &self,
+        binary: &mut T,
+    ) -> rustsec::Result<Lockfile> {
         // TODO: pass in limits from the outside, from the command line parameters
         let result = auditable_info::audit_info_from_reader(binary, Default::default());
         handle_audit_info_errors(result)
@@ -319,7 +322,9 @@ pub struct MultiFileReportSummmary {
 }
 
 #[cfg(feature = "binary-scanning")]
-fn handle_audit_info_errors(stuff: Result<auditable_serde::VersionInfo, auditable_info::Error>) -> rustsec::Result<Lockfile> {
+fn handle_audit_info_errors(
+    stuff: Result<auditable_serde::VersionInfo, auditable_info::Error>,
+) -> rustsec::Result<Lockfile> {
     // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
     // the public APIs of the crates involved are still somewhat unstable,
     // and this way we don't expose the error types in any public APIs
