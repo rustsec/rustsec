@@ -9,14 +9,9 @@ use rustsec::{Error, ErrorKind};
 
 /// Load the dependency tree from a binary file
 pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Lockfile> {
-    // Read the input
-    let stuff = if binary_path == Path::new("-") {
-        let stdin = std::io::stdin();
-        let mut handle = stdin.lock();
-        auditable_info::audit_info_from_reader(&mut handle, Default::default())
-    } else {
-        auditable_info::audit_info_from_file(binary_path, Default::default())
-    };
+    // TODO: input size limit
+    let file_contents =  std::fs::read(binary_path)?;
+    let stuff = auditable_info::audit_info_from_slice(&file_contents, 8 * 1024 * 1024);
 
     // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
     // the public APIs of the crates involved are still somewhat unstable,
