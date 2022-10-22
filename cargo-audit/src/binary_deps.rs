@@ -2,9 +2,9 @@
 //! 1. Recovers the dependency list embedded by `cargo auditable` (using `auditable-info`)
 //! 2. Failing that, recovers as many crates as possible from panic messages (using `quitters`)
 
-use std::path::Path;
+use std::{path::Path, str::FromStr};
 
-use cargo_lock::Lockfile;
+use cargo_lock::{Lockfile, Package};
 use rustsec::{ErrorKind, Error};
 
 /// Load the dependency tree from a binary file
@@ -35,5 +35,23 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Lockfile> {
             Json(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
             Utf8(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
         },
+    }
+}
+
+// matches https://docs.rs/cargo-lock/8.0.2/src/cargo_lock/package/source.rs.html#19
+// to signal crates.io to the `cargo-lock` crate
+const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
+
+fn to_package(quitter: (&str, cargo_lock::Version)) -> Package {
+    Package {
+        // The `quitters` crate already ensures the name is valid, so we can just `.unwrap()` here
+        name: cargo_lock::Name::from_str(quitter.0).unwrap(),
+        version: quitter.1,
+        // we can't know the exact registry, but by default `cargo audit` will 
+        // only scan crates from crates.io, so assume they're from there
+        source: Some(cargo_lock::package::SourceId::from_url(CRATES_IO_INDEX).unwrap()),
+        checksum: None,
+        dependencies: Vec::new(),
+        replace: None,
     }
 }
