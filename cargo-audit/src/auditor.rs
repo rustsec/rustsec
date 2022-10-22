@@ -1,6 +1,9 @@
 //! Core auditing functionality
 
-use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter, binary_deps::load_deps_from_binary};
+use crate::{
+    binary_deps::load_deps_from_binary, config::AuditConfig, lockfile, prelude::*,
+    presenter::Presenter,
+};
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     collections::btree_map as map,
