@@ -169,9 +169,9 @@ dependencies = [
 
 [[package]]
 name = "auditable-info"
-version = "0.5.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5c2fa665d496ba4c7ac4a5116876e48af9b116bed0a24fea0094168d93ceb76"
+checksum = "6e58c24185b9cd75957e8e01aabfd1619fcc74b23c5bb29a549d3db2be2a9ef9"
 dependencies = [
  "auditable-extract",
  "auditable-serde",
@@ -284,6 +284,7 @@ dependencies = [
  "clap",
  "home",
  "once_cell",
+ "quitters",
  "rustsec",
  "serde",
  "serde_json",
