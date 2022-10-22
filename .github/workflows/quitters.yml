@@ -1,0 +1,48 @@
+name: quitters
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/rustsec.yml"
+      - "quitters/**"
+      - "Cargo.*"
+  push:
+    branches: main
+
+defaults:
+  run:
+    working-directory: quitters
+
+env:
+  RUSTFLAGS: -D warnings
+  RUSTDOCFLAGS: -D warnings
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust:
+          - 1.56.0
+          - stable
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust }}
+          override: true
+          profile: minimal
+      - run: rm ../Cargo.toml # Remove from workspace to make sure `regex` is built without default features
+      - run: cargo check
+      - run: cargo test --release
+
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          profile: minimal
+      - run: cargo doc --all-features
