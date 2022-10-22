@@ -10,7 +10,7 @@ use rustsec::{Error, ErrorKind};
 /// Load the dependency tree from a binary file
 pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Lockfile> {
     // TODO: input size limit
-    let file_contents =  std::fs::read(binary_path)?;
+    let file_contents = std::fs::read(binary_path)?;
     let stuff = auditable_info::audit_info_from_slice(&file_contents, 8 * 1024 * 1024);
 
     // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
@@ -52,20 +52,20 @@ fn deps_from_panic_messages(binary_path: &Path, data: &[u8]) -> Option<Lockfile>
 }
 
 fn fake_root_package(binary_path: &Path, other_packages: &[Package]) -> Package {
-        // .file_name() can only return error if the name ends in /..,
-        // which is a directory and would have errored out earlier
-        let filename = binary_path.file_name().unwrap().to_string_lossy();
-        // make up a version for the root package so that we have something to show in the tree view
-        let fake_version = cargo_lock::Version::parse("0.0.0").unwrap();
-        Package {
-            // we shamelessly rely on the fact that cargo-lock crate doesn't actually run any checks here
-            name: cargo_lock::Name::from_str(&filename).unwrap(),
-            version: fake_version,
-            source: None,
-            checksum: None,
-            dependencies: other_packages.iter().map(|p| p.into()).collect(),
-            replace: None,
-        }
+    // .file_name() can only return error if the name ends in /..,
+    // which is a directory and would have errored out earlier
+    let filename = binary_path.file_name().unwrap().to_string_lossy();
+    // make up a version for the root package so that we have something to show in the tree view
+    let fake_version = cargo_lock::Version::parse("0.0.0").unwrap();
+    Package {
+        // we shamelessly rely on the fact that cargo-lock crate doesn't actually run any checks here
+        name: cargo_lock::Name::from_str(&filename).unwrap(),
+        version: fake_version,
+        source: None,
+        checksum: None,
+        dependencies: other_packages.iter().map(|p| p.into()).collect(),
+        replace: None,
+    }
 }
 
 // matches https://docs.rs/cargo-lock/8.0.2/src/cargo_lock/package/source.rs.html#19
