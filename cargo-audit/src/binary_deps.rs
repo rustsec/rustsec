@@ -38,6 +38,41 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Lockfile> {
     }
 }
 
+fn deps_from_panic_messages(binary_path: &Path, data: &[u8]) -> Option<Lockfile> {
+    let deps = quitters::versions(data);
+    if !deps.is_empty() {
+        let mut packages: Vec<Package> = deps.into_iter().map(to_package).collect();
+        let root_package = fake_root_package(binary_path, &packages);
+        packages.push(root_package.clone());
+        Some(Lockfile {
+            version: cargo_lock::ResolveVersion::V2,
+            packages,
+            root: Some(root_package),
+            metadata: Default::default(),
+            patch: Default::default(),
+        })
+    } else {
+        None
+    }
+}
+
+fn fake_root_package(binary_path: &Path, other_packages: &[Package]) -> Package {
+        // .file_name() can only return error if the name ends in /..,
+        // which is a directory and would have errored out earlier
+        let filename = binary_path.file_name().unwrap().to_string_lossy();
+        // make up a version for the root package so that we have something to show in the tree view
+        let fake_version = cargo_lock::Version::parse("0.0.0").unwrap();
+        Package {
+            // we shamelessly rely on the fact that cargo-lock crate doesn't actually run any checks here
+            name: cargo_lock::Name::from_str(&filename).unwrap(),
+            version: fake_version,
+            source: None,
+            checksum: None,
+            dependencies: other_packages.iter().map(|p| p.into()).collect(),
+            replace: None,
+        }
+}
+
 // matches https://docs.rs/cargo-lock/8.0.2/src/cargo_lock/package/source.rs.html#19
 // to signal crates.io to the `cargo-lock` crate
 const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
