@@ -8,7 +8,7 @@ use cargo_lock::{Lockfile, Package};
 use rustsec::{Error, ErrorKind};
 
 /// Load the dependency tree from a binary file
-pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Lockfile> {
+pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Option<Lockfile>> {
     // TODO: input size limit
     let file_contents = std::fs::read(binary_path)?;
     let stuff = auditable_info::audit_info_from_slice(&file_contents, 8 * 1024 * 1024);
@@ -18,13 +18,13 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Lockfile> {
     // and this way we don't expose the error types in any public APIs
     use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
     match stuff {
-        Ok(json_struct) => Ok(cargo_lock::Lockfile::try_from(&json_struct)?),
+        Ok(json_struct) => Ok(Some(cargo_lock::Lockfile::try_from(&json_struct)?)),
         Err(e) => match e {
             NoAuditData => {
                 if let Some(deps) = deps_from_panic_messages(binary_path, &file_contents) {
-                    Ok(deps)
+                    Ok(Some(deps))
                 } else {
-                    todo!();
+                    Ok(None)
                 }
             }
             Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
