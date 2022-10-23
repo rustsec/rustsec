@@ -181,8 +181,11 @@ impl Auditor {
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         self.presenter.before_binary_scan(binary_path);
-        let lockfile = load_deps_from_binary(binary_path)?;
-        self.audit(&lockfile)
+        if let Some(lockfile) = load_deps_from_binary(binary_path)? {
+            self.audit(&lockfile)
+        } else {
+            Err(Error::new(ErrorKind::Parse, &"No dependency information found! Is this a Rust executable?"))
+        }
     }
 
     /// The part of the auditing process that is shared between auditing lockfiles and binary files
