@@ -74,7 +74,7 @@ fn fake_root_package(binary_path: &Path, other_packages: &[Package]) -> Package 
 
 // matches https://docs.rs/cargo-lock/8.0.2/src/cargo_lock/package/source.rs.html#19
 // to signal crates.io to the `cargo-lock` crate
-const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
+const CRATES_IO_INDEX: &str = "registry+https://github.com/rust-lang/crates.io-index";
 
 fn to_package(quitter: (&str, cargo_lock::Version)) -> Package {
     Package {
