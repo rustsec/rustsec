@@ -13,9 +13,6 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Option<Lockf
     let file_contents = std::fs::read(binary_path)?;
     let stuff = auditable_info::audit_info_from_slice(&file_contents, 8 * 1024 * 1024);
 
-    // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
-    // the public APIs of the crates involved are still somewhat unstable,
-    // and this way we don't expose the error types in any public APIs
     use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
     match stuff {
         Ok(json_struct) => Ok(Some(cargo_lock::Lockfile::try_from(&json_struct)?)),
@@ -27,14 +24,13 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Option<Lockf
                     Ok(None)
                 }
             }
+            // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
+            // the public APIs of the crates involved are still somewhat unstable,
+            // and this way we don't expose the error types in any public APIs
             Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
             // Everything else is just Parse, but we enumerate them explicitly in case variant list changes
-            InputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-            OutputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-            BinaryParsing(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-            Decompression(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-            Json(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-            Utf8(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
+            InputLimitExceeded | OutputLimitExceeded | BinaryParsing(_) | Decompression(_)
+            | Json(_) | Utf8(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
         },
     }
 }
