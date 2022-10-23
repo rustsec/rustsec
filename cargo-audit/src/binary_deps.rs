@@ -20,10 +20,12 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Lockfile> {
     match stuff {
         Ok(json_struct) => Ok(cargo_lock::Lockfile::try_from(&json_struct)?),
         Err(e) => match e {
-            NoAuditData => if let Some(deps) = deps_from_panic_messages(binary_path, &file_contents) {
-                Ok(deps)
-            } else {
-                todo!();
+            NoAuditData => {
+                if let Some(deps) = deps_from_panic_messages(binary_path, &file_contents) {
+                    Ok(deps)
+                } else {
+                    todo!();
+                }
             }
             Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
             // Everything else is just Parse, but we enumerate them explicitly in case variant list changes
