@@ -184,7 +184,10 @@ impl Auditor {
         if let Some(lockfile) = load_deps_from_binary(binary_path)? {
             self.audit(&lockfile)
         } else {
-            Err(Error::new(ErrorKind::Parse, &"No dependency information found! Is this a Rust executable?"))
+            Err(Error::new(
+                ErrorKind::Parse,
+                &"No dependency information found! Is this a Rust executable?",
+            ))
         }
     }
 
