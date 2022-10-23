@@ -45,12 +45,12 @@ fn cmd_runner() -> CmdRunner {
     RUNNER.clone()
 }
 
-#[test]
-fn binary_without_audit_info_is_rejected() {
-    let mut binary_path = binaries_dir();
-    binary_path.push("binary-without-audit-info");
-    assert_eq!(cmd_runner().arg(binary_path).status().code(), 2);
-}
+// #[test]
+// fn binary_without_audit_info_is_rejected() {
+//     let mut binary_path = binaries_dir();
+//     binary_path.push("binary-without-audit-info");
+//     assert_eq!(cmd_runner().arg(binary_path).status().code(), 2);
+// }
 
 #[test]
 fn binary_without_vulnerabilities_passes() {
