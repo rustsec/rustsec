@@ -12,8 +12,8 @@ use crate::{
 /// Instead of peforming an index lookup for every version of every crate,
 /// this implementation looks up each crate only once and caches the result.
 /// This usually doesn't result in any dramatic performance wins
-/// when auditing a single `Cargo.lock` file, but makes a huge difference
-/// when auditing many `Cargo.lock`s or many binaries.
+/// when auditing a single `Cargo.lock` file because the same crate rarely appears multiple times,
+/// but makes a huge difference when auditing many `Cargo.lock`s or many binaries.
 pub struct CachedIndex {
     index: crates_index::Index,
     // the outer map can later be changed to DashMap or some such for thread safety
