@@ -18,6 +18,9 @@ use rustsec::{
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
+#[cfg(feature = "binary-scanning")]
+use crate::binary_deps::Completeness;
+
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
 pub struct Presenter {
@@ -60,8 +63,14 @@ impl Presenter {
 
     #[cfg(feature = "binary-scanning")]
     /// Information to display before a binary file is scanned
-    pub fn before_binary_scan(&mut self, path: &Path) {
+    pub fn binary_scan_report(&mut self, completeness: Completeness, path: &Path) {
+        use crate::binary_deps::Completeness::*;
         if !self.config.is_quiet() {
+            match completeness {
+                Complete => status_ok!("Found", "'cargo auditable' data in {}", path.display(),),
+                Incomplete => status_warn!("{} was not built with 'cargo auditable', the report will be incomplete", path.display(),),
+                None => status_err!("No dependency information found in {}! Is it a Rust program built with cargo?", path.display(),),
+            }
             status_ok!("Scanning", "{} for vulnerabilities", path.display(),);
         }
     }
