@@ -5,6 +5,9 @@ use crate::{
     package::{self, Package},
 };
 
+// Re-export the cached index implementation
+pub use crate::cached_index::CachedIndex;
+
 /// Crates.io registry index (local copy)
 pub struct Index(crates_index::Index);
 

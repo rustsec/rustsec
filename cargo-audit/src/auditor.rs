@@ -21,7 +21,7 @@ pub struct Auditor {
     database: rustsec::Database,
 
     /// Crates.io registry index
-    registry_index: Option<registry::Index>,
+    registry_index: Option<registry::CachedIndex>,
 
     /// Presenter for displaying the report
     presenter: Presenter,
@@ -88,7 +88,7 @@ impl Auditor {
                     status_ok!("Updating", "crates.io index");
                 }
 
-                match registry::Index::fetch() {
+                match registry::CachedIndex::fetch() {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
@@ -99,7 +99,7 @@ impl Auditor {
                     }
                 }
             } else {
-                match registry::Index::open() {
+                match registry::CachedIndex::open() {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
