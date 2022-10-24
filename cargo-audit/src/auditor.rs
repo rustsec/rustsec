@@ -1,9 +1,6 @@
 //! Core auditing functionality
 
-use crate::{
-    binary_deps::load_deps_from_binary, config::AuditConfig, lockfile, prelude::*,
-    presenter::Presenter,
-};
+use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     collections::btree_map as map,
@@ -181,9 +178,9 @@ impl Auditor {
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         use crate::binary_deps::BinaryReport::*;
-        let report = load_deps_from_binary(binary_path)?;
+        let report = crate::binary_deps::load_deps_from_binary(binary_path)?;
         self.presenter.binary_scan_report(&report, binary_path);
-        match load_deps_from_binary(binary_path)? {
+        match report {
             Complete(lockfile) | Incomplete(lockfile) => self.audit(&lockfile),
             None => Err(Error::new(
                 ErrorKind::Parse,
