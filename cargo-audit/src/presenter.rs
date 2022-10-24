@@ -19,7 +19,7 @@ use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
 #[cfg(feature = "binary-scanning")]
-use crate::binary_deps::Completeness;
+use crate::binary_deps::BinaryReport;
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -63,21 +63,26 @@ impl Presenter {
 
     #[cfg(feature = "binary-scanning")]
     /// Information to display before a binary file is scanned
-    pub fn binary_scan_report(&mut self, completeness: Completeness, path: &Path) {
-        use crate::binary_deps::Completeness::*;
+    pub fn binary_scan_report(&mut self, report: &BinaryReport, path: &Path) {
+        use crate::binary_deps::BinaryReport::*;
         if !self.config.is_quiet() {
-            match completeness {
-                Complete => status_ok!("Found", "'cargo auditable' data in {}", path.display(),),
-                Incomplete => status_warn!(
-                    "{} was not built with 'cargo auditable', the report will be incomplete",
+            match report {
+                Complete(lockfile) => status_ok!(
+                    "Found",
+                    "'cargo auditable' data in {} ({} dependencies)",
                     path.display(),
+                    lockfile.packages.len()
                 ),
+                Incomplete(lockfile) => {
+                    status_warn!(
+                        "{} was not built with 'cargo auditable', the report will be incomplete ({} dependencies recovered)",
+                        path.display(), lockfile.packages.len());
+                }
                 None => status_err!(
                     "No dependency information found in {}! Is it a Rust program built with cargo?",
                     path.display(),
                 ),
             }
-            status_ok!("Scanning", "{} for vulnerabilities", path.display(),);
         }
     }
 
