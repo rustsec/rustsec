@@ -169,9 +169,9 @@ dependencies = [
 
 [[package]]
 name = "auditable-info"
-version = "0.5.0"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5c2fa665d496ba4c7ac4a5116876e48af9b116bed0a24fea0094168d93ceb76"
+checksum = "158d56117c834b6e90edbe4c5b5caaefff0996eebe8b952108a0a491330344ee"
 dependencies = [
  "auditable-extract",
  "auditable-serde",
