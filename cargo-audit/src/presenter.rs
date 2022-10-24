@@ -68,8 +68,14 @@ impl Presenter {
         if !self.config.is_quiet() {
             match completeness {
                 Complete => status_ok!("Found", "'cargo auditable' data in {}", path.display(),),
-                Incomplete => status_warn!("{} was not built with 'cargo auditable', the report will be incomplete", path.display(),),
-                None => status_err!("No dependency information found in {}! Is it a Rust program built with cargo?", path.display(),),
+                Incomplete => status_warn!(
+                    "{} was not built with 'cargo auditable', the report will be incomplete",
+                    path.display(),
+                ),
+                None => status_err!(
+                    "No dependency information found in {}! Is it a Rust program built with cargo?",
+                    path.display(),
+                ),
             }
             status_ok!("Scanning", "{} for vulnerabilities", path.display(),);
         }
