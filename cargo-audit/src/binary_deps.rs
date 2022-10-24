@@ -29,7 +29,7 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<BinaryReport
         )?)),
         Err(e) => match e {
             NoAuditData => {
-                if let Some(deps) = deps_from_panic_messages(binary_path, &file_contents) {
+                if let Some(deps) = deps_from_panic_messages(&file_contents) {
                     Ok(BinaryReport::Incomplete(deps))
                 } else {
                     Ok(BinaryReport::None)
@@ -46,7 +46,7 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<BinaryReport
     }
 }
 
-fn deps_from_panic_messages(binary_path: &Path, data: &[u8]) -> Option<Lockfile> {
+fn deps_from_panic_messages(data: &[u8]) -> Option<Lockfile> {
     let deps = quitters::versions(data);
     if !deps.is_empty() {
         let packages: Vec<Package> = deps.into_iter().map(to_package).collect();
