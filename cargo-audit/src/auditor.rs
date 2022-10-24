@@ -151,7 +151,7 @@ impl Auditor {
     }
 
     #[cfg(feature = "binary-scanning")]
-    /// Perform an audit of multiple binary files with dependency data embedded by `cargo auditable`
+    /// Perform an audit of multiple binary files
     pub fn audit_binaries<P>(&mut self, binaries: &[P]) -> MultiFileReportSummmary
     where
         P: AsRef<Path>,
