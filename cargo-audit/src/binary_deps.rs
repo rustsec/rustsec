@@ -7,21 +7,30 @@ use std::{path::Path, str::FromStr};
 use cargo_lock::{Lockfile, Package};
 use rustsec::{Error, ErrorKind};
 
+pub enum Completeness {
+    /// Full dependency list embedded by `cargo auditable`
+    Complete,
+    /// Partially recovered dependencies from panic messages
+    Incomplete,
+    /// No data found whatsoever, probably not a Rust executable
+    None
+}
+
 /// Load the dependency tree from a binary file
-pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<Option<Lockfile>> {
+pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(Completeness, Option<Lockfile>)> {
     // TODO: input size limit
     let file_contents = std::fs::read(binary_path)?;
     let stuff = auditable_info::audit_info_from_slice(&file_contents, 8 * 1024 * 1024);
 
     use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
     match stuff {
-        Ok(json_struct) => Ok(Some(cargo_lock::Lockfile::try_from(&json_struct)?)),
+        Ok(json_struct) => Ok((Completeness::Complete, Some(cargo_lock::Lockfile::try_from(&json_struct)?))),
         Err(e) => match e {
             NoAuditData => {
                 if let Some(deps) = deps_from_panic_messages(binary_path, &file_contents) {
-                    Ok(Some(deps))
+                    Ok((Completeness::Incomplete, Some(deps)))
                 } else {
-                    Ok(None)
+                    Ok((Completeness::None, None))
                 }
             }
             // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing

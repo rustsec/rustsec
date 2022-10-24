@@ -180,13 +180,13 @@ impl Auditor {
     #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
-        self.presenter.before_binary_scan(binary_path);
-        if let Some(lockfile) = load_deps_from_binary(binary_path)? {
+        if let (completeness, Some(lockfile)) = load_deps_from_binary(binary_path)? {
+            self.presenter.binary_scan_report(completeness, binary_path);
             self.audit(&lockfile)
         } else {
             Err(Error::new(
                 ErrorKind::Parse,
-                &"No dependency information found! Is this a Rust executable?",
+                &"No dependency information found! Is this a Rust executable built with cargo?",
             ))
         }
     }
