@@ -21,10 +21,10 @@ mod fixer;
 
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-pub mod registry;
+mod cached_index;
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-mod cached_index;
+pub mod registry;
 
 pub use cargo_lock::{self, package, Lockfile, SourceId};
 pub use fs_err as fs;
