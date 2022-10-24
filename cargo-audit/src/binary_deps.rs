@@ -72,7 +72,7 @@ fn fake_root_package(binary_path: &Path, other_packages: &[Package]) -> Package 
     // which is a directory and would have errored out earlier
     let filename = binary_path.file_name().unwrap().to_string_lossy();
     // make up a version for the root package so that we have something to show in the tree view
-    let fake_version = cargo_lock::Version::parse("0.0.0").unwrap();
+    let fake_version = cargo_lock::Version::parse("0.0.0+unknown").unwrap();
     Package {
         // we shamelessly rely on the fact that cargo-lock crate doesn't actually run any checks here
         name: cargo_lock::Name::from_str(&filename).unwrap(),
