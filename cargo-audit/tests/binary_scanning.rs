@@ -46,10 +46,17 @@ fn cmd_runner() -> CmdRunner {
 }
 
 #[test]
-fn plain_binary_without_audit_info_passes() {
+fn panicking_binary_without_vulnerabilities_passes() {
     let mut binary_path = binaries_dir();
     binary_path.push("binary-without-audit-info");
     assert_eq!(cmd_runner().arg(binary_path).status().code(), 0);
+}
+
+#[test]
+fn panicking_binary_with_vulnerabilities_fails() {
+    let mut binary_path = binaries_dir();
+    binary_path.push("binary-with-vuln-panic");
+    assert_eq!(cmd_runner().arg(binary_path).status().code(), 1);
 }
 
 #[test]
