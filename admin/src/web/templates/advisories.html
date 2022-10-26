@@ -5,19 +5,15 @@
 {% block content %}
 <main class="advisories">
   <article>
-
-    {% for year_grouped_advisories in advisories_per_year %}
     <header>
       {% include "menu.html" %}
-      <h1>{{ year_grouped_advisories.year }}</h1>
     </header>
 
     <ul>
-      {% for (advisory, rendered_title, advisory_title_type) in year_grouped_advisories.advisories %}
+      {% for (advisory, cdate, rendered_title, advisory_title_type) in advisories %}
       {% include "advisory-list-entry.html" %}
       {% endfor %}
     </ul>
-    {% endfor %}
   </article>
 </main>
 {% endblock %}
