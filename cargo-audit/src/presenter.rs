@@ -108,13 +108,11 @@ impl Presenter {
             return;
         }
 
-        // We'll set this to true if (e.g.) we see a warning and have deny-warnings enabled.
-        // Once we've printed the whole report, we'll bail out of the whole program.
-        let mut exit_with_failure = false;
-
         let tree = lockfile
             .dependency_tree()
             .expect("invalid Cargo.lock dependency tree");
+
+        // NOTE: when modifying the following logic, be sure to also update should_exit_with_failure()
 
         // Print out vulnerabilities and warnings
         for vulnerability in &report.vulnerabilities.list {
@@ -164,17 +162,7 @@ impl Presenter {
             }
         }
 
-        // Count up the warnings, sorting into denied and allowed
-        let mut num_denied: u64 = 0;
-        let mut num_not_denied: u64 = 0;
-
-        for (kind, warnings) in report.warnings.iter() {
-            if self.deny_warning_kinds.contains(kind) {
-                num_denied += warnings.len() as u64;
-            } else {
-                num_not_denied += warnings.len() as u64;
-            }
-        }
+        let (num_denied, num_not_denied) = self.count_warnings(report);
 
         if num_denied > 0 || num_not_denied > 0 {
             if num_denied > 0 {
@@ -191,7 +179,6 @@ impl Presenter {
                         self.warning_word(num_denied)
                     ),
                 }
-                exit_with_failure = true;
             }
             if num_not_denied > 0 {
                 match path {
@@ -216,16 +203,41 @@ impl Presenter {
 
             if self.config.deny.contains(&DenyOption::Warnings) {
                 status_err!(upgrade_msg);
-                exit_with_failure = true;
             } else {
                 status_warn!(upgrade_msg);
             }
         }
+    }
 
-        // TODO(tarcieri): better unify this with vulnerabilities handling
-        if exit_with_failure {
-            std::process::exit(1);
+    /// Determines whether the process should exit with failure based on configuration
+    /// such as --deny=warnings
+    #[must_use]
+    pub fn should_exit_with_failure(
+        &self,
+        report: &rustsec::Report,
+        self_advisories: &[rustsec::Advisory],
+    ) -> bool {
+        if report.vulnerabilities.found { return true }
+        let (denied, _allowed) = self.count_warnings(report);
+        if denied != 0 { return true }
+        if !self_advisories.is_empty() && self.config.deny.contains(&DenyOption::Warnings) { return true }
+        false
+    }
+
+    /// Count up the warnings, sorting into denied and allowed.
+    /// Returns `(denied, allowed)`
+    fn count_warnings(&self, report: &rustsec::Report) -> (u64, u64) {
+        let mut num_denied: u64 = 0;
+        let mut num_not_denied: u64 = 0;
+
+        for (kind, warnings) in report.warnings.iter() {
+            if self.deny_warning_kinds.contains(kind) {
+                num_denied += warnings.len() as u64;
+            } else {
+                num_not_denied += warnings.len() as u64;
+            }
         }
+        (num_denied, num_not_denied)
     }
 
     /// Print information about the given vulnerability
