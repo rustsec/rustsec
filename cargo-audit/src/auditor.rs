@@ -190,7 +190,11 @@ impl Auditor {
     }
 
     /// The part of the auditing process that is shared between auditing lockfiles and binary files
-    fn audit(&mut self, lockfile: &Lockfile, path: Option<&Path>) -> rustsec::Result<rustsec::Report> {
+    fn audit(
+        &mut self,
+        lockfile: &Lockfile,
+        path: Option<&Path>,
+    ) -> rustsec::Result<rustsec::Report> {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         // Warn for yanked crates

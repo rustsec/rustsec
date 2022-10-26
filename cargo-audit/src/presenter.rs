@@ -100,7 +100,7 @@ impl Presenter {
         report: &rustsec::Report,
         self_advisories: &[rustsec::Advisory],
         lockfile: &Lockfile,
-        path: Option<&Path>
+        path: Option<&Path>,
     ) {
         if self.config.format == OutputFormat::Json {
             serde_json::to_writer(io::stdout(), &report).unwrap();
@@ -154,7 +154,11 @@ impl Presenter {
                 }
             } else {
                 match path {
-                    Some(path) => status_err!("{} vulnerabilities found in {}", report.vulnerabilities.count, path.display()),
+                    Some(path) => status_err!(
+                        "{} vulnerabilities found in {}",
+                        report.vulnerabilities.count,
+                        path.display()
+                    ),
                     None => status_err!("{} vulnerabilities found!", report.vulnerabilities.count),
                 }
             }
