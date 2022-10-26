@@ -1,5 +1,5 @@
 //! An efficient way to check whether a given package has been yanked
-use std::{cell::RefCell, collections::HashMap};
+use std::collections::HashMap;
 
 use crate::{
     error::{Error, ErrorKind},
@@ -17,7 +17,7 @@ use crate::{
 pub struct CachedIndex {
     index: crates_index::Index,
     // the outer map can later be changed to DashMap or some such for thread safety
-    cache: RefCell<HashMap<package::Name, HashMap<package::Version, bool>>>,
+    cache: HashMap<package::Name, HashMap<package::Version, bool>>,
 }
 
 impl CachedIndex {
@@ -42,7 +42,7 @@ impl CachedIndex {
     }
 
     /// Load all version of the given crate from the crates.io index and put them into the cache
-    fn populate_cache(&self, package: &package::Name) -> Result<(), Error> {
+    fn populate_cache(&mut self, package: &package::Name) -> Result<(), Error> {
         let crate_releases = self.index.crate_(package.as_str()).ok_or_else(|| {
             format_err!(
                 ErrorKind::NotFound,
@@ -57,17 +57,17 @@ impl CachedIndex {
             .iter()
             .map(|v| (v.version().parse().unwrap(), v.is_yanked()))
             .collect();
-        self.cache.borrow_mut().insert(package.to_owned(), versions);
+        self.cache.insert(package.to_owned(), versions);
         Ok(())
     }
 
     /// Is the given package yanked?
-    pub fn is_yanked(&self, package: &Package) -> Result<bool, Error> {
-        let crate_is_cached = { self.cache.borrow().contains_key(&package.name) };
+    pub fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
+        let crate_is_cached = { self.cache.contains_key(&package.name) };
         if !crate_is_cached {
             self.populate_cache(&package.name)?
         };
-        match &self.cache.borrow()[&package.name].get(&package.version) {
+        match &self.cache[&package.name].get(&package.version) {
             Some(is_yanked) => Ok(**is_yanked),
             None => Err(format_err!(
                 ErrorKind::NotFound,
@@ -80,7 +80,7 @@ impl CachedIndex {
 
     /// Iterate over the provided packages, returning a vector of the
     /// packages which have been yanked.
-    pub fn find_yanked<'a, I>(&self, packages: I) -> Result<Vec<&'a Package>, Error>
+    pub fn find_yanked<'a, I>(&mut self, packages: I) -> Result<Vec<&'a Package>, Error>
     where
         I: IntoIterator<Item = &'a Package>,
     {
