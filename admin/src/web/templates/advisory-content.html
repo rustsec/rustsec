@@ -26,11 +26,23 @@
     {% endif %}
 
     <dl>
-      <dt id="issued">Issued</dt>
+      <dt id="reported">Reported</dt>
       <dd>
         <time datetime="{{ advisory.date().as_str() }}">
           {{ advisory.date() | friendly_date }}
         </time>
+      </dd>
+
+      <dt id="issued">Issued</dt>
+      <dd>
+        <time datetime="{{ cdate.as_str() }}">
+          {{ cdate.clone() | friendly_date }}
+        </time>
+        {% if cdate != mdate %}
+        <time datetime="{{ mdate.as_str() }}">
+          (last modified: {{ mdate.clone() | friendly_date }})
+        </time>
+        {% endif %}
       </dd>
 
       <dt id="package">Package</dt>
