@@ -149,6 +149,7 @@ impl Presenter {
         }
 
         if report.vulnerabilities.found {
+            exit_with_failure = true;
             if report.vulnerabilities.count == 1 {
                 match path {
                     Some(path) => status_err!("1 vulnerability found in {}", path.display()),
