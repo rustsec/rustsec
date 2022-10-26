@@ -161,7 +161,7 @@ impl Auditor {
             let result = self.audit_binary(path.as_ref());
             match result {
                 Ok(report) => {
-                    if report.vulnerabilities.found {
+                    if self.presenter.should_exit_with_failure(&report, &[]) {
                         summary.vulnerabilities_found = true;
                     }
                 }
