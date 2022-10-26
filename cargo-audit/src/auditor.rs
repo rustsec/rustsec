@@ -190,7 +190,6 @@ impl Auditor {
     }
 
     /// The part of the auditing process that is shared between auditing lockfiles and binary files
-    #[must_use]
     fn audit(
         &mut self,
         lockfile: &Lockfile,
