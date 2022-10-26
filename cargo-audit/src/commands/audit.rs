@@ -213,10 +213,11 @@ impl Runnable for AuditCommand {
         }
 
         let path = self.file.as_deref();
-        let report = self.auditor().audit_lockfile(path);
+        let mut auditor = self.auditor();
+        let report = auditor.audit_lockfile(path);
         match report {
             Ok(report) => {
-                if report.vulnerabilities.found {
+                if auditor.should_exit_with_failure(&report) {
                     exit(1);
                 }
                 exit(0);

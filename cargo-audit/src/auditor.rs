@@ -252,6 +252,13 @@ impl Auditor {
 
         results
     }
+
+    /// Determines whether the process should exit with failure based on configuration
+    /// such as --deny=warnings
+    pub fn should_exit_with_failure(&self, report: &rustsec::Report) -> bool {
+        // TODO: proper handling of self advisories
+        self.presenter.should_exit_with_failure(report, &[])
+    }
 }
 
 /// Summary of the report over multiple scanned files
