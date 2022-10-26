@@ -1,5 +1,5 @@
 [package]
-name = "no_vulns"
+name = "unmaintained-dep"
 version = "0.1.0"
 publish = false
 
@@ -9,4 +9,4 @@ path = "dummy.rs"
 [workspace]
 
 [dependencies]
-rust-crypto = "0.2"
+parity-wasm = "0.45"
