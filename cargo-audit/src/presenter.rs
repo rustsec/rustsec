@@ -100,6 +100,7 @@ impl Presenter {
         report: &rustsec::Report,
         self_advisories: &[rustsec::Advisory],
         lockfile: &Lockfile,
+        path: Option<&Path>
     ) {
         if self.config.format == OutputFormat::Json {
             serde_json::to_writer(io::stdout(), &report).unwrap();
@@ -147,9 +148,15 @@ impl Presenter {
 
         if report.vulnerabilities.found {
             if report.vulnerabilities.count == 1 {
-                status_err!("1 vulnerability found!");
+                match path {
+                    Some(path) => status_err!("1 vulnerability found in {}", path.display()),
+                    None => status_err!("1 vulnerability found!"),
+                }
             } else {
-                status_err!("{} vulnerabilities found!", report.vulnerabilities.count);
+                match path {
+                    Some(path) => status_err!("{} vulnerabilities found in {}", report.vulnerabilities.count, path.display()),
+                    None => status_err!("{} vulnerabilities found!", report.vulnerabilities.count),
+                }
             }
         }
 
@@ -167,19 +174,35 @@ impl Presenter {
 
         if num_denied > 0 || num_not_denied > 0 {
             if num_denied > 0 {
-                status_err!(
-                    "{} denied {} found!",
-                    num_denied,
-                    self.warning_word(num_denied)
-                );
+                match path {
+                    Some(path) => status_err!(
+                        "{} denied {} found in {}",
+                        num_denied,
+                        self.warning_word(num_denied),
+                        path.display(),
+                    ),
+                    None => status_err!(
+                        "{} denied {} found!",
+                        num_denied,
+                        self.warning_word(num_denied)
+                    ),
+                }
                 exit_with_failure = true;
             }
             if num_not_denied > 0 {
-                status_warn!(
-                    "{} allowed {} found",
-                    num_not_denied,
-                    self.warning_word(num_not_denied)
-                );
+                match path {
+                    Some(path) => status_warn!(
+                        "{} allowed {} found in {}",
+                        num_not_denied,
+                        self.warning_word(num_not_denied),
+                        path.display(),
+                    ),
+                    None => status_warn!(
+                        "{} allowed {} found",
+                        num_not_denied,
+                        self.warning_word(num_not_denied)
+                    ),
+                }
             }
         }
 
