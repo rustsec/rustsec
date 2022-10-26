@@ -217,10 +217,16 @@ impl Presenter {
         report: &rustsec::Report,
         self_advisories: &[rustsec::Advisory],
     ) -> bool {
-        if report.vulnerabilities.found { return true }
+        if report.vulnerabilities.found {
+            return true;
+        }
         let (denied, _allowed) = self.count_warnings(report);
-        if denied != 0 { return true }
-        if !self_advisories.is_empty() && self.config.deny.contains(&DenyOption::Warnings) { return true }
+        if denied != 0 {
+            return true;
+        }
+        if !self_advisories.is_empty() && self.config.deny.contains(&DenyOption::Warnings) {
+            return true;
+        }
         false
     }
 
