@@ -147,7 +147,7 @@ impl Auditor {
 
         self.presenter.before_report(lockfile_path, &lockfile);
 
-        self.audit(&lockfile)
+        self.audit(&lockfile, None)
     }
 
     #[cfg(feature = "binary-scanning")]
@@ -181,7 +181,7 @@ impl Auditor {
         let report = crate::binary_deps::load_deps_from_binary(binary_path)?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
-            Complete(lockfile) | Incomplete(lockfile) => self.audit(&lockfile),
+            Complete(lockfile) | Incomplete(lockfile) => self.audit(&lockfile, Some(binary_path)),
             None => Err(Error::new(
                 ErrorKind::Parse,
                 &"No dependency information found! Is this a Rust executable built with cargo?",
@@ -190,7 +190,7 @@ impl Auditor {
     }
 
     /// The part of the auditing process that is shared between auditing lockfiles and binary files
-    fn audit(&mut self, lockfile: &Lockfile) -> rustsec::Result<rustsec::Report> {
+    fn audit(&mut self, lockfile: &Lockfile, path: Option<&Path>) -> rustsec::Result<rustsec::Report> {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         // Warn for yanked crates
@@ -212,7 +212,7 @@ impl Auditor {
         let self_advisories = self.self_advisories();
 
         self.presenter
-            .print_report(&report, self_advisories.as_slice(), lockfile);
+            .print_report(&report, self_advisories.as_slice(), lockfile, path);
 
         Ok(report)
     }
