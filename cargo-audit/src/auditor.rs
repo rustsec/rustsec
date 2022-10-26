@@ -187,7 +187,7 @@ impl Auditor {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         // Warn for yanked crates
-        if let Some(index) = &self.registry_index {
+        if let Some(index) = &mut self.registry_index {
             if let Ok(yanked) = index.find_yanked(&lockfile.packages) {
                 for pkg in yanked {
                     let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
