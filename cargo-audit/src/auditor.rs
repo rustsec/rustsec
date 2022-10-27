@@ -234,7 +234,7 @@ impl Auditor {
     }
 
     /// Query the database for advisories about `cargo-audit` or `rustsec` itself
-    fn self_advisories(&mut self) -> Vec<rustsec::Advisory> {
+    fn self_advisories(&self) -> Vec<rustsec::Advisory> {
         let mut results = vec![];
 
         for (package_name, package_version) in [
@@ -254,10 +254,11 @@ impl Auditor {
     }
 
     /// Determines whether the process should exit with failure based on configuration
-    /// such as --deny=warnings
+    /// such as `--deny=warnings`.
+    /// **Performance:** calls `Auditor.self_advisories()`, which is costly.
+    /// Do not call this in a hot loop.
     pub fn should_exit_with_failure(&self, report: &rustsec::Report) -> bool {
-        // TODO: proper handling of self advisories
-        self.presenter.should_exit_with_failure(report, &[])
+        self.presenter.should_exit_with_failure(report, &self.self_advisories())
     }
 }
 
