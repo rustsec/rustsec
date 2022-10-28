@@ -161,7 +161,7 @@ impl Auditor {
             let result = self.audit_binary(path.as_ref());
             match result {
                 Ok(report) => {
-                    if self.presenter.should_exit_with_failure(&report, &[]) {
+                    if self.presenter.should_exit_with_failure(&report) {
                         summary.vulnerabilities_found = true;
                     }
                 }
@@ -258,8 +258,10 @@ impl Auditor {
     /// **Performance:** calls `Auditor.self_advisories()`, which is costly.
     /// Do not call this in a hot loop.
     pub fn should_exit_with_failure(&self, report: &rustsec::Report) -> bool {
-        self.presenter
-            .should_exit_with_failure(report, &self.self_advisories())
+        self.presenter.should_exit_with_failure(report)
+            || self
+                .presenter
+                .should_exit_with_failure_due_to_self(&self.self_advisories())
     }
 }
 
