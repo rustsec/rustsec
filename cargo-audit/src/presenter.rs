@@ -212,11 +212,7 @@ impl Presenter {
     /// Determines whether the process should exit with failure based on configuration
     /// such as --deny=warnings
     #[must_use]
-    pub fn should_exit_with_failure(
-        &self,
-        report: &rustsec::Report,
-        self_advisories: &[rustsec::Advisory],
-    ) -> bool {
+    pub fn should_exit_with_failure(&self, report: &rustsec::Report) -> bool {
         if report.vulnerabilities.found {
             return true;
         }
@@ -224,10 +220,17 @@ impl Presenter {
         if denied != 0 {
             return true;
         }
-        if !self_advisories.is_empty() && self.config.deny.contains(&DenyOption::Warnings) {
-            return true;
-        }
         false
+    }
+
+    /// Determines whether the process should exit with failure based on configuration
+    /// such as --deny=warnings
+    #[must_use]
+    pub fn should_exit_with_failure_due_to_self(
+        &self,
+        self_advisories: &[rustsec::Advisory],
+    ) -> bool {
+        !self_advisories.is_empty() && self.config.deny.contains(&DenyOption::Warnings)
     }
 
     /// Count up the warnings, sorting into denied and allowed.
