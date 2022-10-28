@@ -171,7 +171,10 @@ impl Auditor {
                 }
             }
         }
-        if self.presenter.should_exit_with_failure_due_to_self(&self.self_advisories()) {
+        if self
+            .presenter
+            .should_exit_with_failure_due_to_self(&self.self_advisories())
+        {
             summary.vulnerabilities_found = true;
         }
         summary
