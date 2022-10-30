@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.17.3 (UNRELEASED)
+### Added
+
+ - `cargo audit bin` now attempts to detect dependencies in binaries not built with [`cargo auditable`](https://github.com/rust-secure-code/cargo-auditable) by parsing the panic messages ([#729]). This only detects about a half of the dependency list and never detects C code such as OpenSSL, but works on any Rust binaries built with `cargo`.
+ - Added integration tests for the `--deny=warnings` flag.
+
+### Fixed
+
+ - `cargo audit bin --deny=warnings` no longer exits after finding the first binary with warnings.
+
+### Changed
+
+ - Up to 5x faster `cargo audit bin` when scanning multiple files thanks to caching crates.io index lookups (implemented in `rustsec` crate).
+ - Notices about `cargo audit` or `rustsec` crate are treated as warnings by default. With `--deny=warnings` they will result in a scanning error being reported (exit code 2) as opposed to reporting them as vulnerabilities in the scanned binary (exit code 1).
+
+[#729]: https://github.com/rustsec/rustsec/pull/729
+
 ## 0.17.2 (2022-10-07)
 ### Changed
 
