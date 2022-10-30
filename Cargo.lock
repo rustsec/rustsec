@@ -1757,7 +1757,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.26.2"
+version = "0.26.3"
 dependencies = [
  "cargo-edit",
  "cargo-lock 8.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
