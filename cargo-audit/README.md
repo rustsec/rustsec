@@ -80,7 +80,13 @@ If your programs have been compiled with [`cargo auditable`](https://github.com/
 they can be audited even without having the original `Cargo.lock`,
 because all the necessary information is embedded in the compiled binary.
 
-To use it, install `cargo audit` with the `binary-scanning` feature enabled:
+For binaries that were not compiled with [`cargo auditable`](https://github.com/rust-secure-code/cargo-auditable)
+it will recover a part of the dependency list by parsing panic messages.
+This will miss any embedded C code (e.g. OpenSSL) as well as roughly half of the Rust dependencies
+because the Rust compiler is very good at removing unnecessary panics,
+but that's better than having no vulnerability information whatsoever.
+
+To use binary scanning, install `cargo audit` with the `binary-scanning` feature enabled:
 
 ```
 $ cargo install cargo-audit --features=binary-scanning
