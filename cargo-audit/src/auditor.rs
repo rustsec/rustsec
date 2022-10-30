@@ -147,11 +147,11 @@ impl Auditor {
 
         self.presenter.before_report(lockfile_path, &lockfile);
 
-        self.audit(&lockfile)
+        self.audit(&lockfile, None)
     }
 
     #[cfg(feature = "binary-scanning")]
-    /// Perform an audit of multiple binary files with dependency data embedded by `cargo auditable`
+    /// Perform an audit of multiple binary files
     pub fn audit_binaries<P>(&mut self, binaries: &[P]) -> MultiFileReportSummmary
     where
         P: AsRef<Path>,
@@ -161,7 +161,7 @@ impl Auditor {
             let result = self.audit_binary(path.as_ref());
             match result {
                 Ok(report) => {
-                    if report.vulnerabilities.found {
+                    if self.presenter.should_exit_with_failure(&report) {
                         summary.vulnerabilities_found = true;
                     }
                 }
@@ -171,19 +171,36 @@ impl Auditor {
                 }
             }
         }
+        if self
+            .presenter
+            .should_exit_with_failure_due_to_self(&self.self_advisories())
+        {
+            summary.vulnerabilities_found = true;
+        }
         summary
     }
 
     #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
-        self.presenter.before_binary_scan(binary_path);
-        let lockfile = self.load_deps_from_binary(binary_path)?;
-        self.audit(&lockfile)
+        use crate::binary_deps::BinaryReport::*;
+        let report = crate::binary_deps::load_deps_from_binary(binary_path)?;
+        self.presenter.binary_scan_report(&report, binary_path);
+        match report {
+            Complete(lockfile) | Incomplete(lockfile) => self.audit(&lockfile, Some(binary_path)),
+            None => Err(Error::new(
+                ErrorKind::Parse,
+                &"No dependency information found! Is this a Rust executable built with cargo?",
+            )),
+        }
     }
 
     /// The part of the auditing process that is shared between auditing lockfiles and binary files
-    fn audit(&mut self, lockfile: &Lockfile) -> rustsec::Result<rustsec::Report> {
+    fn audit(
+        &mut self,
+        lockfile: &Lockfile,
+        path: Option<&Path>,
+    ) -> rustsec::Result<rustsec::Report> {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         // Warn for yanked crates
@@ -205,7 +222,7 @@ impl Auditor {
         let self_advisories = self.self_advisories();
 
         self.presenter
-            .print_report(&report, self_advisories.as_slice(), lockfile);
+            .print_report(&report, self_advisories.as_slice(), lockfile, path);
 
         Ok(report)
     }
@@ -222,40 +239,8 @@ impl Auditor {
         }
     }
 
-    #[cfg(feature = "binary-scanning")]
-    /// Load the dependency tree from a binary file built with `cargo auditable`
-    fn load_deps_from_binary(&self, binary_path: &Path) -> rustsec::Result<Lockfile> {
-        // Read the input
-        let stuff = if binary_path == Path::new("-") {
-            let stdin = io::stdin();
-            let mut handle = stdin.lock();
-            auditable_info::audit_info_from_reader(&mut handle, Default::default())
-        } else {
-            auditable_info::audit_info_from_file(binary_path, Default::default())
-        };
-
-        // The error handling boilerplate is in here instead of the `rustsec` crate because as of this writing
-        // the public APIs of the crates involved are still somewhat unstable,
-        // and this way we don't expose the error types in any public APIs
-        use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
-        match stuff {
-            Ok(json_struct) => Ok(cargo_lock::Lockfile::try_from(&json_struct)?),
-            Err(e) => match e {
-                NoAuditData => Err(Error::new(ErrorKind::NotFound, &e.to_string())),
-                Io(_) => Err(Error::new(ErrorKind::Io, &e.to_string())),
-                // Everything else is just Parse, but we enumerate them explicitly in case variant list changes
-                InputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-                OutputLimitExceeded => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-                BinaryParsing(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-                Decompression(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-                Json(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-                Utf8(_) => Err(Error::new(ErrorKind::Parse, &e.to_string())),
-            },
-        }
-    }
-
     /// Query the database for advisories about `cargo-audit` or `rustsec` itself
-    fn self_advisories(&mut self) -> Vec<rustsec::Advisory> {
+    fn self_advisories(&self) -> Vec<rustsec::Advisory> {
         let mut results = vec![];
 
         for (package_name, package_version) in [
@@ -272,6 +257,17 @@ impl Auditor {
         }
 
         results
+    }
+
+    /// Determines whether the process should exit with failure based on configuration
+    /// such as `--deny=warnings`.
+    /// **Performance:** calls `Auditor.self_advisories()`, which is costly.
+    /// Do not call this in a hot loop.
+    pub fn should_exit_with_failure(&self, report: &rustsec::Report) -> bool {
+        self.presenter.should_exit_with_failure(report)
+            || self
+                .presenter
+                .should_exit_with_failure_due_to_self(&self.self_advisories())
     }
 }
 

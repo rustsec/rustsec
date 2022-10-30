@@ -18,6 +18,9 @@ use rustsec::{
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
+#[cfg(feature = "binary-scanning")]
+use crate::binary_deps::BinaryReport;
+
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
 pub struct Presenter {
@@ -60,9 +63,26 @@ impl Presenter {
 
     #[cfg(feature = "binary-scanning")]
     /// Information to display before a binary file is scanned
-    pub fn before_binary_scan(&mut self, path: &Path) {
+    pub fn binary_scan_report(&mut self, report: &BinaryReport, path: &Path) {
+        use crate::binary_deps::BinaryReport::*;
         if !self.config.is_quiet() {
-            status_ok!("Scanning", "{} for vulnerabilities", path.display(),);
+            match report {
+                Complete(lockfile) => status_ok!(
+                    "Found",
+                    "'cargo auditable' data in {} ({} dependencies)",
+                    path.display(),
+                    lockfile.packages.len()
+                ),
+                Incomplete(lockfile) => {
+                    status_warn!(
+                        "{} was not built with 'cargo auditable', the report will be incomplete ({} dependencies recovered)",
+                        path.display(), lockfile.packages.len());
+                }
+                None => status_err!(
+                    "No dependency information found in {}! Is it a Rust program built with cargo?",
+                    path.display(),
+                ),
+            }
         }
     }
 
@@ -80,6 +100,7 @@ impl Presenter {
         report: &rustsec::Report,
         self_advisories: &[rustsec::Advisory],
         lockfile: &Lockfile,
+        path: Option<&Path>,
     ) {
         if self.config.format == OutputFormat::Json {
             serde_json::to_writer(io::stdout(), &report).unwrap();
@@ -87,13 +108,11 @@ impl Presenter {
             return;
         }
 
-        // We'll set this to true if (e.g.) we see a warning and have deny-warnings enabled.
-        // Once we've printed the whole report, we'll bail out of the whole program.
-        let mut exit_with_failure = false;
-
         let tree = lockfile
             .dependency_tree()
             .expect("invalid Cargo.lock dependency tree");
+
+        // NOTE: when modifying the following logic, be sure to also update should_exit_with_failure()
 
         // Print out vulnerabilities and warnings
         for vulnerability in &report.vulnerabilities.list {
@@ -127,13 +146,96 @@ impl Presenter {
 
         if report.vulnerabilities.found {
             if report.vulnerabilities.count == 1 {
-                status_err!("1 vulnerability found!");
+                match path {
+                    Some(path) => status_err!("1 vulnerability found in {}", path.display()),
+                    None => status_err!("1 vulnerability found!"),
+                }
             } else {
-                status_err!("{} vulnerabilities found!", report.vulnerabilities.count);
+                match path {
+                    Some(path) => status_err!(
+                        "{} vulnerabilities found in {}",
+                        report.vulnerabilities.count,
+                        path.display()
+                    ),
+                    None => status_err!("{} vulnerabilities found!", report.vulnerabilities.count),
+                }
             }
         }
 
-        // Count up the warnings, sorting into denied and allowed
+        let (num_denied, num_not_denied) = self.count_warnings(report);
+
+        if num_denied > 0 || num_not_denied > 0 {
+            if num_denied > 0 {
+                match path {
+                    Some(path) => status_err!(
+                        "{} denied {} found in {}",
+                        num_denied,
+                        self.warning_word(num_denied),
+                        path.display(),
+                    ),
+                    None => status_err!(
+                        "{} denied {} found!",
+                        num_denied,
+                        self.warning_word(num_denied)
+                    ),
+                }
+            }
+            if num_not_denied > 0 {
+                match path {
+                    Some(path) => status_warn!(
+                        "{} allowed {} found in {}",
+                        num_not_denied,
+                        self.warning_word(num_not_denied),
+                        path.display(),
+                    ),
+                    None => status_warn!(
+                        "{} allowed {} found",
+                        num_not_denied,
+                        self.warning_word(num_not_denied)
+                    ),
+                }
+            }
+        }
+
+        if !self_advisories.is_empty() {
+            let upgrade_msg = "upgrade cargo-audit to the latest version: \
+                               cargo install --force cargo-audit";
+
+            if self.config.deny.contains(&DenyOption::Warnings) {
+                status_err!(upgrade_msg);
+            } else {
+                status_warn!(upgrade_msg);
+            }
+        }
+    }
+
+    /// Determines whether the process should exit with failure based on configuration
+    /// such as --deny=warnings
+    #[must_use]
+    pub fn should_exit_with_failure(&self, report: &rustsec::Report) -> bool {
+        if report.vulnerabilities.found {
+            return true;
+        }
+        let (denied, _allowed) = self.count_warnings(report);
+        if denied != 0 {
+            return true;
+        }
+        false
+    }
+
+    /// Determines whether the process should exit with failure based on configuration
+    /// such as --deny=warnings
+    #[must_use]
+    pub fn should_exit_with_failure_due_to_self(
+        &self,
+        self_advisories: &[rustsec::Advisory],
+    ) -> bool {
+        !self_advisories.is_empty() && self.config.deny.contains(&DenyOption::Warnings)
+    }
+
+    /// Count up the warnings, sorting into denied and allowed.
+    /// Returns `(denied, allowed)`
+    fn count_warnings(&self, report: &rustsec::Report) -> (u64, u64) {
         let mut num_denied: u64 = 0;
         let mut num_not_denied: u64 = 0;
 
@@ -144,41 +246,7 @@ impl Presenter {
                 num_not_denied += warnings.len() as u64;
             }
         }
-
-        if num_denied > 0 || num_not_denied > 0 {
-            if num_denied > 0 {
-                status_err!(
-                    "{} denied {} found!",
-                    num_denied,
-                    self.warning_word(num_denied)
-                );
-                exit_with_failure = true;
-            }
-            if num_not_denied > 0 {
-                status_warn!(
-                    "{} allowed {} found",
-                    num_not_denied,
-                    self.warning_word(num_not_denied)
-                );
-            }
-        }
-
-        if !self_advisories.is_empty() {
-            let upgrade_msg = "upgrade cargo-audit to the latest version: \
-                               cargo install --force cargo-audit";
-
-            if self.config.deny.contains(&DenyOption::Warnings) {
-                status_err!(upgrade_msg);
-                exit_with_failure = true;
-            } else {
-                status_warn!(upgrade_msg);
-            }
-        }
-
-        // TODO(tarcieri): better unify this with vulnerabilities handling
-        if exit_with_failure {
-            std::process::exit(1);
-        }
+        (num_denied, num_not_denied)
     }
 
     /// Print information about the given vulnerability

@@ -141,7 +141,13 @@ pub enum AuditSubcommand {
 
     /// `cargo audit bin` subcommand
     #[cfg(feature = "binary-scanning")]
-    #[clap(about = "scan binaries compiled with 'cargo auditable'")]
+    #[clap(
+        about = "scan compiled binaries",
+        long_about = "Scan compiled binaries for known vulnerabilities.
+
+Performs a complete scan if the binary is built with 'cargo auditable'.
+If not, recovers a part of the dependency list from panic messages."
+    )]
     Bin(BinCommand),
 }
 
@@ -207,10 +213,11 @@ impl Runnable for AuditCommand {
         }
 
         let path = self.file.as_deref();
-        let report = self.auditor().audit_lockfile(path);
+        let mut auditor = self.auditor();
+        let report = auditor.audit_lockfile(path);
         match report {
             Ok(report) => {
-                if report.vulnerabilities.found {
+                if auditor.should_exit_with_failure(&report) {
                     exit(1);
                 }
                 exit(0);

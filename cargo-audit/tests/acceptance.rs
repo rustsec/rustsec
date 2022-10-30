@@ -63,6 +63,11 @@ pub fn failing_cmd_runner() -> CmdRunner {
     new_cmd_runner("empty")
 }
 
+/// Get a `CmdRunner` to a project with an unmaintained dependency
+pub fn unmaintained_cmd_runner() -> CmdRunner {
+    new_cmd_runner("unmaintained")
+}
+
 /// Get the advisory JSON output from a `CmdRunner`
 pub fn get_advisories_json(process: &mut Process) -> serde_json::Value {
     let mut output = String::new();
@@ -84,6 +89,19 @@ fn advisories_found_exit_error() {
 #[test]
 fn no_lockfile_exit_error() {
     failing_cmd_runner().status().expect_code(2);
+}
+
+#[test]
+fn unmaintained_exit_success_by_default() {
+    unmaintained_cmd_runner().status().expect_code(0);
+}
+
+#[test]
+fn unmaintained_exit_failure_deny_warnings() {
+    let mut runner = unmaintained_cmd_runner();
+    runner.arg("--deny=warnings");
+    let process = runner.run();
+    process.wait().unwrap().expect_code(1);
 }
 
 #[test]

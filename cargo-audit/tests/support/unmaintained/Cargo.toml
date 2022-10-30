@@ -1,0 +1,12 @@
+[package]
+name = "unmaintained-dep"
+version = "0.1.0"
+publish = false
+
+[lib]
+path = "dummy.rs"
+
+[workspace]
+
+[dependencies]
+parity-wasm = "0.45"
