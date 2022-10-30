@@ -4,9 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 0.26.3 (Unreleased)
 ### Added
-- `registry::CachedIndex` which allows efficiently scanning multiple `Cargo.lock` files or binaries.
+- `registry::CachedIndex` which is orders of magnitude faster than `registry::Index` when scanning multiple `Cargo.lock` files or binaries ([#730])
+
+[#730]: https://github.com/rustsec/rustsec/pull/730
 
 ## 0.26.2 (2022-08-15)
 ### Fixed
