@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
  - Up to 5x faster `cargo audit bin` when scanning multiple files thanks to caching crates.io index lookups (implemented in `rustsec` crate).
- - Notices about `cargo audit` or `rustsec` crate are treated as warnings by default. With `--deny=warnings` they will result in a scanning error being reported (exit code 2) as opposed to reporting them as vulnerabilities in the scanned binary (exit code 1).
+ - Notices about `cargo audit` or `rustsec` will now result in a scanning error being reported (exit code 2) as opposed to reporting them as vulnerabilities in the scanned binary (exit code 1). They are treated as warnings by default, so `--deny=warnings` is required to observe the new behavior.
 
 [#729]: https://github.com/rustsec/rustsec/pull/729
 
