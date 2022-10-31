@@ -175,7 +175,7 @@ impl Auditor {
             .presenter
             .should_exit_with_failure_due_to_self(&self.self_advisories())
         {
-            summary.vulnerabilities_found = true;
+            summary.errors_encountered = true;
         }
         summary
     }
