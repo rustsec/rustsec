@@ -275,7 +275,7 @@ checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 
 [[package]]
 name = "cargo-audit"
-version = "0.17.2"
+version = "0.17.3"
 dependencies = [
  "abscissa_core",
  "auditable-info",
@@ -1757,7 +1757,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.26.2"
+version = "0.26.3"
 dependencies = [
  "cargo-edit",
  "cargo-lock 8.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
