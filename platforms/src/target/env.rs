@@ -35,6 +35,9 @@ pub enum Env {
     /// `newlib`
     Newlib,
 
+    /// `psx`
+    Psx,
+
     /// `relibc`
     Relibc,
 
@@ -56,6 +59,7 @@ impl Env {
             Env::Msvc => "msvc",
             Env::Musl => "musl",
             Env::Newlib => "newlib",
+            Env::Psx => "psx",
             Env::Relibc => "relibc",
             Env::Sgx => "sgx",
             Env::UClibc => "uclibc",
@@ -76,6 +80,7 @@ impl FromStr for Env {
             "msvc" => Env::Msvc,
             "musl" => Env::Musl,
             "newlib" => Env::Newlib,
+            "psx" => Env::Psx,
             "relibc" => Env::Relibc,
             "sgx" => Env::Sgx,
             "uclibc" => Env::UClibc,
