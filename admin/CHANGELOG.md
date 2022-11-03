@@ -6,11 +6,17 @@
 - Don't build `chrono` with default features ([#679])
 - Update `chrono` to v0.4.22 ([#679])
 
+[#666]: https://github.com/rustsec/rustsec/pull/666
+[#675]: https://github.com/rustsec/rustsec/pull/675
+[#677]: https://github.com/rustsec/rustsec/pull/677
+[#679]: https://github.com/rustsec/rustsec/pull/679
+
 ## 0.8.2 (2022-08-28)
 - Add a search field for IDs and packages on the website ([#641])
 - Adjust website templates to advertise GHSA integration on rustsec.org ([#665])
 
-[#633]: https://github.com/rustsec/rustsec/pull/633
+[#641]: https://github.com/rustsec/rustsec/pull/641
+[#665]: https://github.com/rustsec/rustsec/pull/665
 
 ## 0.8.1 (2022-08-09)
 - Adjust website templates to advertise OSV integration on rustsec.org ([#633])
