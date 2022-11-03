@@ -1,3 +1,11 @@
+## 0.8.3 (Unreleased)
+- Replace the about page with a new home page ([#666])
+- Render advisory-db's `CONTRIBUTING.md` on the website ([#666])
+- Add an icon for external links on the website ([#675])
+- Don't build `comrak` with default features ([#677])
+- Don't build `chrono` with default features ([#679])
+- Update `chrono` to v0.4.22 ([#679])
+
 ## 0.8.2 (2022-08-28)
 - Add a search field for IDs and packages on the website ([#641])
 - Adjust website templates to advertise GHSA integration on rustsec.org ([#665])
