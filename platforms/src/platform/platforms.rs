@@ -48,9 +48,12 @@ pub(crate) const ALL: &[Platform] = &[
     ARM_UNKNOWN_LINUX_MUSLEABI,
     ARM_UNKNOWN_LINUX_MUSLEABIHF,
     ARM64_32_APPLE_WATCHOS,
+    ARMEB_UNKNOWN_LINUX_GNUEABI,
     ARMEBV7R_NONE_EABI,
     ARMEBV7R_NONE_EABIHF,
+    ARMV4T_NONE_EABI,
     ARMV4T_UNKNOWN_LINUX_GNUEABI,
+    ARMV5TE_NONE_EABI,
     ARMV5TE_UNKNOWN_LINUX_GNUEABI,
     ARMV5TE_UNKNOWN_LINUX_MUSLEABI,
     ARMV5TE_UNKNOWN_LINUX_UCLIBCEABI,
@@ -109,6 +112,7 @@ pub(crate) const ALL: &[Platform] = &[
     MIPS64EL_UNKNOWN_LINUX_GNUABI64,
     MIPS64EL_UNKNOWN_LINUX_MUSLABI64,
     MIPSEL_SONY_PSP,
+    MIPSEL_SONY_PSX,
     MIPSEL_UNKNOWN_LINUX_GNU,
     MIPSEL_UNKNOWN_LINUX_MUSL,
     MIPSEL_UNKNOWN_LINUX_UCLIBC,
@@ -130,6 +134,7 @@ pub(crate) const ALL: &[Platform] = &[
     POWERPC64_UNKNOWN_FREEBSD,
     POWERPC64_UNKNOWN_LINUX_GNU,
     POWERPC64_UNKNOWN_LINUX_MUSL,
+    POWERPC64_UNKNOWN_OPENBSD,
     POWERPC64_WRS_VXWORKS,
     POWERPC64LE_UNKNOWN_FREEBSD,
     POWERPC64LE_UNKNOWN_LINUX_GNU,
@@ -146,6 +151,7 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV64GC_UNKNOWN_LINUX_GNU,
     RISCV64GC_UNKNOWN_LINUX_MUSL,
     RISCV64GC_UNKNOWN_NONE_ELF,
+    RISCV64GC_UNKNOWN_OPENBSD,
     RISCV64IMAC_UNKNOWN_NONE_ELF,
     S390X_UNKNOWN_LINUX_GNU,
     S390X_UNKNOWN_LINUX_MUSL,
@@ -155,6 +161,7 @@ pub(crate) const ALL: &[Platform] = &[
     SPARC64_UNKNOWN_OPENBSD,
     SPARCV9_SUN_SOLARIS,
     THUMBV4T_NONE_EABI,
+    THUMBV5TE_NONE_EABI,
     THUMBV6M_NONE_EABI,
     THUMBV7A_PC_WINDOWS_MSVC,
     THUMBV7A_UWP_WINDOWS_MSVC,
@@ -357,7 +364,7 @@ pub(crate) const AARCH64_UNKNOWN_HERMIT: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// ARM64 Linux (kernel 4.2, glibc 2.17+) [^missing-stack-probes]
+/// ARM64 Linux (kernel 4.1, glibc 2.17+) [^missing-stack-probes]
 pub(crate) const AARCH64_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "aarch64-unknown-linux-gnu",
     target_arch: Arch::AArch64,
@@ -563,6 +570,17 @@ pub(crate) const ARM64_32_APPLE_WATCHOS: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// ARM BE8 the default ARM big-endian architecture since [ARMv6](https://developer.arm.com/documentation/101754/0616/armlink-Reference/armlink-Command-line-Options/--be8?lang=en).
+pub(crate) const ARMEB_UNKNOWN_LINUX_GNUEABI: Platform = Platform {
+    target_triple: "armeb-unknown-linux-gnueabi",
+    target_arch: Arch::Arm,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Big,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// Bare ARMv7-R, Big Endian
 pub(crate) const ARMEBV7R_NONE_EABI: Platform = Platform {
     target_triple: "armebv7r-none-eabi",
@@ -585,11 +603,33 @@ pub(crate) const ARMEBV7R_NONE_EABIHF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// ARMv4T A32
+pub(crate) const ARMV4T_NONE_EABI: Platform = Platform {
+    target_triple: "armv4t-none-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 pub(crate) const ARMV4T_UNKNOWN_LINUX_GNUEABI: Platform = Platform {
     target_triple: "armv4t-unknown-linux-gnueabi",
     target_arch: Arch::Arm,
     target_os: OS::Linux,
     target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// ARMv5TE A32
+pub(crate) const ARMV5TE_NONE_EABI: Platform = Platform {
+    target_triple: "armv5te-none-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::None,
+    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Three,
@@ -942,7 +982,7 @@ pub(crate) const I586_PC_WINDOWS_MSVC: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 32-bit Linux w/o SSE (kernel 4.4, glibc 2.23)
+/// 32-bit Linux w/o SSE (kernel 3.2, glibc 2.17)
 pub(crate) const I586_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "i586-unknown-linux-gnu",
     target_arch: Arch::X86,
@@ -1030,7 +1070,7 @@ pub(crate) const I686_UNKNOWN_HAIKU: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit Linux (kernel 2.6.32+, glibc 2.11+)
+/// 32-bit Linux (kernel 3.2+, glibc 2.17+)
 pub(crate) const I686_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "i686-unknown-linux-gnu",
     target_arch: Arch::X86,
@@ -1225,6 +1265,17 @@ pub(crate) const MIPSEL_SONY_PSP: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// MIPS (LE) Sony PlayStation 1 (PSX)
+pub(crate) const MIPSEL_SONY_PSX: Platform = Platform {
+    target_triple: "mipsel-sony-psx",
+    target_arch: Arch::Mips,
+    target_os: OS::None,
+    target_env: Env::Psx,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// MIPS (LE) Linux (kernel 4.4, glibc 2.23)
 pub(crate) const MIPSEL_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "mipsel-unknown-linux-gnu",
@@ -1342,7 +1393,7 @@ pub(crate) const POWERPC_UNKNOWN_FREEBSD: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// PowerPC Linux (kernel 2.6.32, glibc 2.11)
+/// PowerPC Linux (kernel 3.2, glibc 2.17)
 pub(crate) const POWERPC_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "powerpc-unknown-linux-gnu",
     target_arch: Arch::PowerPc,
@@ -1425,7 +1476,7 @@ pub(crate) const POWERPC64_UNKNOWN_FREEBSD: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// PPC64 Linux (kernel 2.6.32, glibc 2.11)
+/// PPC64 Linux (kernel 3.2, glibc 2.17)
 pub(crate) const POWERPC64_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "powerpc64-unknown-linux-gnu",
     target_arch: Arch::PowerPc64,
@@ -1441,6 +1492,17 @@ pub(crate) const POWERPC64_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_arch: Arch::PowerPc64,
     target_os: OS::Linux,
     target_env: Env::Musl,
+    target_endian: Endian::Big,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// OpenBSD/powerpc64
+pub(crate) const POWERPC64_UNKNOWN_OPENBSD: Platform = Platform {
+    target_triple: "powerpc64-unknown-openbsd",
+    target_arch: Arch::PowerPc64,
+    target_os: OS::OpenBSD,
+    target_env: Env::None,
     target_endian: Endian::Big,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
@@ -1620,6 +1682,17 @@ pub(crate) const RISCV64GC_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// OpenBSD/riscv64
+pub(crate) const RISCV64GC_UNKNOWN_OPENBSD: Platform = Platform {
+    target_triple: "riscv64gc-unknown-openbsd",
+    target_arch: Arch::Riscv64,
+    target_os: OS::OpenBSD,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// Bare RISC-V (RV64IMAC ISA)
 pub(crate) const RISCV64IMAC_UNKNOWN_NONE_ELF: Platform = Platform {
     target_triple: "riscv64imac-unknown-none-elf",
@@ -1631,7 +1704,7 @@ pub(crate) const RISCV64IMAC_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// S390x Linux (kernel 2.6.32, glibc 2.12)
+/// S390x Linux (kernel 3.2, glibc 2.17)
 pub(crate) const S390X_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "s390x-unknown-linux-gnu",
     target_arch: Arch::S390X,
@@ -1642,7 +1715,7 @@ pub(crate) const S390X_UNKNOWN_LINUX_GNU: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// S390x Linux (kernel 2.6.32, MUSL)
+/// S390x Linux (kernel 3.2, MUSL)
 pub(crate) const S390X_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_triple: "s390x-unknown-linux-musl",
     target_arch: Arch::S390X,
@@ -1711,6 +1784,17 @@ pub(crate) const SPARCV9_SUN_SOLARIS: Platform = Platform {
 /// ARMv4T T32
 pub(crate) const THUMBV4T_NONE_EABI: Platform = Platform {
     target_triple: "thumbv4t-none-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// ARMv5TE T32
+pub(crate) const THUMBV5TE_NONE_EABI: Platform = Platform {
+    target_triple: "thumbv5te-none-eabi",
     target_arch: Arch::Arm,
     target_os: OS::None,
     target_env: Env::None,
@@ -2100,7 +2184,7 @@ pub(crate) const X86_64_UNKNOWN_L4RE_UCLIBC: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 64-bit Linux (kernel 2.6.32+, glibc 2.11+)
+/// 64-bit Linux (kernel 3.2+, glibc 2.17+)
 pub(crate) const X86_64_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "x86_64-unknown-linux-gnu",
     target_arch: Arch::X86_64,
