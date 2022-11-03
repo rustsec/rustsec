@@ -1,4 +1,4 @@
-## 0.8.3 (Unreleased)
+## 0.8.3 (2022-11-03)
 - Replace the about page with a new home page ([#666])
 - Render advisory-db's `CONTRIBUTING.md` on the website ([#666])
 - Add an icon for external links on the website ([#675])
