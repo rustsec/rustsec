@@ -3,7 +3,6 @@
 use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
-    collections::btree_map as map,
     io::{self, Read},
     path::Path,
     process::exit,
@@ -204,19 +203,13 @@ impl Auditor {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         // Warn for yanked crates
-        if let Some(index) = &mut self.registry_index {
-            if let Ok(yanked) = index.find_yanked(&lockfile.packages) {
-                for pkg in yanked {
-                    let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
-
-                    match report.warnings.entry(WarningKind::Yanked) {
-                        map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
-                        map::Entry::Vacant(entry) => {
-                            entry.insert(vec![warning]);
-                        }
-                    }
-                }
-            }
+        let mut yanked = self.check_for_yanked_crates(lockfile);
+        if !yanked.is_empty() {
+            report
+                .warnings
+                .entry(WarningKind::Yanked)
+                .or_default()
+                .append(&mut yanked);
         }
 
         let self_advisories = self.self_advisories();
@@ -225,6 +218,32 @@ impl Auditor {
             .print_report(&report, self_advisories.as_slice(), lockfile, path);
 
         Ok(report)
+    }
+
+    fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
+        let mut result = Vec::new();
+        if let Some(index) = &mut self.registry_index {
+            for pkg in &lockfile.packages {
+                if let Some(source) = &pkg.source {
+                    // only check for yanking if the package comes from crates.io
+                    if source.is_default_registry() {
+                        match index.is_yanked(pkg) {
+                            Ok(false) => (),
+                            Ok(true) => {
+                                let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
+                                result.push(warning);
+                            }
+                            Err(e) => status_err!(
+                                "couldn't check if the package {} is yanked: {}",
+                                &pkg.name,
+                                e
+                            ),
+                        }
+                    }
+                }
+            }
+        }
+        result
     }
 
     /// Load the lockfile to be audited
