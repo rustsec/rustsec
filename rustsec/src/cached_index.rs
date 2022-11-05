@@ -87,15 +87,8 @@ impl CachedIndex {
         let mut yanked = Vec::new();
 
         for package in packages {
-            if let Some(source) = &package.source {
-                // Skip packages not coming from crates.io according to the Cargo.lock.
-                // Not doing this resulted in an early return and ultimately this bug:
-                // https://github.com/rustsec/rustsec/issues/747
-                if source.is_default_registry() {
-                    if self.is_yanked(package)? {
-                        yanked.push(package);
-                    }
-                }
+            if self.is_yanked(package)? {
+                yanked.push(package);
             }
         }
 
