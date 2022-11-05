@@ -162,6 +162,12 @@ nav, body > footer {
   margin-top: 20px;
 }
 
+@media (max-width: 800px) {
+  .row {
+    flex-direction: column;
+  }
+}
+
 .column {
   flex: 1;
   background-color: #282828;
@@ -190,6 +196,12 @@ nav, body > footer {
   margin-top: 20px;
   width: 60%;
   margin: auto;
+}
+
+@media (max-width: 800px) {
+  .header-row {
+    flex-direction: column;
+  }
 }
 
 .header-column-text {
