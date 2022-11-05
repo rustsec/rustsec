@@ -74,7 +74,7 @@ impl GitModificationTimes {
     /// The path must be relative to the root of the repository.
     pub fn mdate_for_path(&self, path: GitPath<'_>) -> Date {
         Date::from_str(&Self::git2_time_to_date(
-            &self.mtimes.get(path.path()).unwrap(),
+            self.mtimes.get(path.path()).unwrap(),
         ))
         .unwrap()
     }
@@ -83,7 +83,7 @@ impl GitModificationTimes {
     /// The path must be relative to the root of the repository.
     pub fn cdate_for_path(&self, path: GitPath<'_>) -> Date {
         Date::from_str(&Self::git2_time_to_date(
-            &self.ctimes.get(path.path()).unwrap(),
+            self.ctimes.get(path.path()).unwrap(),
         ))
         .unwrap()
     }
