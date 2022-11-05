@@ -68,6 +68,11 @@ pub fn unmaintained_cmd_runner() -> CmdRunner {
     new_cmd_runner("unmaintained")
 }
 
+/// Get a `CmdRunner` to a project with a yanked dependency
+pub fn yanked_cmd_runner() -> CmdRunner {
+    new_cmd_runner("yanked")
+}
+
 /// Get the advisory JSON output from a `CmdRunner`
 pub fn get_advisories_json(process: &mut Process) -> serde_json::Value {
     let mut output = String::new();
@@ -93,13 +98,28 @@ fn no_lockfile_exit_error() {
 
 #[test]
 fn unmaintained_exit_success_by_default() {
-    unmaintained_cmd_runner().status().expect_code(0);
+    unmaintained_cmd_runner().status().expect_success();
 }
 
 #[test]
 fn unmaintained_exit_failure_deny_warnings() {
     let mut runner = unmaintained_cmd_runner();
     runner.arg("--deny=warnings");
+    let process = runner.run();
+    process.wait().unwrap().expect_code(1);
+}
+
+#[test]
+fn yanked_exit_success_by_default() {
+    let runner = yanked_cmd_runner();
+    let process = runner.run();
+    process.wait().unwrap().expect_success();
+}
+
+#[test]
+fn yanked_exit_failure_deny_yanked() {
+    let mut runner = yanked_cmd_runner();
+    runner.arg("--deny=yanked");
     let process = runner.run();
     process.wait().unwrap().expect_code(1);
 }
