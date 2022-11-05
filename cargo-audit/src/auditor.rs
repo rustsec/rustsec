@@ -225,7 +225,7 @@ impl Auditor {
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
             for pkg in &lockfile.packages {
-                match index.is_yanked(&pkg) {
+                match index.is_yanked(pkg) {
                     Ok(false) => (),
                     Ok(true) => {
                         let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
