@@ -36,7 +36,7 @@ impl Runnable for ListAffectedVersionsCmd {
             _ => unreachable!(),
         };
 
-        let lister = AffectedVersionLister::new(&repo_path).unwrap_or_else(|e| {
+        let lister = AffectedVersionLister::new(repo_path).unwrap_or_else(|e| {
             status_err!(
                 "error loading advisory DB repo from {}: {}",
                 repo_path.display(),

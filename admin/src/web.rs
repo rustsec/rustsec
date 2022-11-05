@@ -534,7 +534,7 @@ fn render_feed(
         .authors(vec![author])
         .build();
 
-    let file = File::create(&output_path).unwrap();
+    let file = File::create(output_path).unwrap();
     feed.write_to(file).unwrap();
 }
 
