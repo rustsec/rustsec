@@ -30,7 +30,7 @@ impl Runnable for LintCmd {
             _ => unreachable!(),
         };
 
-        let linter = Linter::new(&repo_path, self.skip_namecheck.to_owned()).unwrap_or_else(|e| {
+        let linter = Linter::new(repo_path, self.skip_namecheck.to_owned()).unwrap_or_else(|e| {
             status_err!(
                 "error loading advisory DB repo from {}: {}",
                 repo_path.display(),
