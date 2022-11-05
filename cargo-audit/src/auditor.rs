@@ -224,17 +224,21 @@ impl Auditor {
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
             for pkg in &lockfile.packages {
-                match index.is_yanked(pkg) {
-                    Ok(false) => (),
-                    Ok(true) => {
-                        let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
-                        result.push(warning);
+                if let Some(source) = &pkg.source {
+                    if source.is_default_registry() {
+                        match index.is_yanked(pkg) {
+                            Ok(false) => (),
+                            Ok(true) => {
+                                let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
+                                result.push(warning);
+                            }
+                            Err(e) => status_err!(
+                                "couldn't check if the package {} is yanked: {}",
+                                &pkg.name,
+                                e
+                            ),
+                        }
                     }
-                    Err(e) => status_err!(
-                        "couldn't check if the package {} is yanked: {}",
-                        &pkg.name,
-                        e
-                    ),
                 }
             }
         }
