@@ -206,7 +206,11 @@ impl Auditor {
         // Warn for yanked crates
         let mut yanked = self.check_for_yanked_crates(lockfile);
         if !yanked.is_empty() {
-            report.warnings.entry(WarningKind::Yanked).or_default().append(&mut yanked);
+            report
+                .warnings
+                .entry(WarningKind::Yanked)
+                .or_default()
+                .append(&mut yanked);
         }
 
         let self_advisories = self.self_advisories();
@@ -226,8 +230,12 @@ impl Auditor {
                     Ok(true) => {
                         let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
                         result.push(warning);
-                    },
-                    Err(e) => status_err!("couldn't check if the package {} is yanked: {}", &pkg.name, e),
+                    }
+                    Err(e) => status_err!(
+                        "couldn't check if the package {} is yanked: {}",
+                        &pkg.name,
+                        e
+                    ),
                 }
             }
         }
