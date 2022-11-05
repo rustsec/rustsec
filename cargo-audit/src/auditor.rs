@@ -3,7 +3,6 @@
 use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
-    collections::btree_map as map,
     io::{self, Read},
     path::Path,
     process::exit,
