@@ -225,6 +225,7 @@ impl Auditor {
         if let Some(index) = &mut self.registry_index {
             for pkg in &lockfile.packages {
                 if let Some(source) = &pkg.source {
+                    // only check for yanking if the package comes from crates.io
                     if source.is_default_registry() {
                         match index.is_yanked(pkg) {
                             Ok(false) => (),
