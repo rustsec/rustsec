@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.17.4 (UNRELEASED)
+## 0.17.4 (2022-11-08)
 ### Fixed
 
  - Checks for yanked crates were broken since 0.17.0. This release restores them and adds tests to prevent future regressions.
