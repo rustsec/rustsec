@@ -7,7 +7,7 @@
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Project Chat][chat-image]][chat-link]
 
-Audit `Cargo.lock` files for crates with security vulnerabilities reported to the
+Audit your dependencies for crates with security vulnerabilities reported to the
 [RustSec Advisory Database].
 
 ## Requirements
@@ -66,7 +66,7 @@ $ cargo install cargo-audit --features=fix
 ```
 
 Once installed, run `cargo audit fix` to automatically fix vulnerable
-dependency requirements:
+dependency requirements in your `Cargo.toml`:
 
 <img src="https://raw.githubusercontent.com/RustSec/cargo-audit/c857beb/img/screenshot-fix.png" alt="Screenshot" style="max-width:100%;">
 
@@ -76,25 +76,18 @@ shows a preview of what dependencies would be upgraded, run
 
 ## `cargo audit bin` subcommand
 
+Run `cargo audit bin` followed by the paths to your binaries to audit them:
+
+<img src="https://github.com/rustsec/rustsec/raw/46eeb09cef411bbe926a82c8a0d678a3e43299a1/.img/screenshot-bin.png" alt="Screenshot" style="max-width:100%;">
+
 If your programs have been compiled with [`cargo auditable`](https://github.com/rust-secure-code/cargo-auditable),
-they can be audited even without having the original `Cargo.lock`,
-because all the necessary information is embedded in the compiled binary.
+the audit is fully accurate because all the necessary information is embedded in the compiled binary.
 
 For binaries that were not compiled with [`cargo auditable`](https://github.com/rust-secure-code/cargo-auditable)
 it will recover a part of the dependency list by parsing panic messages.
 This will miss any embedded C code (e.g. OpenSSL) as well as roughly half of the Rust dependencies
 because the Rust compiler is very good at removing unnecessary panics,
 but that's better than having no vulnerability information whatsoever.
-
-To use binary scanning, install `cargo audit` with the `binary-scanning` feature enabled:
-
-```
-$ cargo install cargo-audit --features=binary-scanning
-```
-
-Once installed, run `cargo audit bin` followed by the paths to your binaries to audit them:
-
-<img src="https://github.com/rustsec/rustsec/raw/46eeb09cef411bbe926a82c8a0d678a3e43299a1/.img/screenshot-bin.png" alt="Screenshot" style="max-width:100%;">
 
 ## Ignoring advisories
 
