@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.17.4 (UNRELEASED)
+### Fixed
+
+ - Checks for yanked crates were broken since 0.17.0. This release restores them and adds tests to prevent future regressions.
+
+### Changed
+ - Binary scanning is enabled by default and documented as such. It can still be disabled by disabling the `binary-scanning` feature.
+
 ## 0.17.3 (2022-11-01)
 ### Added
 
@@ -18,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - Up to 5x faster `cargo audit bin` when scanning multiple files thanks to caching crates.io index lookups (implemented in `rustsec` crate).
  - Notices about `cargo audit` or `rustsec` will now result in a scanning error being reported (exit code 2) as opposed to reporting them as vulnerabilities in the scanned binary (exit code 1). They are treated as warnings by default, so `--deny=warnings` is required to observe the new behavior.
+ - The `binary-scanning` feature that adds the `cargo audit bin` subcommand is now enabled by default, but is not documented as such.
 
 [#729]: https://github.com/rustsec/rustsec/pull/729
 
