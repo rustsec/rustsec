@@ -16,8 +16,11 @@ use crate::{
 /// but makes a huge difference when auditing many `Cargo.lock`s or many binaries.
 pub struct CachedIndex {
     index: crates_index::Index,
-    // the outer map can later be changed to DashMap or some such for thread safety
-    cache: HashMap<package::Name, HashMap<package::Version, bool>>,
+    /// The inner hash map is logically HashMap<Version, IsYanked>
+    /// but we don't parse semver because crates.io registry contains invalid semver:
+    /// <https://github.com/rustsec/rustsec/issues/759>
+    // The outer map can later be changed to DashMap or some such for thread safety.
+    cache: HashMap<package::Name, HashMap<String, bool>>,
 }
 
 impl CachedIndex {
@@ -52,10 +55,10 @@ impl CachedIndex {
         })?;
 
         // We already loaded the full crate information, so populate all the versions in the cache
-        let versions: HashMap<package::Version, bool> = crate_releases
+        let versions: HashMap<String, bool> = crate_releases
             .versions()
             .iter()
-            .map(|v| (v.version().parse().unwrap(), v.is_yanked()))
+            .map(|v| (v.version().to_owned(), v.is_yanked()))
             .collect();
         self.cache.insert(package.to_owned(), versions);
         Ok(())
@@ -67,7 +70,7 @@ impl CachedIndex {
         if !crate_is_cached {
             self.populate_cache(&package.name)?
         };
-        match &self.cache[&package.name].get(&package.version) {
+        match &self.cache[&package.name].get(&package.version.to_string()) {
             Some(is_yanked) => Ok(**is_yanked),
             None => Err(format_err!(
                 ErrorKind::NotFound,
