@@ -55,7 +55,15 @@ impl CachedIndex {
         let versions: HashMap<package::Version, bool> = crate_releases
             .versions()
             .iter()
-            .map(|v| (v.version().parse().unwrap(), v.is_yanked()))
+            .filter_map(|v| match v.version().parse() {
+                Ok(valid_ver) => Some((valid_ver, v.is_yanked())),
+                // crates.io sometimes contains invalid semver:
+                // https://github.com/rustsec/rustsec/issues/759
+                // If it's actually being depended upon, other parts of `rustsec`
+                // will reject it anyway, so no need to add it to the yank cache
+                // because the execution will never get here anyway
+                Err(_) => None,
+            })
             .collect();
         self.cache.insert(package.to_owned(), versions);
         Ok(())
