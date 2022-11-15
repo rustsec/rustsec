@@ -105,7 +105,7 @@ impl Linter {
             self.crates_io_lints(&advisory)?;
         }
 
-        let lint_result = rustsec::advisory::Linter::lint_file(&advisory_path)?;
+        let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
 
         if lint_result.errors().is_empty() {
             status_ok!("Linted", "ok: {}", advisory_path.display());
