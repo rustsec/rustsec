@@ -18,7 +18,7 @@ pub struct CachedIndex {
     index: crates_index::Index,
     /// The inner hash map is logically HashMap<Version, IsYanked>
     /// but we don't parse semver because crates.io registry contains invalid semver:
-    /// https://github.com/rustsec/rustsec/issues/759
+    /// <https://github.com/rustsec/rustsec/issues/759>
     // The outer map can later be changed to DashMap or some such for thread safety.
     cache: HashMap<package::Name, HashMap<String, bool>>,
 }
