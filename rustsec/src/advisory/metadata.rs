@@ -24,7 +24,7 @@ pub struct Metadata {
     #[serde(default)]
     pub description: String,
 
-    /// Date this advisory was officially issued
+    /// Date the underlying issue was reported
     pub date: Date,
 
     /// Advisory IDs in other databases which point to the same advisory

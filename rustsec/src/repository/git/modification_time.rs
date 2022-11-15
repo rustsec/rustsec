@@ -1,6 +1,13 @@
+use crate::advisory::Date;
 use crate::error::Error;
 use git2::Time;
-use std::{cmp::max, collections::HashMap, path::PathBuf};
+use std::ops::Add;
+use std::str::FromStr;
+use std::{
+    cmp::{max, min},
+    collections::HashMap,
+    path::PathBuf,
+};
 
 use super::GitPath;
 
@@ -8,6 +15,7 @@ use super::GitPath;
 #[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct GitModificationTimes {
     mtimes: HashMap<PathBuf, Time>,
+    ctimes: HashMap<PathBuf, Time>,
 }
 
 impl GitModificationTimes {
@@ -22,6 +30,7 @@ impl GitModificationTimes {
         // To make sure this works I've verified it against a naive shell script using `git log`
         // as well as `git whatchanged`
         let mut mtimes: HashMap<PathBuf, Time> = HashMap::new();
+        let mut ctimes: HashMap<PathBuf, Time> = HashMap::new();
         let repo = git2::Repository::open(repo.path())?;
         let mut revwalk = repo.revwalk()?;
         revwalk.set_sorting(git2::Sort::TIME)?;
@@ -45,15 +54,46 @@ impl GitModificationTimes {
                         .entry(file_path.to_owned())
                         .and_modify(|t| *t = max(*t, file_mod_time))
                         .or_insert(file_mod_time);
+                    ctimes
+                        .entry(file_path.to_owned())
+                        .and_modify(|t| *t = min(*t, file_mod_time))
+                        .or_insert(file_mod_time);
                 }
             }
         }
-        Ok(GitModificationTimes { mtimes })
+        Ok(GitModificationTimes { mtimes, ctimes })
     }
 
     /// Looks up the Git modification time for a given file path.
     /// The path must be relative to the root of the repository.
     pub fn for_path(&self, path: GitPath<'_>) -> &Time {
         self.mtimes.get(path.path()).unwrap()
+    }
+
+    /// Looks up the Git creation time for a given file path.
+    /// The path must be relative to the root of the repository.
+    pub fn mdate_for_path(&self, path: GitPath<'_>) -> Date {
+        Date::from_str(&Self::git2_time_to_date(
+            self.mtimes.get(path.path()).unwrap(),
+        ))
+        .unwrap()
+    }
+
+    /// Looks up the Git creation time for a given file path.
+    /// The path must be relative to the root of the repository.
+    pub fn cdate_for_path(&self, path: GitPath<'_>) -> Date {
+        Date::from_str(&Self::git2_time_to_date(
+            self.ctimes.get(path.path()).unwrap(),
+        ))
+        .unwrap()
+    }
+
+    fn git2_time_to_date(git_timestamp: &Time) -> String {
+        let unix_timestamp: u64 = git_timestamp.seconds().try_into().unwrap();
+        let duration_from_epoch = std::time::Duration::from_secs(unix_timestamp);
+        let mut time =
+            humantime::format_rfc3339(std::time::UNIX_EPOCH.add(duration_from_epoch)).to_string();
+        time.truncate(10);
+        time
     }
 }

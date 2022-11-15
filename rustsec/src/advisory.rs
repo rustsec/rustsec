@@ -74,7 +74,7 @@ impl Advisory {
         self.metadata.description.as_ref()
     }
 
-    /// Get advisory date
+    /// Get the date the underlying issue was reported on
     pub fn date(&self) -> &Date {
         &self.metadata.date
     }

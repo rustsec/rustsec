@@ -10,6 +10,9 @@ use chrono::{Date, Duration, NaiveDate, Utc};
 use comrak::{markdown_to_html, ComrakOptions};
 use rust_embed::RustEmbed;
 use rustsec::advisory::Id;
+use rustsec::repository::git::GitModificationTimes;
+use rustsec::repository::git::GitPath;
+use rustsec::{advisory, Repository};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::{
@@ -37,13 +40,8 @@ struct StaticTemplate {
 #[derive(Template)]
 #[template(path = "advisories.html")]
 struct AdvisoriesListTemplate {
-    advisories_per_year: Vec<AdvisoriesPerYear>,
-}
-
-struct AdvisoriesPerYear {
-    year: u32,
-    /// `Vec<(advisory, rendered_title, advisory_title_type)>`
-    advisories: Vec<(rustsec::Advisory, String, String)>,
+    /// `Vec<(advisory, publication_date, rendered_title, advisory_title_type)>`
+    advisories: Vec<(rustsec::Advisory, advisory::Date, String, String)>,
 }
 
 #[derive(Template)]
@@ -51,8 +49,8 @@ struct AdvisoriesPerYear {
 struct AdvisoriesSubList {
     title: String,
     group_by: String,
-    /// `Vec<(advisory, rendered_title, advisory_title_type)>`
-    advisories: Vec<(rustsec::Advisory, String, String)>,
+    /// `Vec<(advisory, publication_date, rendered_title, advisory_title_type)>`
+    advisories: Vec<(rustsec::Advisory, advisory::Date, String, String)>,
 }
 
 #[derive(Template)]
@@ -61,6 +59,8 @@ struct AdvisoryTemplate<'a> {
     advisory: &'a rustsec::Advisory,
     rendered_description: String,
     rendered_title: String,
+    cdate: advisory::Date,
+    mdate: advisory::Date,
 }
 
 // Used for feed and included by `AdvisoryTemplate`
@@ -70,6 +70,8 @@ struct AdvisoryContentTemplate<'a> {
     advisory: &'a rustsec::Advisory,
     rendered_description: String,
     rendered_title: String,
+    cdate: advisory::Date,
+    mdate: advisory::Date,
 }
 
 #[derive(Template)]
@@ -93,13 +95,22 @@ fn render_list_index(title: &str, mut items: Vec<(String, String, Option<usize>)
 
 /// Render all advisories using the Markdown template
 pub fn render_advisories(output_folder: PathBuf) {
+    // Get static pages from repository
+    let repo = Repository::fetch_default_repo().unwrap();
+    let contributing_path = repo.path().join("CONTRIBUTING.md");
+
+    // Get publication and latest modification dates
+    let mod_times = GitModificationTimes::new(&repo).unwrap();
+
     // Get advisories
     let db = rustsec::Database::fetch().unwrap();
-    let mut advisories: Vec<rustsec::Advisory> = db.into_iter().collect();
-
-    // Get static pages from repository
-    let repo = rustsec::repository::git::Repository::fetch_default_repo().unwrap();
-    let contributing_path = repo.path().join("CONTRIBUTING.md");
+    let mut advisories: Vec<(rustsec::Advisory, advisory::Date, advisory::Date)> = db
+        .into_iter()
+        .map(|a| {
+            let (cdate, mdate) = advisory_dates(&a, &repo, &mod_times);
+            (a, cdate, mdate)
+        })
+        .collect();
 
     // Render static pages from repository
     let contributing_md = fs::read_to_string(contributing_path).unwrap();
@@ -114,7 +125,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     let advisories_folder = output_folder.join("advisories");
     fs::create_dir_all(&advisories_folder).unwrap();
 
-    for advisory in &advisories {
+    for (advisory, cdate, mdate) in &advisories {
         let output_path = advisories_folder.join(advisory.id().as_str().to_owned() + ".html");
 
         let rendered_description =
@@ -125,6 +136,8 @@ pub fn render_advisories(output_folder: PathBuf) {
             advisory,
             rendered_description,
             rendered_title,
+            cdate: cdate.clone(),
+            mdate: mdate.clone(),
         };
         fs::write(&output_path, advisory_tmpl.render().unwrap()).unwrap();
 
@@ -147,33 +160,17 @@ pub fn render_advisories(output_folder: PathBuf) {
 
     // Sort the advisories by date in descending order for the big listing.
     #[allow(clippy::unnecessary_sort_by)]
-    advisories.sort_by(|a, b| b.date().cmp(a.date()));
+    advisories.sort_by(|(_, a, _), (_, b, _)| b.cmp(a));
 
-    let mut advisories_per_year = Vec::<AdvisoriesPerYear>::new();
-    for advisory in advisories.clone() {
+    let mut advisories_index = vec![];
+    for (advisory, cdate, _) in advisories.clone() {
         let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
         let advisory_title_type = title_type(&advisory);
-
-        // If we have an AdvisoriesPerYear for this advisory's year, just
-        // push it into that list. Otherwise, set one up for the year.
-        match advisories_per_year
-            .iter_mut()
-            .find(|per_year| per_year.year == advisory.date().year())
-        {
-            Some(advisories_for_year) => {
-                advisories_for_year
-                    .advisories
-                    .push((advisory, rendered_title, advisory_title_type))
-            }
-            None => advisories_per_year.push(AdvisoriesPerYear {
-                year: advisory.date().year(),
-                advisories: vec![(advisory, rendered_title, advisory_title_type)],
-            }),
-        }
+        advisories_index.push((advisory, cdate, rendered_title, advisory_title_type));
     }
 
     let advisories_page_tmpl = AdvisoriesListTemplate {
-        advisories_per_year,
+        advisories: advisories_index,
     };
     let advisories_page = advisories_page_tmpl.render().unwrap();
     fs::write(advisories_folder.join("index.html"), advisories_page).unwrap();
@@ -187,7 +184,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     // Render the per-package pages (/packages/${package}.html).
     let mut advisories_per_package = Vec::<AdvisoriesSubList>::new();
     let mut packages = Vec::<(String, String, Option<usize>)>::new();
-    for advisory in advisories.clone() {
+    for (advisory, cdate, _) in advisories.clone() {
         let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
         let advisory_title_type = title_type(&advisory);
         let package = advisory.metadata.package.to_string();
@@ -204,15 +201,16 @@ pub fn render_advisories(output_folder: PathBuf) {
             .iter_mut()
             .find(|advisories| advisories.group_by == advisory.metadata.package.to_string())
         {
-            Some(advisories) => {
-                advisories
-                    .advisories
-                    .push((advisory, rendered_title, advisory_title_type))
-            }
+            Some(advisories) => advisories.advisories.push((
+                advisory,
+                cdate.clone(),
+                rendered_title,
+                advisory_title_type,
+            )),
             None => advisories_per_package.push(AdvisoriesSubList {
                 title: format!("Advisories for package '{}'", advisory.metadata.package),
                 group_by: advisory.metadata.package.to_string(),
-                advisories: vec![(advisory, rendered_title, advisory_title_type)],
+                advisories: vec![(advisory, cdate, rendered_title, advisory_title_type)],
             }),
         }
     }
@@ -235,7 +233,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     // Render the per-keyword pages (/keywords/${keyword}.html).
     let mut advisories_per_keyword = Vec::<AdvisoriesSubList>::new();
     let mut keywords = Vec::<(String, String, Option<usize>)>::new();
-    for advisory in advisories.clone() {
+    for (advisory, cdate, _) in advisories.clone() {
         let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
         let advisory_title_type = title_type(&advisory);
 
@@ -265,6 +263,7 @@ pub fn render_advisories(output_folder: PathBuf) {
             {
                 Some(advisories) => advisories.advisories.push((
                     advisory.clone(),
+                    cdate.clone(),
                     rendered_title.clone(),
                     advisory_title_type.clone(),
                 )),
@@ -273,6 +272,7 @@ pub fn render_advisories(output_folder: PathBuf) {
                     group_by: keyword.as_str().to_string(),
                     advisories: vec![(
                         advisory.clone(),
+                        cdate.clone(),
                         rendered_title.clone(),
                         advisory_title_type.clone(),
                     )],
@@ -297,7 +297,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     // Render the per-category pages (/categories/${category}.html).
     let mut advisories_per_category = Vec::<AdvisoriesSubList>::new();
     let mut categories = Vec::<(String, String, Option<usize>)>::new();
-    for advisory in advisories.clone() {
+    for (advisory, cdate, _) in advisories.clone() {
         let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
         let advisory_title_type = title_type(&advisory);
 
@@ -316,6 +316,7 @@ pub fn render_advisories(output_folder: PathBuf) {
             {
                 Some(advisories) => advisories.advisories.push((
                     advisory.clone(),
+                    cdate.clone(),
                     rendered_title.clone(),
                     advisory_title_type.clone(),
                 )),
@@ -324,6 +325,7 @@ pub fn render_advisories(output_folder: PathBuf) {
                     group_by: category.name().to_string(),
                     advisories: vec![(
                         advisory.clone(),
+                        cdate.clone(),
                         rendered_title.clone(),
                         advisory_title_type.clone(),
                     )],
@@ -363,9 +365,9 @@ pub fn render_advisories(output_folder: PathBuf) {
     let min_feed_len = 10;
     let last_week_len = advisories
         .iter()
-        .take_while(|a| {
+        .take_while(|(_, c, _)| {
             Date::from_utc(
-                NaiveDate::parse_from_str(a.date().as_str(), "%Y-%m-%d").unwrap(),
+                NaiveDate::parse_from_str(c.as_str(), "%Y-%m-%d").unwrap(),
                 Utc,
             ) > Utc::today() - Duration::days(8)
         })
@@ -405,13 +407,16 @@ fn title_type(advisory: &rustsec::Advisory) -> String {
 }
 
 /// Renders the local search index
-fn render_index(output_path: &Path, advisories: &[rustsec::Advisory]) {
+fn render_index(
+    output_path: &Path,
+    advisories: &[(rustsec::Advisory, advisory::Date, advisory::Date)],
+) {
     // Map of `ID -> related IDs` (including self, avoid redirecting to non-existent IDs)
     let mut ids: HashMap<Id, Vec<Id>> = HashMap::new();
     // List of packages
     let mut packages = HashSet::new();
 
-    for advisory in advisories {
+    for (advisory, _, _) in advisories {
         let id = advisory.id().to_owned();
         for alias in advisory
             .metadata
@@ -434,18 +439,22 @@ fn render_index(output_path: &Path, advisories: &[rustsec::Advisory]) {
 }
 
 /// Renders an Atom feed of advisories
-fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
+fn render_feed(
+    output_path: &Path,
+    advisories: &[(rustsec::Advisory, advisory::Date, advisory::Date)],
+) {
     let mut entries: Vec<Entry> = vec![];
     let author = PersonBuilder::default().name("RustSec").build();
 
     // Used as latest update to feed
     let latest_advisory_date =
-        advisories.first().unwrap().date().as_str().to_owned() + "T00:00:00+00:00";
+        advisories.first().unwrap().1.as_str().to_owned() + "T12:00:00+00:00";
 
-    for advisory in advisories {
+    for (advisory, cdate, mdate) in advisories {
         let escaped_title_type = escape_str_attribute(&title_type(advisory)).into_owned();
         let escaped_title = escape_str_attribute(advisory.title()).into_owned();
-        let date_time = advisory.date().as_str().to_owned() + "T00:00:00+00:00";
+        let cdate_time = cdate.as_str().to_owned() + "T12:00:00+00:00";
+        let mdate_time = mdate.as_str().to_owned() + "T12:00:00+00:00";
         let url = "https://rustsec.org/advisories/".to_owned() + advisory.id().as_str() + ".html";
 
         let link = LinkBuilder::default()
@@ -467,10 +476,13 @@ fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
         let rendered_description =
             markdown_to_html(advisory.description(), &ComrakOptions::default());
         let rendered_title = markdown_to_html(advisory.title(), &ComrakOptions::default());
+
         let advisory_tmpl = AdvisoryContentTemplate {
             advisory,
             rendered_description,
             rendered_title,
+            cdate: cdate.clone(),
+            mdate: mdate.clone(),
         };
         let html = advisory_tmpl.render().unwrap();
         let content = ContentBuilder::default()
@@ -488,9 +500,9 @@ fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
             .summary(Some(summary))
             .links(vec![link])
             .categories(categories)
-            .published(Some(FixedDateTime::from_str(&date_time).unwrap()))
+            .published(Some(FixedDateTime::from_str(&cdate_time).unwrap()))
             // required but we don't have precise data here
-            .updated(FixedDateTime::from_str(&date_time).unwrap())
+            .updated(FixedDateTime::from_str(&mdate_time).unwrap())
             .content(Some(content))
             .build();
         entries.push(item);
@@ -522,7 +534,7 @@ fn render_feed(output_path: &Path, advisories: &[rustsec::Advisory]) {
         .authors(vec![author])
         .build();
 
-    let file = File::create(&output_path).unwrap();
+    let file = File::create(output_path).unwrap();
     feed.write_to(file).unwrap();
 }
 
@@ -546,9 +558,12 @@ fn copy_static_assets(output_folder: &Path) {
 
 mod filters {
     use chrono::NaiveDate;
+    use rustsec::advisory;
+    use std::borrow::Borrow;
     use std::convert::TryInto;
 
-    pub fn friendly_date(date: &rustsec::advisory::Date) -> ::askama::Result<String> {
+    pub fn friendly_date<T: Borrow<advisory::Date>>(date: T) -> ::askama::Result<String> {
+        let date = date.borrow();
         Ok(
             NaiveDate::from_ymd(date.year().try_into().unwrap(), date.month(), date.day())
                 .format("%B %e, %Y")
@@ -567,4 +582,21 @@ mod filters {
             })
             .collect())
     }
+}
+
+fn advisory_dates(
+    advisory: &rustsec::Advisory,
+    repo: &Repository,
+    mod_times: &GitModificationTimes,
+) -> (advisory::Date, advisory::Date) {
+    let relative_path = format!(
+        "{}/{}/{}.md",
+        advisory.metadata.collection.unwrap(),
+        advisory.metadata.package,
+        advisory.id()
+    );
+    let relative_path = Path::new(&relative_path);
+    let mdate = mod_times.mdate_for_path(GitPath::new(repo, relative_path).unwrap());
+    let cdate = mod_times.cdate_for_path(GitPath::new(repo, relative_path).unwrap());
+    (cdate, mdate)
 }
