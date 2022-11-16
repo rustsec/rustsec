@@ -1,3 +1,10 @@
+## 0.8.4 (2022-11-16)
+- Sort advisories by publication date in the atom feed and on the website ([#754])
+- Make home page style more responsive ([#755])
+
+[#754]: https://github.com/rustsec/rustsec/pull/754
+[#755]: https://github.com/rustsec/rustsec/pull/755
+
 ## 0.8.3 (2022-11-03)
 - Replace the about page with a new home page ([#666])
 - Render advisory-db's `CONTRIBUTING.md` on the website ([#666])
