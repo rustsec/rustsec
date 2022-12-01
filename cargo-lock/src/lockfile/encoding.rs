@@ -14,7 +14,7 @@ use crate::{
     Version,
 };
 use serde::{de, ser, Deserialize, Serialize};
-use std::{fmt, fmt::Write, str::FromStr};
+use std::{collections::HashMap, collections::HashSet, fmt, fmt::Write, str::FromStr};
 
 impl<'de> Deserialize<'de> for Lockfile {
     fn deserialize<D: de::Deserializer<'de>>(
@@ -113,6 +113,18 @@ impl From<&Lockfile> for EncodableLockfile {
         let mut packages = Vec::with_capacity(lockfile.packages.len());
         let mut metadata = lockfile.metadata.clone();
 
+        let mut package_to_registries: HashMap<_, HashSet<&SourceId>> = HashMap::new();
+        for package in &lockfile.packages {
+            if let Some(source) = package.source.as_ref() {
+                if source.is_registry() {
+                    package_to_registries
+                        .entry(&package.name)
+                        .or_default()
+                        .insert(source);
+                }
+            }
+        }
+
         for package in &lockfile.packages {
             let mut raw_pkg = EncodablePackage::from(package);
             let checksum_key = metadata::MetadataKey::for_checksum(&Dependency::from(package));
@@ -133,6 +145,16 @@ impl From<&Lockfile> for EncodableLockfile {
                 // metadata table if present
                 raw_pkg.v2_deps(&lockfile.packages);
                 metadata.remove(&checksum_key);
+
+                // If there's only one registry, Cargo does not encode this information so
+                // it should be omitted from encodable packages
+                for dep in raw_pkg.dependencies.iter_mut() {
+                    if let Some(registries) = package_to_registries.get(&dep.name) {
+                        if registries.len() == 1 {
+                            dep.source = None;
+                        }
+                    }
+                }
             }
 
             packages.push(raw_pkg);
