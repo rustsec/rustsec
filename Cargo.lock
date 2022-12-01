@@ -185,7 +185,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57ba7d807ad2850c436750154dbc442eb8611527deb6dfcc4e5e0bd10d5fbf28"
 dependencies = [
- "cargo-lock 8.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 8.0.2",
  "semver",
  "serde",
  "serde_json",
@@ -280,7 +280,7 @@ dependencies = [
  "abscissa_core",
  "auditable-info",
  "auditable-serde",
- "cargo-lock 8.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 8.0.2",
  "clap",
  "home",
  "once_cell",
@@ -327,8 +327,9 @@ dependencies = [
 [[package]]
 name = "cargo-lock"
 version = "8.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c4c54d47a4532db3494ef7332c257ab57b02750daae3250d49e01ee55201ce8"
 dependencies = [
- "gumdrop",
  "petgraph",
  "semver",
  "serde",
@@ -338,10 +339,9 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "8.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c4c54d47a4532db3494ef7332c257ab57b02750daae3250d49e01ee55201ce8"
+version = "8.0.3"
 dependencies = [
+ "gumdrop",
  "petgraph",
  "semver",
  "serde",
@@ -1760,7 +1760,7 @@ name = "rustsec"
 version = "0.26.4"
 dependencies = [
  "cargo-edit",
- "cargo-lock 8.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 8.0.2",
  "crates-index",
  "cvss",
  "fs-err",
