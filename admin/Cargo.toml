@@ -17,7 +17,7 @@ chrono = { version = "0.4", default-features = false, features = ["clock"]  }
 clap = "3"
 comrak = { version = "0.14", default-features = false }
 crates-index = "0.18"
-rust-embed = "6.4"
+rust-embed = "6.5"
 rustsec = { version = "0.26", path = "../rustsec", features = ["osv-export"] }
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
