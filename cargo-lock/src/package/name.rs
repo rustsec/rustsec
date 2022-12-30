@@ -27,6 +27,12 @@ impl fmt::Display for Name {
     }
 }
 
+impl From<Name> for String {
+    fn from(name: Name) -> String {
+        name.0
+    }
+}
+
 impl FromStr for Name {
     type Err = Error;
 
