@@ -25,6 +25,7 @@ pub struct OsvAdvisory {
     related: Vec<Id>,
     summary: String,
     details: String,
+    severity: Vec<OsvSeverity>,
     affected: Vec<OsvAffected>,
     references: Vec<OsvReference>,
 }
@@ -46,6 +47,19 @@ impl From<&cargo_lock::Name> for OsvPackage {
             name: package.to_string(),
             purl: "pkg:cargo/".to_string() + package.as_str(),
         }
+    }
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[allow(non_camel_case_types)]
+#[serde(tag = "type", content = "score")]
+pub enum OsvSeverity {
+    CVSS_V3(cvss::v3::Base),
+}
+
+impl From<cvss::v3::Base> for OsvSeverity {
+    fn from(cvss: cvss::v3::Base) -> Self {
+        OsvSeverity::CVSS_V3(cvss)
     }
 }
 
@@ -176,7 +190,7 @@ impl OsvAdvisory {
                 },
                 database_specific: OsvDatabaseSpecific {
                     categories: metadata.categories,
-                    cvss: metadata.cvss,
+                    cvss: metadata.cvss.clone(),
                     informational: metadata.informational,
                 },
             }],
@@ -184,6 +198,7 @@ impl OsvAdvisory {
             aliases: metadata.aliases,
             related: metadata.related,
             summary: metadata.title,
+            severity: metadata.cvss.into_iter().map(|s| s.into()).collect(),
             details: metadata.description,
             references: osv_references(reference_urls),
         }
