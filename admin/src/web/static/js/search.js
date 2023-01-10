@@ -1,37 +1,45 @@
 function search(term, redirect) {
+    term = term.trim()
+
     // Try to open destination directly, only display search page if multiple results
-    package = term.trim()
-    if (packages.includes(package)) {
-        window.open('/packages/'+package+'.html','_self');
+    if (packages.includes(term)) {
+        window.open('/packages/'+encodeURIComponent(term)+'.html','_self');
         return false;
     }
-    id = term.trim()
-    if (id in ids && ids[id].length == 1) {
-        window.open('/advisories/'+ids[id][0]+'.html','_self');
+    if (term in ids && ids[term].length == 1) {
+        window.open('/advisories/'+encodeURIComponent(ids[term][0])+'.html','_self');
         return false;
     }
 
-    // If not already on search page, let's redirect (and keep search term)
+    // We can't redirect directly, so we'll display the results page.
+    // For this we need to be on the search page, so let's redirect if not already there.
     if (redirect) {
         const params = new URLSearchParams({
-            q: term,
+            q: encodeURIComponent(term),
         });
         window.open('/search.html?'+params.toString(),'_self');
         return false;
     }
 
-    // Display search results
-    if (id in ids) {
-        displayResult = ""
-        ids[id].forEach(function (item, index) {
-            console.log(item, index);
-            displayResult = displayResult.concat("<li><a href=/advisories/"+item+".html>"+item+"</a></li>")
+    // We can't redirect directly and are now on the search page: let's display search results
+    // SECURITY: we need to escape the user-provided search term here to prevent reflected XSS.
+
+    // use document.createTextNode for escaping
+    document.getElementById('searched-term').innerHTML = ""
+    document.getElementById('searched-term').appendChild(document.createTextNode("Search results for '"+term+"'"));
+    if (term in ids) {
+        var ul = document.createElement('ul');
+        ids[term].forEach(function (item, index) {
+            var li = document.createElement('li');
+            var a = document.createElement('a');
+            a.setAttribute('href', "/advisories/"+encodeURIComponent(item)+".html");
+            a.appendChild(document.createTextNode(item));
+            li.appendChild(a)
+            ul.appendChild(li)
         });
-        document.getElementById('search-result').innerHTML = "<ul>"+displayResult+"</ul>";
-        document.getElementById('searched-term').innerHTML = "Search results for '"+id+"'";
+        document.getElementById('search-result').innerHTML = ul.outerHTML;
     } else {
         document.getElementById('search-result').innerHTML = "<p>No results.</p>";
-        document.getElementById('searched-term').innerHTML = "Search results for '"+term+"'";
     }
 }
 
@@ -52,6 +60,6 @@ function searchformindex() {
 if (window.location.pathname.endsWith("search.html")) {
     const term = new URLSearchParams(window.location.search).get("q");
     if (term != null){
-        search(term, false)
+        search(decodeURIComponent(term), false)
     }
 }

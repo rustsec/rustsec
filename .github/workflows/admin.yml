@@ -38,3 +38,6 @@ jobs:
           toolchain: stable
           override: true
       - run: cargo test
+      # build the website
+      - run: cargo run -- web
+        working-directory: admin
