@@ -95,6 +95,9 @@ fn render_list_index(title: &str, mut items: Vec<(String, String, Option<usize>)
 
 /// Render all advisories using the Markdown template
 pub fn render_advisories(output_folder: PathBuf) {
+    // Create dest
+    fs::create_dir_all(&output_folder).unwrap();
+
     // Get static pages from repository
     let repo = Repository::fetch_default_repo().unwrap();
     let contributing_path = repo.path().join("CONTRIBUTING.md");
@@ -546,7 +549,7 @@ fn copy_static_assets(output_folder: &Path) {
     for file in StaticAsset::iter() {
         let asset_path = PathBuf::from(file.as_ref());
 
-        // If the asset is in a folder, e.g css/. Make the directory first.
+        // If the asset is in a folder, e.g. css/. Make the directory first.
         if let Some(containing_folder) = asset_path.parent() {
             fs::create_dir_all(output_folder.join(containing_folder)).unwrap();
         }
