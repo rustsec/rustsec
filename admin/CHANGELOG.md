@@ -1,3 +1,11 @@
+## 0.8.5 (2023-01-11)
+- Escape search term to prevent reflected XSS ([#787])
+- Add a CI check to ensure the website builds correctly ([#787])
+- Update `comrak` to v0.15.0 ([#760])
+
+[#787]: https://github.com/rustsec/rustsec/pull/787
+[#760]: https://github.com/rustsec/rustsec/pull/760
+
 ## 0.8.4 (2022-11-16)
 - Sort advisories by publication date in the atom feed and on the website ([#754])
 - Make home page style more responsive ([#755])
