@@ -138,7 +138,7 @@ impl SourceId {
         Self::new(SourceKind::Git(reference), url.clone())
     }
 
-    /// Creates a SourceId from a (git) registry URL.
+    /// Creates a SourceId from a remote registry URL.
     pub fn for_registry(url: &Url) -> Result<Self> {
         Self::new(SourceKind::Registry, url.clone())
     }
