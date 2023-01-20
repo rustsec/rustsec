@@ -40,7 +40,7 @@ jobs:
           - macos-latest
           #- windows-latest # TODO(tarcieri): debug Windows build timeouts
         toolchain:
-          - 1.57.0 # MSRV
+          - 1.58.0 # MSRV
           - stable
     runs-on: ${{ matrix.platform }}
     steps:

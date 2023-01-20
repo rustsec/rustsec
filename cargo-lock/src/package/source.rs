@@ -49,6 +49,9 @@ pub enum SourceKind {
     /// A remote registry.
     Registry,
 
+    /// A sparse registry.
+    SparseRegistry,
+
     /// A local filesystem-based registry.
     LocalRegistry,
 
@@ -109,9 +112,14 @@ impl SourceId {
                 Ok(SourceId::new(SourceKind::Registry, url)?
                     .with_precise(Some("locked".to_string())))
             }
+            "sparse" => {
+                let url = url.into_url()?;
+                Ok(SourceId::new(SourceKind::SparseRegistry, url)?
+                    .with_precise(Some("locked".to_string())))
+            }
             "path" => Self::new(SourceKind::Path, url.into_url()?),
             kind => Err(Error::Parse(format!(
-                "unsupported source protocol: {}",
+                "unsupported source protocol: `{}` from `{string}`",
                 kind
             ))),
         }
@@ -130,7 +138,7 @@ impl SourceId {
         Self::new(SourceKind::Git(reference), url.clone())
     }
 
-    /// Creates a SourceId from a registry URL.
+    /// Creates a SourceId from a remote registry URL.
     pub fn for_registry(url: &Url) -> Result<Self> {
         Self::new(SourceKind::Registry, url.clone())
     }
@@ -184,7 +192,10 @@ impl SourceId {
 
     /// Returns `true` if this source is from a registry (either local or not).
     pub fn is_registry(&self) -> bool {
-        matches!(self.kind, SourceKind::Registry | SourceKind::LocalRegistry)
+        matches!(
+            self.kind,
+            SourceKind::Registry | SourceKind::SparseRegistry | SourceKind::LocalRegistry
+        )
     }
 
     /// Returns `true` if this source is a "remote" registry.
@@ -192,7 +203,7 @@ impl SourceId {
     /// "remote" may also mean a file URL to a git index, so it is not
     /// necessarily "remote". This just means it is not `local-registry`.
     pub fn is_remote_registry(&self) -> bool {
-        matches!(self.kind, SourceKind::Registry)
+        matches!(self.kind, SourceKind::Registry | SourceKind::SparseRegistry)
     }
 
     /// Returns `true` if this source from a Git repository.
@@ -224,7 +235,8 @@ impl SourceId {
 
     /// Returns `true` if the remote registry is the standard <https://crates.io>.
     pub fn is_default_registry(&self) -> bool {
-        self.kind == SourceKind::Registry && self.url.as_str() == CRATES_IO_INDEX
+        matches!(self.kind, SourceKind::Registry | SourceKind::SparseRegistry)
+            && self.url.as_str() == CRATES_IO_INDEX
     }
 }
 
@@ -270,6 +282,11 @@ impl fmt::Display for SourceId {
                 ref url,
                 ..
             } => write!(f, "registry+{}", url),
+            SourceId {
+                kind: SourceKind::SparseRegistry,
+                ref url,
+                ..
+            } => write!(f, "sparse+{}", url),
             SourceId {
                 kind: SourceKind::LocalRegistry,
                 ref url,
