@@ -9,7 +9,7 @@ readme       = "README.md"
 categories   = ["parser-implementations"]
 keywords     = ["cvssv3", "security", "advisory", "vulnerability"]
 edition      = "2021"
-rust-version = "1.56"
+rust-version = "1.60"
 
 [dependencies]
 serde = { version = "1", optional = true }
