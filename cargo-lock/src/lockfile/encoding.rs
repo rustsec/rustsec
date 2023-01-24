@@ -221,7 +221,7 @@ impl ToString for EncodableLockfile {
 
         if let Some(meta) = toml.get("metadata") {
             out.push_str("[metadata]\n");
-            out.push_str(&meta.to_string());
+            out.push_str(&toml::to_string_pretty(&meta).unwrap());
         }
 
         // Trim redundant newlines
