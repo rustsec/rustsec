@@ -10,7 +10,7 @@ readme       = "README.md"
 categories   = ["development-tools::cargo-plugins"]
 keywords     = ["cargo-subcommand", "security", "audit", "vulnerability"]
 edition      = "2021"
-rust-version = "1.57"
+rust-version = "1.60"
 exclude      = ["tests/"]
 
 [badges]
@@ -24,6 +24,7 @@ rustsec = { version = "0.26.3", features = ["dependency-tree"], path = "../rusts
 serde = { version = "1", features = ["serde_derive"] }
 serde_json = "1"
 thiserror = "1"
+
 # for scanning binary files
 auditable-info = { version = "0.6.2", optional = true }
 cargo-lock = { version = "8.0.2", optional = true } 
