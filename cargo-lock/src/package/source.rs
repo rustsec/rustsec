@@ -39,6 +39,7 @@ pub struct SourceId {
 
 /// The possible kinds of code source.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
 pub enum SourceKind {
     /// A git repository.
     Git(GitReference),
