@@ -38,9 +38,10 @@ jobs:
         platform:
           - ubuntu-latest
           - macos-latest
-          #- windows-latest # TODO(tarcieri): debug Windows build timeouts
+          - windows-latest
         toolchain:
-          - 1.60.0 # MSRV
+          # TODO(tarcieri): investigate long build times
+          # - 1.60.0 # MSRV
           - stable
     runs-on: ${{ matrix.platform }}
     steps:
@@ -59,6 +60,32 @@ jobs:
           profile: minimal
           override: true
       - run: cargo test --release
+      #- run: cargo test --all-features --release
+
+  # TODO(tarcieri): re-unify with `test` job
+  # Extracted out due to macOS build failures. See rustsec/rustsec#795
+  test-all-features:
+    strategy:
+      matrix:
+        toolchain:
+          - 1.60.0 # MSRV
+          - stable
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3.0.11
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
+      - uses: actions/cache@v3.0.11
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.toolchain }}
+          profile: minimal
+          override: true
       - run: cargo test --all-features --release
 
   doc:
