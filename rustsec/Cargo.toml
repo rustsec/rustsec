@@ -20,7 +20,7 @@ platforms = { version = "3", features = ["serde"], path = "../platforms" }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
-toml = "0.5"
+toml = "0.6"
 url = { version = "2", features = ["serde"] }
 
 # optional dependencies
