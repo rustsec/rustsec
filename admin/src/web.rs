@@ -6,7 +6,7 @@ use atom_syndication::{
     CategoryBuilder, ContentBuilder, Entry, EntryBuilder, FeedBuilder, FixedDateTime, LinkBuilder,
     PersonBuilder, Text,
 };
-use chrono::{Date, Duration, NaiveDate, Utc};
+use chrono::{Duration, NaiveDate, Utc};
 use comrak::{markdown_to_html, ComrakOptions};
 use rust_embed::RustEmbed;
 use rustsec::advisory::Id;
@@ -21,6 +21,10 @@ use std::{
     path::{Path, PathBuf},
 };
 use xml::escape::escape_str_attribute;
+
+// TODO(tarcieri): replace with `DateTime`
+#[allow(deprecated)]
+use chrono::Date;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -366,6 +370,9 @@ pub fn render_advisories(output_folder: PathBuf) {
     // Feed
     let feed_path = output_folder.join("feed.xml");
     let min_feed_len = 10;
+
+    // TODO(tarcieri): replace with `DateTime`
+    #[allow(deprecated)]
     let last_week_len = advisories
         .iter()
         .take_while(|(_, c, _)| {
@@ -567,11 +574,14 @@ mod filters {
 
     pub fn friendly_date<T: Borrow<advisory::Date>>(date: T) -> ::askama::Result<String> {
         let date = date.borrow();
-        Ok(
-            NaiveDate::from_ymd(date.year().try_into().unwrap(), date.month(), date.day())
-                .format("%B %e, %Y")
-                .to_string(),
-        )
+
+        // TODO(tarcieri): fix deprecation of `NaiveDate::from_ymd`
+        #[allow(deprecated)]
+        let date = NaiveDate::from_ymd(date.year().try_into().unwrap(), date.month(), date.day())
+            .format("%B %e, %Y")
+            .to_string();
+
+        Ok(date)
     }
 
     pub fn safe_keyword(s: &str) -> ::askama::Result<String> {
