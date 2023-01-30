@@ -34,7 +34,7 @@ quitters = { version = "0.1", optional = true, path = "../quitters" }
 [dev-dependencies]
 once_cell = "1.5"
 tempfile = "3"
-toml = "0.6"
+toml = "0.7"
 
 [dev-dependencies.abscissa_core]
 version = "0.6"
