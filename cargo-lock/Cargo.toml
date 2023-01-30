@@ -21,7 +21,7 @@ gumdrop = { version = "0.8", optional = true }
 petgraph = { version = "0.6", optional = true }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
-toml = "0.6"
+toml = "0.7"
 url = "2"
 
 [features]
