@@ -7,7 +7,8 @@ license     = "Apache-2.0 OR MIT"
 homepage    = "https://rustsec.org"
 repository  = "https://github.com/RustSec/rustsec/tree/main/admin"
 readme      = "README.md"
-edition     = "2018"
+edition     = "2021"
+rust-version = "1.64"
 
 [dependencies]
 abscissa_core = "0.6"
