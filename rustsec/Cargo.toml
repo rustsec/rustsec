@@ -37,11 +37,11 @@ once_cell = "1"
 
 [features]
 default = ["git"]
-fix = ["cargo-edit"]
-git = ["crates-index", "git2", "home", "humantime", "humantime-serde"]
+fix = ["dep:cargo-edit"]
+git = ["dep:crates-index", "dep:git2", "dep:home", "dep:humantime", "dep:humantime-serde"]
 dependency-tree = ["cargo-lock/dependency-tree"]
-vendored-libgit2 = ["git2/vendored-libgit2"]
-vendored-openssl = ["git2/vendored-openssl"]
+vendored-libgit2 = ["dep:git2", "git2?/vendored-libgit2"]
+vendored-openssl = ["dep:git2", "git2?/vendored-openssl"]
 osv-export = ["git"]
 
 [package.metadata.docs.rs]
