@@ -28,6 +28,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_PC_WINDOWS_GNULLVM,
     AARCH64_PC_WINDOWS_MSVC,
     AARCH64_UNKNOWN_FREEBSD,
+    AARCH64_UNKNOWN_FUCHSIA,
     AARCH64_UNKNOWN_HERMIT,
     AARCH64_UNKNOWN_LINUX_GNU,
     AARCH64_UNKNOWN_LINUX_GNU_ILP32,
@@ -35,6 +36,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_NETBSD,
     AARCH64_UNKNOWN_NONE,
     AARCH64_UNKNOWN_NONE_SOFTFLOAT,
+    AARCH64_UNKNOWN_NTO_QNX710,
     AARCH64_UNKNOWN_OPENBSD,
     AARCH64_UNKNOWN_REDOX,
     AARCH64_UNKNOWN_UEFI,
@@ -62,6 +64,7 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV6K_NINTENDO_3DS,
     ARMV7_APPLE_IOS,
     ARMV7_LINUX_ANDROIDEABI,
+    ARMV7_SONY_VITA_NEWLIBEABIHF,
     ARMV7_UNKNOWN_FREEBSD,
     ARMV7_UNKNOWN_LINUX_GNUEABI,
     ARMV7_UNKNOWN_LINUX_GNUEABIHF,
@@ -131,6 +134,7 @@ pub(crate) const ALL: &[Platform] = &[
     POWERPC_UNKNOWN_OPENBSD,
     POWERPC_WRS_VXWORKS,
     POWERPC_WRS_VXWORKS_SPE,
+    POWERPC64_IBM_AIX,
     POWERPC64_UNKNOWN_FREEBSD,
     POWERPC64_UNKNOWN_LINUX_GNU,
     POWERPC64_UNKNOWN_LINUX_MUSL,
@@ -186,6 +190,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_FORTANIX_UNKNOWN_SGX,
     X86_64_FUCHSIA,
     X86_64_LINUX_ANDROID,
+    X86_64_PC_NTO_QNX710,
     X86_64_PC_SOLARIS,
     X86_64_PC_WINDOWS_GNU,
     X86_64_PC_WINDOWS_GNULLVM,
@@ -193,6 +198,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_SUN_SOLARIS,
     X86_64_UNKNOWN_DRAGONFLY,
     X86_64_UNKNOWN_FREEBSD,
+    X86_64_UNKNOWN_FUCHSIA,
     X86_64_UNKNOWN_HAIKU,
     X86_64_UNKNOWN_HERMIT,
     X86_64_UNKNOWN_ILLUMOS,
@@ -202,7 +208,6 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_LINUX_MUSL,
     X86_64_UNKNOWN_NETBSD,
     X86_64_UNKNOWN_NONE,
-    X86_64_UNKNOWN_NONE_LINUXKERNEL,
     X86_64_UNKNOWN_OPENBSD,
     X86_64_UNKNOWN_REDOX,
     X86_64_UNKNOWN_UEFI,
@@ -277,7 +282,7 @@ pub(crate) const AARCH64_APPLE_WATCHOS_SIM: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// ARM64 Fuchsia
+/// Alias for `aarch64-unknown-fuchsia`
 pub(crate) const AARCH64_FUCHSIA: Platform = Platform {
     target_triple: "aarch64-fuchsia",
     target_arch: Arch::AArch64,
@@ -351,6 +356,17 @@ pub(crate) const AARCH64_UNKNOWN_FREEBSD: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
+};
+
+/// ARM64 Fuchsia
+pub(crate) const AARCH64_UNKNOWN_FUCHSIA: Platform = Platform {
+    target_triple: "aarch64-unknown-fuchsia",
+    target_arch: Arch::AArch64,
+    target_os: OS::Fuchsia,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Two,
 };
 
 /// ARM64 HermitCore
@@ -429,6 +445,16 @@ pub(crate) const AARCH64_UNKNOWN_NONE_SOFTFLOAT: Platform = Platform {
     tier: Tier::Two,
 };
 
+pub(crate) const AARCH64_UNKNOWN_NTO_QNX710: Platform = Platform {
+    target_triple: "aarch64-unknown-nto-qnx710",
+    target_arch: Arch::AArch64,
+    target_os: OS::Nto,
+    target_env: Env::Nto71,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// ARM64 OpenBSD
 pub(crate) const AARCH64_UNKNOWN_OPENBSD: Platform = Platform {
     target_triple: "aarch64-unknown-openbsd",
@@ -459,7 +485,7 @@ pub(crate) const AARCH64_UNKNOWN_UEFI: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 pub(crate) const AARCH64_UWP_WINDOWS_MSVC: Platform = Platform {
@@ -720,6 +746,17 @@ pub(crate) const ARMV7_LINUX_ANDROIDEABI: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Two,
+};
+
+/// ARM Cortex-A9 Sony PlayStation Vita (requires VITASDK toolchain)
+pub(crate) const ARMV7_SONY_VITA_NEWLIBEABIHF: Platform = Platform {
+    target_triple: "armv7-sony-vita-newlibeabihf",
+    target_arch: Arch::Arm,
+    target_os: OS::Vita,
+    target_env: Env::Newlib,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
 };
 
 /// ARMv7 FreeBSD
@@ -1122,7 +1159,7 @@ pub(crate) const I686_UNKNOWN_UEFI: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 pub(crate) const I686_UWP_WINDOWS_GNU: Platform = Platform {
@@ -1462,6 +1499,17 @@ pub(crate) const POWERPC_WRS_VXWORKS_SPE: Platform = Platform {
     target_env: Env::Gnu,
     target_endian: Endian::Big,
     target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// 64-bit AIX (7.2 and newer)
+pub(crate) const POWERPC64_IBM_AIX: Platform = Platform {
+    target_triple: "powerpc64-ibm-aix",
+    target_arch: Arch::PowerPc64,
+    target_os: OS::Aix,
+    target_env: Env::None,
+    target_endian: Endian::Big,
+    target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
 };
 
@@ -2043,7 +2091,7 @@ pub(crate) const X86_64_FORTANIX_UNKNOWN_SGX: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 64-bit Fuchsia
+/// Alias for `x86_64-unknown-fuchsia`
 pub(crate) const X86_64_FUCHSIA: Platform = Platform {
     target_triple: "x86_64-fuchsia",
     target_arch: Arch::X86_64,
@@ -2063,6 +2111,16 @@ pub(crate) const X86_64_LINUX_ANDROID: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
+};
+
+pub(crate) const X86_64_PC_NTO_QNX710: Platform = Platform {
+    target_triple: "x86_64-pc-nto-qnx710",
+    target_arch: Arch::X86_64,
+    target_os: OS::Nto,
+    target_env: Env::Nto71,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
 };
 
 /// 64-bit Solaris 10/11, illumos
@@ -2135,6 +2193,17 @@ pub(crate) const X86_64_UNKNOWN_FREEBSD: Platform = Platform {
     target_triple: "x86_64-unknown-freebsd",
     target_arch: Arch::X86_64,
     target_os: OS::FreeBSD,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Two,
+};
+
+/// 64-bit Fuchsia
+pub(crate) const X86_64_UNKNOWN_FUCHSIA: Platform = Platform {
+    target_triple: "x86_64-unknown-fuchsia",
+    target_arch: Arch::X86_64,
+    target_os: OS::Fuchsia,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
@@ -2239,17 +2308,6 @@ pub(crate) const X86_64_UNKNOWN_NONE: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// Linux kernel modules
-pub(crate) const X86_64_UNKNOWN_NONE_LINUXKERNEL: Platform = Platform {
-    target_triple: "x86_64-unknown-none-linuxkernel",
-    target_arch: Arch::X86_64,
-    target_os: OS::None,
-    target_env: Env::Gnu,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
-};
-
 /// 64-bit OpenBSD
 pub(crate) const X86_64_UNKNOWN_OPENBSD: Platform = Platform {
     target_triple: "x86_64-unknown-openbsd",
@@ -2280,7 +2338,7 @@ pub(crate) const X86_64_UNKNOWN_UEFI: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 pub(crate) const X86_64_UWP_WINDOWS_GNU: Platform = Platform {
