@@ -13,6 +13,9 @@ use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum OS {
+    /// `aix`
+    Aix,
+
     /// `android`: Google's Android mobile operating system
     Android,
 
@@ -65,6 +68,9 @@ pub enum OS {
     /// `none`
     None,
 
+    /// `nto`
+    Nto,
+
     /// `openbsd`: The OpenBSD operating system
     OpenBSD,
 
@@ -89,6 +95,9 @@ pub enum OS {
     /// `unknown`
     Unknown,
 
+    /// `vita`
+    Vita,
+
     /// `vxworks`: VxWorks is a deterministic, priority-based preemptive RTOS with low latency and minimal jitter
     VxWorks,
 
@@ -109,6 +118,7 @@ impl OS {
     /// String representing this `OS` which matches `#[cfg(target_os)]`
     pub fn as_str(self) -> &'static str {
         match self {
+            OS::Aix => "aix",
             OS::Android => "android",
             OS::Cuda => "cuda",
             OS::Dragonfly => "dragonfly",
@@ -126,6 +136,7 @@ impl OS {
             OS::MacOS => "macos",
             OS::NetBSD => "netbsd",
             OS::None => "none",
+            OS::Nto => "nto",
             OS::OpenBSD => "openbsd",
             OS::Psp => "psp",
             OS::Redox => "redox",
@@ -134,6 +145,7 @@ impl OS {
             OS::TvOS => "tvos",
             OS::Uefi => "uefi",
             OS::Unknown => "unknown",
+            OS::Vita => "vita",
             OS::VxWorks => "vxworks",
             OS::Wasi => "wasi",
             OS::WatchOS => "watchos",
@@ -149,6 +161,7 @@ impl FromStr for OS {
     /// Create a new `OS` from the given string
     fn from_str(name: &str) -> Result<Self, Self::Err> {
         let result = match name {
+            "aix" => OS::Aix,
             "android" => OS::Android,
             "cuda" => OS::Cuda,
             "dragonfly" => OS::Dragonfly,
@@ -166,6 +179,7 @@ impl FromStr for OS {
             "macos" => OS::MacOS,
             "netbsd" => OS::NetBSD,
             "none" => OS::None,
+            "nto" => OS::Nto,
             "openbsd" => OS::OpenBSD,
             "psp" => OS::Psp,
             "redox" => OS::Redox,
@@ -174,6 +188,7 @@ impl FromStr for OS {
             "tvos" => OS::TvOS,
             "uefi" => OS::Uefi,
             "unknown" => OS::Unknown,
+            "vita" => OS::Vita,
             "vxworks" => OS::VxWorks,
             "wasi" => OS::Wasi,
             "watchos" => OS::WatchOS,
