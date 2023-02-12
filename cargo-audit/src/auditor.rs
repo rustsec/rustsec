@@ -188,7 +188,7 @@ impl Auditor {
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
                 let mut report = self.audit(&lockfile, Some(binary_path))?;
-                filter_report_by_binary_type(&binary_type, &mut report);
+                filter_report_by_binary_type(&binary_type, &mut report); // FIXME: too late, this must be in `fn audit`
                 Ok(report)
             }
             None => Err(Error::new(
