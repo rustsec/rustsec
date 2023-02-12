@@ -182,11 +182,15 @@ impl Auditor {
     #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
-        use crate::binary_deps::BinaryReport::*;
-        let report = crate::binary_deps::load_deps_from_binary(binary_path)?;
+        use crate::{binary_deps::BinaryReport::*, binary_type_filter::filter_report_by_binary_type};
+        let (binary_type, report) = crate::binary_deps::load_deps_from_binary(binary_path)?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
-            Complete(lockfile) | Incomplete(lockfile) => self.audit(&lockfile, Some(binary_path)),
+            Complete(lockfile) | Incomplete(lockfile) => {
+                let mut report = self.audit(&lockfile, Some(binary_path))?;
+                filter_report_by_binary_type(&binary_type, &mut report);
+                Ok(report)
+            }
             None => Err(Error::new(
                 ErrorKind::Parse,
                 &"No dependency information found! Is this a Rust executable built with cargo?",
