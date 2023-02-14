@@ -1,6 +1,6 @@
 //! Core auditing functionality
 
-use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter, binary_type_filter::filter_report_by_binary_type};
+use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     io::{self, Read},
@@ -204,7 +204,10 @@ impl Auditor {
         binary_format: Option<binfarce::Format>,
     ) -> rustsec::Result<rustsec::Report> {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
+
+        #[cfg(feature = "binary-scanning")]
         if let Some(format) = binary_format {
+            use crate::binary_type_filter::filter_report_by_binary_type;
             filter_report_by_binary_type(&format, &mut report);
         }
 
