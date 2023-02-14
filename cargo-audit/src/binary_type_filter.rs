@@ -18,7 +18,7 @@ pub fn filter_report_by_binary_type(binary_type: &binfarce::Format, report: &mut
         .list
         .retain(|vuln| advisory_applicable_to_binary(binary_type, &vuln.affected));
     vulns.count = vulns.list.len();
-    vulns.found = vulns.list.len() != 0;
+    vulns.found = !vulns.list.is_empty();
     // TODO: warnings do not have information about the platform they affect,
     // so they're impossible to filter at this layer. This requires modifications to the `rustsec` crate.
 }

@@ -201,6 +201,7 @@ impl Auditor {
         &mut self,
         lockfile: &Lockfile,
         path: Option<&Path>,
+        #[allow(unused_variables)] // May be unused when the "binary-scanning" feature is disabled
         binary_format: Option<binfarce::Format>,
     ) -> rustsec::Result<rustsec::Report> {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
