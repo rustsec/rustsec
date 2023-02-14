@@ -1,6 +1,6 @@
 //! Core auditing functionality
 
-use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
+use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter, binary_type_filter::filter_report_by_binary_type};
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     io::{self, Read},
@@ -146,7 +146,7 @@ impl Auditor {
 
         self.presenter.before_report(lockfile_path, &lockfile);
 
-        self.audit(&lockfile, None)
+        self.audit(&lockfile, None, None)
     }
 
     #[cfg(feature = "binary-scanning")]
@@ -182,15 +182,13 @@ impl Auditor {
     #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
-        use crate::{binary_deps::BinaryReport::*, binary_type_filter::filter_report_by_binary_type};
+        use crate::binary_deps::BinaryReport::*;
         let (binary_type, report) = crate::binary_deps::load_deps_from_binary(binary_path)?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
-                let mut report = self.audit(&lockfile, Some(binary_path))?;
-                filter_report_by_binary_type(&binary_type, &mut report); // FIXME: too late, this must be in `fn audit`
-                Ok(report)
-            }
+                self.audit(&lockfile, Some(binary_path), Some(binary_type))
+            } 
             None => Err(Error::new(
                 ErrorKind::Parse,
                 &"No dependency information found! Is this a Rust executable built with cargo?",
@@ -203,8 +201,12 @@ impl Auditor {
         &mut self,
         lockfile: &Lockfile,
         path: Option<&Path>,
+        binary_format: Option<binfarce::Format>,
     ) -> rustsec::Result<rustsec::Report> {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
+        if let Some(format) = binary_format {
+            filter_report_by_binary_type(&format, &mut report);
+        }
 
         // Warn for yanked crates
         let mut yanked = self.check_for_yanked_crates(lockfile);
