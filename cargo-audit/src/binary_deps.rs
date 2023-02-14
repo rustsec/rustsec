@@ -17,7 +17,9 @@ pub enum BinaryReport {
 }
 
 /// Load the dependency tree from a binary file
-pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(binfarce::Format, BinaryReport)> {
+pub fn load_deps_from_binary(
+    binary_path: &Path,
+) -> rustsec::Result<(binfarce::Format, BinaryReport)> {
     // TODO: input size limit
     let file_contents = std::fs::read(binary_path)?;
     let format = binfarce::detect_format(&file_contents);
@@ -25,9 +27,10 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(binfarce::F
 
     use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
     match stuff {
-        Ok(json_struct) => Ok((format, BinaryReport::Complete(cargo_lock::Lockfile::try_from(
-            &json_struct,
-        )?))),
+        Ok(json_struct) => Ok((
+            format,
+            BinaryReport::Complete(cargo_lock::Lockfile::try_from(&json_struct)?),
+        )),
         Err(e) => match e {
             NoAuditData => {
                 if let Some(deps) = deps_from_panic_messages(&file_contents) {

@@ -188,7 +188,7 @@ impl Auditor {
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
                 self.audit(&lockfile, Some(binary_path), Some(binary_type))
-            } 
+            }
             None => Err(Error::new(
                 ErrorKind::Parse,
                 &"No dependency information found! Is this a Rust executable built with cargo?",
