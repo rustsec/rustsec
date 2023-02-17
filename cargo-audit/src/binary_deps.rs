@@ -19,9 +19,7 @@ pub enum BinaryReport {
 }
 
 /// Load the dependency tree from a binary file
-pub fn load_deps_from_binary(
-    binary_path: &Path,
-) -> rustsec::Result<(BinaryFormat, BinaryReport)> {
+pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryFormat, BinaryReport)> {
     // TODO: input size limit
     let file_contents = std::fs::read(binary_path)?;
     let format = binfarce::detect_format(&file_contents).into();
