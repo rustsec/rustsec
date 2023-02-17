@@ -1,6 +1,8 @@
 //! Core auditing functionality
 
-use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter, binary_format::BinaryFormat};
+use crate::{
+    binary_format::BinaryFormat, config::AuditConfig, lockfile, prelude::*, presenter::Presenter,
+};
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     io::{self, Read},

@@ -45,7 +45,7 @@ fn at_least_one_os_runs_binary(binary_type: &BinaryFormat, os_list: &[OS]) -> bo
     match binary_type {
         PE => os_list.contains(&OS::Windows),
         Macho => os_list.iter().any(|os| apple_OSs().contains(os)), // O(n*log(n))
-        Elf32 | Elf64  => {
+        Elf32 | Elf64 => {
             // For now we'll assume it's affected if the list contains something other than Windows or Apple OSs
             os_list
                 .iter()
