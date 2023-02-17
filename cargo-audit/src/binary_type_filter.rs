@@ -7,7 +7,9 @@ use std::str::FromStr;
 use once_cell::sync::OnceCell;
 use rustsec::platforms::{platform::PlatformReq, OS};
 
-pub fn filter_report_by_binary_type(binary_type: &binfarce::Format, report: &mut rustsec::Report) {
+use crate::binary_format::BinaryFormat;
+
+pub fn filter_report_by_binary_type(binary_type: &BinaryFormat, report: &mut rustsec::Report) {
     let vulns = &mut report.vulnerabilities;
     assert_eq!(
         vulns.list.len(),
@@ -24,7 +26,7 @@ pub fn filter_report_by_binary_type(binary_type: &binfarce::Format, report: &mut
 }
 
 fn advisory_applicable_to_binary(
-    binary_type: &binfarce::Format,
+    binary_type: &BinaryFormat,
     affected: &Option<rustsec::advisory::Affected>,
 ) -> bool {
     if let Some(affected) = affected {
@@ -38,12 +40,12 @@ fn advisory_applicable_to_binary(
     }
 }
 
-fn at_least_one_os_runs_binary(binary_type: &binfarce::Format, os_list: &[OS]) -> bool {
-    use binfarce::Format::*;
+fn at_least_one_os_runs_binary(binary_type: &BinaryFormat, os_list: &[OS]) -> bool {
+    use BinaryFormat::*;
     match binary_type {
         PE => os_list.contains(&OS::Windows),
         Macho => os_list.iter().any(|os| apple_OSs().contains(os)), // O(n*log(n))
-        Elf32 { byte_order: _ } | Elf64 { byte_order: _ } => {
+        Elf32 | Elf64  => {
             // For now we'll assume it's affected if the list contains something other than Windows or Apple OSs
             os_list
                 .iter()
