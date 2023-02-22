@@ -132,18 +132,6 @@ impl Repository {
         let latest_commit = repo.latest_commit()?;
         latest_commit.reset(&repo)?;
 
-        // Any commits we fetch should always be signed
-        // TODO: verify signatures against GitHub's public key
-        if latest_commit.signature.is_none() {
-            fail!(
-                ErrorKind::Repo,
-                "no signature on commit {}: {} ({})",
-                latest_commit.commit_id,
-                latest_commit.summary,
-                latest_commit.author
-            );
-        }
-
         // Ensure that the upstream repository hasn't gone stale
         if ensure_fresh && !latest_commit.is_fresh() {
             fail!(
