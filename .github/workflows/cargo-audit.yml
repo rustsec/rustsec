@@ -76,6 +76,7 @@ jobs:
           profile: minimal
           override: true
       - run: cargo test --release
+      - run: cargo test --all-features --release
 
   test-windows:
     runs-on: windows-latest
