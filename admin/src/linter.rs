@@ -134,8 +134,9 @@ impl Linter {
 
             fail!(
                 ErrorKind::CratesIo,
-                "crates.io package name does not match package name in advisory for {}",
-                advisory.metadata.package.as_str()
+                "crates.io package name does not match package name in advisory for {} in {}",
+                advisory.metadata.package.as_str(),
+                advisory.metadata.id
             );
         }
 
