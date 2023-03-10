@@ -323,6 +323,14 @@ impl Presenter {
         } else if let Some(url) = &metadata.url {
             self.print_attr(color, "URL:      ", url);
         }
+
+        if let Some(cvss) = &metadata.cvss {
+            self.print_attr(
+                color,
+                "Severity: ",
+                format!("{}, {}", cvss.score().value(), cvss.score().severity()),
+            );
+        }
     }
 
     /// Display an attribute of a particular vulnerability
