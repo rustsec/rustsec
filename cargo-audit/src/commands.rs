@@ -15,6 +15,7 @@ pub const CONFIG_FILE: &str = "audit.toml";
 
 /// `cargo audit` subcommands (presently only `audit`)
 #[derive(Command, Debug, Parser, Runnable)]
+#[clap(bin_name = "cargo")]
 pub enum CargoAuditSubCommand {
     /// The `cargo audit` subcommand
     #[clap(about = "Audit Cargo.lock files for vulnerable crates")]
