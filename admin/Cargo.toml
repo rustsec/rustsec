@@ -16,7 +16,7 @@ atom_syndication = "0.12"
 chrono = { version = "0.4", default-features = false, features = ["clock"]  }
 clap = "3"
 comrak = { version = "0.16", default-features = false }
-crates-index = "0.18"
+crates-index = "0.19"
 rust-embed = "6.4.2"
 rustsec = { version = "0.26", path = "../rustsec", features = ["osv-export"] }
 serde = { version = "1", features = ["serde_derive"] }
