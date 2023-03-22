@@ -4,7 +4,10 @@ use crate::{
     error::{Error, ErrorKind},
     repository::{git::Repository, signature::Signature},
 };
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::{
+    ops::Deref,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 
 /// Number of days after which the repo will be considered stale
 /// (90 days)
@@ -58,10 +61,9 @@ impl Commit {
             .to_owned();
 
         let (signature, signed_data) = match repo.repo.extract_signature(&oid, None) {
-            Ok((ref sig, ref data)) => (
-                Some(Signature::from_bytes(sig)?),
-                Some(data.as_ref().into()),
-            ),
+            Ok((ref sig, ref data)) => {
+                (Some(Signature::from_bytes(sig)?), Some(data.deref().into()))
+            }
             _ => (None, None),
         };
 
