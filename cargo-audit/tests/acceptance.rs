@@ -200,8 +200,14 @@ fn version() {
     runner.arg("--version");
     let mut process = runner.run();
     let mut version_information = String::new();
-    process.stdout().read_line(&mut version_information).unwrap();
-    assert_eq!(version_information, format!("cargo-audit {}\n", env!("CARGO_PKG_VERSION")));
+    process
+        .stdout()
+        .read_line(&mut version_information)
+        .unwrap();
+    assert_eq!(
+        version_information,
+        format!("cargo-audit {}\n", env!("CARGO_PKG_VERSION"))
+    );
     process.wait().unwrap().expect_success();
 }
 
