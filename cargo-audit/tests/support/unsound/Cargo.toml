@@ -1,0 +1,12 @@
+[package]
+name = "unsound-dep"
+version = "0.1.0"
+publish = false
+
+[lib]
+path = "dummy.rs"
+
+[workspace]
+
+[dependencies]
+ash = "0.30.0"
