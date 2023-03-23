@@ -573,6 +573,8 @@ fn render_api(db: &Database, output_folder: &Path) {
         fs::create_dir(api_path).unwrap();
     }
     for (package, advisories) in map {
+        // Replace dashes with underscores to make the conssistent format
+        let package = package.as_str().replace("-", "_");
         let mut file = std::fs::File::create(api_path.join(format!("{package}.json"))).unwrap();
         let json = serde_json::to_string_pretty(&advisories).unwrap();
         file.write_all(json.as_bytes()).unwrap();
