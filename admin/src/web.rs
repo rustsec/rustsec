@@ -10,10 +10,14 @@ use chrono::{Duration, NaiveDate, Utc};
 use comrak::{markdown_to_html, ComrakOptions};
 use rust_embed::RustEmbed;
 use rustsec::advisory::Id;
+use rustsec::database::Query;
 use rustsec::repository::git::GitModificationTimes;
 use rustsec::repository::git::GitPath;
+use rustsec::Collection;
+use rustsec::Database;
 use rustsec::{advisory, Repository};
 use std::collections::{HashMap, HashSet};
+use std::io::Write;
 use std::str::FromStr;
 use std::{
     fs::{self, File},
@@ -111,6 +115,11 @@ pub fn render_advisories(output_folder: PathBuf) {
 
     // Get advisories
     let db = rustsec::Database::fetch().unwrap();
+
+    // Render api json files
+    render_api(&db, &output_folder);
+    status_ok!("Completed", "API rendered");
+
     let mut advisories: Vec<(rustsec::Advisory, advisory::Date, advisory::Date)> = db
         .into_iter()
         .map(|a| {
@@ -546,6 +555,28 @@ fn render_feed(
 
     let file = File::create(output_path).unwrap();
     feed.write_to(file).unwrap();
+}
+
+fn render_api(db: &Database, output_folder: &Path) {
+    let mut map = HashMap::new();
+    for advisory in db
+        .query(&Query::new().collection(Collection::Crates).withdrawn(false))
+        .into_iter()
+    {
+        map.entry(&advisory.metadata.package)
+            .or_insert_with(Vec::new)
+            .push(advisory);
+    }
+    let path = output_folder.join("api");
+    let api_path = path.as_path();
+    if !api_path.exists() {
+        fs::create_dir(api_path).unwrap();
+    }
+    for (package, advisories) in map {
+        let mut file = std::fs::File::create(api_path.join(format!("{package}.json"))).unwrap();
+        let json = serde_json::to_string_pretty(&advisories).unwrap();
+        file.write_all(json.as_bytes()).unwrap();
+    }
 }
 
 #[derive(RustEmbed)]
