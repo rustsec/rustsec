@@ -126,8 +126,8 @@ impl DatabaseInfo {
     pub fn new(db: &Database) -> Self {
         Self {
             advisory_count: db.iter().count(),
-            last_commit: db.latest_commit().map(|c| c.commit_id.clone()),
-            last_updated: db.latest_commit().map(|c| c.timestamp),
+            last_commit: None,
+            last_updated: None,
         }
     }
 }

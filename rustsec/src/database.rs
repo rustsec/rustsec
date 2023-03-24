@@ -102,7 +102,6 @@ impl Database {
     }
 
     /// Fetch the default advisory database from GitHub
-    #[cfg(feature = "git")]
     pub fn fetch() -> Result<Self, Error> {
         todo!();
         git::Repository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
