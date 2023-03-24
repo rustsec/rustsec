@@ -7,7 +7,7 @@ use std::{path::Path, sync::Mutex};
 
 static DEFAULT_DATABASE: Lazy<Mutex<Database>> = Lazy::new(|| {
     Mutex::new(
-        Database::load_from_repo(&Repository::fetch_default_repo().unwrap())
+        Database::fetch()
             .expect("Should be fetchable."),
     )
 });

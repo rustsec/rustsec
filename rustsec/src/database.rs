@@ -15,7 +15,13 @@ use crate::{
     vulnerability::Vulnerability,
     Lockfile,
 };
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
+/// Directory under `~/.cargo` where the advisory-db repo will be kept
+const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
+
+/// The default URL from which the DB is downloaded
+const DEFAULT_DB_URL: &str = "https://github.com/zip-rs/zip/archive/refs/heads/master.zip";
 
 #[cfg(feature = "git")]
 use crate::repository::git;
@@ -88,23 +94,17 @@ impl Database {
         })
     }
 
-    /// Load [`Database`] from the given [`git::Repository`]
-    #[cfg(feature = "git")]
-    pub fn load_from_repo(repo: &git::Repository) -> Result<Self, Error> {
-        let mut db = Self::open(repo.path())?;
-        Ok(db)
-    }
-
     /// Load [`Database`] from the given directory
     pub fn load_from_dir(path: &Path) -> Result<Self, Error> {
-        let mut db = Self::open(path)?;
+        let db = Self::open(path)?;
         Ok(db)
     }
 
     /// Fetch the default advisory database from GitHub
     pub fn fetch() -> Result<Self, Error> {
-        todo!();
-        git::Repository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
+        let local_dir = Database::default_path();
+        crate::fetch::fetch(DEFAULT_DB_URL, &local_dir)?;
+        Self::load_from_dir(&local_dir)
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
@@ -161,6 +161,15 @@ impl Database {
     /// Iterate over all of the advisories in the database
     pub fn iter(&self) -> Iter<'_> {
         self.advisories.iter()
+    }
+
+    /// Location of the default `advisory-db` repository for crates.io
+    pub fn default_path() -> PathBuf {
+        home::cargo_home()
+            .unwrap_or_else(|err| {
+                panic!("Error locating Cargo home directory: {}", err);
+            })
+            .join(ADVISORY_DB_DIRECTORY)
     }
 }
 
