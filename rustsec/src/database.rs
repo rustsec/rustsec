@@ -23,9 +23,6 @@ const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
 /// The default URL from which the DB is downloaded
 const DEFAULT_DB_URL: &str = "https://github.com/zip-rs/zip/archive/refs/heads/master.zip";
 
-#[cfg(feature = "git")]
-use crate::repository::git;
-
 /// Iterator over entries in the database
 pub type Iter<'a> = std::slice::Iter<'a, Advisory>;
 
