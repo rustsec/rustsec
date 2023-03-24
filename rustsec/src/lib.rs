@@ -9,6 +9,7 @@ mod error;
 
 pub mod advisory;
 mod collection;
+mod fetch;
 pub mod database;
 pub mod osv;
 pub mod report;
