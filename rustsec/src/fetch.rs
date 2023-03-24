@@ -1,4 +1,7 @@
-use std::{path::Path, io::{Cursor, Write}};
+use std::{
+    io::{Cursor, Write},
+    path::Path,
+};
 
 use fs_err::remove_dir_all;
 
@@ -7,8 +10,8 @@ use crate::Error;
 pub fn fetch(url: &str, destination: &Path) -> Result<(), Error> {
     // TODO: lock the dir to protect from concurrent accesses?
     let response = ureq::get(url)
-    // .set("if-none-match", etag); // TODO: etag
-    .call()?;
+        // .set("if-none-match", etag); // TODO: etag
+        .call()?;
 
     // Not modified - we have the latest version already (determined by the etag)
     if response.status() == 304 {
@@ -18,7 +21,8 @@ pub fn fetch(url: &str, destination: &Path) -> Result<(), Error> {
     let new_etag = response.header("etag").map(String::from);
     let mut compressed_data: Vec<u8> = Vec::new();
     response.into_reader().read_to_end(&mut compressed_data)?;
-    let mut archive = zip::read::ZipArchive::new(Cursor::new(compressed_data)).map_err(|e| format_err!(crate::ErrorKind::Parse, e))?;
+    let mut archive = zip::read::ZipArchive::new(Cursor::new(compressed_data))
+        .map_err(|e| format_err!(crate::ErrorKind::Parse, e))?;
 
     // Extract to a temporary folder so that we don't trample all over the existing DB
     // until extraction completes successfully.
@@ -28,7 +32,9 @@ pub fn fetch(url: &str, destination: &Path) -> Result<(), Error> {
     tempdir.set_extension("part");
     create_temp_dir(&tempdir)?;
 
-    archive.extract(&tempdir).map_err(|e| format_err!(crate::ErrorKind::Io, e))?;
+    archive
+        .extract(&tempdir)
+        .map_err(|e| format_err!(crate::ErrorKind::Io, e))?;
 
     if let Some(tag) = new_etag {
         write_etag(&tempdir, &tag)?;
@@ -40,7 +46,6 @@ pub fn fetch(url: &str, destination: &Path) -> Result<(), Error> {
     Ok(())
 }
 
-
 // We don't use a dedicated facility for temporary directories here because
 // std::fs::rename doesn't work across mount points,
 // so we just put dirs next to each other instead to guarantee that they're on the same filesystem.
@@ -49,7 +54,7 @@ fn create_temp_dir(path: &Path) -> Result<(), std::io::Error> {
     match remove_dir_all(&path) {
         Ok(_) => (), // cleaned up after a previous interrupted run
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => (), // previous run wasn't interrupted, nothing to delete
-        Err(e) => return Err(e.into()), // an actual error has occurred
+        Err(e) => return Err(e.into()),                           // an actual error has occurred
     }
     std::fs::create_dir_all(&path)
 }
