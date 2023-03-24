@@ -34,10 +34,6 @@ pub struct Database {
 
     /// Index of third party crates
     crate_index: Index,
-
-    /// Information about the last git commit to the database
-    #[cfg(feature = "git")]
-    latest_commit: Option<git::Commit>,
 }
 
 impl Database {
@@ -89,8 +85,6 @@ impl Database {
             advisories,
             crate_index,
             rust_index,
-            #[cfg(feature = "git")]
-            latest_commit: None,
         })
     }
 
@@ -98,13 +92,19 @@ impl Database {
     #[cfg(feature = "git")]
     pub fn load_from_repo(repo: &git::Repository) -> Result<Self, Error> {
         let mut db = Self::open(repo.path())?;
-        db.latest_commit = Some(repo.latest_commit()?);
+        Ok(db)
+    }
+
+    /// Load [`Database`] from the given directory
+    pub fn load_from_dir(path: &Path) -> Result<Self, Error> {
+        let mut db = Self::open(path)?;
         Ok(db)
     }
 
     /// Fetch the default advisory database from GitHub
     #[cfg(feature = "git")]
     pub fn fetch() -> Result<Self, Error> {
+        todo!();
         git::Repository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
     }
 
@@ -162,12 +162,6 @@ impl Database {
     /// Iterate over all of the advisories in the database
     pub fn iter(&self) -> Iter<'_> {
         self.advisories.iter()
-    }
-
-    /// Get information about the latest commit to the repo
-    #[cfg(feature = "git")]
-    pub fn latest_commit(&self) -> Option<&git::Commit> {
-        self.latest_commit.as_ref()
     }
 }
 
