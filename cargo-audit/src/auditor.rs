@@ -146,7 +146,14 @@ impl Auditor {
 
         self.presenter.before_report(lockfile_path, &lockfile);
 
-        self.audit(&lockfile, None)
+        let report = self.audit(&lockfile, None);
+
+        let self_advisories = self.self_advisories();
+
+        self.presenter
+            .print_self_report(self_advisories.as_slice());
+
+        report
     }
 
     #[cfg(feature = "binary-scanning")]
@@ -170,6 +177,12 @@ impl Auditor {
                 }
             }
         }
+
+        let self_advisories = self.self_advisories();
+
+        self.presenter
+            .print_self_report(self_advisories.as_slice());
+
         if self
             .presenter
             .should_exit_with_failure_due_to_self(&self.self_advisories())
@@ -212,10 +225,8 @@ impl Auditor {
                 .append(&mut yanked);
         }
 
-        let self_advisories = self.self_advisories();
-
         self.presenter
-            .print_report(&report, self_advisories.as_slice(), lockfile, path);
+            .print_report(&report, lockfile, path);
 
         Ok(report)
     }
