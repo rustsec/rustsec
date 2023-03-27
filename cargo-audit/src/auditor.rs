@@ -150,8 +150,7 @@ impl Auditor {
 
         let self_advisories = self.self_advisories();
 
-        self.presenter
-            .print_self_report(self_advisories.as_slice());
+        self.presenter.print_self_report(self_advisories.as_slice());
 
         report
     }
@@ -180,8 +179,7 @@ impl Auditor {
 
         let self_advisories = self.self_advisories();
 
-        self.presenter
-            .print_self_report(self_advisories.as_slice());
+        self.presenter.print_self_report(self_advisories.as_slice());
 
         if self
             .presenter
@@ -225,8 +223,7 @@ impl Auditor {
                 .append(&mut yanked);
         }
 
-        self.presenter
-            .print_report(&report, lockfile, path);
+        self.presenter.print_report(&report, lockfile, path);
 
         Ok(report)
     }
