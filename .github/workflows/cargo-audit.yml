@@ -32,14 +32,16 @@ jobs:
         with:
           command: check
 
-  # TODO(tarcieri): re-unify build matrix when platform-specific problems are fixed
-  test-linux:
+  test:
     strategy:
       matrix:
         toolchain:
           - 1.60.0 # MSRV
           - stable
-    runs-on: ubuntu-latest
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/cache@v3
@@ -53,44 +55,6 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
-          profile: minimal
-          override: true
-      - run: cargo test --all-features --release
-
-  test-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      - run: cargo test --all-features --release
-
-  test-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
-      - uses: actions/cache@v3
-        with:
-          path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
           profile: minimal
           override: true
       - run: cargo test --all-features --release
