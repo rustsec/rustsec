@@ -30,6 +30,8 @@ auditable-info = { version = "0.6.2", optional = true }
 cargo-lock = { version = "8.0.2", optional = true }
 auditable-serde = { version = "0.5.0",  optional = true, features = ["toml"] }
 quitters = { version = "0.1", optional = true, path = "../quitters" }
+once_cell = { version = "1.5", optional = true }
+binfarce = { version = "0.2", optional = true }
 
 [dev-dependencies]
 once_cell = "1.5"
@@ -45,4 +47,4 @@ default = ["binary-scanning"]
 fix = ["rustsec/fix"]
 vendored-libgit2 = ["rustsec/vendored-libgit2"]
 vendored-openssl = ["rustsec/vendored-openssl"]
-binary-scanning = ["dep:auditable-info", "dep:cargo-lock", "dep:auditable-serde", "dep:quitters"]
+binary-scanning = ["dep:auditable-info", "dep:cargo-lock", "dep:auditable-serde", "dep:binfarce", "dep:quitters", "dep:once_cell"]
