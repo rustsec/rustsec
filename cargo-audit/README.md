@@ -119,7 +119,7 @@ script:
 
 ## Using `cargo audit` on GitHub Action
 
-Please use [`audit-check` action](https://github.com/actions-rs/audit-check) directly.
+Please use [`audit-check` action](https://github.com/rustsec/audit-check) directly.
 
 ## Reporting Vulnerabilities
 

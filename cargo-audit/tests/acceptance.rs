@@ -73,6 +73,16 @@ pub fn yanked_cmd_runner() -> CmdRunner {
     new_cmd_runner("yanked")
 }
 
+/// Get a `CmdRunner` to a project with an unsound dependency
+pub fn unsound_cmd_runner() -> CmdRunner {
+    new_cmd_runner("unsound")
+}
+
+/// Get a `CmdRunner` to a project with a dependency with a notice advisory
+pub fn notice_cmd_runner() -> CmdRunner {
+    new_cmd_runner("notice")
+}
+
 /// Get the advisory JSON output from a `CmdRunner`
 pub fn get_advisories_json(process: &mut Process) -> serde_json::Value {
     let mut output = String::new();
@@ -188,7 +198,16 @@ fn advisories_found_json() {
 fn version() {
     let mut runner = RUNNER.clone();
     runner.arg("--version");
-    let process = runner.run();
+    let mut process = runner.run();
+    let mut version_information = String::new();
+    process
+        .stdout()
+        .read_line(&mut version_information)
+        .unwrap();
+    assert_eq!(
+        version_information,
+        format!("cargo-audit {}\n", env!("CARGO_PKG_VERSION"))
+    );
     process.wait().unwrap().expect_success();
 }
 
@@ -209,4 +228,82 @@ fn advisories_found_but_ignored_json() {
             .unwrap(),
         0
     );
+}
+
+#[test]
+fn unmaintained_advisories_found_json() {
+    let mut runner = unmaintained_cmd_runner();
+    runner.arg("--json");
+
+    let mut process = runner.run();
+    let json = get_advisories_json(&mut process);
+    process.wait().unwrap().expect_code(0);
+
+    let unmaintained_warnings = json
+        .pointer("/warnings/unmaintained")
+        .unwrap()
+        .as_array()
+        .unwrap();
+
+    assert_eq!(unmaintained_warnings.len(), 1);
+
+    let advisory_id = unmaintained_warnings[0]
+        .pointer("/advisory/id")
+        .unwrap()
+        .as_str()
+        .unwrap();
+
+    assert_eq!(advisory_id, "RUSTSEC-2022-0061");
+}
+
+#[test]
+fn unsound_advisories_found_json() {
+    let mut runner = unsound_cmd_runner();
+    runner.arg("--json");
+
+    let mut process = runner.run();
+    let json = get_advisories_json(&mut process);
+    process.wait().unwrap().expect_code(0);
+
+    let unsound_warnings = json
+        .pointer("/warnings/unsound")
+        .unwrap()
+        .as_array()
+        .unwrap();
+
+    assert_eq!(unsound_warnings.len(), 1);
+
+    let advisory_id = unsound_warnings[0]
+        .pointer("/advisory/id")
+        .unwrap()
+        .as_str()
+        .unwrap();
+
+    assert_eq!(advisory_id, "RUSTSEC-2021-0090");
+}
+
+#[test]
+fn notice_advisories_found_json() {
+    let mut runner = notice_cmd_runner();
+    runner.arg("--json");
+
+    let mut process = runner.run();
+    let json = get_advisories_json(&mut process);
+    process.wait().unwrap().expect_code(0);
+
+    let notice_warnings = json
+        .pointer("/warnings/notice")
+        .unwrap()
+        .as_array()
+        .unwrap();
+
+    assert_eq!(notice_warnings.len(), 1);
+
+    let advisory_id = notice_warnings[0]
+        .pointer("/advisory/id")
+        .unwrap()
+        .as_str()
+        .unwrap();
+
+    assert_eq!(advisory_id, "RUSTSEC-2022-0058");
 }

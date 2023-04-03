@@ -98,7 +98,6 @@ impl Presenter {
     pub fn print_report(
         &mut self,
         report: &rustsec::Report,
-        self_advisories: &[rustsec::Advisory],
         lockfile: &Lockfile,
         path: Option<&Path>,
     ) {
@@ -123,25 +122,6 @@ impl Presenter {
             for warning in warnings.iter() {
                 self.print_warning(warning, &tree)
             }
-        }
-
-        // Print out any self-advisories
-        if !self_advisories.is_empty() {
-            let msg = "This copy of cargo-audit has known advisories!";
-
-            if self.config.deny.contains(&DenyOption::Warnings) {
-                status_err!(msg);
-            } else {
-                status_warn!(msg);
-            }
-
-            for advisory in self_advisories {
-                self.print_metadata(
-                    &advisory.metadata,
-                    self.warning_color(self.config.deny.contains(&DenyOption::Warnings)),
-                );
-            }
-            println!();
         }
 
         if report.vulnerabilities.found {
@@ -196,17 +176,30 @@ impl Presenter {
                 }
             }
         }
+    }
 
-        if !self_advisories.is_empty() {
-            let upgrade_msg = "upgrade cargo-audit to the latest version: \
-                               cargo install --force cargo-audit";
-
-            if self.config.deny.contains(&DenyOption::Warnings) {
-                status_err!(upgrade_msg);
-            } else {
-                status_warn!(upgrade_msg);
-            }
+    /// Print the vulnerability report for cargo-audit
+    pub fn print_self_report(&mut self, self_advisories: &[rustsec::Advisory]) {
+        if self_advisories.is_empty() {
+            return;
         }
+        // Print out any self-advisories
+        let msg = "This copy of cargo-audit has known advisories! Upgrade cargo-audit to the \
+        latest version: cargo install --force cargo-audit";
+
+        if self.config.deny.contains(&DenyOption::Warnings) {
+            status_err!(msg);
+        } else {
+            status_warn!(msg);
+        }
+
+        for advisory in self_advisories {
+            self.print_metadata(
+                &advisory.metadata,
+                self.warning_color(self.config.deny.contains(&DenyOption::Warnings)),
+            );
+        }
+        println!();
     }
 
     /// Determines whether the process should exit with failure based on configuration
@@ -322,6 +315,14 @@ impl Presenter {
             self.print_attr(color, "URL:      ", &url);
         } else if let Some(url) = &metadata.url {
             self.print_attr(color, "URL:      ", url);
+        }
+
+        if let Some(cvss) = &metadata.cvss {
+            self.print_attr(
+                color,
+                "Severity: ",
+                format!("{} ({})", cvss.score().value(), cvss.score().severity()),
+            );
         }
     }
 
