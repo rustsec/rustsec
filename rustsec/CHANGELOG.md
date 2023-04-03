@@ -4,8 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.26.5 (2023-03-22)
+### Changed
+
+- Migrated to a maintained fork of `cargo-edit` v0.9.x to fix [CVE-2023-22742] in the transitive dependency `libgit2-sys` ([#831])
+- Removed the experimental check for the presence of a signature on the advisory-db repository. It only verified the presence of a signature without checking for any particular key, so it provided no additional security. ([#816])
+- Fixed a build failure with certain dependency versions on recent compilers due to failing type inference ([#836])
+
+[CVE-2023-22742]: https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-22742
+[#816]: https://github.com/rustsec/rustsec/pull/816
+[#831]: https://github.com/rustsec/rustsec/pull/831
+[#836]: https://github.com/rustsec/rustsec/pull/836
+
 ## 0.26.4 (2022-11-15)
-Fixed Added
+### Fixed
 - `registry::CachedIndex` now correctly handles invalid semver versions in crates.io registry, which crates.io allows for some reason ([#762])
 
 [#762]: https://github.com/rustsec/rustsec/pull/762

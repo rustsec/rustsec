@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.17.5 (2023-03-23)
+
+### Added
+
+ - Vulnerability severity is now included in the `cargo audit` output, if known ([#825])
+
+### Changed
+
+ - Advisories marked `informational = unsound` are now reported by default, but only as warnings ([#819]). They do not cause the audit to fail, i.e. the exit code of the process is still 0. This behavior can be suppressed through the configuration file.
+
+### Fixed
+
+ - The help text now correctly refers to the command as `cargo audit` instead of `cargo audit audit` ([#824])
+ - The `--version` argument now works correctly, reporting the current version ([#838])
+
+[#819]: https://github.com/rustsec/rustsec/pull/819
+[#824]: https://github.com/rustsec/rustsec/pull/824
+[#825]: https://github.com/rustsec/rustsec/pull/825
+[#838]: https://github.com/rustsec/rustsec/pull/838
+
 ## 0.17.4 (2022-11-08)
 ### Fixed
 
