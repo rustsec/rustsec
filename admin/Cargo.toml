@@ -10,7 +10,7 @@ readme      = "README.md"
 edition     = "2018"
 
 [dependencies]
-abscissa_core = "0.6"
+abscissa_core = "0.7"
 askama = "0.11"
 atom_syndication = "0.12"
 chrono = { version = "0.4", default-features = false, features = ["clock"]  }
@@ -27,5 +27,5 @@ toml = "0.7"
 xml-rs = "0.8"
 
 [dev-dependencies]
-abscissa_core = { version = "0.6", features = ["testing"] }
+abscissa_core = { version = "0.7", features = ["testing"] }
 once_cell = "1.5"

@@ -17,7 +17,7 @@ exclude      = ["tests/"]
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-abscissa_core = "0.6"
+abscissa_core = "0.7"
 clap = "3"
 home = "0.5"
 rustsec = { version = "0.26.5", features = ["dependency-tree"], path = "../rustsec" }
@@ -39,7 +39,7 @@ tempfile = "3"
 toml = "0.7"
 
 [dev-dependencies.abscissa_core]
-version = "0.6"
+version = "0.7"
 features = ["testing"]
 
 [features]
