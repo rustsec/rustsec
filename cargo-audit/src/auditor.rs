@@ -1,3 +1,4 @@
+
 //! Core auditing functionality
 
 use crate::{config::AuditConfig, lockfile, prelude::*, presenter::Presenter};
