@@ -17,6 +17,8 @@ use std::path::Path;
 
 /// Location of the crates.io index
 pub const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
+/// Location of the crates.io sparse HTTP index
+pub const CRATES_IO_SPARSE_INDEX: &str = "sparse+https://index.crates.io/";
 
 /// Default branch name
 pub const DEFAULT_BRANCH: &str = "master";
@@ -236,8 +238,9 @@ impl SourceId {
 
     /// Returns `true` if the remote registry is the standard <https://crates.io>.
     pub fn is_default_registry(&self) -> bool {
-        matches!(self.kind, SourceKind::Registry | SourceKind::SparseRegistry)
-            && self.url.as_str() == CRATES_IO_INDEX
+        self.kind == SourceKind::Registry && self.url.as_str() == CRATES_IO_INDEX
+            || self.kind == SourceKind::SparseRegistry
+                && self.url.as_str() == &CRATES_IO_SPARSE_INDEX[7..]
     }
 }
 
@@ -384,7 +387,10 @@ mod tests {
     use super::SourceId;
 
     #[test]
-    fn default_works() {
-        SourceId::default();
+    fn identifies_crates_io() {
+        assert!(SourceId::default().is_default_registry());
+        assert!(SourceId::from_url(super::CRATES_IO_SPARSE_INDEX)
+            .expect("failed to parse sparse URL")
+            .is_default_registry());
     }
 }
