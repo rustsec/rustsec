@@ -48,11 +48,11 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: ~/.cargo/registry
-          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
+          key: ${{ runner.os }}-rust-${{ matrix.toolchain }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
       - uses: actions/cache@v3
         with:
           path: ~/.cargo/git
-          key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
+          key: ${{ runner.os }}-rust-${{ matrix.toolchain }}-cargo-index-${{ hashFiles('Cargo.lock') }}
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
