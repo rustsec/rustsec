@@ -16,6 +16,7 @@ use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
 use clap::Parser;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
+use rustsec::package::Name;
 
 #[cfg(feature = "binary-scanning")]
 use self::binary_scanning::BinCommand;
@@ -125,6 +126,15 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[clap(long = "json", help = "Output report in JSON format")]
     output_json: bool,
+
+    /// Specifies a target package to restrict output
+    #[clap(
+        short = 't',
+        long = "target-package",
+        help = "Restricts output to dependencies of a target package. WARN: Will supress other vulnerabilities and warnings"
+    )]
+    target_package_name: Option<Name>,
+    
 }
 
 /// Subcommands of `cargo audit`
@@ -181,6 +191,7 @@ impl From<AuditCommand> for CliConfig {
             url: c.url,
             quiet: c.quiet,
             output_json: c.output_json,
+            target_package_name: c.target_package_name,
         }
     }
 }

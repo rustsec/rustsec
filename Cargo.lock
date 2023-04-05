@@ -1705,6 +1705,7 @@ dependencies = [
  "humantime",
  "humantime-serde",
  "once_cell",
+ "petgraph",
  "platforms",
  "semver",
  "serde",

@@ -10,6 +10,7 @@ use abscissa_core::{config::Override, FrameworkError};
 use clap::Parser;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
+use rustsec::package::Name;
 
 #[cfg(feature = "binary-scanning")]
 /// The `cargo audit` subcommand
@@ -107,6 +108,14 @@ pub struct BinCommand {
         help = "Paths to the binaries to be scanned"
     )]
     binary_paths: Vec<PathBuf>,
+
+    /// Specifies a target package to restrict output
+    #[clap(
+        short = 't',
+        long = "target-package",
+        help = "Restricts output to dependencies of a target package. WARN: Will supress other vulnerabilities and warnings"
+    )]
+    target_package_name: Option<Name>,
 }
 
 impl Runnable for BinCommand {
@@ -136,6 +145,7 @@ impl From<BinCommand> for CliConfig {
             url: c.url,
             quiet: c.quiet,
             output_json: c.output_json,
+            target_package_name: c.target_package_name,
         }
     }
 }

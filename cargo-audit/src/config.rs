@@ -4,6 +4,7 @@ use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
     report, Error, ErrorKind, WarningKind,
+    package::Name,
 };
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, str::FromStr};
@@ -34,6 +35,10 @@ pub struct AuditConfig {
     /// Configuration for auditing for yanked crates
     #[serde(default)]
     pub yanked: YankedConfig,
+
+    /// Name of target package to restrict output for 
+    #[serde(default)]
+    pub target_package_name: Option<Name>,
 }
 
 impl AuditConfig {
@@ -44,6 +49,7 @@ impl AuditConfig {
             severity: self.advisories.severity_threshold,
             target_arch: self.target.arch,
             target_os: self.target.os,
+            target_package_name: self.target_package_name.clone(),
             ..Default::default()
         };
 

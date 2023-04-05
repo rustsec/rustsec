@@ -22,6 +22,7 @@ serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
 toml = "0.7"
 url = { version = "2", features = ["serde"] }
+petgraph = "0.6.3"
 
 # optional dependencies
 cargo-edit = { version = "0.9", package = "cargo-edit-9", optional = true, default-features = false,  features = ["upgrade"] }
