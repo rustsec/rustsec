@@ -55,8 +55,9 @@ impl Tree {
         w: &mut impl io::Write,
         node_index: NodeIndex,
         direction: EdgeDirection,
+        exact: bool,
     ) -> io::Result<()> {
-        self.render_with_symbols(w, node_index, direction, &Symbols::default())
+        self.render_with_symbols(w, node_index, direction, &Symbols::default(), exact)
     }
 
     /// Render the dependency graph for the given [`NodeIndex`] using the
@@ -67,8 +68,9 @@ impl Tree {
         node_index: NodeIndex,
         direction: EdgeDirection,
         symbols: &Symbols,
+        exact: bool,
     ) -> io::Result<()> {
-        Presenter::new(&self.graph, symbols).print_node(w, node_index, direction)
+        Presenter::new(&self.graph, symbols).print_node(w, node_index, direction, exact)
     }
 
     /// Get the indexes of the root packages in the workspace
@@ -139,6 +141,7 @@ impl<'g, 's> Presenter<'g, 's> {
         w: &mut impl io::Write,
         node_index: NodeIndex,
         direction: EdgeDirection,
+        exact: bool,
     ) -> io::Result<()> {
         let package = &self.graph[node_index];
         let new = self.visited.insert(node_index);
@@ -158,7 +161,18 @@ impl<'g, 's> Presenter<'g, 's> {
             write!(w, "{0}{1}{1} ", c, self.symbols.right)?;
         }
 
-        writeln!(w, "{} {}", &package.name, &package.version)?;
+        if exact {
+            let spec = if let Some(checksum) = &package.checksum {
+                format!("checksum:{}", checksum)
+            } else if let Some(src) = &package.source {
+                src.to_string()
+            } else {
+                "inexact".to_string()
+            };
+            writeln!(w, "{} {} {}", &package.name, &package.version, spec)?;
+        } else {
+            writeln!(w, "{} {}", &package.name, &package.version)?;
+        }
 
         if !new {
             return Ok(());
@@ -176,7 +190,7 @@ impl<'g, 's> Presenter<'g, 's> {
 
         for (i, dependency) in dependencies.iter().enumerate() {
             self.levels_continue.push(i < (dependencies.len() - 1));
-            self.print_node(w, *dependency, direction)?;
+            self.print_node(w, *dependency, direction, exact)?;
             self.levels_continue.pop();
         }
 
