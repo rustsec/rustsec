@@ -7,13 +7,15 @@ use cargo_lock::{
     dependency::graph::EdgeDirection,
     dependency::Tree,
     package::{self},
-    Dependency, Lockfile, ResolveVersion,
+    Dependency, Lockfile, Package, ResolveVersion, Version,
 };
 use gumdrop::Options;
+use petgraph::graph::NodeIndex;
 use std::{
     env, fs, io,
     path::{Path, PathBuf},
     process::exit,
+    str::FromStr,
 };
 
 /// `cargo lock` subcommands
@@ -126,12 +128,66 @@ impl TranslateCmd {
 #[derive(Debug, Options)]
 struct TreeCmd {
     /// Input `Cargo.lock` file
-    #[options(short = "f", help = "input Cargo.lock file to translate")]
+    #[options(
+        short = "f",
+        long = "file",
+        help = "input Cargo.lock file to translate"
+    )]
     file: Option<PathBuf>,
 
-    /// Dependencies names to draw a tree for
-    #[options(free, help = "dependency names to draw trees for")]
-    dependencies: Vec<package::Name>,
+    /// Show exact package identities (checksums or specific source versions) when available
+    #[options(
+        short = "x",
+        long = "exact",
+        help = "show exact package identies (checksums or specific source versions) when available"
+    )]
+    exact: bool,
+
+    // Show inverse dependencies rather than forward dependencies
+    #[options(
+        short = "i",
+        long = "invert",
+        help = "show inverse dependencies _on_ a package, rather than forward dependencies _of_ a package"
+    )]
+    inverse: bool,
+
+    /// Dependencies names or hashes to draw a tree for
+    #[options(free, help = "dependency names or hashes to draw trees for")]
+    dependencies: Vec<String>,
+}
+
+fn package_matches_name(pkg: &Package, name: &str) -> bool {
+    pkg.name.as_str() == name
+}
+
+fn package_matches_ver(pkg: &Package, ver: &str) -> bool {
+    // Try interpreting ver as a semver string.
+    if let Ok(v) = Version::from_str(ver) {
+        return pkg.version == v;
+    }
+    // Try comparing ver to hashes in either the package checksum or the source
+    // precise field
+    if let Some(cksum) = &pkg.checksum {
+        if cksum.to_string() == ver {
+            return true;
+        }
+    }
+    if let Some(src) = &pkg.source {
+        if let Some(precise) = src.precise() {
+            if precise == ver {
+                return true;
+            }
+        }
+    }
+    false
+}
+
+fn package_matches(pkg: &Package, spec: &str) -> bool {
+    if let Some((name, ver)) = spec.split_once('@') {
+        package_matches_name(pkg, name) && package_matches_ver(pkg, ver)
+    } else {
+        package_matches_name(pkg, spec) || package_matches_ver(pkg, spec)
+    }
 }
 
 impl TreeCmd {
@@ -144,43 +200,40 @@ impl TreeCmd {
             exit(1);
         });
 
-        if self.dependencies.is_empty() {
-            self.dependency_tree(&tree);
+        let indices: Vec<NodeIndex> = if self.dependencies.is_empty() {
+            tree.roots().to_vec()
         } else {
-            self.inverse_dependency_tree(&lockfile, &tree);
-        }
-    }
-
-    /// Show forward dependency tree for detected root dependencies
-    fn dependency_tree(&self, tree: &Tree) {
-        for (i, index) in tree.roots().iter().enumerate() {
-            if i > 0 {
-                println!();
-            }
-
-            tree.render(&mut io::stdout(), *index, EdgeDirection::Outgoing)
-                .unwrap();
-        }
-    }
-
-    /// Show inverse dependency tree for the provided dependencies
-    fn inverse_dependency_tree(&self, lockfile: &Lockfile, tree: &Tree) {
-        for (i, dep) in self.dependencies.iter().enumerate() {
-            if i > 0 {
-                println!();
-            }
-
-            let package = lockfile
-                .packages
+            self.dependencies
                 .iter()
-                .find(|pkg| pkg.name == *dep)
-                .unwrap_or_else(|| {
-                    eprintln!("*** error: invalid dependency name: `{}`", dep);
-                    exit(1);
-                });
+                .map(|dep| {
+                    let package = lockfile
+                        .packages
+                        .iter()
+                        .find(|pkg| package_matches(pkg, dep))
+                        .unwrap_or_else(|| {
+                            eprintln!("*** error: invalid dependency name: `{}`", dep);
+                            exit(1);
+                        });
+                    tree.nodes()[&package.into()]
+                })
+                .collect()
+        };
 
-            let index = tree.nodes()[&package.into()];
-            tree.render(&mut io::stdout(), index, EdgeDirection::Incoming)
+        self.dependency_tree(&tree, &indices);
+    }
+
+    /// Show dependency tree for the provided dependencies
+    fn dependency_tree(&self, tree: &Tree, indices: &[NodeIndex]) {
+        for (i, index) in indices.iter().enumerate() {
+            if i > 0 {
+                println!();
+            }
+            let direction = if self.inverse {
+                EdgeDirection::Incoming
+            } else {
+                EdgeDirection::Outgoing
+            };
+            tree.render(&mut io::stdout(), *index, direction, self.exact)
                 .unwrap();
         }
     }
