@@ -128,12 +128,17 @@ impl TranslateCmd {
 #[derive(Debug, Options)]
 struct TreeCmd {
     /// Input `Cargo.lock` file
-    #[options(short = "f", help = "input Cargo.lock file to translate")]
+    #[options(
+        short = "f",
+        long = "file",
+        help = "input Cargo.lock file to translate"
+    )]
     file: Option<PathBuf>,
 
     /// Show exact package identities (checksums or specific source versions) when available
     #[options(
         short = "x",
+        long = "exact",
         help = "show exact package identies (checksums or specific source versions) when available"
     )]
     exact: bool,
@@ -141,6 +146,7 @@ struct TreeCmd {
     // Show inverse dependencies rather than forward dependencies
     #[options(
         short = "i",
+        long = "invert",
         help = "show inverse dependencies _on_ a package, rather than forward dependencies _of_ a package"
     )]
     inverse: bool,
@@ -151,7 +157,7 @@ struct TreeCmd {
 }
 
 fn package_matches_name(pkg: &Package, name: &str) -> bool {
-    pkg.name.as_str().contains(name)
+    pkg.name.as_str() == name
 }
 
 fn package_matches_ver(pkg: &Package, ver: &str) -> bool {
@@ -162,13 +168,13 @@ fn package_matches_ver(pkg: &Package, ver: &str) -> bool {
     // Try comparing ver to hashes in either the package checksum or the source
     // precise field
     if let Some(cksum) = &pkg.checksum {
-        if cksum.to_string().contains(ver) {
+        if cksum.to_string() == ver {
             return true;
         }
     }
     if let Some(src) = &pkg.source {
         if let Some(precise) = src.precise() {
-            if precise.contains(ver) {
+            if precise == ver {
                 return true;
             }
         }
