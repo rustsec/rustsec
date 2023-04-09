@@ -15,10 +15,13 @@ use crate::{
     vulnerability::Vulnerability,
     Lockfile,
 };
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-#[cfg(feature = "git")]
-use crate::repository::git;
+/// Directory under `~/.cargo` where the advisory-db repo will be kept
+const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
+
+/// The default URL from which the DB is downloaded
+const DEFAULT_DB_URL: &str = "https://github.com/zip-rs/zip/archive/refs/heads/master.zip";
 
 /// Iterator over entries in the database
 pub type Iter<'a> = std::slice::Iter<'a, Advisory>;
@@ -34,10 +37,6 @@ pub struct Database {
 
     /// Index of third party crates
     crate_index: Index,
-
-    /// Information about the last git commit to the database
-    #[cfg(feature = "git")]
-    latest_commit: Option<git::Commit>,
 }
 
 impl Database {
@@ -89,23 +88,20 @@ impl Database {
             advisories,
             crate_index,
             rust_index,
-            #[cfg(feature = "git")]
-            latest_commit: None,
         })
     }
 
-    /// Load [`Database`] from the given [`git::Repository`]
-    #[cfg(feature = "git")]
-    pub fn load_from_repo(repo: &git::Repository) -> Result<Self, Error> {
-        let mut db = Self::open(repo.path())?;
-        db.latest_commit = Some(repo.latest_commit()?);
+    /// Load [`Database`] from the given directory
+    pub fn load_from_dir(path: &Path) -> Result<Self, Error> {
+        let db = Self::open(path)?;
         Ok(db)
     }
 
     /// Fetch the default advisory database from GitHub
-    #[cfg(feature = "git")]
     pub fn fetch() -> Result<Self, Error> {
-        git::Repository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
+        let local_dir = Database::default_path();
+        crate::fetch::fetch(DEFAULT_DB_URL, &local_dir)?;
+        Self::load_from_dir(&local_dir)
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
@@ -164,10 +160,13 @@ impl Database {
         self.advisories.iter()
     }
 
-    /// Get information about the latest commit to the repo
-    #[cfg(feature = "git")]
-    pub fn latest_commit(&self) -> Option<&git::Commit> {
-        self.latest_commit.as_ref()
+    /// Location of the default `advisory-db` repository for crates.io
+    pub fn default_path() -> PathBuf {
+        home::cargo_home()
+            .unwrap_or_else(|err| {
+                panic!("Error locating Cargo home directory: {}", err);
+            })
+            .join(ADVISORY_DB_DIRECTORY)
     }
 }
 

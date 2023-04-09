@@ -5,12 +5,8 @@ use once_cell::sync::Lazy;
 use rustsec::{database::Query, repository::git::Repository, Database};
 use std::{path::Path, sync::Mutex};
 
-static DEFAULT_DATABASE: Lazy<Mutex<Database>> = Lazy::new(|| {
-    Mutex::new(
-        Database::load_from_repo(&Repository::fetch_default_repo().unwrap())
-            .expect("Should be fetchable."),
-    )
-});
+static DEFAULT_DATABASE: Lazy<Mutex<Database>> =
+    Lazy::new(|| Mutex::new(Database::fetch().expect("Should be fetchable.")));
 
 #[test]
 fn enumerate_vulnerabilities() {

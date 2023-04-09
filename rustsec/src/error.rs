@@ -164,3 +164,9 @@ impl From<toml::de::Error> for Error {
         format_err!(ErrorKind::Parse, &other)
     }
 }
+
+impl From<ureq::Error> for Error {
+    fn from(other: ureq::Error) -> Self {
+        format_err!(ErrorKind::Io, &other)
+    }
+}
