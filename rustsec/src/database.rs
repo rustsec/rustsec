@@ -14,9 +14,11 @@ use crate::{
     fs,
     vulnerability::Vulnerability,
     Lockfile,
+    package::Package,
 };
 use std::path::Path;
-
+use petgraph::visit::Dfs;
+use cargo_lock::dependency;
 #[cfg(feature = "git")]
 use crate::repository::git;
 
@@ -141,8 +143,17 @@ impl Database {
     pub fn query_vulnerabilities(&self, lockfile: &Lockfile, query: &Query) -> Vec<Vulnerability> {
         let mut vulns = vec![];
 
+        let tree = lockfile
+            .dependency_tree()
+            .expect("invalid Cargo.lock dependency tree");
+
         for package in &lockfile.packages {
+
             let advisories = self.query(&query.clone().package(package));
+
+            if advisories.is_empty() || !dfs(query.target_package.as_ref(), package, &tree) {
+                continue
+            }
 
             vulns.extend(
                 advisories
@@ -150,7 +161,7 @@ impl Database {
                     .map(|advisory| Vulnerability::new(advisory, package)),
             );
         }
-
+eprintln!("Vulns length {:#?}", vulns.len()); // TODO Daniel: Remove debugging
         vulns
     }
 
@@ -178,5 +189,27 @@ impl IntoIterator for Database {
 
     fn into_iter(self) -> Self::IntoIter {
         self.advisories.into_iter()
+    }
+}
+
+/// Performs a depth first search of a dependency tree, from the target package, for the vulnerable package.
+pub fn dfs(target:Option<&Package>, vulnerability:&Package, tree:&dependency::Tree) -> bool {
+    match target {
+        | None => true, // If there is no target, no filter required
+        | Some(target) if target == vulnerability => true,
+        | Some(target) => {
+
+            let graph = tree.graph();
+            let target_node = tree.nodes()[&dependency::Dependency::from(target)];
+            let mut dfs = Dfs::new(&graph, target_node);
+            
+            while let Some(node) = dfs.next(&graph) {
+                if graph[node] == *vulnerability {
+eprintln!("Found {:#?} {:#?}", vulnerability.name.as_str(), vulnerability.version.to_string()); // TODO Daniel: Remove debugging
+                    return true;
+                };
+            }
+            false
+        }
     }
 }

@@ -49,7 +49,7 @@ impl AuditConfig {
             severity: self.advisories.severity_threshold,
             target_arch: self.target.arch,
             target_os: self.target.os,
-            target_package_name: self.target_package_name.clone(),
+            target_package: rustsec::report::TargetPackageInfo::new(self.target_package_name.clone()),
             ..Default::default()
         };
 

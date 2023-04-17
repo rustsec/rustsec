@@ -33,6 +33,9 @@ pub struct Query {
     /// Target operating system
     target_os: Option<OS>,
 
+    /// Target package // TODO: Daniel
+    pub target_package: Option<Package>,
+
     /// Year associated with the advisory ID
     year: Option<u32>,
 
@@ -64,6 +67,7 @@ impl Query {
             severity: None,
             target_arch: None,
             target_os: None,
+            target_package: None,
             year: None,
             withdrawn: None,
             informational: None,
@@ -133,6 +137,12 @@ impl Query {
     /// Set target operating system
     pub fn target_os(mut self, os: OS) -> Self {
         self.target_os = Some(os);
+        self
+    }
+
+    /// TODO Daniel: Finish this 
+    pub fn target_package(mut self, package: Package) -> Self {
+        self.target_package = Some(package);
         self
     }
 

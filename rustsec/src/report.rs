@@ -14,8 +14,6 @@ use crate::{
     package::Name,
     package::Package,
 };
-use petgraph::visit::Dfs;
-use cargo_lock::dependency;
 use serde::{Deserialize, Serialize};
 
 #[cfg(feature = "git")]
@@ -43,16 +41,15 @@ pub struct Report {
 }
 
 impl Report {
-    /// Generate a report for the given advisory database and lockfile, optional narrowing of subgraph from target package
-    pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings, tree:&dependency::Tree, target:Option<&Package>) -> Self {
+    /// Generate a report for the given advisory database and lockfile
+    pub fn generate(db: &Database, lockfile: &Lockfile, settings: &Settings) -> Self {
         let vulnerabilities = db
             .query_vulnerabilities(lockfile, &settings.query())
             .into_iter()
             .filter(|vuln| !settings.ignore.contains(&vuln.advisory.id))
-            .filter(|vuln| dfs(target, &vuln.package, &tree))
             .collect();
 
-        let warnings = find_warnings(db, lockfile, settings, tree, target);
+        let warnings = find_warnings(db, lockfile, settings);
 
         Self {
             #[cfg(feature = "git")]
@@ -84,7 +81,7 @@ pub struct Settings {
     pub informational_warnings: Vec<advisory::Informational>,
 
     /// Name of a target package to restrict output for
-    pub target_package_name: Option<Name>,
+    pub target_package: TargetPackageInfo,
 }
 
 impl Settings {
@@ -104,6 +101,10 @@ impl Settings {
 
         if let Some(severity) = self.severity {
             query = query.severity(severity);
+        }
+
+        if let Some(target_package) = self.target_package.package.clone() {
+            query = query.target_package(target_package)
         }
 
         query
@@ -184,8 +185,8 @@ impl VulnerabilityInfo {
 /// Information about warnings
 pub type WarningInfo = Map<warning::WarningKind, Vec<Warning>>;
 
-/// Find warnings from the given advisory [`Database`] and [`Lockfile`], optional narrowing of subgraph from target package
-pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings, tree: &dependency::Tree, target_package:Option<&Package>) -> WarningInfo {
+/// Find warnings from the given advisory [`Database`] and [`Lockfile`]
+pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) -> WarningInfo {
     let query = settings.query().informational(true);
 
     let mut warnings = WarningInfo::default();
@@ -213,10 +214,6 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings, tr
                 None => continue,
             };
 
-            if !dfs(target_package, &advisory_vuln.package, tree) {
-                continue
-            }
-
             let warning = Warning::new(
                 warning_kind,
                 &advisory_vuln.package,
@@ -236,23 +233,22 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings, tr
     warnings
 }
 
-/// Performs a depth first search of a dependency tree, from the target package, for the vulnerable package.
-pub fn dfs(target:Option<&Package>, vulnerability:&Package, tree:&dependency::Tree) -> bool {
-    match target {
-        | None => true, // If there is no target, no filter required
-        | Some(target) if target == vulnerability => true,
-        | Some(target) => {
-            
-            let graph = tree.graph();
-            let target_node = tree.nodes()[&dependency::Dependency::from(target)];
-            let mut dfs = Dfs::new(&graph, target_node);
-            
-            while let Some(node) = dfs.next(&graph) {
-                if graph[node] == *vulnerability {
-                    return true;
-                };
-            }
-            false
+/// TODO Daniel: Fill this out
+#[derive(Clone, Deserialize, Serialize, Debug, Default)]
+pub struct TargetPackageInfo {
+    /// The name of the target package // TODO Daniel: improve comments
+    pub name: Option<Name>,
+
+    /// The target package
+    pub package: Option<Package>
+}
+
+impl TargetPackageInfo {
+    /// TODO Daniel: Finish this
+    pub fn new(name: Option<Name>) -> Self {
+        Self {
+            name,
+            package: None
         }
-    }
+    } 
 }

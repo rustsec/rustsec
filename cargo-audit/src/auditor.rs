@@ -10,7 +10,6 @@ use std::{
     process::exit,
 };
 use rustsec::package::Package;
-use cargo_lock::dependency;
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
@@ -219,7 +218,7 @@ impl Auditor {
         #[allow(unused_variables)] // May be unused when the "binary-scanning" feature is disabled
         binary_format: Option<BinaryFormat>,
     ) -> rustsec::Result<rustsec::Report> {
-        let target_package = match &self.report_settings.target_package_name {
+        self.report_settings.target_package.package = match &self.report_settings.target_package.name {
             | None => None,
             | Some(target_package_name) => {
                 let target_packages:Vec<&Package> = lockfile.packages
@@ -229,17 +228,13 @@ impl Auditor {
                 
                 match target_packages.len() {
                     | 0 => None,
-                    | 1 => Some(target_packages[0]),
+                    | 1 => Some(target_packages[0].clone()),
                     | _ => {eprintln!("TODO Daniel: Need to handle case where mutiple packages are returned"); None},
                 }
             }
         };
-        
-        let tree = lockfile
-            .dependency_tree()
-            .expect("invalid Cargo.lock dependency tree");
 
-        let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings, &tree, target_package);
+        let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         #[cfg(feature = "binary-scanning")]
         if let Some(format) = binary_format {
@@ -248,7 +243,7 @@ impl Auditor {
         }
 
         // Warn for yanked crates
-        let mut yanked = self.check_for_yanked_crates(lockfile, &tree, target_package);
+        let mut yanked = self.check_for_yanked_crates(lockfile);
 
         if !yanked.is_empty() {
             report
@@ -263,13 +258,14 @@ impl Auditor {
         Ok(report)
     }
 
-    fn check_for_yanked_crates(&mut self, lockfile: &Lockfile, tree:&dependency::Tree, target: Option<&Package>) -> Vec<Warning> {
+    fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
+        let tree = lockfile
+            .dependency_tree()
+            .expect("invalid Cargo.lock dependency tree");
+
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
             for pkg in &lockfile.packages {
-                if !report::dfs(target, pkg, tree) {
-                    continue
-                }
 
                 if let Some(source) = &pkg.source {
                     // only check for yanking if the package comes from crates.io
@@ -277,6 +273,10 @@ impl Auditor {
                         match index.is_yanked(pkg) {
                             Ok(false) => (),
                             Ok(true) => {
+                                if !rustsec::database::dfs(self.report_settings.target_package.package.as_ref(), pkg, &tree) {
+                                    continue
+                                }
+
                                 let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
                                 result.push(warning);
                             }
@@ -290,6 +290,7 @@ impl Auditor {
                 }
             }
         }
+eprintln!("Yanked length {:#?}", result.len()); // TODO Daniel: Remove debugging
         result
     }
 
