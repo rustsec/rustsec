@@ -185,7 +185,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57ba7d807ad2850c436750154dbc442eb8611527deb6dfcc4e5e0bd10d5fbf28"
 dependencies = [
- "cargo-lock 8.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 8.0.3",
  "semver",
  "serde",
  "serde_json",
@@ -281,7 +281,7 @@ dependencies = [
  "auditable-info",
  "auditable-serde",
  "binfarce",
- "cargo-lock 8.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 8.0.3",
  "clap",
  "home",
  "once_cell",
@@ -328,18 +328,6 @@ dependencies = [
 [[package]]
 name = "cargo-lock"
 version = "8.0.3"
-dependencies = [
- "gumdrop",
- "petgraph",
- "semver",
- "serde",
- "toml 0.7.2",
- "url",
-]
-
-[[package]]
-name = "cargo-lock"
-version = "8.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "031718ddb8f78aa5def78a09e90defe30151d1f6c672f937af4dd916429ed996"
 dependencies = [
@@ -347,6 +335,18 @@ dependencies = [
  "semver",
  "serde",
  "toml 0.5.11",
+ "url",
+]
+
+[[package]]
+name = "cargo-lock"
+version = "9.0.0"
+dependencies = [
+ "gumdrop",
+ "petgraph",
+ "semver",
+ "serde",
+ "toml 0.7.2",
  "url",
 ]
 
@@ -1706,7 +1706,7 @@ name = "rustsec"
 version = "0.26.5"
 dependencies = [
  "cargo-edit-9",
- "cargo-lock 8.0.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "cargo-lock 8.0.3",
  "crates-index",
  "cvss",
  "fs-err",
