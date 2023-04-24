@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 9.0.0 (2023-04-24)
+### Added
+- Implement `From<Name>` for `String` ([#776])
+- Support sparse registry references in `Lockfile`s ([#780])
+
+### Changed
+- Mark `SourceKind` as `#[non_exhaustive]` ([#793])
+- Use `Display` for `io::ErrorKind`; MSRV 1.60 ([#794])
+- Bump `toml` to 0.7 ([#800], [#805])
+- Improvements to the `cargo lock tree` subcommand ([#860])
+
+### Fixed
+- `Source::is_default_registry` for sparse index ([#859])
+
+[#776]: https://github.com/RustSec/rustsec/pull/776
+[#780]: https://github.com/RustSec/rustsec/pull/780
+[#793]: https://github.com/RustSec/rustsec/pull/793
+[#794]: https://github.com/RustSec/rustsec/pull/794
+[#800]: https://github.com/RustSec/rustsec/pull/800
+[#805]: https://github.com/RustSec/rustsec/pull/805
+[#859]: https://github.com/RustSec/rustsec/pull/859
+[#860]: https://github.com/RustSec/rustsec/pull/860
+
 ## 8.0.3 (2022-11-30)
 ### Fixed
 - Encoding inconsistency when there's only one registry for all packages ([#767])
