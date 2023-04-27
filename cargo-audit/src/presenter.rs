@@ -355,7 +355,12 @@ impl Presenter {
             .unwrap();
 
         let package_node = tree.nodes()[&Dependency::from(package)];
-        tree.render(&mut io::stdout(), package_node, EdgeDirection::Incoming)
-            .unwrap();
+        tree.render(
+            &mut io::stdout(),
+            package_node,
+            EdgeDirection::Incoming,
+            false,
+        )
+        .unwrap();
     }
 }
