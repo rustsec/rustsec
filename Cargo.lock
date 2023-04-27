@@ -169,9 +169,9 @@ dependencies = [
 
 [[package]]
 name = "auditable-info"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "158d56117c834b6e90edbe4c5b5caaefff0996eebe8b952108a0a491330344ee"
+checksum = "e563c9e31a71d1a6f2ab7a5a168cdb0d387f59bde891aac5957b9ebaaf03f602"
 dependencies = [
  "auditable-extract",
  "auditable-serde",
@@ -181,11 +181,11 @@ dependencies = [
 
 [[package]]
 name = "auditable-serde"
-version = "0.5.2"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57ba7d807ad2850c436750154dbc442eb8611527deb6dfcc4e5e0bd10d5fbf28"
+checksum = "b23f8f6711ddeb1c2a163edc94dff5d7c805ca484d33e3464e779741805790c0"
 dependencies = [
- "cargo-lock 8.0.3",
+ "cargo-lock",
  "semver",
  "serde",
  "serde_json",
@@ -281,7 +281,7 @@ dependencies = [
  "auditable-info",
  "auditable-serde",
  "binfarce",
- "cargo-lock 8.0.3",
+ "cargo-lock",
  "clap",
  "home",
  "once_cell",
@@ -322,19 +322,6 @@ dependencies = [
  "termcolor",
  "toml_edit 0.13.4",
  "ureq",
- "url",
-]
-
-[[package]]
-name = "cargo-lock"
-version = "8.0.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "031718ddb8f78aa5def78a09e90defe30151d1f6c672f937af4dd916429ed996"
-dependencies = [
- "petgraph",
- "semver",
- "serde",
- "toml 0.5.11",
  "url",
 ]
 
@@ -1697,7 +1684,7 @@ name = "rustsec"
 version = "0.26.5"
 dependencies = [
  "cargo-edit-9",
- "cargo-lock 8.0.3",
+ "cargo-lock",
  "crates-index",
  "cvss",
  "fs-err",
