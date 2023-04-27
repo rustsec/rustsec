@@ -13,10 +13,10 @@ edition      = "2021"
 rust-version = "1.60"
 
 [dependencies]
-cargo-lock = { version = "8", default-features = false }
-cvss = { version = "2", features = ["serde"], path = "../cvss" }
+cargo-lock = { version = "9", default-features = false }
+cvss = { version = "2", features = ["serde"] }
 fs-err = "2.9"
-platforms = { version = "3", features = ["serde"], path = "../platforms" }
+platforms = { version = "3", features = ["serde"] }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
 thiserror = "1"
