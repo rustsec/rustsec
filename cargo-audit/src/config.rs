@@ -4,10 +4,13 @@ use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
     report, Error, ErrorKind, WarningKind,
-    package::Name,
+    target_info::TargetPackageInfo,
 };
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, str::FromStr};
+use crate::lockfile;
+// use semver::Version;
+// use url::Url;
 
 /// `cargo audit` configuration:
 ///
@@ -36,9 +39,13 @@ pub struct AuditConfig {
     #[serde(default)]
     pub yanked: YankedConfig,
 
-    /// Name of target package to restrict output for 
+    /// Identifiers of target package to restrict output for
     #[serde(default)]
-    pub target_package_name: Option<Name>,
+    pub target_package_ids: Option<String>,
+
+    /// The parsed identifiers of a target package
+    #[serde(default)]
+    pub target_package_spec: Option<lockfile::PackageIdSpec>,
 }
 
 impl AuditConfig {
@@ -49,7 +56,10 @@ impl AuditConfig {
             severity: self.advisories.severity_threshold,
             target_arch: self.target.arch,
             target_os: self.target.os,
-            target_package: rustsec::report::TargetPackageInfo::new(self.target_package_name.clone()),
+            target_package_info: match self.target_package_spec.clone() {
+                | None => None,
+                | Some(spec) =>  Some(TargetPackageInfo::new(spec.name, spec.version, spec.url, self.target_package_ids.clone().unwrap())),
+            },
             ..Default::default()
         };
 

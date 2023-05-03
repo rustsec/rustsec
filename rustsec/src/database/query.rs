@@ -140,7 +140,7 @@ impl Query {
         self
     }
 
-    /// TODO Daniel: Finish this 
+    /// Set the target package
     pub fn target_package(mut self, package: Package) -> Self {
         self.target_package = Some(package);
         self

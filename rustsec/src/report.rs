@@ -11,8 +11,7 @@ use crate::{
     vulnerability::Vulnerability,
     warning::{self, Warning},
     Lockfile, Map,
-    package::Name,
-    package::Package,
+    target_info::TargetPackageInfo,
 };
 use serde::{Deserialize, Serialize};
 
@@ -81,7 +80,7 @@ pub struct Settings {
     pub informational_warnings: Vec<advisory::Informational>,
 
     /// Name of a target package to restrict output for
-    pub target_package: TargetPackageInfo,
+    pub target_package_info: Option<TargetPackageInfo>,
 }
 
 impl Settings {
@@ -103,8 +102,11 @@ impl Settings {
             query = query.severity(severity);
         }
 
-        if let Some(target_package) = self.target_package.package.clone() {
-            query = query.target_package(target_package)
+        match self.target_package_info.as_ref() {
+            | None => (),
+            | Some(info) => if let Some(target_package) = info.package.clone() {
+                query = query.target_package(target_package)
+            },
         }
 
         query
@@ -231,24 +233,4 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
     }
 
     warnings
-}
-
-/// TODO Daniel: Fill this out
-#[derive(Clone, Deserialize, Serialize, Debug, Default)]
-pub struct TargetPackageInfo {
-    /// The name of the target package // TODO Daniel: improve comments
-    pub name: Option<Name>,
-
-    /// The target package
-    pub package: Option<Package>
-}
-
-impl TargetPackageInfo {
-    /// TODO Daniel: Finish this
-    pub fn new(name: Option<Name>) -> Self {
-        Self {
-            name,
-            package: None
-        }
-    } 
 }

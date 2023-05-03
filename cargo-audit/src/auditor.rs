@@ -9,7 +9,6 @@ use std::{
     path::Path,
     process::exit,
 };
-use rustsec::package::Package;
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
@@ -218,21 +217,12 @@ impl Auditor {
         #[allow(unused_variables)] // May be unused when the "binary-scanning" feature is disabled
         binary_format: Option<BinaryFormat>,
     ) -> rustsec::Result<rustsec::Report> {
-        self.report_settings.target_package.package = match &self.report_settings.target_package.name {
-            | None => None,
-            | Some(target_package_name) => {
-                let target_packages:Vec<&Package> = lockfile.packages
-                    .iter()
-                    .filter(|package| package.name == *target_package_name)
-                    .collect();
-                
-                match target_packages.len() {
-                    | 0 => None,
-                    | 1 => Some(target_packages[0].clone()),
-                    | _ => {eprintln!("TODO Daniel: Need to handle case where mutiple packages are returned"); None},
-                }
-            }
-        };
+        match self.report_settings.target_package_info.as_mut() {
+            | None => (),
+            | Some(info) => {
+                info.package = info.find_target_package(lockfile)?
+            },
+        }
 
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
@@ -244,7 +234,6 @@ impl Auditor {
 
         // Warn for yanked crates
         let mut yanked = self.check_for_yanked_crates(lockfile);
-
         if !yanked.is_empty() {
             report
                 .warnings
@@ -266,15 +255,17 @@ impl Auditor {
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
             for pkg in &lockfile.packages {
-
                 if let Some(source) = &pkg.source {
                     // only check for yanking if the package comes from crates.io
                     if source.is_default_registry() {
                         match index.is_yanked(pkg) {
                             Ok(false) => (),
                             Ok(true) => {
-                                if !rustsec::database::dfs(self.report_settings.target_package.package.as_ref(), pkg, &tree) {
-                                    continue
+                                match self.report_settings.target_package_info.as_ref() {
+                                    | None => (),
+                                    | Some(info) => if !rustsec::database::dfs(info.package.as_ref(), pkg, &tree) {
+                                        continue;
+                                    },
                                 }
 
                                 let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
