@@ -161,7 +161,6 @@ impl Database {
                     .map(|advisory| Vulnerability::new(advisory, package)),
             );
         }
-eprintln!("Vulns length {:#?}", vulns.len()); // TODO Daniel: Remove debugging
         vulns
     }
 
@@ -205,7 +204,6 @@ pub fn dfs(target:Option<&Package>, vulnerability:&Package, tree:&dependency::Tr
             
             while let Some(node) = dfs.next(&graph) {
                 if graph[node] == *vulnerability {
-eprintln!("Found {:#?} {:#?}", vulnerability.name.as_str(), vulnerability.version.to_string()); // TODO Daniel: Remove debugging
                     return true;
                 };
             }

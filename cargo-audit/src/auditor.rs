@@ -281,7 +281,6 @@ impl Auditor {
                 }
             }
         }
-eprintln!("Yanked length {:#?}", result.len()); // TODO Daniel: Remove debugging
         result
     }
 
