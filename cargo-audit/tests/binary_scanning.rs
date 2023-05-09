@@ -12,7 +12,8 @@ use tempfile::TempDir;
 /// Instead use a single DB we tear down on test suite exit.
 static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 
-/// Executes target binary via `cargo run`.
+/// Executes target binary directly.
+/// Invoke the test with `cargo t --all-features` 
 ///
 /// Storing this value in a `once_cell::sync::Lazy` ensures that all
 /// instances of the runner acquire a mutex when executing commands
@@ -20,9 +21,7 @@ static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 /// be multithreaded invocations as `cargo test` executes tests in
 /// parallel by default.
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
-    // reimplement CmdRunner::default but with --all-features flag
-    let mut runner = CmdRunner::new("cargo");
-    runner.args(["run", "--all-features", "--"]);
+    let mut runner = CmdRunner::new(env!("CARGO_BIN_EXE_cargo-audit"));
     runner.exclusive();
     runner.capture_stdout();
     runner.capture_stderr();
