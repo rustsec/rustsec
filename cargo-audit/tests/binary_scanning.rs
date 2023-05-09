@@ -13,7 +13,7 @@ use tempfile::TempDir;
 static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 
 /// Executes target binary directly.
-/// Invoke the test with `cargo t --all-features` 
+/// Invoke the test with `cargo t --all-features`
 ///
 /// Storing this value in a `once_cell::sync::Lazy` ensures that all
 /// instances of the runner acquire a mutex when executing commands
