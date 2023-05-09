@@ -26,9 +26,9 @@ static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 /// be multithreaded invocations as `cargo test` executes tests in
 /// parallel by default.
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
-    let mut runner = CmdRunner::default();
+    let mut runner = CmdRunner::new(env!("CARGO_BIN_EXE_CARGO_AUDIT"));
     runner.arg("audit").arg("--db").arg(ADVISORY_DB_DIR.path());
-    runner.capture_stdout().capture_stderr();
+    runner.exclusive().capture_stdout().capture_stderr();
     runner
 });
 
