@@ -275,7 +275,7 @@ checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 
 [[package]]
 name = "cargo-audit"
-version = "0.17.5"
+version = "0.17.6"
 dependencies = [
  "abscissa_core",
  "auditable-info",
@@ -1693,7 +1693,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.26.5"
+version = "0.27.0"
 dependencies = [
  "cargo-edit-9",
  "cargo-lock",
