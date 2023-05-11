@@ -2605,9 +2605,9 @@ dependencies = [
 
 [[package]]
 name = "xml-rs"
-version = "0.8.4"
+version = "0.8.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2d7d3948613f75c98fd9328cfdcc45acc4d360655289d0a7d4ec931392200a3"
+checksum = "dc95a04ea24f543cd9be5aab44f963fa35589c99e18415c38fb2b17e133bf8d2"
 
 [[package]]
 name = "zeroize"
