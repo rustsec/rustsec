@@ -74,6 +74,27 @@ impl SourceId {
         })
     }
 
+    /// SourceIds with git references used in package.source fields are subtly
+    /// different than those in parenthesized source URLs that appear in disambiguated
+    /// entries of package.dependencies: the former have the form ?rev=ABBREV#FULLHASH
+    /// whereas the latter have the form ?rev=FULLHASH. This method changes the former
+    /// into the latter, and is used in `impl From<&Package> for Dependency`.
+    pub fn normalize_git_source_for_dependency(&self) -> Self {
+        if let SourceKind::Git(GitReference::Rev(_abbrev)) = &self.kind {
+            if let Some(full) = &self.precise {
+                let mut url = self.url.clone();
+                url.set_fragment(None);
+                return Self {
+                    kind: SourceKind::Git(GitReference::Rev(full.clone())),
+                    precise: None,
+                    url,
+                    name: self.name.clone(),
+                };
+            }
+        }
+        self.clone()
+    }
+
     /// Parses a source URL and returns the corresponding ID.
     ///
     /// ## Example

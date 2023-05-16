@@ -53,7 +53,10 @@ impl From<&Package> for Dependency {
         Self {
             name: pkg.name.clone(),
             version: pkg.version.clone(),
-            source: pkg.source.clone(),
+            source: pkg
+                .source
+                .clone()
+                .map(|x| x.normalize_git_source_for_dependency()),
         }
     }
 }
