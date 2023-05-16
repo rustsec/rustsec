@@ -41,6 +41,10 @@ impl Tree {
             for dependency in &package.dependencies {
                 if let Some(node_index) = nodes.get(dependency) {
                     graph.add_edge(parent_index, *node_index, dependency.clone());
+                } else {
+                    return Err(Error::Resolution(format!(
+                        "failed to find dependency: {dependency}"
+                    )));
                 }
             }
         }
