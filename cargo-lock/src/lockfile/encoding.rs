@@ -373,7 +373,10 @@ impl EncodableDependency {
                 return Ok(Dependency {
                     name: pkg.name.clone(),
                     version: pkg.version.clone(),
-                    source: pkg.source.clone(),
+                    source: pkg
+                        .source
+                        .clone()
+                        .map(|x| x.normalize_git_source_for_dependency()),
                 });
             }
         }
@@ -386,7 +389,10 @@ impl EncodableDependency {
         Ok(Dependency {
             name: self.name.clone(),
             version,
-            source: self.source.clone(),
+            source: self
+                .source
+                .clone()
+                .map(|x| x.normalize_git_source_for_dependency()),
         })
     }
 

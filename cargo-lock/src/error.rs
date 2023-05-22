@@ -17,6 +17,9 @@ pub enum Error {
 
     /// Errors related to versions
     Version(semver::Error),
+
+    /// Errors related to graph resolution
+    Resolution(String),
 }
 
 impl fmt::Display for Error {
@@ -25,6 +28,7 @@ impl fmt::Display for Error {
             Error::Io(kind) => write!(f, "I/O operation failed: {}", kind),
             Error::Parse(s) => write!(f, "parse error: {}", s),
             Error::Version(err) => write!(f, "version error: {}", err),
+            Error::Resolution(err) => write!(f, "resolution error: {}", err),
         }
     }
 }
