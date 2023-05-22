@@ -6,7 +6,7 @@ use abscissa_core::error::context::Context;
 use abscissa_core::error::framework::FrameworkErrorKind;
 use abscissa_core::FrameworkError;
 use rustsec::platforms::target::{Arch, OS};
-use crate::lockfile::PackageIdSpec;
+use crate::package_id::PackageIdSpec;
 
 use crate::config::{AuditConfig, DenyOption, OutputFormat};
 

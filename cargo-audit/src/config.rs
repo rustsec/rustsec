@@ -8,7 +8,7 @@ use rustsec::{
 };
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, str::FromStr};
-use crate::lockfile;
+use crate::package_id;
 // use semver::Version;
 // use url::Url;
 
@@ -45,7 +45,7 @@ pub struct AuditConfig {
 
     /// The parsed identifiers of a target package
     #[serde(default)]
-    pub target_package_spec: Option<lockfile::PackageIdSpec>,
+    pub target_package_spec: Option<package_id::PackageIdSpec>,
 }
 
 impl AuditConfig {
