@@ -102,8 +102,8 @@ pub struct Synchronizer {
     /// Number of updated advisories
     updated_advisories: usize,
 
-    /// Number of missing advisories
-    missing_advisories: usize,
+    /// Missing advisories
+    missing_advisories: Vec<OsvAdvisory>,
 }
 
 impl Synchronizer {
@@ -128,7 +128,7 @@ impl Synchronizer {
             advisory_db,
             osv,
             updated_advisories: 0,
-            missing_advisories: 0,
+            missing_advisories: vec![],
         })
     }
 
@@ -138,7 +138,7 @@ impl Synchronizer {
     }
 
     /// Synchronize data
-    pub fn sync(&mut self) -> Result<(usize, usize), Error> {
+    pub fn sync(&mut self) -> Result<(usize, Vec<OsvAdvisory>), Error> {
         // A single OSV advisory could describe a vulnerability affecting several crates
         // (even if GitHub does not produce such advisories currently).
         // Additionally, a single RustSec advisory can cover several OSV advisories
@@ -181,17 +181,8 @@ impl Synchronizer {
             // and is not aliased from RustSec. Let's consider importing it.
             if rs_aliases.is_empty() {
                 for c in affected_crates {
-                    if let Some(crate_) = self.crates_index.crate_(&c) {
-                        // Only a message from now
-                        // TODO: automate new advisory draft
-                        status_info!(
-                            "Info",
-                            "Missing advisory {} ({}) for {} crate",
-                            osv.id(),
-                            osv.published(),
-                            crate_.name(),
-                        );
-                        self.missing_advisories += 1;
+                    if self.crates_index.crate_(&c).is_some() {
+                        self.missing_advisories.push(osv.clone());
                     } else {
                         status_info!(
                             "Info",
@@ -220,9 +211,10 @@ impl Synchronizer {
                     {
                         status_info!(
                             "Info",
-                            "Wrong crate names {:?} in {} advisory, skipping",
+                            "Crate names {:?} in {} advisory not matching existing advisory {}, skipping",
                             affected_crates,
-                            osv.id()
+                            osv.id(),
+                            rs_advisory.id()
                         );
                         continue;
                     }
@@ -231,7 +223,7 @@ impl Synchronizer {
                 }
             }
         }
-        Ok((self.updated_advisories, self.missing_advisories))
+        Ok((self.updated_advisories, self.missing_advisories.clone()))
     }
 
     /// Add missing data to advisory from an external source
