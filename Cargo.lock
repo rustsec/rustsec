@@ -524,15 +524,14 @@ dependencies = [
 
 [[package]]
 name = "crates-index"
-version = "0.19.8"
+version = "0.19.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "514c516c828544009e3b5842dd087a3fa4506d9674e26d0cbfc152f3f2a178c1"
+checksum = "24bc3fa65ce283c2c78b4cad01909d5b29faf51fddee68017a49a5b9e52ebe9f"
 dependencies = [
  "git2",
  "hex",
  "home",
  "memchr",
- "num_cpus",
  "rayon",
  "rustc-hash",
  "semver",
