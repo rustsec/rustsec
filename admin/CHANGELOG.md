@@ -1,3 +1,12 @@
+## 0.8.6 (2023-07-08)
+- Make search on website case-insensitive ([#914])
+- Bump `comrak` to 0.18 ([#855])
+- Bump `atom_syndication` to 0.12 ([#777])
+
+[#914]: https://github.com/rustsec/rustsec/pull/914
+[#855]: https://github.com/rustsec/rustsec/pull/855
+[#777]: https://github.com/rustsec/rustsec/pull/777
+
 ## 0.8.5 (2023-01-11)
 - Escape search term to prevent reflected XSS ([#787])
 - Add a CI check to ensure the website builds correctly ([#787])
