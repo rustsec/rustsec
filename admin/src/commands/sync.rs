@@ -23,6 +23,8 @@ pub struct SyncCmd {
     // Downloaded with:
     //
     // gsutil cp gs://osv-vulnerabilities/crates.io/all.zip .
+    // or
+    // wget https://osv-vulnerabilities.storage.googleapis.com/crates.io/all.zip
     #[clap(
         long = "osv",
         help = "filesystem path to the OSV crates.io data export"

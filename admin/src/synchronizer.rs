@@ -50,6 +50,8 @@
 //!
 //! ```shell
 //! gsutil cp gs://osv-vulnerabilities/crates.io/all.zip .
+//! # or
+//! curl -o advisories.zip https://osv-vulnerabilities.storage.googleapis.com/crates.io/all.zip
 //! ```
 //!
 //! ## Sync process
