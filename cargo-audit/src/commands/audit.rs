@@ -127,6 +127,14 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[clap(long = "json", help = "Output report in JSON format")]
     output_json: bool,
+
+    /// Specifies a target package to restrict output
+    #[clap(
+        short = 't',
+        long = "target-package",
+        help = "Restricts output to dependencies of a target package. WARN: Will supress other vulnerabilities and warnings"
+    )]
+    target_package_ids: Option<String>,
 }
 
 /// Subcommands of `cargo audit`
@@ -183,6 +191,7 @@ impl From<AuditCommand> for CliConfig {
             url: c.url,
             quiet: c.quiet,
             output_json: c.output_json,
+            target_package_ids: c.target_package_ids,
         }
     }
 }

@@ -107,6 +107,14 @@ pub struct BinCommand {
         help = "Paths to the binaries to be scanned"
     )]
     binary_paths: Vec<PathBuf>,
+
+    /// Specifies a target package to restrict output
+    #[clap(
+        short = 't',
+        long = "target-package",
+        help = "Restricts output to dependencies of a target package. WARN: Will supress other vulnerabilities and warnings"
+    )]
+    target_package_ids: Option<String>,
 }
 
 impl Runnable for BinCommand {
@@ -136,6 +144,7 @@ impl From<BinCommand> for CliConfig {
             url: c.url,
             quiet: c.quiet,
             output_json: c.output_json,
+            target_package_ids: c.target_package_ids,
         }
     }
 }

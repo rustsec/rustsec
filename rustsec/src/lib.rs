@@ -25,6 +25,7 @@ mod cached_index;
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 pub mod registry;
+pub mod target_info;
 
 pub use cargo_lock::{self, package, Lockfile, SourceId};
 pub use fs_err as fs;

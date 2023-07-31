@@ -11,6 +11,7 @@ use crate::{
     vulnerability::Vulnerability,
     warning::{self, Warning},
     Lockfile, Map,
+    target_info::TargetPackageInfo,
 };
 use serde::{Deserialize, Serialize};
 
@@ -77,6 +78,9 @@ pub struct Settings {
 
     /// Types of informational advisories to generate warnings for
     pub informational_warnings: Vec<advisory::Informational>,
+
+    /// Name of a target package to restrict output for
+    pub target_package_info: Option<TargetPackageInfo>,
 }
 
 impl Settings {
@@ -96,6 +100,13 @@ impl Settings {
 
         if let Some(severity) = self.severity {
             query = query.severity(severity);
+        }
+
+        match self.target_package_info.as_ref() {
+            | None => (),
+            | Some(info) => if let Some(target_package) = info.package.clone() {
+                query = query.target_package(target_package)
+            },
         }
 
         query

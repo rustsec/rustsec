@@ -6,6 +6,7 @@ use abscissa_core::error::context::Context;
 use abscissa_core::error::framework::FrameworkErrorKind;
 use abscissa_core::FrameworkError;
 use rustsec::platforms::target::{Arch, OS};
+use crate::package_id::PackageIdSpec;
 
 use crate::config::{AuditConfig, DenyOption, OutputFormat};
 
@@ -43,6 +44,9 @@ pub struct CliConfig {
 
     /// Output reports as JSON
     pub output_json: bool,
+
+    /// Name of target package to restrict output for
+    pub target_package_ids: Option<String>
 }
 
 // we cannot `impl Override<AuditConfig>` because this struct does not implement `abscissa::Command`
@@ -88,6 +92,13 @@ impl CliConfig {
 
         if self.output_json {
             config.output.format = OutputFormat::Json;
+        }
+
+        if let Some(target_package_ids) = &self.target_package_ids {
+            config.target_package_ids = Some(target_package_ids.clone());
+
+            config.target_package_spec = Some(PackageIdSpec::parse(target_package_ids.as_str())
+                                    .map_err(|e| Context::new(FrameworkErrorKind::ParseError, Some(Box::new(e))))?);
         }
 
         Ok(config)
