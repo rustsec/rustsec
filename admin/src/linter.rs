@@ -4,7 +4,7 @@ use crate::{
     error::{Error, ErrorKind},
     prelude::*,
 };
-use crates_index::Index;
+use crates_index::GitIndex;
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -21,7 +21,7 @@ pub struct Linter {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: Index,
+    crates_index: GitIndex,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -40,7 +40,7 @@ impl Linter {
         skip_namecheck: Option<String>,
     ) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let mut crates_index = crates_index::Index::new_cargo_default()?;
+        let mut crates_index = GitIndex::new_cargo_default()?;
         crates_index.update()?;
         let advisory_db = rustsec::Database::open(&repo_path)?;
 

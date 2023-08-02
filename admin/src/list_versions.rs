@@ -2,7 +2,7 @@
 
 use std::path::PathBuf;
 
-use crates_index::Index;
+use crates_index::GitIndex;
 use rustsec::{Advisory, Database};
 
 use crate::{error::Error, prelude::*};
@@ -10,7 +10,7 @@ use crate::{error::Error, prelude::*};
 /// Lists all versions for a crate and prints info on which ones are affected
 pub struct AffectedVersionLister {
     /// Loaded crates.io index
-    crates_index: Index,
+    crates_index: GitIndex,
 
     /// Loaded Advisory DB
     advisory_db: Database,
@@ -20,7 +20,7 @@ impl AffectedVersionLister {
     /// Load the the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let mut crates_index = crates_index::Index::new_cargo_default()?;
+        let mut crates_index = GitIndex::new_cargo_default()?;
         crates_index.update()?;
         let advisory_db = Database::open(&repo_path)?;
         Ok(Self {
