@@ -9,12 +9,12 @@ use crate::{
 pub use crate::cached_index::CachedIndex;
 
 /// Crates.io registry index (local copy)
-pub struct Index(crates_index::Index);
+pub struct Index(crates_index::GitIndex);
 
 impl Index {
     /// Open the local crates.io index, updating it.
     pub fn fetch() -> Result<Self, Error> {
-        let mut index = crates_index::Index::new_cargo_default()?;
+        let mut index = crates_index::GitIndex::new_cargo_default()?;
         index.update()?;
 
         Ok(Index(index))
@@ -22,7 +22,7 @@ impl Index {
 
     /// Open the local crates.io index
     pub fn open() -> Result<Self, Error> {
-        let index = crates_index::Index::new_cargo_default()?;
+        let index = crates_index::GitIndex::new_cargo_default()?;
 
         Ok(Index(index))
     }

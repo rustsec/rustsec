@@ -2654,7 +2654,7 @@ version = "0.27.0"
 dependencies = [
  "cargo-edit-9",
  "cargo-lock",
- "crates-index 0.19.13",
+ "crates-index 2.0.0",
  "cvss",
  "fs-err",
  "git2",

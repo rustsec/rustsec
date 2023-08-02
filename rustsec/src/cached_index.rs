@@ -15,7 +15,7 @@ use crate::{
 /// when auditing a single `Cargo.lock` file because the same crate rarely appears multiple times,
 /// but makes a huge difference when auditing many `Cargo.lock`s or many binaries.
 pub struct CachedIndex {
-    index: crates_index::Index,
+    index: crates_index::GitIndex,
     /// The inner hash map is logically HashMap<Version, IsYanked>
     /// but we don't parse semver because crates.io registry contains invalid semver:
     /// <https://github.com/rustsec/rustsec/issues/759>
@@ -26,7 +26,7 @@ pub struct CachedIndex {
 impl CachedIndex {
     /// Open the local crates.io index, updating it.
     pub fn fetch() -> Result<Self, Error> {
-        let mut index = crates_index::Index::new_cargo_default()?;
+        let mut index = crates_index::GitIndex::new_cargo_default()?;
         index.update()?;
 
         Ok(CachedIndex {
@@ -37,7 +37,7 @@ impl CachedIndex {
 
     /// Open the local crates.io index
     pub fn open() -> Result<Self, Error> {
-        let index = crates_index::Index::new_cargo_default()?;
+        let index = crates_index::GitIndex::new_cargo_default()?;
         Ok(CachedIndex {
             index,
             cache: Default::default(),
