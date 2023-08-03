@@ -111,7 +111,7 @@ impl CachedIndex {
     }
 
     /// Load all version of the given crate from the crates.io index and put them into the cache
-    fn populate_cache(&mut self, package: &package::Name) -> Result<(), Error> {
+    pub fn populate_cache(&mut self, package: &package::Name) -> Result<(), Error> {
         let crate_releases = self.index.krate(package)?.ok_or_else(|| {
             format_err!(
                 ErrorKind::NotFound,
