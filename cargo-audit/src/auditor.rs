@@ -243,12 +243,18 @@ impl Auditor {
     fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
-            index.populate_cache(lockfile.packages.iter().filter_map(|pkg| {
-                pkg.source
-                    .filter(|s| s.is_default_registry())
-                    .map(|_s| &pkg.name)
-                    .collect()
-            }));
+            index.populate_cache(
+                lockfile
+                    .packages
+                    .iter()
+                    .filter_map(|pkg| {
+                        pkg.source
+                            .as_ref()
+                            .filter(|s| s.is_default_registry())
+                            .map(|_s| &pkg.name)
+                    })
+                    .collect(),
+            );
             for pkg in &lockfile.packages {
                 if let Some(source) = &pkg.source {
                     // only check for yanking if the package comes from crates.io
