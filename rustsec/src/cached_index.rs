@@ -110,8 +110,47 @@ impl CachedIndex {
         })
     }
 
+    /// Populates the cache entries for all of the specified crates
+    ///
+    /// This method is preferable to doing invidual updates via `cache_insert`/`is_yanked`
+    pub fn populate_cache(&mut self, packages: std::collections::BTreeSet<&package::Name>) {
+        match &self.index {
+            Index::Git(_) | Index::SparseCached(_) => {
+                for pkg in packages {
+                    let Some(ik) = self.index.krate(pkg).ok().flatten() else { continue; };
+                    self.insert(pkg, ik);
+                }
+            }
+            Index::SparseRemote(rsi) => {
+                use rayon::prelude::*;
+                let index_krates: Vec<_> = packages
+                    .into_par_iter()
+                    .filter_map(|pkg| {
+                        let name = pkg.as_str().try_into().ok()?;
+                        rsi.krate(name, true).ok().flatten().map(|ik| (pkg, ik))
+                    })
+                    .collect();
+
+                for (pkg, ik) in index_krates {
+                    self.insert(pkg, ik);
+                }
+            }
+        }
+    }
+
+    #[inline]
+    fn insert(&mut self, package: &package::Name, index_krate: tame_index::IndexKrate) {
+        let versions: HashMap<String, bool> = index_krate
+            .versions
+            .into_iter()
+            .map(|v| (v.version.to_string(), v.is_yanked()))
+            .collect();
+
+        self.cache.insert(package.to_owned(), versions);
+    }
+
     /// Load all version of the given crate from the crates.io index and put them into the cache
-    pub fn populate_cache(&mut self, package: &package::Name) -> Result<(), Error> {
+    pub fn cache_insert(&mut self, package: &package::Name) -> Result<(), Error> {
         let crate_releases = self.index.krate(package)?.ok_or_else(|| {
             format_err!(
                 ErrorKind::NotFound,
@@ -120,12 +159,7 @@ impl CachedIndex {
         })?;
 
         // We already loaded the full crate information, so populate all the versions in the cache
-        let versions: HashMap<String, bool> = crate_releases
-            .versions
-            .iter()
-            .map(|v| (v.version.to_string(), v.is_yanked()))
-            .collect();
-        self.cache.insert(package.to_owned(), versions);
+        self.insert(package, crate_releases);
         Ok(())
     }
 
@@ -133,7 +167,7 @@ impl CachedIndex {
     pub fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
         let crate_is_cached = { self.cache.contains_key(&package.name) };
         if !crate_is_cached {
-            self.populate_cache(&package.name)?
+            self.cache_insert(&package.name)?
         };
         match &self.cache[&package.name].get(&package.version.to_string()) {
             Some(is_yanked) => Ok(**is_yanked),
