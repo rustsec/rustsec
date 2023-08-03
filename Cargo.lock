@@ -2993,6 +2993,7 @@ dependencies = [
  "humantime-serde",
  "once_cell",
  "platforms",
+ "rayon",
  "semver",
  "serde",
  "tame-index",
