@@ -86,7 +86,7 @@ impl Auditor {
                     status_ok!("Updating", "crates.io index");
                 }
 
-                match registry::CachedIndex::fetch() {
+                match registry::CachedIndex::fetch(None) {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
