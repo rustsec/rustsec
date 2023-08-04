@@ -243,7 +243,7 @@ impl Auditor {
     fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
-            index.populate_cache(
+            if let Err(err) = index.populate_cache(
                 lockfile
                     .packages
                     .iter()
@@ -254,7 +254,10 @@ impl Auditor {
                             .map(|_s| &pkg.name)
                     })
                     .collect(),
-            );
+            ) {
+                status_err!("failed to execute populate_cache, index metadata may be missing or stale when checking for yanked packages: {}", err);
+            }
+
             for pkg in &lockfile.packages {
                 if let Some(source) = &pkg.source {
                     // only check for yanking if the package comes from crates.io

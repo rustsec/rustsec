@@ -1092,9 +1092,9 @@ dependencies = [
 
 [[package]]
 name = "gix"
-version = "0.50.1"
+version = "0.51.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "275b1bfa0d6f6ed31a2e2e878a4539f4994eac8840546283ab3aebbd8fcaa42d"
+checksum = "4ce5c049b1afcae9bb9e10c0f6dd8eb1335e8647fb7fd34732a66133ca3b9886"
 dependencies = [
  "gix-actor",
  "gix-attributes",
@@ -1574,9 +1574,9 @@ dependencies = [
 
 [[package]]
 name = "gix-protocol"
-version = "0.36.1"
+version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f8cf8b48ad5510a6ea3c8b529f51fd0f31009a2e46579f3a0ed917669035170"
+checksum = "53c7627b8c54349b93f2a89218effc7c13a5506d2abc2571e0baaf1562a9c105"
 dependencies = [
  "bstr",
  "btoi",
@@ -2993,7 +2993,6 @@ dependencies = [
  "humantime-serde",
  "once_cell",
  "platforms",
- "rayon",
  "semver",
  "serde",
  "tame-index",
@@ -3332,21 +3331,24 @@ dependencies = [
 
 [[package]]
 name = "tame-index"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68a565c68400993b0cc901a04616cd08a3603c1ef389eedc2aa3ad683684b716"
+checksum = "74c219e9d0a7bd2fae6ba89e831858e114f6e46b8e699fcb8c4f2d16bbfbfddd"
 dependencies = [
  "camino",
+ "crossbeam-channel",
  "gix",
  "home",
  "http",
  "memchr",
+ "rayon",
  "reqwest",
  "semver",
  "serde",
  "serde_json",
  "smol_str",
  "thiserror",
+ "tokio",
  "toml 0.7.5",
  "twox-hash",
 ]
