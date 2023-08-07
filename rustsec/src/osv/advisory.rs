@@ -3,11 +3,10 @@
 use super::ranges_for_advisory;
 use crate::{
     advisory::{affected::FunctionPath, Affected, Category, Id, Informational},
-    repository::git::{GitModificationTimes, GitPath},
+    repository::git::{self, GitModificationTimes, GitPath},
     Advisory,
 };
 use serde::Serialize;
-use std::ops::Add;
 use url::Url;
 
 const ECOSYSTEM: &str = "crates.io";
@@ -180,7 +179,7 @@ impl OsvAdvisory {
 
         OsvAdvisory {
             id: metadata.id,
-            modified: git2_time_to_rfc3339(mod_times.for_path(path)),
+            modified: git_time_to_rfc3339(mod_times.for_path(path)),
             published: rustsec_date_to_rfc3339(&metadata.date),
             affected: vec![OsvAffected {
                 package: (&metadata.package).into(),
@@ -248,10 +247,10 @@ fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
     }
 }
 
-fn git2_time_to_rfc3339(git_timestamp: &git2::Time) -> String {
-    let unix_timestamp: u64 = git_timestamp.seconds().try_into().unwrap();
-    let duration_from_epoch = std::time::Duration::from_secs(unix_timestamp);
-    humantime::format_rfc3339(std::time::UNIX_EPOCH.add(duration_from_epoch)).to_string()
+fn git_time_to_rfc3339(time: gix::date::Time) -> String {
+    git::gix_time_to_time(time)
+        .format(&time::format_description::well_known::Rfc3339)
+        .expect("well-known format to heap never fails")
 }
 
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
