@@ -147,8 +147,8 @@ impl From<io::Error> for Error {
 
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-impl From<crates_index::Error> for Error {
-    fn from(other: crates_index::Error) -> Self {
+impl From<tame_index::Error> for Error {
+    fn from(other: tame_index::Error) -> Self {
         format_err!(ErrorKind::Registry, "{}", other)
     }
 }
