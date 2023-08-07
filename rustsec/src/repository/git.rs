@@ -7,7 +7,7 @@ mod gitpath;
 mod modification_time;
 mod repository;
 
-pub use self::{authentication::with_authentication, commit::Commit, repository::Repository};
+pub use self::{commit::Commit, repository::Repository};
 
 #[cfg(feature = "osv-export")]
 pub use self::{gitpath::GitPath, modification_time::GitModificationTimes};
@@ -16,7 +16,7 @@ pub use self::{gitpath::GitPath, modification_time::GitModificationTimes};
 pub const DEFAULT_URL: &str = "https://github.com/RustSec/advisory-db.git";
 
 #[inline]
-fn gix_time_to_time(time: gix::date::Time) -> time::OffsetDateTime {
+pub(crate) fn gix_time_to_time(time: gix::date::Time) -> time::OffsetDateTime {
     time::OffsetDateTime::from_unix_timestamp(time.seconds)
         .expect("always valid unix time")
         .to_offset(time::UtcOffset::from_whole_seconds(time.offset).expect("valid offset"))

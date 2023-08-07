@@ -7,7 +7,7 @@ use crate::{
         signature::Signature,
     },
 };
-use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime};
 
 /// Number of days after which the repo will be considered stale
 /// (90 days)
@@ -105,15 +105,41 @@ impl Commit {
 
         let (commit, commit_time) = find_remote_head()?;
 
-        let commit_id = oid.to_string();
-        let commit_object = repo.repo.find_object(oid, Some(git2::ObjectType::Commit))?;
-        let commit = commit_object.as_commit().unwrap();
-        let author = commit.author().to_string();
+        // Since we are pulling multiple pieces it's better to do this once
+        let cref = commit.decode().map_err(|err| {
+            format_err!(
+                ErrorKind::Repo,
+                "unable to decode commit information: {}",
+                err
+            )
+        })?;
 
-        let summary = commit
-            .summary()
-            .ok_or_else(|| format_err!(ErrorKind::Repo, "no commit summary for {}", commit_id))?
-            .to_owned();
+        let commit_id = commit.id.to_hex().to_string();
+        let author = {
+            let sig = cref.author();
+            format!("{} <{}>", sig.name, sig.email)
+        };
+
+        let summary = cref.message_summary().to_string();
+
+        if summary.is_empty() {
+            return format_err!(ErrorKind::Repo, "no commit summary for {}", commit_id);
+        }
+
+        let (signature, signed_data) = cref.extra_headers.iter().find_map(|(hname, hval)| {
+            if hname != "gpgsig" {
+                return None;
+            }
+
+            // Note: Not sure if this is entirely correct, but according to libgit2
+            // "signed data; this is the commit contents minus the signature block;"
+            // and looking at the libgit2 code, it's iterating through the raw
+            // commit data and appending data to either the signature or the signed
+            // data...but this should probably be in gix itself
+            
+
+            Some((Signature::from_bytes(&hval), cref.mes
+        }).unwrap_or_default();
 
         let (signature, signed_data) = match repo.repo.extract_signature(&oid, None) {
             Ok((ref sig, ref data)) => {
