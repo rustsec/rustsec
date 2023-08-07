@@ -255,7 +255,7 @@ impl Auditor {
                     })
                     .collect(),
             ) {
-                status_err!("failed to execute populate_cache, index metadata may be missing or stale when checking for yanked packages: {}", err);
+                status_err!("Failed to download crates.io index: {}\nData may be missing or stale when checking for yanked packages.", err);
             }
 
             for pkg in &lockfile.packages {
