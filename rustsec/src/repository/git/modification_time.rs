@@ -1,6 +1,6 @@
 use crate::advisory::Date;
 use crate::error::Error;
-use git2::Time;
+use gix::date::Time;
 use std::ops::Add;
 use std::str::FromStr;
 use std::{
