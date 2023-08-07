@@ -22,9 +22,13 @@ mod fixer;
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 mod cached_index;
+
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-pub mod registry;
+pub mod registry {
+    //! Support for interacting with the local crates.io registry index
+    pub use super::cached_index::{CachedIndex, ClientBuilder};
+}
 
 pub use cargo_lock::{self, package, Lockfile, SourceId};
 pub use fs_err as fs;

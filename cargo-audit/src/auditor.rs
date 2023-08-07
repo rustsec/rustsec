@@ -86,7 +86,7 @@ impl Auditor {
                     status_ok!("Updating", "crates.io index");
                 }
 
-                match registry::CachedIndex::fetch() {
+                match registry::CachedIndex::fetch(None) {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
@@ -243,6 +243,21 @@ impl Auditor {
     fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
+            if let Err(err) = index.populate_cache(
+                lockfile
+                    .packages
+                    .iter()
+                    .filter_map(|pkg| {
+                        pkg.source
+                            .as_ref()
+                            .filter(|s| s.is_default_registry())
+                            .map(|_s| &pkg.name)
+                    })
+                    .collect(),
+            ) {
+                status_err!("Failed to download crates.io index: {}\nData may be missing or stale when checking for yanked packages.", err);
+            }
+
             for pkg in &lockfile.packages {
                 if let Some(source) = &pkg.source {
                     // only check for yanking if the package comes from crates.io

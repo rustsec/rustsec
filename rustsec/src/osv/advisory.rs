@@ -138,7 +138,7 @@ impl From<Affected> for OsvEcosystemSpecificAffected {
         OsvEcosystemSpecificAffected {
             arch: a.arch,
             os: a.os,
-            functions: a.functions.into_iter().map(|(f, _v)| f).collect(),
+            functions: a.functions.into_keys().collect(),
         }
     }
 }
