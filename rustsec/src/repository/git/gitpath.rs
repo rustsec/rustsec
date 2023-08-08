@@ -22,10 +22,16 @@ impl<'a> GitPath<'a> {
                 path.display()
             );
         }
-        let commit_id = repo.repo.refname_to_id("HEAD")?;
-        let commit = repo.repo.find_commit(commit_id)?;
-        commit.tree()?.get_path(path)?;
-        Ok(GitPath { repo, path })
+
+        if !repo.has_relative_path(path) {
+            Err(format_err!(
+                ErrorKind::Repo,
+                "HEAD commit does not contain path '{}'",
+                path.display()
+            ))
+        } else {
+            Ok(GitPath { repo, path })
+        }
     }
 
     /// A path *relative to the root of the git repository* that is guaranteed to be tracked by Git
