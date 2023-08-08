@@ -53,7 +53,7 @@ impl GitModificationTimes {
 
             let parent_commit_id = match info.parent_ids.len() {
                 1 => Some(info.parent_ids[0]), // Diff with the previous commit
-                0 => None, // We've found the initial commit, diff with empty repo
+                0 => None,     // We've found the initial commit, diff with empty repo
                 _ => continue, // Ignore merge commits (2+ parents) because that's what 'git whatchanged' does.
             };
 
