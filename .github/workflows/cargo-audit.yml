@@ -47,7 +47,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           profile: minimal
           override: true
-      - run: cargo test --all-features --release
+      - run: cargo test --all-features
 
   test-macos:
     runs-on: macos-latest
@@ -58,7 +58,7 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-      - run: cargo test --all-features --release
+      - run: cargo test --all-features
 
   test-windows:
     runs-on: windows-latest
@@ -69,7 +69,7 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
-      - run: cargo test --all-features --release
+      - run: cargo test --all-features
 
   doc:
     runs-on: ubuntu-latest
