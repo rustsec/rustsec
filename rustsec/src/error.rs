@@ -131,14 +131,6 @@ impl From<fmt::Error> for Error {
     }
 }
 
-#[cfg(feature = "git")]
-#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-impl From<git2::Error> for Error {
-    fn from(other: git2::Error) -> Self {
-        format_err!(ErrorKind::Repo, &other)
-    }
-}
-
 impl From<io::Error> for Error {
     fn from(other: io::Error) -> Self {
         format_err!(ErrorKind::Io, &other)

@@ -2,10 +2,7 @@
 
 use crate::{
     error::{Error, ErrorKind},
-    repository::{
-        git::{self, Repository},
-        signature::Signature,
-    },
+    repository::{git::Repository, signature::Signature},
 };
 use std::time::{Duration, SystemTime};
 
@@ -18,7 +15,7 @@ const STALE_AFTER: Duration = Duration::from_secs(90 * 86400);
 #[derive(Debug)]
 pub struct Commit {
     /// ID (i.e. SHA-1 hash) of the latest commit
-    pub commit_id: String,
+    pub commit_id: gix::ObjectId,
 
     /// Information about the author of a commit
     pub author: String,
@@ -40,72 +37,12 @@ pub struct Commit {
 impl Commit {
     /// Get information about HEAD
     pub(crate) fn from_repo_head(repo: &Repository) -> Result<Self, Error> {
-        let find_remote_head = || -> Result<(gix::Commit<'_>, time::OffsetDateTime), Error> {
-            const CANDIDATE_REFS: &[&str] = &[
-                "FETCH_HEAD",  /* the location with the most-recent updates, as written by gix/us */
-                "origin/HEAD", /* typical refspecs update this symbolic ref to point to the actual remote ref with the fetched commit */
-                "origin/main", /* for good measure, resolve this branch by hand in case origin/HEAD is broken */
-                "HEAD", /* last resort, this would only be needed for a fresh clone via git/git2 */
-            ];
-            let mut candidates: Vec<_> = CANDIDATE_REFS
-                .iter()
-                .enumerate()
-                .filter_map(|(i, refname)| {
-                    let ref_id = repo
-                        .repo
-                        .find_reference(*refname)
-                        .ok()?
-                        .into_fully_peeled_id()
-                        .ok()?;
+        let commit = repo
+            .repo
+            .head_commit()
+            .map_err(|err| format_err!(ErrorKind::Repo, "unable to locate head commit: {}", err))?;
 
-                    let commit = ref_id.object().ok()?.try_into_commit().ok()?;
-                    let commit_time = commit.time().ok()?;
-
-                    Some((i, commit, commit_time))
-                })
-                .collect();
-
-            // Sort from oldest to newest, the last one will be the best reference
-            // we could reasonably locate, and since we are on second resolution,
-            // prefer the ordering of candidates if times are equal (can happen during eg testing)
-            //
-            // This allows FETCH_HEAD to be authoritative, unless one of the other
-            // references is more up to date, which can occur in (at least) 2 scenarios:
-            //
-            // 1. The repo is a fresh clone by cargo either via git or libgit2,
-            // neither of which write FETCH_HEAD during clone
-            // 2. A fetch was performed by an external crate/program to
-            // ourselves that didn't update FETCH_HEAD
-            candidates.sort_by(|a, b| match a.2.seconds.cmp(&b.2.seconds) {
-                std::cmp::Ordering::Equal => b.0.cmp(&a.0),
-                o => o,
-            });
-
-            // get the most recent commit, the one with most time passed since unix epoch.
-            let best = candidates.last().ok_or_else(|| {
-                format_err!(ErrorKind::Repo, "unable to find a suitable HEAD commit")
-            })?;
-
-            // In case we used FETCH_HEAD, use the mtime of the file itself, as
-            // it will be updated on every (successful) fetch and is a true
-            // time of the last update, rather than just the time of the last
-            // remote commit
-            let commit_time = if best.0 == 0 {
-                std::fs::metadata(repo.repo.path().join("FETCH_HEAD"))
-                    .ok()
-                    .and_then(|md| md.modified().ok().map(|t| t.into()))
-            } else {
-                None
-            };
-
-            let commit_time = commit_time.unwrap_or_else(|| git::gix_time_to_time(best.2));
-
-            Ok((best.1, commit_time))
-        };
-
-        let (commit, commit_time) = find_remote_head()?;
-
-        // Since we are pulling multiple pieces it's better to do this once
+        // Since we are pulling multiple pieces from the commit it's better to do this once
         let cref = commit.decode().map_err(|err| {
             format_err!(
                 ErrorKind::Repo,
@@ -114,7 +51,8 @@ impl Commit {
             )
         })?;
 
-        let commit_id = commit.id.to_hex().to_string();
+        let commit_id = commit.id;
+        let timestamp = crate::repository::git::gix_time_to_time(cref.committer.time);
         let author = {
             let sig = cref.author();
             format!("{} <{}>", sig.name, sig.email)
@@ -123,43 +61,44 @@ impl Commit {
         let summary = cref.message_summary().to_string();
 
         if summary.is_empty() {
-            return format_err!(ErrorKind::Repo, "no commit summary for {}", commit_id);
+            return Err(format_err!(
+                ErrorKind::Repo,
+                "no commit summary for {}",
+                commit_id
+            ));
         }
 
-        let (signature, signed_data) = cref.extra_headers.iter().find_map(|(hname, hval)| {
-            if hname != "gpgsig" {
-                return None;
-            }
+        let (signature, signed_data) = if let Some(sig) = cref.extra_headers().pgp_signature() {
+            // Note this is inefficient as gix doesn't yet support signature extraction natively, see https://github.com/Byron/gitoxide/pull/971
+            let signed_data = {
+                let mut commit_without_signature = cref.clone();
+                let pos = commit_without_signature
+                    .extra_headers
+                    .iter()
+                    .position(|eh| eh.0 == "gpgsig")
+                    .unwrap();
+                commit_without_signature.extra_headers.remove(pos);
 
-            // Note: Not sure if this is entirely correct, but according to libgit2
-            // "signed data; this is the commit contents minus the signature block;"
-            // and looking at the libgit2 code, it's iterating through the raw
-            // commit data and appending data to either the signature or the signed
-            // data...but this should probably be in gix itself
-            
+                let mut signed_data = Vec::new();
+                use gix::objs::WriteTo;
+                commit_without_signature.write_to(&mut signed_data)?;
+                signed_data
+            };
 
-            Some((Signature::from_bytes(&hval), cref.mes
-        }).unwrap_or_default();
-
-        let (signature, signed_data) = match repo.repo.extract_signature(&oid, None) {
-            Ok((ref sig, ref data)) => {
-                (Some(Signature::from_bytes(sig)?), Some(data.deref().into()))
-            }
-            _ => (None, None),
+            (Some(Signature::from_bytes(sig)?), Some(signed_data))
+        } else {
+            (None, None)
         };
 
         Ok(Self {
             commit_id,
             author,
             summary,
-            timestamp: commit_time,
+            timestamp,
             signature,
             signed_data,
         })
     }
-
-    /// Finds the most appropriate head commit for the repo
-    fn find_head(repo: &Repository) -> Result<(&'static str,), Error> {}
 
     /// Is the commit timestamp "fresh" as in the database has been updated
     /// recently? (i.e. 90 days, per the `STALE_AFTER` constant)
@@ -174,14 +113,56 @@ impl Commit {
 
     /// Reset the repository's state to match this commit
     pub(crate) fn reset(&self, repo: &Repository) -> Result<(), Error> {
-        let commit_object = repo.repo.find_object(
-            git2::Oid::from_str(&self.commit_id).unwrap(),
-            Some(git2::ObjectType::Commit),
-        )?;
+        let repo = &repo.repo;
+        let workdir = repo.work_dir().ok_or_else(|| {
+            format_err!(ErrorKind::Repo, "unable to checkout, repository is bare")
+        })?;
 
-        // Reset the state of the repository to the latest commit
-        repo.repo
-            .reset(&commit_object, git2::ResetType::Hard, None)?;
+        let root_tree = repo
+            .find_object(self.commit_id)
+            .map_err(|err| format_err!(ErrorKind::Repo, "unable to locate commit: {}", err))?
+            .peel_to_tree()
+            .map_err(|err| format_err!(ErrorKind::Repo, "unable to peel to tree: {}", err))?
+            .id;
+
+        let index = gix::index::State::from_tree(&root_tree, |oid, buf| {
+            repo.objects.find_tree_iter(oid, buf).ok()
+        })
+        .map_err(|err| {
+            format_err!(
+                ErrorKind::Repo,
+                "failed to create index from tree '{}': {}",
+                root_tree,
+                err
+            )
+        })?;
+
+        use gix::prelude::FindExt;
+        let mut index = gix::index::File::from_state(index, repo.index_path());
+
+        let opts = gix::worktree::checkout::Options {
+            destination_is_initially_empty: false,
+            overwrite_existing: true,
+            ..Default::default()
+        };
+
+        gix::worktree::checkout(
+            &mut index,
+            workdir,
+            {
+                let objects = repo.objects.clone().into_arc()?;
+                move |oid, buf| objects.find_blob(oid, buf)
+            },
+            &mut gix::progress::Discard,
+            &mut gix::progress::Discard,
+            &gix::interrupt::IS_INTERRUPTED,
+            opts,
+        )
+        .map_err(|err| format_err!(ErrorKind::Repo, "failed to checkout: {}", err))?;
+
+        index
+            .write(Default::default())
+            .map_err(|err| format_err!(ErrorKind::Repo, "failed to write index: {}", err))?;
 
         Ok(())
     }
