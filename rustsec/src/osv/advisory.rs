@@ -249,6 +249,7 @@ fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
 
 fn git_time_to_rfc3339(time: gix::date::Time) -> String {
     git::gix_time_to_time(time)
+        .to_offset(time::UtcOffset::UTC)
         .format(&time::format_description::well_known::Rfc3339)
         .expect("well-known format to heap never fails")
 }
