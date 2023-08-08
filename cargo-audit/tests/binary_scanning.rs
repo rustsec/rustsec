@@ -20,13 +20,7 @@ static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 /// be multithreaded invocations as `cargo test` executes tests in
 /// parallel by default.
 pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
-    // reimplement CmdRunner::default but with --all-features flag
-    let mut runner = CmdRunner::new("cargo");
-    runner.args(["run", "--all-features", "--"]);
-    runner.exclusive();
-    runner.capture_stdout();
-    runner.capture_stderr();
-    // feed it the command-line arguments specific to the test
+    let mut runner = CmdRunner::default();
     runner
         .arg("audit")
         .arg("bin")
