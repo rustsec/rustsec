@@ -69,7 +69,8 @@ impl Commit {
         }
 
         let (signature, signed_data) = if let Some(sig) = cref.extra_headers().pgp_signature() {
-            // Note this is inefficient as gix doesn't yet support signature extraction natively, see https://github.com/Byron/gitoxide/pull/971
+            // Note this is inefficient as gix doesn't yet support signature extraction natively.
+            // TODO: convert this to native methods once https://github.com/Byron/gitoxide/pull/973 ships in a stable release.
             let signed_data = {
                 let mut commit_without_signature = cref.clone();
                 let pos = commit_without_signature
