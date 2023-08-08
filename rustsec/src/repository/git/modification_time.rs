@@ -51,11 +51,10 @@ impl GitModificationTimes {
                 format_err!(ErrorKind::Repo, "failed to retrieve commit info: {}", err)
             })?;
 
-            // Ignore merge commits (2+ parents) because that's what 'git whatchanged' does.
             let parent_commit_id = match info.parent_ids.len() {
-                1 => Some(info.parent_ids[0]),
-                0 => None,
-                _ => continue,
+                1 => Some(info.parent_ids[0]), // Diff with the previous commit
+                0 => None, // We've found the initial commit, diff with empty repo
+                _ => continue, // Ignore merge commits (2+ parents) because that's what 'git whatchanged' does.
             };
 
             buf.clear();
