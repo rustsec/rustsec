@@ -72,7 +72,7 @@ impl Repository {
 
         // Set up signal handlers so that the lock is released if the user presses Ctrl+C
         // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
-        gix::interrupt::init_handler(|| {})
+        gix::interrupt::init_handler(1, || {})
             .unwrap()
             .auto_deregister();
 
