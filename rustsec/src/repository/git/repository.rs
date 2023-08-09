@@ -72,7 +72,7 @@ impl Repository {
 
         // Set up signal handlers so that the lock is released if the user presses Ctrl+C
         // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
-        gix::interrupt::init_handler(||{}).unwrap();
+        gix::interrupt::init_handler(|| {}).unwrap();
 
         // Lock the directory with the git repo checkout so that several processes don't trample each other
         const LOCK_WAIT_MINUTES: u64 = 10;
@@ -85,20 +85,23 @@ impl Repository {
             match gix::lock::Marker::acquire_to_hold_resource(
                 path.with_extension("rustsec"),
                 gix::lock::acquire::Fail::Immediately,
-                boundary_dir.clone()) {
-                    Ok(marker) => marker,
-                    Err(e) => {
-                        println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {LOCK_WAIT_MINUTES} minutes to acquire the lock.");
-                        gix::lock::Marker::acquire_to_hold_resource(
-                            path.with_extension("rustsec"),
-                            gix::lock::acquire::Fail::AfterDurationWithBackoff(std::time::Duration::from_secs(
-                                60 * LOCK_WAIT_MINUTES,
-                            )),
-                            boundary_dir,
-                        )
-                        .map_err(|err| format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err))?
-                    }
+                boundary_dir.clone(),
+            ) {
+                Ok(marker) => marker,
+                Err(e) => {
+                    println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {LOCK_WAIT_MINUTES} minutes to acquire the lock.");
+                    gix::lock::Marker::acquire_to_hold_resource(
+                        path.with_extension("rustsec"),
+                        gix::lock::acquire::Fail::AfterDurationWithBackoff(
+                            std::time::Duration::from_secs(60 * LOCK_WAIT_MINUTES),
+                        ),
+                        boundary_dir,
+                    )
+                    .map_err(|err| {
+                        format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err)
+                    })?
                 }
+            }
         };
 
         let open_or_clone_repo = || -> Result<_, Error> {
