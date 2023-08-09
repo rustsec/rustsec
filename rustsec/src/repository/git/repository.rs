@@ -70,10 +70,6 @@ impl Repository {
             fs::remove_dir(&path)?;
         }
 
-        // Set up signal handlers so that the lock is released if the user presses Ctrl+C
-        // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
-        gix::interrupt::init_handler(||{}).unwrap();
-
         // Lock the directory with the git repo checkout so that several processes don't trample each other
         const LOCK_WAIT_MINUTES: u64 = 10;
         let _lock = {
