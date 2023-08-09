@@ -69,6 +69,9 @@ impl Repository {
         if path.is_dir() && fs::read_dir(&path)?.next().is_none() {
             fs::remove_dir(&path)?;
         }
+        // Set up signal handlers so that the lock is released if the user presses Ctrl+C
+        // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
+        gix::interrupt::init_handler(||{}).unwrap();
         let _lock = gix::lock::Marker::acquire_to_hold_resource(
             path.with_extension("rustsec"),
             gix::lock::acquire::Fail::AfterDurationWithBackoff(std::time::Duration::from_secs(
