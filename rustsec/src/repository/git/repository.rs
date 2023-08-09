@@ -5,7 +5,7 @@ use crate::{
     error::{Error, ErrorKind},
     fs,
 };
-use std::path::{Path, PathBuf};
+use std::{path::{Path, PathBuf}, time::Duration};
 
 /// Directory under `~/.cargo` where the advisory-db repo will be kept
 const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
@@ -34,15 +34,20 @@ impl Repository {
     }
 
     /// Fetch the default repository
-    pub fn fetch_default_repo() -> Result<Self, Error> {
-        Self::fetch(DEFAULT_URL, Repository::default_path(), true)
+    /// 
+    /// `lock_timeout` specifies for how long to wait for the lock on the local directory before giving up.
+    pub fn fetch_default_repo(lock_timeout: Duration) -> Result<Self, Error> {
+        Self::fetch(DEFAULT_URL, Repository::default_path(), true, lock_timeout)
     }
 
     /// Create a new [`Repository`] with the given URL and path
+    /// 
+    /// `lock_timeout` specifies for how long to wait for the lock on the specified directory before giving up.
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
         ensure_fresh: bool,
+        lock_timeout: Duration,
     ) -> Result<Self, Error> {
         if !url.starts_with("https://") {
             fail!(
@@ -95,7 +100,7 @@ impl Repository {
                     gix::lock::Marker::acquire_to_hold_resource(
                         path.with_extension("rustsec"),
                         gix::lock::acquire::Fail::AfterDurationWithBackoff(
-                            std::time::Duration::from_secs(60 * LOCK_WAIT_MINUTES),
+                            Duration::from_secs(60 * LOCK_WAIT_MINUTES),
                         ),
                         boundary_dir,
                     )

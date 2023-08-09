@@ -103,9 +103,12 @@ impl Database {
     }
 
     /// Fetch the default advisory database from GitHub
+    /// 
+    /// `lock_timeout` specifies for how long to wait for the lock on the local directory before giving up.
     #[cfg(feature = "git")]
-    pub fn fetch() -> Result<Self, Error> {
-        git::Repository::fetch_default_repo().and_then(|repo| Self::load_from_repo(&repo))
+    pub fn fetch(lock_timeout: std::time::Duration) -> Result<Self, Error> {
+
+        git::Repository::fetch_default_repo(lock_timeout).and_then(|repo| Self::load_from_repo(&repo))
     }
 
     /// Look up an advisory by an advisory ID (e.g. "RUSTSEC-YYYY-XXXX")
