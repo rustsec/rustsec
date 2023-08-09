@@ -47,6 +47,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           profile: minimal
           override: true
+      - uses: Swatinem/rust-cache@v2
       - run: cargo test --all-features
 
   test-macos:
@@ -58,6 +59,7 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
+      - uses: Swatinem/rust-cache@v2
       - run: cargo test --all-features
 
   test-windows:
@@ -69,6 +71,7 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
+      - uses: Swatinem/rust-cache@v2
       - run: cargo test --all-features
 
   doc:
@@ -80,6 +83,7 @@ jobs:
           toolchain: 1.71.0 # sparse index by default for faster CI
           override: true
           profile: minimal
+      - uses: Swatinem/rust-cache@v2
       - run: cargo doc --all-features
 
 # TODO(tarcieri): re-enable after vulnerable deps have been upgraded
