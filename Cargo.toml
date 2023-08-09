@@ -15,3 +15,5 @@ cvss = { path = "./cvss" }
 platforms = { path = "./platforms" }
 quitters = { path = "./quitters" }
 rustsec = { path = "./rustsec" }
+# TODO: remove before stable release
+gix = { git = "https://github.com/Byron/gitoxide.git" }
