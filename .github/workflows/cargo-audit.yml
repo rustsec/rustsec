@@ -33,42 +33,21 @@ jobs:
           command: check
 
   # TODO(tarcieri): re-unify build matrix when platform-specific problems are fixed
-  test-linux:
+  test:
     strategy:
       matrix:
         toolchain:
-          - 1.71.0 # sparse index by default for faster CI
-          - stable
-    runs-on: ubuntu-latest
+          - stable # MSRV is enforced by the 'workspace' job
+        runs-on:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+    runs-on: ${{ matrix.runs-on }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.toolchain }}
-          profile: minimal
-          override: true
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test --all-features
-
-  test-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
-      - uses: Swatinem/rust-cache@v2
-      - run: cargo test --all-features
-
-  test-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
           profile: minimal
           override: true
       - uses: Swatinem/rust-cache@v2
