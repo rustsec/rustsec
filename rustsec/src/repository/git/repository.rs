@@ -82,7 +82,6 @@ impl Repository {
             .auto_deregister();
 
         // Lock the directory with the git repo checkout so that several processes don't trample each other
-        const LOCK_WAIT_MINUTES: u64 = 10;
         let _lock = {
             let boundary_dir = Some(std::path::PathBuf::from_iter(Some(
                 std::path::Component::RootDir,
@@ -96,11 +95,11 @@ impl Repository {
             ) {
                 Ok(marker) => marker,
                 Err(e) => {
-                    println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {LOCK_WAIT_MINUTES} minutes to acquire the lock.");
+                    println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {} seconds to acquire the lock.", lock_timeout.as_secs());
                     gix::lock::Marker::acquire_to_hold_resource(
                         path.with_extension("rustsec"),
                         gix::lock::acquire::Fail::AfterDurationWithBackoff(
-                            Duration::from_secs(60 * LOCK_WAIT_MINUTES),
+                            lock_timeout,
                         ),
                         boundary_dir,
                     )

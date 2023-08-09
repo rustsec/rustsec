@@ -3,7 +3,7 @@
 use cargo_lock::Lockfile;
 use once_cell::sync::Lazy;
 use rustsec::{database::Query, repository::git::Repository, Database};
-use std::{path::Path, sync::Mutex};
+use std::{path::Path, sync::Mutex, time::Duration};
 
 static DEFAULT_DATABASE: Lazy<Mutex<Database>> = Lazy::new(|| {
     Mutex::new(
