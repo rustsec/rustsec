@@ -86,15 +86,15 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo doc --all-features
 
-# TODO(tarcieri): re-enable after vulnerable deps have been upgraded
-#  self-audit:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v3
-#      - uses: actions-rs/toolchain@v1
-#        with:
-#          toolchain: stable
-#          profile: minimal
-#          override: true
-#      - name: Run cargo audit
-#        run: cargo run -- audit
+  self-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - uses: Swatinem/rust-cache@v2
+      - name: Run cargo audit
+        run: cargo run -- audit
