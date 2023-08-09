@@ -35,6 +35,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           profile: minimal
+      - uses: Swatinem/rust-cache@v2
       - run: cargo check
       - run: cargo test --no-default-features
       - run: cargo test
