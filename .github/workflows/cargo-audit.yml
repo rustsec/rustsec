@@ -97,4 +97,5 @@ jobs:
           override: true
       - uses: Swatinem/rust-cache@v2
       - name: Run cargo audit
+        run: cargo generate-lockfile
         run: cargo run -- audit
