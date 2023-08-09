@@ -8,14 +8,10 @@ use std::{
     io::{self, Read},
     path::Path,
     process::exit,
-    time::Duration,
 };
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
-
-/// How long to wait for git repository lock
-const LOCK_WAIT_MINUTES: u64 = 5;
 
 /// Security vulnerability auditor
 pub struct Auditor {
@@ -58,7 +54,6 @@ impl Auditor {
                 advisory_db_url,
                 &advisory_db_path,
                 !config.database.stale,
-                Duration::from_secs(60 * LOCK_WAIT_MINUTES),
             )
             .unwrap_or_else(|e| {
                 status_err!("couldn't fetch advisory database: {}", e);

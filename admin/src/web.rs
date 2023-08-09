@@ -22,9 +22,6 @@ use std::{
 };
 use xml::escape::escape_str_attribute;
 
-/// How long to wait for git repository lock
-const LOCK_WAIT_MINUTES: u64 = 5;
-
 // TODO(tarcieri): replace with `DateTime`
 #[allow(deprecated)]
 use chrono::Date;
@@ -105,17 +102,15 @@ pub fn render_advisories(output_folder: PathBuf) {
     // Create dest
     fs::create_dir_all(&output_folder).unwrap();
 
-    let lock_timeout = std::time::Duration::from_secs(LOCK_WAIT_MINUTES * 60);
-
     // Get static pages from repository
-    let repo = Repository::fetch_default_repo(lock_timeout).unwrap();
+    let repo = Repository::fetch_default_repo().unwrap();
     let contributing_path = repo.path().join("CONTRIBUTING.md");
 
     // Get publication and latest modification dates
     let mod_times = GitModificationTimes::new(&repo).unwrap();
 
     // Get advisories
-    let db = rustsec::Database::fetch(lock_timeout).unwrap();
+    let db = rustsec::Database::fetch().unwrap();
     let mut advisories: Vec<(rustsec::Advisory, advisory::Date, advisory::Date)> = db
         .into_iter()
         .map(|a| {

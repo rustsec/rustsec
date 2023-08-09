@@ -5,10 +5,7 @@ use crate::{
     error::{Error, ErrorKind},
     fs,
 };
-use std::{
-    path::{Path, PathBuf},
-    time::Duration,
-};
+use std::path::{Path, PathBuf};
 
 /// Directory under `~/.cargo` where the advisory-db repo will be kept
 const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
@@ -37,20 +34,15 @@ impl Repository {
     }
 
     /// Fetch the default repository
-    ///
-    /// `lock_timeout` specifies for how long to wait for the lock on the local directory before giving up.
-    pub fn fetch_default_repo(lock_timeout: Duration) -> Result<Self, Error> {
-        Self::fetch(DEFAULT_URL, Repository::default_path(), true, lock_timeout)
+    pub fn fetch_default_repo() -> Result<Self, Error> {
+        Self::fetch(DEFAULT_URL, Repository::default_path(), true)
     }
 
     /// Create a new [`Repository`] with the given URL and path
-    ///
-    /// `lock_timeout` specifies for how long to wait for the lock on the specified directory before giving up.
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
         ensure_fresh: bool,
-        lock_timeout: Duration,
     ) -> Result<Self, Error> {
         if !url.starts_with("https://") {
             fail!(
@@ -80,11 +72,10 @@ impl Repository {
 
         // Set up signal handlers so that the lock is released if the user presses Ctrl+C
         // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
-        gix::interrupt::init_handler(1, || {})
-            .unwrap()
-            .auto_deregister();
+        gix::interrupt::init_handler(||{}).unwrap();
 
         // Lock the directory with the git repo checkout so that several processes don't trample each other
+        const LOCK_WAIT_MINUTES: u64 = 10;
         let _lock = {
             let boundary_dir = Some(std::path::PathBuf::from_iter(Some(
                 std::path::Component::RootDir,
@@ -94,21 +85,20 @@ impl Repository {
             match gix::lock::Marker::acquire_to_hold_resource(
                 path.with_extension("rustsec"),
                 gix::lock::acquire::Fail::Immediately,
-                boundary_dir.clone(),
-            ) {
-                Ok(marker) => marker,
-                Err(e) => {
-                    println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {} seconds to acquire the lock.", lock_timeout.as_secs());
-                    gix::lock::Marker::acquire_to_hold_resource(
-                        path.with_extension("rustsec"),
-                        gix::lock::acquire::Fail::AfterDurationWithBackoff(lock_timeout),
-                        boundary_dir,
-                    )
-                    .map_err(|err| {
-                        format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err)
-                    })?
+                boundary_dir.clone()) {
+                    Ok(marker) => marker,
+                    Err(e) => {
+                        println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {LOCK_WAIT_MINUTES} minutes to acquire the lock.");
+                        gix::lock::Marker::acquire_to_hold_resource(
+                            path.with_extension("rustsec"),
+                            gix::lock::acquire::Fail::AfterDurationWithBackoff(std::time::Duration::from_secs(
+                                60 * LOCK_WAIT_MINUTES,
+                            )),
+                            boundary_dir,
+                        )
+                        .map_err(|err| format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err))?
+                    }
                 }
-            }
         };
 
         let open_or_clone_repo = || -> Result<_, Error> {

@@ -119,9 +119,6 @@ impl Commit {
             format_err!(ErrorKind::Repo, "unable to checkout, repository is bare")
         })?;
 
-        // This is a manual implementation of resetting a repository to a given commit,
-        // since `gix` doesn't support this natively yet.
-        // TODO: switch to `gix` implementation once it becomes available.
         let root_tree = repo
             .find_object(self.commit_id)
             .map_err(|err| format_err!(ErrorKind::Repo, "unable to locate commit: {}", err))?

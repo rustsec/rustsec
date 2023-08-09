@@ -3,11 +3,11 @@
 use cargo_lock::Lockfile;
 use once_cell::sync::Lazy;
 use rustsec::{database::Query, repository::git::Repository, Database};
-use std::{path::Path, sync::Mutex, time::Duration};
+use std::{path::Path, sync::Mutex};
 
 static DEFAULT_DATABASE: Lazy<Mutex<Database>> = Lazy::new(|| {
     Mutex::new(
-        Database::load_from_repo(&Repository::fetch_default_repo(Duration::from_secs(60)).unwrap())
+        Database::load_from_repo(&Repository::fetch_default_repo().unwrap())
             .expect("Should be fetchable."),
     )
 });
@@ -23,7 +23,7 @@ fn enumerate_vulnerabilities() {
 }
 
 #[test]
-fn query_vulnerabilities() {
+fn query_vulnerabilitie() {
     let lockfile_path = Path::new("./tests/support/cratesio_cargo.lock");
     let lockfile =
         Lockfile::load(lockfile_path).expect("Should find the lock file in support folder.");
