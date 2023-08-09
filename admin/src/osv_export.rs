@@ -1,6 +1,9 @@
 //! Backend for the `osv` subcommand.
 
-use std::{path::{Path, PathBuf}, time::Duration};
+use std::{
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 use rustsec::{
     advisory::Informational,

@@ -7,7 +7,8 @@ use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind
 use std::{
     io::{self, Read},
     path::Path,
-    process::exit, time::Duration,
+    process::exit,
+    time::Duration,
 };
 
 /// Name of `Cargo.lock`
@@ -57,7 +58,7 @@ impl Auditor {
                 advisory_db_url,
                 &advisory_db_path,
                 !config.database.stale,
-                Duration::from_secs(60 * LOCK_WAIT_MINUTES)
+                Duration::from_secs(60 * LOCK_WAIT_MINUTES),
             )
             .unwrap_or_else(|e| {
                 status_err!("couldn't fetch advisory database: {}", e);
