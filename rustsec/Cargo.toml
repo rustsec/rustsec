@@ -34,6 +34,7 @@ time = { version = "0.3", default-features = false, features = ["formatting", "s
 [dependencies.gix]
 version = "0.51"
 optional = true
+git = "https://github.com/Byron/gitoxide.git"
 default-features = false
 features = [
   "blocking-http-transport-reqwest-rust-tls",
