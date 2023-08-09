@@ -1,6 +1,6 @@
 //! Backend for the `osv` subcommand.
 
-use std::path::{Path, PathBuf};
+use std::{path::{Path, PathBuf}, time::Duration};
 
 use rustsec::{
     advisory::Informational,
@@ -14,6 +14,9 @@ use crate::{
     error::{Error, ErrorKind},
     prelude::*,
 };
+
+/// How long to wait for git repository lock
+const LOCK_WAIT_MINUTES: u64 = 5;
 
 /// Lists all versions for a crate and prints info on which ones are affected
 pub struct OsvExporter {
@@ -29,7 +32,7 @@ impl OsvExporter {
     pub fn new(repo_path: Option<&Path>) -> Result<Self, Error> {
         let repository = match repo_path {
             Some(path) => Repository::open(path)?,
-            None => Repository::fetch_default_repo()?,
+            None => Repository::fetch_default_repo(Duration::from_secs(LOCK_WAIT_MINUTES * 60))?,
         };
         let mod_times = GitModificationTimes::new(&repository)?;
         Ok(Self {
