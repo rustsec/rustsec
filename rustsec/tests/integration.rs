@@ -112,5 +112,11 @@ fn clone_into_existing_directory() {
     const LOCK_WAIT_MINUTES: u64 = 2;
 
     // Attempt to fetch into it
-    git::Repository::fetch(git::DEFAULT_URL, tmp.path(), true, Duration::from_secs(LOCK_WAIT_MINUTES * 60)).unwrap();
+    git::Repository::fetch(
+        git::DEFAULT_URL,
+        tmp.path(),
+        true,
+        Duration::from_secs(LOCK_WAIT_MINUTES * 60),
+    )
+    .unwrap();
 }
