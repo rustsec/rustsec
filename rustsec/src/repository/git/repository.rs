@@ -74,6 +74,7 @@ impl Repository {
         // and gix signal handlers not being sophisticated enough
         // to clean up the lockfile in a multi-threaded environment:
         // https://github.com/rustsec/rustsec/pull/934#discussion_r1288376326
+        // TODO: re-enable it once `gix` allows registering/unregistering multiple times.
         //
         // // Set up signal handlers so that the lock is released if the user presses Ctrl+C
         // // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
