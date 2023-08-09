@@ -70,39 +70,44 @@ impl Repository {
             fs::remove_dir(&path)?;
         }
 
-        // Set up signal handlers so that the lock is released if the user presses Ctrl+C
-        // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
-        gix::interrupt::init_handler(|| {}).unwrap().auto_deregister();
-
-        // Lock the directory with the git repo checkout so that several processes don't trample each other
-        const LOCK_WAIT_MINUTES: u64 = 10;
-        let _lock = {
-            let boundary_dir = Some(std::path::PathBuf::from_iter(Some(
-                std::path::Component::RootDir,
-            )));
-            // Attempt to acquire the lock without waiting. If this fails, print a message and wait.
-            // This is done to avoid `cargo audit` "hanging" without a clearly communicated reason.
-            match gix::lock::Marker::acquire_to_hold_resource(
-                path.with_extension("rustsec"),
-                gix::lock::acquire::Fail::Immediately,
-                boundary_dir.clone(),
-            ) {
-                Ok(marker) => marker,
-                Err(e) => {
-                    println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {LOCK_WAIT_MINUTES} minutes to acquire the lock.");
-                    gix::lock::Marker::acquire_to_hold_resource(
-                        path.with_extension("rustsec"),
-                        gix::lock::acquire::Fail::AfterDurationWithBackoff(
-                            std::time::Duration::from_secs(60 * LOCK_WAIT_MINUTES),
-                        ),
-                        boundary_dir,
-                    )
-                    .map_err(|err| {
-                        format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err)
-                    })?
-                }
-            }
-        };
+        // Locking is disabled due to issues with Ctrl+C leaving a stale lockfile,
+        // and gix signal handlers not being sophisticated enough
+        // to clean up the lockfile in a multi-threaded environment:
+        // https://github.com/rustsec/rustsec/pull/934#discussion_r1288376326
+        //
+        // // Set up signal handlers so that the lock is released if the user presses Ctrl+C
+        // // see https://github.com/rustsec/rustsec/pull/925#discussion_r1287265212
+        // gix::interrupt::init_handler(|| {}).unwrap().auto_deregister();
+        //
+        // // Lock the directory with the git repo checkout so that several processes don't trample each other
+        // const LOCK_WAIT_MINUTES: u64 = 10;
+        // let _lock = {
+        //     let boundary_dir = Some(std::path::PathBuf::from_iter(Some(
+        //         std::path::Component::RootDir,
+        //     )));
+        //     // Attempt to acquire the lock without waiting. If this fails, print a message and wait.
+        //     // This is done to avoid `cargo audit` "hanging" without a clearly communicated reason.
+        //     match gix::lock::Marker::acquire_to_hold_resource(
+        //         path.with_extension("rustsec"),
+        //         gix::lock::acquire::Fail::Immediately,
+        //         boundary_dir.clone(),
+        //     ) {
+        //         Ok(marker) => marker,
+        //         Err(e) => {
+        //             println!("Could not acquire the lock on git repository at {path:?}: {e}. Waiting for up to {LOCK_WAIT_MINUTES} minutes to acquire the lock.");
+        //             gix::lock::Marker::acquire_to_hold_resource(
+        //                 path.with_extension("rustsec"),
+        //                 gix::lock::acquire::Fail::AfterDurationWithBackoff(
+        //                     std::time::Duration::from_secs(60 * LOCK_WAIT_MINUTES),
+        //                 ),
+        //                 boundary_dir,
+        //             )
+        //             .map_err(|err| {
+        //                 format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err)
+        //             })?
+        //         }
+        //     }
+        // };
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();
