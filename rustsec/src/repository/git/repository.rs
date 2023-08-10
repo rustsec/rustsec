@@ -33,12 +33,24 @@ impl Repository {
             .join(ADVISORY_DB_DIRECTORY)
     }
 
-    /// Fetch the default repository
+    /// Fetch the default repository.
+    ///
+    /// ## Locking
+    /// This function performs directory locking internally. See [fetch] for locking considerations.
     pub fn fetch_default_repo() -> Result<Self, Error> {
         Self::fetch(DEFAULT_URL, Repository::default_path(), true)
     }
 
-    /// Create a new [`Repository`] with the given URL and path
+    /// Create a new [`Repository`] with the given URL and path, and fetch its contents.
+    ///
+    /// ## Locking
+    ///
+    /// This function locks the directory internally.
+    /// It will wait for up to 10 minutes for the lock to become available before giving up.
+    ///
+    /// It relies on `panic = unwind` to avoid leaving stale locks if the process is interrupted with Ctrl+C.
+    /// To support `panic = abort` you also need to register a `gix` signal handler to clean up the locks,
+    /// see [`gix::interrupt::init_handler`](https://docs.rs/gix/0.51.0/gix/interrupt/fn.init_handler.html).
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
