@@ -107,7 +107,7 @@ impl CachedIndex {
     }
 
     /// Populates the cache entries for all of the specified crates.
-    pub fn populate_cache(&mut self, packages: BTreeSet<&package::Name>) -> Result<(), Error> {
+    fn populate_cache(&mut self, packages: BTreeSet<&package::Name>) -> Result<(), Error> {
         match &self.index {
             Index::Git(_) | Index::SparseCached(_) => {
                 for pkg in packages {
@@ -179,7 +179,7 @@ impl CachedIndex {
     }
 
     /// Is the given package yanked?
-    pub fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
+    fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
         if !self.cache.contains_key(&package.name) {
             self.insert(package.name.to_owned(), self.index.krate(&package.name));
         }
