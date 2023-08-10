@@ -222,7 +222,7 @@ impl CachedIndex {
         let dedup_packages: BTreeSet<&Package> = packages.into_iter().collect();
         let package_names: BTreeSet<&package::Name> = dedup_packages.iter().map(|p| &p.name).collect();
         if let Err(e) = self.populate_cache(package_names) {
-            return vec![Err(e)];
+            yanked.push(Err(Error::new(ErrorKind::Registry, &format!("Failed to download crates.io index: {}\nData may be missing or stale when checking for yanked packages.", e))));
         }
 
         for package in dedup_packages {
