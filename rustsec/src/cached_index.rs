@@ -1,5 +1,5 @@
 //! An efficient way to check whether a given package has been yanked
-use std::collections::HashMap;
+use std::collections::{HashMap, BTreeSet};
 
 use crate::{
     error::{Error, ErrorKind},
@@ -109,7 +109,7 @@ impl CachedIndex {
     /// Populates the cache entries for all of the specified crates.
     pub fn populate_cache(
         &mut self,
-        packages: std::collections::BTreeSet<&package::Name>,
+        packages: BTreeSet<&package::Name>,
     ) -> Result<(), Error> {
         match &self.index {
             Index::Git(_) | Index::SparseCached(_) => {
@@ -219,7 +219,11 @@ impl CachedIndex {
     {
         let mut yanked = Vec::new();
 
-        for package in packages {
+        let dedup_packages: BTreeSet<&Package> = packages.into_iter().collect();
+        let package_names: BTreeSet<&package::Name> = dedup_packages.iter().map(|p| &p.name).collect();
+        self.populate_cache(package_names)?;
+
+        for package in dedup_packages {
             if self.is_yanked(package)? {
                 yanked.push(package);
             }
