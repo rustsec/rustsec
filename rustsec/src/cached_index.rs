@@ -1,5 +1,5 @@
 //! An efficient way to check whether a given package has been yanked
-use std::collections::{HashMap, BTreeSet};
+use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     error::{Error, ErrorKind},
@@ -107,10 +107,7 @@ impl CachedIndex {
     }
 
     /// Populates the cache entries for all of the specified crates.
-    pub fn populate_cache(
-        &mut self,
-        packages: BTreeSet<&package::Name>,
-    ) -> Result<(), Error> {
+    pub fn populate_cache(&mut self, packages: BTreeSet<&package::Name>) -> Result<(), Error> {
         match &self.index {
             Index::Git(_) | Index::SparseCached(_) => {
                 for pkg in packages {
@@ -220,14 +217,17 @@ impl CachedIndex {
         let mut yanked = Vec::new();
 
         let dedup_packages: BTreeSet<&Package> = packages.into_iter().collect();
-        let package_names: BTreeSet<&package::Name> = dedup_packages.iter().map(|p| &p.name).collect();
+        let package_names: BTreeSet<&package::Name> =
+            dedup_packages.iter().map(|p| &p.name).collect();
         if let Err(e) = self.populate_cache(package_names) {
-            yanked.push(Err(Error::new(ErrorKind::Registry, &format!("Failed to download crates.io index: {}\nData may be missing or stale when checking for yanked packages.", e))));
+            yanked.push(Err(Error::new(ErrorKind::Registry,
+                &format!("Failed to download crates.io index: {}\nData may be missing or stale when checking for yanked packages.", e)
+            )));
         }
 
         for package in dedup_packages {
             match self.is_yanked(package) {
-                Ok(false) => {}, // not yanked, nothing to report
+                Ok(false) => {} // not yanked, nothing to report
                 Ok(true) => yanked.push(Ok(package)),
                 Err(error) => yanked.push(Err(error)),
             }
