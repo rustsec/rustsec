@@ -50,4 +50,5 @@ jobs:
           toolchain: 1.67.0 # MSRV
           override: true
           profile: minimal
+      - uses: Swatinem/rust-cache@v2
       - run: cargo doc --all-features
