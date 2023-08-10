@@ -32,10 +32,7 @@ impl Index {
 ///
 /// Operations on crates.io index are rather slow.
 /// Instead of peforming an index lookup for every version of every crate,
-/// this implementation looks up each crate only once and caches the result.
-/// This usually doesn't result in any dramatic performance wins
-/// when auditing a single `Cargo.lock` file because the same crate rarely appears multiple times,
-/// but makes a huge difference when auditing many `Cargo.lock`s or many binaries.
+/// this implementation looks up each crate only once and caches the result in memory.
 pub struct CachedIndex {
     index: Index,
     /// The inner hash map is logically HashMap<Version, IsYanked>
@@ -51,8 +48,8 @@ impl CachedIndex {
     /// If this opens a git index, it will perform a fetch to get the latest index
     /// information.
     ///
-    /// If this is a sparse index, it will allow [`Self::populate_cache`] to
-    /// fetch the latest information from the remote HTTP index
+    /// If this is a sparse index, you need to use [`Self::populate_cache`] to
+    /// fetch the latest information from the remote HTTP index.
     pub fn fetch(client: Option<ClientBuilder>) -> Result<Self, Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
@@ -86,11 +83,10 @@ impl CachedIndex {
 
     /// Open the local crates.io index
     ///
-    /// If this opens a git index, it allows reading of index entries from the
-    /// repository
+    /// If this opens a git index, it allows reading of index entries from the repository.
     ///
     /// If this is a sparse index, it only allows reading of index entries that
-    /// are already cached locally
+    /// are already cached locally.
     pub fn open() -> Result<Self, Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
@@ -110,9 +106,7 @@ impl CachedIndex {
         })
     }
 
-    /// Populates the cache entries for all of the specified crates
-    ///
-    /// This method is preferable to doing invidual updates via `cache_insert`/`is_yanked`
+    /// Populates the cache entries for all of the specified crates.
     pub fn populate_cache(
         &mut self,
         packages: std::collections::BTreeSet<&package::Name>,
