@@ -213,7 +213,7 @@ impl CachedIndex {
 
     /// Iterate over the provided packages, returning a vector of the
     /// packages which have been yanked.
-    pub fn find_yanked<'a, I>(&mut self, packages: I) -> Result<Vec<&'a Package>, Error>
+    pub fn find_yanked<'a, I>(&mut self, packages: I) -> Vec<Result<&'a Package, Error>>
     where
         I: IntoIterator<Item = &'a Package>,
     {
@@ -221,14 +221,18 @@ impl CachedIndex {
 
         let dedup_packages: BTreeSet<&Package> = packages.into_iter().collect();
         let package_names: BTreeSet<&package::Name> = dedup_packages.iter().map(|p| &p.name).collect();
-        self.populate_cache(package_names)?;
+        if let Err(e) = self.populate_cache(package_names) {
+            return vec![Err(e)];
+        }
 
         for package in dedup_packages {
-            if self.is_yanked(package)? {
-                yanked.push(package);
+            match self.is_yanked(package) {
+                Ok(false) => {}, // not yanked, nothing to report
+                Ok(true) => yanked.push(Ok(package)),
+                Err(error) => yanked.push(Err(error)),
             }
         }
 
-        Ok(yanked)
+        yanked
     }
 }
