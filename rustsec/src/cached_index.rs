@@ -48,8 +48,7 @@ impl CachedIndex {
     /// If this opens a git index, it will perform a fetch to get the latest index
     /// information.
     ///
-    /// If this is a sparse index, you need to use [`Self::populate_cache`] to
-    /// fetch the latest information from the remote HTTP index.
+    /// If this is a sparse index, it will be downloaded later on demand.
     pub fn fetch(client: Option<ClientBuilder>) -> Result<Self, Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
