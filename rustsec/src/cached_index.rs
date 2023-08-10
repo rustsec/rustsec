@@ -210,7 +210,7 @@ impl CachedIndex {
 
     /// Iterate over the provided packages, returning a vector of the
     /// packages which have been yanked.
-    /// 
+    ///
     /// This function should be called with many packages at once rather than one by one;
     /// that way it can download the status of a large number of packages at once from the sparse index
     /// very quickly, orders of magnitude faster than requesting packages one by one.

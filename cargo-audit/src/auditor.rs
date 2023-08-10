@@ -243,26 +243,24 @@ impl Auditor {
     fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
-
-            let pkgs_to_check: Vec<_> = lockfile.packages.iter().filter(|pkg| {
-                match &pkg.source {
+            let pkgs_to_check: Vec<_> = lockfile
+                .packages
+                .iter()
+                .filter(|pkg| match &pkg.source {
                     Some(source) => source.is_default_registry(),
                     None => false,
-                }
-            } ).collect();
+                })
+                .collect();
 
             let yanked = index.find_yanked(pkgs_to_check);
-            
+
             for pkg in yanked {
                 match pkg {
                     Ok(pkg) => {
                         let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
                         result.push(warning);
-                    },
-                    Err(e) => status_err!(
-                        "couldn't check if the package is yanked: {}",
-                        e
-                    ),
+                    }
+                    Err(e) => status_err!("couldn't check if the package is yanked: {}", e),
                 }
             }
         }
