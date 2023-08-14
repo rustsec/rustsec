@@ -5,6 +5,7 @@ ignore = [
 ]
 
 show = ["unmaintained", "unsound"]
+fatal = ["critical"]
 
 [output]
 quiet = false
