@@ -1,7 +1,5 @@
 //! Git repositories
 
-use gix::config::lock_timeout;
-
 use super::{Commit, DEFAULT_URL};
 use crate::{
     error::{Error, ErrorKind},
