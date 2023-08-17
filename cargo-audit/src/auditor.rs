@@ -62,8 +62,8 @@ impl Auditor {
             );
             // If the directory is locked, print a message and wait for it to become unlocked.
             // If we don't print the message, `cargo audit` would just hang with no explanation.
-            match &result {
-                Err(e) if e.kind() == ErrorKind::LockTimeout => {
+            if let Err(e) = &result {
+                if e.kind() == ErrorKind::LockTimeout {
                     status_warn!("directory {advisory_db_path:?} is locked, waiting for up to {DEFAULT_LOCK_TIMEOUT} seconds for it to become available");
                     result = rustsec::repository::git::Repository::fetch(
                         advisory_db_url,
@@ -72,7 +72,6 @@ impl Auditor {
                         DEFAULT_LOCK_TIMEOUT,
                     );
                 }
-                _ => {} // This was not a lock timeout, it will be handled later
             }
 
             let advisory_db_repo = result.unwrap_or_else(|e| {
