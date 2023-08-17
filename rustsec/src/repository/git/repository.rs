@@ -1,11 +1,16 @@
 //! Git repositories
 
+use gix::config::lock_timeout;
+
 use super::{Commit, DEFAULT_URL};
 use crate::{
     error::{Error, ErrorKind},
     fs,
 };
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 /// Directory under `~/.cargo` where the advisory-db repo will be kept
 const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
@@ -15,6 +20,8 @@ const REF_SPEC: &str = "+HEAD:refs/remotes/origin/HEAD";
 
 /// The direction of the remote
 const DIR: gix::remote::Direction = gix::remote::Direction::Fetch;
+
+const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 /// Git repository for a Rust advisory DB.
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
@@ -38,7 +45,12 @@ impl Repository {
     /// ## Locking
     /// This function performs directory locking internally. See [fetch](Repository::fetch) for locking considerations.
     pub fn fetch_default_repo() -> Result<Self, Error> {
-        Self::fetch(DEFAULT_URL, Repository::default_path(), true)
+        Self::fetch(
+            DEFAULT_URL,
+            Repository::default_path(),
+            true,
+            DEFAULT_LOCK_TIMEOUT,
+        )
     }
 
     /// Create a new [`Repository`] with the given URL and path, and fetch its contents.
@@ -55,6 +67,7 @@ impl Repository {
         url: &str,
         into_path: P,
         ensure_fresh: bool,
+        lock_timeout: Duration,
     ) -> Result<Self, Error> {
         if !url.starts_with("https://") {
             fail!(
@@ -81,16 +94,30 @@ impl Repository {
         if path.is_dir() && fs::read_dir(&path)?.next().is_none() {
             fs::remove_dir(&path)?;
         }
+        let lock_policy = if lock_timeout == Duration::from_secs(0) {
+            gix::lock::acquire::Fail::Immediately
+        } else {
+            gix::lock::acquire::Fail::AfterDurationWithBackoff(lock_timeout)
+        };
         let _lock = gix::lock::Marker::acquire_to_hold_resource(
             path.with_extension("rustsec"),
-            gix::lock::acquire::Fail::AfterDurationWithBackoff(std::time::Duration::from_secs(
-                60 * 10, /* 10 minutes */
-            )),
+            lock_policy,
             Some(std::path::PathBuf::from_iter(Some(
                 std::path::Component::RootDir,
             ))),
         )
-        .map_err(|err| format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err))?;
+        .map_err(|err| match err {
+            gix::lock::acquire::Error::Io(e) => format_err!(ErrorKind::Repo, "{e}"),
+            gix::lock::acquire::Error::PermanentlyLocked {
+                resource_path,
+                mode,
+                attempts,
+            } => format_err!(
+                ErrorKind::LockTimeout,
+                "directory \"{resource_path:?}\" still locked after {} seconds",
+                lock_timeout.as_secs()
+            ),
+        })?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();

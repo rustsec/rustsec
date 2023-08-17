@@ -88,6 +88,10 @@ pub enum ErrorKind {
     #[error("not found")]
     NotFound,
 
+    /// Unable to acquire filesystem lock
+    #[error("unable to acquire filesystem lock")]
+    LockTimeout,
+
     /// Couldn't parse response data
     #[error("parse error")]
     Parse,
