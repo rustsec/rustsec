@@ -8,10 +8,14 @@ use std::{
     io::{self, Read},
     path::Path,
     process::exit,
+    time::Duration,
 };
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
+
+// TODO: make configurable
+const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 /// Security vulnerability auditor
 pub struct Auditor {
@@ -50,12 +54,28 @@ impl Auditor {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
 
-            let advisory_db_repo = rustsec::repository::git::Repository::fetch(
+            let mut result = rustsec::repository::git::Repository::fetch(
                 advisory_db_url,
                 &advisory_db_path,
                 !config.database.stale,
-            )
-            .unwrap_or_else(|e| {
+                Duration::from_secs(0),
+            );
+            // If the directory is locked, print a message and wait for it to become unlocked.
+            // If we don't print the message, `cargo audit` would just hang with no explanation.
+            match &result {
+                Err(e) if e.kind() == ErrorKind::LockTimeout => {
+                    status_warn!("directory {advisory_db_path:?} is locked, waiting for up to {DEFAULT_LOCK_TIMEOUT} seconds for it to become available");
+                    result = rustsec::repository::git::Repository::fetch(
+                        advisory_db_url,
+                        &advisory_db_path,
+                        !config.database.stale,
+                        DEFAULT_LOCK_TIMEOUT,
+                    );
+                }
+                _ => {} // This was not a lock timeout, it will be handled later
+            }
+
+            let advisory_db_repo = result.unwrap_or_else(|e| {
                 status_err!("couldn't fetch advisory database: {}", e);
                 exit(1);
             });
