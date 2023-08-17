@@ -45,9 +45,9 @@ impl Repository {
     /// It will fail with [`rustsec::Error::LockTimeout`](rustsec::Error) if the lock is still held
     /// after that time. Use [Repository::fetch] if you need to configure locking behavior.
     ///
-    /// It relies on `panic = unwind` to avoid leaving stale locks if the process is interrupted with Ctrl+C.
-    /// To support `panic = abort` you also need to register a `gix` signal handler to clean up the locks,
-    /// see [`gix::interrupt::init_handler`].
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn fetch_default_repo() -> Result<Self, Error> {
         Self::fetch(
             DEFAULT_URL,
@@ -68,9 +68,9 @@ impl Repository {
     /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
     ///
-    /// It relies on `panic = unwind` to avoid leaving stale locks if the process is interrupted with Ctrl+C.
-    /// To support `panic = abort` you also need to register a `gix` signal handler to clean up the locks,
-    /// see [`gix::interrupt::init_handler`].
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
