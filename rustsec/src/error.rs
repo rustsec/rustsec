@@ -144,20 +144,27 @@ impl From<io::Error> for Error {
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 impl From<tame_index::Error> for Error {
-    fn from(other: tame_index::Error) -> Self {
-        if let tame_index::Error::Git(git_err) = &other {
-            if let tame_index::error::GitError::Lock(lock_err) = git_err {
-                return lock_err.into();
-            }
+    fn from(err: tame_index::Error) -> Self {
+        // Separate lock timeouts into their own LockTimeout variant.
+        //
+        // This is implemented with repetitive `match` rather than `if let`
+        // because `if let` causes errors around partial moves :(
+        match err {
+            tame_index::Error::Git(git_err) => {
+                match git_err {
+                    tame_index::error::GitError::Lock(lock_err) => lock_err.into(),
+                    other => format_err!(ErrorKind::Registry, "{}", other),
+                }
+            },
+            other => format_err!(ErrorKind::Registry, "{}", other),
         }
-        format_err!(ErrorKind::Registry, "{}", other)
     }
 }
 
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-impl From<&gix::lock::acquire::Error> for Error {
-    fn from(other: &gix::lock::acquire::Error) -> Self {
+impl From<gix::lock::acquire::Error> for Error {
+    fn from(other: gix::lock::acquire::Error) -> Self {
         match other {
             gix::lock::acquire::Error::Io(e) => format_err!(ErrorKind::Repo, "failed to aquire directory lock: {}", e),
             gix::lock::acquire::Error::PermanentlyLocked {
