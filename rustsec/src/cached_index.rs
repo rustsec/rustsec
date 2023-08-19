@@ -52,7 +52,20 @@ impl CachedIndex {
     /// information.
     ///
     /// If this is a sparse index, it will allow [`Self::populate_cache`] to
-    /// fetch the latest information from the remote HTTP index
+    /// fetch the latest information from the remote HTTP index.
+    ///
+    /// ## Locking
+    ///
+    /// This function will wait for up to `lock_timeout` for the filesystem lock on the repository.
+    /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
+    /// after that time.
+    ///
+    /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
+    /// and instead return an error immediately if it fails to aquire the lock.
+    ///
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn fetch(client: Option<ClientBuilder>, lock_timeout: Duration) -> Result<Self, Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
@@ -86,11 +99,22 @@ impl CachedIndex {
 
     /// Open the local crates.io index
     ///
-    /// If this opens a git index, it allows reading of index entries from the
-    /// repository
+    /// If this opens a git index, it allows reading of index entries from the repository.
     ///
-    /// If this is a sparse index, it only allows reading of index entries that
-    /// are already cached locally
+    /// If this is a sparse index, it only allows reading of index entries that are already cached locally.
+    ///
+    /// ## Locking
+    ///
+    /// This function will wait for up to `lock_timeout` for the filesystem lock on the repository.
+    /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
+    /// after that time.
+    ///
+    /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
+    /// and instead return an error immediately if it fails to aquire the lock.
+    ///
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn open(lock_timeout: Duration) -> Result<Self, Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
