@@ -105,7 +105,18 @@ impl Auditor {
                     status_ok!("Updating", "crates.io index");
                 }
 
-                match registry::CachedIndex::fetch(None) {
+                let mut result = registry::CachedIndex::fetch(None, Duration::from_secs(0));
+
+                // If the directory is locked, print a message and wait for it to become unlocked.
+                // If we don't print the message, `cargo audit` would just hang with no explanation.
+                if let Err(e) = &result {
+                    if e.kind() == ErrorKind::LockTimeout {
+                        status_warn!("directory {advisory_db_path:?} is locked, waiting for up to {DEFAULT_LOCK_TIMEOUT} seconds for it to become available");
+                        result = registry::CachedIndex::fetch(None, DEFAULT_LOCK_TIMEOUT);
+                    }
+                }
+
+                match result {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
@@ -116,7 +127,18 @@ impl Auditor {
                     }
                 }
             } else {
-                match registry::CachedIndex::open() {
+                let mut result = registry::CachedIndex::open(Duration::from_secs(0));
+
+                // If the directory is locked, print a message and wait for it to become unlocked.
+                // If we don't print the message, `cargo audit` would just hang with no explanation.
+                if let Err(e) = &result {
+                    if e.kind() == ErrorKind::LockTimeout {
+                        status_warn!("directory {advisory_db_path:?} is locked, waiting for up to {DEFAULT_LOCK_TIMEOUT} seconds for it to become available");
+                        result =  registry::CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
+                    }
+                }
+
+                match result {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
