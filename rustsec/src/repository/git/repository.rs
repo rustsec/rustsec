@@ -102,6 +102,8 @@ impl Repository {
         if path.is_dir() && fs::read_dir(&path)?.next().is_none() {
             fs::remove_dir(&path)?;
         }
+
+        // Acquire the lock on the checkout directory
         let lock_policy = if lock_timeout == Duration::from_secs(0) {
             gix::lock::acquire::Fail::Immediately
         } else {
