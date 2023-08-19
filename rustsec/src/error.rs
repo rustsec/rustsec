@@ -150,11 +150,9 @@ impl From<tame_index::Error> for Error {
         // This is implemented with repetitive `match` rather than `if let`
         // because `if let` causes errors around partial moves :(
         match err {
-            tame_index::Error::Git(git_err) => {
-                match git_err {
-                    tame_index::error::GitError::Lock(lock_err) => lock_err.into(),
-                    other => format_err!(ErrorKind::Registry, "{}", other),
-                }
+            tame_index::Error::Git(git_err) => match git_err {
+                tame_index::error::GitError::Lock(lock_err) => lock_err.into(),
+                other => format_err!(ErrorKind::Registry, "{}", other),
             },
             other => format_err!(ErrorKind::Registry, "{}", other),
         }
@@ -166,7 +164,9 @@ impl From<tame_index::Error> for Error {
 impl From<gix::lock::acquire::Error> for Error {
     fn from(other: gix::lock::acquire::Error) -> Self {
         match other {
-            gix::lock::acquire::Error::Io(e) => format_err!(ErrorKind::Repo, "failed to aquire directory lock: {}", e),
+            gix::lock::acquire::Error::Io(e) => {
+                format_err!(ErrorKind::Repo, "failed to aquire directory lock: {}", e)
+            }
             gix::lock::acquire::Error::PermanentlyLocked {
                 // rustc doesn't recognize inline printing as uses of variables,
                 // so we have to explicitly discard them here even though they are used
