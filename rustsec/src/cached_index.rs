@@ -60,7 +60,7 @@ impl CachedIndex {
 
         let index = match index {
             tame_index::index::ComboIndexCache::Git(gi) => {
-                let mut rgi = tame_index::index::RemoteGitIndex::new(gi)?;
+                let mut rgi = new_remote_git_index(gi)?;
                 rgi.fetch()?;
                 Index::Git(rgi)
             }
@@ -98,7 +98,7 @@ impl CachedIndex {
 
         let index = match index {
             tame_index::index::ComboIndexCache::Git(gi) => {
-                let rgi = tame_index::index::RemoteGitIndex::new(gi)?;
+                let rgi = new_remote_git_index(gi)?;
                 Index::Git(rgi)
             }
             tame_index::index::ComboIndexCache::Sparse(si) => Index::SparseCached(si),
@@ -233,4 +233,8 @@ impl CachedIndex {
 
         Ok(yanked)
     }
+}
+
+fn new_remote_git_index(index: tame_index::index::git::GitIndex) -> Result<tame_index::index::RemoteGitIndex, tame_index::Error> {
+    tame_index::index::RemoteGitIndex::new(index)
 }
