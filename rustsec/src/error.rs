@@ -146,9 +146,6 @@ impl From<io::Error> for Error {
 impl From<tame_index::Error> for Error {
     fn from(err: tame_index::Error) -> Self {
         // Separate lock timeouts into their own LockTimeout variant.
-        //
-        // This is implemented with repetitive `match` rather than `if let`
-        // because `if let` causes errors around partial moves :(
         match err {
             tame_index::Error::Git(git_err) => match git_err {
                 tame_index::error::GitError::Lock(lock_err) => lock_err.into(),
