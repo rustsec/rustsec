@@ -113,19 +113,7 @@ impl Repository {
             Some(std::path::PathBuf::from_iter(Some(
                 std::path::Component::RootDir,
             ))),
-        )
-        .map_err(|err| match err {
-            gix::lock::acquire::Error::Io(e) => format_err!(ErrorKind::Repo, "{}", e),
-            gix::lock::acquire::Error::PermanentlyLocked {
-                resource_path,
-                mode: _,
-                attempts: _,
-            } => format_err!(
-                ErrorKind::LockTimeout,
-                "directory \"{resource_path:?}\" still locked after {} seconds",
-                lock_timeout.as_secs()
-            ),
-        })?;
+        )?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();
