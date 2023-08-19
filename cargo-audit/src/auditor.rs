@@ -134,7 +134,7 @@ impl Auditor {
                 if let Err(e) = &result {
                     if e.kind() == ErrorKind::LockTimeout {
                         status_warn!("directory {advisory_db_path:?} is locked, waiting for up to {DEFAULT_LOCK_TIMEOUT} seconds for it to become available");
-                        result =  registry::CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
+                        result = registry::CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
                     }
                 }
 
