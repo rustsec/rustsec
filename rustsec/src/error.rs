@@ -145,7 +145,32 @@ impl From<io::Error> for Error {
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 impl From<tame_index::Error> for Error {
     fn from(other: tame_index::Error) -> Self {
+        if let tame_index::Error::Git(git_err) = &other {
+            if let tame_index::error::GitError::Lock(lock_err) = git_err {
+                return lock_err.into();
+            }
+        }
         format_err!(ErrorKind::Registry, "{}", other)
+    }
+}
+
+#[cfg(feature = "git")]
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
+impl From<&gix::lock::acquire::Error> for Error {
+    fn from(other: &gix::lock::acquire::Error) -> Self {
+        match other {
+            gix::lock::acquire::Error::Io(e) => format_err!(ErrorKind::Repo, "failed to aquire directory lock: {}", e),
+            gix::lock::acquire::Error::PermanentlyLocked {
+                // rustc doesn't recognize inline printing as uses of variables,
+                // so we have to explicitly discard them here even though they are used
+                resource_path: _,
+                mode: _,
+                attempts: _,
+            } => format_err!(
+                ErrorKind::LockTimeout,
+                "directory \"{resource_path:?}\" still locked after {attempts} attempts"
+            ),
+        }
     }
 }
 
