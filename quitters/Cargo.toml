@@ -12,4 +12,4 @@ categories = ["parsing"]
 once_cell = "1.15.0"
 # we don't need unicode support in regex, so drop it to reduce binary size and attack surface
 regex = { version = "1.7.2", default-features = false, features = ["std", "perf"] }
-semver = "1.0.17"
+semver = "1.0.18"
