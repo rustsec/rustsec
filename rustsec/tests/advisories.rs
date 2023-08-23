@@ -2,7 +2,7 @@
 
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-use rustsec::advisory::Category;
+use rustsec::advisory::{Category, License};
 use std::path::Path;
 
 /// Example RustSec Advisory to use for tests
@@ -16,6 +16,14 @@ fn load_example_v3_advisory() -> rustsec::Advisory {
 /// Load example V4 advisory from the filesystem
 fn load_example_v4_advisory() -> rustsec::Advisory {
     rustsec::Advisory::load_file(Path::new("./tests/support/example_advisory_v4.md")).unwrap()
+}
+
+/// Load example V4 advisory from the filesystem
+fn load_example_v4_advisory_from_github() -> rustsec::Advisory {
+    rustsec::Advisory::load_file(Path::new(
+        "./tests/support/example_advisory_v4_from_ghsa.md",
+    ))
+    .unwrap()
 }
 
 /// Basic metadata
@@ -45,7 +53,13 @@ fn parse_metadata() {
         for (i, kw) in ["how", "are", "you", "gentlemen"].iter().enumerate() {
             assert_eq!(*kw, advisory.metadata.keywords[i].as_str());
         }
+
+        assert_eq!(advisory.metadata.license, License::CcZero10);
     }
+
+    // Test fields specific to advisories imported from other sources
+    let ghsa = load_example_v4_advisory_from_github();
+    assert_eq!(ghsa.metadata.license, License::CcBy40);
 }
 
 /// Parsing of impact metadata
