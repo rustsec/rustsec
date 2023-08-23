@@ -9,6 +9,7 @@ use abscissa_core::terminal::{
     Color::{self, Red, Yellow},
 };
 use rustsec::{
+    advisory::License,
     cargo_lock::{
         dependency::{self, graph::EdgeDirection, Dependency},
         Lockfile, Package,
@@ -307,9 +308,34 @@ impl Presenter {
         self.print_attr(color, "Date:     ", &metadata.date);
         self.print_attr(color, "ID:       ", &metadata.id);
 
-        if let Some(url) = metadata.id.url() {
-            self.print_attr(color, "URL:      ", url);
-        } else if let Some(url) = &metadata.url {
+        // URL explicitly specified in the `url` field
+        let url: Option<&str> = metadata.url.as_ref().map(|u| u.as_str());
+        // URL derived from the ID itself, e.g. https://rustsec.org/advisories/RUSTSEC-2023-0052.html
+        let intermediate = metadata.id.url();
+        let id_url: Option<&str> = intermediate.as_deref();
+
+        let print_url = if metadata.license == License::CcBy40 {
+            // If the license is CC-BY 4.0, we must preserve the URL
+            if url.is_some() {
+                url
+            // but if somehow no URL was specified, fall back to the ID URL
+            } else if id_url.is_some() {
+                id_url
+            } else {
+                None
+            }
+        } else {
+            // Attribution is not required, prefer the ID URL
+            if id_url.is_some() {
+                id_url
+            } else if url.is_some() {
+                url
+            } else {
+                None
+            }
+        };
+
+        if let Some(url) = print_url {
             self.print_attr(color, "URL:      ", url);
         }
 
