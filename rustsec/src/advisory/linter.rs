@@ -162,7 +162,7 @@ impl Linter {
                             });
                         }
                     }
-                    "url" | "attribution_url" => {
+                    "url" => {
                         if let Some(url) = value.as_str() {
                             if !url.starts_with("https://") {
                                 self.errors.push(Error {
