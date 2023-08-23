@@ -203,7 +203,7 @@ impl Linter {
                         if let Some(l) = value.as_str() {
                             // We don't want to accept any license, only explicitly accepted ones
                             let unknown_license =
-                                License::from_str(l).map(|l| l.is_other()).unwrap_or(true);
+                                matches!(License::from_str(l).unwrap(), License::Other(_));
                             if unknown_license {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("license", l.to_string()),

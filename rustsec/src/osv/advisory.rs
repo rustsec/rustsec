@@ -208,7 +208,7 @@ impl OsvAdvisory {
             details: metadata.description,
             references: osv_references(reference_urls),
             database_specific: MainOsvDatabaseSpecific {
-                license: metadata.license.as_str().to_string(),
+                license: metadata.license.spdx().to_string(),
             },
         }
     }

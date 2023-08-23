@@ -234,6 +234,7 @@ header span.subtitle p {
   background: #190079;
 }
 
-.license {
+.advisory p.license {
     font-style: italic;
+    margin-top: 1.5em;
 }
