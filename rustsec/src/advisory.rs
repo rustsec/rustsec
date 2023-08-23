@@ -19,6 +19,7 @@ pub use self::{
     id::{Id, IdKind},
     informational::Informational,
     keyword::Keyword,
+    license::License,
     linter::Linter,
     metadata::Metadata,
     parts::Parts,
@@ -88,11 +89,6 @@ impl Advisory {
     /// Whether the advisory has been withdrawn, i.e. soft-deleted
     pub fn withdrawn(&self) -> bool {
         self.metadata.withdrawn.is_some()
-    }
-
-    /// License under which this advisory is available, represented as an SPDX identifier.
-    pub fn license(&self) -> &str {
-        self.metadata.license.as_str()
     }
 }
 
