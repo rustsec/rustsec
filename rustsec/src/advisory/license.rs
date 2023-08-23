@@ -5,9 +5,11 @@ use std::str::FromStr;
 #[derive(Clone, Debug, Eq, PartialEq)]
 /// Type representing allowed licenses for advisory content
 enum LicenseVariant {
-    /// CC0-1.0
-    CreativeCommonsZero10,
-    /// CC-BY-4.0
+    /// Creative Commons Zero v1.0 Universal
+    /// SPDX identifier: CC0-1.0
+    CcZero10,
+    /// Creative Commons Attribution 4.0 International
+    /// SPDX identifier: CC-BY-4.0
     ///
     /// Note: For GitHub Security Advisories database,
     /// providing a link is [documented](https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features#advisory-database)
@@ -16,7 +18,7 @@ enum LicenseVariant {
     /// For advisories imported from a GitHub Security Advisory, we follow this by putting the
     /// original URL in the `url` filed of the RustSec advisory, as it assures the link will be
     /// visible to downstream users.
-    CreativeCommonsCc40,
+    CcBy40,
     /// Other SPDX requirement
     Other(String),
 }
@@ -30,7 +32,7 @@ pub struct License {
 impl Default for License {
     fn default() -> Self {
         Self {
-            inner: LicenseVariant::CreativeCommonsZero10,
+            inner: LicenseVariant::CcZero10,
         }
     }
 }
@@ -42,8 +44,8 @@ impl FromStr for License {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self {
             inner: match s {
-                "CC0-1.0" => LicenseVariant::CreativeCommonsZero10,
-                "CC-BY-4.0" => LicenseVariant::CreativeCommonsCc40,
+                "CC0-1.0" => LicenseVariant::CcZero10,
+                "CC-BY-4.0" => LicenseVariant::CcBy40,
                 l => LicenseVariant::Other(l.to_string()),
             },
         })
@@ -79,8 +81,8 @@ impl License {
     /// Get license as an `&str` containing the SPDX identifier
     pub fn as_str(&self) -> &str {
         match self.inner {
-            LicenseVariant::CreativeCommonsCc40 => "CC-BY-4.0",
-            LicenseVariant::CreativeCommonsZero10 => "CC0-1.0",
+            LicenseVariant::CcBy40 => "CC-BY-4.0",
+            LicenseVariant::CcZero10 => "CC0-1.0",
             LicenseVariant::Other(ref l) => l,
         }
     }
@@ -92,11 +94,11 @@ impl License {
 
     /// Is this a CC0-1.0 license?
     pub fn is_cc0_10(&self) -> bool {
-        matches!(self.inner, LicenseVariant::CreativeCommonsZero10)
+        matches!(self.inner, LicenseVariant::CcZero10)
     }
 
     /// Is this a CC-BY-4.0 license?
     pub fn is_cc_by_40(&self) -> bool {
-        matches!(self.inner, LicenseVariant::CreativeCommonsCc40)
+        matches!(self.inner, LicenseVariant::CcBy40)
     }
 }
