@@ -154,8 +154,6 @@ pub struct OsvDatabaseSpecific {
 #[derive(Debug, Clone, Serialize)]
 pub struct MainOsvDatabaseSpecific {
     license: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    attribution_url: Option<Url>,
 }
 
 impl OsvAdvisory {
@@ -211,7 +209,6 @@ impl OsvAdvisory {
             references: osv_references(reference_urls),
             database_specific: MainOsvDatabaseSpecific {
                 license: metadata.license.as_str().to_string(),
-                attribution_url: metadata.attribution_url.clone(),
             },
         }
     }

@@ -8,6 +8,14 @@ enum LicenseVariant {
     /// CC0-1.0
     CreativeCommonsZero10,
     /// CC-BY-4.0
+    ///
+    /// Note: For GitHub Security Advisories database,
+    /// providing a link is [documented](https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features#advisory-database)
+    /// as fulfilling the attribution obligation for the CC-BY 4.0 license used.
+    ///
+    /// For advisories imported from a GitHub Security Advisory, we follow this by putting the
+    /// original URL in the `url` filed of the RustSec advisory, as it assures the link will be
+    /// visible to downstream users.
     CreativeCommonsCc40,
     /// Other SPDX requirement
     Other(String),

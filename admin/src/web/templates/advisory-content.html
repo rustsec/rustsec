@@ -281,10 +281,13 @@
     <p id="license" class="license">Advisory available under <a href="https://spdx.org/licenses/{{ advisory.license() }}.html">{{ advisory.license() }}</a>
     license.
 
-    {% match advisory.metadata.attribution_url %}
-      {% when Some with (url) %}
-    Source: <a href="{{ url }}">{{ url }}</a>
-      {% when None %}
-    {% endmatch %}
+    {% if advisory.license() == "CC-BY-4.0" %}
+      {# License requires attribution, make it explicit #}
+      {% match advisory.metadata.url %}
+        {% when Some with (url) %}
+          Source: <a href="{{ url }}">{{ url }}</a>
+        {% when None %}
+      {% endmatch %}
+    {% endif %}
     </p>
   </article>

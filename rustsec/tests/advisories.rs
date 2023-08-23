@@ -55,16 +55,11 @@ fn parse_metadata() {
         }
 
         assert_eq!(advisory.license(), "CC0-1.0");
-        assert!(advisory.metadata.attribution_url.is_none());
     }
 
     // Test fields specific to advisories imported from other sources
     let ghsa = load_example_v4_advisory_from_github();
     assert_eq!(ghsa.metadata.license.as_str(), "CC-BY-4.0");
-    assert_eq!(
-        ghsa.metadata.attribution_url.unwrap().as_str(),
-        "https://github.com/advisories/GHSA-f8vr-r385-rh5r"
-    );
 }
 
 /// Parsing of impact metadata

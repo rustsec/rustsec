@@ -86,12 +86,4 @@ pub struct Metadata {
     /// License under which the advisory content is available
     #[serde(default)]
     pub license: License,
-
-    /// Link to the original content, required by some licenses.
-    ///
-    /// For GitHub Security Advisories database,
-    /// providing a link is [documented](https://docs.github.com/en/site-policy/github-terms/github-terms-for-additional-products-and-features#advisory-database)
-    /// as fulfilling the attribution obligation for the CC-BY 4.0 license used.
-    #[serde(default)]
-    pub attribution_url: Option<Url>,
 }
