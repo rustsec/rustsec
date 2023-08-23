@@ -5,31 +5,18 @@
 use rustsec::advisory::{Category, License};
 use std::path::Path;
 
-/// Example RustSec Advisory to use for tests
-const EXAMPLE_V3_ADVISORY_PATH: &str = "./tests/support/example_advisory_v3.md";
-
-/// Load example V3 advisory from the filesystem
-fn load_example_v3_advisory() -> rustsec::Advisory {
-    rustsec::Advisory::load_file(Path::new(EXAMPLE_V3_ADVISORY_PATH)).unwrap()
-}
-
-/// Load example V4 advisory from the filesystem
-fn load_example_v4_advisory() -> rustsec::Advisory {
-    rustsec::Advisory::load_file(Path::new("./tests/support/example_advisory_v4.md")).unwrap()
-}
-
-/// Load example V4 advisory from the filesystem
-fn load_example_v4_advisory_from_github() -> rustsec::Advisory {
-    rustsec::Advisory::load_file(Path::new(
-        "./tests/support/example_advisory_v4_from_ghsa.md",
-    ))
+/// Load example advisory from the filesystem
+fn load_advisory(case: &str) -> rustsec::Advisory {
+    rustsec::Advisory::load_file(Path::new(&format!(
+        "./tests/support/example_advisory_{case}.md"
+    )))
     .unwrap()
 }
 
 /// Basic metadata
 #[test]
 fn parse_metadata() {
-    for advisory in &[load_example_v3_advisory(), load_example_v4_advisory()] {
+    for advisory in &[load_advisory("v3"), load_advisory("v4")] {
         assert_eq!(advisory.metadata.id.as_str(), "RUSTSEC-2001-2101");
         assert_eq!(advisory.metadata.package.as_str(), "base");
         assert_eq!(advisory.title(), "All your base are belong to us");
@@ -57,15 +44,19 @@ fn parse_metadata() {
         assert_eq!(advisory.metadata.license, License::CcZero10);
     }
 
-    // Test fields specific to advisories imported from other sources
-    let ghsa = load_example_v4_advisory_from_github();
+    // Test fields specific to advisories imported from GitHub
+    let ghsa = load_advisory("v4_from_ghsa");
     assert_eq!(ghsa.metadata.license, License::CcBy40);
+
+    // Test advisory with unknown license
+    let ghsa = load_advisory("v4_unknown_license");
+    assert_eq!(ghsa.metadata.license, License::Other("MPL-2.0".to_string()));
 }
 
 /// Parsing of impact metadata
 #[test]
 fn parse_affected() {
-    let affected = load_example_v3_advisory().affected.unwrap();
+    let affected = load_advisory("v3").affected.unwrap();
     assert_eq!(affected.arch[0], platforms::target::Arch::X86);
     assert_eq!(affected.os[0], platforms::target::OS::Windows);
 
@@ -78,7 +69,7 @@ fn parse_affected() {
 /// Parsing of other aliased advisory IDs
 #[test]
 fn parse_aliases() {
-    let alias = &load_example_v3_advisory().metadata.aliases[0];
+    let alias = &load_advisory("v3").metadata.aliases[0];
     assert!(alias.is_cve());
     assert_eq!(alias.year().unwrap(), 2001);
 }
@@ -86,7 +77,7 @@ fn parse_aliases() {
 /// Parsing of CVSS v3.1 severity vector strings
 #[test]
 fn parse_cvss_vector_string() {
-    let advisory = load_example_v3_advisory();
+    let advisory = load_advisory("v3");
     assert_eq!(
         advisory.severity().unwrap(),
         rustsec::advisory::Severity::Critical
@@ -107,7 +98,7 @@ fn parse_cvss_vector_string() {
 /// Parsing of patched version reqs
 #[test]
 fn parse_patched_version_reqs() {
-    let advisory = load_example_v3_advisory();
+    let advisory = load_advisory("v3");
     let req = &advisory.versions.patched()[0];
     assert!(!req.matches(&"1.2.2".parse().unwrap()));
     assert!(req.matches(&"1.2.3".parse().unwrap()));

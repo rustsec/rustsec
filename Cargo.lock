@@ -2846,6 +2846,7 @@ dependencies = [
  "semver",
  "serde",
  "tame-index",
+ "serde_json",
  "tempfile",
  "thiserror",
  "time",
