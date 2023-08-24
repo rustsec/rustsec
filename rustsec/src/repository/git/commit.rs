@@ -1,5 +1,7 @@
 //! Commits to the advisory DB git repository
 
+use tame_index::external::gix;
+
 use crate::{
     error::{Error, ErrorKind},
     repository::{git::Repository, signature::Signature},
@@ -141,13 +143,13 @@ impl Commit {
         use gix::prelude::FindExt;
         let mut index = gix::index::File::from_state(index, repo.index_path());
 
-        let opts = gix::worktree::checkout::Options {
+        let opts = gix::worktree::state::checkout::Options {
             destination_is_initially_empty: false,
             overwrite_existing: true,
             ..Default::default()
         };
 
-        gix::worktree::checkout(
+        gix::worktree::state::checkout(
             &mut index,
             workdir,
             {

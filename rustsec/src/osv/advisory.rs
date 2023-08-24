@@ -1,5 +1,7 @@
 //! OSV advisories.
 
+use tame_index::external::gix;
+
 use super::ranges_for_advisory;
 use crate::{
     advisory::{affected::FunctionPath, Affected, Category, Id, Informational},
