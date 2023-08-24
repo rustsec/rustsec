@@ -1,5 +1,7 @@
 //! Commits to the advisory DB git repository
 
+use tame_index::external::gix;
+
 use crate::{
     error::{Error, ErrorKind},
     repository::{git::Repository, signature::Signature},

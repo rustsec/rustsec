@@ -1,4 +1,5 @@
 //! Git repositories
+use tame_index::external::gix;
 
 use super::{Commit, DEFAULT_URL};
 use crate::{

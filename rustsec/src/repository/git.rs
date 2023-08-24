@@ -8,6 +8,7 @@ mod modification_time;
 mod repository;
 
 pub use self::{commit::Commit, repository::Repository};
+use tame_index::external::gix;
 
 #[cfg(feature = "osv-export")]
 pub use self::{gitpath::GitPath, modification_time::GitModificationTimes};
