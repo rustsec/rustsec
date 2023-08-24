@@ -76,6 +76,7 @@ impl CachedIndex {
 
                 Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client))
             }
+            _ => panic!("Unsupported crates.io index type"),
         };
 
         Ok(CachedIndex {
@@ -102,6 +103,7 @@ impl CachedIndex {
                 Index::Git(rgi)
             }
             tame_index::index::ComboIndexCache::Sparse(si) => Index::SparseCached(si),
+            _ => panic!("Unsupported crates.io index type"),
         };
 
         Ok(CachedIndex {
