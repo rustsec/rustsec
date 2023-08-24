@@ -1,5 +1,6 @@
 use crate::advisory::Date;
 use crate::error::{Error, ErrorKind};
+use tame_index::external::gix;
 use gix::date::Time;
 use std::{
     cmp::{max, min},

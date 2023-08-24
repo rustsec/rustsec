@@ -27,20 +27,9 @@ url = { version = "2", features = ["serde"] }
 cargo-edit = { version = "0.9", package = "cargo-edit-9", optional = true, default-features = false, features = [
     "upgrade",
 ] }
-tame-index = { version = "0.4", default-features = false, features = ["git", "sparse", "native-certs"], optional = true }
+tame-index = { version = "0.5.3", default-features = false, features = ["git", "sparse", "native-certs"], optional = true }
 home = { version = "0.5", optional = true }
 time = { version = "0.3", default-features = false, features = ["formatting", "serde"], optional = true }
-
-[dependencies.gix]
-version = "0.51"
-optional = true
-default-features = false
-features = [
-  # TLS features are non-trivial and are enabled by the `tame-index` crate,
-  # so we do not duplicate them here
-  "blocking-network-client",
-  "max-performance-safe",
-]
 
 [dev-dependencies]
 tempfile = "3"
@@ -52,7 +41,6 @@ default = ["git"]
 fix = ["dep:cargo-edit"]
 git = [
     "dep:tame-index",
-    "dep:gix",
     "dep:home",
     "dep:time",
 ]
