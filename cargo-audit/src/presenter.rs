@@ -9,6 +9,7 @@ use abscissa_core::terminal::{
     Color::{self, Red, Yellow},
 };
 use rustsec::{
+    advisory::License,
     cargo_lock::{
         dependency::{self, graph::EdgeDirection, Dependency},
         Lockfile, Package,
@@ -307,10 +308,21 @@ impl Presenter {
         self.print_attr(color, "Date:     ", &metadata.date);
         self.print_attr(color, "ID:       ", &metadata.id);
 
-        if let Some(url) = metadata.id.url() {
-            self.print_attr(color, "URL:      ", url);
-        } else if let Some(url) = &metadata.url {
-            self.print_attr(color, "URL:      ", url);
+        if metadata.license == License::CcBy40 {
+            // We must preserve the original URL from the `url` field
+            if let Some(url) = &metadata.url {
+                self.print_attr(color, "URL:      ", url);
+            } else if let Some(url) = &metadata.id.url() {
+                self.print_attr(color, "URL:      ", url);
+            }
+        } else {
+            // Prefer ID URL because the `url` field usually points to a bug tracker
+            // or any other non-canonical source rather than an actual security advisory
+            if let Some(url) = &metadata.id.url() {
+                self.print_attr(color, "URL:      ", url);
+            } else if let Some(url) = &metadata.url {
+                self.print_attr(color, "URL:      ", url);
+            }
         }
 
         if let Some(cvss) = &metadata.cvss {
