@@ -1,5 +1,5 @@
 //! An efficient way to check whether a given package has been yanked
-use std::collections::{BTreeSet, HashMap};
+use std::{collections::{BTreeSet, HashMap}, time::Duration};
 
 use crate::{
     error::{Error, ErrorKind},
@@ -49,14 +49,27 @@ impl CachedIndex {
     /// information.
     ///
     /// If this is a sparse index, it will be downloaded later on demand.
-    pub fn fetch(client: Option<ClientBuilder>) -> Result<Self, Error> {
+    ///
+    /// ## Locking
+    ///
+    /// This function will wait for up to `lock_timeout` for the filesystem lock on the repository.
+    /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
+    /// after that time.
+    ///
+    /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
+    /// and instead return an error immediately if it fails to aquire the lock.
+    ///
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
+    pub fn fetch(client: Option<ClientBuilder>, lock_timeout: Duration) -> Result<Self, Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
 
         let index = match index {
             tame_index::index::ComboIndexCache::Git(gi) => {
-                let mut rgi = tame_index::index::RemoteGitIndex::new(gi)?;
+                let mut rgi = new_remote_git_index(gi, lock_timeout)?;
                 rgi.fetch()?;
                 Index::Git(rgi)
             }
@@ -72,6 +85,7 @@ impl CachedIndex {
 
                 Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client))
             }
+            _ => panic!("Unsupported crates.io index type"),
         };
 
         Ok(CachedIndex {
@@ -84,19 +98,32 @@ impl CachedIndex {
     ///
     /// If this opens a git index, it allows reading of index entries from the repository.
     ///
-    /// If this is a sparse index, it only allows reading of index entries that
-    /// are already cached locally.
-    pub fn open() -> Result<Self, Error> {
+    /// If this is a sparse index, it only allows reading of index entries that are already cached locally.
+    ///
+    /// ## Locking
+    ///
+    /// This function will wait for up to `lock_timeout` for the filesystem lock on the repository.
+    /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
+    /// after that time.
+    ///
+    /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
+    /// and instead return an error immediately if it fails to aquire the lock.
+    ///
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
+    pub fn open(lock_timeout: Duration) -> Result<Self, Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
 
         let index = match index {
             tame_index::index::ComboIndexCache::Git(gi) => {
-                let rgi = tame_index::index::RemoteGitIndex::new(gi)?;
+                let rgi = new_remote_git_index(gi, lock_timeout)?;
                 Index::Git(rgi)
             }
             tame_index::index::ComboIndexCache::Sparse(si) => Index::SparseCached(si),
+            _ => panic!("Unsupported crates.io index type"),
         };
 
         Ok(CachedIndex {
@@ -127,8 +154,7 @@ impl CachedIndex {
                 /// This is the timeout per individual crate. If a crate fails to be
                 /// requested for a retriable reason then it will be retried until
                 /// this time limit is reached
-                const REQUEST_TIMEOUT: Option<std::time::Duration> =
-                    Some(std::time::Duration::from_secs(10));
+                const REQUEST_TIMEOUT: Option<Duration> = Some(Duration::from_secs(10));
 
                 let results = rsi
                     .krates_blocking(
@@ -238,4 +264,22 @@ impl CachedIndex {
 
         yanked
     }
+}
+
+/// Replacement to [tame_index::index::RemoteGitIndex::new] that also supports passing the lock timeout
+fn new_remote_git_index(
+    index: tame_index::index::git::GitIndex,
+    lock_timeout: Duration,
+) -> Result<tame_index::index::RemoteGitIndex, tame_index::Error> {
+    let lock_policy = if lock_timeout == Duration::from_secs(0) {
+        gix::lock::acquire::Fail::Immediately
+    } else {
+        gix::lock::acquire::Fail::AfterDurationWithBackoff(lock_timeout)
+    };
+    tame_index::index::RemoteGitIndex::with_options(
+        index,
+        gix::progress::Discard,
+        &gix::interrupt::IS_INTERRUPTED,
+        lock_policy,
+    )
 }

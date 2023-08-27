@@ -1,11 +1,15 @@
 //! Git repositories
+use tame_index::external::gix;
 
 use super::{Commit, DEFAULT_URL};
 use crate::{
     error::{Error, ErrorKind},
     fs,
 };
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 /// Directory under `~/.cargo` where the advisory-db repo will be kept
 const ADVISORY_DB_DIRECTORY: &str = "advisory-db";
@@ -15,6 +19,8 @@ const REF_SPEC: &str = "+HEAD:refs/remotes/origin/HEAD";
 
 /// The direction of the remote
 const DIR: gix::remote::Direction = gix::remote::Direction::Fetch;
+
+const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 /// Git repository for a Rust advisory DB.
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
@@ -36,25 +42,41 @@ impl Repository {
     /// Fetch the default repository.
     ///
     /// ## Locking
-    /// This function performs directory locking internally. See [fetch](Repository::fetch) for locking considerations.
+    /// This function will wait for up to 5 minutes for the filesystem lock on the repository.
+    /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
+    /// after that time. Use [Repository::fetch] if you need to configure locking behavior.
+    ///
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn fetch_default_repo() -> Result<Self, Error> {
-        Self::fetch(DEFAULT_URL, Repository::default_path(), true)
+        Self::fetch(
+            DEFAULT_URL,
+            Repository::default_path(),
+            true,
+            DEFAULT_LOCK_TIMEOUT,
+        )
     }
 
     /// Create a new [`Repository`] with the given URL and path, and fetch its contents.
     ///
     /// ## Locking
     ///
-    /// This function locks the directory internally.
-    /// It will wait for up to 10 minutes for the lock to become available before giving up.
+    /// This function will wait for up to `lock_timeout` for the filesystem lock on the repository.
+    /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
+    /// after that time.
     ///
-    /// It relies on `panic = unwind` to avoid leaving stale locks if the process is interrupted with Ctrl+C.
-    /// To support `panic = abort` you also need to register a `gix` signal handler to clean up the locks,
-    /// see [`gix::interrupt::init_handler`].
+    /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
+    /// and instead return an error immediately if it fails to aquire the lock.
+    ///
+    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
+    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
+    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
         ensure_fresh: bool,
+        lock_timeout: Duration,
     ) -> Result<Self, Error> {
         if !url.starts_with("https://") {
             fail!(
@@ -81,16 +103,20 @@ impl Repository {
         if path.is_dir() && fs::read_dir(&path)?.next().is_none() {
             fs::remove_dir(&path)?;
         }
+
+        // Acquire the lock on the checkout directory
+        let lock_policy = if lock_timeout == Duration::from_secs(0) {
+            gix::lock::acquire::Fail::Immediately
+        } else {
+            gix::lock::acquire::Fail::AfterDurationWithBackoff(lock_timeout)
+        };
         let _lock = gix::lock::Marker::acquire_to_hold_resource(
             path.with_extension("rustsec"),
-            gix::lock::acquire::Fail::AfterDurationWithBackoff(std::time::Duration::from_secs(
-                60 * 10, /* 10 minutes */
-            )),
+            lock_policy,
             Some(std::path::PathBuf::from_iter(Some(
                 std::path::Component::RootDir,
             ))),
-        )
-        .map_err(|err| format_err!(ErrorKind::Repo, "unable to acquire repo lock: {}", err))?;
+        )?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();

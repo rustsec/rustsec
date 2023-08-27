@@ -88,6 +88,10 @@ pub enum ErrorKind {
     #[error("not found")]
     NotFound,
 
+    /// Unable to acquire filesystem lock
+    #[error("unable to acquire filesystem lock")]
+    LockTimeout,
+
     /// Couldn't parse response data
     #[error("parse error")]
     Parse,
@@ -140,8 +144,37 @@ impl From<io::Error> for Error {
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 impl From<tame_index::Error> for Error {
-    fn from(other: tame_index::Error) -> Self {
-        format_err!(ErrorKind::Registry, "{}", other)
+    fn from(err: tame_index::Error) -> Self {
+        // Separate lock timeouts into their own LockTimeout variant.
+        match err {
+            tame_index::Error::Git(git_err) => match git_err {
+                tame_index::error::GitError::Lock(lock_err) => lock_err.into(),
+                other => format_err!(ErrorKind::Registry, "{}", other),
+            },
+            other => format_err!(ErrorKind::Registry, "{}", other),
+        }
+    }
+}
+
+#[cfg(feature = "git")]
+#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
+impl From<gix::lock::acquire::Error> for Error {
+    fn from(other: gix::lock::acquire::Error) -> Self {
+        match other {
+            gix::lock::acquire::Error::Io(e) => {
+                format_err!(ErrorKind::Repo, "failed to aquire directory lock: {}", e)
+            }
+            gix::lock::acquire::Error::PermanentlyLocked {
+                // rustc doesn't recognize inline printing as uses of variables,
+                // so we have to explicitly discard them here even though they are used
+                resource_path: _,
+                mode: _,
+                attempts: _,
+            } => format_err!(
+                ErrorKind::LockTimeout,
+                "directory \"{resource_path:?}\" still locked after {attempts} attempts"
+            ),
+        }
     }
 }
 
