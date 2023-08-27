@@ -1,5 +1,8 @@
 //! An efficient way to check whether a given package has been yanked
-use std::{collections::{BTreeSet, HashMap}, time::Duration};
+use std::{
+    collections::{BTreeSet, HashMap},
+    time::Duration,
+};
 
 use crate::{
     error::{Error, ErrorKind},
