@@ -144,12 +144,6 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<toml::de::Error> for Error {
-    fn from(other: toml::de::Error) -> Self {
-        format_err!(ErrorKind::Parse, &other)
-    }
-}
-
 impl Error {
     /// Converts from [`tame_index::Error`] to our `Error`.
     ///

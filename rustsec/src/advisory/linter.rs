@@ -52,7 +52,10 @@ impl Linter {
 
         // Get advisory "front matter" (TOML formatted)
         let advisory_parts = parts::Parts::parse(s)?;
-        let front_matter = advisory_parts.front_matter.parse::<toml::Value>()?;
+        let front_matter = advisory_parts
+            .front_matter
+            .parse::<toml::Value>()
+            .map_err(|e| format_err!(crate::ErrorKind::Parse, &e))?;
 
         let mut linter = Self {
             advisory,
