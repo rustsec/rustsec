@@ -116,7 +116,8 @@ impl Repository {
             Some(std::path::PathBuf::from_iter(Some(
                 std::path::Component::RootDir,
             ))),
-        )?;
+        )
+        .map_err(Error::from_gix_lock)?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();
