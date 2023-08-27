@@ -17,7 +17,7 @@ const STALE_AFTER: Duration = Duration::from_secs(90 * 86400);
 #[derive(Debug)]
 pub struct Commit {
     /// ID (i.e. SHA-1 hash) of the latest commit
-    pub commit_id: gix::ObjectId,
+    pub commit_id: gix::ObjectId, // TODO: wrap
 
     /// Information about the author of a commit
     pub author: String,
