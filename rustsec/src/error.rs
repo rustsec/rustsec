@@ -7,6 +7,7 @@ use std::{
 };
 use thiserror::Error;
 
+#[cfg(feature = "git")]
 use tame_index::external::gix;
 
 /// Create a new error (of a given enum variant) with a formatted message
