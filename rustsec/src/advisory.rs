@@ -106,7 +106,7 @@ impl FromStr for Advisory {
         };
 
         let mut advisory: Self =
-            toml::from_str(&front_matter).map_err(|e| format_err!(crate::ErrorKind::Parse, &e))?;
+            toml::from_str(&front_matter).map_err(crate::Error::from_toml)?;
 
         if !advisory.metadata.title.is_empty() {
             fail!(
