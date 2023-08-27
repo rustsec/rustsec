@@ -55,7 +55,7 @@ impl Linter {
         let front_matter = advisory_parts
             .front_matter
             .parse::<toml::Value>()
-            .map_err(|e| format_err!(crate::ErrorKind::Parse, &e))?;
+            .map_err(crate::Error::from_toml)?;
 
         let mut linter = Self {
             advisory,

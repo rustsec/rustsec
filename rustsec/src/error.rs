@@ -189,4 +189,12 @@ impl Error {
             ),
         }
     }
+
+    /// Converts from [`toml::de::Error`] to our `Error`.
+    ///
+    /// This is used so rarely that there is no need to `impl From`,
+    /// and this way we can avoid leaking it into the public API.
+    pub(crate) fn from_toml(other: toml::de::Error) -> Self {
+        format_err!(crate::ErrorKind::Parse, &other)
+    }
 }
