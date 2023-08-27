@@ -146,21 +146,6 @@ impl From<io::Error> for Error {
 
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-impl From<tame_index::Error> for Error {
-    fn from(err: tame_index::Error) -> Self {
-        // Separate lock timeouts into their own LockTimeout variant.
-        match err {
-            tame_index::Error::Git(git_err) => match git_err {
-                tame_index::error::GitError::Lock(lock_err) => lock_err.into(),
-                other => format_err!(ErrorKind::Registry, "{}", other),
-            },
-            other => format_err!(ErrorKind::Registry, "{}", other),
-        }
-    }
-}
-
-#[cfg(feature = "git")]
-#[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 impl From<gix::lock::acquire::Error> for Error {
     fn from(other: gix::lock::acquire::Error) -> Self {
         match other {
@@ -190,5 +175,26 @@ impl From<semver::Error> for Error {
 impl From<toml::de::Error> for Error {
     fn from(other: toml::de::Error) -> Self {
         format_err!(ErrorKind::Parse, &other)
+    }
+}
+
+impl Error {
+    /// Converts from [`tame_index::Error`] to our `Error`.
+    ///
+    /// This is a separate function instead of a `From` impl
+    /// because a trait impl would leak into the public API,
+    /// and we need to keep it private because tame_index semver
+    /// will be bumped frequently and we don't want to bump `rustsec` semver
+    /// every time it changes.
+    #[cfg(feature = "git")]
+    pub(crate) fn from_tame(err: tame_index::Error) -> Self {
+        // Separate lock timeouts into their own LockTimeout variant.
+        match err {
+            tame_index::Error::Git(git_err) => match git_err {
+                tame_index::error::GitError::Lock(lock_err) => lock_err.into(),
+                other => format_err!(ErrorKind::Registry, "{}", other),
+            },
+            other => format_err!(ErrorKind::Registry, "{}", other),
+        }
     }
 }
