@@ -1,11 +1,15 @@
 //! An efficient way to check whether a given package has been yanked
-use std::{collections::HashMap, time::Duration};
+use std::{
+    collections::{BTreeSet, HashMap},
+    time::Duration,
+};
 
 use crate::{
     error::{Error, ErrorKind},
     package::{self, Package},
 };
 
+pub use tame_index::external::gix;
 pub use tame_index::external::reqwest::ClientBuilder;
 
 enum Index {
@@ -32,10 +36,7 @@ impl Index {
 ///
 /// Operations on crates.io index are rather slow.
 /// Instead of peforming an index lookup for every version of every crate,
-/// this implementation looks up each crate only once and caches the result.
-/// This usually doesn't result in any dramatic performance wins
-/// when auditing a single `Cargo.lock` file because the same crate rarely appears multiple times,
-/// but makes a huge difference when auditing many `Cargo.lock`s or many binaries.
+/// this implementation looks up each crate only once and caches the result in memory.
 pub struct CachedIndex {
     index: Index,
     /// The inner hash map is logically HashMap<Version, IsYanked>
@@ -51,8 +52,7 @@ impl CachedIndex {
     /// If this opens a git index, it will perform a fetch to get the latest index
     /// information.
     ///
-    /// If this is a sparse index, it will allow [`Self::populate_cache`] to
-    /// fetch the latest information from the remote HTTP index.
+    /// If this is a sparse index, it will be downloaded later on demand.
     ///
     /// ## Locking
     ///
@@ -136,13 +136,8 @@ impl CachedIndex {
         })
     }
 
-    /// Populates the cache entries for all of the specified crates
-    ///
-    /// This method is preferable to doing invidual updates via `cache_insert`/`is_yanked`
-    pub fn populate_cache(
-        &mut self,
-        packages: std::collections::BTreeSet<&package::Name>,
-    ) -> Result<(), Error> {
+    /// Populates the cache entries for all of the specified crates.
+    fn populate_cache(&mut self, packages: BTreeSet<&package::Name>) -> Result<(), Error> {
         match &self.index {
             Index::Git(_) | Index::SparseCached(_) => {
                 for pkg in packages {
@@ -213,7 +208,7 @@ impl CachedIndex {
     }
 
     /// Is the given package yanked?
-    pub fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
+    fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
         if !self.cache.contains_key(&package.name) {
             self.insert(package.name.to_owned(), self.index.krate(&package.name));
         }
@@ -244,19 +239,34 @@ impl CachedIndex {
 
     /// Iterate over the provided packages, returning a vector of the
     /// packages which have been yanked.
-    pub fn find_yanked<'a, I>(&mut self, packages: I) -> Result<Vec<&'a Package>, Error>
+    ///
+    /// This function should be called with many packages at once rather than one by one;
+    /// that way it can download the status of a large number of packages at once from the sparse index
+    /// very quickly, orders of magnitude faster than requesting packages one by one.
+    pub fn find_yanked<'a, I>(&mut self, packages: I) -> Vec<Result<&'a Package, Error>>
     where
         I: IntoIterator<Item = &'a Package>,
     {
         let mut yanked = Vec::new();
 
-        for package in packages {
-            if self.is_yanked(package)? {
-                yanked.push(package);
+        let dedup_packages: BTreeSet<&Package> = packages.into_iter().collect();
+        let package_names: BTreeSet<&package::Name> =
+            dedup_packages.iter().map(|p| &p.name).collect();
+        if let Err(e) = self.populate_cache(package_names) {
+            yanked.push(Err(Error::new(ErrorKind::Registry,
+                &format!("Failed to download crates.io index: {}\nData may be missing or stale when checking for yanked packages.", e)
+            )));
+        }
+
+        for package in dedup_packages {
+            match self.is_yanked(package) {
+                Ok(false) => {} // not yanked, nothing to report
+                Ok(true) => yanked.push(Ok(package)),
+                Err(error) => yanked.push(Err(error)),
             }
         }
 
-        Ok(yanked)
+        yanked
     }
 }
 
