@@ -8,10 +8,14 @@ use std::{
     io::{self, Read},
     path::Path,
     process::exit,
+    time::Duration,
 };
 
 /// Name of `Cargo.lock`
 const CARGO_LOCK_FILE: &str = "Cargo.lock";
+
+// TODO: make configurable
+const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 /// Security vulnerability auditor
 pub struct Auditor {
@@ -50,12 +54,27 @@ impl Auditor {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
 
-            let advisory_db_repo = rustsec::repository::git::Repository::fetch(
+            let mut result = rustsec::repository::git::Repository::fetch(
                 advisory_db_url,
                 &advisory_db_path,
                 !config.database.stale,
-            )
-            .unwrap_or_else(|e| {
+                Duration::from_secs(0),
+            );
+            // If the directory is locked, print a message and wait for it to become unlocked.
+            // If we don't print the message, `cargo audit` would just hang with no explanation.
+            if let Err(e) = &result {
+                if e.kind() == ErrorKind::LockTimeout {
+                    status_warn!("directory {} is locked, waiting for up to {} seconds for it to become available", advisory_db_path.display(), DEFAULT_LOCK_TIMEOUT.as_secs());
+                    result = rustsec::repository::git::Repository::fetch(
+                        advisory_db_url,
+                        &advisory_db_path,
+                        !config.database.stale,
+                        DEFAULT_LOCK_TIMEOUT,
+                    );
+                }
+            }
+
+            let advisory_db_repo = result.unwrap_or_else(|e| {
                 status_err!("couldn't fetch advisory database: {}", e);
                 exit(1);
             });
@@ -86,7 +105,18 @@ impl Auditor {
                     status_ok!("Updating", "crates.io index");
                 }
 
-                match registry::CachedIndex::fetch(None) {
+                let mut result = registry::CachedIndex::fetch(None, Duration::from_secs(0));
+
+                // If the directory is locked, print a message and wait for it to become unlocked.
+                // If we don't print the message, `cargo audit` would just hang with no explanation.
+                if let Err(e) = &result {
+                    if e.kind() == ErrorKind::LockTimeout {
+                        status_warn!("directory {} is locked, waiting for up to {} seconds for it to become available", advisory_db_path.display(), DEFAULT_LOCK_TIMEOUT.as_secs());
+                        result = registry::CachedIndex::fetch(None, DEFAULT_LOCK_TIMEOUT);
+                    }
+                }
+
+                match result {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
@@ -97,7 +127,18 @@ impl Auditor {
                     }
                 }
             } else {
-                match registry::CachedIndex::open() {
+                let mut result = registry::CachedIndex::open(Duration::from_secs(0));
+
+                // If the directory is locked, print a message and wait for it to become unlocked.
+                // If we don't print the message, `cargo audit` would just hang with no explanation.
+                if let Err(e) = &result {
+                    if e.kind() == ErrorKind::LockTimeout {
+                        status_warn!("directory {} is locked, waiting for up to {} seconds for it to become available", advisory_db_path.display(), DEFAULT_LOCK_TIMEOUT.as_secs());
+                        result = registry::CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
+                    }
+                }
+
+                match result {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
