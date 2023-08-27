@@ -144,12 +144,6 @@ impl From<io::Error> for Error {
     }
 }
 
-impl From<semver::Error> for Error {
-    fn from(other: semver::Error) -> Self {
-        format_err!(ErrorKind::Version, &other)
-    }
-}
-
 impl From<toml::de::Error> for Error {
     fn from(other: toml::de::Error) -> Self {
         format_err!(ErrorKind::Parse, &other)
