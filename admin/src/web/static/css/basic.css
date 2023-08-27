@@ -233,3 +233,8 @@ header span.subtitle p {
 .info {
   background: #190079;
 }
+
+.advisory p.license {
+    font-style: italic;
+    margin-top: 1.5em;
+}

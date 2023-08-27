@@ -2,6 +2,8 @@
 #![cfg(feature = "git")]
 #![warn(rust_2018_idioms, unused_qualifications)]
 
+use std::time::Duration;
+
 use rustsec::{
     advisory, database::Query, repository::git, Collection, Database, Lockfile, VersionReq,
 };
@@ -108,5 +110,11 @@ fn clone_into_existing_directory() {
     let tmp = tempdir().unwrap();
 
     // Attempt to fetch into it
-    git::Repository::fetch(git::DEFAULT_URL, tmp.path(), true).unwrap();
+    git::Repository::fetch(
+        git::DEFAULT_URL,
+        tmp.path(),
+        true,
+        Duration::from_secs(5 * 60),
+    )
+    .unwrap();
 }

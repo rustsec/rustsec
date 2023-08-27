@@ -6,6 +6,7 @@ mod date;
 mod id;
 mod informational;
 mod keyword;
+mod license;
 pub mod linter;
 mod metadata;
 mod parts;
@@ -18,6 +19,7 @@ pub use self::{
     id::{Id, IdKind},
     informational::Informational,
     keyword::Keyword,
+    license::License,
     linter::Linter,
     metadata::Metadata,
     parts::Parts,

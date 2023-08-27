@@ -277,4 +277,17 @@
 
     <h3 id="description">Description</h3>
     {{ rendered_description|safe }}
+
+    <p id="license" class="license">Advisory available under <a href="https://spdx.org/licenses/{{ advisory.metadata.license.spdx() }}.html">{{ advisory.metadata.license.spdx() }}</a>
+    license.
+
+    {% if advisory.metadata.license == rustsec::advisory::License::CcBy40 %}
+      {# License requires attribution, make it explicit #}
+      {% match advisory.metadata.url %}
+        {% when Some with (url) %}
+          Source: <a href="{{ url }}">{{ url }}</a>
+        {% when None %}
+      {% endmatch %}
+    {% endif %}
+    </p>
   </article>

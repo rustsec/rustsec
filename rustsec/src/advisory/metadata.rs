@@ -3,6 +3,7 @@
 use super::{
     category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
 };
+use crate::advisory::license::License;
 use crate::{collection::Collection, package, SourceId};
 use serde::{Deserialize, Serialize};
 use url::Url;
@@ -81,4 +82,8 @@ pub struct Metadata {
     /// This can be used to soft-delete advisories which were filed in error.
     #[serde(default)]
     pub withdrawn: Option<Date>,
+
+    /// License under which the advisory content is available
+    #[serde(default)]
+    pub license: License,
 }
