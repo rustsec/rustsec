@@ -161,7 +161,7 @@ impl Error {
     ///
     /// This is a separate function instead of a `From` impl
     /// because a trait impl would leak into the public API,
-    /// and we need to keep it private because tame_index semver
+    /// and we need to keep it private because `tame_index` semver
     /// will be bumped frequently and we don't want to bump `rustsec` semver
     /// every time it changes.
     #[cfg(feature = "git")]
@@ -180,7 +180,7 @@ impl Error {
     ///
     /// This is a separate function instead of a `From` impl
     /// because a trait impl would leak into the public API,
-    /// and we need to keep it private because tame_index semver
+    /// and we need to keep it private because `gix` semver
     /// will be bumped frequently and we don't want to bump `rustsec` semver
     /// every time it changes.
     #[cfg(feature = "git")]
