@@ -9,7 +9,7 @@ use crate::{
     package::{self, Package},
 };
 
-pub use tame_index::external::gix;
+use tame_index::external::gix;
 pub use tame_index::external::reqwest::ClientBuilder;
 
 enum Index {
