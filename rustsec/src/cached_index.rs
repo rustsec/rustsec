@@ -271,6 +271,7 @@ fn new_remote_git_index(
     index: tame_index::index::git::GitIndex,
     lock_timeout: Duration,
 ) -> Result<tame_index::index::RemoteGitIndex, tame_index::Error> {
+    use tame_index::external::gix;
     let lock_policy = if lock_timeout == Duration::from_secs(0) {
         gix::lock::acquire::Fail::Immediately
     } else {
