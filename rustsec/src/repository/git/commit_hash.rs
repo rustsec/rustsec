@@ -26,7 +26,7 @@ impl CommitHash {
     /// Interpret this object id as raw byte slice.
     #[inline]
     pub fn as_bytes(&self) -> &[u8] {
-        &self.hash.as_bytes()
+        self.hash.as_bytes()
     }
 
     /// Display the hash as a hexadecimal string.
