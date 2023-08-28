@@ -4,7 +4,10 @@ use tame_index::external::gix;
 
 use crate::{
     error::{Error, ErrorKind},
-    repository::{git::Repository, signature::Signature},
+    repository::{
+        git::{CommitHash, Repository},
+        signature::Signature,
+    },
 };
 use std::time::{Duration, SystemTime};
 
@@ -17,7 +20,7 @@ const STALE_AFTER: Duration = Duration::from_secs(90 * 86400);
 #[derive(Debug)]
 pub struct Commit {
     /// ID (i.e. SHA-1 hash) of the latest commit
-    pub commit_id: gix::ObjectId,
+    pub commit_id: CommitHash,
 
     /// Information about the author of a commit
     pub author: String,
@@ -69,6 +72,7 @@ impl Commit {
                 commit_id
             ));
         }
+        let commit_id = CommitHash::from_gix(commit_id);
 
         let (signature, signed_data) = if let Some(sig) = cref.extra_headers().pgp_signature() {
             // Note this is inefficient as gix doesn't yet support signature extraction natively.
@@ -122,7 +126,7 @@ impl Commit {
         })?;
 
         let root_tree = repo
-            .find_object(self.commit_id)
+            .find_object(self.commit_id.to_gix())
             .map_err(|err| format_err!(ErrorKind::Repo, "unable to locate commit: {}", err))?
             .peel_to_tree()
             .map_err(|err| format_err!(ErrorKind::Repo, "unable to peel to tree: {}", err))?
