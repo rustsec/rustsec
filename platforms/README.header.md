@@ -40,5 +40,23 @@ expect platforms to be there if they are removed.
 
 If we remove platforms, we will bump the minor version of this crate.
 
+[//]: # (badges)
+
+[crate-image]:  https://buildstats.info/crate/platforms
+[crate-link]: https://crates.io/crates/platforms
+[docs-image]: https://docs.rs/platforms/badge.svg
+[docs-link]: https://docs.rs/platforms/
+[build-image]: https://github.com/RustSec/rustsec/actions/workflows/platforms.yml/badge.svg
+[build-link]: https://github.com/RustSec/rustsec/actions/workflows/platforms.yml
+[license-image]: https://img.shields.io/badge/license-Apache2%2FMIT-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.40+-blue.svg
+[zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
+[zulip-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
+
+[//]: # (general links)
+
+[RustSec Advisory Database]: https://github.com/RustSec
+[wg-secure-code]: https://www.rust-lang.org/governance/wgs/wg-secure-code
+
 ## Registered Platforms
 
