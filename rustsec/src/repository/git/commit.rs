@@ -4,7 +4,10 @@ use tame_index::external::gix;
 
 use crate::{
     error::{Error, ErrorKind},
-    repository::{git::{Repository, CommitHash}, signature::Signature},
+    repository::{
+        git::{CommitHash, Repository},
+        signature::Signature,
+    },
 };
 use std::time::{Duration, SystemTime};
 
