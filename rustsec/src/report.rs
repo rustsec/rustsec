@@ -206,6 +206,7 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
                 warning_kind,
                 &advisory_vuln.package,
                 Some(advisory.clone()),
+                advisory_vuln.affected.clone(),
                 Some(advisory_vuln.versions.clone()),
             );
 
