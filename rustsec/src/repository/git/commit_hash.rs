@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use tame_index::external::gix;
 
 /// ID (i.e. SHA-1 hash) of a git commit
@@ -31,5 +33,23 @@ impl CommitHash {
     #[inline]
     pub fn to_hex(&self) -> String {
         self.hash.to_hex().to_string()
+    }
+
+    /// Returns `true` if this hash is equal to an empty blob.
+    #[inline]
+    pub fn is_empty_blob(&self) -> bool {
+        self.hash.is_empty_blob()
+    }
+
+    /// Returns `true` if this hash is equal to an empty tree.
+    #[inline]
+    pub fn is_empty_tree(&self) -> bool {
+        self.hash.is_empty_tree()
+    }
+}
+
+impl Display for CommitHash {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.hash.fmt(f)
     }
 }
