@@ -2,6 +2,8 @@
 
 set -e
 
+# Regenerate the code
+
 curl -o ./platform-support.md https://raw.githubusercontent.com/rust-lang/rust/master/src/doc/rustc/src/platform-support.md
 
 (
@@ -10,3 +12,12 @@ curl -o ./platform-support.md https://raw.githubusercontent.com/rust-lang/rust/m
 )
 
 cargo fmt
+
+# Regenerate the README.md
+
+cp -f README.header.md README.md
+
+(
+    cd ./markdown-table-gen
+    cargo run >> ../README.md
+)
