@@ -4,6 +4,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.28.0 (UNRELEASED)
+
+### Added
+
+ - [Sparse crates.io index](https://blog.rust-lang.org/inside-rust/2023/01/30/cargo-sparse-protocol.html) is now supported. This dramatically speeds up the checks for yanked crates. This crate honors the [Cargo settings for the use of sparse index](https://doc.rust-lang.org/cargo/reference/config.html#registriescrates-ioprotocol), should you need to opt out. ([#923])
+ - Added directory locking and explicit locking controls to the API to avoid several processes modifying local data at the same time. ([#923], [#944])
+ - Added `license` field to the advisory format in preparation for data import from GHSA. ([#682])
+ - Added a `CommitHash` type to represent git commit hashes independently from the git implementation used. ([#961])
+
+### Changed
+
+ - Switched from OpenSSL to [rustls](https://crates.io/crates/rustls) as the TLS implementation. ([#923], [#925])
+   - Due to this change CPU platforms other than x86 and ARM are no longer supported. This issue is tracked as [#962](https://github.com/rustsec/rustsec/issues/962).
+ - Switched from `libgit2` to `gitoxide` as the git implementation. ([#925])
+ - Switched from `crates-index` to `tame-index` for crates.io access. ([#923])
+
+### Removed
+
+ - Removed `rustsec::registry::Index` because it is impractically slow when the sparse crates.io index is used. Use `rustsec::registry::CachedIndex` instead. ([#923])
+ - Removed `rustsec::registry::CachedIndex.is_yanked()`. Use `.find_yanked()` instead. Checking a large number of crates at once is orders of magnitude faster when using the sparse index. ([#937])
+ - Removed many `From` implementations from `rustsec::Error` to avoid tying `rustsec` SemVer to that of dependency crates. This should result in less frequent SemVer bumps for `rustsec` in the future. ([#961])
+
+### Fixed
+
+ - `rustsec` can now be used in Alpine Linux containers ([#466](https://github.com/rustsec/rustsec/issues/466)).
+ - Several users of `rustsec` running in parallel can now fetch Git repositories without races ([#490](https://github.com/rustsec/rustsec/issues/490)).
+ - Accessing Git repositories over SSH is now supported ([#292](https://github.com/rustsec/rustsec/issues/292)).
+ - Credential helpers to access private repositories are now supported [#555](https://github.com/rustsec/rustsec/issues/555).
+ - Fix an edge case in git source dependency resolution when dependencies differ only in their hash. ([#889])
+ - Correctly declare minimum supported rust version as 1.65 ([#905])
+
+[#682]: https://github.com/rustsec/rustsec/pull/682
+[#889]: https://github.com/rustsec/rustsec/pull/889
+[#905]: https://github.com/rustsec/rustsec/pull/905
+[#923]: https://github.com/rustsec/rustsec/pull/923
+[#925]: https://github.com/rustsec/rustsec/pull/925
+[#937]: https://github.com/rustsec/rustsec/pull/937
+[#944]: https://github.com/rustsec/rustsec/pull/944
+[#961]: https://github.com/rustsec/rustsec/pull/961
+
 ## 0.27.0 (2023-05-10)
 
 ### Added
