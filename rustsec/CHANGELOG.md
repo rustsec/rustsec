@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - [Sparse crates.io index](https://blog.rust-lang.org/inside-rust/2023/01/30/cargo-sparse-protocol.html) is now supported. This dramatically speeds up the checks for yanked crates. This crate honors the [Cargo settings for the use of sparse index](https://doc.rust-lang.org/cargo/reference/config.html#registriescrates-ioprotocol), should you need to opt out. ([#923])
  - Added directory locking and explicit locking controls to the API to avoid several processes modifying local data at the same time. ([#923], [#944])
+ - Added `affected` field to `Warning`, to communicate e.g. warnings specific to a particular platform. ([#964])
  - Added `license` field to the advisory format in preparation for data import from GHSA. ([#682])
  - Added a `CommitHash` type to represent git commit hashes independently from the git implementation used. ([#961])
 
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [#937]: https://github.com/rustsec/rustsec/pull/937
 [#944]: https://github.com/rustsec/rustsec/pull/944
 [#961]: https://github.com/rustsec/rustsec/pull/961
+[#964]: https://github.com/rustsec/rustsec/pull/964
 
 ## 0.27.0 (2023-05-10)
 
