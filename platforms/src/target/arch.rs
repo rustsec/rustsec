@@ -22,8 +22,14 @@ pub enum Arch {
     /// `bpf`
     Bpf,
 
+    /// `csky`
+    Csky,
+
     /// `hexagon`
     Hexagon,
+
+    /// `loongarch64`
+    Loongarch64,
 
     /// `m68k`
     M68k,
@@ -31,8 +37,14 @@ pub enum Arch {
     /// `mips`: 32-bit MIPS CPU architecture
     Mips,
 
+    /// `mips32r6`
+    Mips32r6,
+
     /// `mips64`: 64-bit MIPS CPU architecture
     Mips64,
+
+    /// `mips64r6`
+    Mips64r6,
 
     /// `msp430`: 16-bit MSP430 microcontrollers
     Msp430,
@@ -82,10 +94,14 @@ impl Arch {
             Arch::Arm => "arm",
             Arch::Avr => "avr",
             Arch::Bpf => "bpf",
+            Arch::Csky => "csky",
             Arch::Hexagon => "hexagon",
+            Arch::Loongarch64 => "loongarch64",
             Arch::M68k => "m68k",
             Arch::Mips => "mips",
+            Arch::Mips32r6 => "mips32r6",
             Arch::Mips64 => "mips64",
+            Arch::Mips64r6 => "mips64r6",
             Arch::Msp430 => "msp430",
             Arch::Nvptx64 => "nvptx64",
             Arch::PowerPc => "powerpc",
@@ -113,10 +129,14 @@ impl FromStr for Arch {
             "arm" => Arch::Arm,
             "avr" => Arch::Avr,
             "bpf" => Arch::Bpf,
+            "csky" => Arch::Csky,
             "hexagon" => Arch::Hexagon,
+            "loongarch64" => Arch::Loongarch64,
             "m68k" => Arch::M68k,
             "mips" => Arch::Mips,
+            "mips32r6" => Arch::Mips32r6,
             "mips64" => Arch::Mips64,
+            "mips64r6" => Arch::Mips64r6,
             "msp430" => Arch::Msp430,
             "nvptx64" => Arch::Nvptx64,
             "powerpc" => Arch::PowerPc,

@@ -35,8 +35,14 @@ pub enum Env {
     /// `newlib`
     Newlib,
 
+    /// `nto70`
+    Nto70,
+
     /// `nto71`
     Nto71,
+
+    /// `ohos`
+    OhOS,
 
     /// `psx`
     Psx,
@@ -62,7 +68,9 @@ impl Env {
             Env::Msvc => "msvc",
             Env::Musl => "musl",
             Env::Newlib => "newlib",
+            Env::Nto70 => "nto70",
             Env::Nto71 => "nto71",
+            Env::OhOS => "ohos",
             Env::Psx => "psx",
             Env::Relibc => "relibc",
             Env::Sgx => "sgx",
@@ -84,7 +92,9 @@ impl FromStr for Env {
             "msvc" => Env::Msvc,
             "musl" => Env::Musl,
             "newlib" => Env::Newlib,
+            "nto70" => Env::Nto70,
             "nto71" => Env::Nto71,
+            "ohos" => Env::OhOS,
             "psx" => Env::Psx,
             "relibc" => Env::Relibc,
             "sgx" => Env::Sgx,
