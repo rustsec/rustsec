@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Due to this change CPU platforms other than x86 and ARM are no longer supported. This issue is tracked as [#962](https://github.com/rustsec/rustsec/issues/962).
  - Switched from `libgit2` to `gitoxide` as the git implementation. ([#925])
  - Switched from `crates-index` to `tame-index` for crates.io access. ([#923])
+ - Increased the minimum supported rust version to 1.67. ([#923])
 
 ### Removed
 
@@ -33,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Accessing Git repositories over SSH is now supported ([#292](https://github.com/rustsec/rustsec/issues/292)).
  - Credential helpers to access private repositories are now supported [#555](https://github.com/rustsec/rustsec/issues/555).
  - Fix an edge case in git source dependency resolution when dependencies differ only in their hash. ([#889])
- - Correctly declare minimum supported rust version as 1.65 ([#905])
 
 [#682]: https://github.com/rustsec/rustsec/pull/682
 [#889]: https://github.com/rustsec/rustsec/pull/889
