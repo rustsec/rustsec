@@ -1,4 +1,4 @@
-//! Code relating to the generation of the https://rustsec.org web site.
+//! Code relating to the generation of the <https://rustsec.org> web site.
 
 use crate::prelude::*;
 use askama::Template;

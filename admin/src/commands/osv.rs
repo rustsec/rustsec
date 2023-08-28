@@ -1,7 +1,7 @@
 //! `rustsec-admin osv` subcommand
 //!
 //! Exports all advisories to the OSV format defined at
-//! https://github.com/google/osv
+//! <https://github.com/google/osv>
 
 use std::{
     path::{Path, PathBuf},
