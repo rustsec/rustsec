@@ -9,7 +9,7 @@ use crate::{
     package::{self, Package},
 };
 
-pub use tame_index::external::gix;
+use tame_index::external::gix;
 pub use tame_index::external::reqwest::ClientBuilder;
 
 enum Index {
@@ -21,14 +21,15 @@ enum Index {
 impl Index {
     #[inline]
     fn krate(&self, name: &package::Name) -> Result<Option<tame_index::IndexKrate>, Error> {
-        let name = name.as_str().try_into()?;
+        let name = name.as_str().try_into().map_err(Error::from_tame)?;
         let res = match self {
             Self::Git(gi) => gi.krate(name, true),
             Self::SparseCached(si) => si.cached_krate(name),
             Self::SparseRemote(rsi) => rsi.cached_krate(name),
-        };
+        }
+        .map_err(Error::from_tame)?;
 
-        Ok(res?)
+        Ok(res)
     }
 }
 
@@ -67,6 +68,13 @@ impl CachedIndex {
     /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
     /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn fetch(client: Option<ClientBuilder>, lock_timeout: Duration) -> Result<Self, Error> {
+        Self::fetch_inner(client, lock_timeout).map_err(Error::from_tame)
+    }
+
+    fn fetch_inner(
+        client: Option<ClientBuilder>,
+        lock_timeout: Duration,
+    ) -> Result<Self, tame_index::Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
@@ -117,6 +125,10 @@ impl CachedIndex {
     /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
     /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
     pub fn open(lock_timeout: Duration) -> Result<Self, Error> {
+        Self::open_inner(lock_timeout).map_err(Error::from_tame)
+    }
+
+    fn open_inner(lock_timeout: Duration) -> Result<Self, tame_index::Error> {
         let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
@@ -180,7 +192,7 @@ impl CachedIndex {
                 for (name, res) in results {
                     self.insert(
                         name.parse().expect("this was a package name before"),
-                        res.map_err(Error::from),
+                        res.map_err(Error::from_tame),
                     );
                 }
             }

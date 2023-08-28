@@ -123,7 +123,7 @@ impl DatabaseInfo {
     pub fn new(db: &Database) -> Self {
         Self {
             advisory_count: db.iter().count(),
-            last_commit: db.latest_commit().map(|c| c.commit_id.to_hex().to_string()),
+            last_commit: db.latest_commit().map(|c| c.commit_id.to_hex()),
             last_updated: db.latest_commit().map(|c| c.timestamp),
         }
     }

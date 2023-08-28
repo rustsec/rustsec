@@ -116,7 +116,8 @@ impl Repository {
             Some(std::path::PathBuf::from_iter(Some(
                 std::path::Component::RootDir,
             ))),
-        )?;
+        )
+        .map_err(Error::from_gix_lock)?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();
@@ -188,7 +189,8 @@ impl Repository {
                 &repo,
                 &fetch_outcome,
                 &repo.find_remote("origin").unwrap(),
-            )?;
+            )
+            .map_err(Error::from_tame)?;
         } else {
             // If we didn't open a fresh repo we need to peform a fetch ourselves, and
             // do the work of updating the HEAD to point at the latest remote HEAD, which
@@ -294,7 +296,8 @@ impl Repository {
             .receive(&mut gix::progress::Discard, &gix::interrupt::IS_INTERRUPTED)
             .map_err(|err| format_err!(ErrorKind::Repo, "failed to fetch: {}", err))?;
 
-        let remote_head_id = tame_index::utils::git::write_fetch_head(&repo, &outcome, &remote)?;
+        let remote_head_id = tame_index::utils::git::write_fetch_head(&repo, &outcome, &remote)
+            .map_err(Error::from_tame)?;
 
         use gix::refs::{transaction as tx, Target};
 
