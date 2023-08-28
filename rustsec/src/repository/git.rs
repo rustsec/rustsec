@@ -1,13 +1,14 @@
 //! Git repository handling for the RustSec advisory DB
 
 mod commit;
+mod commit_hash;
 #[cfg(feature = "osv-export")]
 mod gitpath;
 #[cfg(feature = "osv-export")]
 mod modification_time;
 mod repository;
 
-pub use self::{commit::Commit, repository::Repository};
+pub use self::{commit::Commit, commit_hash::CommitHash, repository::Repository};
 use tame_index::external::gix;
 
 #[cfg(feature = "osv-export")]
