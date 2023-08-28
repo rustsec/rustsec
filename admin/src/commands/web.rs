@@ -1,6 +1,6 @@
 //! `rustsec-admin web`: Renderer for RustSec Advisory DB web site:
 //!
-//! https://rustsec.org
+//! <https://rustsec.org>
 
 use std::path::PathBuf;
 
