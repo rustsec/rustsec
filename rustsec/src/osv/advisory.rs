@@ -183,7 +183,7 @@ impl OsvAdvisory {
             reference_urls.push(url);
         }
         // other references
-        reference_urls.extend(metadata.references.into_iter());
+        reference_urls.extend(metadata.references);
 
         OsvAdvisory {
             id: metadata.id,
