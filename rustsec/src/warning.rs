@@ -17,6 +17,9 @@ pub struct Warning {
     /// Source advisory
     pub advisory: Option<advisory::Metadata>,
 
+    /// More specific information about what the source advisory affects (if available)
+    pub affected: Option<advisory::Affected>,
+
     /// Versions impacted by this warning
     pub versions: Option<advisory::Versions>,
 }
@@ -27,12 +30,14 @@ impl Warning {
         kind: WarningKind,
         package: &Package,
         advisory: Option<advisory::Metadata>,
+        affected: Option<advisory::Affected>,
         versions: Option<advisory::Versions>,
     ) -> Self {
         Self {
             kind,
             package: package.clone(),
             advisory,
+            affected,
             versions,
         }
     }

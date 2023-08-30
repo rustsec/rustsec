@@ -298,7 +298,7 @@ impl Auditor {
             for pkg in yanked {
                 match pkg {
                     Ok(pkg) => {
-                        let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
+                        let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
                         result.push(warning);
                     }
                     Err(e) => status_err!("couldn't check if the package is yanked: {}", e),
