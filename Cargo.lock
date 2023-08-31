@@ -338,7 +338,7 @@ checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 
 [[package]]
 name = "cargo-audit"
-version = "0.17.6"
+version = "0.18.0-rc.1"
 dependencies = [
  "abscissa_core",
  "auditable-info",
@@ -349,7 +349,7 @@ dependencies = [
  "home",
  "once_cell",
  "quitters",
- "rustsec",
+ "rustsec 0.28.0-rc.1",
  "serde",
  "serde_json",
  "tempfile",
@@ -1953,6 +1953,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "02296996cb8796d7c6e3bc2d9211b7802812d36999a51bb754123ead7d37d026"
 
 [[package]]
+name = "humantime"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a3a5bfb195931eeb336b2a7b4d761daec841b97f947d34394601737a7bba5e4"
+
+[[package]]
+name = "humantime-serde"
+version = "1.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57a3db5ea5923d99402c94e9feb261dc5ee9b4efa158b0315f788cf549cc200c"
+dependencies = [
+ "humantime",
+ "serde",
+]
+
+[[package]]
 name = "hyper"
 version = "0.14.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2893,6 +2909,28 @@ dependencies = [
 [[package]]
 name = "rustsec"
 version = "0.27.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cabcfea780f9b2f75bc2eaae946621fa42cb18189f41cda4dee608ea73a9c397"
+dependencies = [
+ "cargo-lock",
+ "crates-index",
+ "cvss",
+ "fs-err",
+ "git2",
+ "home",
+ "humantime",
+ "humantime-serde",
+ "platforms",
+ "semver",
+ "serde",
+ "thiserror",
+ "toml 0.7.6",
+ "url",
+]
+
+[[package]]
+name = "rustsec"
+version = "0.28.0-rc.1"
 dependencies = [
  "cargo-edit-9",
  "cargo-lock",
@@ -2925,7 +2963,7 @@ dependencies = [
  "crates-index",
  "once_cell",
  "rust-embed",
- "rustsec",
+ "rustsec 0.27.0",
  "serde",
  "serde_json",
  "termcolor",
