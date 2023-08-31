@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - Switched from OpenSSL to [rustls](https://crates.io/crates/rustls) as the TLS implementation. ([#923], [#925])
    - Due to this change CPU platforms other than x86 and ARM are no longer supported. This issue is tracked as [#962](https://github.com/rustsec/rustsec/issues/962).
+   - The `fix` feature is not yet converted; enabling it will pull in OpenSSL.
  - Switched from `libgit2` to `gitoxide` as the git implementation. ([#925])
  - Switched from `crates-index` to `tame-index` for crates.io access. ([#923])
  - Increased the minimum supported rust version to 1.67. ([#923])
