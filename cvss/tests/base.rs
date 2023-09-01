@@ -5,7 +5,7 @@
 use core::str::FromStr;
 
 /// CVE-2013-1937
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2013_1937() {
     let cvss_for_cve_2013_1937 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N";
@@ -15,7 +15,7 @@ fn cve_2013_1937() {
 }
 
 /// Missing CVSS:3.1 prefix
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn bad_prefix() {
     let cvss_for_cve_2013_1937e = "AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N";
@@ -23,7 +23,7 @@ fn bad_prefix() {
 }
 
 /// CVSS:3.0 prefix (parse these as for the purposes of this library they're identical)
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cvss_v3_0_prefix() {
     let cvss_for_cve_2013_1937 = "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N";
@@ -33,7 +33,7 @@ fn cvss_v3_0_prefix() {
 }
 
 /// CVE-2013-0375
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2013_0375() {
     let cvss_for_cve_2013_0375 = "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:N";
@@ -43,7 +43,7 @@ fn cve_2013_0375() {
 }
 
 /// CVE-2014-3566
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2014_3566() {
     let cvss_for_cve_2014_3566 = "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:L/I:N/A:N";
@@ -53,7 +53,7 @@ fn cve_2014_3566() {
 }
 
 /// CVE-2012-1516
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2012_1516() {
     let cvss_for_cve_2012_1516 = "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H";
@@ -63,7 +63,7 @@ fn cve_2012_1516() {
 }
 
 /// CVE-2009-0783
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2009_0783() {
     let cvss_for_cve_2009_0783 = "CVSS:3.1/AV:L/AC:L/PR:H/UI:N/S:U/C:L/I:L/A:L";
@@ -73,7 +73,7 @@ fn cve_2009_0783() {
 }
 
 /// CVE-2012-0384
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2012_0384() {
     let cvss_for_cve_2012_0384 = "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H";
@@ -83,7 +83,7 @@ fn cve_2012_0384() {
 }
 
 /// CVE-2015-1098
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2015_1098() {
     let cvss_for_cve_2015_1098 = "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H";
@@ -93,7 +93,7 @@ fn cve_2015_1098() {
 }
 
 /// CVE-2014-0160
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2014_0160() {
     let cvss_for_cve_2014_0160 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N";
@@ -103,7 +103,7 @@ fn cve_2014_0160() {
 }
 
 /// CVE-2014-6271
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2014_6271() {
     let cvss_for_cve_2014_6271 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H";
@@ -113,7 +113,7 @@ fn cve_2014_6271() {
 }
 
 /// CVE-2008-1447
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2008_1447() {
     let cvss_for_cve_2008_1447 = "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:H/A:N";
@@ -123,7 +123,7 @@ fn cve_2008_1447() {
 }
 
 /// CVE-2014-2005
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2014_2005() {
     let cvss_for_cve_2014_2005 = "CVSS:3.1/AV:P/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H";
@@ -133,7 +133,7 @@ fn cve_2014_2005() {
 }
 
 /// CVE-2010-0467
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2010_0467() {
     let cvss_for_cve_2010_0467 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:L/I:N/A:N";
@@ -143,7 +143,7 @@ fn cve_2010_0467() {
 }
 
 /// CVE-2012-1342
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2012_1342() {
     let cvss_for_cve_2012_1342 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:N/I:L/A:N";
@@ -153,7 +153,7 @@ fn cve_2012_1342() {
 }
 
 /// CVE-2013-6014
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2013_6014() {
     let cvss_for_cve_2013_6014 = "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:C/C:H/I:N/A:H";
@@ -163,7 +163,7 @@ fn cve_2013_6014() {
 }
 
 /// CVE-2014-9253
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2014_9253() {
     let cvss_for_cve_2014_9253 = "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N";
@@ -173,7 +173,7 @@ fn cve_2014_9253() {
 }
 
 /// CVE-2009-0658
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2009_0658() {
     let cvss_for_cve_2009_0658 = "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H";
@@ -183,7 +183,7 @@ fn cve_2009_0658() {
 }
 
 /// CVE-2011-1265
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2011_1265() {
     let cvss_for_cve_2011_1265 = "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H";
@@ -193,7 +193,7 @@ fn cve_2011_1265() {
 }
 
 /// CVE-2014-2019
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2014_2019() {
     let cvss_for_cve_2014_2019 = "CVSS:3.1/AV:P/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N";
@@ -203,7 +203,7 @@ fn cve_2014_2019() {
 }
 
 /// CVE-2015-0970
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2015_0970() {
     let cvss_for_cve_2015_0970 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H";
@@ -213,7 +213,7 @@ fn cve_2015_0970() {
 }
 
 /// CVE-2014-0224
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2014_0224() {
     let cvss_for_cve_2014_0224 = "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:N";
@@ -223,7 +223,7 @@ fn cve_2014_0224() {
 }
 
 /// CVE-2012-5376
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn cve_2012_5376() {
     let cvss_for_cve_2012_5376 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H";
@@ -233,7 +233,7 @@ fn cve_2012_5376() {
 }
 
 /// No impact scope changed
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn no_impact_scope_changed() {
     // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:N/I:N/A:N => 0.0
@@ -244,7 +244,7 @@ fn no_impact_scope_changed() {
 }
 
 /// No impact scope unchanged
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn no_impact_scope_unchanged() {
     // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:N => 0.0
@@ -254,7 +254,7 @@ fn no_impact_scope_unchanged() {
     assert_eq!(base.score().value(), 0.0);
 }
 
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn low_scope_unchanged() {
     // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:P/AC:H/PR:H/UI:R/S:U/C:N/I:N/A:L => 1.6
@@ -264,7 +264,7 @@ fn low_scope_unchanged() {
     assert_eq!(base.score().value(), 1.6);
 }
 
-#[cfg(feature = "default")]
+#[cfg(all(feature = "v3", feature = "std"))]
 #[test]
 fn low_scope_changed() {
     // https://www.first.org/cvss/calculator/3.1#CVSS:3.1/AV:P/AC:H/PR:H/UI:R/S:C/C:N/I:N/A:L => 1.8
