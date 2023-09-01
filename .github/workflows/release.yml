@@ -1,6 +1,10 @@
 name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The tag to release
   push:
     tags:
       - cargo-audit/v*.*.*
@@ -64,6 +68,8 @@ jobs:
         with:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
+          # The tag to build or the tag received by the tag event
+          ref: ${{ github.event.inputs.version || github.ref }}
       - uses: actions/cache@v3.0.11
         with:
           path: ~/.cargo/git
