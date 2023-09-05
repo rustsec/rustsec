@@ -149,7 +149,9 @@ impl CachedIndex {
     }
 
     /// Populates the cache entries for all of the specified crates.
-    fn populate_cache(&mut self, packages: BTreeSet<&package::Name>) -> Result<(), Error> {
+    fn populate_cache(&mut self, mut packages: BTreeSet<&package::Name>) -> Result<(), Error> {
+        // only look up info on packages that aren't yet cached
+        packages.retain(|pkg| !self.cache.contains_key(&pkg));
         match &self.index {
             Index::Git(_) | Index::SparseCached(_) => {
                 for pkg in packages {
