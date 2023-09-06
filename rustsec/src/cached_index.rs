@@ -91,7 +91,6 @@ impl CachedIndex {
                 // to query other indices that _might_ not support HTTP/2, but
                 // hopefully that would never need to happen
                 let client = client_builder
-                    .http2_prior_knowledge()
                     .build()
                     .map_err(tame_index::Error::from)?;
 
