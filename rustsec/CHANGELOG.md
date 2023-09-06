@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.28.1 (2023-09-06)
+
+### Changed
+
+ - No longer require HTTP/2 for accessing sparse crates.io index. This degrades performance somewhat due to an additional roundtrip to crates.io, but allows index access through corporate transparent proxies that do not support HTTP/2. ([#992])
+
+### Fixed
+
+ - Fixed a performance regression where the cached crates.io index would re-request items that are already cached ([#987])
+
+[#987]: https://github.com/rustsec/rustsec/pull/987
+[#992]: https://github.com/rustsec/rustsec/pull/992
+
 ## 0.28.0 (2023-08-31)
 
 ### Added
