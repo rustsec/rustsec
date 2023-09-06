@@ -90,9 +90,7 @@ impl CachedIndex {
                 // note: this would need to change if rustsec ever adds the capability
                 // to query other indices that _might_ not support HTTP/2, but
                 // hopefully that would never need to happen
-                let client = client_builder
-                    .build()
-                    .map_err(tame_index::Error::from)?;
+                let client = client_builder.build().map_err(tame_index::Error::from)?;
 
                 Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client))
             }
