@@ -3,7 +3,8 @@
     {% when Some with (collection) %}
         <span class="floating-menu">
           <a href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">History</a> ⋅ 
-          <a href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a>
+          <a href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a> ⋅
+          <a href="https://api.osv.dev/v1/vulns/{{ advisory.id() }}">JSON (OSV)</a>
         </span>
     {% when None %}
     {% endmatch %}
@@ -109,12 +110,25 @@
       </dd>
       {% endif %}
 
-      {% if advisory.metadata.url.is_some() %}
-      <dt id="details">Details</dt>
+      {% if advisory.metadata.url.is_some() || !advisory.metadata.references.is_empty() %}
+      <dt id="details">References</dt>
       <dd>
-        <a href="{{ advisory.metadata.url.as_ref().unwrap() }}">
-          {{ advisory.metadata.url.as_ref().unwrap() }}
-        </a>
+        <ul>
+        {% if advisory.metadata.url.is_some() %}
+          <li>
+            <a href="{{ advisory.metadata.url.as_ref().unwrap() }}">
+              {{ advisory.metadata.url.as_ref().unwrap() }}
+            </a>
+          </li>
+        {% endif %}
+        {% for reference in advisory.metadata.references %}
+          <li>
+            <a href="{{ reference }}">
+              {{ reference }}
+            </a>
+          </li>
+        {% endfor %}
+        </ul>
       </dd>
       {% endif %}
 
