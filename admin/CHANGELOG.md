@@ -1,3 +1,11 @@
+## 0.8.7 (2023-09-08)
+- Add the `references` URLs on the website ([#997])
+- Add a link to the OSV JSON for each advisory ([#997])
+- Show the advisories license on the website ([#682])
+
+[#997]: https://github.com/rustsec/rustsec/pull/997
+[#682]: https://github.com/rustsec/rustsec/pull/682
+
 ## 0.8.6 (2023-07-08)
 - Make search on website case-insensitive ([#914])
 - Bump `comrak` to 0.18 ([#855])
