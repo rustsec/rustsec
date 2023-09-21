@@ -178,14 +178,14 @@ impl Error {
                 format_err!(ErrorKind::Repo, "failed to aquire directory lock: {}", e)
             }
             gix::lock::acquire::Error::PermanentlyLocked {
-                // rustc doesn't recognize inline printing as uses of variables,
-                // so we have to explicitly discard them here even though they are used
-                resource_path: _,
+                resource_path,
                 mode: _,
-                attempts: _,
+                attempts,
             } => format_err!(
                 ErrorKind::LockTimeout,
-                "directory \"{resource_path:?}\" still locked after {attempts} attempts"
+                "directory \"{:?}\" still locked after {} attempts",
+                resource_path,
+                attempts,
             ),
         }
     }
