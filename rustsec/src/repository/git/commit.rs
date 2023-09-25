@@ -160,8 +160,8 @@ impl Commit {
                 let objects = repo.objects.clone().into_arc()?;
                 move |oid, buf| objects.find_blob(oid, buf)
             },
-            &mut gix::progress::Discard,
-            &mut gix::progress::Discard,
+            &gix::progress::Discard,
+            &gix::progress::Discard,
             &gix::interrupt::IS_INTERRUPTED,
             opts,
         )

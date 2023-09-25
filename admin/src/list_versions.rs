@@ -2,15 +2,15 @@
 
 use std::path::PathBuf;
 
-use crates_index::Index;
 use rustsec::{Advisory, Database};
+use tame_index::index::RemoteGitIndex;
 
 use crate::{error::Error, prelude::*};
 
 /// Lists all versions for a crate and prints info on which ones are affected
 pub struct AffectedVersionLister {
     /// Loaded crates.io index
-    crates_index: Index,
+    crates_index: RemoteGitIndex,
 
     /// Loaded Advisory DB
     advisory_db: Database,
@@ -20,8 +20,10 @@ impl AffectedVersionLister {
     /// Load the the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let mut crates_index = crates_index::Index::new_cargo_default()?;
-        crates_index.update()?;
+        let mut crates_index = RemoteGitIndex::new(tame_index::GitIndex::new(
+            tame_index::IndexLocation::new(tame_index::IndexUrl::CratesIoGit),
+        )?)?;
+        crates_index.fetch()?;
         let advisory_db = Database::open(&repo_path)?;
         Ok(Self {
             crates_index,
@@ -43,13 +45,17 @@ impl AffectedVersionLister {
             advisory.metadata.package
         );
         let crate_name = advisory.metadata.package.as_str();
-        let crate_info = self.crates_index.crate_(crate_name).unwrap();
-        for version in crate_info.versions() {
-            let parsed_version = rustsec::Version::parse(version.version()).unwrap();
+        let crate_info = self
+            .crates_index
+            .krate(crate_name.try_into().unwrap(), true)
+            .unwrap()
+            .unwrap_or_else(|| panic!("expected crate {} to exist", crate_name));
+        for version in crate_info.versions {
+            let parsed_version = rustsec::Version::parse(&version.version).unwrap();
             if advisory.versions.is_vulnerable(&parsed_version) {
-                println!("{} vulnerable", version.version())
+                println!("{} vulnerable", version.version)
             } else {
-                println!("{} OK", version.version())
+                println!("{} OK", version.version)
             }
         }
     }
