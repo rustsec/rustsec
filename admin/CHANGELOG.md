@@ -1,3 +1,8 @@
+## 0.8.8 (2023-09-25)
+- Migrate from `libgit2` to `gitoxide` as the git implementation, and from OpenSSL to `rustls` as the TLS implementation ([#1017])
+
+[#1017]: https://github.com/rustsec/rustsec/pull/1017
+
 ## 0.8.7 (2023-09-08)
 - Add the `references` URLs on the website ([#997])
 - Add a link to the OSV JSON for each advisory ([#997])
