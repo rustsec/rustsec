@@ -1,6 +1,5 @@
 //! Backend for the `list-affected-versions` subcommand.
 
-use std::convert::TryInto;
 use std::path::PathBuf;
 
 use rustsec::{Advisory, Database};

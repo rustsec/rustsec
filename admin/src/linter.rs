@@ -4,7 +4,6 @@ use crate::{
     error::{Error, ErrorKind},
     prelude::*,
 };
-use std::convert::TryInto;
 use std::{
     fs,
     path::{Path, PathBuf},
