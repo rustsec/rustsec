@@ -2681,6 +2681,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+ "webpki-roots 0.22.6",
  "winreg",
 ]
 
@@ -2848,12 +2849,12 @@ dependencies = [
  "chrono",
  "clap",
  "comrak",
- "crates-index",
  "once_cell",
  "rust-embed",
  "rustsec",
  "serde",
  "serde_json",
+ "tame-index",
  "termcolor",
  "thiserror",
  "toml 0.7.6",
@@ -3546,7 +3547,7 @@ dependencies = [
  "serde_json",
  "socks",
  "url",
- "webpki-roots",
+ "webpki-roots 0.23.1",
 ]
 
 [[package]]
@@ -3687,6 +3688,25 @@ checksum = "9b85cbef8c220a6abc02aefd892dfc0fc23afb1c6a426316ec33253a3877249b"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "webpki"
+version = "0.22.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f0e74f82d49d545ad128049b7e88f6576df2da6b02e9ce565c6f533be576957e"
+dependencies = [
+ "ring",
+ "untrusted",
+]
+
+[[package]]
+name = "webpki-roots"
+version = "0.22.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b6c71e40d7d2c34a5106301fb632274ca37242cd0c9d3e64dbece371a40a2d87"
+dependencies = [
+ "webpki",
 ]
 
 [[package]]
