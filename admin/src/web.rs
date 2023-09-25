@@ -572,7 +572,6 @@ mod filters {
     use chrono::NaiveDate;
     use rustsec::advisory;
     use std::borrow::Borrow;
-    use std::convert::TryInto;
 
     pub fn friendly_date<T: Borrow<advisory::Date>>(date: T) -> ::askama::Result<String> {
         let date = date.borrow();
