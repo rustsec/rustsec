@@ -62,7 +62,7 @@ impl GitModificationTimes {
             buf2.clear();
             let (main_tree_id, file_mod_time) = {
                 let commit = db
-                    .try_find(info.id, &mut buf)
+                    .try_find(&info.id, &mut buf)
                     .map_err(|err| {
                         format_err!(
                             ErrorKind::Repo,
@@ -89,7 +89,7 @@ impl GitModificationTimes {
                 (commit.tree(), commit.time())
             };
             let current_tree = db
-                .try_find(main_tree_id, &mut buf)
+                .try_find(&main_tree_id, &mut buf)
                 .map_err(|err| {
                     format_err!(
                         ErrorKind::Repo,
@@ -103,11 +103,11 @@ impl GitModificationTimes {
                 .expect("id to be a tree");
             let previous_tree: Option<_> = {
                 parent_commit_id
-                    .and_then(|id| db.try_find(id, &mut buf2).ok().flatten())
+                    .and_then(|id| db.try_find(&id, &mut buf2).ok().flatten())
                     .and_then(|c| c.decode().ok())
                     .and_then(gix::objs::ObjectRef::into_commit)
                     .map(|c| c.tree())
-                    .and_then(|tree| db.try_find(tree, &mut buf2).ok().flatten())
+                    .and_then(|tree| db.try_find(&tree, &mut buf2).ok().flatten())
                     .and_then(|tree| tree.try_into_tree_iter())
             };
 
