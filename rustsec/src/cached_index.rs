@@ -66,7 +66,7 @@ impl CachedIndex {
     ///
     /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
     /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
-    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
+    /// the `gix` signal handler to clean up the locks, see `gix::interrupt::init_handler`.
     pub fn fetch(client: Option<ClientBuilder>, lock_timeout: Duration) -> Result<Self, Error> {
         Self::fetch_inner(client, lock_timeout).map_err(Error::from_tame)
     }
@@ -120,7 +120,7 @@ impl CachedIndex {
     ///
     /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
     /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
-    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
+    /// the `gix` signal handler to clean up the locks, see `gix::interrupt::init_handler`.
     pub fn open(lock_timeout: Duration) -> Result<Self, Error> {
         Self::open_inner(lock_timeout).map_err(Error::from_tame)
     }
