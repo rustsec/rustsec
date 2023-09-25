@@ -48,7 +48,7 @@ impl Repository {
     ///
     /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
     /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
-    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
+    /// the `gix` signal handler to clean up the locks, see `gix::interrupt::init_handler`.
     pub fn fetch_default_repo() -> Result<Self, Error> {
         Self::fetch(
             DEFAULT_URL,
@@ -71,7 +71,7 @@ impl Repository {
     ///
     /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
     /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
-    /// the `gix` signal handler to clean up the locks, see [`gix::interrupt::init_handler`].
+    /// the `gix` signal handler to clean up the locks, see `gix::interrupt::init_handler`.
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
