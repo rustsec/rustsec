@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.28.2 (2023-09-25)
+
+### Fixed
+
+ - Upgraded to `tame-index` 0.6.0 and `gix` 0.53.1 to fix a vulnerability in `gix`, see [RUSTSEC-2023-0064](https://rustsec.org/advisories/RUSTSEC-2023-0064.html) ([#1015])
+ - Correctly report error when encountering a stale git lockfile ([#1012])
+
+[#1012]: https://github.com/rustsec/rustsec/pull/1012
+[#1015]: https://github.com/rustsec/rustsec/pull/1015
+
 ## 0.28.1 (2023-09-06)
 
 ### Changed
