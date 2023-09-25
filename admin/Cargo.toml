@@ -10,7 +10,7 @@ readme      = "README.md"
 edition     = "2021"
 
 [features]
-default = ["gix?/max-performance"]
+default = ["gix?/max-performance-safe"]
 
 [dependencies]
 abscissa_core = "0.6"
