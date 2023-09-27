@@ -342,7 +342,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror",
- "toml 0.7.6",
+ "toml 0.8.1",
 ]
 
 [[package]]
@@ -384,7 +384,7 @@ dependencies = [
  "petgraph",
  "semver",
  "serde",
- "toml 0.7.6",
+ "toml 0.8.1",
  "url",
 ]
 
@@ -580,7 +580,7 @@ dependencies = [
  "serde_derive",
  "serde_json",
  "smol_str",
- "toml 0.7.6",
+ "toml 0.7.8",
 ]
 
 [[package]]
@@ -2879,7 +2879,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "time",
- "toml 0.7.6",
+ "toml 0.8.1",
  "url",
 ]
 
@@ -2902,7 +2902,7 @@ dependencies = [
  "tame-index",
  "termcolor",
  "thiserror",
- "toml 0.7.6",
+ "toml 0.8.1",
  "xml-rs",
 ]
 
@@ -3202,7 +3202,7 @@ dependencies = [
  "smol_str",
  "thiserror",
  "tokio",
- "toml 0.7.6",
+ "toml 0.7.8",
  "twox-hash",
 ]
 
@@ -3375,14 +3375,26 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.7.6"
+version = "0.7.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c17e963a819c331dcacd7ab957d80bc2b9a9c1e71c804826d2f283dd65306542"
+checksum = "dd79e69d3b627db300ff956027cc6c3798cef26d22526befdfcd12feeb6d2257"
 dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "toml_edit 0.19.14",
+ "toml_edit 0.19.15",
+]
+
+[[package]]
+name = "toml"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1bc1433177506450fe920e46a4f9812d0c211f5dd556da10e731a0a3dfa151f0"
+dependencies = [
+ "serde",
+ "serde_spanned",
+ "toml_datetime",
+ "toml_edit 0.20.1",
 ]
 
 [[package]]
@@ -3409,9 +3421,22 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.19.14"
+version = "0.19.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8123f27e969974a3dfba720fdb560be359f57b44302d280ba72e76a74480e8a"
+checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
+dependencies = [
+ "indexmap 2.0.0",
+ "serde",
+ "serde_spanned",
+ "toml_datetime",
+ "winnow",
+]
+
+[[package]]
+name = "toml_edit"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca676d9ba1a322c1b64eb8045a5ec5c0cfb0c9d08e15e9ff622589ad5221c8fe"
 dependencies = [
  "indexmap 2.0.0",
  "serde",
