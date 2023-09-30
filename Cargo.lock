@@ -1450,14 +1450,11 @@ checksum = "f414c99e1a7abc69b21f3225a6539d203b0513f1d1d448607c4ea81cdcf9ee59"
 dependencies = [
  "bytes",
  "crc32fast",
- "crossbeam-channel",
  "flate2",
  "gix-hash",
  "gix-trace",
- "jwalk",
  "libc",
  "once_cell",
- "parking_lot",
  "prodash",
  "sha1_smol",
  "thiserror",
@@ -1472,11 +1469,14 @@ checksum = "9b9ff423ae4983f762659040d13dd7a5defbd54b6a04ac3cc7347741cec828cd"
 dependencies = [
  "bytes",
  "crc32fast",
+ "crossbeam-channel",
  "flate2",
  "gix-hash",
  "gix-trace",
+ "jwalk",
  "libc",
  "once_cell",
+ "parking_lot",
  "prodash",
  "sha1_smol",
  "thiserror",
@@ -1815,7 +1815,6 @@ dependencies = [
  "parking_lot",
  "smallvec",
  "thiserror",
- "uluru",
 ]
 
 [[package]]
@@ -1836,6 +1835,7 @@ dependencies = [
  "parking_lot",
  "smallvec",
  "thiserror",
+ "uluru",
 ]
 
 [[package]]
@@ -3434,7 +3434,7 @@ dependencies = [
  "chrono",
  "clap",
  "comrak",
- "gix 0.53.1",
+ "gix 0.54.1",
  "once_cell",
  "rust-embed",
  "rustsec",
