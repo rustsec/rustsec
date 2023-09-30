@@ -9,8 +9,8 @@ use crate::{
     package::{self, Package},
 };
 
-use tame_index::utils::flock::{FileLock, LockOptions};
 pub use tame_index::external::reqwest::ClientBuilder;
+use tame_index::utils::flock::{FileLock, LockOptions};
 
 enum Index {
     Git(tame_index::index::RemoteGitIndex),
@@ -20,7 +20,11 @@ enum Index {
 
 impl Index {
     #[inline]
-    fn krate(&self, name: &package::Name, lock: &FileLock) -> Result<Option<tame_index::IndexKrate>, Error> {
+    fn krate(
+        &self,
+        name: &package::Name,
+        lock: &FileLock,
+    ) -> Result<Option<tame_index::IndexKrate>, Error> {
         let name = name.as_str().try_into().map_err(Error::from_tame)?;
         let res = match self {
             Self::Git(gi) => gi.krate(name, true, lock),
@@ -99,7 +103,7 @@ impl CachedIndex {
         Ok(CachedIndex {
             index,
             cache: Default::default(),
-            lock
+            lock,
         })
     }
 
@@ -221,7 +225,10 @@ impl CachedIndex {
     /// Is the given package yanked?
     fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
         if !self.cache.contains_key(&package.name) {
-            self.insert(package.name.to_owned(), self.index.krate(&package.name, &self.lock));
+            self.insert(
+                package.name.to_owned(),
+                self.index.krate(&package.name, &self.lock),
+            );
         }
 
         match &self.cache[&package.name] {
@@ -286,7 +293,10 @@ fn acquire_cargo_package_lock(lock_timeout: Duration) -> Result<FileLock, tame_i
     acquire_lock(lock_opts, lock_timeout)
 }
 
-fn acquire_lock(lock_opts: LockOptions<'_>, lock_timeout: Duration) -> Result<FileLock, tame_index::Error> {
+fn acquire_lock(
+    lock_opts: LockOptions<'_>,
+    lock_timeout: Duration,
+) -> Result<FileLock, tame_index::Error> {
     if lock_timeout == Duration::from_secs(0) {
         lock_opts.try_lock()
     } else {
