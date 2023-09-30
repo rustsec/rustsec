@@ -99,13 +99,15 @@ impl Repository {
         // Lock the directory to avoid several checkouts running at the same time trampling on each other.
         // We do not use Git locks because they are very poorly designed - they leave stale locks on SIGKILL or power loss
         // with no way to recover. They don't even write the PID to the lockfile.
-        let tame_index_path = tame_index::Path::from_path(&path).expect("Non-UTF-8 path to the database");
+        let tame_index_path =
+            tame_index::Path::from_path(&path).expect("Non-UTF-8 path to the database");
         let lock_opts = LockOptions::new(tame_index_path).exclusive(false);
         let _lock = if lock_timeout == Duration::from_secs(0) {
             lock_opts.try_lock()
         } else {
             lock_opts.lock(|_| Some(lock_timeout))
-        }.map_err(Error::from_tame)?;
+        }
+        .map_err(Error::from_tame)?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();

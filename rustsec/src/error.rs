@@ -153,7 +153,9 @@ impl Error {
     pub(crate) fn from_tame(err: tame_index::Error) -> Self {
         // Separate lock timeouts into their own LockTimeout variant.
         match err {
-            tame_index::Error::Lock(lock_err) => format_err!(ErrorKind::LockTimeout, "{}", lock_err),
+            tame_index::Error::Lock(lock_err) => {
+                format_err!(ErrorKind::LockTimeout, "{}", lock_err)
+            }
             other => format_err!(ErrorKind::Registry, "{}", other),
         }
     }
