@@ -7,9 +7,6 @@ use std::{
 };
 use thiserror::Error;
 
-#[cfg(feature = "git")]
-use tame_index::external::gix;
-
 /// Create a new error (of a given enum variant) with a formatted message
 macro_rules! format_err {
     ($kind:path, $msg:expr) => {
@@ -158,32 +155,6 @@ impl Error {
         match err {
             tame_index::Error::Lock(lock_err) => format_err!(ErrorKind::LockTimeout, "{}", lock_err),
             other => format_err!(ErrorKind::Registry, "{}", other),
-        }
-    }
-
-    /// Converts from [`gix::lock::acquire::Error`] to our `Error`.
-    ///
-    /// This is a separate function instead of a `From` impl
-    /// because a trait impl would leak into the public API,
-    /// and we need to keep it private because `gix` semver
-    /// will be bumped frequently and we don't want to bump `rustsec` semver
-    /// every time it changes.
-    #[cfg(feature = "git")]
-    pub(crate) fn from_gix_lock(other: gix::lock::acquire::Error) -> Self {
-        match other {
-            gix::lock::acquire::Error::Io(e) => {
-                format_err!(ErrorKind::Repo, "failed to aquire directory lock: {}", e)
-            }
-            gix::lock::acquire::Error::PermanentlyLocked {
-                resource_path,
-                mode: _,
-                attempts,
-            } => format_err!(
-                ErrorKind::LockTimeout,
-                "directory \"{:?}\" still locked after {} attempts",
-                resource_path,
-                attempts,
-            ),
         }
     }
 
