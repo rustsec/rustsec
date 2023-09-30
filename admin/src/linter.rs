@@ -2,7 +2,7 @@
 
 use crate::{
     error::{Error, ErrorKind},
-    prelude::*,
+    prelude::*, lock::acquire_cargo_package_lock,
 };
 use std::{
     fs,
@@ -40,10 +40,11 @@ impl Linter {
         skip_namecheck: Option<String>,
     ) -> Result<Self, Error> {
         let repo_path = repo_path.into();
+        let cargo_package_lock = acquire_cargo_package_lock()?;
         let mut crates_index = RemoteGitIndex::new(tame_index::GitIndex::new(
             tame_index::IndexLocation::new(tame_index::IndexUrl::CratesIoGit),
-        )?)?;
-        crates_index.fetch()?;
+        )?, &cargo_package_lock)?;
+        crates_index.fetch(&cargo_package_lock)?;
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
@@ -155,7 +156,7 @@ impl Linter {
 
     /// Checks if a crate with this name is present on crates.io
     fn name_exists_on_crates_io(&self, name: &str) -> bool {
-        if let Ok(Some(crate_)) = self.crates_index.krate(name.try_into().unwrap(), true) {
+        if let Ok(Some(crate_)) = self.crates_index.krate(name.try_into().unwrap(), true, &acquire_cargo_package_lock().unwrap()) {
             // This check verifies name normalization.
             // A request for "serde-json" might return "serde_json",
             // and we want to catch use a non-canonical name and report it as an error.

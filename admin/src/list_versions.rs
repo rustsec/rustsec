@@ -5,7 +5,7 @@ use std::path::PathBuf;
 use rustsec::{Advisory, Database};
 use tame_index::index::RemoteGitIndex;
 
-use crate::{error::Error, prelude::*};
+use crate::{error::Error, prelude::*, lock::acquire_cargo_package_lock};
 
 /// Lists all versions for a crate and prints info on which ones are affected
 pub struct AffectedVersionLister {
@@ -20,10 +20,11 @@ impl AffectedVersionLister {
     /// Load the the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
+        let lock = acquire_cargo_package_lock()?;
         let mut crates_index = RemoteGitIndex::new(tame_index::GitIndex::new(
             tame_index::IndexLocation::new(tame_index::IndexUrl::CratesIoGit),
-        )?)?;
-        crates_index.fetch()?;
+        )?, &lock)?;
+        crates_index.fetch(&lock)?;
         let advisory_db = Database::open(&repo_path)?;
         Ok(Self {
             crates_index,
@@ -47,7 +48,7 @@ impl AffectedVersionLister {
         let crate_name = advisory.metadata.package.as_str();
         let crate_info = self
             .crates_index
-            .krate(crate_name.try_into().unwrap(), true)
+            .krate(crate_name.try_into().unwrap(), true, &acquire_cargo_package_lock().unwrap())
             .unwrap()
             .unwrap_or_else(|| panic!("expected crate {} to exist", crate_name));
         for version in crate_info.versions {
