@@ -100,7 +100,12 @@ impl Repository {
         // We do not use Git locks because they are very poorly designed - they leave stale locks on SIGKILL or power loss
         // with no way to recover. They don't even write the PID to the lockfile.
         let lock_path = tame_index::Path::from_path(&path)
-            .ok_or_else(|| format_err!(ErrorKind::BadParam, "Path to the advisory DB directory is not valid UTF-8!"))?
+            .ok_or_else(|| {
+                format_err!(
+                    ErrorKind::BadParam,
+                    "Path to the advisory DB directory is not valid UTF-8!"
+                )
+            })?
             .with_extension(".lock");
         let lock_opts = LockOptions::new(&lock_path).exclusive(false);
         let _lock = if lock_timeout == Duration::from_secs(0) {

@@ -2,7 +2,7 @@
 
 use std::time::Duration;
 
-use tame_index::{utils::flock::LockOptions, index::FileLock};
+use tame_index::{index::FileLock, utils::flock::LockOptions};
 
 /// Acquires the Cargo package lock, or fails immediately
 pub fn acquire_cargo_package_lock() -> Result<FileLock, tame_index::Error> {
@@ -21,4 +21,3 @@ pub fn acquire_lock(
         lock_opts.lock(|_| Some(lock_timeout))
     }
 }
-
