@@ -156,10 +156,7 @@ impl Error {
     pub(crate) fn from_tame(err: tame_index::Error) -> Self {
         // Separate lock timeouts into their own LockTimeout variant.
         match err {
-            tame_index::Error::Git(git_err) => match git_err {
-                tame_index::error::GitError::Lock(lock_err) => Self::from_gix_lock(lock_err),
-                other => format_err!(ErrorKind::Registry, "{}", other),
-            },
+            tame_index::Error::Lock(lock_err) => format_err!(ErrorKind::LockTimeout, "{}", lock_err),
             other => format_err!(ErrorKind::Registry, "{}", other),
         }
     }
