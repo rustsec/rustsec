@@ -9,7 +9,7 @@ use crate::{
     package::{self, Package},
 };
 
-use tame_index::external::gix;
+use tame_index::utils::flock::{FileLock, LockOptions};
 pub use tame_index::external::reqwest::ClientBuilder;
 
 enum Index {
@@ -20,12 +20,12 @@ enum Index {
 
 impl Index {
     #[inline]
-    fn krate(&self, name: &package::Name) -> Result<Option<tame_index::IndexKrate>, Error> {
+    fn krate(&self, name: &package::Name, lock: &FileLock) -> Result<Option<tame_index::IndexKrate>, Error> {
         let name = name.as_str().try_into().map_err(Error::from_tame)?;
         let res = match self {
-            Self::Git(gi) => gi.krate(name, true),
-            Self::SparseCached(si) => si.cached_krate(name),
-            Self::SparseRemote(rsi) => rsi.cached_krate(name),
+            Self::Git(gi) => gi.krate(name, true, lock),
+            Self::SparseCached(si) => si.cached_krate(name, lock),
+            Self::SparseRemote(rsi) => rsi.cached_krate(name, lock),
         }
         .map_err(Error::from_tame)?;
 
@@ -43,8 +43,9 @@ pub struct CachedIndex {
     /// The inner hash map is logically HashMap<Version, IsYanked>
     /// but we don't parse semver because crates.io registry contains invalid semver:
     /// <https://github.com/rustsec/rustsec/issues/759>
-    // The outer map can later be changed to DashMap or some such for thread safety.
     cache: HashMap<package::Name, Result<Option<HashMap<String, bool>>, Error>>,
+    /// The lock we hold on the Cargo cache directory
+    lock: FileLock,
 }
 
 impl CachedIndex {
@@ -79,10 +80,12 @@ impl CachedIndex {
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
 
+        let lock = acquire_cargo_package_lock(lock_timeout)?;
+
         let index = match index {
             tame_index::index::ComboIndexCache::Git(gi) => {
-                let mut rgi = new_remote_git_index(gi, lock_timeout)?;
-                rgi.fetch()?;
+                let mut rgi = tame_index::index::RemoteGitIndex::new(gi, &lock)?;
+                rgi.fetch(&lock)?;
                 Index::Git(rgi)
             }
             tame_index::index::ComboIndexCache::Sparse(si) => {
@@ -100,6 +103,7 @@ impl CachedIndex {
         Ok(CachedIndex {
             index,
             cache: Default::default(),
+            lock
         })
     }
 
@@ -130,9 +134,11 @@ impl CachedIndex {
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
 
+        let lock = acquire_cargo_package_lock(lock_timeout)?;
+
         let index = match index {
             tame_index::index::ComboIndexCache::Git(gi) => {
-                let rgi = new_remote_git_index(gi, lock_timeout)?;
+                let rgi = tame_index::index::RemoteGitIndex::new(gi, &lock)?;
                 Index::Git(rgi)
             }
             tame_index::index::ComboIndexCache::Sparse(si) => Index::SparseCached(si),
@@ -142,6 +148,7 @@ impl CachedIndex {
         Ok(CachedIndex {
             index,
             cache: Default::default(),
+            lock,
         })
     }
 
@@ -152,7 +159,7 @@ impl CachedIndex {
         match &self.index {
             Index::Git(_) | Index::SparseCached(_) => {
                 for pkg in packages {
-                    self.insert(pkg.to_owned(), self.index.krate(pkg));
+                    self.insert(pkg.to_owned(), self.index.krate(pkg, &self.lock));
                 }
             }
             Index::SparseRemote(rsi) => {
@@ -179,6 +186,7 @@ impl CachedIndex {
                             .collect(),
                         true,
                         REQUEST_TIMEOUT,
+                        &self.lock,
                     )
                     .map_err(|err| {
                         format_err!(
@@ -221,7 +229,7 @@ impl CachedIndex {
     /// Is the given package yanked?
     fn is_yanked(&mut self, package: &Package) -> Result<bool, Error> {
         if !self.cache.contains_key(&package.name) {
-            self.insert(package.name.to_owned(), self.index.krate(&package.name));
+            self.insert(package.name.to_owned(), self.index.krate(&package.name, &self.lock));
         }
 
         match &self.cache[&package.name] {
@@ -281,20 +289,15 @@ impl CachedIndex {
     }
 }
 
-/// Replacement to [tame_index::index::RemoteGitIndex::new] that also supports passing the lock timeout
-fn new_remote_git_index(
-    index: tame_index::index::git::GitIndex,
-    lock_timeout: Duration,
-) -> Result<tame_index::index::RemoteGitIndex, tame_index::Error> {
-    let lock_policy = if lock_timeout == Duration::from_secs(0) {
-        gix::lock::acquire::Fail::Immediately
+fn acquire_cargo_package_lock(lock_timeout: Duration) -> Result<FileLock, tame_index::Error> {
+    let lock_opts = LockOptions::cargo_package_lock(None)?.exclusive(false);
+    acquire_lock(lock_opts, lock_timeout)
+}
+
+fn acquire_lock(lock_opts: LockOptions<'_>, lock_timeout: Duration) -> Result<FileLock, tame_index::Error> {
+    if lock_timeout == Duration::from_secs(0) {
+        lock_opts.try_lock()
     } else {
-        gix::lock::acquire::Fail::AfterDurationWithBackoff(lock_timeout)
-    };
-    tame_index::index::RemoteGitIndex::with_options(
-        index,
-        gix::progress::Discard,
-        &gix::interrupt::IS_INTERRUPTED,
-        lock_policy,
-    )
+        lock_opts.lock(|_| Some(lock_timeout))
+    }
 }
