@@ -288,6 +288,7 @@ impl CachedIndex {
     }
 }
 
+// We cannot expose these publicly because that would leak the `tame_index` SemVer into the public API
 fn acquire_cargo_package_lock(lock_timeout: Duration) -> Result<FileLock, tame_index::Error> {
     let lock_opts = LockOptions::cargo_package_lock(None)?.exclusive(false);
     acquire_lock(lock_opts, lock_timeout)
