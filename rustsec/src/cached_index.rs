@@ -42,6 +42,10 @@ impl Index {
 /// Operations on crates.io index are rather slow.
 /// Instead of peforming an index lookup for every version of every crate,
 /// this implementation looks up each crate only once and caches the result in memory.
+///
+/// Please note that this struct will hold a global Cargo package lock while it exists.
+/// Cargo operations that download crates (e.g. `cargo update` or even `cargo build`)
+/// will not be possible while this lock is held.
 pub struct CachedIndex {
     index: Index,
     /// The inner hash map is logically HashMap<Version, IsYanked>
