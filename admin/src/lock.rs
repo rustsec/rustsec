@@ -1,4 +1,4 @@
-//! Utiltity functions for file locking
+//! Utility functions for file locking
 
 use std::time::Duration;
 
