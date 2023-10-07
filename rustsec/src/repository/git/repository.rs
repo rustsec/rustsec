@@ -1,5 +1,5 @@
 //! Git repositories
-use tame_index::external::gix;
+use tame_index::{external::gix, utils::flock::LockOptions};
 
 use super::{Commit, DEFAULT_URL};
 use crate::{
@@ -45,10 +45,6 @@ impl Repository {
     /// This function will wait for up to 5 minutes for the filesystem lock on the repository.
     /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
     /// after that time. Use [Repository::fetch] if you need to configure locking behavior.
-    ///
-    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
-    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
-    /// the `gix` signal handler to clean up the locks, see `gix::interrupt::init_handler`.
     pub fn fetch_default_repo() -> Result<Self, Error> {
         Self::fetch(
             DEFAULT_URL,
@@ -68,10 +64,6 @@ impl Repository {
     ///
     /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
-    ///
-    /// Regardless of the timeout, this function relies on `panic = unwind` to avoid leaving stale locks
-    /// if the process is interrupted with Ctrl+C. To support `panic = abort` you also need to register
-    /// the `gix` signal handler to clean up the locks, see `gix::interrupt::init_handler`.
     pub fn fetch<P: Into<PathBuf>>(
         url: &str,
         into_path: P,
@@ -104,20 +96,24 @@ impl Repository {
             fs::remove_dir(&path)?;
         }
 
-        // Acquire the lock on the checkout directory
-        let lock_policy = if lock_timeout == Duration::from_secs(0) {
-            gix::lock::acquire::Fail::Immediately
+        // Lock the directory to avoid several checkouts running at the same time trampling on each other.
+        // We do not use Git locks because they have undesirable properties - they leave stale locks on SIGKILL or power loss
+        // with no way to recover. They don't even write the PID to the lockfile.
+        let lock_path = tame_index::Path::from_path(&path)
+            .ok_or_else(|| {
+                format_err!(
+                    ErrorKind::BadParam,
+                    "Path to the advisory DB directory is not valid UTF-8!"
+                )
+            })?
+            .with_extension(".lock");
+        let lock_opts = LockOptions::new(&lock_path).exclusive(false);
+        let _lock = if lock_timeout == Duration::from_secs(0) {
+            lock_opts.try_lock()
         } else {
-            gix::lock::acquire::Fail::AfterDurationWithBackoff(lock_timeout)
-        };
-        let _lock = gix::lock::Marker::acquire_to_hold_resource(
-            path.with_extension("rustsec"),
-            lock_policy,
-            Some(std::path::PathBuf::from_iter(Some(
-                std::path::Component::RootDir,
-            ))),
-        )
-        .map_err(Error::from_gix_lock)?;
+            lock_opts.lock(|_| Some(lock_timeout))
+        }
+        .map_err(Error::from_tame)?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
             let mut mapping = gix::sec::trust::Mapping::default();
