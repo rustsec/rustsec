@@ -97,7 +97,7 @@ impl Repository {
         }
 
         // Lock the directory to avoid several checkouts running at the same time trampling on each other.
-        // We do not use Git locks because they are very poorly designed - they leave stale locks on SIGKILL or power loss
+        // We do not use Git locks because they have undesirable properties - they leave stale locks on SIGKILL or power loss
         // with no way to recover. They don't even write the PID to the lockfile.
         let lock_path = tame_index::Path::from_path(&path)
             .ok_or_else(|| {
