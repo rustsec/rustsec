@@ -10,7 +10,7 @@ pub fn acquire_cargo_package_lock() -> Result<FileLock, tame_index::Error> {
     acquire_lock(lock_opts, Duration::from_secs(0))
 }
 
-/// Acquires the provided lock with a speicifed timeout
+/// Acquires the provided lock with a specified timeout
 pub fn acquire_lock(
     lock_opts: LockOptions<'_>,
     lock_timeout: Duration,
