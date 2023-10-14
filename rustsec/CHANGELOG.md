@@ -4,14 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.28.3 (2023-10-12)
+## 0.28.3 (2023-10-14)
 
 ### Changed
 
  - Switched from Git-compatible lockfiles to locks provided by the operating system. This fixes issues around stale lockfiles being left behind on power loss. ([#1032])
  - `CachedIndex` now acquires the global Cargo package lock. This was necessary to avoid racing with Cargo when updating crates.io index via Git or writing sparse index entries. Note that this also prevents most Cargo operations for the current user until `CachedIndex` is dropped. ([#1032])
+ - The `gix` crate is now used in the `max-performance-safe` configuration, enabling multi-threading. ([#1045])
+
+### Added
+
+ - The `Severity` type now implements `Hash` ([#1042])
 
 [#1032]: https://github.com/rustsec/rustsec/pull/1032
+[#1042]: https://github.com/rustsec/rustsec/pull/1042
+[#1045]: https://github.com/rustsec/rustsec/pull/1045
 
 ## 0.28.2 (2023-09-25)
 
