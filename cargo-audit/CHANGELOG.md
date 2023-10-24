@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.18.3 (2023-10-24)
+
+### Fixed
+
+ - Fix a deadlock when the `Cargo.lock` file is missing. It only occurs with `rustsec` v0.28.3 or later. ([#1051])
+
+[#1051]: https://github.com/rustsec/rustsec/pull/1051
+
 ## 0.18.2 (2023-09-25)
 
 ### Fixed
