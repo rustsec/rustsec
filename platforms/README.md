@@ -109,19 +109,14 @@ If we remove platforms, we will bump the minor version of this crate.
 | [i586-pc-windows-msvc]                 | x86         | windows    | msvc       |
 | [i586-unknown-linux-gnu]               | x86         | linux      | gnu        |
 | [i586-unknown-linux-musl]              | x86         | linux      | musl       |
+| [i586-unknown-netbsd]                  | x86         | netbsd     |            |
 | [i686-linux-android]                   | x86         | android    |            |
 | [i686-unknown-freebsd]                 | x86         | freebsd    |            |
 | [i686-unknown-linux-musl]              | x86         | linux      | musl       |
 | [i686-unknown-uefi]                    | x86         | uefi       |            |
 | [loongarch64-unknown-linux-gnu]        | loongarch64 | linux      | gnu        |
-| [mips-unknown-linux-gnu]               | mips        | linux      | gnu        |
-| [mips-unknown-linux-musl]              | mips        | linux      | musl       |
-| [mips64-unknown-linux-gnuabi64]        | mips64      | linux      | gnu        |
-| [mips64-unknown-linux-muslabi64]       | mips64      | linux      | musl       |
-| [mips64el-unknown-linux-gnuabi64]      | mips64      | linux      | gnu        |
-| [mips64el-unknown-linux-muslabi64]     | mips64      | linux      | musl       |
-| [mipsel-unknown-linux-gnu]             | mips        | linux      | gnu        |
-| [mipsel-unknown-linux-musl]            | mips        | linux      | musl       |
+| [loongarch64-unknown-none]             | loongarch64 | none       |            |
+| [loongarch64-unknown-none-softfloat]   | loongarch64 | none       |            |
 | [nvptx64-nvidia-cuda]                  | nvptx64     | cuda       |            |
 | [powerpc-unknown-linux-gnu]            | powerpc     | linux      | gnu        |
 | [powerpc64-unknown-linux-gnu]          | powerpc64   | linux      | gnu        |
@@ -147,6 +142,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [wasm32-unknown-emscripten]            | wasm32      | emscripten |            |
 | [wasm32-unknown-unknown]               | wasm32      | unknown    |            |
 | [wasm32-wasi]                          | wasm32      | wasi       |            |
+| [wasm32-wasi-preview1-threads]         | wasm32      | wasi       |            |
 | [x86_64-apple-ios]                     | x86_64      | ios        |            |
 | [x86_64-fortanix-unknown-sgx]          | x86_64      | unknown    | sgx        |
 | [x86_64-fuchsia]                       | x86_64      | fuchsia    |            |
@@ -168,6 +164,7 @@ If we remove platforms, we will bump the minor version of this crate.
 |----------------------------------------|-------------|------------|------------|
 | [aarch64-apple-ios-macabi]             | aarch64     | ios        |            |
 | [aarch64-apple-tvos]                   | aarch64     | tvos       |            |
+| [aarch64-apple-tvos-sim]               | aarch64     | tvos       |            |
 | [aarch64-apple-watchos-sim]            | aarch64     | watchos    |            |
 | [aarch64-kmc-solid_asp3]               | aarch64     | solid_asp3 |            |
 | [aarch64-nintendo-switch-freestanding] | aarch64     | horizon    |            |
@@ -195,7 +192,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [armv6-unknown-freebsd]                | arm         | freebsd    | gnueabihf  |
 | [armv6-unknown-netbsd-eabihf]          | arm         | netbsd     | eabihf     |
 | [armv6k-nintendo-3ds]                  | arm         | horizon    | newlib     |
-| [armv7-apple-ios]                      | arm         | ios        |            |
 | [armv7-sony-vita-newlibeabihf]         | arm         | vita       | newlib     |
 | [armv7-unknown-freebsd]                | arm         | freebsd    | gnueabihf  |
 | [armv7-unknown-linux-ohos]             | arm         | linux      | ohos       |
@@ -212,24 +208,34 @@ If we remove platforms, we will bump the minor version of this crate.
 | [bpfeb-unknown-none]                   | bpf         | none       |            |
 | [bpfel-unknown-none]                   | bpf         | none       |            |
 | [csky-unknown-linux-gnuabiv2]          | csky        | linux      | gnu        |
+| [csky-unknown-linux-gnuabiv2hf]        | csky        | linux      | gnu        |
 | [hexagon-unknown-linux-musl]           | hexagon     | linux      | musl       |
 | [i386-apple-ios]                       | x86         | ios        |            |
 | [i586-pc-nto-qnx700]                   | x86         | nto        | nto70      |
 | [i686-apple-darwin]                    | x86         | macos      |            |
+| [i686-pc-windows-gnullvm]              | x86         | windows    | gnu        |
 | [i686-unknown-haiku]                   | x86         | haiku      |            |
+| [i686-unknown-hurd-gnu]                | x86         | hurd       | gnu        |
 | [i686-unknown-netbsd]                  | x86         | netbsd     |            |
 | [i686-unknown-openbsd]                 | x86         | openbsd    |            |
 | [i686-uwp-windows-gnu]                 | x86         | windows    | gnu        |
 | [i686-uwp-windows-msvc]                | x86         | windows    | msvc       |
 | [i686-wrs-vxworks]                     | x86         | vxworks    | gnu        |
-| [loongarch64-unknown-none]             | loongarch64 | none       |            |
-| [loongarch64-unknown-none-softfloat]   | loongarch64 | none       |            |
 | [m68k-unknown-linux-gnu]               | m68k        | linux      | gnu        |
+| [mips-unknown-linux-gnu]               | mips        | linux      | gnu        |
+| [mips-unknown-linux-musl]              | mips        | linux      | musl       |
 | [mips-unknown-linux-uclibc]            | mips        | linux      | uclibc     |
 | [mips64-openwrt-linux-musl]            | mips64      | linux      | musl       |
+| [mips64-unknown-linux-gnuabi64]        | mips64      | linux      | gnu        |
+| [mips64-unknown-linux-muslabi64]       | mips64      | linux      | musl       |
+| [mips64el-unknown-linux-gnuabi64]      | mips64      | linux      | gnu        |
+| [mips64el-unknown-linux-muslabi64]     | mips64      | linux      | musl       |
 | [mipsel-sony-psp]                      | mips        | psp        |            |
 | [mipsel-sony-psx]                      | mips        | none       | psx        |
+| [mipsel-unknown-linux-gnu]             | mips        | linux      | gnu        |
+| [mipsel-unknown-linux-musl]            | mips        | linux      | musl       |
 | [mipsel-unknown-linux-uclibc]          | mips        | linux      | uclibc     |
+| [mipsel-unknown-netbsd]                | mips        | netbsd     |            |
 | [mipsel-unknown-none]                  | mips        | none       |            |
 | [mipsisa32r6-unknown-linux-gnu]        | mips32r6    | linux      | gnu        |
 | [mipsisa32r6el-unknown-linux-gnu]      | mips32r6    | linux      | gnu        |
@@ -273,7 +279,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv7a-pc-windows-msvc]             | arm         | windows    | msvc       |
 | [thumbv7a-uwp-windows-msvc]            | arm         | windows    | msvc       |
 | [thumbv7neon-unknown-linux-musleabihf] | arm         | linux      | musl       |
-| [wasm32-wasi-preview1-threads]         | wasm32      | wasi       |            |
 | [wasm64-unknown-unknown]               | wasm64      | unknown    |            |
 | [x86_64-apple-ios-macabi]              | x86_64      | ios        |            |
 | [x86_64-apple-tvos]                    | x86_64      | tvos       |            |
@@ -298,6 +303,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-apple-ios-macabi]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_APPLE_IOS_MACABI.html
 [aarch64-apple-ios-sim]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_APPLE_IOS_SIM.html
 [aarch64-apple-tvos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_APPLE_TVOS.html
+[aarch64-apple-tvos-sim]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_APPLE_TVOS_SIM.html
 [aarch64-apple-watchos-sim]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_APPLE_WATCHOS_SIM.html
 [aarch64-fuchsia]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_FUCHSIA.html
 [aarch64-kmc-solid_asp3]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_KMC_SOLID_ASP3.html
@@ -343,7 +349,6 @@ If we remove platforms, we will bump the minor version of this crate.
 [armv6-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV6_UNKNOWN_FREEBSD.html
 [armv6-unknown-netbsd-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV6_UNKNOWN_NETBSD_EABIHF.html
 [armv6k-nintendo-3ds]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV6K_NINTENDO_3DS.html
-[armv7-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_APPLE_IOS.html
 [armv7-linux-androideabi]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_LINUX_ANDROIDEABI.html
 [armv7-sony-vita-newlibeabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_SONY_VITA_NEWLIBEABIHF.html
 [armv7-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_UNKNOWN_FREEBSD.html
@@ -369,18 +374,22 @@ If we remove platforms, we will bump the minor version of this crate.
 [bpfeb-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.BPFEB_UNKNOWN_NONE.html
 [bpfel-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.BPFEL_UNKNOWN_NONE.html
 [csky-unknown-linux-gnuabiv2]: https://docs.rs/platforms/latest/platforms/platform/constant.CSKY_UNKNOWN_LINUX_GNUABIV2.html
+[csky-unknown-linux-gnuabiv2hf]: https://docs.rs/platforms/latest/platforms/platform/constant.CSKY_UNKNOWN_LINUX_GNUABIV2HF.html
 [hexagon-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.HEXAGON_UNKNOWN_LINUX_MUSL.html
 [i386-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/constant.I386_APPLE_IOS.html
 [i586-pc-nto-qnx700]: https://docs.rs/platforms/latest/platforms/platform/constant.I586_PC_NTO_QNX700.html
 [i586-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.I586_PC_WINDOWS_MSVC.html
 [i586-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I586_UNKNOWN_LINUX_GNU.html
 [i586-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.I586_UNKNOWN_LINUX_MUSL.html
+[i586-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.I586_UNKNOWN_NETBSD.html
 [i686-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_APPLE_DARWIN.html
 [i686-linux-android]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_LINUX_ANDROID.html
 [i686-pc-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_PC_WINDOWS_GNU.html
+[i686-pc-windows-gnullvm]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_PC_WINDOWS_GNULLVM.html
 [i686-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_PC_WINDOWS_MSVC.html
 [i686-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_FREEBSD.html
 [i686-unknown-haiku]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_HAIKU.html
+[i686-unknown-hurd-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_HURD_GNU.html
 [i686-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_LINUX_GNU.html
 [i686-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_LINUX_MUSL.html
 [i686-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_NETBSD.html
@@ -406,6 +415,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [mipsel-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.MIPSEL_UNKNOWN_LINUX_GNU.html
 [mipsel-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.MIPSEL_UNKNOWN_LINUX_MUSL.html
 [mipsel-unknown-linux-uclibc]: https://docs.rs/platforms/latest/platforms/platform/constant.MIPSEL_UNKNOWN_LINUX_UCLIBC.html
+[mipsel-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.MIPSEL_UNKNOWN_NETBSD.html
 [mipsel-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.MIPSEL_UNKNOWN_NONE.html
 [mipsisa32r6-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.MIPSISA32R6_UNKNOWN_LINUX_GNU.html
 [mipsisa32r6el-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.MIPSISA32R6EL_UNKNOWN_LINUX_GNU.html
