@@ -46,6 +46,9 @@ pub enum OS {
     /// `horizon`
     Horizon,
 
+    /// `hurd`
+    Hurd,
+
     /// `illumos`: illumos is a partly free and open-source Unix operating system based on OpenSolaris
     IllumOS,
 
@@ -132,6 +135,7 @@ impl OS {
             OS::Haiku => "haiku",
             OS::Hermit => "hermit",
             OS::Horizon => "horizon",
+            OS::Hurd => "hurd",
             OS::IllumOS => "illumos",
             OS::iOS => "ios",
             OS::L4re => "l4re",
@@ -176,6 +180,7 @@ impl FromStr for OS {
             "haiku" => OS::Haiku,
             "hermit" => OS::Hermit,
             "horizon" => OS::Horizon,
+            "hurd" => OS::Hurd,
             "illumos" => OS::IllumOS,
             "ios" => OS::iOS,
             "l4re" => OS::L4re,
