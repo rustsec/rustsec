@@ -20,6 +20,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_APPLE_IOS_MACABI,
     AARCH64_APPLE_IOS_SIM,
     AARCH64_APPLE_TVOS,
+    AARCH64_APPLE_TVOS_SIM,
     AARCH64_APPLE_WATCHOS_SIM,
     AARCH64_FUCHSIA,
     AARCH64_KMC_SOLID_ASP3,
@@ -65,7 +66,6 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV6_UNKNOWN_FREEBSD,
     ARMV6_UNKNOWN_NETBSD_EABIHF,
     ARMV6K_NINTENDO_3DS,
-    ARMV7_APPLE_IOS,
     ARMV7_LINUX_ANDROIDEABI,
     ARMV7_SONY_VITA_NEWLIBEABIHF,
     ARMV7_UNKNOWN_FREEBSD,
@@ -91,18 +91,22 @@ pub(crate) const ALL: &[Platform] = &[
     BPFEB_UNKNOWN_NONE,
     BPFEL_UNKNOWN_NONE,
     CSKY_UNKNOWN_LINUX_GNUABIV2,
+    CSKY_UNKNOWN_LINUX_GNUABIV2HF,
     HEXAGON_UNKNOWN_LINUX_MUSL,
     I386_APPLE_IOS,
     I586_PC_NTO_QNX700,
     I586_PC_WINDOWS_MSVC,
     I586_UNKNOWN_LINUX_GNU,
     I586_UNKNOWN_LINUX_MUSL,
+    I586_UNKNOWN_NETBSD,
     I686_APPLE_DARWIN,
     I686_LINUX_ANDROID,
     I686_PC_WINDOWS_GNU,
+    I686_PC_WINDOWS_GNULLVM,
     I686_PC_WINDOWS_MSVC,
     I686_UNKNOWN_FREEBSD,
     I686_UNKNOWN_HAIKU,
+    I686_UNKNOWN_HURD_GNU,
     I686_UNKNOWN_LINUX_GNU,
     I686_UNKNOWN_LINUX_MUSL,
     I686_UNKNOWN_NETBSD,
@@ -128,6 +132,7 @@ pub(crate) const ALL: &[Platform] = &[
     MIPSEL_UNKNOWN_LINUX_GNU,
     MIPSEL_UNKNOWN_LINUX_MUSL,
     MIPSEL_UNKNOWN_LINUX_UCLIBC,
+    MIPSEL_UNKNOWN_NETBSD,
     MIPSEL_UNKNOWN_NONE,
     MIPSISA32R6_UNKNOWN_LINUX_GNU,
     MIPSISA32R6EL_UNKNOWN_LINUX_GNU,
@@ -282,6 +287,17 @@ pub(crate) const AARCH64_APPLE_IOS_SIM: Platform = Platform {
 /// ARM64 tvOS
 pub(crate) const AARCH64_APPLE_TVOS: Platform = Platform {
     target_triple: "aarch64-apple-tvos",
+    target_arch: Arch::AArch64,
+    target_os: OS::TvOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64 tvOS Simulator
+pub(crate) const AARCH64_APPLE_TVOS_SIM: Platform = Platform {
+    target_triple: "aarch64-apple-tvos-sim",
     target_arch: Arch::AArch64,
     target_os: OS::TvOS,
     target_env: Env::None,
@@ -779,17 +795,6 @@ pub(crate) const ARMV6K_NINTENDO_3DS: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// ARMv7-A Cortex-A8 iOS
-pub(crate) const ARMV7_APPLE_IOS: Platform = Platform {
-    target_triple: "armv7-apple-ios",
-    target_arch: Arch::Arm,
-    target_os: OS::iOS,
-    target_env: Env::None,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
-};
-
 /// ARMv7-A Android
 pub(crate) const ARMV7_LINUX_ANDROIDEABI: Platform = Platform {
     target_triple: "armv7-linux-androideabi",
@@ -1053,9 +1058,20 @@ pub(crate) const BPFEL_UNKNOWN_NONE: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// C-SKY abiv2 Linux(little endian)
+/// C-SKY abiv2 Linux (little endian)
 pub(crate) const CSKY_UNKNOWN_LINUX_GNUABIV2: Platform = Platform {
     target_triple: "csky-unknown-linux-gnuabiv2",
+    target_arch: Arch::Csky,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// C-SKY abiv2 Linux, hardfloat (little endian)
+pub(crate) const CSKY_UNKNOWN_LINUX_GNUABIV2HF: Platform = Platform {
+    target_triple: "csky-unknown-linux-gnuabiv2hf",
     target_arch: Arch::Csky,
     target_os: OS::Linux,
     target_env: Env::Gnu,
@@ -1074,7 +1090,7 @@ pub(crate) const HEXAGON_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit x86 iOS
+/// 32-bit x86 iOS [^x86_32-floats-return-ABI]
 pub(crate) const I386_APPLE_IOS: Platform = Platform {
     target_triple: "i386-apple-ios",
     target_arch: Arch::X86,
@@ -1085,6 +1101,7 @@ pub(crate) const I386_APPLE_IOS: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// 32-bit x86 QNX Neutrino 7.0 RTOS  [^x86_32-floats-return-ABI]
 pub(crate) const I586_PC_NTO_QNX700: Platform = Platform {
     target_triple: "i586-pc-nto-qnx700",
     target_arch: Arch::X86,
@@ -1095,7 +1112,7 @@ pub(crate) const I586_PC_NTO_QNX700: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit Windows w/o SSE
+/// 32-bit Windows w/o SSE [^x86_32-floats-x87]
 pub(crate) const I586_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "i586-pc-windows-msvc",
     target_arch: Arch::X86,
@@ -1106,7 +1123,7 @@ pub(crate) const I586_PC_WINDOWS_MSVC: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 32-bit Linux w/o SSE (kernel 3.2, glibc 2.17)
+/// 32-bit Linux w/o SSE (kernel 3.2, glibc 2.17) [^x86_32-floats-x87]
 pub(crate) const I586_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "i586-unknown-linux-gnu",
     target_arch: Arch::X86,
@@ -1117,7 +1134,7 @@ pub(crate) const I586_UNKNOWN_LINUX_GNU: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 32-bit Linux w/o SSE, MUSL
+/// 32-bit Linux w/o SSE, MUSL [^x86_32-floats-x87]
 pub(crate) const I586_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_triple: "i586-unknown-linux-musl",
     target_arch: Arch::X86,
@@ -1128,7 +1145,18 @@ pub(crate) const I586_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 32-bit macOS (10.7+, Lion+)
+/// 32-bit x86, restricted to Pentium
+pub(crate) const I586_UNKNOWN_NETBSD: Platform = Platform {
+    target_triple: "i586-unknown-netbsd",
+    target_arch: Arch::X86,
+    target_os: OS::NetBSD,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Two,
+};
+
+/// 32-bit macOS (10.12+, Sierra+) [^x86_32-floats-return-ABI]
 pub(crate) const I686_APPLE_DARWIN: Platform = Platform {
     target_triple: "i686-apple-darwin",
     target_arch: Arch::X86,
@@ -1139,7 +1167,7 @@ pub(crate) const I686_APPLE_DARWIN: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit x86 Android
+/// 32-bit x86 Android [^x86_32-floats-return-ABI]
 pub(crate) const I686_LINUX_ANDROID: Platform = Platform {
     target_triple: "i686-linux-android",
     target_arch: Arch::X86,
@@ -1150,7 +1178,7 @@ pub(crate) const I686_LINUX_ANDROID: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 32-bit MinGW (Windows 7+) [^windows-support]
+/// 32-bit MinGW (Windows 7+) [^windows-support] [^x86_32-floats-return-ABI]
 pub(crate) const I686_PC_WINDOWS_GNU: Platform = Platform {
     target_triple: "i686-pc-windows-gnu",
     target_arch: Arch::X86,
@@ -1161,7 +1189,18 @@ pub(crate) const I686_PC_WINDOWS_GNU: Platform = Platform {
     tier: Tier::One,
 };
 
-/// 32-bit MSVC (Windows 7+) [^windows-support]
+/// [^x86_32-floats-return-ABI]
+pub(crate) const I686_PC_WINDOWS_GNULLVM: Platform = Platform {
+    target_triple: "i686-pc-windows-gnullvm",
+    target_arch: Arch::X86,
+    target_os: OS::Windows,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// 32-bit MSVC (Windows 7+) [^windows-support] [^x86_32-floats-return-ABI]
 pub(crate) const I686_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "i686-pc-windows-msvc",
     target_arch: Arch::X86,
@@ -1172,7 +1211,7 @@ pub(crate) const I686_PC_WINDOWS_MSVC: Platform = Platform {
     tier: Tier::One,
 };
 
-/// 32-bit FreeBSD
+/// 32-bit FreeBSD [^x86_32-floats-return-ABI]
 pub(crate) const I686_UNKNOWN_FREEBSD: Platform = Platform {
     target_triple: "i686-unknown-freebsd",
     target_arch: Arch::X86,
@@ -1183,7 +1222,7 @@ pub(crate) const I686_UNKNOWN_FREEBSD: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// 32-bit Haiku
+/// 32-bit Haiku [^x86_32-floats-return-ABI]
 pub(crate) const I686_UNKNOWN_HAIKU: Platform = Platform {
     target_triple: "i686-unknown-haiku",
     target_arch: Arch::X86,
@@ -1194,7 +1233,18 @@ pub(crate) const I686_UNKNOWN_HAIKU: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit Linux (kernel 3.2+, glibc 2.17+)
+/// 32-bit GNU/Hurd [^x86_32-floats-return-ABI]
+pub(crate) const I686_UNKNOWN_HURD_GNU: Platform = Platform {
+    target_triple: "i686-unknown-hurd-gnu",
+    target_arch: Arch::X86,
+    target_os: OS::Hurd,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// 32-bit Linux (kernel 3.2+, glibc 2.17+) [^x86_32-floats-return-ABI]
 pub(crate) const I686_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "i686-unknown-linux-gnu",
     target_arch: Arch::X86,
@@ -1205,7 +1255,7 @@ pub(crate) const I686_UNKNOWN_LINUX_GNU: Platform = Platform {
     tier: Tier::One,
 };
 
-/// 32-bit Linux with MUSL
+/// 32-bit Linux with MUSL [^x86_32-floats-return-ABI]
 pub(crate) const I686_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_triple: "i686-unknown-linux-musl",
     target_arch: Arch::X86,
@@ -1216,7 +1266,7 @@ pub(crate) const I686_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// NetBSD/i386 with SSE2
+/// NetBSD/i386 with SSE2 [^x86_32-floats-return-ABI]
 pub(crate) const I686_UNKNOWN_NETBSD: Platform = Platform {
     target_triple: "i686-unknown-netbsd",
     target_arch: Arch::X86,
@@ -1227,7 +1277,7 @@ pub(crate) const I686_UNKNOWN_NETBSD: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit OpenBSD
+/// 32-bit OpenBSD [^x86_32-floats-return-ABI]
 pub(crate) const I686_UNKNOWN_OPENBSD: Platform = Platform {
     target_triple: "i686-unknown-openbsd",
     target_arch: Arch::X86,
@@ -1249,6 +1299,7 @@ pub(crate) const I686_UNKNOWN_UEFI: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// [^x86_32-floats-return-ABI]
 pub(crate) const I686_UWP_WINDOWS_GNU: Platform = Platform {
     target_triple: "i686-uwp-windows-gnu",
     target_arch: Arch::X86,
@@ -1259,6 +1310,7 @@ pub(crate) const I686_UWP_WINDOWS_GNU: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// [^x86_32-floats-return-ABI]
 pub(crate) const I686_UWP_WINDOWS_MSVC: Platform = Platform {
     target_triple: "i686-uwp-windows-msvc",
     target_arch: Arch::X86,
@@ -1269,6 +1321,7 @@ pub(crate) const I686_UWP_WINDOWS_MSVC: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// [^x86_32-floats-return-ABI]
 pub(crate) const I686_WRS_VXWORKS: Platform = Platform {
     target_triple: "i686-wrs-vxworks",
     target_arch: Arch::X86,
@@ -1298,7 +1351,7 @@ pub(crate) const LOONGARCH64_UNKNOWN_NONE: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// LoongArch64 Bare-metal (LP64S ABI)
@@ -1309,7 +1362,7 @@ pub(crate) const LOONGARCH64_UNKNOWN_NONE_SOFTFLOAT: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// Motorola 680x0 Linux
@@ -1331,10 +1384,10 @@ pub(crate) const MIPS_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_env: Env::Gnu,
     target_endian: Endian::Big,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
-/// MIPS Linux with MUSL
+/// MIPS Linux with musl libc
 pub(crate) const MIPS_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_triple: "mips-unknown-linux-musl",
     target_arch: Arch::Mips,
@@ -1342,7 +1395,7 @@ pub(crate) const MIPS_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_env: Env::Musl,
     target_endian: Endian::Big,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
 /// MIPS Linux with uClibc
@@ -1367,7 +1420,7 @@ pub(crate) const MIPS64_OPENWRT_LINUX_MUSL: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS64 Linux, n64 ABI (kernel 4.4, glibc 2.23)
+/// MIPS64 Linux, N64 ABI (kernel 4.4, glibc 2.23)
 pub(crate) const MIPS64_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     target_triple: "mips64-unknown-linux-gnuabi64",
     target_arch: Arch::Mips64,
@@ -1375,10 +1428,10 @@ pub(crate) const MIPS64_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     target_env: Env::Gnu,
     target_endian: Endian::Big,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
-/// MIPS64 Linux, n64 ABI, MUSL
+/// MIPS64 Linux, N64 ABI, musl libc
 pub(crate) const MIPS64_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     target_triple: "mips64-unknown-linux-muslabi64",
     target_arch: Arch::Mips64,
@@ -1386,10 +1439,10 @@ pub(crate) const MIPS64_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     target_env: Env::Musl,
     target_endian: Endian::Big,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
-/// MIPS64 (LE) Linux, n64 ABI (kernel 4.4, glibc 2.23)
+/// MIPS64 (little endian) Linux, N64 ABI (kernel 4.4, glibc 2.23)
 pub(crate) const MIPS64EL_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     target_triple: "mips64el-unknown-linux-gnuabi64",
     target_arch: Arch::Mips64,
@@ -1397,10 +1450,10 @@ pub(crate) const MIPS64EL_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     target_env: Env::Gnu,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
-/// MIPS64 (LE) Linux, n64 ABI, MUSL
+/// MIPS64 (little endian) Linux, N64 ABI, musl libc
 pub(crate) const MIPS64EL_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     target_triple: "mips64el-unknown-linux-muslabi64",
     target_arch: Arch::Mips64,
@@ -1408,7 +1461,7 @@ pub(crate) const MIPS64EL_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     target_env: Env::Musl,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
 /// MIPS (LE) Sony PlayStation Portable (PSP)
@@ -1433,7 +1486,7 @@ pub(crate) const MIPSEL_SONY_PSX: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS (LE) Linux (kernel 4.4, glibc 2.23)
+/// MIPS (little endian) Linux (kernel 4.4, glibc 2.23)
 pub(crate) const MIPSEL_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "mipsel-unknown-linux-gnu",
     target_arch: Arch::Mips,
@@ -1441,10 +1494,10 @@ pub(crate) const MIPSEL_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_env: Env::Gnu,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
-/// MIPS (LE) Linux with MUSL
+/// MIPS (little endian) Linux with musl libc
 pub(crate) const MIPSEL_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_triple: "mipsel-unknown-linux-musl",
     target_arch: Arch::Mips,
@@ -1452,7 +1505,7 @@ pub(crate) const MIPSEL_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_env: Env::Musl,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
 /// MIPS (LE) Linux with uClibc
@@ -1461,6 +1514,17 @@ pub(crate) const MIPSEL_UNKNOWN_LINUX_UCLIBC: Platform = Platform {
     target_arch: Arch::Mips,
     target_os: OS::Linux,
     target_env: Env::UClibc,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// 32-bit MIPS (LE), requires mips32 cpu support
+pub(crate) const MIPSEL_UNKNOWN_NETBSD: Platform = Platform {
+    target_triple: "mipsel-unknown-netbsd",
+    target_arch: Arch::Mips,
+    target_os: OS::NetBSD,
+    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Three,
@@ -2213,7 +2277,7 @@ pub(crate) const WASM32_WASI_PREVIEW1_THREADS: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// WebAssembly
@@ -2227,7 +2291,7 @@ pub(crate) const WASM64_UNKNOWN_UNKNOWN: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 64-bit macOS (10.7+, Lion+)
+/// 64-bit macOS (10.12+, Sierra+)
 pub(crate) const X86_64_APPLE_DARWIN: Platform = Platform {
     target_triple: "x86_64-apple-darwin",
     target_arch: Arch::X86_64,
