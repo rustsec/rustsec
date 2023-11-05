@@ -75,13 +75,13 @@ impl Application for CargoAuditApplication {
 
     /// Color configuration for this application.
     fn term_colors(&self, entrypoint: &CargoAuditCommand) -> ColorChoice {
-        entrypoint
-            .color_config()
-            .unwrap_or(if std::io::stdout().is_terminal() {
+        entrypoint.color_config().unwrap_or(
+            if std::io::stdout().is_terminal() && std::io::stderr().is_terminal() {
                 ColorChoice::Auto
             } else {
                 ColorChoice::Never
-            })
+            },
+        )
     }
 
     /// Get tracing configuration from command-line options
