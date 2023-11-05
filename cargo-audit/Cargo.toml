@@ -32,6 +32,7 @@ auditable-serde = { version = "0.6",  optional = true, features = ["toml"] }
 quitters = { version = "0.1", optional = true }
 once_cell = { version = "1.5", optional = true }
 binfarce = { version = "0.2", optional = true }
+is-terminal = "0.4.9"
 
 [dev-dependencies]
 once_cell = "1.5"
