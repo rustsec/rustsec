@@ -168,7 +168,7 @@
 
           {% match cvss.ac %}
           {% when Some with (ac) %}
-          <dt>Attack complexity</dt><dd>{{ "{:?}"|format(ac) }}</d>
+          <dt>Attack complexity</dt><dd>{{ "{:?}"|format(ac) }}</dd>
           {% when None %}
           {% endmatch %}
 
