@@ -118,7 +118,7 @@ impl std::error::Error for Error {
 /// printing any errors that caused the top-level error.
 ///
 /// This is required to properly present some `gix` errors to the user:
-/// https://github.com/rustsec/rustsec/issues/1029#issuecomment-1777487808
+/// <https://github.com/rustsec/rustsec/issues/1029#issuecomment-1777487808>
 pub fn display_err_with_source<E: ErrorTrait>(error: &E) -> String {
     display_error_chain::DisplayErrorChain::new(error).to_string()
 }
