@@ -334,6 +334,7 @@ dependencies = [
  "binfarce",
  "cargo-lock",
  "clap",
+ "display-error-chain",
  "home",
  "is-terminal",
  "once_cell",
@@ -799,6 +800,12 @@ dependencies = [
  "redox_users",
  "winapi",
 ]
+
+[[package]]
+name = "display-error-chain"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f77af9e75578c1ab34f5f04545a8b05be0c36fbd7a9bb3cf2d2a971e435fdbb9"
 
 [[package]]
 name = "dunce"
