@@ -12,6 +12,7 @@ use crate::{
     auditor::Auditor,
     cli_config::CliConfig,
     config::{AuditConfig, DenyOption},
+    error::display_err_with_source,
     lockfile,
     prelude::*,
 };
@@ -216,7 +217,7 @@ impl Runnable for AuditCommand {
         // It is important to generate the lockfile before initializing the auditor,
         // otherwise we might deadlock because both need the Cargo package lock
         let path = lockfile::locate_or_generate(maybe_path).unwrap_or_else(|e| {
-            status_err!("{}", e);
+            status_err!("{}", display_err_with_source(&e));
             exit(2);
         });
         let mut auditor = self.auditor();
@@ -229,7 +230,7 @@ impl Runnable for AuditCommand {
                 exit(0);
             }
             Err(e) => {
-                status_err!("{}", e);
+                status_err!("{}", display_err_with_source(&e));
                 exit(2);
             }
         };
