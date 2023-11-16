@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.66.0 # MSRV
+          - 1.67.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@v4
