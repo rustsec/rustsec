@@ -344,7 +344,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror",
- "toml 0.7.8",
+ "toml 0.8.8",
 ]
 
 [[package]]
@@ -386,7 +386,7 @@ dependencies = [
  "petgraph",
  "semver",
  "serde",
- "toml 0.7.8",
+ "toml 0.8.8",
  "url",
 ]
 
@@ -2877,7 +2877,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "time",
- "toml 0.7.8",
+ "toml 0.8.8",
  "url",
 ]
 
@@ -2900,7 +2900,7 @@ dependencies = [
  "tame-index",
  "termcolor",
  "thiserror",
- "toml 0.7.8",
+ "toml 0.8.8",
  "xml-rs",
 ]
 
