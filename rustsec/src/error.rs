@@ -39,16 +39,48 @@ pub struct Error {
     /// Kind of error
     kind: ErrorKind,
 
-    /// Message providing additional information
+    /// Message providing a more specific explanation than `self.kind`.
+    ///
+    /// This may be a complete error by itself, or it may provide context for `self.source`.
     msg: String,
+
+    /// Cause of this error.
+    ///
+    /// The specific type of this error should not be considered part of the stable interface of
+    /// this crate.
+    source: Option<Box<dyn std::error::Error + Send + Sync>>,
 }
 
 impl Error {
-    /// Create a new error with the given description
+    /// Creates a new [`Error`](struct@Error) with the given description.
+    ///
+    /// Do not use this for wrapping [`std::error::Error`]; use [`Error::with_source()`] instead.
     pub fn new<S: ToString>(kind: ErrorKind, description: &S) -> Self {
+        // TODO: In a semver-breaking release, deprecate accepting anything but a `String`,
+        // or maybe `AsRef<str>`. This will discourage putting error types in the `description`
+        // position, which makes it impossible to retrieve their `.source()` info. It will also
+        // avoid an unnecessary clone in the common case where `S` is already a `String`.
         Self {
             kind,
             msg: description.to_string(),
+            source: None,
+        }
+    }
+
+    /// Creates a new [`Error`](struct@Error) whose [`std::error::Error::source()`] is `source`.
+    ///
+    /// `msg` should describe the operation which failed so as to give context for how `source`
+    /// is a meaningful error. For example, if `source` is a [`std::io::Error`] from trying to
+    /// read a file, then `msg` should include the path of the file and why the file is relevant.
+    pub fn with_source<E: std::error::Error + Send + Sync + 'static>(
+        kind: ErrorKind,
+        msg: String,
+        source: E,
+    ) -> Self {
+        Self {
+            kind,
+            msg,
+            source: Some(Box::new(source)),
         }
     }
 
@@ -60,11 +92,22 @@ impl Error {
 
 impl Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}: {}", &self.kind, &self.msg)
+        write!(f, "{}: {}", self.kind, self.msg)
     }
 }
 
-impl std::error::Error for Error {}
+impl std::error::Error for Error {
+    /// The lower-level source of this error, if any.
+    ///
+    /// The specific type of the returned error should not be considered part of the stable
+    /// interface of this crate; prefer to use this only for displaying error information.
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match &self.source {
+            Some(boxed_error) => Some(&**boxed_error),
+            None => None,
+        }
+    }
+}
 
 /// Custom error type for this library
 #[derive(Copy, Clone, Debug, Error, Eq, PartialEq)]
