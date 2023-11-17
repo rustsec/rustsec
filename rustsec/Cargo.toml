@@ -1,7 +1,7 @@
 [package]
 name         = "rustsec"
 description  = "Client library for the RustSec security advisory database"
-version      = "0.28.3"
+version      = "0.28.4"
 authors      = ["Tony Arcieri <bascule@gmail.com>"]
 license      = "Apache-2.0 OR MIT"
 homepage     = "https://rustsec.org"
