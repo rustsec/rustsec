@@ -29,9 +29,10 @@ pub fn generate() -> rustsec::Result<()> {
     let status = Command::new("cargo").arg("generate-lockfile").status();
 
     if let Err(e) = status {
-        return Err(Error::new(
+        return Err(Error::with_source(
             ErrorKind::Io,
-            &format!("couldn't run `cargo generate-lockfile`: {}", e),
+            "couldn't run `cargo generate-lockfile`".to_string(),
+            e,
         ));
     }
     let status = status.unwrap();
