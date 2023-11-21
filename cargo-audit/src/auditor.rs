@@ -173,9 +173,10 @@ impl Auditor {
         let lockfile = match self.load_lockfile(lockfile_path) {
             Ok(l) => l,
             Err(e) => {
-                return Err(Error::new(
+                return Err(Error::with_source(
                     ErrorKind::NotFound,
-                    &format!("Couldn't load {}: {}", lockfile_path.display(), e),
+                    format!("Couldn't load {}", lockfile_path.display()),
+                    e,
                 ))
             }
         };
