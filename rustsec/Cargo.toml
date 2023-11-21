@@ -15,7 +15,7 @@ rust-version = "1.67.0"
 [dependencies]
 cargo-lock = { version = "9", default-features = false }
 cvss = { version = "2", features = ["serde"] }
-fs-err = "2.9"
+fs-err = "2.11"
 platforms = { version = "3", features = ["serde"] }
 semver = { version = "1", features = ["serde"] }
 serde = { version = "1", features = ["serde_derive"] }
