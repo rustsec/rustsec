@@ -54,6 +54,15 @@ impl Id {
     pub fn is_ghsa(&self) -> bool {
         self.kind == IdKind::Ghsa
     }
+    /// Is this advisory ID a TALOS advisory?
+    pub fn is_talos(&self) -> bool {
+        self.kind == IdKind::Talos
+    }
+
+    /// Is this advisory ID a PYSEC advisory?
+    pub fn is_pysec(&self) -> bool {
+        self.kind == IdKind::PySec
+    }
 
     /// Is this an unknown kind of advisory ID?
     pub fn is_other(&self) -> bool {
@@ -100,6 +109,7 @@ impl Id {
                 "https://www.talosintelligence.com/reports/{}",
                 &self.string
             )),
+            IdKind::PySec => Some(format!("https://osv.dev/vulnerability/{}", &self.string)),
             _ => None,
         }
     }
@@ -180,6 +190,9 @@ pub enum IdKind {
     /// Cisco Talos identifiers
     Talos,
 
+    /// PYSEC identifiers
+    PySec,
+
     /// Other types of advisory identifiers we don't know about
     Other,
 }
@@ -193,6 +206,8 @@ impl IdKind {
             IdKind::Cve
         } else if string.starts_with("TALOS-") {
             IdKind::Talos
+        } else if string.starts_with("PYSEC-") {
+            IdKind::PySec
         } else if string.starts_with("GHSA-") {
             IdKind::Ghsa
         } else {

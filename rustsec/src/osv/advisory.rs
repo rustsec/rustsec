@@ -13,7 +13,6 @@ use crate::{
     Advisory,
 };
 use serde::{Deserialize, Deserializer, Serialize};
-use std::ops::Add;
 use std::str::FromStr;
 use url::Url;
 
@@ -41,6 +40,7 @@ pub struct OsvAdvisory {
     affected: Vec<OsvAffected>,
     #[serde(default)]
     references: Vec<OsvReference>,
+    #[serde(default)]
     database_specific: MainOsvDatabaseSpecific,
 }
 
@@ -51,7 +51,8 @@ pub struct OsvPackage {
     /// Crate name
     pub(crate) name: String,
     /// https://github.com/package-url/purl-spec derived from the other two
-    purl: String,
+    #[serde(default)]
+    purl: Option<String>,
 }
 
 impl From<&cargo_lock::Name> for OsvPackage {
@@ -59,7 +60,7 @@ impl From<&cargo_lock::Name> for OsvPackage {
         OsvPackage {
             ecosystem: ECOSYSTEM.to_string(),
             name: package.to_string(),
-            purl: "pkg:cargo/".to_string() + package.as_str(),
+            purl: Some("pkg:cargo/".to_string() + package.as_str()),
         }
     }
 }
@@ -185,9 +186,10 @@ pub struct OsvDatabaseSpecific {
     informational: Option<Informational>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MainOsvDatabaseSpecific {
-    license: String,
+    #[serde(default)]
+    license: Option<String>,
 }
 
 impl OsvAdvisory {
@@ -255,7 +257,7 @@ impl OsvAdvisory {
             details: metadata.description,
             references: osv_references(reference_urls),
             database_specific: MainOsvDatabaseSpecific {
-                license: metadata.license.spdx().to_string(),
+                license: Some(metadata.license.spdx().to_string()),
             },
         }
     }
