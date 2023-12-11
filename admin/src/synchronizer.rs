@@ -45,7 +45,6 @@
 //!
 //! We use the ZIP file export as a source as we need all advisories at once.
 //!
-//!
 //! The file containing crates.io vulnerabilities is available with:
 //!
 //! ```shell
@@ -72,10 +71,10 @@
 
 use crate::{
     error::{Error, ErrorKind},
+    lock::acquire_cargo_package_lock,
     prelude::*,
 };
-use crates_index::Index;
-use rustsec::advisory::{Id, Parts};
+use rustsec::advisory::{Id, IdKind, Parts};
 use rustsec::osv::OsvAdvisory;
 use rustsec::{Advisory, Collection};
 use std::fs::read_to_string;
@@ -84,6 +83,7 @@ use std::{
     fs, iter,
     path::{Path, PathBuf},
 };
+use tame_index::{index::RemoteGitIndex, KrateName};
 use toml_edit::{value, Document};
 
 /// Advisory synchronizer
@@ -93,7 +93,7 @@ pub struct Synchronizer {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: Index,
+    crates_index: RemoteGitIndex,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -112,8 +112,14 @@ impl Synchronizer {
     /// Create a new synchronizer for the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>, osv_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let mut crates_index = Index::new_cargo_default()?;
-        crates_index.update()?;
+        let cargo_package_lock = acquire_cargo_package_lock()?;
+        let mut crates_index = RemoteGitIndex::new(
+            tame_index::GitIndex::new(tame_index::IndexLocation::new(
+                tame_index::IndexUrl::CratesIoGit,
+            ))?,
+            &cargo_package_lock,
+        )?;
+        crates_index.fetch(&cargo_package_lock)?;
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         let osv = Self::load_osv_export(&osv_path.into())?;
@@ -183,7 +189,24 @@ impl Synchronizer {
             // and is not aliased from RustSec. Let's consider importing it.
             if rs_aliases.is_empty() {
                 for c in affected_crates {
-                    if self.crates_index.crate_(&c).is_some() {
+                    let crate_name: KrateName = match c.as_str().try_into() {
+                        Ok(k) => k,
+                        Err(_e) => {
+                            status_info!(
+                                "Info",
+                                "Crate name {} in {} advisory is invalid, skipping",
+                                c,
+                                osv.id(),
+                            );
+                            continue;
+                        }
+                    };
+
+                    if let Ok(Some(_)) = self.crates_index.krate(
+                        crate_name,
+                        true,
+                        &acquire_cargo_package_lock().unwrap(),
+                    ) {
                         self.missing_advisories.push(osv.clone());
                     } else {
                         status_info!(
@@ -237,18 +260,38 @@ impl Synchronizer {
         external: &OsvAdvisory,
     ) -> Result<(), Error> {
         let mut missing_aliases = vec![];
-        for alias_id in external.aliases().iter().chain(iter::once(external.id())) {
-            if alias_id != advisory.id() && !advisory.metadata.aliases.contains(alias_id) {
-                missing_aliases.push(alias_id.clone());
-                status_info!(
-                    "Info",
-                    "Adding missing alias {} for {}",
-                    alias_id,
-                    advisory.id()
-                );
+        let mut missing_related = vec![];
+        for external_id in external.aliases().iter().chain(iter::once(external.id())) {
+            // Heuristic based on advisory kind
+            match external_id.kind() {
+                IdKind::Cve | IdKind::Ghsa => {
+                    if external_id != advisory.id()
+                        && !advisory.metadata.aliases.contains(external_id)
+                    {
+                        missing_aliases.push(external_id.clone());
+                        status_info!(
+                            "Info",
+                            "Adding missing alias {} for {}",
+                            external_id,
+                            advisory.id()
+                        );
+                    }
+                }
+                IdKind::PySec => {
+                    if !advisory.metadata.related.contains(external_id) {
+                        missing_related.push(external_id.clone());
+                        status_info!(
+                            "Info",
+                            "Adding missing related {} for {}",
+                            external_id,
+                            advisory.id()
+                        );
+                    }
+                }
+                _ => continue,
             }
         }
-        if !missing_aliases.is_empty() {
+        if !missing_aliases.is_empty() || !missing_related.is_empty() {
             self.update_aliases(
                 &self
                     .repo_path
@@ -256,6 +299,7 @@ impl Synchronizer {
                     .join(advisory.metadata.package.as_str())
                     .join(format!("{}.md", advisory.id())),
                 &missing_aliases,
+                &missing_related,
             )?;
         }
         Ok(())
@@ -266,6 +310,7 @@ impl Synchronizer {
         &mut self,
         advisory_path: &Path,
         missing_aliases: &[Id],
+        missing_related: &[Id],
     ) -> Result<(), Error> {
         let content = read_to_string(advisory_path)?;
         // First extract toml and markdown content
@@ -276,7 +321,8 @@ impl Synchronizer {
             .front_matter
             .parse::<Document>()
             .expect("invalid TOML front matter");
-        // Read current aliases
+
+        // Aliases
         let mut aliases: Vec<String> = metadata["advisory"]
             .get("aliases")
             .map(|i| {
@@ -287,12 +333,32 @@ impl Synchronizer {
                     .collect()
             })
             .unwrap_or_else(Vec::new);
-        // Add missing aliases
         aliases.extend(missing_aliases.iter().map(|a| a.to_string()));
-        // Ensure sorted output
         aliases.sort();
         aliases.dedup();
-        metadata["advisory"]["aliases"] = value(toml_edit::Array::from_iter(aliases.iter()));
+        if !aliases.is_empty() {
+            metadata["advisory"]["aliases"] = value(toml_edit::Array::from_iter(aliases.iter()));
+        }
+
+        // Related
+        // FIXME: dedup implementation
+        let mut related: Vec<String> = metadata["advisory"]
+            .get("related")
+            .map(|i| {
+                i.as_array()
+                    .unwrap()
+                    .into_iter()
+                    .map(|v| v.as_str().unwrap().to_string())
+                    .collect()
+            })
+            .unwrap_or_else(Vec::new);
+        related.extend(missing_related.iter().map(|a| a.to_string()));
+        related.sort();
+        related.dedup();
+        if !related.is_empty() {
+            metadata["advisory"]["related"] = value(toml_edit::Array::from_iter(related.iter()));
+        }
+
         let updated = format!("```toml\n{}```\n\n{}", metadata, parts.markdown);
         fs::write(advisory_path, updated)?;
         status_info!("Info", "Written {}", advisory_path.display());
