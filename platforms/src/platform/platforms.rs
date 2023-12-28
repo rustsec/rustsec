@@ -21,6 +21,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_APPLE_IOS_SIM,
     AARCH64_APPLE_TVOS,
     AARCH64_APPLE_TVOS_SIM,
+    AARCH64_APPLE_WATCHOS,
     AARCH64_APPLE_WATCHOS_SIM,
     AARCH64_FUCHSIA,
     AARCH64_KMC_SOLID_ASP3,
@@ -31,6 +32,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_FREEBSD,
     AARCH64_UNKNOWN_FUCHSIA,
     AARCH64_UNKNOWN_HERMIT,
+    AARCH64_UNKNOWN_ILLUMOS,
     AARCH64_UNKNOWN_LINUX_GNU,
     AARCH64_UNKNOWN_LINUX_GNU_ILP32,
     AARCH64_UNKNOWN_LINUX_MUSL,
@@ -54,6 +56,8 @@ pub(crate) const ALL: &[Platform] = &[
     ARM_UNKNOWN_LINUX_MUSLEABI,
     ARM_UNKNOWN_LINUX_MUSLEABIHF,
     ARM64_32_APPLE_WATCHOS,
+    ARM64E_APPLE_DARWIN,
+    ARM64E_APPLE_IOS,
     ARMEB_UNKNOWN_LINUX_GNUEABI,
     ARMEBV7R_NONE_EABI,
     ARMEBV7R_NONE_EABIHF,
@@ -86,13 +90,13 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV7R_NONE_EABI,
     ARMV7R_NONE_EABIHF,
     ARMV7S_APPLE_IOS,
-    ASMJS_UNKNOWN_EMSCRIPTEN,
     AVR_UNKNOWN_GNU_ATMEGA328,
     BPFEB_UNKNOWN_NONE,
     BPFEL_UNKNOWN_NONE,
     CSKY_UNKNOWN_LINUX_GNUABIV2,
     CSKY_UNKNOWN_LINUX_GNUABIV2HF,
     HEXAGON_UNKNOWN_LINUX_MUSL,
+    HEXAGON_UNKNOWN_NONE_ELF,
     I386_APPLE_IOS,
     I586_PC_NTO_QNX700,
     I586_PC_WINDOWS_MSVC,
@@ -114,6 +118,7 @@ pub(crate) const ALL: &[Platform] = &[
     I686_UNKNOWN_UEFI,
     I686_UWP_WINDOWS_GNU,
     I686_UWP_WINDOWS_MSVC,
+    I686_WIN7_WINDOWS_MSVC,
     I686_WRS_VXWORKS,
     LOONGARCH64_UNKNOWN_LINUX_GNU,
     LOONGARCH64_UNKNOWN_NONE,
@@ -164,6 +169,7 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV32IMAC_ESP_ESPIDF,
     RISCV32IMAC_UNKNOWN_NONE_ELF,
     RISCV32IMAC_UNKNOWN_XOUS_ELF,
+    RISCV32IMAFC_UNKNOWN_NONE_ELF,
     RISCV32IMC_ESP_ESPIDF,
     RISCV32IMC_UNKNOWN_NONE_ELF,
     RISCV64_LINUX_ANDROID,
@@ -216,7 +222,6 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_PC_WINDOWS_GNU,
     X86_64_PC_WINDOWS_GNULLVM,
     X86_64_PC_WINDOWS_MSVC,
-    X86_64_SUN_SOLARIS,
     X86_64_UNIKRAFT_LINUX_MUSL,
     X86_64_UNKNOWN_DRAGONFLY,
     X86_64_UNKNOWN_FREEBSD,
@@ -236,6 +241,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_UEFI,
     X86_64_UWP_WINDOWS_GNU,
     X86_64_UWP_WINDOWS_MSVC,
+    X86_64_WIN7_WINDOWS_MSVC,
     X86_64_WRS_VXWORKS,
     X86_64H_APPLE_DARWIN,
 ];
@@ -300,6 +306,17 @@ pub(crate) const AARCH64_APPLE_TVOS_SIM: Platform = Platform {
     target_triple: "aarch64-apple-tvos-sim",
     target_arch: Arch::AArch64,
     target_os: OS::TvOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64 Apple WatchOS
+pub(crate) const AARCH64_APPLE_WATCHOS: Platform = Platform {
+    target_triple: "aarch64-apple-watchos",
+    target_arch: Arch::AArch64,
+    target_os: OS::WatchOS,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
@@ -409,6 +426,17 @@ pub(crate) const AARCH64_UNKNOWN_HERMIT: Platform = Platform {
     target_triple: "aarch64-unknown-hermit",
     target_arch: Arch::AArch64,
     target_os: OS::Hermit,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64 illumos
+pub(crate) const AARCH64_UNKNOWN_ILLUMOS: Platform = Platform {
+    target_triple: "aarch64-unknown-illumos",
+    target_arch: Arch::AArch64,
+    target_os: OS::IllumOS,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
@@ -660,6 +688,28 @@ pub(crate) const ARM64_32_APPLE_WATCHOS: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// ARM64e Apple Darwin
+pub(crate) const ARM64E_APPLE_DARWIN: Platform = Platform {
+    target_triple: "arm64e-apple-darwin",
+    target_arch: Arch::AArch64,
+    target_os: OS::MacOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64e Apple iOS
+pub(crate) const ARM64E_APPLE_IOS: Platform = Platform {
+    target_triple: "arm64e-apple-ios",
+    target_arch: Arch::AArch64,
+    target_os: OS::iOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
 };
 
@@ -1014,17 +1064,6 @@ pub(crate) const ARMV7S_APPLE_IOS: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// asm.js via Emscripten
-pub(crate) const ASMJS_UNKNOWN_EMSCRIPTEN: Platform = Platform {
-    target_triple: "asmjs-unknown-emscripten",
-    target_arch: Arch::Wasm32,
-    target_os: OS::Emscripten,
-    target_env: Env::None,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U32,
-    tier: Tier::Two,
-};
-
 /// AVR. Requires `-Z build-std=core`
 pub(crate) const AVR_UNKNOWN_GNU_ATMEGA328: Platform = Platform {
     target_triple: "avr-unknown-gnu-atmega328",
@@ -1085,6 +1124,17 @@ pub(crate) const HEXAGON_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_arch: Arch::Hexagon,
     target_os: OS::Linux,
     target_env: Env::Musl,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// Bare Hexagon (v60+, HVX)
+pub(crate) const HEXAGON_UNKNOWN_NONE_ELF: Platform = Platform {
+    target_triple: "hexagon-unknown-none-elf",
+    target_arch: Arch::Hexagon,
+    target_os: OS::None,
+    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Three,
@@ -1313,6 +1363,17 @@ pub(crate) const I686_UWP_WINDOWS_GNU: Platform = Platform {
 /// [^x86_32-floats-return-ABI]
 pub(crate) const I686_UWP_WINDOWS_MSVC: Platform = Platform {
     target_triple: "i686-uwp-windows-msvc",
+    target_arch: Arch::X86,
+    target_os: OS::Windows,
+    target_env: Env::Msvc,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// 32-bit Windows 7 support [^x86_32-floats-return-ABI]
+pub(crate) const I686_WIN7_WINDOWS_MSVC: Platform = Platform {
+    target_triple: "i686-win7-windows-msvc",
     target_arch: Arch::X86,
     target_os: OS::Windows,
     target_env: Env::Msvc,
@@ -1864,6 +1925,17 @@ pub(crate) const RISCV32IMAC_UNKNOWN_XOUS_ELF: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// Bare RISC-V (RV32IMAFC ISA)
+pub(crate) const RISCV32IMAFC_UNKNOWN_NONE_ELF: Platform = Platform {
+    target_triple: "riscv32imafc-unknown-none-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RISC-V ESP-IDF
 pub(crate) const RISCV32IMC_ESP_ESPIDF: Platform = Platform {
     target_triple: "riscv32imc-esp-espidf",
@@ -2073,7 +2145,7 @@ pub(crate) const SPARC64_UNKNOWN_OPENBSD: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// SPARC Solaris 10/11, illumos
+/// SPARC Solaris 11, illumos
 pub(crate) const SPARCV9_SUN_SOLARIS: Platform = Platform {
     target_triple: "sparcv9-sun-solaris",
     target_arch: Arch::Sparc64,
@@ -2389,7 +2461,7 @@ pub(crate) const X86_64_PC_NTO_QNX710: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 64-bit Solaris 10/11, illumos
+/// 64-bit Solaris 11, illumos
 pub(crate) const X86_64_PC_SOLARIS: Platform = Platform {
     target_triple: "x86_64-pc-solaris",
     target_arch: Arch::X86_64,
@@ -2430,17 +2502,6 @@ pub(crate) const X86_64_PC_WINDOWS_MSVC: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::One,
-};
-
-/// Deprecated target for 64-bit Solaris 10/11, illumos
-pub(crate) const X86_64_SUN_SOLARIS: Platform = Platform {
-    target_triple: "x86_64-sun-solaris",
-    target_arch: Arch::X86_64,
-    target_os: OS::Solaris,
-    target_env: Env::None,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
 };
 
 /// 64-bit Unikraft with musl
@@ -2640,6 +2701,17 @@ pub(crate) const X86_64_UWP_WINDOWS_GNU: Platform = Platform {
 
 pub(crate) const X86_64_UWP_WINDOWS_MSVC: Platform = Platform {
     target_triple: "x86_64-uwp-windows-msvc",
+    target_arch: Arch::X86_64,
+    target_os: OS::Windows,
+    target_env: Env::Msvc,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// 64-bit Windows 7 support
+pub(crate) const X86_64_WIN7_WINDOWS_MSVC: Platform = Platform {
+    target_triple: "x86_64-win7-windows-msvc",
     target_arch: Arch::X86_64,
     target_os: OS::Windows,
     target_env: Env::Msvc,
