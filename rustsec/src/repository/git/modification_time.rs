@@ -116,12 +116,7 @@ impl GitModificationTimes {
                 .needed_to_obtain(
                     current_tree,
                     &mut gix::diff::tree::State::default(),
-                    |oid, buf| {
-                        use gix::odb::pack::FindExt;
-                        db.find(oid, buf).map(|(obj, _)| {
-                            obj.try_into_tree_iter().expect("only called for trees")
-                        })
-                    },
+                    db,
                     &mut recorder,
                 )
                 .map_err(|err| {
