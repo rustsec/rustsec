@@ -44,7 +44,7 @@ impl OsvExporter {
         let collection_path = repo_path.join(Collection::Crates.as_str());
         let mut found_at_least_one_advisory = false;
 
-        if let Ok(collection_entry) = fs::read_dir(&collection_path) {
+        if let Ok(collection_entry) = fs::read_dir(collection_path) {
             for dir_entry in collection_entry {
                 for advisory_entry in fs::read_dir(dir_entry?.path())? {
                     found_at_least_one_advisory = true;
