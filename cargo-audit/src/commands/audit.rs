@@ -1,7 +1,5 @@
 //! The `cargo audit` subcommand
 
-#![allow(unused_qualifications)] // TODO(tarcieri): remove when we're on clap v4.x
-
 #[cfg(feature = "fix")]
 mod fix;
 
@@ -30,19 +28,19 @@ use clap::Subcommand;
 
 /// The `cargo audit` subcommand
 #[derive(Command, Clone, Default, Debug, Parser)]
-#[clap(version)]
+#[command(version)]
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
     #[cfg(any(feature = "fix", feature = "binary-scanning"))]
-    #[clap(subcommand)]
+    #[command(subcommand)]
     subcommand: Option<AuditSubcommand>,
 
     /// Get help information
-    #[clap(short = 'h', long = "help", help = "output help information and exit")]
-    help: bool,
+    #[arg(short = 'h', long = "help", help = "output help information and exit", action = clap::ArgAction::Help)]
+    help: (),
 
     /// Colored output configuration
-    #[clap(
+    #[arg(
         short = 'c',
         long = "color",
         help = "color configuration: always, never (default: auto)"
@@ -50,7 +48,7 @@ pub struct AuditCommand {
     color: Option<String>,
 
     /// Filesystem path to the advisory database git repository
-    #[clap(
+    #[arg(
         short,
         long = "db",
         help = "advisory database git repo path (default: ~/.cargo/advisory-db)"
@@ -58,7 +56,7 @@ pub struct AuditCommand {
     db: Option<PathBuf>,
 
     /// Deny flag
-    #[clap(
+    #[arg(
         short = 'D',
         long = "deny",
         help = "exit with an error on: warnings (any), unmaintained, unsound, yanked"
@@ -66,7 +64,7 @@ pub struct AuditCommand {
     deny: Vec<DenyOption>,
 
     /// Path to `Cargo.lock`
-    #[clap(
+    #[arg(
         short = 'f',
         long = "file",
         help = "Cargo lockfile to inspect (or `-` for STDIN, default: Cargo.lock)"
@@ -74,7 +72,7 @@ pub struct AuditCommand {
     file: Option<PathBuf>,
 
     /// Advisory IDs to ignore
-    #[clap(
+    #[arg(
         long = "ignore",
         value_name = "ADVISORY_ID",
         help = "Advisory id to ignore (can be specified multiple times)"
@@ -82,14 +80,14 @@ pub struct AuditCommand {
     ignore: Vec<String>,
 
     /// Ignore the sources of packages in Cargo.toml
-    #[clap(
+    #[arg(
         long = "ignore-source",
         help = "Ignore sources of packages in Cargo.toml, matching advisories regardless of source"
     )]
     ignore_source: bool,
 
     /// Skip fetching the advisory database git repository
-    #[clap(
+    #[arg(
         short = 'n',
         long = "no-fetch",
         help = "do not perform a git fetch on the advisory DB"
@@ -97,29 +95,29 @@ pub struct AuditCommand {
     no_fetch: bool,
 
     /// Allow stale advisory databases that haven't been recently updated
-    #[clap(long = "stale", help = "allow stale database")]
+    #[arg(long = "stale", help = "allow stale database")]
     stale: bool,
 
     /// Target CPU architecture to find vulnerabilities for
-    #[clap(
+    #[arg(
         long = "target-arch",
         help = "filter vulnerabilities by CPU (default: no filter)"
     )]
     target_arch: Option<Arch>,
 
     /// Target OS to find vulnerabilities for
-    #[clap(
+    #[arg(
         long = "target-os",
         help = "filter vulnerabilities by OS (default: no filter)"
     )]
     target_os: Option<OS>,
 
     /// URL to the advisory database git repository
-    #[clap(short = 'u', long = "url", help = "URL for advisory database git repo")]
+    #[arg(short = 'u', long = "url", help = "URL for advisory database git repo")]
     url: Option<String>,
 
     /// Quiet mode - avoids printing extraneous information
-    #[clap(
+    #[arg(
         short = 'q',
         long = "quiet",
         help = "Avoid printing unnecessary information"
@@ -127,7 +125,7 @@ pub struct AuditCommand {
     quiet: bool,
 
     /// Output reports as JSON
-    #[clap(long = "json", help = "Output report in JSON format")]
+    #[arg(long = "json", help = "Output report in JSON format")]
     output_json: bool,
 }
 
@@ -137,12 +135,12 @@ pub struct AuditCommand {
 pub enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
-    #[clap(about = "automatically upgrade vulnerable dependencies")]
+    #[command(about = "automatically upgrade vulnerable dependencies")]
     Fix(FixCommand),
 
     /// `cargo audit bin` subcommand
     #[cfg(feature = "binary-scanning")]
-    #[clap(
+    #[command(
         about = "scan compiled binaries",
         long_about = "Scan compiled binaries for known vulnerabilities.
 

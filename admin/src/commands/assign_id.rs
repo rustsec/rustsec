@@ -9,11 +9,11 @@ use std::path::{Path, PathBuf};
 /// `rustsec-admin assign-id` subcommand
 #[derive(Command, Debug, Default, Parser)]
 pub struct AssignIdCmd {
-    #[clap(long = "github-actions-output")]
+    #[arg(long = "github-actions-output")]
     github_action_output: bool,
     /// Path to the advisory database
-    #[clap(
-        min_values = 1,
+    #[arg(
+        num_args = 1..,
         help = "filesystem path to the RustSec advisory DB git repo"
     )]
     path: Vec<PathBuf>,

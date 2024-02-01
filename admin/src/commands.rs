@@ -20,39 +20,39 @@ use std::path::PathBuf;
 #[derive(Command, Debug, Parser, Runnable)]
 pub enum AdminSubCmd {
     /// The `lint` subcommand
-    #[clap(about = "lint Advisory DB and ensure is well-formed")]
+    #[command(about = "lint Advisory DB and ensure is well-formed")]
     Lint(LintCmd),
 
     /// The `web` subcommand
-    #[clap(about = "render advisory Markdown files for the rustsec.org web site")]
+    #[command(about = "render advisory Markdown files for the rustsec.org web site")]
     Web(WebCmd),
 
     /// The `version` subcommand
-    #[clap(about = "display version information")]
+    #[command(about = "display version information")]
     Version(VersionCmd),
 
     /// The `assign-id` subcommand
-    #[clap(about = "assigning RUSTSEC ids to new vulnerabilities")]
+    #[command(about = "assigning RUSTSEC ids to new vulnerabilities")]
     AssignId(AssignIdCmd),
 
     /// The `osv` subcommand
-    #[clap(about = "export advisories to OSV format")]
+    #[command(about = "export advisories to OSV format")]
     Osv(OsvCmd),
 
     /// The `version` subcommand
-    #[clap(about = "list affected crate versions")]
+    #[command(about = "list affected crate versions")]
     ListAffectedVersions(ListAffectedVersionsCmd),
 }
 
 /// `rustsec-admin` CLI commands
 #[derive(Command, Debug, Parser)]
-#[clap(author, version, about)]
+#[command(author, version, about)]
 pub struct AdminCmd {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     cmd: AdminSubCmd,
 
     /// Increase verbosity setting
-    #[clap(short = 'v', long, help = "Increase verbosity")]
+    #[arg(short = 'v', long, help = "Increase verbosity")]
     pub verbose: bool,
 }
 

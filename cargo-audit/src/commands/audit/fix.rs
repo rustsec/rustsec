@@ -10,14 +10,14 @@ use std::{
 };
 
 #[derive(Command, Clone, Default, Debug, Parser)]
-#[clap(author, version, about)]
+#[command(author, version, about)]
 pub struct FixCommand {
     /// Path to `Cargo.lock`
-    #[clap(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
+    #[arg(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
     file: Option<PathBuf>,
 
     /// Perform a dry run
-    #[clap(long = "dry-run", help = "perform a dry run for the fix")]
+    #[arg(long = "dry-run", help = "perform a dry run for the fix")]
     dry_run: bool,
 }
 
