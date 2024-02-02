@@ -206,7 +206,7 @@ fn version() {
         .unwrap();
     assert_eq!(
         version_information,
-        format!("cargo-audit {}\n", env!("CARGO_PKG_VERSION"))
+        format!("cargo-audit-audit {}\n", env!("CARGO_PKG_VERSION"))
     );
     process.wait().unwrap().expect_success();
 }

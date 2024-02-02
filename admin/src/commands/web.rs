@@ -10,8 +10,8 @@ use clap::Parser;
 /// `rustsec-admin web` subcommand
 #[derive(Command, Debug, Default, Parser)]
 pub struct WebCmd {
-    #[clap(
-        min_values = 1,
+    #[arg(
+        num_args = 1..,
         help = "path to output the generated website (defaults to _site/)"
     )]
     path: Vec<PathBuf>,
