@@ -10,7 +10,7 @@ repository   = "https://github.com/RustSec/rustsec/tree/main/cargo-lock"
 categories   = ["parser-implementations"]
 keywords     = ["cargo", "dependency", "lock", "lockfile"]
 edition      = "2021"
-rust-version = "1.67"
+rust-version = "1.70"
 
 [[bin]]
 name = "cargo-lock"

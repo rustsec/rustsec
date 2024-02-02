@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.67.0 # MSRV of `cargo audit`, should be bumped in tandem
+          - 1.70.0 # MSRV of `cargo audit`, should be bumped in tandem
           - stable
     steps:
       - uses: actions/checkout@v4

@@ -7,7 +7,7 @@ use clap::Parser;
 
 /// `rustsec-admin version` subcommand
 #[derive(Command, Debug, Default, Parser)]
-#[clap(author, version, about)]
+#[command(author, version, about)]
 pub struct VersionCmd {}
 
 impl Runnable for VersionCmd {

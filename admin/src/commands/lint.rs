@@ -12,13 +12,13 @@ use std::{
 #[derive(Command, Debug, Default, Parser)]
 pub struct LintCmd {
     /// Path to the advisory database
-    #[clap(
-        min_values = 1,
+    #[arg(
+        num_args = 1..,
         help = "filesystem path to the RustSec advisory DB git repo"
     )]
     path: Vec<PathBuf>,
 
-    #[clap(long, help = "Skip name check comma separated crates list")]
+    #[arg(long, help = "Skip name check comma separated crates list")]
     skip_namecheck: Option<String>,
 }
 
