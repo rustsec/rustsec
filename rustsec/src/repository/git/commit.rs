@@ -132,10 +132,7 @@ impl Commit {
             .map_err(|err| format_err!(ErrorKind::Repo, "unable to peel to tree: {}", err))?
             .id;
 
-        let index = gix::index::State::from_tree(&root_tree, |oid, buf| {
-            repo.objects.find_tree_iter(oid, buf).ok()
-        })
-        .map_err(|err| {
+        let index = gix::index::State::from_tree(&root_tree, &repo.objects).map_err(|err| {
             format_err!(
                 ErrorKind::Repo,
                 "failed to create index from tree '{}': {}",
@@ -144,7 +141,6 @@ impl Commit {
             )
         })?;
 
-        use gix::prelude::FindExt;
         let mut index = gix::index::File::from_state(index, repo.index_path());
 
         let opts = gix::worktree::state::checkout::Options {
@@ -156,10 +152,7 @@ impl Commit {
         gix::worktree::state::checkout(
             &mut index,
             workdir,
-            {
-                let objects = repo.objects.clone().into_arc()?;
-                move |oid, buf| objects.find_blob(oid, buf)
-            },
+            repo.objects.clone(),
             &gix::progress::Discard,
             &gix::progress::Discard,
             &gix::interrupt::IS_INTERRUPTED,
