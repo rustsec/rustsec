@@ -35,10 +35,6 @@ pub struct AuditCommand {
     #[command(subcommand)]
     subcommand: Option<AuditSubcommand>,
 
-    /// Get help information
-    #[arg(short = 'h', long = "help", help = "output help information and exit", action = clap::ArgAction::Help)]
-    help: (),
-
     /// Colored output configuration
     #[arg(
         short = 'c',

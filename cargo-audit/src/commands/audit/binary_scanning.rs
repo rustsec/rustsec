@@ -16,10 +16,6 @@ use std::{path::PathBuf, process::exit};
 #[derive(Command, Clone, Default, Debug, Parser)]
 #[command()]
 pub struct BinCommand {
-    /// Get help information
-    #[arg(short = 'h', long = "help", help = "output help information and exit", action = clap::ArgAction::Help)]
-    help: bool,
-
     /// Colored output configuration
     #[arg(
         short = 'c',
