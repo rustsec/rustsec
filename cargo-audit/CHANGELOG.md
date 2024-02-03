@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.18.4 (2024-02-03)
+## 0.19.0 (2024-02-03)
 
 ### Fixed
 
@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
  - Display the chain of errors instead of just the top-level error for more complete error reporting ([#1063])
- - Upgrade to clap 4.x and abscissa-core 0.7.x ([#1092])
+ - Upgrade to clap 4.x and abscissa-core 0.7.x. This may have introduced minor changes to the command-line interface. This is the reason for the minor version bump. ([#1092])
 
 [#1057]: https://github.com/rustsec/rustsec/pull/1057
 [#1063]: https://github.com/rustsec/rustsec/pull/1063
