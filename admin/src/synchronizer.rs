@@ -260,7 +260,7 @@ impl Synchronizer {
         external: &OsvAdvisory,
     ) -> Result<(), Error> {
         let mut missing_aliases = vec![];
-        let mut missing_related = vec![];
+        let missing_related = vec![];
         for external_id in external.aliases().iter().chain(iter::once(external.id())) {
             // Heuristic based on advisory kind
             match external_id.kind() {
@@ -272,17 +272,6 @@ impl Synchronizer {
                         status_info!(
                             "Info",
                             "Adding missing alias {} for {}",
-                            external_id,
-                            advisory.id()
-                        );
-                    }
-                }
-                IdKind::PySec => {
-                    if !advisory.metadata.related.contains(external_id) {
-                        missing_related.push(external_id.clone());
-                        status_info!(
-                            "Info",
-                            "Adding missing related {} for {}",
                             external_id,
                             advisory.id()
                         );
