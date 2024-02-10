@@ -54,6 +54,10 @@ impl Id {
     pub fn is_ghsa(&self) -> bool {
         self.kind == IdKind::Ghsa
     }
+    /// Is this advisory ID a TALOS advisory?
+    pub fn is_talos(&self) -> bool {
+        self.kind == IdKind::Talos
+    }
 
     /// Is this an unknown kind of advisory ID?
     pub fn is_other(&self) -> bool {

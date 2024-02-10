@@ -1,58 +1,71 @@
 //! OSV advisories.
+//!
+//! It implements the parts of the [OSV schema](https://ossf.github.io/osv-schema) required for
+//! RustSec.
 
 use tame_index::external::gix;
 
 use super::ranges_for_advisory;
+use crate::advisory::Versions;
 use crate::{
     advisory::{affected::FunctionPath, Affected, Category, Id, Informational},
     repository::git::{self, GitModificationTimes, GitPath},
     Advisory,
 };
-use serde::Serialize;
+use serde::{Deserialize, Deserializer, Serialize};
+use std::str::FromStr;
 use url::Url;
 
 const ECOSYSTEM: &str = "crates.io";
 
 /// Security advisory in the format defined by <https://github.com/google/osv>
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct OsvAdvisory {
+    schema_version: Option<semver::Version>,
     id: Id,
     modified: String,  // maybe add an rfc3339 newtype?
     published: String, // maybe add an rfc3339 newtype?
     #[serde(skip_serializing_if = "Option::is_none")]
     withdrawn: Option<String>, // maybe add an rfc3339 newtype?
+    #[serde(default)]
     aliases: Vec<Id>,
+    #[serde(default)]
     related: Vec<Id>,
     summary: String,
     details: String,
+    #[serde(default)]
     severity: Vec<OsvSeverity>,
+    #[serde(default)]
     affected: Vec<OsvAffected>,
+    #[serde(default)]
     references: Vec<OsvReference>,
+    #[serde(default)]
     database_specific: MainOsvDatabaseSpecific,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvPackage {
     /// Set to a constant identifying crates.io
-    ecosystem: &'static str,
+    pub(crate) ecosystem: String,
     /// Crate name
-    name: String,
+    pub(crate) name: String,
     /// https://github.com/package-url/purl-spec derived from the other two
-    purl: String,
+    #[serde(default)]
+    purl: Option<String>,
 }
 
 impl From<&cargo_lock::Name> for OsvPackage {
     fn from(package: &cargo_lock::Name) -> Self {
         OsvPackage {
-            ecosystem: ECOSYSTEM,
+            ecosystem: ECOSYSTEM.to_string(),
             name: package.to_string(),
-            purl: "pkg:cargo/".to_string() + package.as_str(),
+            purl: Some("pkg:cargo/".to_string() + package.as_str()),
         }
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[allow(non_camel_case_types)]
 #[serde(tag = "type", content = "score")]
 pub enum OsvSeverity {
@@ -65,38 +78,57 @@ impl From<cvss::v3::Base> for OsvSeverity {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvAffected {
-    package: OsvPackage,
-    ecosystem_specific: OsvEcosystemSpecific,
+    pub(crate) package: OsvPackage,
+    ecosystem_specific: Option<OsvEcosystemSpecific>,
     database_specific: OsvDatabaseSpecific,
-    ranges: Vec<OsvJsonRange>,
-    // 'versions' field is not needed because we use semver ranges
+    ranges: Option<Vec<OsvJsonRange>>,
+    // FIXME deserialize with deserialize_semver_compat
+    versions: Option<Vec<String>>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvJsonRange {
     // 'type' is a reserved keyword in Rust
     #[serde(rename = "type")]
-    kind: &'static str,
+    kind: String,
     events: Vec<OsvTimelineEvent>,
     // 'repo' field is not used because we don't track or export git commit data
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum OsvTimelineEvent {
     #[serde(rename = "introduced")]
+    #[serde(deserialize_with = "deserialize_semver_compat")]
     Introduced(semver::Version),
     #[serde(rename = "fixed")]
+    #[serde(deserialize_with = "deserialize_semver_compat")]
     Fixed(semver::Version),
+    #[serde(rename = "last_affected")]
+    #[serde(deserialize_with = "deserialize_semver_compat")]
+    LastAffected(semver::Version),
 }
 
-#[derive(Debug, Clone, Serialize)]
+fn deserialize_semver_compat<'de, D>(deserializer: D) -> Result<semver::Version, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let mut ver = String::deserialize(deserializer)?;
+    match ver.matches('.').count() {
+        0 => ver.push_str(".0.0"),
+        1 => ver.push_str(".0"),
+        _ => (),
+    }
+    semver::Version::from_str(&ver).map_err(serde::de::Error::custom)
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvReference {
     // 'type' is a reserved keyword in Rust
     #[serde(rename = "type")]
-    kind: OsvReferenceKind,
-    url: Url,
+    pub kind: OsvReferenceKind,
+    pub url: Url,
 }
 
 impl From<Url> for OsvReference {
@@ -109,7 +141,7 @@ impl From<Url> for OsvReference {
 }
 
 #[allow(clippy::upper_case_acronyms)]
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum OsvReferenceKind {
     ADVISORY,
     #[allow(dead_code)]
@@ -121,12 +153,13 @@ pub enum OsvReferenceKind {
     WEB,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvEcosystemSpecific {
-    affects: OsvEcosystemSpecificAffected,
+    affects: Option<OsvEcosystemSpecificAffected>,
+    affected_functions: Option<Vec<FunctionPath>>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvEcosystemSpecificAffected {
     arch: Vec<platforms::target::Arch>,
     os: Vec<platforms::target::OS>,
@@ -145,19 +178,31 @@ impl From<Affected> for OsvEcosystemSpecificAffected {
     }
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvDatabaseSpecific {
+    #[serde(default)]
     categories: Vec<Category>,
     cvss: Option<cvss::v3::Base>,
     informational: Option<Informational>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct MainOsvDatabaseSpecific {
-    license: String,
+    #[serde(default)]
+    license: Option<String>,
 }
 
 impl OsvAdvisory {
+    /// Advisory ID
+    pub fn id(&self) -> &Id {
+        &self.id
+    }
+
+    /// Publication date
+    pub fn published(&self) -> &str {
+        &self.published
+    }
+
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
     pub fn from_rustsec(
@@ -186,15 +231,18 @@ impl OsvAdvisory {
         reference_urls.extend(metadata.references);
 
         OsvAdvisory {
+            schema_version: None,
             id: metadata.id,
             modified: git_time_to_rfc3339(mod_times.for_path(path)),
             published: rustsec_date_to_rfc3339(&metadata.date),
             affected: vec![OsvAffected {
                 package: (&metadata.package).into(),
-                ranges: vec![timeline_for_advisory(&advisory.versions)],
-                ecosystem_specific: OsvEcosystemSpecific {
-                    affects: advisory.affected.unwrap_or_default().into(),
-                },
+                ranges: Some(vec![timeline_for_advisory(&advisory.versions)]),
+                versions: Some(vec![]),
+                ecosystem_specific: Some(OsvEcosystemSpecific {
+                    affects: Some(advisory.affected.unwrap_or_default().into()),
+                    affected_functions: None,
+                }),
                 database_specific: OsvDatabaseSpecific {
                     categories: metadata.categories,
                     cvss: metadata.cvss.clone(),
@@ -209,9 +257,54 @@ impl OsvAdvisory {
             details: metadata.description,
             references: osv_references(reference_urls),
             database_specific: MainOsvDatabaseSpecific {
-                license: metadata.license.spdx().to_string(),
+                license: Some(metadata.license.spdx().to_string()),
             },
         }
+    }
+
+    /// Try to extract RustSec alias id from OSV advisory metadata
+    pub fn rustsec_refs_imported(&self) -> Vec<Id> {
+        let mut refs: Vec<Id> = self
+            .references
+            .iter()
+            .filter(|r| {
+                r.url
+                    .as_str()
+                    .starts_with("https://rustsec.org/advisories/")
+            })
+            .map(|r| Id::from_str(&r.url.as_str()[31..48]).expect("Invalid rustsec url"))
+            .collect();
+        refs.sort();
+        refs.dedup();
+        refs
+    }
+
+    /// Get crates in crates.io ecosystem referenced in this advisory
+    pub fn crates(&self) -> Vec<String> {
+        let mut res: Vec<String> = self
+            .affected
+            .iter()
+            .filter_map(|a| {
+                if a.package.ecosystem == ECOSYSTEM {
+                    Some(a.package.name.clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        res.sort();
+        res.dedup();
+        res
+    }
+
+    /// Get aliases ids
+    pub fn aliases(&self) -> &[Id] {
+        self.aliases.as_slice()
+    }
+
+    /// Is this advisory withdrawn?
+    pub fn withdrawn(&self) -> bool {
+        self.withdrawn.is_some()
     }
 }
 
@@ -235,7 +328,7 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
 
 /// Generates the timeline of the bug being introduced and fixed for the
 /// [`affected[].ranges[].events`](https://github.com/ossf/osv-schema/blob/main/schema.md#affectedrangesevents-fields) field.
-fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
+fn timeline_for_advisory(versions: &Versions) -> OsvJsonRange {
     let ranges = ranges_for_advisory(versions);
     assert!(!ranges.is_empty()); // zero ranges means nothing is affected, so why even have an advisory?
     let mut timeline = Vec::new();
@@ -253,7 +346,7 @@ fn timeline_for_advisory(versions: &crate::advisory::Versions) -> OsvJsonRange {
         }
     }
     OsvJsonRange {
-        kind: "SEMVER",
+        kind: "SEMVER".to_string(),
         events: timeline,
     }
 }

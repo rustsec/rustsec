@@ -24,6 +24,10 @@ pub enum ErrorKind {
     #[error("I/O error")]
     Io,
 
+    /// Parsing error
+    #[error("RustSec error")]
+    Parse,
+
     /// `rustsec` crate errors
     #[error("RustSec error")]
     RustSec,
