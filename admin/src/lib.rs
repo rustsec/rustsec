@@ -15,6 +15,7 @@ pub mod list_versions;
 pub mod lock;
 pub mod osv_export;
 pub mod prelude;
+pub mod synchronizer;
 pub mod web;
 
 use std::collections::BTreeMap as Map;

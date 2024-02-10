@@ -4,12 +4,13 @@ mod assign_id;
 mod lint;
 mod list_affected_versions;
 mod osv;
+mod sync;
 mod version;
 mod web;
 
 use self::{
     assign_id::AssignIdCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
-    osv::OsvCmd, version::VersionCmd, web::WebCmd,
+    osv::OsvCmd, sync::SyncCmd, version::VersionCmd, web::WebCmd,
 };
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Runnable};
@@ -22,6 +23,10 @@ pub enum AdminSubCmd {
     /// The `lint` subcommand
     #[command(about = "lint Advisory DB and ensure is well-formed")]
     Lint(LintCmd),
+
+    /// The `sync` subcommand
+    #[clap(about = "synchronize information from external sources (osv.dev, NVD, etc.)")]
+    Sync(SyncCmd),
 
     /// The `web` subcommand
     #[command(about = "render advisory Markdown files for the rustsec.org web site")]
