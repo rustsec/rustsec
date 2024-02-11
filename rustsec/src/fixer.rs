@@ -22,7 +22,10 @@ impl Fixer {
     }
 
     /// Attempt to fix the given vulnerability.
-    /// This function will succeed even if there is no semver-compatible fix available.
+    ///
+    /// Note that the success of the command in [`FixReport`] does not mean
+    /// the vulnerability was actually fixed!
+    /// It may remain if no semver-compatible fix was available.
     pub fn fix(&self, vulnerability: &Vulnerability, dry_run: bool) -> FixReport {
         let mut outcomes = Vec::new();
         let cargo_path = std::env::var_os("CARGO").unwrap_or("cargo".into());
