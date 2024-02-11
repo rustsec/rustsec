@@ -42,3 +42,15 @@ impl Fixer {
         Ok(version_req.clone())
     }
 }
+
+/// Returns a Cargo unique identifier for a package.
+/// See `cargo help pkgid` for more info.
+///
+/// We need to pass these to `cargo update` because otherwise
+/// the package specification will be ambiguous, and it will refuse to do anything.
+fn pkgid(pkg: cargo_lock::Package) -> String {
+    match pkg.source {
+        Some(source) => format!("{}#{}@{}", source, pkg.name, pkg.version),
+        None => format!("{}@{}", pkg.name, pkg.version),
+    }
+}
