@@ -6,8 +6,7 @@ use cargo_lock::Lockfile;
 use clap::Parser;
 use rustsec::Fixer;
 use std::{
-    path::{Path, PathBuf},
-    process::exit,
+    io::{stderr, stdout}, path::{Path, PathBuf}, process::exit
 };
 
 #[derive(Command, Clone, Default, Debug, Parser)]
@@ -77,11 +76,17 @@ impl Runnable for FixCommand {
             dry_run_info
         );
 
+        let stdout = stdout().lock();
+        let stderr = stderr().lock();
+
         for vulnerability in &report.vulnerabilities.list {
             let results = fixer.fix(vulnerability, dry_run);
             for outcome in results.outcomes {
                 match outcome.output {
-                    Ok(_) => todo!(),
+                    Ok(output) => match output.status.success() {
+                        true => todo!(),
+                        false => todo!(),
+                    },
                     Err(e) => status_warn!(
                         "Failed to run `cargo update` for package {}: {}",
                         &outcome.package.name,
