@@ -6,7 +6,9 @@ use cargo_lock::Lockfile;
 use clap::Parser;
 use rustsec::Fixer;
 use std::{
-    io::{stderr, stdout}, path::{Path, PathBuf}, process::exit
+    io::{stderr, stdout},
+    path::{Path, PathBuf},
+    process::exit,
 };
 
 #[derive(Command, Clone, Default, Debug, Parser)]
