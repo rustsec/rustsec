@@ -28,12 +28,6 @@ impl FixCommand {
         Auditor::new(&APP.config())
     }
 
-    /// Locate `Cargo.toml`
-    // TODO(tarcieri): ability to specify path
-    pub fn cargo_toml_path(&self) -> PathBuf {
-        PathBuf::from("Cargo.toml")
-    }
-
     /// Locate `Cargo.lock`
     pub fn cargo_lock_path(&self) -> Option<&Path> {
         self.file.as_deref()
@@ -63,7 +57,7 @@ impl Runnable for FixCommand {
         };
 
         // This should always succeed because the auditor loaded it successfully already
-        let lockfile = Lockfile::load(path).expect("Failed to load Cargo.lock");
+        let lockfile = Lockfile::load(&path).expect("Failed to load Cargo.lock");
 
         // TODO: allow specifying mnanifest path
         let fixer = Fixer::new(None, lockfile);
@@ -74,7 +68,7 @@ impl Runnable for FixCommand {
         status_ok!(
             "Fixing",
             "vulnerable dependencies in `{}`{}",
-            self.cargo_toml_path().display(),
+            &path.display(),
             dry_run_info
         );
 
