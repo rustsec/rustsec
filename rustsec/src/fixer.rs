@@ -2,8 +2,8 @@
 
 use crate::vulnerability::Vulnerability;
 use cargo_lock::{Lockfile, Package};
+use std::path::PathBuf;
 use std::process::Command;
-use std::{path::PathBuf, process::Output};
 
 /// Auto-fixer for vulnerable dependencies
 #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
@@ -21,15 +21,20 @@ impl Fixer {
         }
     }
 
-    /// Attempt to fix the given vulnerability.
+    /// Returns a command that calls `cargo update` with the right arguments
+    /// to attempt to fix this vulnerability.
     ///
-    /// Note that the success of the command in [`FixReport`] does not mean
+    /// Note that the success of the command does not mean
     /// the vulnerability was actually fixed!
     /// It may remain if no semver-compatible fix was available.
-    pub fn fix(&self, vulnerability: &Vulnerability, dry_run: bool) -> FixReport {
-        let mut outcomes = Vec::new();
+    pub fn get_fix_command(&self, vulnerability: &Vulnerability, dry_run: bool) -> Command {
         let cargo_path = std::env::var_os("CARGO").unwrap_or("cargo".into());
         let pkg_name = &vulnerability.package.name;
+        let mut command = Command::new(&cargo_path);
+        command.arg("--manifest-path").arg(&self.manifest_path);
+        if dry_run {
+            command.arg("--dry-run");
+        }
         // there can be more than one version of a given package in the lockfile, so we need to iterate over all of them
         // TODO: only consider vulnerable versions
         for pkg in self
@@ -38,38 +43,12 @@ impl Fixer {
             .iter()
             .filter(|pkg| &pkg.name == pkg_name)
         {
-            let mut command = Command::new(&cargo_path);
-            command.arg("--manifest-path").arg(&self.manifest_path);
-            if dry_run {
-                command.arg("--dry-run");
-            }
             let pkgid = pkgid(pkg);
             command.arg(&pkgid);
-            // Sadly `cargo update` has no JSON output so we cannot reliably know the outcome
-            let output = command.output();
-            outcomes.push(FixOutcome {
-                package: pkg.to_owned(),
-                output: output,
-            })
         }
 
-        FixReport { outcomes }
+        command
     }
-}
-
-#[non_exhaustive]
-#[derive(Debug)]
-pub struct FixReport {
-    pub outcomes: Vec<FixOutcome>,
-}
-
-#[non_exhaustive]
-#[derive(Debug)]
-pub struct FixOutcome {
-    pub package: Package,
-    /// Output of the `cargo update` command,
-    /// including the stdout, stderr and exit code.
-    pub output: Result<Output, std::io::Error>,
 }
 
 /// Returns a Cargo unique identifier for a package.
