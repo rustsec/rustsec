@@ -64,7 +64,7 @@ impl Runnable for FixCommand {
 
         // This should always succeed because the auditor loaded it successfully already
         let lockfile =
-            Lockfile::load("tests/examples/Cargo.lock").expect("Failed to load Cargo.lock");
+            Lockfile::load(path).expect("Failed to load Cargo.lock");
 
         let fixer = Fixer::new(self.cargo_toml_path(), lockfile);
 
@@ -78,24 +78,22 @@ impl Runnable for FixCommand {
             dry_run_info
         );
 
-        let stdout = stdout().lock();
-        let stderr = stderr().lock();
-
         for vulnerability in &report.vulnerabilities.list {
-            let results = fixer.fix(vulnerability, dry_run);
-            for outcome in results.outcomes {
-                match outcome.output {
-                    Ok(output) => match output.status.success() {
-                        true => todo!(),
-                        false => todo!(),
-                    },
-                    Err(e) => status_warn!(
-                        "Failed to run `cargo update` for package {}: {}",
-                        &outcome.package.name,
-                        e
-                    ),
-                }
+            let mut command = fixer.get_fix_command(vulnerability, dry_run);
+            // When calling `.status()` the stdout and stderr are inherited from the parent,
+            // so any status or error messages from `cargo update` will automatically be forwarded
+            // to the user of `cargo audit fix`.
+            let status = command.status();
+            match status {
+                Ok(_) => (),
+                Err(e) => status_warn!(
+                    "Failed to run `cargo update` for package {}: {}",
+                    vulnerability.package.name,
+                    e
+                ),
             }
         }
+
+        // TODO: determine exit status depending on whether any vulnerabilities remain
     }
 }
