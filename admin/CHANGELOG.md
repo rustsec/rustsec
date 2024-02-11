@@ -1,3 +1,22 @@
+## 0.8.9 (2024-02-11)
+
+- Add a command to synchronize advisory data from osv.dev/GHSA ([#656])
+- Fix a typo in advisories HTML ([#1059])
+- Bump `gix` to 0.58 ([#1099])
+- Bump `comrak` to 0.21 ([#1090]) 
+- Bump `rust-embed` to 8.2 ([#1080])
+- Bump `tame_index` to 0.9.3 ([#1103])
+- Bump `asbcissa_core` to 0.7 and `clap` to 4 ([#1092])
+  - MSRV is bumped to 1.70
+
+[#656]: https://github.com/rustsec/rustsec/pull/656
+[#1059]: https://github.com/rustsec/rustsec/pull/1059
+[#1099]: https://github.com/rustsec/rustsec/pull/1099
+[#1092]: https://github.com/rustsec/rustsec/pull/1092
+[#1090]: https://github.com/rustsec/rustsec/pull/1090
+[#1080]: https://github.com/rustsec/rustsec/pull/1080
+[#1103]: https://github.com/rustsec/rustsec/pull/1103
+
 ## 0.8.8 (2023-09-25)
 - Migrate from `libgit2` to `gitoxide` as the git implementation, and from OpenSSL to `rustls` as the TLS implementation ([#1017])
 
