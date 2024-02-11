@@ -4,42 +4,42 @@ use crate::{
     error::{Error, ErrorKind},
     vulnerability::Vulnerability,
 };
-use semver::VersionReq;
-use std::path::Path;
+use cargo_lock::Lockfile;
+use std::path::{Path, PathBuf};
 
 /// Auto-fixer for vulnerable dependencies
 #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
-pub struct Fixer {
-    manifest: cargo_edit::LocalManifest,
+pub struct Fixer<'a> {
+    manifest_path: PathBuf,
+    lockfile: &'a Lockfile,
 }
 
-impl Fixer {
+impl <'a> Fixer<'a> {
     /// Create a new [`Fixer`] for the given `Cargo.toml` file
-    pub fn new(cargo_toml: impl AsRef<Path>) -> Result<Self, Error> {
-        let manifest =
-            cargo_edit::LocalManifest::try_new(cargo_toml.as_ref().canonicalize()?.as_ref())?;
-        Ok(Self { manifest })
+    pub fn new(cargo_toml: &Path, cargo_lock: &'a Lockfile) -> Self {
+        Self {
+            manifest_path: cargo_toml.to_owned(),
+            lockfile: cargo_lock,
+        }
     }
 
     /// Attempt to fix the given vulnerability
     pub fn fix(
-        &mut self,
+        &self,
         vulnerability: &Vulnerability,
         dry_run: bool,
-    ) -> Result<VersionReq, Error> {
-        // TODO(tarcieri): find semver-compatible fix?
-        let version_req = match vulnerability.versions.patched().get(0) {
-            Some(req) => req,
-            None => fail!(ErrorKind::Version, "no fixed version available"),
-        };
+    ) -> Result<(), Error> {
+        // let version_req = match vulnerability.versions.patched().get(0) {
+        //     Some(req) => req,
+        //     None => fail!(ErrorKind::Version, "no fixed version available"),
+        // };
 
-        let dependency = cargo_edit::Dependency::new(vulnerability.package.name.as_str())
-            .set_version(&version_req.to_string());
+        // let dependency = cargo_edit::Dependency::new(vulnerability.package.name.as_str())
+        //     .set_version(&version_req.to_string());
 
-        self.manifest.upgrade(&dependency, dry_run, false)?;
+        // self.manifest.upgrade(&dependency, dry_run, false)?;
 
-        // TODO(tarcieri): return new version rather than req?
-        Ok(version_req.clone())
+        Ok(())
     }
 }
 
