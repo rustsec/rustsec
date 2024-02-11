@@ -8,13 +8,13 @@ use std::process::Command;
 /// Auto-fixer for vulnerable dependencies
 #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
 pub struct Fixer {
-    manifest_path: PathBuf,
+    manifest_path: Option<PathBuf>,
     lockfile: Lockfile,
 }
 
 impl Fixer {
     /// Create a new [`Fixer`] for the given `Cargo.toml` file
-    pub fn new(cargo_toml: PathBuf, cargo_lock: Lockfile) -> Self {
+    pub fn new(cargo_toml: Option<PathBuf>, cargo_lock: Lockfile) -> Self {
         Self {
             manifest_path: cargo_toml,
             lockfile: cargo_lock,
@@ -31,7 +31,9 @@ impl Fixer {
         let cargo_path = std::env::var_os("CARGO").unwrap_or("cargo".into());
         let pkg_name = &vulnerability.package.name;
         let mut command = Command::new(&cargo_path);
-        command.arg("--manifest-path").arg(&self.manifest_path);
+        if let Some(path) = self.manifest_path.as_ref() {
+            command.arg("--manifest-path").arg(path);
+        }
         if dry_run {
             command.arg("--dry-run");
         }

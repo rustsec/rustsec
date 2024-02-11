@@ -50,6 +50,7 @@ impl Runnable for FixCommand {
         let report = self.auditor().audit_lockfile(&path);
         let report = match report {
             Ok(report) => {
+                // TODO: also handle warnings
                 if report.vulnerabilities.list.is_empty() {
                     exit(0);
                 }
@@ -64,7 +65,8 @@ impl Runnable for FixCommand {
         // This should always succeed because the auditor loaded it successfully already
         let lockfile = Lockfile::load(path).expect("Failed to load Cargo.lock");
 
-        let fixer = Fixer::new(self.cargo_toml_path(), lockfile);
+        // TODO: allow specifying mnanifest path
+        let fixer = Fixer::new(None, lockfile);
 
         let dry_run = self.dry_run;
         let dry_run_info = if dry_run { " (dry run)" } else { "" };
