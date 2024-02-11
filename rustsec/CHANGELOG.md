@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.28.6 (2024-02-11)
+
+### Changed
+
+ - Additions to the OSV advisory struct ([#656])
+   - Add the `schema_version` field to `OsvAdvisory`
+   - Add a `Deserialize` implementation for `OsvAdvisory`
+   - Add getter methods for `OsvAdvisory` content
+
+[#656]: https://github.com/rustsec/rustsec/pull/656
+
 ## 0.28.4 (2024-02-03)
 
 ### Changed
