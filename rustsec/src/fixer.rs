@@ -28,6 +28,7 @@ impl<'a> Fixer<'a> {
         let cargo_path = std::env::var_os("CARGO").unwrap_or("cargo".into());
         let pkg_name = &vulnerability.package.name;
         // there can be more than one version of a given package in the lockfile, so we need to iterate over all of them
+        // TODO: only consider vulnerable versions
         for pkg in self.lockfile.packages.iter().filter(|pkg| &pkg.name == pkg_name) {
             
         }
