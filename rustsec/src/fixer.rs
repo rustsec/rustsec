@@ -1,4 +1,6 @@
 //! Automatically attempt to fix vulnerable dependencies
+//!
+//! This module is **experimental**, and its behavior may change in the future.
 
 use crate::vulnerability::Vulnerability;
 use cargo_lock::{Lockfile, Package};
