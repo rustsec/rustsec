@@ -26,7 +26,10 @@ pub fn locate_or_generate(maybe_lockfile_path: Option<&Path>) -> rustsec::Result
 
 /// Run `cargo generate-lockfile`
 pub fn generate() -> rustsec::Result<()> {
-    let status = Command::new("cargo").arg("update").arg("--workspace").status();
+    let status = Command::new("cargo")
+        .arg("update")
+        .arg("--workspace")
+        .status();
 
     if let Err(e) = status {
         return Err(Error::with_source(
