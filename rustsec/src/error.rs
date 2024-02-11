@@ -158,14 +158,6 @@ impl From<Utf8Error> for Error {
     }
 }
 
-#[cfg(feature = "fix")]
-#[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
-impl From<cargo_edit::Error> for Error {
-    fn from(other: cargo_edit::Error) -> Self {
-        format_err!(ErrorKind::Fix, &other)
-    }
-}
-
 impl From<cargo_lock::Error> for Error {
     fn from(other: cargo_lock::Error) -> Self {
         format_err!(ErrorKind::Io, &other)
