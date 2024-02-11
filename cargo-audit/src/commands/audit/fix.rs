@@ -90,10 +90,5 @@ impl Runnable for FixCommand {
                 }
             }
         }
-
-        if let Err(e) = lockfile::generate() {
-            status_err!("{}", e);
-            exit(2);
-        }
     }
 }
