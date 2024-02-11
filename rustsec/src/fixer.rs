@@ -10,15 +10,15 @@ use std::path::{Path, PathBuf};
 /// Auto-fixer for vulnerable dependencies
 #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
 pub struct Fixer<'a> {
-    manifest_path: PathBuf,
+    manifest_path: &'a Path,
     lockfile: &'a Lockfile,
 }
 
 impl <'a> Fixer<'a> {
     /// Create a new [`Fixer`] for the given `Cargo.toml` file
-    pub fn new(cargo_toml: &Path, cargo_lock: &'a Lockfile) -> Self {
+    pub fn new(cargo_toml: &'a Path, cargo_lock: &'a Lockfile) -> Self {
         Self {
-            manifest_path: cargo_toml.to_owned(),
+            manifest_path: cargo_toml,
             lockfile: cargo_lock,
         }
     }
