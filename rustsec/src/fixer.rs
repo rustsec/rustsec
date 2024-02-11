@@ -3,18 +3,18 @@
 use crate::vulnerability::Vulnerability;
 use cargo_lock::{Lockfile, Package};
 use std::process::Command;
-use std::{path::Path, process::Output};
+use std::{path::PathBuf, process::Output};
 
 /// Auto-fixer for vulnerable dependencies
 #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
-pub struct Fixer<'a> {
-    manifest_path: &'a Path,
-    lockfile: &'a Lockfile,
+pub struct Fixer {
+    manifest_path: PathBuf,
+    lockfile: Lockfile,
 }
 
-impl<'a> Fixer<'a> {
+impl Fixer {
     /// Create a new [`Fixer`] for the given `Cargo.toml` file
-    pub fn new(cargo_toml: &'a Path, cargo_lock: &'a Lockfile) -> Self {
+    pub fn new(cargo_toml: PathBuf, cargo_lock: Lockfile) -> Self {
         Self {
             manifest_path: cargo_toml,
             lockfile: cargo_lock,
@@ -36,7 +36,7 @@ impl<'a> Fixer<'a> {
             .filter(|pkg| &pkg.name == pkg_name)
         {
             let mut command = Command::new(&cargo_path);
-            command.arg("--manifest-path").arg(self.manifest_path);
+            command.arg("--manifest-path").arg(&self.manifest_path);
             if dry_run {
                 command.arg("--dry-run");
             }
