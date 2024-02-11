@@ -48,8 +48,8 @@ impl Fixer {
 ///
 /// We need to pass these to `cargo update` because otherwise
 /// the package specification will be ambiguous, and it will refuse to do anything.
-fn pkgid(pkg: cargo_lock::Package) -> String {
-    match pkg.source {
+fn pkgid(pkg: &cargo_lock::Package) -> String {
+    match pkg.source.as_ref() {
         Some(source) => format!("{}#{}@{}", source, pkg.name, pkg.version),
         None => format!("{}@{}", pkg.name, pkg.version),
     }
