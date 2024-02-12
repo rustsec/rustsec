@@ -99,24 +99,29 @@ impl Runnable for FixCommand {
             }
         }
 
+        if failed_patches != 0 {
+            exit(2);
+        }
         if dry_run {
             // When performing a dry run, the exit status is determined by whether we had any issues along the way
-            if failed_patches != 0 {
-                exit(2);
-            } else if !unpatchable_vulns.is_empty() {
+            if !unpatchable_vulns.is_empty() {
                 exit(1);
             } else {
                 exit(0)
             }
         } else {
+            // It is possible that some vulns we tried to fix actually weren't fixed,
+            // either because there is no semver-compatible fix or because Cargo.toml version specification
+            // is too restrictive (uses e.g. `=` or `=<` operators).
             status_ok!(
                 "Verifying",
                 "that the vulnerabilities are fixed after updating dependencies"
             );
-            // It is possible that some vulns we tried to fix actually weren't fixed,
-            // either because there is no semver-compatible fix or because Cargo.toml version specification
-            // is too restrictive (uses e.g. `=` or `=<` operators).
-            let report_after_fix = self.auditor().audit_lockfile(&path).unwrap();
+            let mut config = (*APP.config()).to_owned();
+            config.output.quiet = true;
+            let mut auditor = Auditor::new(&config);
+
+            let report_after_fix = auditor.audit_lockfile(&path).unwrap();
             let vulns_after_fix = &report_after_fix.vulnerabilities.list;
             let fixable_but_unfixed: Vec<String> = vulns_after_fix
                 .iter()
@@ -125,7 +130,7 @@ impl Runnable for FixCommand {
                 .collect();
             if !fixable_but_unfixed.is_empty() {
                 status_warn!(
-                    "The following advisories could not be fixed:\n{}\n\
+                    "The following advisories could not be fixed:\n    {}\n\
                     This usually occurs when the fixed version is not semver-compatible,\n\
                     or the version range in specified in your `Cargo.toml` is too restrictive\n\
                     (e.g. uses `=` or `=<` operators) so the fixed version would not match it.
