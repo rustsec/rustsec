@@ -4,8 +4,9 @@ use crate::{auditor::Auditor, lockfile, prelude::*};
 use abscissa_core::{Command, Runnable};
 use cargo_lock::Lockfile;
 use clap::Parser;
-use rustsec::Fixer;
+use rustsec::{advisory::Id, Fixer};
 use std::{
+    collections::BTreeSet,
     path::{Path, PathBuf},
     process::exit,
 };
@@ -63,21 +64,16 @@ impl Runnable for FixCommand {
         let fixer = Fixer::new(None, lockfile);
 
         let dry_run = self.dry_run;
-        let dry_run_info = if dry_run { " (dry run)" } else { "" };
+        if dry_run {
+            status_warn!("Performing a dry run, the fixes will not be applied");
+        }
 
-        status_ok!(
-            "Fixing",
-            "vulnerable dependencies in `{}`{}",
-            &path.display(),
-            dry_run_info
-        );
-
-        let mut unpatchable_vulns: u32 = 0;
+        let mut unpatchable_vulns: BTreeSet<Id> = BTreeSet::new();
         let mut failed_patches = 0;
 
         for vulnerability in &report.vulnerabilities.list {
             if vulnerability.versions.patched().is_empty() {
-                unpatchable_vulns += 1;
+                unpatchable_vulns.insert(vulnerability.advisory.id.clone());
                 status_warn!(
                     "No patched versions available for {} in crate {}",
                     vulnerability.advisory.id,
@@ -103,18 +99,40 @@ impl Runnable for FixCommand {
             }
         }
 
-        // When performing a dry run, the exit status is determined by whether we had any issues along the way
         if dry_run {
+            // When performing a dry run, the exit status is determined by whether we had any issues along the way
             if failed_patches != 0 {
                 exit(2);
-            } else if unpatchable_vulns != 0 {
+            } else if !unpatchable_vulns.is_empty() {
                 exit(1);
             } else {
                 exit(0)
             }
         } else {
-            // TODO: determine exit status depending on whether any vulnerabilities remain
-            // because some commands may not have been sufficient due to patched versions not being semver-compatible
+            status_ok!(
+                "Verifying",
+                "that the vulnerabilities are fixed after updating dependencies"
+            );
+            // It is possible that some vulns we tried to fix actually weren't fixed,
+            // either because there is no semver-compatible fix or because Cargo.toml version specification
+            // is too restrictive (uses e.g. `=` or `=<` operators).
+            let report_after_fix = self.auditor().audit_lockfile(&path).unwrap();
+            let vulns_after_fix = &report_after_fix.vulnerabilities.list;
+            let fixable_but_unfixed: Vec<String> = vulns_after_fix
+                .iter()
+                .filter(|vuln| !unpatchable_vulns.contains(&vuln.advisory.id))
+                .map(|vuln| vuln.advisory.id.to_string())
+                .collect();
+            if !fixable_but_unfixed.is_empty() {
+                status_warn!(
+                    "The following advisories could not be fixed:\n{}\n\
+                    This usually occurs when the fixed version is not semver-compatible,\n\
+                    or the version range in specified in your `Cargo.toml` is too restrictive\n\
+                    (e.g. uses `=` or `=<` operators) so the fixed version would not match it.
+                    ",
+                    fixable_but_unfixed.join(", ")
+                );
+            }
         }
     }
 }
