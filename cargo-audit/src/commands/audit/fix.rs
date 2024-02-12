@@ -73,18 +73,26 @@ impl Runnable for FixCommand {
         );
 
         for vulnerability in &report.vulnerabilities.list {
-            let mut command = fixer.get_fix_command(vulnerability, dry_run);
-            // When calling `.status()` the stdout and stderr are inherited from the parent,
-            // so any status or error messages from `cargo update` will automatically be forwarded
-            // to the user of `cargo audit fix`.
-            let status = command.status();
-            match status {
-                Ok(_) => (),
-                Err(e) => status_warn!(
-                    "Failed to run `cargo update` for package {}: {}",
-                    vulnerability.package.name,
-                    e
-                ),
+            if vulnerability.versions.patched().is_empty() {
+                status_warn!(
+                    "No patched versions available for {} in crate {}",
+                    vulnerability.advisory.id,
+                    vulnerability.package.name
+                );
+            } else {
+                let mut command = fixer.get_fix_command(vulnerability, dry_run);
+                // When calling `.status()` the stdout and stderr are inherited from the parent,
+                // so any status or error messages from `cargo update` will automatically be forwarded
+                // to the user of `cargo audit fix`.
+                let status = command.status();
+                match status {
+                    Ok(_) => (),
+                    Err(e) => status_warn!(
+                        "Failed to run `cargo update` for package {}: {}",
+                        vulnerability.package.name,
+                        e
+                    ),
+                }
             }
         }
 
