@@ -41,13 +41,9 @@ impl Fixer {
             command.arg("--dry-run");
         }
         // there can be more than one version of a given package in the lockfile, so we need to iterate over all of them
-        // TODO: only consider vulnerable versions
-        for pkg in self
-            .lockfile
-            .packages
-            .iter()
-            .filter(|pkg| &pkg.name == pkg_name)
-        {
+        for pkg in self.lockfile.packages.iter().filter(|pkg| {
+            &pkg.name == pkg_name && vulnerability.versions.is_vulnerable(&pkg.version)
+        }) {
             let pkgid = pkgid(pkg);
             command.arg(&pkgid);
         }
