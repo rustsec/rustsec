@@ -137,6 +137,24 @@ impl Runnable for FixCommand {
                     fixable_but_unfixed.join(", ")
                 );
             }
+
+            let remaining_vulns_count = report_after_fix.vulnerabilities.list.len();
+            let fixed_vulns_count = report
+                .vulnerabilities
+                .list
+                .len()
+                .saturating_sub(remaining_vulns_count);
+            if fixed_vulns_count != 0 {
+                if remaining_vulns_count == 0 {
+                    status_ok!("Fixed", "{} vulnerabilities", fixed_vulns_count);
+                } else {
+                    status_warn!(
+                        "Fixed {} vulnerabilities but {} remain",
+                        fixed_vulns_count,
+                        remaining_vulns_count
+                    );
+                }
+            }
         }
     }
 }
