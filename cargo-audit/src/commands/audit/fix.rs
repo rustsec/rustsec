@@ -103,6 +103,18 @@ impl Runnable for FixCommand {
             }
         }
 
-        // TODO: determine exit status depending on whether any vulnerabilities remain
+        // When performing a dry run, the exit status is determined by whether we had any issues along the way
+        if dry_run {
+            if failed_patches != 0 {
+                exit(2);
+            } else if unpatchable_vulns != 0 {
+                exit(1);
+            } else {
+                exit(0)
+            }
+        } else {
+            // TODO: determine exit status depending on whether any vulnerabilities remain
+            // because some commands may not have been sufficient due to patched versions not being semver-compatible
+        }
     }
 }
