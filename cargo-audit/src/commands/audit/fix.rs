@@ -72,8 +72,12 @@ impl Runnable for FixCommand {
             dry_run_info
         );
 
+        let mut unpatchable_vulns: u32 = 0;
+        let mut failed_patches = 0;
+
         for vulnerability in &report.vulnerabilities.list {
             if vulnerability.versions.patched().is_empty() {
+                unpatchable_vulns += 1;
                 status_warn!(
                     "No patched versions available for {} in crate {}",
                     vulnerability.advisory.id,
@@ -87,11 +91,14 @@ impl Runnable for FixCommand {
                 let status = command.status();
                 match status {
                     Ok(_) => (),
-                    Err(e) => status_warn!(
-                        "Failed to run `cargo update` for package {}: {}",
-                        vulnerability.package.name,
-                        e
-                    ),
+                    Err(e) => {
+                        failed_patches += 1;
+                        status_warn!(
+                            "Failed to run `cargo update` for package {}: {}",
+                            vulnerability.package.name,
+                            e
+                        );
+                    }
                 }
             }
         }
