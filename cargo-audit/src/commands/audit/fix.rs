@@ -81,6 +81,14 @@ impl Runnable for FixCommand {
                 );
             } else {
                 let mut command = fixer.get_fix_command(vulnerability, dry_run);
+                // If the path to Cargo.lock has been specified explicitly,
+                // run the `cargo update` command in that directory
+                if let Some(path) = self.cargo_lock_path() {
+                    // documentation on .current_dir() recommends canonicalizing the path
+                    let canonical_path = path.canonicalize().unwrap();
+                    let dir = canonical_path.parent().unwrap();
+                    command.current_dir(dir);
+                }
                 // When calling `.status()` the stdout and stderr are inherited from the parent,
                 // so any status or error messages from `cargo update` will automatically be forwarded
                 // to the user of `cargo audit fix`.
