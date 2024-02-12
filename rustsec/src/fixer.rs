@@ -32,7 +32,7 @@ impl Fixer {
     pub fn get_fix_command(&self, vulnerability: &Vulnerability, dry_run: bool) -> Command {
         let cargo_path = std::env::var_os("CARGO").unwrap_or("cargo".into());
         let pkg_name = &vulnerability.package.name;
-        let mut command = Command::new(&cargo_path);
+        let mut command = Command::new(cargo_path);
         command.arg("update");
         if let Some(path) = self.manifest_path.as_ref() {
             command.arg("--manifest-path").arg(path);
