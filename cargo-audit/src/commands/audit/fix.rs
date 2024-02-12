@@ -140,7 +140,7 @@ impl Runnable for FixCommand {
                 status_warn!(
                     "The following advisories have patched versions but could not be fixed:\n    {}\n\
                     This usually occurs when the fixed version is not semver-compatible,\n\
-                    or the version range in specified in your `Cargo.toml` is too restrictive\n\
+                    or the version range specified in your `Cargo.toml` is too restrictive\n\
                     (e.g. uses `=` or `=<` operators) so the fixed version would not match it.",
                     fixable_but_unfixed.join(", ")
                 );
