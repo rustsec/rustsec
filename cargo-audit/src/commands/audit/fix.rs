@@ -94,13 +94,12 @@ impl Runnable for FixCommand {
                 // to the user of `cargo audit fix`.
                 let status = command.status();
                 if let Err(e) = status {
-                        failed_patches += 1;
-                        status_warn!(
-                            "Failed to run `cargo update` for package {}: {}",
-                            vulnerability.package.name,
-                            e
-                        );
-                    }
+                    failed_patches += 1;
+                    status_warn!(
+                        "Failed to run `cargo update` for package {}: {}",
+                        vulnerability.package.name,
+                        e
+                    );
                 }
             }
         }
