@@ -93,9 +93,7 @@ impl Runnable for FixCommand {
                 // so any status or error messages from `cargo update` will automatically be forwarded
                 // to the user of `cargo audit fix`.
                 let status = command.status();
-                match status {
-                    Ok(_) => (),
-                    Err(e) => {
+                if let Err(e) = status {
                         failed_patches += 1;
                         status_warn!(
                             "Failed to run `cargo update` for package {}: {}",
