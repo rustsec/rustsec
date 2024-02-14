@@ -17,6 +17,12 @@ pub struct Fixer {
 
 impl Fixer {
     /// Create a new [`Fixer`] for the given `Cargo.lock` file
+    ///
+    /// `path_to_cargo` defaults to `cargo`, resolved in your `$PATH`.
+    ///
+    /// If the path to `Cargo.toml` is not specified, the `cargo update` command
+    /// will be run in the directory with the `Cargo.lock` file.
+    /// Leaving it blank will fix the entire workspace.
     pub fn new(
         cargo_lock: Lockfile,
         cargo_toml: Option<PathBuf>,
