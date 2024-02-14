@@ -46,5 +46,5 @@ features = ["testing"]
 
 [features]
 default = ["binary-scanning"]
-fix = ["rustsec/fix"]
+fix = []
 binary-scanning = ["dep:auditable-info", "dep:cargo-lock", "dep:auditable-serde", "dep:binfarce", "dep:quitters", "dep:once_cell"]
