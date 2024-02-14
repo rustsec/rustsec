@@ -2504,7 +2504,7 @@ dependencies = [
  "termcolor",
  "thiserror",
  "toml 0.7.8",
- "toml_edit 0.19.15",
+ "toml_edit 0.21.1",
  "xml-rs",
 ]
 
