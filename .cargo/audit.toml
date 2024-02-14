@@ -1,6 +1,7 @@
 [advisories]
 ignore = [
-    "RUSTSEC-2024-0013", # libgit2-sys RCE, see #1107
+    "RUSTSEC-2020-0071", # `time` localtime_r segfault
+    "RUSTSEC-2020-0159", # `chrono` localtime_r segfault
 ]
 
 [output]
