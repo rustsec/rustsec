@@ -1,7 +1,5 @@
 [advisories]
-ignore = [
-    "RUSTSEC-2024-0013", # libgit2-sys RCE, see #1107
-]
+ignore = []
 
 [output]
 quiet = false
