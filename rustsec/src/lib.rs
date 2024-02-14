@@ -10,12 +10,12 @@ mod error;
 pub mod advisory;
 mod collection;
 pub mod database;
+mod fixer;
 pub mod osv;
 pub mod report;
 pub mod repository;
 mod vulnerability;
 mod warning;
-mod fixer;
 
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
