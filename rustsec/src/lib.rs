@@ -10,14 +10,12 @@ mod error;
 pub mod advisory;
 mod collection;
 pub mod database;
+mod fixer;
 pub mod osv;
 pub mod report;
 pub mod repository;
 mod vulnerability;
 mod warning;
-
-#[cfg(feature = "fix")]
-mod fixer;
 
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
@@ -45,7 +43,6 @@ pub use crate::{
     warning::{Warning, WarningKind},
 };
 
-#[cfg(feature = "fix")]
 pub use crate::fixer::Fixer;
 
 #[cfg(feature = "git")]
