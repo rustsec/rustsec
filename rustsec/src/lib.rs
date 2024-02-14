@@ -15,8 +15,6 @@ pub mod report;
 pub mod repository;
 mod vulnerability;
 mod warning;
-
-#[cfg(feature = "fix")]
 mod fixer;
 
 #[cfg(feature = "git")]
@@ -45,7 +43,6 @@ pub use crate::{
     warning::{Warning, WarningKind},
 };
 
-#[cfg(feature = "fix")]
 pub use crate::fixer::Fixer;
 
 #[cfg(feature = "git")]

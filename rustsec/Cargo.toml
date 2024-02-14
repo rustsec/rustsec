@@ -36,7 +36,6 @@ serde_json = "1"
 
 [features]
 default = ["git"]
-fix = []
 git = [
     "dep:tame-index",
     "dep:home",
