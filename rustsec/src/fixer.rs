@@ -4,22 +4,28 @@
 
 use crate::vulnerability::Vulnerability;
 use cargo_lock::{Lockfile, Package};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Auto-fixer for vulnerable dependencies
 #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
 pub struct Fixer {
-    manifest_path: Option<PathBuf>,
     lockfile: Lockfile,
+    manifest_path: Option<PathBuf>,
+    path_to_cargo: Option<PathBuf>,
 }
 
 impl Fixer {
-    /// Create a new [`Fixer`] for the given `Cargo.toml` file
-    pub fn new(cargo_toml: Option<PathBuf>, cargo_lock: Lockfile) -> Self {
+    /// Create a new [`Fixer`] for the given `Cargo.lock` file
+    pub fn new(
+        cargo_lock: Lockfile,
+        cargo_toml: Option<PathBuf>,
+        path_to_cargo: Option<PathBuf>,
+    ) -> Self {
         Self {
-            manifest_path: cargo_toml,
             lockfile: cargo_lock,
+            manifest_path: cargo_toml,
+            path_to_cargo,
         }
     }
 
@@ -30,7 +36,7 @@ impl Fixer {
     /// the vulnerability was actually fixed!
     /// It may remain if no semver-compatible fix was available.
     pub fn get_fix_command(&self, vulnerability: &Vulnerability, dry_run: bool) -> Command {
-        let cargo_path = std::env::var_os("CARGO").unwrap_or("cargo".into());
+        let cargo_path: &Path = self.path_to_cargo.as_deref().unwrap_or(Path::new("cargo"));
         let pkg_name = &vulnerability.package.name;
         let mut command = Command::new(cargo_path);
         command.arg("update");

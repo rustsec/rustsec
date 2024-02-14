@@ -60,8 +60,9 @@ impl Runnable for FixCommand {
         // This should always succeed because the auditor loaded it successfully already
         let lockfile = Lockfile::load(&path).expect("Failed to load Cargo.lock");
 
-        // TODO: allow specifying mnanifest path
-        let fixer = Fixer::new(None, lockfile);
+        // TODO: allow specifying manifest path
+        let path_to_cargo: Option<PathBuf> = std::env::var_os("CARGO").map(|path| path.into());
+        let fixer = Fixer::new(lockfile, None, path_to_cargo);
 
         let dry_run = self.dry_run;
         if dry_run {
