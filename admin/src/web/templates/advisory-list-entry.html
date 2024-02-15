@@ -1,6 +1,6 @@
 <li>
   <time datetime="{{ cdate.as_str() }}">
-    {{ cdate.clone() | friendly_date }}
+    {{ cdate.clone()|friendly_date }}
   </time>
 
   {% if advisory.withdrawn() %}
@@ -12,7 +12,7 @@
   <h3>
     {% match advisory.severity() %}
       {% when Some with (severity) %}
-      <span class="tag {{ severity }}">{{ advisory.severity().unwrap() | upper }}</span>
+      <span class="tag {{ severity }}">{{ advisory.severity().unwrap()|upper }}</span>
       {% when None %}
         {% if advisory.metadata.informational.is_some() %}
           <span class="tag info">INFO</span>
