@@ -30,18 +30,18 @@
       <dt id="reported">Reported</dt>
       <dd>
         <time datetime="{{ advisory.date().as_str() }}">
-          {{ advisory.date() | friendly_date }}
+          {{ advisory.date()|friendly_date }}
         </time>
       </dd>
 
       <dt id="issued">Issued</dt>
       <dd>
         <time datetime="{{ cdate.as_str() }}">
-          {{ cdate.clone() | friendly_date }}
+          {{ cdate.clone()|friendly_date }}
         </time>
         {% if cdate != mdate %}
         <time datetime="{{ mdate.as_str() }}">
-          (last modified: {{ mdate.clone() | friendly_date }})
+          (last modified: {{ mdate.clone()|friendly_date }})
         </time>
         {% endif %}
       </dd>
@@ -66,7 +66,7 @@
         {% match advisory.metadata.informational %}
         {% when Some with (informational) %}
         <span class="tag info">INFO</span>
-        {{ informational.to_string() | capitalize }}
+        {{ informational.to_string()|capitalize }}
         {% when None %}
         Vulnerability
         {% endmatch %}
@@ -87,7 +87,7 @@
       <dt id="keywords">Keywords</dt>
       <dd>
         {% for keyword in advisory.metadata.keywords %}
-          <a href="/keywords/{{ keyword.as_str() | safe_keyword }}.html">#{{ keyword.as_str() | safe_keyword }}</a>
+          <a href="/keywords/{{ keyword.as_str()|safe_keyword }}.html">#{{ keyword.as_str()|safe_keyword }}</a>
         {% endfor %}
       </dd>
       {% endif %}
@@ -154,7 +154,7 @@
       {% when Some with (cvss) %}
       <dt id="cvss_score">CVSS Score</dt>
       <dd>{{ cvss.score().value() }} <span class="tag {{ advisory.severity().unwrap() }}">
-        {{ advisory.severity().unwrap() | upper }}
+        {{ advisory.severity().unwrap()|upper }}
       </span></dd>
 
       <dt id="cvss_details">CVSS Details</dt>
