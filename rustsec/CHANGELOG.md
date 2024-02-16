@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - Upgraded dependencies `gix` to 0.58.x and `tame-index` to 0.9.x ([#1099])
 
-[#1099]: https://github.com/rustsec/rustsec/pull/1061
+[#1099]: https://github.com/rustsec/rustsec/pull/1099
 
 ## 0.28.4 (2023-11-17)
 
