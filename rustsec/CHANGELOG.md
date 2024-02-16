@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.29.0 (2024-02-16)
+
+### Changed
+
+ - Completely rewritten the `fix` module. ([#1113])
+   - Now it edits `Cargo.lock` as opposed to `Cargo.toml`, and performs only semver-compatible upgrades.
+   - The module is still experimental, and its behavior may change in the future.
+ - Require `tame-index` 0.9.3 or later, which fixes [issues with some enterprise firewalls](https://github.com/rustsec/rustsec/issues/1058). ([#1103])
+
+[#1103]: https://github.com/rustsec/rustsec/pull/1103
+[#1113]: https://github.com/rustsec/rustsec/pull/1113
+
 ## 0.28.6 (2024-02-11)
 
 ### Changed
