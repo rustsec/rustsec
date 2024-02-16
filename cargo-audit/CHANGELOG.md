@@ -10,9 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    - Now it edits `Cargo.lock` as opposed to `Cargo.toml`, and performs only semver-compatible upgrades.
    - Fixes are performed by calling `cargo update`, migrating away from the unmaintained `cargo-edit-9` crate.
    - The subcommand is still experimental, and its behavior may change in the future. It still requires enabling the non-default `fix` feature.
+ - Require `tame-index` 0.9.3 or later, fixing [issues with some enterprise firewalls](https://github.com/rustsec/rustsec/issues/1058). ([#1103])
 
+[#1103]: https://github.com/rustsec/rustsec/pull/1103
 [#1113]: https://github.com/rustsec/rustsec/pull/1113
-
 
 ## 0.19.0 (2024-02-03)
 
