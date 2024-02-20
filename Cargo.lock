@@ -233,9 +233,9 @@ dependencies = [
 
 [[package]]
 name = "auditable-serde"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b23f8f6711ddeb1c2a163edc94dff5d7c805ca484d33e3464e779741805790c0"
+checksum = "551661dec59a0d8f0c2245ca7c18b8fba3a017d66fa2bdb5c6e1bfd340639247"
 dependencies = [
  "cargo-lock",
  "semver",
