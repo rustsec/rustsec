@@ -2834,9 +2834,9 @@ dependencies = [
 
 [[package]]
 name = "tame-index"
-version = "0.9.3"
+version = "0.9.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "71f8ebfba8862a7d6d8cb74bd3163f78b0df10358f3455aa282470a083b9fd5f"
+checksum = "47588d61e9c8df4f0a20369b9a4206f7a0dae8dd6366c94da9b18c00be25f305"
 dependencies = [
  "camino",
  "crossbeam-channel",
@@ -2853,7 +2853,7 @@ dependencies = [
  "smol_str",
  "thiserror",
  "tokio",
- "toml 0.8.9",
+ "toml-span",
  "twox-hash",
 ]
 
@@ -3019,15 +3019,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "toml"
-version = "0.8.9"
+name = "toml-span"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c6a4b9e8023eb94392d3dca65d717c53abc5dad49c07cb65bb8fcd87115fa325"
+checksum = "369db38ce6d1fc320a54ea3f032d07c07a232ca19c40e287246aff06d57c2abe"
 dependencies = [
- "serde",
- "serde_spanned",
- "toml_datetime",
- "toml_edit 0.21.1",
+ "smallvec",
 ]
 
 [[package]]
@@ -3044,19 +3041,6 @@ name = "toml_edit"
 version = "0.19.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
-dependencies = [
- "indexmap",
- "serde",
- "serde_spanned",
- "toml_datetime",
- "winnow 0.5.36",
-]
-
-[[package]]
-name = "toml_edit"
-version = "0.21.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a8534fd7f78b5405e860340ad6575217ce99f38d4d5c8f2442cb5ecb50090e1"
 dependencies = [
  "indexmap",
  "serde",
