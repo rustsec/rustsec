@@ -2919,7 +2919,7 @@ dependencies = [
  "chrono",
  "clap",
  "comrak",
- "gix 0.60.0",
+ "gix 0.58.0",
  "once_cell",
  "rust-embed",
  "rustsec 0.28.6",
@@ -2929,7 +2929,7 @@ dependencies = [
  "termcolor",
  "thiserror",
  "toml 0.7.8",
- "toml_edit 0.22.6",
+ "toml_edit 0.22.7",
  "xml-rs",
 ]
 
@@ -3441,9 +3441,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.6"
+version = "0.22.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c1b5fd4128cc8d3e0cb74d4ed9a9cc7c7284becd4df68f5f940e1ad123606f6"
+checksum = "18769cd1cec395d70860ceb4d932812a0b4d06b1a4bb336745a4d21b9496e992"
 dependencies = [
  "indexmap",
  "toml_datetime",
