@@ -19,9 +19,9 @@ atom_syndication = "0.12"
 chrono = { version = "0.4", default-features = false, features = ["clock"]  }
 clap = "4"
 comrak = { version = "0.21", default-features = false }
-tame-index = { version = "0.9.8", features = ["git"] }
+tame-index = { version = "0.9.3", features = ["git"] }
 # NOTE: Keep in sync with `gix` used by `tame-index`.
-gix = { version = "0.60", default-features = false, optional = true }
+gix = { version = "0.58", default-features = false, optional = true }
 rust-embed = "8.2.0"
 rustsec = { version = "0.28.6", features = ["osv-export"] }
 serde = { version = "1", features = ["serde_derive"] }
@@ -35,3 +35,4 @@ xml-rs = "0.8"
 [dev-dependencies]
 abscissa_core = { version = "0.7", features = ["testing"] }
 once_cell = "1.5"
+
