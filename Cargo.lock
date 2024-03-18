@@ -384,7 +384,7 @@ dependencies = [
  "is-terminal",
  "once_cell",
  "quitters",
- "rustsec 0.29.0",
+ "rustsec 0.29.1",
  "serde",
  "serde_json",
  "tempfile",
@@ -2889,7 +2889,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.29.0"
+version = "0.29.1"
 dependencies = [
  "cargo-lock",
  "cvss",
@@ -2919,7 +2919,7 @@ dependencies = [
  "chrono",
  "clap",
  "comrak",
- "gix 0.60.0",
+ "gix 0.58.0",
  "once_cell",
  "rust-embed",
  "rustsec 0.28.6",
@@ -2929,7 +2929,7 @@ dependencies = [
  "termcolor",
  "thiserror",
  "toml 0.7.8",
- "toml_edit 0.22.6",
+ "toml_edit 0.22.8",
  "xml-rs",
 ]
 
@@ -3441,9 +3441,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.6"
+version = "0.22.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c1b5fd4128cc8d3e0cb74d4ed9a9cc7c7284becd4df68f5f940e1ad123606f6"
+checksum = "c12219811e0c1ba077867254e5ad62ee2c9c190b0d957110750ac0cda1ae96cd"
 dependencies = [
  "indexmap",
  "toml_datetime",
