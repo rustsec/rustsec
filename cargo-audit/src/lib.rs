@@ -3,7 +3,7 @@
 //! `cargo audit` is a Cargo subcommand. Install it using the following:
 //!
 //! ```text
-//! $ cargo install cargo-audit
+//! $ cargo install cargo-audit --locked
 //! ```
 //!
 //! Then run `cargo audit` in the toplevel directory of any crate or workspace.
