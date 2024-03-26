@@ -384,7 +384,7 @@ dependencies = [
  "is-terminal",
  "once_cell",
  "quitters",
- "rustsec 0.29.0",
+ "rustsec 0.29.1",
  "serde",
  "serde_json",
  "tempfile",
@@ -2585,7 +2585,7 @@ checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
 name = "platforms"
-version = "3.3.0"
+version = "3.4.0"
 dependencies = [
  "serde",
 ]
@@ -2889,7 +2889,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.29.0"
+version = "0.29.1"
 dependencies = [
  "cargo-lock",
  "cvss",
@@ -2919,7 +2919,7 @@ dependencies = [
  "chrono",
  "clap",
  "comrak",
- "gix 0.60.0",
+ "gix 0.58.0",
  "once_cell",
  "rust-embed",
  "rustsec 0.28.6",
