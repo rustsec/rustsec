@@ -16,6 +16,9 @@ pub enum Arch {
     /// `arm`: 32-bit ARM architecture
     Arm,
 
+    /// `arm64ec`
+    Arm64ec,
+
     /// `avr`
     Avr,
 
@@ -92,6 +95,7 @@ impl Arch {
         match self {
             Arch::AArch64 => "aarch64",
             Arch::Arm => "arm",
+            Arch::Arm64ec => "arm64ec",
             Arch::Avr => "avr",
             Arch::Bpf => "bpf",
             Arch::Csky => "csky",
@@ -127,6 +131,7 @@ impl FromStr for Arch {
         let result = match name {
             "aarch64" => Arch::AArch64,
             "arm" => Arch::Arm,
+            "arm64ec" => Arch::Arm64ec,
             "avr" => Arch::Avr,
             "bpf" => Arch::Bpf,
             "csky" => Arch::Csky,

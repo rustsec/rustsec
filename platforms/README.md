@@ -85,6 +85,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-pc-windows-msvc]              | aarch64     | windows    | msvc       |
 | [aarch64-unknown-fuchsia]              | aarch64     | fuchsia    |            |
 | [aarch64-unknown-linux-musl]           | aarch64     | linux      | musl       |
+| [aarch64-unknown-linux-ohos]           | aarch64     | linux      | ohos       |
 | [aarch64-unknown-none]                 | aarch64     | none       |            |
 | [aarch64-unknown-none-softfloat]       | aarch64     | none       |            |
 | [aarch64-unknown-uefi]                 | aarch64     | uefi       |            |
@@ -102,13 +103,13 @@ If we remove platforms, we will bump the minor version of this crate.
 | [armv7-unknown-linux-gnueabihf]        | arm         | linux      | gnu        |
 | [armv7-unknown-linux-musleabi]         | arm         | linux      | musl       |
 | [armv7-unknown-linux-musleabihf]       | arm         | linux      | musl       |
+| [armv7-unknown-linux-ohos]             | arm         | linux      | ohos       |
 | [armv7a-none-eabi]                     | arm         | none       |            |
 | [armv7r-none-eabi]                     | arm         | none       |            |
 | [armv7r-none-eabihf]                   | arm         | none       |            |
 | [i586-pc-windows-msvc]                 | x86         | windows    | msvc       |
 | [i586-unknown-linux-gnu]               | x86         | linux      | gnu        |
 | [i586-unknown-linux-musl]              | x86         | linux      | musl       |
-| [i586-unknown-netbsd]                  | x86         | netbsd     |            |
 | [i686-linux-android]                   | x86         | android    |            |
 | [i686-unknown-freebsd]                 | x86         | freebsd    |            |
 | [i686-unknown-linux-musl]              | x86         | linux      | musl       |
@@ -121,7 +122,9 @@ If we remove platforms, we will bump the minor version of this crate.
 | [powerpc64-unknown-linux-gnu]          | powerpc64   | linux      | gnu        |
 | [powerpc64le-unknown-linux-gnu]        | powerpc64   | linux      | gnu        |
 | [riscv32i-unknown-none-elf]            | riscv32     | none       |            |
+| [riscv32im-unknown-none-elf]           | riscv32     | none       |            |
 | [riscv32imac-unknown-none-elf]         | riscv32     | none       |            |
+| [riscv32imafc-unknown-none-elf]        | riscv32     | none       |            |
 | [riscv32imc-unknown-none-elf]          | riscv32     | none       |            |
 | [riscv64gc-unknown-linux-gnu]          | riscv64     | linux      | gnu        |
 | [riscv64gc-unknown-none-elf]           | riscv64     | none       |            |
@@ -141,7 +144,8 @@ If we remove platforms, we will bump the minor version of this crate.
 | [wasm32-unknown-emscripten]            | wasm32      | emscripten |            |
 | [wasm32-unknown-unknown]               | wasm32      | unknown    |            |
 | [wasm32-wasi]                          | wasm32      | wasi       |            |
-| [wasm32-wasi-preview1-threads]         | wasm32      | wasi       |            |
+| [wasm32-wasip1]                        | wasm32      | wasi       |            |
+| [wasm32-wasip1-threads]                | wasm32      | wasi       |            |
 | [x86_64-apple-ios]                     | x86_64      | ios        |            |
 | [x86_64-fortanix-unknown-sgx]          | x86_64      | unknown    | sgx        |
 | [x86_64-fuchsia]                       | x86_64      | fuchsia    |            |
@@ -152,6 +156,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [x86_64-unknown-illumos]               | x86_64      | illumos    |            |
 | [x86_64-unknown-linux-gnux32]          | x86_64      | linux      | gnu        |
 | [x86_64-unknown-linux-musl]            | x86_64      | linux      | musl       |
+| [x86_64-unknown-linux-ohos]            | x86_64      | linux      | ohos       |
 | [x86_64-unknown-netbsd]                | x86_64      | netbsd     |            |
 | [x86_64-unknown-none]                  | x86_64      | none       |            |
 | [x86_64-unknown-redox]                 | x86_64      | redox      | relibc     |
@@ -173,7 +178,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-unknown-hermit]               | aarch64     | hermit     |            |
 | [aarch64-unknown-illumos]              | aarch64     | illumos    |            |
 | [aarch64-unknown-linux-gnu_ilp32]      | aarch64     | linux      | gnu        |
-| [aarch64-unknown-linux-ohos]           | aarch64     | linux      | ohos       |
 | [aarch64-unknown-netbsd]               | aarch64     | netbsd     |            |
 | [aarch64-unknown-nto-qnx710]           | aarch64     | nto        | nto71      |
 | [aarch64-unknown-openbsd]              | aarch64     | openbsd    |            |
@@ -187,26 +191,27 @@ If we remove platforms, we will bump the minor version of this crate.
 | [arm64_32-apple-watchos]               | aarch64     | watchos    |            |
 | [arm64e-apple-darwin]                  | aarch64     | macos      |            |
 | [arm64e-apple-ios]                     | aarch64     | ios        |            |
+| [arm64ec-pc-windows-msvc]              | arm64ec     | windows    | msvc       |
 | [armeb-unknown-linux-gnueabi]          | arm         | linux      | gnu        |
 | [armv4t-none-eabi]                     | arm         | none       |            |
 | [armv4t-unknown-linux-gnueabi]         | arm         | linux      | gnu        |
 | [armv5te-none-eabi]                    | arm         | none       |            |
 | [armv5te-unknown-linux-uclibceabi]     | arm         | linux      | uclibc     |
-| [armv6-unknown-freebsd]                | arm         | freebsd    | gnueabihf  |
-| [armv6-unknown-netbsd-eabihf]          | arm         | netbsd     | eabihf     |
+| [armv6-unknown-freebsd]                | arm         | freebsd    | gnu        |
+| [armv6-unknown-netbsd-eabihf]          | arm         | netbsd     |            |
 | [armv6k-nintendo-3ds]                  | arm         | horizon    | newlib     |
 | [armv7-sony-vita-newlibeabihf]         | arm         | vita       | newlib     |
-| [armv7-unknown-freebsd]                | arm         | freebsd    | gnueabihf  |
-| [armv7-unknown-linux-ohos]             | arm         | linux      | ohos       |
+| [armv7-unknown-freebsd]                | arm         | freebsd    | gnu        |
 | [armv7-unknown-linux-uclibceabi]       | arm         | linux      | uclibc     |
 | [armv7-unknown-linux-uclibceabihf]     | arm         | linux      | uclibc     |
-| [armv7-unknown-netbsd-eabihf]          | arm         | netbsd     | eabihf     |
+| [armv7-unknown-netbsd-eabihf]          | arm         | netbsd     |            |
 | [armv7-wrs-vxworks-eabihf]             | arm         | vxworks    | gnu        |
 | [armv7a-kmc-solid_asp3-eabi]           | arm         | solid_asp3 |            |
 | [armv7a-kmc-solid_asp3-eabihf]         | arm         | solid_asp3 |            |
 | [armv7a-none-eabihf]                   | arm         | none       |            |
 | [armv7k-apple-watchos]                 | arm         | watchos    |            |
 | [armv7s-apple-ios]                     | arm         | ios        |            |
+| [armv8r-none-eabihf]                   | arm         | none       |            |
 | [avr-unknown-gnu-atmega328]            | avr         | none       |            |
 | [bpfeb-unknown-none]                   | bpf         | none       |            |
 | [bpfel-unknown-none]                   | bpf         | none       |            |
@@ -216,6 +221,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [hexagon-unknown-none-elf]             | hexagon     | none       |            |
 | [i386-apple-ios]                       | x86         | ios        |            |
 | [i586-pc-nto-qnx700]                   | x86         | nto        | nto70      |
+| [i586-unknown-netbsd]                  | x86         | netbsd     |            |
 | [i686-apple-darwin]                    | x86         | macos      |            |
 | [i686-pc-windows-gnullvm]              | x86         | windows    | gnu        |
 | [i686-unknown-haiku]                   | x86         | haiku      |            |
@@ -226,6 +232,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [i686-uwp-windows-msvc]                | x86         | windows    | msvc       |
 | [i686-win7-windows-msvc]               | x86         | windows    | msvc       |
 | [i686-wrs-vxworks]                     | x86         | vxworks    | gnu        |
+| [loongarch64-unknown-linux-musl]       | loongarch64 | linux      | musl       |
 | [m68k-unknown-linux-gnu]               | m68k        | linux      | gnu        |
 | [mips-unknown-linux-gnu]               | mips        | linux      | gnu        |
 | [mips-unknown-linux-musl]              | mips        | linux      | musl       |
@@ -263,10 +270,11 @@ If we remove platforms, we will bump the minor version of this crate.
 | [powerpc64le-unknown-linux-musl]       | powerpc64   | linux      | musl       |
 | [riscv32gc-unknown-linux-gnu]          | riscv32     | linux      | gnu        |
 | [riscv32gc-unknown-linux-musl]         | riscv32     | linux      | musl       |
-| [riscv32im-unknown-none-elf]           | riscv32     | none       |            |
+| [riscv32im-risc0-zkvm-elf]             | riscv32     | zkvm       |            |
+| [riscv32ima-unknown-none-elf]          | riscv32     | none       |            |
 | [riscv32imac-esp-espidf]               | riscv32     | espidf     | newlib     |
 | [riscv32imac-unknown-xous-elf]         | riscv32     | xous       |            |
-| [riscv32imafc-unknown-none-elf]        | riscv32     | none       |            |
+| [riscv32imafc-esp-espidf]              | riscv32     | espidf     | newlib     |
 | [riscv32imc-esp-espidf]                | riscv32     | espidf     | newlib     |
 | [riscv64-linux-android]                | riscv64     | android    |            |
 | [riscv64gc-unknown-freebsd]            | riscv64     | freebsd    |            |
@@ -285,6 +293,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv7a-pc-windows-msvc]             | arm         | windows    | msvc       |
 | [thumbv7a-uwp-windows-msvc]            | arm         | windows    | msvc       |
 | [thumbv7neon-unknown-linux-musleabihf] | arm         | linux      | musl       |
+| [wasm32-wasip2]                        | wasm32      | wasi       | p2         |
 | [wasm64-unknown-unknown]               | wasm64      | unknown    |            |
 | [x86_64-apple-ios-macabi]              | x86_64      | ios        |            |
 | [x86_64-apple-tvos]                    | x86_64      | tvos       |            |
@@ -296,7 +305,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [x86_64-unknown-haiku]                 | x86_64      | haiku      |            |
 | [x86_64-unknown-hermit]                | x86_64      | hermit     |            |
 | [x86_64-unknown-l4re-uclibc]           | x86_64      | l4re       | uclibc     |
-| [x86_64-unknown-linux-ohos]            | x86_64      | linux      | ohos       |
 | [x86_64-unknown-openbsd]               | x86_64      | openbsd    |            |
 | [x86_64-uwp-windows-gnu]               | x86_64      | windows    | gnu        |
 | [x86_64-uwp-windows-msvc]              | x86_64      | windows    | msvc       |
@@ -347,6 +355,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [arm64_32-apple-watchos]: https://docs.rs/platforms/latest/platforms/platform/constant.ARM64_32_APPLE_WATCHOS.html
 [arm64e-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/constant.ARM64E_APPLE_DARWIN.html
 [arm64e-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/constant.ARM64E_APPLE_IOS.html
+[arm64ec-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.ARM64EC_PC_WINDOWS_MSVC.html
 [armeb-unknown-linux-gnueabi]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMEB_UNKNOWN_LINUX_GNUEABI.html
 [armebv7r-none-eabi]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMEBV7R_NONE_EABI.html
 [armebv7r-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMEBV7R_NONE_EABIHF.html
@@ -379,6 +388,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [armv7r-none-eabi]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7R_NONE_EABI.html
 [armv7r-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7R_NONE_EABIHF.html
 [armv7s-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7S_APPLE_IOS.html
+[armv8r-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV8R_NONE_EABIHF.html
 [avr-unknown-gnu-atmega328]: https://docs.rs/platforms/latest/platforms/platform/constant.AVR_UNKNOWN_GNU_ATMEGA328.html
 [bpfeb-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.BPFEB_UNKNOWN_NONE.html
 [bpfel-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.BPFEL_UNKNOWN_NONE.html
@@ -410,6 +420,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [i686-win7-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_WIN7_WINDOWS_MSVC.html
 [i686-wrs-vxworks]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_WRS_VXWORKS.html
 [loongarch64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.LOONGARCH64_UNKNOWN_LINUX_GNU.html
+[loongarch64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.LOONGARCH64_UNKNOWN_LINUX_MUSL.html
 [loongarch64-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.LOONGARCH64_UNKNOWN_NONE.html
 [loongarch64-unknown-none-softfloat]: https://docs.rs/platforms/latest/platforms/platform/constant.LOONGARCH64_UNKNOWN_NONE_SOFTFLOAT.html
 [m68k-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.M68K_UNKNOWN_LINUX_GNU.html
@@ -454,10 +465,13 @@ If we remove platforms, we will bump the minor version of this crate.
 [riscv32gc-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32GC_UNKNOWN_LINUX_GNU.html
 [riscv32gc-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32GC_UNKNOWN_LINUX_MUSL.html
 [riscv32i-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32I_UNKNOWN_NONE_ELF.html
+[riscv32im-risc0-zkvm-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IM_RISC0_ZKVM_ELF.html
 [riscv32im-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IM_UNKNOWN_NONE_ELF.html
+[riscv32ima-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMA_UNKNOWN_NONE_ELF.html
 [riscv32imac-esp-espidf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMAC_ESP_ESPIDF.html
 [riscv32imac-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMAC_UNKNOWN_NONE_ELF.html
 [riscv32imac-unknown-xous-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMAC_UNKNOWN_XOUS_ELF.html
+[riscv32imafc-esp-espidf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMAFC_ESP_ESPIDF.html
 [riscv32imafc-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMAFC_UNKNOWN_NONE_ELF.html
 [riscv32imc-esp-espidf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_ESP_ESPIDF.html
 [riscv32imc-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_UNKNOWN_NONE_ELF.html
@@ -496,7 +510,9 @@ If we remove platforms, we will bump the minor version of this crate.
 [wasm32-unknown-emscripten]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_UNKNOWN_EMSCRIPTEN.html
 [wasm32-unknown-unknown]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_UNKNOWN_UNKNOWN.html
 [wasm32-wasi]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WASI.html
-[wasm32-wasi-preview1-threads]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WASI_PREVIEW1_THREADS.html
+[wasm32-wasip1]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WASIP1.html
+[wasm32-wasip1-threads]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WASIP1_THREADS.html
+[wasm32-wasip2]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WASIP2.html
 [wasm64-unknown-unknown]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM64_UNKNOWN_UNKNOWN.html
 [x86_64-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_APPLE_DARWIN.html
 [x86_64-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_APPLE_IOS.html
