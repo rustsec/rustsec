@@ -17,14 +17,8 @@ pub enum Env {
     /// ``: None
     None,
 
-    /// `eabihf`
-    Eabihf,
-
     /// `gnu`: The GNU C Library (glibc)
     Gnu,
-
-    /// `gnueabihf`
-    Gnueabihf,
 
     /// `msvc`: Microsoft Visual C(++)
     Msvc,
@@ -44,6 +38,9 @@ pub enum Env {
     /// `ohos`
     OhOS,
 
+    /// `p2`
+    P2,
+
     /// `psx`
     Psx,
 
@@ -62,15 +59,14 @@ impl Env {
     pub fn as_str(self) -> &'static str {
         match self {
             Env::None => "",
-            Env::Eabihf => "eabihf",
             Env::Gnu => "gnu",
-            Env::Gnueabihf => "gnueabihf",
             Env::Msvc => "msvc",
             Env::Musl => "musl",
             Env::Newlib => "newlib",
             Env::Nto70 => "nto70",
             Env::Nto71 => "nto71",
             Env::OhOS => "ohos",
+            Env::P2 => "p2",
             Env::Psx => "psx",
             Env::Relibc => "relibc",
             Env::Sgx => "sgx",
@@ -86,15 +82,14 @@ impl FromStr for Env {
     fn from_str(name: &str) -> Result<Self, Self::Err> {
         let result = match name {
             "" => Env::None,
-            "eabihf" => Env::Eabihf,
             "gnu" => Env::Gnu,
-            "gnueabihf" => Env::Gnueabihf,
             "msvc" => Env::Msvc,
             "musl" => Env::Musl,
             "newlib" => Env::Newlib,
             "nto70" => Env::Nto70,
             "nto71" => Env::Nto71,
             "ohos" => Env::OhOS,
+            "p2" => Env::P2,
             "psx" => Env::Psx,
             "relibc" => Env::Relibc,
             "sgx" => Env::Sgx,
