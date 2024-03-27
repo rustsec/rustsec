@@ -118,6 +118,9 @@ pub enum OS {
 
     /// `xous`
     Xous,
+
+    /// `zkvm`
+    Zkvm,
 }
 
 impl OS {
@@ -159,6 +162,7 @@ impl OS {
             OS::WatchOS => "watchos",
             OS::Windows => "windows",
             OS::Xous => "xous",
+            OS::Zkvm => "zkvm",
         }
     }
 }
@@ -204,6 +208,7 @@ impl FromStr for OS {
             "watchos" => OS::WatchOS,
             "windows" => OS::Windows,
             "xous" => OS::Xous,
+            "zkvm" => OS::Zkvm,
             _ => return Err(Error),
         };
 
