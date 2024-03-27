@@ -2919,7 +2919,7 @@ dependencies = [
  "chrono",
  "clap",
  "comrak",
- "gix 0.58.0",
+ "gix 0.60.0",
  "once_cell",
  "rust-embed",
  "rustsec 0.28.6",
