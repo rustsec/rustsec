@@ -61,10 +61,10 @@ impl Report {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Settings {
     /// CPU architecture
-    pub target_arch: Option<Arch>,
+    pub target_arch: Vec<Arch>,
 
     /// Operating system
-    pub target_os: Option<OS>,
+    pub target_os: Vec<OS>,
 
     /// Severity threshold to alert at
     pub severity: Option<advisory::Severity>,
@@ -81,15 +81,9 @@ impl Settings {
     /// Note that queries can't filter ignored advisories, so this happens in
     /// a separate pass
     pub fn query(&self) -> Query {
-        let mut query = Query::crate_scope();
-
-        if let Some(target_arch) = self.target_arch {
-            query = query.target_arch(target_arch);
-        }
-
-        if let Some(target_os) = self.target_os {
-            query = query.target_os(target_os);
-        }
+        let mut query = Query::crate_scope()
+            .target_arch(self.target_arch.clone())
+            .target_os(self.target_os.clone());
 
         if let Some(severity) = self.severity {
             query = query.severity(severity);
