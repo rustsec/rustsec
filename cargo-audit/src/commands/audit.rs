@@ -8,13 +8,14 @@ mod binary_scanning;
 
 use crate::{
     auditor::Auditor,
-    cli_config::CliConfig,
-    config::{AuditConfig, DenyOption},
+    config::{AuditConfig, DenyOption, FilterList, OutputFormat},
     error::display_err_with_source,
     lockfile,
     prelude::*,
 };
-use abscissa_core::{config::Override, terminal::ColorChoice, FrameworkError};
+use abscissa_core::{
+    config::Override, error::Context, terminal::ColorChoice, FrameworkError, FrameworkErrorKind,
+};
 use clap::Parser;
 use rustsec::platforms::target::{Arch, OS};
 use std::{path::PathBuf, process::exit};
@@ -152,10 +153,6 @@ impl AuditCommand {
         // suppress the warning that occurs with the `binary-scanning` feature disabled
         #[allow(unused_mut)]
         let mut raw_color_setting = self.color.as_ref();
-        #[cfg(feature = "binary-scanning")]
-        if let Some(AuditSubcommand::Bin(ref command)) = self.subcommand {
-            raw_color_setting = command.color.as_ref()
-        };
         raw_color_setting.map(|colors| match colors.as_ref() {
             "always" => ColorChoice::Always,
             "auto" => ColorChoice::Auto,
@@ -165,31 +162,52 @@ impl AuditCommand {
     }
 }
 
-impl From<AuditCommand> for CliConfig {
-    fn from(c: AuditCommand) -> Self {
-        CliConfig {
-            db: c.db,
-            deny: c.deny,
-            ignore: c.ignore,
-            ignore_source: c.ignore_source,
-            no_fetch: c.no_fetch,
-            stale: c.stale,
-            target_arch: c.target_arch,
-            target_os: c.target_os,
-            url: c.url,
-            quiet: c.quiet,
-            output_json: c.output_json,
-        }
-    }
-}
-
 impl Override<AuditConfig> for AuditCommand {
     fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
-        #[cfg(feature = "binary-scanning")]
-        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
-            return CliConfig::from(bin.clone()).override_config(config);
+        let mut config = config;
+        if let Some(db) = &self.db {
+            config.database.path = Some(db.into());
         }
-        CliConfig::from(self.clone()).override_config(config)
+
+        for advisory_id in &self.ignore {
+            config.advisories.ignore.push(
+                advisory_id
+                    .parse()
+                    .map_err(|e| Context::new(FrameworkErrorKind::ParseError, Some(Box::new(e))))?,
+            );
+        }
+
+        config.advisories.ignore_source |= self.ignore_source;
+        config.database.fetch |= !self.no_fetch;
+        config.database.stale |= self.stale;
+
+        if !self.target_arch.is_empty() {
+            config.target.arch = Some(FilterList::Many(self.target_arch.clone()));
+        }
+
+        if !self.target_os.is_empty() {
+            config.target.os = Some(FilterList::Many(self.target_os.clone()));
+        }
+
+        if let Some(url) = &self.url {
+            config.database.url = Some(url.clone())
+        }
+
+        for kind in &self.deny {
+            if *kind == DenyOption::Warnings {
+                config.output.deny = DenyOption::all();
+            } else {
+                config.output.deny.push(*kind);
+            }
+        }
+
+        config.output.quiet |= self.quiet;
+
+        if self.output_json {
+            config.output.format = OutputFormat::Json;
+        }
+
+        Ok(config)
     }
 }
 

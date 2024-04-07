@@ -23,9 +23,9 @@ pub static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
     let mut runner = CmdRunner::default();
     runner
         .arg("audit")
-        .arg("bin")
         .arg("--db")
-        .arg(ADVISORY_DB_DIR.path());
+        .arg(ADVISORY_DB_DIR.path())
+        .arg("bin");
     runner
 });
 
