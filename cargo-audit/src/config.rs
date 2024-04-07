@@ -42,8 +42,8 @@ impl AuditConfig {
         let mut settings = rustsec::report::Settings {
             ignore: self.advisories.ignore.clone(),
             severity: self.advisories.severity_threshold,
-            target_arch: self.target.arch,
-            target_os: self.target.os,
+            target_arch: self.target.arch(),
+            target_os: self.target.os(),
             ..Default::default()
         };
 
@@ -233,15 +233,52 @@ pub enum OutputFormat {
     Terminal,
 }
 
+/// Helper enum for configuring filter values
+///
+/// This enum exists for backwards compatibility reasons.
+/// In `cargo-audit` versions `<= 0.20.0` target's config
+/// options `arch` and `os` were deserialized from a single
+/// string. But following next minor release those values can be
+/// configured as a list. Serde's untagged enum provides
+/// dispatch that is backwards compatible.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum FilterList<T> {
+    /// Legacy, single filter value
+    Single(T),
+    /// List of filters
+    Many(Vec<T>),
+}
+
 /// Target configuration
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct TargetConfig {
     /// Target architecture to find vulnerabilities for
-    pub arch: Option<Arch>,
+    pub arch: Option<FilterList<Arch>>,
 
     /// Target OS to find vulnerabilities for
-    pub os: Option<OS>,
+    pub os: Option<FilterList<OS>>,
+}
+
+impl TargetConfig {
+    /// Returns list of configured target architectures, cloning if needed
+    pub fn arch(&self) -> Vec<Arch> {
+        match &self.arch {
+            Some(FilterList::Single(single)) => vec![*single],
+            Some(FilterList::Many(many)) => many.clone(),
+            None => vec![],
+        }
+    }
+
+    /// Returns list of configured target operating systems, cloning if needed
+    pub fn os(&self) -> Vec<OS> {
+        match &self.os {
+            Some(FilterList::Single(single)) => vec![*single],
+            Some(FilterList::Many(many)) => many.clone(),
+            None => vec![],
+        }
+    }
 }
 
 /// Configuration for auditing for yanked crates
