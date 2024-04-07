@@ -16,9 +16,9 @@ use crate::{
 use abscissa_core::{
     config::Override, error::Context, terminal::ColorChoice, FrameworkError, FrameworkErrorKind,
 };
-use clap::Parser;
+use clap::{Parser, ValueEnum};
 use rustsec::platforms::target::{Arch, OS};
-use std::{path::PathBuf, process::exit};
+use std::{fmt, path::PathBuf, process::exit};
 
 #[cfg(feature = "binary-scanning")]
 use self::binary_scanning::BinCommand;
@@ -26,6 +26,38 @@ use self::binary_scanning::BinCommand;
 use self::fix::FixCommand;
 #[cfg(any(feature = "fix", feature = "binary-scanning"))]
 use clap::Subcommand;
+
+#[derive(Debug, Clone, Copy, Default, ValueEnum)]
+#[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
+enum Color {
+    Always,
+    // TODO: Should this be also supported?
+    // AlwaysAnsi,
+    #[default]
+    Auto,
+    Never,
+}
+
+impl From<Color> for ColorChoice {
+    fn from(value: Color) -> Self {
+        match value {
+            Color::Always => ColorChoice::Always,
+            Color::Auto => ColorChoice::Auto,
+            Color::Never => ColorChoice::Never,
+        }
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // NOTE: This must be in sync with values genereted in ValueEnum implementation.
+        match self {
+            Color::Always => f.write_str("always"),
+            Color::Auto => f.write_str("auto"),
+            Color::Never => f.write_str("never"),
+        }
+    }
+}
 
 /// The `cargo audit` subcommand
 #[derive(Command, Clone, Default, Debug, Parser)]
@@ -40,9 +72,10 @@ pub struct AuditCommand {
     #[arg(
         short = 'c',
         long = "color",
-        help = "color configuration: always, never (default: auto)"
+        help = "color configuration",
+        default_value_t
     )]
-    color: Option<String>,
+    color: Color,
 
     /// Filesystem path to the advisory database git repository
     #[arg(
@@ -149,16 +182,8 @@ If not, recovers a part of the dependency list from panic messages."
 
 impl AuditCommand {
     /// Get the color configuration
-    pub fn color_config(&self) -> Option<ColorChoice> {
-        // suppress the warning that occurs with the `binary-scanning` feature disabled
-        #[allow(unused_mut)]
-        let mut raw_color_setting = self.color.as_ref();
-        raw_color_setting.map(|colors| match colors.as_ref() {
-            "always" => ColorChoice::Always,
-            "auto" => ColorChoice::Auto,
-            "never" => ColorChoice::Never,
-            _ => panic!("invalid color choice setting: {}", &colors),
-        })
+    pub fn term_colors(&self) -> ColorChoice {
+        self.color.into()
     }
 }
 
