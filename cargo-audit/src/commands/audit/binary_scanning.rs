@@ -72,14 +72,14 @@ pub struct BinCommand {
         long = "target-arch",
         help = "filter vulnerabilities by CPU (default: no filter)"
     )]
-    target_arch: Option<Arch>,
+    target_arch: Vec<Arch>,
 
     /// Target OS to find vulnerabilities for
     #[arg(
         long = "target-os",
         help = "filter vulnerabilities by OS (default: no filter)"
     )]
-    target_os: Option<OS>,
+    target_os: Vec<OS>,
 
     /// URL to the advisory database git repository
     #[arg(short = 'u', long = "url", help = "URL for advisory database git repo")]

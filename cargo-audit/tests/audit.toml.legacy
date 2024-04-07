@@ -1,10 +1,7 @@
-# Example audit config file
+# Legacy audit config file
 #
-# It may be located in the user home (`~/.cargo/audit.toml`) or in the project
-# root (`.cargo/audit.toml`).
-#
-# All of the options which can be passed via CLI arguments can also be
-# permanently specified in this file.
+# This is an older version of audit.toml, that we want to still parse
+# and support.
 
 [advisories]
 ignore = [] # advisory IDs to ignore e.g. ["RUSTSEC-2019-0001", ...]
@@ -27,8 +24,8 @@ show_tree = true # Show inverse dependency trees along with advisories (default:
 
 # Target Configuration
 [target]
-arch = ["x86_64"] # Ignore advisories for CPU architectures other than this ones
-os = ["linux", "windows"] # Ignore advisories for operating systems other than this ones
+arch = "x86_64" # Ignore advisories for CPU architectures other than this one
+os = "linux" # Ignore advisories for operating systems other than this one
 
 [yanked]
 enabled = true # Warn for yanked crates in Cargo.lock (default: true)

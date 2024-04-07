@@ -7,7 +7,7 @@ use abscissa_core::error::framework::FrameworkErrorKind;
 use abscissa_core::FrameworkError;
 use rustsec::platforms::target::{Arch, OS};
 
-use crate::config::{AuditConfig, DenyOption, OutputFormat};
+use crate::config::{AuditConfig, DenyOption, FilterList, OutputFormat};
 
 #[derive(Debug, Clone)]
 pub struct CliConfig {
@@ -30,10 +30,10 @@ pub struct CliConfig {
     pub stale: bool,
 
     /// Target CPU architecture to find vulnerabilities for
-    pub target_arch: Option<Arch>,
+    pub target_arch: Vec<Arch>,
 
     /// Target OS to find vulnerabilities for
-    pub target_os: Option<OS>,
+    pub target_os: Vec<OS>,
 
     /// URL to the advisory database git repository
     pub url: Option<String>,
@@ -64,12 +64,12 @@ impl CliConfig {
         config.database.fetch |= !self.no_fetch;
         config.database.stale |= self.stale;
 
-        if let Some(target_arch) = self.target_arch {
-            config.target.arch = Some(target_arch);
+        if !self.target_arch.is_empty() {
+            config.target.arch = Some(FilterList::Many(self.target_arch.clone()));
         }
 
-        if let Some(target_os) = self.target_os {
-            config.target.os = Some(target_os);
+        if !self.target_os.is_empty() {
+            config.target.os = Some(FilterList::Many(self.target_os.clone()));
         }
 
         if let Some(url) = &self.url {
