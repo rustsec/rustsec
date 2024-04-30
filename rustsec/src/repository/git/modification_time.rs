@@ -39,7 +39,7 @@ impl GitModificationTimes {
             .rev_walk(Some(repo.head_id().map_err(|err| {
                 format_err!(ErrorKind::Repo, "unable to find head id: {}", err)
             })?))
-            .sorting(gix::traverse::commit::Sorting::ByCommitTimeNewestFirst)
+            .sorting(gix::traverse::commit::simple::Sorting::ByCommitTimeNewestFirst)
             .all()
             .map_err(|err| format_err!(ErrorKind::Repo, "unable to walk commits: {}", err))?;
 
