@@ -2,6 +2,7 @@
 //!
 //! <https://docs.rs/abscissa_core>
 
+use std::io::IsTerminal;
 use std::sync::Arc;
 
 use crate::{commands::CargoAuditCommand, config::AuditConfig};
@@ -11,7 +12,6 @@ use abscissa_core::{
     terminal::ColorChoice,
     trace, Application, FrameworkError, StandardPaths,
 };
-use is_terminal::IsTerminal;
 
 /// Application state
 pub static APP: AppCell<CargoAuditApplication> = AppCell::new();
