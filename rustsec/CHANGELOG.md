@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
  - Upgraded to `gix` v0.62. This fixes [RUSTSEC-2024-0335](https://rustsec.org/advisories/RUSTSEC-2024-0335.html). It also transitively upgrades to `reqwest` v0.12 and `hyper` v1.0. ([#1174])
- - Removed `is-terminal` dependency in favor of the recently standard library function. ([#1174])
 
 [#1174]: https://github.com/rustsec/rustsec/pull/1174
 
