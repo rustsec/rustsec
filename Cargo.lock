@@ -2878,9 +2878,9 @@ dependencies = [
 
 [[package]]
 name = "tame-index"
-version = "0.11.0"
+version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c09360f6b03266a73e111665451a8a1cec970eb58fc394f84a20cb3e6325f766"
+checksum = "44a98d58caab3de29c6cb538054c7d994b3d7e6eec483a9dfca02f92027f7686"
 dependencies = [
  "camino",
  "crossbeam-channel",
