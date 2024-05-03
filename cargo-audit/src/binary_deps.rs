@@ -29,7 +29,7 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryForma
     match stuff {
         Ok(json_struct) => Ok((
             format,
-            BinaryReport::Complete(cargo_lock::Lockfile::try_from(&json_struct)?),
+            BinaryReport::Complete(Lockfile::try_from(&json_struct)?),
         )),
         Err(e) => match e {
             NoAuditData => {
