@@ -60,6 +60,7 @@ fn at_least_one_os_runs_binary(binary_type: &BinaryFormat, os_list: &[OS]) -> bo
             // Perhaps we can make `platforms` expose the `family` which can be `windows` or `unix` or `unknown`?
             // That way we can capture all the unix-likes as using ELF and discard everything else
         }
+        Wasm => true,    // TODO
         Unknown => true, // might be possible for detection based on panic messages?
     }
 }

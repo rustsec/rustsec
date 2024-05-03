@@ -22,7 +22,7 @@ pub enum BinaryReport {
 pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryFormat, BinaryReport)> {
     // TODO: input size limit
     let file_contents = std::fs::read(binary_path)?;
-    let format = binfarce::detect_format(&file_contents).into();
+    let format = detect_format(&file_contents);
     let stuff = auditable_info::audit_info_from_slice(&file_contents, 8 * 1024 * 1024);
 
     use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
@@ -61,6 +61,20 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryForma
                 e,
             )),
         },
+    }
+}
+
+fn detect_format(data: &[u8]) -> BinaryFormat {
+    match binfarce::detect_format(&data) {
+        binfarce::Format::Unknown => {
+            // binfarce doesn't detect WASM
+            if data.starts_with(b"\0asm") {
+                BinaryFormat::Wasm
+            } else {
+                BinaryFormat::Unknown
+            }
+        }
+        known_format => known_format.into(),
     }
 }
 
