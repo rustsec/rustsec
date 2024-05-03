@@ -65,7 +65,7 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryForma
 }
 
 fn detect_format(data: &[u8]) -> BinaryFormat {
-    match binfarce::detect_format(&data) {
+    match binfarce::detect_format(data) {
         binfarce::Format::Unknown => {
             // binfarce doesn't detect WASM
             if data.starts_with(b"\0asm") {
