@@ -2,7 +2,6 @@
 //!
 //! <https://docs.rs/abscissa_core>
 
-use std::io::IsTerminal;
 use std::sync::Arc;
 
 use crate::{commands::CargoAuditCommand, config::AuditConfig};
