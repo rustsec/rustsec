@@ -24,7 +24,7 @@ fn parse_audit_toml_example() {
 }
 
 /// Ensure `target.arch` and `target.os` continue to parse when they
-/// are specified as a string, and not a list. This is the legacy behovior.
+/// are specified as a string, and not a list. This is the legacy behavior.
 #[test]
 fn parser_audit_toml_example() {
     let toml_string = fs::read_to_string("tests/audit.toml.legacy").unwrap();
