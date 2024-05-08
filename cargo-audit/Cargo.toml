@@ -26,7 +26,7 @@ serde_json = "1"
 thiserror = "1"
 
 # for scanning binary files
-auditable-info = { version = "0.7", optional = true }
+auditable-info = { version = "0.7.2", optional = true, features = ["wasm"] }
 cargo-lock = { version = "9", optional = true }
 auditable-serde = { version = "0.6",  optional = true, features = ["toml"] }
 quitters = { version = "0.1", optional = true }

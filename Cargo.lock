@@ -230,18 +230,19 @@ dependencies = [
 
 [[package]]
 name = "auditable-extract"
-version = "0.3.2"
+version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8a62a6f4a522a2ab30b5fca049b9587228d17e4ac648106aeaf7da9b70b5e2b"
+checksum = "6728a67cb6ba3998b16a84c3bc2fcc0554bca9cf79fbe3c2d4082e8cac32f96e"
 dependencies = [
  "binfarce",
+ "wasmparser",
 ]
 
 [[package]]
 name = "auditable-info"
-version = "0.7.0"
+version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e563c9e31a71d1a6f2ab7a5a168cdb0d387f59bde891aac5957b9ebaaf03f602"
+checksum = "0d0d13c05dccf8623bdd1a86359100b35738575c30e4401a503d2b7e6c1ccc70"
 dependencies = [
  "auditable-extract",
  "auditable-serde",
@@ -3432,6 +3433,15 @@ name = "wasm-bindgen-shared"
 version = "0.2.90"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4d91413b1c31d7539ba5ef2451af3f0b833a005eb27a631cec32bc0635a8602b"
+
+[[package]]
+name = "wasmparser"
+version = "0.207.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e19bb9f8ab07616da582ef8adb24c54f1424c7ec876720b7da9db8ec0626c92c"
+dependencies = [
+ "bitflags 2.4.2",
+]
 
 [[package]]
 name = "web-sys"
