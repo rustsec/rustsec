@@ -5,6 +5,7 @@ pub enum BinaryFormat {
     Elf64,
     Macho,
     PE,
+    Wasm,
     Unknown,
 }
 

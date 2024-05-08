@@ -48,7 +48,9 @@ impl AuditConfig {
         };
 
         if let Some(informational_warnings) = &self.advisories.informational_warnings {
-            settings.informational_warnings = informational_warnings.clone();
+            settings
+                .informational_warnings
+                .clone_from(informational_warnings);
         } else {
             // Alert for all informational packages by default
             settings.informational_warnings = vec![
