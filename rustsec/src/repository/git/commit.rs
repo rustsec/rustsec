@@ -132,14 +132,18 @@ impl Commit {
             .map_err(|err| format_err!(ErrorKind::Repo, "unable to peel to tree: {}", err))?
             .id;
 
-        let index = gix::index::State::from_tree(&root_tree, &repo.objects).map_err(|err| {
-            format_err!(
-                ErrorKind::Repo,
-                "failed to create index from tree '{}': {}",
-                root_tree,
-                err
-            )
-        })?;
+        let all_validations_for_max_safety =
+            gix::worktree::validate::path::component::Options::default();
+        let index =
+            gix::index::State::from_tree(&root_tree, &repo.objects, all_validations_for_max_safety)
+                .map_err(|err| {
+                    format_err!(
+                        ErrorKind::Repo,
+                        "failed to create index from tree '{}': {}",
+                        root_tree,
+                        err
+                    )
+                })?;
 
         let mut index = gix::index::File::from_state(index, repo.index_path());
 
