@@ -39,7 +39,7 @@ pub struct AuditConfig {
 impl AuditConfig {
     /// Get audit report settings from the configuration
     pub fn report_settings(&self) -> report::Settings {
-        let mut settings = rustsec::report::Settings {
+        let mut settings = report::Settings {
             ignore: self.advisories.ignore.clone(),
             severity: self.advisories.severity_threshold,
             target_arch: self.target.arch,
