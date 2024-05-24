@@ -96,7 +96,7 @@ impl FromStr for Advisory {
     type Err = Error;
 
     fn from_str(advisory_data: &str) -> Result<Self, Error> {
-        let parts = parts::Parts::parse(advisory_data)?;
+        let parts = Parts::parse(advisory_data)?;
 
         // V4 advisories omit the leading `[advisory]` TOML table
         let front_matter = if parts.front_matter.starts_with("[advisory]") {
@@ -105,7 +105,7 @@ impl FromStr for Advisory {
             String::from("[advisory]\n") + parts.front_matter
         };
 
-        let mut advisory: Self = toml::from_str(&front_matter).map_err(crate::Error::from_toml)?;
+        let mut advisory: Self = toml::from_str(&front_matter).map_err(Error::from_toml)?;
 
         if !advisory.metadata.title.is_empty() {
             fail!(
