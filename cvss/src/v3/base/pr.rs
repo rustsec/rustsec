@@ -1,5 +1,6 @@
 //! Privileges Required (PR)
 
+use crate::metric::ScopedScore;
 use crate::{error::Error, Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -37,9 +38,11 @@ pub enum PrivilegesRequired {
     None,
 }
 
-impl PrivilegesRequired {
+impl PrivilegesRequired {}
+
+impl ScopedScore for PrivilegesRequired {
     /// Score when accounting for scope change
-    pub fn scoped_score(self, scope_change: bool) -> f64 {
+    fn scoped_score(self, scope_change: bool) -> f64 {
         match self {
             PrivilegesRequired::High => {
                 if scope_change {
@@ -59,13 +62,8 @@ impl PrivilegesRequired {
         }
     }
 }
-
 impl Metric for PrivilegesRequired {
     const TYPE: MetricType = MetricType::PR;
-
-    fn score(self) -> f64 {
-        self.scoped_score(false)
-    }
 
     fn as_str(self) -> &'static str {
         match self {

@@ -1,5 +1,6 @@
 //! Integrity Impact (I)
 
+use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -41,19 +42,21 @@ pub enum Integrity {
 impl Metric for Integrity {
     const TYPE: MetricType = MetricType::I;
 
-    fn score(self) -> f64 {
-        match self {
-            Integrity::None => 0.0,
-            Integrity::Low => 0.22,
-            Integrity::High => 0.56,
-        }
-    }
-
     fn as_str(self) -> &'static str {
         match self {
             Integrity::None => "N",
             Integrity::Low => "L",
             Integrity::High => "H",
+        }
+    }
+}
+
+impl MetricScore for Integrity {
+    fn score(self) -> f64 {
+        match self {
+            Integrity::None => 0.0,
+            Integrity::Low => 0.22,
+            Integrity::High => 0.56,
         }
     }
 }

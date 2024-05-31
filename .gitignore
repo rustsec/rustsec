@@ -1,2 +1,4 @@
 platforms/**/Cargo.lock
 target
+.idea/
+.gitignore
