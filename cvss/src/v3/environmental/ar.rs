@@ -1,4 +1,3 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -31,23 +30,21 @@ pub enum AvailabilityRequirement {
 impl Metric for AvailabilityRequirement {
     const TYPE: MetricType = MetricType::AR;
 
-    fn as_str(self) -> &'static str {
-        match self {
-            AvailabilityRequirement::NotDefined => "X",
-            AvailabilityRequirement::Low => "L",
-            AvailabilityRequirement::Medium => "M",
-            AvailabilityRequirement::High => "H",
-        }
-    }
-}
-
-impl MetricScore for AvailabilityRequirement {
     fn score(self) -> f64 {
         match self {
             AvailabilityRequirement::NotDefined => 1.00,
             AvailabilityRequirement::Low => 0.50,
             AvailabilityRequirement::Medium => 1.00,
             AvailabilityRequirement::High => 1.50,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            AvailabilityRequirement::NotDefined => "X",
+            AvailabilityRequirement::Low => "L",
+            AvailabilityRequirement::Medium => "M",
+            AvailabilityRequirement::High => "H",
         }
     }
 }

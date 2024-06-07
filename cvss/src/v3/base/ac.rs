@@ -1,6 +1,5 @@
 //! Attack Complexity (AC)
 
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -60,19 +59,17 @@ impl Default for AttackComplexity {
 impl Metric for AttackComplexity {
     const TYPE: MetricType = MetricType::AC;
 
-    fn as_str(self) -> &'static str {
-        match self {
-            AttackComplexity::High => "H",
-            AttackComplexity::Low => "L",
-        }
-    }
-}
-
-impl MetricScore for AttackComplexity {
     fn score(self) -> f64 {
         match self {
             AttackComplexity::High => 0.44,
             AttackComplexity::Low => 0.77,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            AttackComplexity::High => "H",
+            AttackComplexity::Low => "L",
         }
     }
 }

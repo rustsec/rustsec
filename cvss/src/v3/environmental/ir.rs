@@ -1,4 +1,3 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -31,23 +30,21 @@ pub enum IntegrityRequirement {
 impl Metric for IntegrityRequirement {
     const TYPE: MetricType = MetricType::IR;
 
-    fn as_str(self) -> &'static str {
-        match self {
-            IntegrityRequirement::NotDefined => "X",
-            IntegrityRequirement::Low => "L",
-            IntegrityRequirement::Medium => "M",
-            IntegrityRequirement::High => "H",
-        }
-    }
-}
-
-impl MetricScore for IntegrityRequirement {
     fn score(self) -> f64 {
         match self {
             IntegrityRequirement::NotDefined => 1.00,
             IntegrityRequirement::Low => 0.50,
             IntegrityRequirement::Medium => 1.00,
             IntegrityRequirement::High => 1.50,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            IntegrityRequirement::NotDefined => "X",
+            IntegrityRequirement::Low => "L",
+            IntegrityRequirement::Medium => "M",
+            IntegrityRequirement::High => "H",
         }
     }
 }

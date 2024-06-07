@@ -39,6 +39,8 @@ pub struct CVSS {
 }
 
 impl CVSS {
+    ///>Overall CVSS Score:
+    ///> <https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator>
     pub fn over_all_score(self) -> Score {
         if self.environmental.clone().has_defined() {
             return self.environmental.score(self.temporal, self.base);
@@ -194,9 +196,7 @@ impl FromStr for CVSS {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de> Deserialize<'de> for CVSS {
-    fn deserialize<D: de::Deserializer<'de>>(
-        deserializer: D,
-    ) -> core::result::Result<Self, D::Error> {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         String::deserialize(deserializer)?
             .parse()
             .map_err(de::Error::custom)
@@ -206,10 +206,7 @@ impl<'de> Deserialize<'de> for CVSS {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl Serialize for CVSS {
-    fn serialize<S: ser::Serializer>(
-        &self,
-        serializer: S,
-    ) -> core::result::Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }

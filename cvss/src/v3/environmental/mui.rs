@@ -1,5 +1,3 @@
-use crate::metric::{MetricScore, ModifiedScore};
-use crate::v3::base::UserInteraction;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -24,8 +22,8 @@ pub enum ModifiedUserInteraction {
     Required,
 }
 
-impl ModifiedScore for ModifiedUserInteraction {
-    fn modified_score(self, base: &Base) -> f64 {
+impl ModifiedUserInteraction {
+    pub(crate) fn modified_score(self, base: &Base) -> f64 {
         match self {
             ModifiedUserInteraction::NotDefined => base.ui.map(|ui| ui.score()).unwrap_or(0.85),
             ModifiedUserInteraction::None => 0.85,
@@ -36,6 +34,10 @@ impl ModifiedScore for ModifiedUserInteraction {
 
 impl Metric for ModifiedUserInteraction {
     const TYPE: MetricType = MetricType::MUI;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

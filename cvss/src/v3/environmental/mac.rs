@@ -1,5 +1,3 @@
-use crate::metric::{MetricScore, ModifiedScore};
-use crate::v3::base::AttackComplexity;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -35,8 +33,8 @@ pub enum ModifiedAttackComplexity {
     High,
 }
 
-impl ModifiedScore for ModifiedAttackComplexity {
-    fn modified_score(self, base: &Base) -> f64 {
+impl ModifiedAttackComplexity {
+    pub(crate) fn modified_score(self, base: &Base) -> f64 {
         match self {
             ModifiedAttackComplexity::NotDefined => base.ac.map(|ac| ac.score()).unwrap_or(0.0),
             ModifiedAttackComplexity::Low => 0.77,
@@ -47,6 +45,10 @@ impl ModifiedScore for ModifiedAttackComplexity {
 
 impl Metric for ModifiedAttackComplexity {
     const TYPE: MetricType = MetricType::MAC;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

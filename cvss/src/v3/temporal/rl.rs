@@ -1,4 +1,3 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -32,8 +31,8 @@ pub enum RemediationLevel {
     Unavailable,
 }
 
-impl MetricScore for RemediationLevel {
-    fn score(self) -> f64 {
+impl RemediationLevel {
+    pub(crate) fn score(self) -> f64 {
         match self {
             RemediationLevel::NotDefined => 1.00,
             RemediationLevel::OfficialFix => 0.95,
@@ -46,6 +45,10 @@ impl MetricScore for RemediationLevel {
 
 impl Metric for RemediationLevel {
     const TYPE: MetricType = MetricType::RL;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

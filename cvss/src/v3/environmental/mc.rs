@@ -1,5 +1,3 @@
-use crate::metric::{MetricScore, ModifiedScore};
-use crate::v3::base::Confidentiality;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -31,8 +29,8 @@ pub enum ModifiedConfidentiality {
     High,
 }
 
-impl ModifiedScore for ModifiedConfidentiality {
-    fn modified_score(self, base: &Base) -> f64 {
+impl ModifiedConfidentiality {
+    pub(crate) fn modified_score(self, base: &Base) -> f64 {
         match self {
             ModifiedConfidentiality::NotDefined => base.c.map(|c| c.score()).unwrap_or(0.0),
             ModifiedConfidentiality::Low => 0.22,
@@ -44,6 +42,10 @@ impl ModifiedScore for ModifiedConfidentiality {
 
 impl Metric for ModifiedConfidentiality {
     const TYPE: MetricType = MetricType::MC;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

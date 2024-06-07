@@ -1,6 +1,3 @@
-use crate::metric::{MetricScore, ModifiedScore};
-use crate::v3::base::{Availability, Confidentiality};
-use crate::v3::environmental::mi::ModifiedIntegrity;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -32,8 +29,8 @@ pub enum ModifiedAvailability {
     High,
 }
 
-impl ModifiedScore for ModifiedAvailability {
-    fn modified_score(self, base: &Base) -> f64 {
+impl ModifiedAvailability {
+    pub(crate) fn modified_score(self, base: &Base) -> f64 {
         match self {
             ModifiedAvailability::NotDefined => base.a.map(|a| a.score()).unwrap_or(0.0),
             ModifiedAvailability::Low => 0.22,
@@ -44,6 +41,10 @@ impl ModifiedScore for ModifiedAvailability {
 }
 impl Metric for ModifiedAvailability {
     const TYPE: MetricType = MetricType::MA;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

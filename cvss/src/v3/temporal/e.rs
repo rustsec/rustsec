@@ -1,4 +1,3 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -27,8 +26,8 @@ pub enum ExploitCodeMaturity {
     High,
 }
 
-impl MetricScore for ExploitCodeMaturity {
-    fn score(self) -> f64 {
+impl ExploitCodeMaturity {
+    pub(crate) fn score(self) -> f64 {
         match self {
             ExploitCodeMaturity::High => 1.00,
             ExploitCodeMaturity::NotDefined => 1.00,
@@ -41,6 +40,10 @@ impl MetricScore for ExploitCodeMaturity {
 
 impl Metric for ExploitCodeMaturity {
     const TYPE: MetricType = MetricType::E;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

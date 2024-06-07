@@ -1,5 +1,3 @@
-use crate::metric::{IsChanged, ModifiedScore};
-use crate::v3::base::Scope;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -28,16 +26,12 @@ impl ModifiedScope {
     pub fn is_not_defined(self) -> bool {
         self == Self::NotDefined
     }
-}
 
-impl IsChanged for ModifiedScope {
-    fn is_changed(self) -> bool {
+    pub fn is_changed(self) -> bool {
         self == Self::Changed
     }
-}
 
-impl ModifiedScore for ModifiedScope {
-    fn modified_score(self, base: &Base) -> f64 {
+    pub fn modified_score(self, _base: &Base) -> f64 {
         match self {
             ModifiedScope::NotDefined => 0.00,
             ModifiedScope::Unchanged => 0.00,
@@ -48,6 +42,10 @@ impl ModifiedScore for ModifiedScope {
 
 impl Metric for ModifiedScope {
     const TYPE: MetricType = MetricType::MS;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

@@ -1,5 +1,3 @@
-use crate::metric::{MetricScore, ModifiedScore};
-use crate::v3::base::AttackVector;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -36,8 +34,8 @@ pub enum ModifiedAttackVector {
     Physical,
 }
 
-impl ModifiedScore for ModifiedAttackVector {
-    fn modified_score(self, base: &Base) -> f64 {
+impl ModifiedAttackVector {
+    pub(crate) fn modified_score(self, base: &Base) -> f64 {
         match self {
             ModifiedAttackVector::NotDefined => base.av.map(|av| av.score()).unwrap_or(0.0),
             ModifiedAttackVector::Network => 0.85,
@@ -50,6 +48,10 @@ impl ModifiedScore for ModifiedAttackVector {
 
 impl Metric for ModifiedAttackVector {
     const TYPE: MetricType = MetricType::MAV;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

@@ -1,4 +1,3 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -37,8 +36,8 @@ pub enum ReportConfidence {
     Confirmed,
 }
 
-impl MetricScore for ReportConfidence {
-    fn score(self) -> f64 {
+impl ReportConfidence {
+    pub(crate) fn score(self) -> f64 {
         match self {
             ReportConfidence::NotDefined => 1.00,
             ReportConfidence::Unknown => 0.92,
@@ -50,6 +49,10 @@ impl MetricScore for ReportConfidence {
 
 impl Metric for ReportConfidence {
     const TYPE: MetricType = MetricType::RC;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

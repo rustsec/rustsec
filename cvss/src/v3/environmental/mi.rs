@@ -1,5 +1,3 @@
-use crate::metric::{MetricScore, ModifiedScore};
-use crate::v3::base::Integrity;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -28,8 +26,8 @@ pub enum ModifiedIntegrity {
     High,
 }
 
-impl ModifiedScore for ModifiedIntegrity {
-    fn modified_score(self, base: &Base) -> f64 {
+impl ModifiedIntegrity {
+    pub(crate) fn modified_score(self, base: &Base) -> f64 {
         match self {
             ModifiedIntegrity::NotDefined => base.i.map(|i| i.score()).unwrap_or(0.00),
             ModifiedIntegrity::Low => 0.22,
@@ -41,6 +39,10 @@ impl ModifiedScore for ModifiedIntegrity {
 
 impl Metric for ModifiedIntegrity {
     const TYPE: MetricType = MetricType::MI;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

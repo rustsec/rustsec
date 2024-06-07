@@ -1,4 +1,3 @@
-use crate::metric::ScopedScore;
 use crate::v3::base::PrivilegesRequired;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
@@ -54,6 +53,10 @@ impl ModifiedPrivilegesRequired {
 
 impl Metric for ModifiedPrivilegesRequired {
     const TYPE: MetricType = MetricType::MPR;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

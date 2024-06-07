@@ -1,4 +1,3 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -31,23 +30,21 @@ pub enum ConfidentialityRequirement {
 impl Metric for ConfidentialityRequirement {
     const TYPE: MetricType = MetricType::CR;
 
-    fn as_str(self) -> &'static str {
-        match self {
-            ConfidentialityRequirement::NotDefined => "X",
-            ConfidentialityRequirement::Low => "L",
-            ConfidentialityRequirement::Medium => "M",
-            ConfidentialityRequirement::High => "H",
-        }
-    }
-}
-
-impl MetricScore for ConfidentialityRequirement {
     fn score(self) -> f64 {
         match self {
             ConfidentialityRequirement::NotDefined => 1.00,
             ConfidentialityRequirement::Low => 0.50,
             ConfidentialityRequirement::Medium => 1.00,
             ConfidentialityRequirement::High => 1.50,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            ConfidentialityRequirement::NotDefined => "X",
+            ConfidentialityRequirement::Low => "L",
+            ConfidentialityRequirement::Medium => "M",
+            ConfidentialityRequirement::High => "H",
         }
     }
 }
