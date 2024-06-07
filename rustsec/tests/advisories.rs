@@ -84,18 +84,15 @@ fn parse_cvss_vector_string() {
     );
 
     let cvss = advisory.metadata.cvss.unwrap();
-    assert_eq!(cvss.base.av.unwrap(), cvss::v3::base::AttackVector::Network);
-    assert_eq!(cvss.base.ac.unwrap(), cvss::v3::base::AttackComplexity::Low);
-    assert_eq!(
-        cvss.base.pr.unwrap(),
-        cvss::v3::base::PrivilegesRequired::None
-    );
-    assert_eq!(cvss.base.ui.unwrap(), cvss::v3::base::UserInteraction::None);
-    assert_eq!(cvss.base.s.unwrap(), cvss::v3::base::Scope::Changed);
-    assert_eq!(cvss.base.c.unwrap(), cvss::v3::base::Confidentiality::High);
-    assert_eq!(cvss.base.i.unwrap(), cvss::v3::base::Integrity::High);
-    assert_eq!(cvss.base.a.unwrap(), cvss::v3::base::Availability::High);
-    assert_eq!(cvss.base.score().value(), 10.0);
+    assert_eq!(cvss.av.unwrap(), cvss::v3::base::AttackVector::Network);
+    assert_eq!(cvss.ac.unwrap(), cvss::v3::base::AttackComplexity::Low);
+    assert_eq!(cvss.pr.unwrap(), cvss::v3::base::PrivilegesRequired::None);
+    assert_eq!(cvss.ui.unwrap(), cvss::v3::base::UserInteraction::None);
+    assert_eq!(cvss.s.unwrap(), cvss::v3::base::Scope::Changed);
+    assert_eq!(cvss.c.unwrap(), cvss::v3::base::Confidentiality::High);
+    assert_eq!(cvss.i.unwrap(), cvss::v3::base::Integrity::High);
+    assert_eq!(cvss.a.unwrap(), cvss::v3::base::Availability::High);
+    assert_eq!(cvss.score().value(), 10.0);
 }
 
 /// Parsing of patched version reqs

@@ -83,7 +83,7 @@ impl Advisory {
 
     /// Get the severity of this advisory if it has a CVSS v3 associated
     pub fn severity(&self) -> Option<Severity> {
-        self.metadata.cvss.as_ref().map(|cvss| cvss.base.severity())
+        self.metadata.cvss.as_ref().map(|cvss| cvss.severity())
     }
 
     /// Whether the advisory has been withdrawn, i.e. soft-deleted

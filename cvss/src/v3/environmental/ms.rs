@@ -1,26 +1,24 @@
-use crate::metric::{IsChanged, ModifiedScore};
-use crate::v3::base::Scope;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
-///>Does a successful attack impact a component other than the vulnerable component? If so,
-///>the Base Score increases and the Confidentiality, Integrity and Authentication metrics should be scored relative to the impacted component.
+/// > Does a successful attack impact a component other than the vulnerable component? If so,
+/// > the Base Score increases and the Confidentiality, Integrity and Authentication metrics should be scored relative to the impacted component.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedScope {
     /// Not Defined (X)
-    ///>The value assigned to the corresponding Base metric is used.
+    /// > The value assigned to the corresponding Base metric is used.
     NotDefined,
 
     /// Unchanged (U)
-    ///>An exploited vulnerability can only affect resources managed by the same security authority.
-    ///>In this case, the vulnerable component and the impacted component are either the same, or both are managed by the same security authority.
+    /// > An exploited vulnerability can only affect resources managed by the same security authority.
+    /// > In this case, the vulnerable component and the impacted component are either the same, or both are managed by the same security authority.
     Unchanged,
 
     /// Changed (C)
-    ///>An exploited vulnerability can affect resources beyond the security scope managed by the security authority of the vulnerable component.
-    ///>In this case, the vulnerable component and the impacted component are different and managed by different security authorities.
+    /// > An exploited vulnerability can affect resources beyond the security scope managed by the security authority of the vulnerable component.
+    /// > In this case, the vulnerable component and the impacted component are different and managed by different security authorities.
     Changed,
 }
 
@@ -28,16 +26,12 @@ impl ModifiedScope {
     pub fn is_not_defined(self) -> bool {
         self == Self::NotDefined
     }
-}
 
-impl IsChanged for ModifiedScope {
-    fn is_changed(self) -> bool {
+    pub fn is_changed(self) -> bool {
         self == Self::Changed
     }
-}
 
-impl ModifiedScore for ModifiedScope {
-    fn modified_score(self, base: &Base) -> f64 {
+    pub fn modified_score(self, _base: &Base) -> f64 {
         match self {
             ModifiedScope::NotDefined => 0.00,
             ModifiedScope::Unchanged => 0.00,
@@ -48,6 +42,10 @@ impl ModifiedScore for ModifiedScope {
 
 impl Metric for ModifiedScope {
     const TYPE: MetricType = MetricType::MS;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

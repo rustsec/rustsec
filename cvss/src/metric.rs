@@ -1,6 +1,5 @@
 //! CVSS metrics.
 
-use crate::v3::Base;
 use crate::{Error, Result};
 use alloc::borrow::ToOwned;
 use core::{
@@ -19,7 +18,7 @@ pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
     }
 
     /// Get CVSS v3.1 score for this metric.
-    // fn score(self) -> f64;
+    fn score(self) -> f64;
 
     /// Get `str` describing this metric's value
     fn as_str(self) -> &'static str;
@@ -53,7 +52,7 @@ pub enum MetricType {
     /// User Interaction (UI)
     UI,
 
-    /// Exploit Code Maturity (E
+    /// Exploit Code Maturity (E)
     E,
 
     /// Report Confidence (RC)
@@ -190,26 +189,4 @@ impl FromStr for MetricType {
             _ => Err(Error::UnknownMetric { name: s.to_owned() }),
         }
     }
-}
-
-/// Get CVSS v3.1 score for this metric.
-pub trait MetricScore {
-    fn score(self) -> f64;
-}
-
-pub trait ScopedScore {
-    fn scoped_score(self, is_changed: bool) -> f64;
-}
-
-/// Modified Base Metrics
-/// https://www.first.org/cvss/v3.1/specification-document#4-2-Modified-Base-Metrics
-/// These metrics enable the analyst to override individual Base metrics based on specific characteristics of a user’s environment. Characteristics that affect Exploitability, Scope, or Impact can be reflected via an appropriately modified Environmental Score.
-pub trait ModifiedScore {
-    /// Get CVSS v3.1 score for this metric.
-    fn modified_score(self, base: &Base) -> f64;
-}
-
-/// Score when accounting for scope change
-pub trait IsChanged {
-    fn is_changed(self) -> bool;
 }

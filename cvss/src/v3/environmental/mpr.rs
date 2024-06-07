@@ -1,27 +1,26 @@
-use crate::metric::ScopedScore;
 use crate::v3::base::PrivilegesRequired;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
-///>This metric describes the level of privileges an attacker must possess before successfully exploiting the vulnerability.
+/// > This metric describes the level of privileges an attacker must possess before successfully exploiting the vulnerability.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedPrivilegesRequired {
     /// Not Defined (X)
-    ///>The value assigned to the corresponding Base metric is used.
+    /// > The value assigned to the corresponding Base metric is used.
     NotDefined,
 
     /// None (N)
-    /// >The attacker is unauthorized prior to attack, and therefore does not require any access to settings or files to carry out an attack.
+    /// > The attacker is unauthorized prior to attack, and therefore does not require any access to settings or files to carry out an attack.
     None,
 
     /// Low (L)
-    ///>The attacker is authorized with (i.e., requires) privileges that provide basic user capabilities that could normally affect only settings and files owned by a user.
-    ///>Alternatively, an attacker with Low privileges may have the ability to cause an impact only to non-sensitive resources.
+    /// > The attacker is authorized with (i.e., requires) privileges that provide basic user capabilities that could normally affect only settings and files owned by a user.
+    /// > Alternatively, an attacker with Low privileges may have the ability to cause an impact only to non-sensitive resources.
     Low,
 
     /// High (H)
-    ///>The attacker is authorized with (i.e., requires) privileges that provide significant (e.g., administrative) control over the vulnerable component that could affect component-wide settings and files.
+    /// > The attacker is authorized with (i.e., requires) privileges that provide significant (e.g., administrative) control over the vulnerable component that could affect component-wide settings and files.
     High,
 }
 
@@ -54,6 +53,10 @@ impl ModifiedPrivilegesRequired {
 
 impl Metric for ModifiedPrivilegesRequired {
     const TYPE: MetricType = MetricType::MPR;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

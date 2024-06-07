@@ -1,34 +1,33 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
-///>This metric measures the likelihood of the vulnerability being attacked, and is typically based on the current state of exploit techniques,
-///>exploit code availability, or active, 'in-the-wild' exploitation.
+/// > This metric measures the likelihood of the vulnerability being attacked, and is typically based on the current state of exploit techniques,
+/// > exploit code availability, or active, 'in-the-wild' exploitation.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ExploitCodeMaturity {
-    ///>Assigning this value indicates there is insufficient information to choose one of the other values,
-    ///>and has no impact on the overall Temporal Score, i.e., it has the same effect on scoring as assigning High.
+    /// > Assigning this value indicates there is insufficient information to choose one of the other values,
+    /// > and has no impact on the overall Temporal Score, i.e., it has the same effect on scoring as assigning High.
     NotDefined,
 
-    ///>No exploit code is available, or an exploit is theoretical.
+    /// > No exploit code is available, or an exploit is theoretical.
     Unproven,
 
-    ///>Proof-of-concept exploit code is available, or an attack demonstration is not practical for most systems.
-    ///>The code or technique is not functional in all situations and may require substantial modification by a skilled attacker.
+    /// > Proof-of-concept exploit code is available, or an attack demonstration is not practical for most systems.
+    /// > The code or technique is not functional in all situations and may require substantial modification by a skilled attacker.
     ProofofConcept,
 
-    ///>Functional exploit code is available. The code works in most situations where the vulnerability exists.
+    /// > Functional exploit code is available. The code works in most situations where the vulnerability exists.
     Functional,
 
-    ///>Functional autonomous code exists, or no exploit is required (manual trigger) and details are widely available.
-    ///>Exploit code works in every situation, or is actively being delivered via an autonomous agent (such as a worm or virus).
-    ///>Network-connected systems are likely to encounter scanning or exploitation attempts. Exploit development has reached the level of reliable, widely-available, easy-to-use automated tools.
+    /// > Functional autonomous code exists, or no exploit is required (manual trigger) and details are widely available.
+    /// > Exploit code works in every situation, or is actively being delivered via an autonomous agent (such as a worm or virus).
+    /// > Network-connected systems are likely to encounter scanning or exploitation attempts. Exploit development has reached the level of reliable, widely-available, easy-to-use automated tools.
     High,
 }
 
-impl MetricScore for ExploitCodeMaturity {
-    fn score(self) -> f64 {
+impl ExploitCodeMaturity {
+    pub(crate) fn score(self) -> f64 {
         match self {
             ExploitCodeMaturity::High => 1.00,
             ExploitCodeMaturity::NotDefined => 1.00,
@@ -41,6 +40,10 @@ impl MetricScore for ExploitCodeMaturity {
 
 impl Metric for ExploitCodeMaturity {
     const TYPE: MetricType = MetricType::E;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

@@ -1,6 +1,5 @@
 //! Scope (S)
 
-use crate::metric::IsChanged;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -54,15 +53,19 @@ pub enum Scope {
     Changed,
 }
 
-impl IsChanged for Scope {
+impl Scope {
     /// Has the scope changed?
-    fn is_changed(self) -> bool {
+    pub fn is_changed(self) -> bool {
         self == Scope::Changed
     }
 }
 
 impl Metric for Scope {
     const TYPE: MetricType = MetricType::S;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {

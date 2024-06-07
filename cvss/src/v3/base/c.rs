@@ -1,6 +1,5 @@
 //! Confidentiality Impact (C)
 
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -46,21 +45,19 @@ pub enum Confidentiality {
 impl Metric for Confidentiality {
     const TYPE: MetricType = MetricType::C;
 
-    fn as_str(self) -> &'static str {
-        match self {
-            Confidentiality::None => "N",
-            Confidentiality::Low => "L",
-            Confidentiality::High => "H",
-        }
-    }
-}
-
-impl MetricScore for Confidentiality {
     fn score(self) -> f64 {
         match self {
             Confidentiality::None => 0.0,
             Confidentiality::Low => 0.22,
             Confidentiality::High => 0.56,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            Confidentiality::None => "N",
+            Confidentiality::Low => "L",
+            Confidentiality::High => "H",
         }
     }
 }

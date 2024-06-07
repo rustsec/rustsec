@@ -5,10 +5,6 @@ mod e;
 mod rc;
 mod rl;
 
-use crate::metric::MetricScore;
-#[cfg(feature = "serde")]
-use alloc::string::ToString;
-
 /// CVSS v3.1 Temporal metric group
 ///
 /// Described in CVSS v3.1 Specification: Section 3:
@@ -45,6 +41,7 @@ impl Temporal {
         Score::new(base_score.value() * e * rc * rl).roundup()
     }
 
+    /// Determine whether all are undefined.
     pub fn has_defined(self) -> bool {
         if let Some(e) = self.e {
             if e != ExploitCodeMaturity::NotDefined {

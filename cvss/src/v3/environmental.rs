@@ -10,28 +10,19 @@ mod mpr;
 mod ms;
 mod mui;
 
-use crate::metric::{IsChanged, MetricScore, ModifiedScore, ScopedScore};
-#[cfg(feature = "serde")]
-use alloc::string::ToString;
-
+use self::{
+    ar::AvailabilityRequirement, cr::ConfidentialityRequirement, ir::IntegrityRequirement,
+    ma::ModifiedAvailability, mac::ModifiedAttackComplexity, mav::ModifiedAttackVector,
+    mc::ModifiedConfidentiality, mi::ModifiedIntegrity, mpr::ModifiedPrivilegesRequired,
+    ms::ModifiedScope, mui::ModifiedUserInteraction,
+};
 use crate::v3::base::{
     AttackComplexity, AttackVector, Availability, Confidentiality, Integrity, PrivilegesRequired,
     Scope, UserInteraction,
 };
-use crate::v3::environmental::ar::AvailabilityRequirement;
-use crate::v3::environmental::cr::ConfidentialityRequirement;
-use crate::v3::environmental::ir::IntegrityRequirement;
-use crate::v3::environmental::ma::ModifiedAvailability;
-use crate::v3::environmental::mac::ModifiedAttackComplexity;
-use crate::v3::environmental::mav::ModifiedAttackVector;
-use crate::v3::environmental::mc::ModifiedConfidentiality;
-use crate::v3::environmental::mi::ModifiedIntegrity;
-use crate::v3::environmental::mpr::ModifiedPrivilegesRequired;
-use crate::v3::environmental::ms::ModifiedScope;
-use crate::v3::environmental::mui::ModifiedUserInteraction;
 use crate::v3::temporal::Temporal;
 use crate::v3::{Base, Score};
-use crate::Severity;
+use crate::Metric;
 
 /// CVSS v3.1 Temporal metric group
 ///
@@ -78,6 +69,7 @@ pub struct Environmental {
 }
 
 impl Environmental {
+    /// Determine whether all are undefined.
     pub fn has_defined(self) -> bool {
         if let Some(ar) = self.ar {
             if ar != AvailabilityRequirement::NotDefined {
@@ -217,7 +209,7 @@ impl Environmental {
             7.52 * (MISS - 0.029) - 3.25 * (MISS * 0.9731 - 0.02).powf(13.0)
         };
 
-        /// ModifiedAttackVector
+        // ModifiedAttackVector
         let mav = self
             .mav
             .map(|mav| mav.modified_score(&base))
@@ -241,36 +233,34 @@ impl Environmental {
 
         if modified_impact <= 0.00 {
             Score::new(0.00)
+        } else if modified_scope.is_changed() {
+            let modified_impact_plus_modified_exploitability: f64 =
+                if 1.08 * (modified_impact + modified_exploitability) > 10.00 {
+                    10.00
+                } else {
+                    1.08 * (modified_impact + modified_exploitability)
+                };
+            let environmental_score = Score::new(modified_impact_plus_modified_exploitability)
+                .roundup()
+                .value()
+                * e
+                * rl
+                * rc;
+            Score::new(environmental_score).roundup()
         } else {
-            if modified_scope.is_changed() {
-                let modified_impact_plus_modified_exploitability: f64 =
-                    if 1.08 * (modified_impact + modified_exploitability) > 10.00 {
-                        10.00
-                    } else {
-                        1.08 * (modified_impact + modified_exploitability)
-                    };
-                let environmental_score = Score::new(modified_impact_plus_modified_exploitability)
-                    .roundup()
-                    .value()
-                    * e
-                    * rl
-                    * rc;
-                Score::new(environmental_score).roundup()
-            } else {
-                let modified_impact_plus_modified_exploitability: f64 =
-                    if modified_impact + modified_exploitability > 10.00 {
-                        10.00
-                    } else {
-                        modified_impact + modified_exploitability
-                    };
-                let environmental_score = Score::new(modified_impact_plus_modified_exploitability)
-                    .roundup()
-                    .value()
-                    * e
-                    * rl
-                    * rc;
-                Score::new(environmental_score).roundup()
-            }
+            let modified_impact_plus_modified_exploitability: f64 =
+                if modified_impact + modified_exploitability > 10.00 {
+                    10.00
+                } else {
+                    modified_impact + modified_exploitability
+                };
+            let environmental_score = Score::new(modified_impact_plus_modified_exploitability)
+                .roundup()
+                .value()
+                * e
+                * rl
+                * rc;
+            Score::new(environmental_score).roundup()
         }
     }
 }

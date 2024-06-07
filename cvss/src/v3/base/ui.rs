@@ -1,6 +1,5 @@
 //! User Interaction (UI)
 
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -35,19 +34,17 @@ pub enum UserInteraction {
 impl Metric for UserInteraction {
     const TYPE: MetricType = MetricType::UI;
 
-    fn as_str(self) -> &'static str {
-        match self {
-            UserInteraction::Required => "R",
-            UserInteraction::None => "N",
-        }
-    }
-}
-
-impl MetricScore for UserInteraction {
     fn score(self) -> f64 {
         match self {
             UserInteraction::Required => 0.62,
             UserInteraction::None => 0.85,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            UserInteraction::Required => "R",
+            UserInteraction::None => "N",
         }
     }
 }

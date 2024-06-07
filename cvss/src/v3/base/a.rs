@@ -1,6 +1,5 @@
 //! Availability Impact (A)
 
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -60,29 +59,19 @@ pub enum Availability {
 impl Metric for Availability {
     const TYPE: MetricType = MetricType::A;
 
-    // fn score(self) -> f64 {
-    //     match self {
-    //         Availability::None => 0.0,
-    //         Availability::Low => 0.22,
-    //         Availability::High => 0.56,
-    //     }
-    // }
+    fn score(self) -> f64 {
+        match self {
+            Availability::None => 0.0,
+            Availability::Low => 0.22,
+            Availability::High => 0.56,
+        }
+    }
 
     fn as_str(self) -> &'static str {
         match self {
             Availability::None => "N",
             Availability::Low => "L",
             Availability::High => "H",
-        }
-    }
-}
-
-impl MetricScore for Availability {
-    fn score(self) -> f64 {
-        match self {
-            Availability::None => 0.0,
-            Availability::Low => 0.22,
-            Availability::High => 0.56,
         }
     }
 }

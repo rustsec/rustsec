@@ -1,6 +1,5 @@
 //! CVSS v3.1 Base Metric Group - Attack Vector (AV)
 
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -73,23 +72,21 @@ pub enum AttackVector {
 impl Metric for AttackVector {
     const TYPE: MetricType = MetricType::AV;
 
-    fn as_str(self) -> &'static str {
-        match self {
-            AttackVector::Physical => "P",
-            AttackVector::Local => "L",
-            AttackVector::Adjacent => "A",
-            AttackVector::Network => "N",
-        }
-    }
-}
-
-impl MetricScore for AttackVector {
     fn score(self) -> f64 {
         match self {
             AttackVector::Physical => 0.20,
             AttackVector::Local => 0.55,
             AttackVector::Adjacent => 0.62,
             AttackVector::Network => 0.85,
+        }
+    }
+
+    fn as_str(self) -> &'static str {
+        match self {
+            AttackVector::Physical => "P",
+            AttackVector::Local => "L",
+            AttackVector::Adjacent => "A",
+            AttackVector::Network => "N",
         }
     }
 }

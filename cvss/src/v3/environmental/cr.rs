@@ -1,35 +1,43 @@
-use crate::metric::MetricScore;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
-///>These metrics enable the analyst to customize the CVSS score depending on the importance
-///> of the Confidentiality of the affected IT asset to a user’s organization, relative to other impacts.
-/// >This metric modifies the environmental score by reweighting the Modified Confidentiality impact metric versus the other modified impacts.
+/// > These metrics enable the analyst to customize the CVSS score depending on the importance
+/// > of the Confidentiality of the affected IT asset to a user’s organization, relative to other impacts.
+/// > This metric modifies the environmental score by reweighting the Modified Confidentiality impact metric versus the other modified impacts.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ConfidentialityRequirement {
     /// Not Defined (X)
-    ///>Assigning this value indicates there is insufficient information to choose one of the other values,
-    ///> and has no impact on the overall Environmental Score, i.e., it has the same effect on scoring as assigning Medium.
+    /// > Assigning this value indicates there is insufficient information to choose one of the other values,
+    /// > and has no impact on the overall Environmental Score, i.e., it has the same effect on scoring as assigning Medium.
     NotDefined,
 
     /// Low (L)
-    ///>Loss of Confidentiality is likely to have only a limited adverse effect on the organization or
-    ///>individuals associated with the organization (e.g., employees, customers).
+    /// > Loss of Confidentiality is likely to have only a limited adverse effect on the organization or
+    /// > individuals associated with the organization (e.g., employees, customers).
     Low,
 
     /// Medium (M)
-    ///>Assigning this value to the metric will not influence the score.
+    /// > Assigning this value to the metric will not influence the score.
     Medium,
 
     /// High (H)
-    ///>Loss of Confidentiality is likely to have a catastrophic adverse effect on the organization
-    ///>or individuals associated with the organization (e.g., employees, customers).
+    /// > Loss of Confidentiality is likely to have a catastrophic adverse effect on the organization
+    /// > or individuals associated with the organization (e.g., employees, customers).
     High,
 }
 
 impl Metric for ConfidentialityRequirement {
     const TYPE: MetricType = MetricType::CR;
+
+    fn score(self) -> f64 {
+        match self {
+            ConfidentialityRequirement::NotDefined => 1.00,
+            ConfidentialityRequirement::Low => 0.50,
+            ConfidentialityRequirement::Medium => 1.00,
+            ConfidentialityRequirement::High => 1.50,
+        }
+    }
 
     fn as_str(self) -> &'static str {
         match self {
@@ -37,17 +45,6 @@ impl Metric for ConfidentialityRequirement {
             ConfidentialityRequirement::Low => "L",
             ConfidentialityRequirement::Medium => "M",
             ConfidentialityRequirement::High => "H",
-        }
-    }
-}
-
-impl MetricScore for ConfidentialityRequirement {
-    fn score(self) -> f64 {
-        match self {
-            ConfidentialityRequirement::NotDefined => 1.00,
-            ConfidentialityRequirement::Low => 0.50,
-            ConfidentialityRequirement::Medium => 1.00,
-            ConfidentialityRequirement::High => 1.50,
         }
     }
 }

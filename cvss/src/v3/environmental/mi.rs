@@ -1,35 +1,33 @@
-use crate::metric::{MetricScore, ModifiedScore};
-use crate::v3::base::Integrity;
 use crate::v3::Base;
 use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
-///>This metric measures the impact to integrity of a successfully exploited vulnerability.
-///>Integrity refers to the trustworthiness and veracity of information.
+/// > This metric measures the impact to integrity of a successfully exploited vulnerability.
+/// > Integrity refers to the trustworthiness and veracity of information.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedIntegrity {
     /// Not Defined (X)
-    ///>The value assigned to the corresponding Base metric is used.
+    /// > The value assigned to the corresponding Base metric is used.
     NotDefined,
 
     /// None (N)
-    /// >There is no loss of confidentiality within the impacted component.
+    /// > There is no loss of confidentiality within the impacted component.
     None,
 
     /// Low (L)
-    ///>Modification of data is possible, but the attacker does not have control over the consequence of a modification,
-    ///>or the amount of modification is limited. The data modification does not have a direct, serious impact on the impacted component.
+    /// > Modification of data is possible, but the attacker does not have control over the consequence of a modification,
+    /// > or the amount of modification is limited. The data modification does not have a direct, serious impact on the impacted component.
     Low,
 
     /// High (H)
-    ///>There is a total loss of integrity, or a complete loss of protection. For example, the attacker is able to modify any/all files protected by the impacted component.
-    ///>Alternatively, only some files can be modified, but malicious modification would present a direct, serious consequence to the impacted component.
+    /// > There is a total loss of integrity, or a complete loss of protection. For example, the attacker is able to modify any/all files protected by the impacted component.
+    /// > Alternatively, only some files can be modified, but malicious modification would present a direct, serious consequence to the impacted component.
     High,
 }
 
-impl ModifiedScore for ModifiedIntegrity {
-    fn modified_score(self, base: &Base) -> f64 {
+impl ModifiedIntegrity {
+    pub(crate) fn modified_score(self, base: &Base) -> f64 {
         match self {
             ModifiedIntegrity::NotDefined => base.i.map(|i| i.score()).unwrap_or(0.00),
             ModifiedIntegrity::Low => 0.22,
@@ -41,6 +39,10 @@ impl ModifiedScore for ModifiedIntegrity {
 
 impl Metric for ModifiedIntegrity {
     const TYPE: MetricType = MetricType::MI;
+
+    fn score(self) -> f64 {
+        unimplemented!()
+    }
 
     fn as_str(self) -> &'static str {
         match self {
