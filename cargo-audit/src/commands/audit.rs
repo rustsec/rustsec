@@ -72,7 +72,7 @@ pub struct AuditCommand {
     #[arg(
         short = 'c',
         long = "color",
-        help = "color configuration (default: auto)",
+        help = "color configuration (default: auto)"
     )]
     color: Option<Color>,
 
@@ -189,7 +189,7 @@ impl AuditCommand {
                 Ok(e) if e == "always" => ColorChoice::Always,
                 Ok(e) if e == "never" => ColorChoice::Never,
                 Ok(e) if e == "auto" => ColorChoice::Auto,
-                _ => ColorChoice::default()
+                _ => ColorChoice::default(),
             }
         }
     }
