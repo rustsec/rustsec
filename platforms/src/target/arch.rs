@@ -87,6 +87,9 @@ pub enum Arch {
 
     /// `x86_64`: 'AMD64' CPU architecture
     X86_64,
+
+    /// `xtensa`
+    Xtensa,
 }
 
 impl Arch {
@@ -119,6 +122,7 @@ impl Arch {
             Arch::Wasm64 => "wasm64",
             Arch::X86 => "x86",
             Arch::X86_64 => "x86_64",
+            Arch::Xtensa => "xtensa",
         }
     }
 }
@@ -155,6 +159,7 @@ impl FromStr for Arch {
             "wasm64" => Arch::Wasm64,
             "x86" => Arch::X86,
             "x86_64" => Arch::X86_64,
+            "xtensa" => Arch::Xtensa,
             _ => return Err(Error),
         };
 
