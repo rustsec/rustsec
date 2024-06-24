@@ -15,6 +15,9 @@ const V2_LOCKFILE_PATH: &str = "tests/examples/Cargo.lock.v2";
 /// Path to a V3 `Cargo.lock` file.
 const V3_LOCKFILE_PATH: &str = "tests/examples/Cargo.lock.v3";
 
+/// Path to a V4 `Cargo.lock` file.
+const V4_LOCKFILE_PATH: &str = "tests/examples/Cargo.lock.v4";
+
 /// Load example V1 `Cargo.lock` file (from the Cargo project itself)
 #[test]
 fn load_example_v1_lockfile() {
@@ -66,6 +69,16 @@ fn serialize_v3() {
     let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
     assert_eq!(lockfile2.version, ResolveVersion::V3);
     assert_eq!(lockfile2.packages, lockfile.packages);
+}
+
+/// Load example V4 `Cargo.lock` file
+#[test]
+fn load_example_v4_lockfile() {
+    let err = Lockfile::load(V4_LOCKFILE_PATH).unwrap_err();
+    assert_eq!(
+        &err.to_string(),
+        "parse error: parse error: invalid Cargo.lock format version: `4`\n"
+    );
 }
 
 /// Ensure we can serialize a V2 lockfile as a V1 lockfile
