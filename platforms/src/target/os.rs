@@ -101,6 +101,9 @@ pub enum OS {
     /// `unknown`
     Unknown,
 
+    /// `visionos`
+    VisionOS,
+
     /// `vita`
     Vita,
 
@@ -156,6 +159,7 @@ impl OS {
             OS::TvOS => "tvos",
             OS::Uefi => "uefi",
             OS::Unknown => "unknown",
+            OS::VisionOS => "visionos",
             OS::Vita => "vita",
             OS::VxWorks => "vxworks",
             OS::Wasi => "wasi",
@@ -202,6 +206,7 @@ impl FromStr for OS {
             "tvos" => OS::TvOS,
             "uefi" => OS::Uefi,
             "unknown" => OS::Unknown,
+            "visionos" => OS::VisionOS,
             "vita" => OS::Vita,
             "vxworks" => OS::VxWorks,
             "wasi" => OS::Wasi,

@@ -38,6 +38,9 @@ pub enum Env {
     /// `ohos`
     OhOS,
 
+    /// `p1`
+    P1,
+
     /// `p2`
     P2,
 
@@ -66,6 +69,7 @@ impl Env {
             Env::Nto70 => "nto70",
             Env::Nto71 => "nto71",
             Env::OhOS => "ohos",
+            Env::P1 => "p1",
             Env::P2 => "p2",
             Env::Psx => "psx",
             Env::Relibc => "relibc",
@@ -89,6 +93,7 @@ impl FromStr for Env {
             "nto70" => Env::Nto70,
             "nto71" => Env::Nto71,
             "ohos" => Env::OhOS,
+            "p1" => Env::P1,
             "p2" => Env::P2,
             "psx" => Env::Psx,
             "relibc" => Env::Relibc,
