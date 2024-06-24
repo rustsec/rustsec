@@ -72,7 +72,7 @@ pub struct AuditCommand {
     #[arg(
         short = 'c',
         long = "color",
-        help = "color configuration",
+        help = "color configuration (default: auto)",
     )]
     color: Option<Color>,
 
