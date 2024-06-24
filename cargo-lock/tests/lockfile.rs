@@ -4,7 +4,10 @@ use std::str::FromStr;
 
 // TODO(tarcieri): add more example `Cargo.lock` files which cover more scenarios
 
-use cargo_lock::{Lockfile, MetadataKey, ResolveVersion, Version};
+use cargo_lock::{
+    package::{GitReference, SourceKind},
+    Lockfile, MetadataKey, ResolveVersion, Version,
+};
 
 /// Path to a V1 `Cargo.lock` file.
 const V1_LOCKFILE_PATH: &str = "tests/examples/Cargo.lock.v1";
@@ -74,11 +77,44 @@ fn serialize_v3() {
 /// Load example V4 `Cargo.lock` file
 #[test]
 fn load_example_v4_lockfile() {
-    let err = Lockfile::load(V4_LOCKFILE_PATH).unwrap_err();
+    let lockfile = Lockfile::load(V4_LOCKFILE_PATH).unwrap();
+    assert_eq!(lockfile.version, ResolveVersion::V4);
+    assert_eq!(lockfile.packages.len(), 25);
+    assert_eq!(lockfile.metadata.len(), 0);
+
+    let source_kind = lockfile
+        .packages
+        .iter()
+        .find(|pkg| pkg.name.as_str() == "url")
+        .and_then(|pkg| pkg.source.as_ref())
+        .map(|id| id.kind())
+        .unwrap();
     assert_eq!(
-        &err.to_string(),
-        "parse error: parse error: invalid Cargo.lock format version: `4`\n"
+        source_kind,
+        &SourceKind::Git(GitReference::Tag("a-_+#$)z".into()))
     );
+
+    let source_kind = lockfile
+        .packages
+        .iter()
+        .find(|pkg| pkg.name.as_str() == "toml")
+        .and_then(|pkg| pkg.source.as_ref())
+        .map(|id| id.kind())
+        .unwrap();
+    assert_eq!(
+        source_kind,
+        &SourceKind::Git(GitReference::Branch("a-_+#$)z".into()))
+    );
+}
+
+/// Ensure V4 lockfiles encode their version correctly.
+#[test]
+fn serialize_v4() {
+    let lockfile = Lockfile::load(V4_LOCKFILE_PATH).unwrap();
+    let reserialized = lockfile.to_string();
+    let lockfile2 = reserialized.parse::<Lockfile>().unwrap();
+    assert_eq!(lockfile2.version, ResolveVersion::V4);
+    assert_eq!(lockfile2.packages, lockfile.packages);
 }
 
 /// Ensure we can serialize a V2 lockfile as a V1 lockfile
