@@ -73,9 +73,8 @@ pub struct AuditCommand {
         short = 'c',
         long = "color",
         help = "color configuration",
-        default_value_t
     )]
-    color: Color,
+    color: Option<Color>,
 
     /// Filesystem path to the advisory database git repository
     #[arg(
@@ -183,7 +182,16 @@ If not, recovers a part of the dependency list from panic messages."
 impl AuditCommand {
     /// Get the color configuration
     pub fn term_colors(&self) -> ColorChoice {
-        self.color.into()
+        if let Some(color) = self.color {
+            color.into()
+        } else {
+            match std::env::var("CARGO_TERM_COLOR") {
+                Ok(e) if e == "always" => ColorChoice::Always,
+                Ok(e) if e == "never" => ColorChoice::Never,
+                Ok(e) if e == "auto" => ColorChoice::Auto,
+                _ => ColorChoice::default()
+            }
+        }
     }
 }
 
