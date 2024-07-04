@@ -16,7 +16,7 @@ edition    = "2018"
 exclude = ["platforms-data-gen/", "markdown-table-gen/", "README.header.md", "platform-support.md", "regenerate-platforms-crate.sh"]
 
 [dependencies]
-serde = { version = "1", optional = true }
+serde = { workspace = true, optional = true }
 
 [features]
 default = ["std"]
