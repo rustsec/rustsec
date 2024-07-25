@@ -117,12 +117,6 @@ pub enum ErrorKind {
     #[error("bad parameter")]
     BadParam,
 
-    /// Error performing an automatic fix
-    #[cfg(feature = "fix")]
-    #[cfg_attr(docsrs, doc(cfg(feature = "fix")))]
-    #[error("fix failed")]
-    Fix,
-
     /// An error occurred performing an I/O operation (e.g. network, file)
     #[error("I/O operation failed")]
     Io,
