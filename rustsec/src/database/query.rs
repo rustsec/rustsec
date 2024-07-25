@@ -89,6 +89,7 @@ impl Query {
     }
 
     /// Provide a package and use all of its attributes as part of the query
+    #[allow(clippy::assigning_clones)]
     pub fn package(mut self, package: &Package) -> Self {
         self.package_name = Some(package.name.clone());
         self.package_version = Some(package.version.clone());

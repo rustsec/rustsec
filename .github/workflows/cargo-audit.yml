@@ -59,7 +59,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.71.0 # sparse index by default for faster CI
+          toolchain: 1.74.0
           override: true
           profile: minimal
       - uses: Swatinem/rust-cache@v2

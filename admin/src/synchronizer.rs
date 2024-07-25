@@ -84,7 +84,7 @@ use std::{
     path::{Path, PathBuf},
 };
 use tame_index::{index::RemoteGitIndex, KrateName};
-use toml_edit::{value, Document};
+use toml_edit::{value, DocumentMut};
 
 /// Advisory synchronizer
 #[allow(dead_code)]
@@ -308,7 +308,7 @@ impl Synchronizer {
         // Parse toml
         let mut metadata = parts
             .front_matter
-            .parse::<Document>()
+            .parse::<DocumentMut>()
             .expect("invalid TOML front matter");
 
         // Aliases
