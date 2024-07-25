@@ -17,12 +17,12 @@ name = "cargo-lock"
 required-features = ["cli"]
 
 [dependencies]
-gumdrop = { version = "0.8", optional = true }
-petgraph = { version = "0.6", optional = true }
-semver = { version = "1", features = ["serde"] }
-serde = { version = "1", features = ["serde_derive"] }
-toml = "0.7"
-url = "2"
+gumdrop = { workspace = true, optional = true }
+petgraph = { workspace = true, optional = true }
+semver = { workspace = true, features = ["serde"] }
+serde = { workspace = true, features = ["serde_derive"] }
+toml = { workspace = true }
+url = { workspace = true }
 
 [features]
 cli = ["gumdrop", "dependency-tree"]

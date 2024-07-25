@@ -32,7 +32,6 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
           profile: minimal
-      - run: rm ../Cargo.toml # Remove from workspace to make sure `regex` is built without default features
       - run: cargo check
       - run: cargo test --release
 
