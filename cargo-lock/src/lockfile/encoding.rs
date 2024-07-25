@@ -176,6 +176,7 @@ impl From<&Lockfile> for EncodableLockfile {
     }
 }
 
+#[allow(clippy::to_string_trait_impl)]
 impl ToString for EncodableLockfile {
     /// Adapted from `serialize_resolve` in upstream Cargo:
     /// <https://github.com/rust-lang/cargo/blob/0c70319/src/cargo/ops/lockfile.rs#L103-L174>

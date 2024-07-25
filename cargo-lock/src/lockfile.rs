@@ -60,6 +60,7 @@ impl FromStr for Lockfile {
     }
 }
 
+#[allow(clippy::to_string_trait_impl)]
 impl ToString for Lockfile {
     fn to_string(&self) -> String {
         EncodableLockfile::from(self).to_string()
