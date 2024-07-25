@@ -10,11 +10,8 @@ use rustsec::{
 use tempfile::tempdir;
 
 /// Happy path integration test (has online dependency on GitHub)
-///
-/// TODO: disabled because `cargo-edit` has unpatched vulnerabilities.
-/// However, the `rustsec` crate is not impacted by them
 #[test]
-#[cfg(feature = "fixme")] // TODO(tarcieri): re-enable this test
+#[ignore] // TODO(tarcieri): re-enable this test
 fn happy_path() {
     let db = Database::load_from_repo(&git::Repository::fetch_default_repo().unwrap()).unwrap();
     verify_rustsec_2017_0001(&db);
