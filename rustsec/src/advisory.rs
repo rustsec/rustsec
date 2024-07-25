@@ -121,8 +121,11 @@ impl FromStr for Advisory {
             );
         }
 
-        advisory.metadata.title = parts.title.to_owned();
-        advisory.metadata.description = parts.description.to_owned();
+        #[allow(clippy::assigning_clones)]
+        {
+            advisory.metadata.title = parts.title.to_owned();
+            advisory.metadata.description = parts.description.to_owned();
+        }
 
         Ok(advisory)
     }
