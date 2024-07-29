@@ -51,10 +51,4 @@ impl From<std::num::ParseIntError> for Error {
     }
 }
 
-impl From<toml::de::Error> for Error {
-    fn from(err: toml::de::Error) -> Self {
-        Error::Parse(err.to_string())
-    }
-}
-
 impl std::error::Error for Error {}

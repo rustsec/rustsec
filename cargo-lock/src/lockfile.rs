@@ -56,7 +56,7 @@ impl FromStr for Lockfile {
     type Err = Error;
 
     fn from_str(toml_string: &str) -> Result<Self> {
-        Ok(toml::from_str(toml_string)?)
+        toml::from_str(toml_string).map_err(|e| Error::Parse(e.to_string()))
     }
 }
 
