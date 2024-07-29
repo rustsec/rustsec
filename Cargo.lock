@@ -260,8 +260,7 @@ dependencies = [
 [[package]]
 name = "auditable-serde"
 version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "551661dec59a0d8f0c2245ca7c18b8fba3a017d66fa2bdb5c6e1bfd340639247"
+source = "git+https://github.com/tarcieri/cargo-auditable?branch=cargo-lock/v10.0.0-pre#127454758f17a394e4bfeb0380ebeb6dc4979aec"
 dependencies = [
  "cargo-lock",
  "semver",
@@ -370,7 +369,7 @@ checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 
 [[package]]
 name = "cargo-audit"
-version = "0.20.0"
+version = "0.21.0-pre"
 dependencies = [
  "abscissa_core",
  "auditable-info",
@@ -392,7 +391,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "9.0.0"
+version = "10.0.0-pre"
 dependencies = [
  "gumdrop",
  "petgraph",
@@ -2645,7 +2644,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.29.2"
+version = "0.30.0-pre"
 dependencies = [
  "cargo-lock",
  "cvss",
