@@ -32,7 +32,6 @@ jobs:
         with:
           command: check
 
-  # TODO(tarcieri): re-unify build matrix when platform-specific problems are fixed
   test:
     strategy:
       matrix:
@@ -65,15 +64,15 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - run: cargo doc --all-features
 
-# TODO(tarcieri): re-enable after vulnerable deps have been upgraded
-#  self-audit:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions-rs/toolchain@v1
-#        with:
-#          toolchain: stable
-#          profile: minimal
-#          override: true
-#      - name: Run cargo audit
-#        run: cargo run -- audit
+  self-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+      - name: Run cargo audit
+        working-directory: .
+        run: cargo run --bin cargo-audit audit
