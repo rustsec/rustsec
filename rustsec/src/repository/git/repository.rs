@@ -258,14 +258,18 @@ impl Repository {
 
     fn perform_fetch(repo: &mut gix::Repository) -> Result<(), Error> {
         let mut config = repo.config_snapshot_mut();
-        config.set_raw_value(&"committer", b"").map_err(|err| {
-            format_err!(ErrorKind::Repo, "failed to set `committer.name`: {}", err)
-        })?;
+        config
+            .set_raw_value_by("committer", None, "name", "rustsec")
+            .map_err(|err| {
+                format_err!(ErrorKind::Repo, "failed to set `committer.name`: {}", err)
+            })?;
         // Note we _have_ to set the email as well, but luckily gix does not actually
         // validate if it's a proper email or not :)
-        config.set_raw_value(&"committer", b"").map_err(|err| {
-            format_err!(ErrorKind::Repo, "failed to set `committer.email`: {}", err)
-        })?;
+        config
+            .set_raw_value_by("committer", None, "email", "")
+            .map_err(|err| {
+                format_err!(ErrorKind::Repo, "failed to set `committer.email`: {}", err)
+            })?;
 
         let repo = config
             .commit_auto_rollback()
