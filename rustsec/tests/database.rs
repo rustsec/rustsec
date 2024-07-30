@@ -23,7 +23,7 @@ fn enumerate_vulnerabilities() {
 }
 
 #[test]
-fn query_vulnerabilitie() {
+fn query_vulnerabilities_with_crate_scope() {
     let lockfile_path = Path::new("./tests/support/cratesio_cargo.lock");
     let lockfile =
         Lockfile::load(lockfile_path).expect("Should find the lock file in support folder.");
