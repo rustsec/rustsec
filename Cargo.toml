@@ -14,8 +14,8 @@ members = [
 abscissa_core = "0.7"
 askama = "0.12"
 atom_syndication = "0.12"
-auditable-info = "0.7.2"
-auditable-serde = "0.6"
+auditable-info = "0.8"
+auditable-serde = "0.7"
 binfarce = "0.2"
 cargo-lock = { version = "=10.0.0-pre.0", path = "./cargo-lock" }
 chrono = { version = "0.4", default-features = false }
@@ -49,7 +49,6 @@ url = "2"
 xml-rs = "0.8"
 
 [patch.crates-io]
-auditable-serde = { git = "https://github.com/tarcieri/cargo-auditable", branch = "cargo-lock/v10.0.0-pre.0" }
 cargo-lock = { path = "./cargo-lock" }
 cvss = { path = "./cvss" }
 platforms = { path = "./platforms" }

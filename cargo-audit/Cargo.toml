@@ -28,7 +28,7 @@ thiserror = { workspace = true }
 # for scanning binary files
 auditable-info = { workspace = true, features = ["wasm"], optional = true }
 cargo-lock = { workspace = true, optional = true }
-auditable-serde = { workspace = true, features = ["toml"], optional = true }
+auditable-serde = { workspace = true, optional = true }
 quitters = { workspace = true, optional = true }
 once_cell = { workspace = true, optional = true }
 binfarce = { workspace = true, optional = true }

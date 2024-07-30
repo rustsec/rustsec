@@ -4,7 +4,8 @@
 
 use std::{path::Path, str::FromStr};
 
-use cargo_lock::{Lockfile, Package};
+use auditable_serde::VersionInfo;
+use cargo_lock::{Dependency, Lockfile, Package};
 use rustsec::{Error, ErrorKind};
 
 use crate::binary_format::BinaryFormat;
@@ -29,7 +30,7 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryForma
     match stuff {
         Ok(json_struct) => Ok((
             format,
-            BinaryReport::Complete(Lockfile::try_from(&json_struct)?),
+            BinaryReport::Complete(lockfile_from_version_info_json(&json_struct)?),
         )),
         Err(e) => match e {
             NoAuditData => {
@@ -109,5 +110,71 @@ fn to_package(quitter: (&str, cargo_lock::Version)) -> Package {
         checksum: None,
         dependencies: Vec::new(),
         replace: None,
+    }
+}
+
+/// Recover a [`Lockfile`] from a [`VersionInfo`] struct.
+fn lockfile_from_version_info_json(input: &VersionInfo) -> Result<Lockfile, cargo_lock::Error> {
+    let mut root_package: Option<Package> = None;
+    let mut packages: Vec<Package> = Vec::new();
+    for pkg in input.packages.iter() {
+        let lock_pkg = Package {
+            name: cargo_lock::package::Name::from_str(&pkg.name)?,
+            version: pkg.version.clone(),
+            checksum: None,
+            dependencies: {
+                let result: Result<Vec<_>, _> = pkg
+                    .dependencies
+                    .iter()
+                    .map(|i| {
+                        let package =
+                            input
+                                .packages
+                                .get(*i)
+                                .ok_or(cargo_lock::Error::Parse(format!(
+                                    "There is no dependency with index {} in the input JSON",
+                                    i
+                                )))?;
+
+                        Result::<_, cargo_lock::Error>::Ok(Dependency {
+                            name: cargo_lock::package::Name::from_str(package.name.as_str())?,
+                            version: package.version.clone(),
+                            source: source_from_json(&package.source),
+                        })
+                    })
+                    .collect();
+                result?
+            },
+            replace: None,
+            source: source_from_json(&pkg.source),
+        };
+        if pkg.root {
+            if root_package.is_some() {
+                return Err(cargo_lock::Error::Parse(
+                    "More than one root package specified in JSON!".to_string(),
+                ));
+            }
+            root_package = Some(lock_pkg.clone());
+        }
+        packages.push(lock_pkg);
+    }
+    Ok(Lockfile {
+        version: cargo_lock::ResolveVersion::V2,
+        packages,
+        root: root_package,
+        metadata: std::collections::BTreeMap::new(),
+        patch: cargo_lock::Patch { unused: Vec::new() },
+    })
+}
+
+fn source_from_json(source: &auditable_serde::Source) -> Option<cargo_lock::SourceId> {
+    match source {
+        auditable_serde::Source::CratesIo => Some(
+            cargo_lock::package::SourceId::from_url(
+                "registry+https://github.com/rust-lang/crates.io-index",
+            )
+            .unwrap(),
+        ),
+        _ => None, // we don't store enough info about other sources to reconstruct the URL
     }
 }
