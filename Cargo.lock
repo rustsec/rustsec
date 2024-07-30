@@ -260,7 +260,7 @@ dependencies = [
 [[package]]
 name = "auditable-serde"
 version = "0.6.1"
-source = "git+https://github.com/tarcieri/cargo-auditable?branch=cargo-lock/v10.0.0-pre#127454758f17a394e4bfeb0380ebeb6dc4979aec"
+source = "git+https://github.com/tarcieri/cargo-auditable?branch=cargo-lock/v10.0.0-pre#0a3589ed8f8b0740ebf235f36f3d1e4a944fdf09"
 dependencies = [
  "cargo-lock",
  "semver",
@@ -391,7 +391,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "10.0.0-pre"
+version = "10.0.0-pre.0"
 dependencies = [
  "gumdrop",
  "petgraph",
