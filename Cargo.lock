@@ -2642,7 +2642,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.30.0-pre"
+version = "0.30.0-pre.0"
 dependencies = [
  "cargo-lock",
  "cvss",
