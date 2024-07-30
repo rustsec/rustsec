@@ -49,7 +49,7 @@ url = "2"
 xml-rs = "0.8"
 
 [patch.crates-io]
-auditable-serde = { git = "https://github.com/tarcieri/cargo-auditable", branch = "cargo-lock/v10.0.0-pre" }
+auditable-serde = { git = "https://github.com/tarcieri/cargo-auditable", branch = "cargo-lock/v10.0.0-pre.0" }
 cargo-lock = { path = "./cargo-lock" }
 cvss = { path = "./cvss" }
 platforms = { path = "./platforms" }
