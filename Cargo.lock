@@ -369,7 +369,7 @@ checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 
 [[package]]
 name = "cargo-audit"
-version = "0.21.0-pre"
+version = "0.21.0-pre.0"
 dependencies = [
  "abscissa_core",
  "auditable-info",
