@@ -18,6 +18,7 @@ maintenance = { status = "actively-developed" }
 
 [dependencies]
 abscissa_core = { workspace = true }
+cargo-lock = { workspace = true }
 clap = { workspace = true }
 home = { workspace = true }
 rustsec = { workspace = true, features = ["dependency-tree"] }
@@ -27,7 +28,6 @@ thiserror = { workspace = true }
 
 # for scanning binary files
 auditable-info = { workspace = true, features = ["wasm"], optional = true }
-cargo-lock = { workspace = true, optional = true }
 auditable-serde = { workspace = true, optional = true }
 quitters = { workspace = true, optional = true }
 once_cell = { workspace = true, optional = true }
@@ -43,4 +43,4 @@ toml = { workspace = true }
 [features]
 default = ["binary-scanning"]
 fix = []
-binary-scanning = ["dep:auditable-info", "dep:cargo-lock", "dep:auditable-serde", "dep:binfarce", "dep:quitters", "dep:once_cell"]
+binary-scanning = ["dep:auditable-info", "dep:auditable-serde", "dep:binfarce", "dep:quitters", "dep:once_cell"]
