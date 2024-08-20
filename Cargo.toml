@@ -22,7 +22,7 @@ chrono = { version = "0.4", default-features = false }
 clap = "4"
 comrak = { version = "0.24", default-features = false }
 cvss = { version = "2.0.0", path = "./cvss" }
-display-error-chain = "0.2.0"
+display-error-chain = "0.2.1"
 fs-err = "2.11"
 # NOTE: Keep in sync with `gix` used by `tame-index`.
 gix = { version = "0.64", default-features = false }
