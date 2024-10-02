@@ -26,7 +26,7 @@ url = { workspace = true, features = ["serde"] }
 # optional dependencies
 tame-index = { workspace = true, features = ["git", "sparse", "native-certs"], optional = true }
 home = { workspace = true, optional = true }
-time = { workspace = true, features = ["formatting", "serde"], optional = true }
+time = { workspace = true, features = ["formatting", "serde", "parsing"], optional = true }
 gix = { workspace = true, features = ["worktree-mutation", "revision", "max-performance-safe"], optional = true }
 
 [dev-dependencies]
