@@ -110,7 +110,7 @@ impl SourceId {
         let kind = parts.next().unwrap();
         let url = parts
             .next()
-            .ok_or_else(|| Error::Parse(format!("invalid source `{}`", string)))?;
+            .ok_or_else(|| Error::Parse(format!("invalid source `{string}`")))?;
 
         match kind {
             "git" => {
@@ -143,8 +143,7 @@ impl SourceId {
             }
             "path" => Self::new(SourceKind::Path, url.into_url()?),
             kind => Err(Error::Parse(format!(
-                "unsupported source protocol: `{}` from `{string}`",
-                kind
+                "unsupported source protocol: `{kind}` from `{string}`"
             ))),
         }
     }
@@ -286,19 +285,19 @@ impl fmt::Display for SourceId {
                 kind: SourceKind::Path,
                 ref url,
                 ..
-            } => write!(f, "path+{}", url),
+            } => write!(f, "path+{url}"),
             SourceId {
                 kind: SourceKind::Git(ref reference),
                 ref url,
                 ref precise,
                 ..
             } => {
-                write!(f, "git+{}", url)?;
+                write!(f, "git+{url}")?;
                 if let Some(pretty) = reference.pretty_ref() {
-                    write!(f, "?{}", pretty)?;
+                    write!(f, "?{pretty}")?;
                 }
                 if let Some(precise) = precise.as_ref() {
-                    write!(f, "#{}", precise)?;
+                    write!(f, "#{precise}")?;
                 }
                 Ok(())
             }
@@ -306,23 +305,23 @@ impl fmt::Display for SourceId {
                 kind: SourceKind::Registry,
                 ref url,
                 ..
-            } => write!(f, "registry+{}", url),
+            } => write!(f, "registry+{url}"),
             SourceId {
                 kind: SourceKind::SparseRegistry,
                 ref url,
                 ..
-            } => write!(f, "sparse+{}", url),
+            } => write!(f, "sparse+{url}"),
             SourceId {
                 kind: SourceKind::LocalRegistry,
                 ref url,
                 ..
-            } => write!(f, "local-registry+{}", url),
+            } => write!(f, "local-registry+{url}"),
             #[cfg(any(unix, windows))]
             SourceId {
                 kind: SourceKind::Directory,
                 ref url,
                 ..
-            } => write!(f, "directory+{}", url),
+            } => write!(f, "directory+{url}"),
         }
     }
 }
@@ -376,9 +375,9 @@ pub struct PrettyRef<'a> {
 impl<'a> fmt::Display for PrettyRef<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self.inner {
-            GitReference::Branch(ref b) => write!(f, "branch={}", b),
-            GitReference::Tag(ref s) => write!(f, "tag={}", s),
-            GitReference::Rev(ref s) => write!(f, "rev={}", s),
+            GitReference::Branch(ref b) => write!(f, "branch={b}"),
+            GitReference::Tag(ref s) => write!(f, "tag={s}"),
+            GitReference::Rev(ref s) => write!(f, "rev={s}"),
         }
     }
 }
@@ -391,7 +390,7 @@ trait IntoUrl {
 
 impl<'a> IntoUrl for &'a str {
     fn into_url(self) -> Result<Url> {
-        Url::parse(self).map_err(|s| Error::Parse(format!("invalid url `{}`: {}", self, s)))
+        Url::parse(self).map_err(|s| Error::Parse(format!("invalid url `{self}`: {s}")))
     }
 }
 

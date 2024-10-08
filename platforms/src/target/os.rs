@@ -240,8 +240,7 @@ impl<'de> Deserialize<'de> for OS {
         let string = std::string::String::deserialize(deserializer)?;
         string.parse().map_err(|_| {
             D::Error::custom(std::format!(
-                "Unrecognized value '{}' for target_os",
-                string
+                "Unrecognized value '{string}' for target_os"
             ))
         })
     }
