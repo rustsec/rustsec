@@ -61,7 +61,8 @@ impl<'de> Deserialize<'de> for Endian {
         let string = std::string::String::deserialize(deserializer)?;
         string.parse().map_err(|_| {
             D::Error::custom(std::format!(
-                "Unrecognized value '{string}' for target_endian"
+                "Unrecognized value '{}' for target_endian",
+                string
             ))
         })
     }

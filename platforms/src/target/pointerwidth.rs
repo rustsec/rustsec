@@ -93,7 +93,8 @@ impl<'de> Deserialize<'de> for PointerWidth {
         let string = std::string::String::deserialize(deserializer)?;
         string.parse().map_err(|_| {
             D::Error::custom(std::format!(
-                "Unrecognized value '{string}' for target_pointer_width"
+                "Unrecognized value '{}' for target_pointer_width",
+                string
             ))
         })
     }
