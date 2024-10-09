@@ -196,7 +196,7 @@ impl ToString for EncodableLockfile {
         if let Some(value) = toml.get("version") {
             if let Some(version) = value.as_integer() {
                 if version >= 3 {
-                    writeln!(out, "version = {}", version).unwrap();
+                    writeln!(out, "version = {version}").unwrap();
                 }
             }
         }
@@ -256,7 +256,7 @@ fn emit_package(dep: &toml::value::Table, out: &mut String) {
             out.push_str("dependencies = [\n");
 
             for child in slice.iter() {
-                writeln!(out, " {},", child).unwrap();
+                writeln!(out, " {child},").unwrap();
             }
 
             out.push_str("]\n");
@@ -432,10 +432,7 @@ impl FromStr for EncodableDependency {
             .next()
             .map(|s| {
                 if s.len() < 2 || !s.starts_with('(') || !s.ends_with(')') {
-                    Err(Error::Parse(format!(
-                        "malformed source in dependency: {}",
-                        s
-                    )))
+                    Err(Error::Parse(format!("malformed source in dependency: {s}")))
                 } else {
                     s[1..(s.len() - 1)].parse()
                 }
@@ -443,7 +440,7 @@ impl FromStr for EncodableDependency {
             .transpose()?;
 
         if parts.next().is_some() {
-            return Err(Error::Parse(format!("malformed dependency: {}", s)));
+            return Err(Error::Parse(format!("malformed dependency: {s}")));
         }
 
         Ok(Self {
@@ -459,11 +456,11 @@ impl fmt::Display for EncodableDependency {
         write!(f, "{}", &self.name)?;
 
         if let Some(version) = &self.version {
-            write!(f, " {}", version)?;
+            write!(f, " {version}")?;
         }
 
         if let Some(source) = &self.source {
-            write!(f, " ({})", source)?;
+            write!(f, " ({source})")?;
         }
 
         Ok(())

@@ -77,7 +77,7 @@ impl FromStr for ResolveVersion {
 
     fn from_str(s: &str) -> Result<Self> {
         u32::from_str(s)
-            .map_err(|_| Error::Parse(format!("invalid Cargo.lock format version: `{}`", s)))
+            .map_err(|_| Error::Parse(format!("invalid Cargo.lock format version: `{s}`")))
             .and_then(Self::try_from)
     }
 }
@@ -91,8 +91,7 @@ impl TryFrom<u32> for ResolveVersion {
             2 => Ok(ResolveVersion::V2),
             3 => Ok(ResolveVersion::V3),
             _ => Err(Error::Parse(format!(
-                "invalid Cargo.lock format version: `{}`",
-                num
+                "invalid Cargo.lock format version: `{num}`"
             ))),
         }
     }
