@@ -263,6 +263,11 @@ impl SourceId {
             || self.kind == SourceKind::SparseRegistry
                 && self.url.as_str() == &CRATES_IO_SPARSE_INDEX[7..]
     }
+
+    /// A view of the [`SourceId`] that can be `Display`ed as a URL.
+    pub(crate) fn as_url(&self, encoded: bool) -> SourceIdAsUrl<'_> {
+        SourceIdAsUrl { id: self, encoded }
+    }
 }
 
 impl Default for SourceId {
@@ -281,7 +286,19 @@ impl FromStr for SourceId {
 
 impl fmt::Display for SourceId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
+        self.as_url(false).fmt(f)
+    }
+}
+
+/// A `Display`able view into a `SourceId` that will write it as a url
+pub(crate) struct SourceIdAsUrl<'a> {
+    id: &'a SourceId,
+    encoded: bool,
+}
+
+impl<'a> fmt::Display for SourceIdAsUrl<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self.id {
             SourceId {
                 kind: SourceKind::Path,
                 ref url,
@@ -294,7 +311,8 @@ impl fmt::Display for SourceId {
                 ..
             } => {
                 write!(f, "git+{}", url)?;
-                if let Some(pretty) = reference.pretty_ref() {
+                // TODO: set it to true when the default is lockfile v4,
+                if let Some(pretty) = reference.pretty_ref(self.encoded) {
                     write!(f, "?{}", pretty)?;
                 }
                 if let Some(precise) = precise.as_ref() {
@@ -360,10 +378,13 @@ pub enum GitReference {
 impl GitReference {
     /// Returns a `Display`able view of this git reference, or None if using
     /// the head of the default branch
-    pub fn pretty_ref(&self) -> Option<PrettyRef<'_>> {
-        match *self {
+    pub fn pretty_ref(&self, url_encoded: bool) -> Option<PrettyRef<'_>> {
+        match self {
             GitReference::Branch(ref s) if *s == DEFAULT_BRANCH => None,
-            _ => Some(PrettyRef { inner: self }),
+            _ => Some(PrettyRef {
+                inner: self,
+                url_encoded,
+            }),
         }
     }
 }
@@ -371,15 +392,33 @@ impl GitReference {
 /// A git reference that can be `Display`ed
 pub struct PrettyRef<'a> {
     inner: &'a GitReference,
+    url_encoded: bool,
 }
 
 impl<'a> fmt::Display for PrettyRef<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match *self.inner {
-            GitReference::Branch(ref b) => write!(f, "branch={}", b),
-            GitReference::Tag(ref s) => write!(f, "tag={}", s),
-            GitReference::Rev(ref s) => write!(f, "rev={}", s),
+        let value: &str = match self.inner {
+            GitReference::Branch(s) => {
+                write!(f, "branch=")?;
+                s
+            }
+            GitReference::Tag(s) => {
+                write!(f, "tag=")?;
+                s
+            }
+            GitReference::Rev(s) => {
+                write!(f, "rev=")?;
+                s
+            }
+        };
+        if self.url_encoded {
+            for value in url::form_urlencoded::byte_serialize(value.as_bytes()) {
+                write!(f, "{value}")?;
+            }
+        } else {
+            write!(f, "{value}")?;
         }
+        Ok(())
     }
 }
 
