@@ -1,10 +1,8 @@
 //! Package dependencies
 
 #[cfg(feature = "dependency-tree")]
-#[cfg_attr(docsrs, doc(cfg(feature = "dependency-tree")))]
 pub mod graph;
 #[cfg(feature = "dependency-tree")]
-#[cfg_attr(docsrs, doc(cfg(feature = "dependency-tree")))]
 pub mod tree;
 
 #[cfg(feature = "dependency-tree")]
