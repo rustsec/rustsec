@@ -11,7 +11,7 @@ members = [
 ]
 
 [workspace.dependencies]
-abscissa_core = "0.7"
+abscissa_core = "0.8"
 askama = "0.12"
 atom_syndication = "0.12"
 auditable-info = "0.8"
