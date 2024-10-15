@@ -243,9 +243,9 @@ checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 
 [[package]]
 name = "auditable-extract"
-version = "0.3.4"
+version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6728a67cb6ba3998b16a84c3bc2fcc0554bca9cf79fbe3c2d4082e8cac32f96e"
+checksum = "44371e9f9759dea49c42b6c6fe4c64ea216ee2af325a4524a7180823e00d3e7a"
 dependencies = [
  "binfarce",
  "wasmparser",
