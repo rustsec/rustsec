@@ -132,8 +132,7 @@ fn lockfile_from_version_info_json(input: &VersionInfo) -> Result<Lockfile, carg
                                 .packages
                                 .get(*i)
                                 .ok_or(cargo_lock::Error::Parse(format!(
-                                    "There is no dependency with index {} in the input JSON",
-                                    i
+                                    "There is no dependency with index {i} in the input JSON"
                                 )))?;
 
                         Result::<_, cargo_lock::Error>::Ok(Dependency {
