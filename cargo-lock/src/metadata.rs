@@ -21,7 +21,7 @@ pub struct MetadataKey(String);
 impl MetadataKey {
     /// Create a metadata key for a checksum for the given dependency
     pub fn for_checksum(dep: &Dependency) -> Self {
-        MetadataKey(format!("{}{}", CHECKSUM_PREFIX, dep))
+        MetadataKey(format!("{CHECKSUM_PREFIX}{dep}"))
     }
 
     /// Is this metadata key a checksum entry?

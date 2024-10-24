@@ -124,10 +124,7 @@ impl<'de> Deserialize<'de> for Env {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = std::string::String::deserialize(deserializer)?;
         string.parse().map_err(|_| {
-            D::Error::custom(std::format!(
-                "Unrecognized value '{}' for target_env",
-                string
-            ))
+            D::Error::custom(std::format!("Unrecognized value '{string}' for target_env"))
         })
     }
 }
