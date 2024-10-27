@@ -7,20 +7,20 @@ mod query;
 pub use self::query::Query;
 
 use self::{entries::Entries, index::Index};
+#[cfg(feature = "git")]
+use crate::repository::git;
 use crate::{
     advisory::{self, Advisory},
     collection::Collection,
     error::Error,
     fs,
+    package::Package,
     vulnerability::Vulnerability,
     Lockfile,
-    package::Package,
 };
-use std::path::Path;
-use petgraph::visit::Dfs;
 use cargo_lock::dependency;
-#[cfg(feature = "git")]
-use crate::repository::git;
+use petgraph::visit::Dfs;
+use std::path::Path;
 
 /// Iterator over entries in the database
 pub type Iter<'a> = std::slice::Iter<'a, Advisory>;
@@ -149,16 +149,15 @@ impl Database {
             .expect("invalid Cargo.lock dependency tree");
 
         for package in &lockfile.packages {
-
             let advisories = self.query(&query.clone().package(package));
 
             if advisories.is_empty() {
-                continue
+                continue;
             }
-            
+
             #[cfg(feature = "dependency-tree")]
             if !dfs(query.target_package.as_ref(), package, &tree) {
-                continue
+                continue;
             }
 
             vulns.extend(
@@ -199,16 +198,15 @@ impl IntoIterator for Database {
 
 #[cfg(feature = "dependency-tree")]
 /// Performs a depth first search of a dependency tree, from the target package, for the vulnerable package.
-pub fn dfs(target:Option<&Package>, vulnerability:&Package, tree:&dependency::Tree) -> bool {
+pub fn dfs(target: Option<&Package>, vulnerability: &Package, tree: &dependency::Tree) -> bool {
     match target {
-        | None => true, // If there is no target, no filter required
-        | Some(target) if target == vulnerability => true,
-        | Some(target) => {
-
+        None => true, // If there is no target, no filter required
+        Some(target) if target == vulnerability => true,
+        Some(target) => {
             let graph = tree.graph();
             let target_node = tree.nodes()[&dependency::Dependency::from(target)];
             let mut dfs = Dfs::new(&graph, target_node);
-            
+
             while let Some(node) = dfs.next(&graph) {
                 if graph[node] == *vulnerability {
                     return true;

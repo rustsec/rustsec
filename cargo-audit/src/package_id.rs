@@ -7,21 +7,21 @@
 // ! Copyright (c) 2014 The Rust Project Developers
 // ! Licensed under the same terms as the `cargo-lock` crate: Apache 2.0 + MIT
 
-use rustsec::{Error, ErrorKind, package::Name};
-use serde::{Serialize, Deserialize};
-use url::Url;
+use rustsec::{package::Name, Error, ErrorKind};
 use semver::Version;
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
+use url::Url;
 
 /// Contains the information to identify a target package provided on cli by user
 #[derive(Clone, PartialEq, Eq, Debug, Hash, Ord, PartialOrd, Default, Serialize, Deserialize)]
 pub struct PackageIdSpec {
     /// The name of the target package provided on cli
     pub name: Name,
-    
+
     /// The version of the target package provided on cli
     pub version: Option<Version>,
-    
+
     /// The url of the target package provided on cli
     pub url: Option<Url>,
 }
@@ -50,7 +50,8 @@ impl PackageIdSpec {
     /// ```
     pub fn parse(spec: &str) -> rustsec::Result<PackageIdSpec> {
         if spec.contains("://") {
-            if let Ok(url) = Url::parse(spec).map_err(|s| format!("Invalid url `{}`: {}", spec, s)) {
+            if let Ok(url) = Url::parse(spec).map_err(|s| format!("Invalid url `{}`: {}", spec, s))
+            {
                 return PackageIdSpec::from_url(url);
             }
         } else if spec.contains('/') || spec.contains('\\') {
@@ -60,7 +61,10 @@ impl PackageIdSpec {
                     .map_or_else(|_| "a file:// URL".to_string(), |url| url.to_string());
                 return Err(Error::new(
                     ErrorKind::PackageIdSpec,
-                    &format!("package ID specification `{}` looks like a file path, maybe try {}", spec, maybe_url)
+                    &format!(
+                        "package ID specification `{}` looks like a file path, maybe try {}",
+                        spec, maybe_url
+                    ),
                 ));
             }
         }
@@ -81,18 +85,24 @@ impl PackageIdSpec {
     /// Tries to convert a valid `Url` to a `PackageIdSpec`.
     fn from_url(mut url: Url) -> rustsec::Result<PackageIdSpec> {
         if url.query().is_some() {
-            return Err(Error::new(ErrorKind::PackageIdSpec, &format!("cannot have a query string in a pkgid: {}", url)))
+            return Err(Error::new(
+                ErrorKind::PackageIdSpec,
+                &format!("cannot have a query string in a pkgid: {}", url),
+            ));
         }
         let frag = url.fragment().map(|s| s.to_owned());
         url.set_fragment(None);
         let (name, version) = {
-            let mut path = url
-                .path_segments()
-                .ok_or_else(|| Error::new(ErrorKind::PackageIdSpec, &format!("pkgid urls must have a path: {}", url)))?;
+            let mut path = url.path_segments().ok_or_else(|| {
+                Error::new(
+                    ErrorKind::PackageIdSpec,
+                    &format!("pkgid urls must have a path: {}", url),
+                )
+            })?;
             let path_name = path.next_back().ok_or_else(|| {
                 Error::new(
                     ErrorKind::PackageIdSpec,
-                    &format!("pkgid urls must have at least one path component: {}", url)
+                    &format!("pkgid urls must have at least one path component: {}", url),
                 )
             })?;
             match frag {
@@ -128,12 +138,10 @@ impl PackageIdSpec {
     fn to_semver(version: &str) -> rustsec::Result<Version> {
         match Version::parse(version.trim()) {
             Ok(v) => Ok(v),
-            Err(..) => Err(
-                Error::new(
-                    ErrorKind::Version,
-                    &format!("cannot parse '{}' as a semver", version)
-                )
-            ),
+            Err(..) => Err(Error::new(
+                ErrorKind::Version,
+                &format!("cannot parse '{}' as a semver", version),
+            )),
         }
     }
 }

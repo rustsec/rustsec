@@ -1,14 +1,15 @@
 //! The configuration file
 
+use crate::package_id;
 use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
-    report, Error, ErrorKind, WarningKind,
+    report,
     target_info::TargetPackageInfo,
+    Error, ErrorKind, WarningKind,
 };
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, str::FromStr};
-use crate::package_id;
 // use semver::Version;
 // use url::Url;
 
@@ -57,8 +58,13 @@ impl AuditConfig {
             target_arch: self.target.arch(),
             target_os: self.target.os(),
             target_package_info: match self.target_package_spec.clone() {
-                | None => None,
-                | Some(spec) =>  Some(TargetPackageInfo::new(spec.name, spec.version, spec.url, self.target_package_ids.clone().unwrap())),
+                None => None,
+                Some(spec) => Some(TargetPackageInfo::new(
+                    spec.name,
+                    spec.version,
+                    spec.url,
+                    self.target_package_ids.clone().unwrap(),
+                )),
             },
             ..Default::default()
         };

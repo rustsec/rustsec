@@ -253,10 +253,8 @@ impl Auditor {
         binary_format: Option<BinaryFormat>,
     ) -> rustsec::Result<rustsec::Report> {
         match self.report_settings.target_package_info.as_mut() {
-            | None => (),
-            | Some(info) => {
-                info.package = info.find_target_package(lockfile)?
-            },
+            None => (),
+            Some(info) => info.package = info.find_target_package(lockfile)?,
         }
 
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
@@ -304,13 +302,12 @@ impl Auditor {
             for pkg in yanked {
                 match pkg {
                     Ok(pkg) => {
+                        let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
                         #[cfg(feature = "dependency-tree")]
                         if rustsec::database::dfs(Some(pkg), pkg, &tree) {
-                            let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
                             result.push(warning);
                         }
                         #[cfg(not(feature = "dependency-tree"))]
-                        let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
                         result.push(warning);
                     }
                     Err(e) => status_err!(

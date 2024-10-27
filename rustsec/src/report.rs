@@ -8,10 +8,10 @@ use crate::{
     database::{Database, Query},
     map,
     platforms::target::{Arch, OS},
+    target_info::TargetPackageInfo,
     vulnerability::Vulnerability,
     warning::{self, Warning},
     Lockfile, Map,
-    target_info::TargetPackageInfo,
 };
 use serde::{Deserialize, Serialize};
 
@@ -94,10 +94,12 @@ impl Settings {
         }
 
         match self.target_package_info.as_ref() {
-            | None => (),
-            | Some(info) => if let Some(target_package) = info.package.clone() {
-                query = query.target_package(target_package)
-            },
+            None => (),
+            Some(info) => {
+                if let Some(target_package) = info.package.clone() {
+                    query = query.target_package(target_package)
+                }
+            }
         }
 
         query
