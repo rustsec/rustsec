@@ -21,9 +21,10 @@ mod warning;
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 mod cached_index;
 
+#[cfg(feature = "dependency-tree")]
+pub mod target_info;
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
-pub mod target_info;
 pub mod registry {
     //! Support for interacting with the local crates.io registry index
     pub use super::cached_index::{CachedIndex, ClientBuilder};
