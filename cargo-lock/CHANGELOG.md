@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 10.0.1 (2024-10-25)
+### Fixed
+- Remove `precise` from source IDs during normalization ([#1270])
+
+[#1270]: https://github.com/RustSec/rustsec/pull/1270
+
+## 10.0.0 (2024-10-15)
+### Added
+- V4 lockfile support ([#1206])
+
+### Changed
+- MSRV 1.70 ([#1092])
+
+### Removed
+- `toml` dependency from public API ([#1226])
+
+[#1092]: https://github.com/RustSec/rustsec/pull/1092
+[#1206]: https://github.com/RustSec/rustsec/pull/1206
+[#1226]: https://github.com/RustSec/rustsec/pull/1226
+
 ## 9.0.0 (2023-04-24)
 ### Added
 - Implement `From<Name>` for `String` ([#776])

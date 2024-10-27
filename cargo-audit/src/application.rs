@@ -74,7 +74,7 @@ impl Application for CargoAuditApplication {
 
     /// Color configuration for this application.
     fn term_colors(&self, entrypoint: &CargoAuditCommand) -> ColorChoice {
-        entrypoint.color_config().unwrap_or(ColorChoice::Auto)
+        entrypoint.term_colors()
     }
 
     /// Get tracing configuration from command-line options

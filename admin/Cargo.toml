@@ -1,31 +1,37 @@
 [package]
 name        = "rustsec-admin"
 description = "Admin utility for maintaining the RustSec Advisory Database"
-version     = "0.8.5"
+version     = "0.8.9"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 license     = "Apache-2.0 OR MIT"
 homepage    = "https://rustsec.org"
-repository  = "https://github.com/RustSec/rustsec/tree/main/admin"
+repository  = "https://github.com/rustsec/rustsec"
 readme      = "README.md"
-edition     = "2018"
+edition     = "2021"
+
+[features]
+default = ["gix?/max-performance-safe"]
 
 [dependencies]
-abscissa_core = "0.6"
-askama = "0.11"
-atom_syndication = "0.12"
-chrono = { version = "0.4", default-features = false, features = ["clock"]  }
-clap = "3"
-comrak = { version = "0.18", default-features = false }
-crates-index = "0.19"
-rust-embed = "6.8.1"
-rustsec = { version = "0.27", features = ["osv-export"] }
-serde = { version = "1", features = ["serde_derive"] }
-serde_json = "1"
-termcolor = "1"
-thiserror = "1"
-toml = "0.7"
-xml-rs = "0.8"
+abscissa_core = { workspace = true }
+askama = { workspace = true }
+atom_syndication = { workspace = true }
+chrono = { workspace = true, features = ["clock"] }
+clap = { workspace = true }
+comrak = { workspace = true }
+tame-index = { workspace = true, features = ["git"] }
+gix = { workspace = true, optional = true }
+rust-embed = { workspace = true }
+rustsec = { workspace = true, features = ["osv-export"] }
+serde = { workspace = true, features = ["serde_derive"] }
+serde_json = { workspace = true }
+termcolor = { workspace = true }
+thiserror = { workspace = true }
+toml = { workspace = true }
+toml_edit = { workspace = true }
+xml-rs = { workspace = true }
 
 [dev-dependencies]
-abscissa_core = { version = "0.6", features = ["testing"] }
-once_cell = "1.5"
+abscissa_core = { workspace = true, features = ["testing"] }
+once_cell = { workspace = true }
+

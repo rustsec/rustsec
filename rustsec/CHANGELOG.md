@@ -4,6 +4,145 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.29.2 (2024-05-01)
+
+### Changed
+
+ - Upgraded to `gix` v0.62. This fixes [RUSTSEC-2024-0335](https://rustsec.org/advisories/RUSTSEC-2024-0335.html). It also transitively upgrades to `reqwest` v0.12 and `hyper` v1.0. ([#1174])
+
+[#1174]: https://github.com/rustsec/rustsec/pull/1174
+
+## 0.29.1 (2024-02-16)
+
+### Changed
+
+ - Upgraded to `gix` v0.60. This fixes build issues due to a semver-incompatible change in the interaction of `gix` and `tame-index`. ([#1143])
+
+[#1143]: https://github.com/rustsec/rustsec/pull/1143
+
+## 0.29.0 (2024-02-16)
+
+### Changed
+
+ - Completely rewritten the `fix` module. ([#1113])
+   - Now it edits `Cargo.lock` as opposed to `Cargo.toml`, and performs only semver-compatible upgrades.
+   - Fixes are performed by calling `cargo update`, migrating away from the unmaintained `cargo-edit-9` crate.
+   - The `fix` feature is removed and the module is always enabled now that it requires no additional dependencies.
+   - The module is still experimental, and its behavior may change in the future.
+ - Require `tame-index` 0.9.3 or later, which fixes [issues with some enterprise firewalls](https://github.com/rustsec/rustsec/issues/1058). ([#1103])
+
+[#1103]: https://github.com/rustsec/rustsec/pull/1103
+[#1113]: https://github.com/rustsec/rustsec/pull/1113
+
+## 0.28.6 (2024-02-11)
+
+### Changed
+
+ - Additions to the OSV advisory struct ([#656])
+   - Add the `schema_version` field to `OsvAdvisory`
+   - Add a `Deserialize` implementation for `OsvAdvisory`
+   - Add getter methods for `OsvAdvisory` content
+
+[#656]: https://github.com/rustsec/rustsec/pull/656
+
+## 0.28.4 (2024-02-03)
+
+### Changed
+
+ - Upgraded dependencies `gix` to 0.58.x and `tame-index` to 0.9.x ([#1099])
+
+[#1099]: https://github.com/rustsec/rustsec/pull/1099
+
+## 0.28.4 (2023-11-17)
+
+### Changed
+
+ - Upgraded dependencies `gix` to 0.55.x and `tame-index` to 0.8.x ([#1061])
+
+[#1061]: https://github.com/rustsec/rustsec/pull/1061
+
+## 0.28.3 (2023-10-14)
+
+### Changed
+
+ - Switched from Git-compatible lockfiles to locks provided by the operating system. This fixes issues around stale lockfiles being left behind on power loss. ([#1032])
+ - `CachedIndex` now acquires the global Cargo package lock. This was necessary to avoid racing with Cargo when updating crates.io index via Git or writing sparse index entries. Note that this also prevents most Cargo operations for the current user until `CachedIndex` is dropped. ([#1032])
+ - The `gix` crate is now used in the `max-performance-safe` configuration, enabling multi-threading. ([#1045])
+
+### Added
+
+ - The `Severity` type now implements `Hash` ([#1042])
+
+[#1032]: https://github.com/rustsec/rustsec/pull/1032
+[#1042]: https://github.com/rustsec/rustsec/pull/1042
+[#1045]: https://github.com/rustsec/rustsec/pull/1045
+
+## 0.28.2 (2023-09-25)
+
+### Fixed
+
+ - Upgraded to `tame-index` 0.6.0 and `gix` 0.53.1 to fix a vulnerability in `gix`, see [RUSTSEC-2023-0064](https://rustsec.org/advisories/RUSTSEC-2023-0064.html) ([#1015])
+ - Correctly report error when encountering a stale git lockfile ([#1012])
+
+[#1012]: https://github.com/rustsec/rustsec/pull/1012
+[#1015]: https://github.com/rustsec/rustsec/pull/1015
+
+## 0.28.1 (2023-09-06)
+
+### Changed
+
+ - No longer require HTTP/2 for accessing sparse crates.io index. This degrades performance somewhat due to an additional roundtrip to crates.io, but allows index access through corporate transparent proxies that do not support HTTP/2. ([#992])
+
+### Fixed
+
+ - Fixed a performance regression where the cached crates.io index would re-request items that are already cached ([#987])
+
+[#987]: https://github.com/rustsec/rustsec/pull/987
+[#992]: https://github.com/rustsec/rustsec/pull/992
+
+## 0.28.0 (2023-08-31)
+
+### Added
+
+ - [Sparse crates.io index](https://blog.rust-lang.org/inside-rust/2023/01/30/cargo-sparse-protocol.html) is now supported. This dramatically speeds up the checks for yanked crates. This crate honors the [Cargo settings for the use of sparse index](https://doc.rust-lang.org/cargo/reference/config.html#registriescrates-ioprotocol), should you need to opt out. ([#923])
+ - Added directory locking and explicit locking controls to the API to avoid several processes modifying local data at the same time. ([#923], [#944])
+ - Added `affected` field to `Warning`, to communicate e.g. warnings specific to a particular platform. ([#964])
+ - Added `license` field to the advisory format in preparation for data import from GHSA. ([#682])
+ - Added a `CommitHash` type to represent git commit hashes independently from the git implementation used. ([#961])
+
+### Changed
+
+ - Switched from OpenSSL to [rustls](https://crates.io/crates/rustls) as the TLS implementation. ([#923], [#925])
+   - Due to this change CPU platforms other than x86 and ARM are no longer supported. This issue is tracked as [#962](https://github.com/rustsec/rustsec/issues/962).
+   - The `fix` feature is not yet converted; enabling it will pull in OpenSSL.
+ - Switched from `libgit2` to `gitoxide` as the git implementation. ([#925])
+ - Switched from `crates-index` to `tame-index` for crates.io access. ([#923])
+ - Increased the minimum supported rust version to 1.67. ([#923])
+
+### Removed
+
+ - Removed `rustsec::registry::Index` because it is impractically slow when the sparse crates.io index is used. Use `rustsec::registry::CachedIndex` instead. ([#923])
+ - Removed `rustsec::registry::CachedIndex.is_yanked()`. Use `.find_yanked()` instead. Checking a large number of crates at once is orders of magnitude faster when using the sparse index. ([#937])
+ - Removed many `From` implementations from `rustsec::Error` to avoid tying `rustsec` SemVer to that of dependency crates. This should result in less frequent SemVer bumps for `rustsec` in the future. ([#961])
+
+### Fixed
+
+ - `rustsec` can now be used in Alpine Linux containers ([#466](https://github.com/rustsec/rustsec/issues/466)).
+ - Several users of `rustsec` running in parallel can now fetch Git repositories without races ([#490](https://github.com/rustsec/rustsec/issues/490)).
+ - Accessing Git repositories over SSH is now supported ([#292](https://github.com/rustsec/rustsec/issues/292)).
+ - Credential helpers to access private repositories are now supported [#555](https://github.com/rustsec/rustsec/issues/555).
+ - Fix an edge case in git source dependency resolution when dependencies differ only in their hash. ([#889])
+
+[#682]: https://github.com/rustsec/rustsec/pull/682
+[#889]: https://github.com/rustsec/rustsec/pull/889
+[#905]: https://github.com/rustsec/rustsec/pull/905
+[#923]: https://github.com/rustsec/rustsec/pull/923
+[#925]: https://github.com/rustsec/rustsec/pull/925
+[#937]: https://github.com/rustsec/rustsec/pull/937
+[#944]: https://github.com/rustsec/rustsec/pull/944
+[#961]: https://github.com/rustsec/rustsec/pull/961
+[#964]: https://github.com/rustsec/rustsec/pull/964
+
 ## 0.27.0 (2023-05-10)
 
 ### Added

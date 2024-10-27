@@ -4,12 +4,13 @@ mod assign_id;
 mod lint;
 mod list_affected_versions;
 mod osv;
+mod sync;
 mod version;
 mod web;
 
 use self::{
     assign_id::AssignIdCmd, lint::LintCmd, list_affected_versions::ListAffectedVersionsCmd,
-    osv::OsvCmd, version::VersionCmd, web::WebCmd,
+    osv::OsvCmd, sync::SyncCmd, version::VersionCmd, web::WebCmd,
 };
 use crate::config::AppConfig;
 use abscissa_core::{Command, Configurable, Runnable};
@@ -20,39 +21,43 @@ use std::path::PathBuf;
 #[derive(Command, Debug, Parser, Runnable)]
 pub enum AdminSubCmd {
     /// The `lint` subcommand
-    #[clap(about = "lint Advisory DB and ensure is well-formed")]
+    #[command(about = "lint Advisory DB and ensure is well-formed")]
     Lint(LintCmd),
 
+    /// The `sync` subcommand
+    #[clap(about = "synchronize information from external sources (osv.dev, NVD, etc.)")]
+    Sync(SyncCmd),
+
     /// The `web` subcommand
-    #[clap(about = "render advisory Markdown files for the rustsec.org web site")]
+    #[command(about = "render advisory Markdown files for the rustsec.org web site")]
     Web(WebCmd),
 
     /// The `version` subcommand
-    #[clap(about = "display version information")]
+    #[command(about = "display version information")]
     Version(VersionCmd),
 
     /// The `assign-id` subcommand
-    #[clap(about = "assigning RUSTSEC ids to new vulnerabilities")]
+    #[command(about = "assigning RUSTSEC ids to new vulnerabilities")]
     AssignId(AssignIdCmd),
 
     /// The `osv` subcommand
-    #[clap(about = "export advisories to OSV format")]
+    #[command(about = "export advisories to OSV format")]
     Osv(OsvCmd),
 
     /// The `version` subcommand
-    #[clap(about = "list affected crate versions")]
+    #[command(about = "list affected crate versions")]
     ListAffectedVersions(ListAffectedVersionsCmd),
 }
 
 /// `rustsec-admin` CLI commands
 #[derive(Command, Debug, Parser)]
-#[clap(author, version, about)]
+#[command(author, version, about)]
 pub struct AdminCmd {
-    #[clap(subcommand)]
+    #[command(subcommand)]
     cmd: AdminSubCmd,
 
     /// Increase verbosity setting
-    #[clap(short = 'v', long, help = "Increase verbosity")]
+    #[arg(short = 'v', long, help = "Increase verbosity")]
     pub verbose: bool,
 }
 

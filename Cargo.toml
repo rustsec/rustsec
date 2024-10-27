@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = [
     "admin",
     "cargo-audit",
@@ -8,6 +9,44 @@ members = [
     "quitters",
     "rustsec"
 ]
+
+[workspace.dependencies]
+abscissa_core = "0.8"
+askama = "0.12"
+atom_syndication = "0.12"
+auditable-info = "0.8"
+auditable-serde = "0.7"
+binfarce = "0.2"
+cargo-lock = { version = "10.0.1", path = "./cargo-lock" }
+chrono = { version = "0.4", default-features = false }
+clap = "4"
+comrak = { version = "0.24", default-features = false }
+cvss = { version = "2.0.0", path = "./cvss" }
+display-error-chain = "0.2.0"
+fs-err = "2.11"
+# NOTE: Keep in sync with `gix` used by `tame-index`.
+gix = { version = "0.66", default-features = false }
+gumdrop = "0.8"
+home = "0.5"
+once_cell = "1.15.0"
+petgraph = "0.6"
+platforms = { version = "3", path = "./platforms" }
+quitters = { version = "0.1.0", path = "./quitters" }
+regex = { version = "1.10.6", default-features = false }
+rust-embed = "8.5.0"
+rustsec = { version = "=0.30.0-rc.1", path = "./rustsec" }
+semver = "1.0.23"
+serde = "1"
+serde_json = "1"
+tame-index = { version = "0.14", default-features = false }
+tempfile = "3"
+termcolor = "1"
+thiserror = "1"
+time = { version = "0.3", default-features = false }
+toml = "0.8"
+toml_edit = "0.22.6"
+url = "2"
+xml-rs = "0.8"
 
 [patch.crates-io]
 cargo-lock = { path = "./cargo-lock" }

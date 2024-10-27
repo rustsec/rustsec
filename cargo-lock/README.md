@@ -9,8 +9,8 @@
 [![Project Chat][zulip-image]][zulip-link]
 
 Self-contained [serde]-powered `Cargo.lock` parser/serializer with support
-for the V1, V2 (merge-friendly) and V3 formats, as well as optional
-dependency tree analysis features. Used by [RustSec].
+for the V1/V2/V3/V4 formats, as well as optional dependency tree analysis features.
+Used by [RustSec].
 
 When the `dependency-tree` feature of this crate is enabled, it supports
 computing a directed graph of the dependency tree, modeled using the
@@ -21,7 +21,7 @@ the [`cargo-tree`] crate.
 
 ## Minimum Supported Rust Version
 
-Rust **1.65** or higher.
+Rust **1.70** or higher.
 
 Minimum supported Rust version can be changed in the future, but it will be
 accompanied by a minor version bump.
@@ -69,14 +69,14 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]:  https://buildstats.info/crate/cargo-lock
+[crate-image]: https://img.shields.io/crates/v/cargo-lock?logo=rust
 [crate-link]: https://crates.io/crates/cargo-lock
 [docs-image]: https://docs.rs/cargo-lock/badge.svg
 [docs-link]: https://docs.rs/cargo-lock/
 [build-image]: https://github.com/RustSec/rustsec/actions/workflows/cargo-lock.yml/badge.svg
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/cargo-lock.yml
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.65+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.70+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg

@@ -68,6 +68,9 @@ pub fn versions(data: &[u8]) -> BTreeSet<(&str, Version)> {
     // Basically streaming the data. This requires special handling of the start and end,
     // so either needs a state-machine-based parser like nom or capping the possible match length.
     // The latter is doable but only makes sense if it turns out that the current approach is too slow.
+
+    // This lint warns about a unicode-related panic, but we use a non-unicode-aware mode
+    #[allow(clippy::invalid_regex)]
     let re = REGEX_UNIX.get_or_init(|| Regex::new(REGEX_STRING).unwrap());
     let versions = versions_for_regex(data, re);
     if !versions.is_empty() {

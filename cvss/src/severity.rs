@@ -17,7 +17,7 @@ use {
 ///
 /// > For some purposes it is useful to have a textual representation of the
 /// > numeric Base, Temporal and Environmental scores.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord, Hash)]
 pub enum Severity {
     /// None: CVSS Score 0.0
     None,

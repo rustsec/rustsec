@@ -4,7 +4,9 @@
 //! This is run in CI at the time advisories are submitted.
 
 use super::{parts, Advisory, Category};
+use crate::advisory::license::License;
 use crate::fs;
+use std::str::FromStr;
 use std::{fmt, path::Path};
 
 /// Lint information about a particular advisory
@@ -50,7 +52,10 @@ impl Linter {
 
         // Get advisory "front matter" (TOML formatted)
         let advisory_parts = parts::Parts::parse(s)?;
-        let front_matter = advisory_parts.front_matter.parse::<toml::Value>()?;
+        let front_matter = advisory_parts
+            .front_matter
+            .parse::<toml::Value>()
+            .map_err(crate::Error::from_toml)?;
 
         let mut linter = Self {
             advisory,
@@ -195,6 +200,20 @@ impl Linter {
                                     "Field `yanked` is deprecated, use `withdrawn` field instead",
                                 ),
                             });
+                        }
+                    }
+                    "license" => {
+                        if let Some(l) = value.as_str() {
+                            // We don't want to accept any license, only explicitly accepted ones
+                            let unknown_license =
+                                matches!(License::from_str(l).unwrap(), License::Other(_));
+                            if unknown_license {
+                                self.errors.push(Error {
+                                    kind: ErrorKind::value("license", l.to_string()),
+                                    section: Some("advisory"),
+                                    message: Some("Unknown license"),
+                                });
+                            }
                         }
                     }
                     "aliases" | "cvss" | "keywords" | "package" | "references" | "related"

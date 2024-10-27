@@ -28,10 +28,10 @@ pub struct Query {
     severity: Option<Severity>,
 
     /// Target architecture
-    target_arch: Option<Arch>,
+    target_arch: Vec<Arch>,
 
     /// Target operating system
-    target_os: Option<OS>,
+    target_os: Vec<OS>,
 
     /// Target package // TODO: Daniel
     pub target_package: Option<Package>,
@@ -65,8 +65,8 @@ impl Query {
             package_version: None,
             package_source: None,
             severity: None,
-            target_arch: None,
-            target_os: None,
+            target_arch: Default::default(),
+            target_os: Default::default(),
             target_package: None,
             year: None,
             withdrawn: None,
@@ -93,6 +93,7 @@ impl Query {
     }
 
     /// Provide a package and use all of its attributes as part of the query
+    #[allow(clippy::assigning_clones)]
     pub fn package(mut self, package: &Package) -> Self {
         self.package_name = Some(package.name.clone());
         self.package_version = Some(package.version.clone());
@@ -128,15 +129,15 @@ impl Query {
         self
     }
 
-    /// Set target architecture
-    pub fn target_arch(mut self, arch: Arch) -> Self {
-        self.target_arch = Some(arch);
+    /// Set target architectures
+    pub fn target_arch(mut self, arch: Vec<Arch>) -> Self {
+        self.target_arch = arch;
         self
     }
 
-    /// Set target operating system
-    pub fn target_os(mut self, os: OS) -> Self {
-        self.target_os = Some(os);
+    /// Set target operating systems
+    pub fn target_os(mut self, os: Vec<OS>) -> Self {
+        self.target_os = os;
         self
     }
 
@@ -212,16 +213,24 @@ impl Query {
         }
 
         if let Some(affected) = &advisory.affected {
-            if let Some(target_arch) = self.target_arch {
-                if !affected.arch.is_empty() && !affected.arch.contains(&target_arch) {
-                    return false;
-                }
+            if !affected.arch.is_empty()
+                && !self.target_arch.is_empty()
+                && !self
+                    .target_arch
+                    .iter()
+                    .any(|target_arch| affected.arch.contains(target_arch))
+            {
+                return false;
             }
 
-            if let Some(target_os) = self.target_os {
-                if !affected.os.is_empty() && !affected.os.contains(&target_os) {
-                    return false;
-                }
+            if !affected.os.is_empty()
+                && !self.target_os.is_empty()
+                && !self
+                    .target_os
+                    .iter()
+                    .any(|target_os| affected.os.contains(target_os))
+            {
+                return false;
             }
         }
 

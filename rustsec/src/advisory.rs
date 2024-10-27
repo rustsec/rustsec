@@ -6,6 +6,7 @@ mod date;
 mod id;
 mod informational;
 mod keyword;
+mod license;
 pub mod linter;
 mod metadata;
 mod parts;
@@ -18,6 +19,7 @@ pub use self::{
     id::{Id, IdKind},
     informational::Informational,
     keyword::Keyword,
+    license::License,
     linter::Linter,
     metadata::Metadata,
     parts::Parts,
@@ -47,7 +49,7 @@ pub struct Advisory {
 }
 
 impl Advisory {
-    /// Load an advisory from a `RUSTSEC-20XX-NNNN.toml` file
+    /// Load an advisory from a `RUSTSEC-20XX-NNNN.md` file
     pub fn load_file(path: impl AsRef<Path>) -> Result<Self, Error> {
         let path = path.as_ref();
 
@@ -94,7 +96,7 @@ impl FromStr for Advisory {
     type Err = Error;
 
     fn from_str(advisory_data: &str) -> Result<Self, Error> {
-        let parts = parts::Parts::parse(advisory_data)?;
+        let parts = Parts::parse(advisory_data)?;
 
         // V4 advisories omit the leading `[advisory]` TOML table
         let front_matter = if parts.front_matter.starts_with("[advisory]") {
@@ -103,7 +105,7 @@ impl FromStr for Advisory {
             String::from("[advisory]\n") + parts.front_matter
         };
 
-        let mut advisory: Self = toml::from_str(&front_matter)?;
+        let mut advisory: Self = toml::from_str(&front_matter).map_err(Error::from_toml)?;
 
         if !advisory.metadata.title.is_empty() {
             fail!(
@@ -119,8 +121,11 @@ impl FromStr for Advisory {
             );
         }
 
-        advisory.metadata.title = parts.title.to_owned();
-        advisory.metadata.description = parts.description.to_owned();
+        #[allow(clippy::assigning_clones)]
+        {
+            advisory.metadata.title = parts.title.to_owned();
+            advisory.metadata.description = parts.description.to_owned();
+        }
 
         Ok(advisory)
     }

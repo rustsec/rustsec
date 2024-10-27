@@ -1,7 +1,7 @@
 //! `rustsec-admin osv` subcommand
 //!
 //! Exports all advisories to the OSV format defined at
-//! https://github.com/google/osv
+//! <https://github.com/google/osv>
 
 use std::{
     path::{Path, PathBuf},
@@ -16,14 +16,14 @@ use crate::osv_export::OsvExporter;
 #[derive(Command, Debug, Default, Parser)]
 pub struct OsvCmd {
     /// Path to the advisory database
-    #[clap(
+    #[arg(
         long = "db",
         help = "filesystem path to the RustSec advisory DB git repo"
     )]
     repo_path: Option<PathBuf>,
     /// Path to the output directory
-    #[clap(
-        min_values = 1,
+    #[arg(
+        num_args = 1..,
         help = "filesystem directory where OSV JSON files will be written"
     )]
     path: Vec<PathBuf>,

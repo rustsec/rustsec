@@ -24,6 +24,10 @@ pub enum ErrorKind {
     #[error("I/O error")]
     Io,
 
+    /// Parsing error
+    #[error("RustSec error")]
+    Parse,
+
     /// `rustsec` crate errors
     #[error("RustSec error")]
     RustSec,
@@ -66,8 +70,8 @@ impl From<Context<ErrorKind>> for Error {
     }
 }
 
-impl From<crates_index::Error> for Error {
-    fn from(other: crates_index::Error) -> Self {
+impl From<tame_index::Error> for Error {
+    fn from(other: tame_index::Error) -> Self {
         format_err!(ErrorKind::CratesIo, "{}", other).into()
     }
 }

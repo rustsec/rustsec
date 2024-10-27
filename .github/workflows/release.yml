@@ -1,6 +1,10 @@
 name: Release
 
 on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The tag to release
   push:
     tags:
       - cargo-audit/v*.*.*
@@ -29,57 +33,44 @@ jobs:
             os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             cross: false
-            features:
-              - fix
 
           - name: linux-x86-64-musl
             os: ubuntu-latest
             target: x86_64-unknown-linux-musl
             cross: true
-            features:
-              - fix
-              - vendored-openssl
 
           - name: linux-armv7-gnu
             os: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
             cross: true
-            features:
-              - fix
-              - vendored-openssl
 
           - name: linux-arm64-gnu
             os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             cross: true
-            features:
-              - fix
-              - vendored-openssl
 
           - name: mac-x86-64
             os: macos-latest
             target: x86_64-apple-darwin
             cross: false
-            features:
-              - fix
 
           - name: windows-x86-64
             os: windows-latest
             target: x86_64-pc-windows-msvc
             cross: false
-            features:
-              - fix
 
     name: Binaries for ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/cache@v3.0.11
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4.1.1
         with:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
-      - uses: actions/cache@v3.0.11
+          # The tag to build or the tag received by the tag event
+          ref: ${{ github.event.inputs.version || github.ref }}
+      - uses: actions/cache@v4.1.1
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
@@ -88,6 +79,9 @@ jobs:
           toolchain: stable
           profile: minimal
           override: true
+      - name: Install target using rustup
+        shell: bash
+        run: rustup target add ${{ matrix.target }}
       - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505
         name: Build
         with:
@@ -119,7 +113,7 @@ jobs:
           version=$(echo "${{ github.ref }}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           7z a "../$dst.zip" "$dst"
-      - uses: softprops/action-gh-release@c9b46fe7aad9f02afd89b12450b780f52dacfb2d
+      - uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191
         with:
           files: |
             cargo-audit-*.tgz

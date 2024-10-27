@@ -15,9 +15,6 @@ use crate::{
 };
 use serde::{Deserialize, Serialize};
 
-#[cfg(feature = "git")]
-use std::time::SystemTime;
-
 /// Vulnerability report for a given lockfile
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Report {
@@ -65,10 +62,10 @@ impl Report {
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Settings {
     /// CPU architecture
-    pub target_arch: Option<Arch>,
+    pub target_arch: Vec<Arch>,
 
     /// Operating system
-    pub target_os: Option<OS>,
+    pub target_os: Vec<OS>,
 
     /// Severity threshold to alert at
     pub severity: Option<advisory::Severity>,
@@ -88,15 +85,9 @@ impl Settings {
     /// Note that queries can't filter ignored advisories, so this happens in
     /// a separate pass
     pub fn query(&self) -> Query {
-        let mut query = Query::crate_scope();
-
-        if let Some(target_arch) = self.target_arch {
-            query = query.target_arch(target_arch);
-        }
-
-        if let Some(target_os) = self.target_os {
-            query = query.target_os(target_os);
-        }
+        let mut query = Query::crate_scope()
+            .target_arch(self.target_arch.clone())
+            .target_os(self.target_os.clone());
 
         if let Some(severity) = self.severity {
             query = query.severity(severity);
@@ -127,8 +118,8 @@ pub struct DatabaseInfo {
     pub last_commit: Option<String>,
 
     /// Date when the advisory database was last committed to
-    #[serde(rename = "last-updated", with = "humantime_serde")]
-    pub last_updated: Option<SystemTime>,
+    #[serde(rename = "last-updated", with = "time::serde::rfc3339::option")]
+    pub last_updated: Option<time::OffsetDateTime>,
 }
 
 #[cfg(feature = "git")]
@@ -137,7 +128,7 @@ impl DatabaseInfo {
     pub fn new(db: &Database) -> Self {
         Self {
             advisory_count: db.iter().count(),
-            last_commit: db.latest_commit().map(|c| c.commit_id.clone()),
+            last_commit: db.latest_commit().map(|c| c.commit_id.to_hex()),
             last_updated: db.latest_commit().map(|c| c.timestamp),
         }
     }
@@ -220,6 +211,7 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
                 warning_kind,
                 &advisory_vuln.package,
                 Some(advisory.clone()),
+                advisory_vuln.affected.clone(),
                 Some(advisory_vuln.versions.clone()),
             );
 

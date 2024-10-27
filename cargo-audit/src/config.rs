@@ -51,11 +51,11 @@ pub struct AuditConfig {
 impl AuditConfig {
     /// Get audit report settings from the configuration
     pub fn report_settings(&self) -> report::Settings {
-        let mut settings = rustsec::report::Settings {
+        let mut settings = report::Settings {
             ignore: self.advisories.ignore.clone(),
             severity: self.advisories.severity_threshold,
-            target_arch: self.target.arch,
-            target_os: self.target.os,
+            target_arch: self.target.arch(),
+            target_os: self.target.os(),
             target_package_info: match self.target_package_spec.clone() {
                 | None => None,
                 | Some(spec) =>  Some(TargetPackageInfo::new(spec.name, spec.version, spec.url, self.target_package_ids.clone().unwrap())),
@@ -64,7 +64,9 @@ impl AuditConfig {
         };
 
         if let Some(informational_warnings) = &self.advisories.informational_warnings {
-            settings.informational_warnings = informational_warnings.clone();
+            settings
+                .informational_warnings
+                .clone_from(informational_warnings);
         } else {
             // Alert for all informational packages by default
             settings.informational_warnings = vec![
@@ -205,12 +207,16 @@ impl DenyOption {
         ]
     }
     /// Get the warning::Kind that corresponds to self, if applicable
-    pub fn get_warning_kind(self) -> Option<WarningKind> {
+    pub fn get_warning_kind(self) -> &'static [WarningKind] {
         match self {
-            DenyOption::Warnings => None,
-            DenyOption::Unmaintained => Some(WarningKind::Unmaintained),
-            DenyOption::Unsound => Some(WarningKind::Unsound),
-            DenyOption::Yanked => Some(WarningKind::Yanked),
+            DenyOption::Warnings => &[
+                WarningKind::Unmaintained,
+                WarningKind::Unsound,
+                WarningKind::Yanked,
+            ],
+            DenyOption::Unmaintained => &[WarningKind::Unmaintained],
+            DenyOption::Unsound => &[WarningKind::Unsound],
+            DenyOption::Yanked => &[WarningKind::Yanked],
         }
     }
 }
@@ -233,7 +239,7 @@ impl FromStr for DenyOption {
 }
 
 /// Output format
-#[derive(Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Default, Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub enum OutputFormat {
     /// Display JSON
     #[serde(rename = "json")]
@@ -241,13 +247,25 @@ pub enum OutputFormat {
 
     /// Display human-readable output to the terminal
     #[serde(rename = "terminal")]
+    #[default]
     Terminal,
 }
 
-impl Default for OutputFormat {
-    fn default() -> Self {
-        OutputFormat::Terminal
-    }
+/// Helper enum for configuring filter values
+///
+/// This enum exists for backwards compatibility reasons.
+/// In `cargo-audit` versions `<= 0.20.0` target's config
+/// options `arch` and `os` were deserialized from a single
+/// string. But following next minor release those values can be
+/// configured as a list. Serde's untagged enum provides
+/// dispatch that is backwards compatible.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum FilterList<T> {
+    /// Legacy, single filter value
+    Single(T),
+    /// List of filters
+    Many(Vec<T>),
 }
 
 /// Target configuration
@@ -255,10 +273,30 @@ impl Default for OutputFormat {
 #[serde(deny_unknown_fields)]
 pub struct TargetConfig {
     /// Target architecture to find vulnerabilities for
-    pub arch: Option<Arch>,
+    pub arch: Option<FilterList<Arch>>,
 
     /// Target OS to find vulnerabilities for
-    pub os: Option<OS>,
+    pub os: Option<FilterList<OS>>,
+}
+
+impl TargetConfig {
+    /// Returns list of configured target architectures, cloning if needed
+    pub fn arch(&self) -> Vec<Arch> {
+        match &self.arch {
+            Some(FilterList::Single(single)) => vec![*single],
+            Some(FilterList::Many(many)) => many.clone(),
+            None => vec![],
+        }
+    }
+
+    /// Returns list of configured target operating systems, cloning if needed
+    pub fn os(&self) -> Vec<OS> {
+        match &self.os {
+            Some(FilterList::Single(single)) => vec![*single],
+            Some(FilterList::Many(many)) => many.clone(),
+            None => vec![],
+        }
+    }
 }
 
 /// Configuration for auditing for yanked crates

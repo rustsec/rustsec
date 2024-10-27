@@ -10,6 +10,7 @@ use rustsec::platforms::{platform::PlatformReq, OS};
 use crate::binary_format::BinaryFormat;
 
 pub fn filter_report_by_binary_type(binary_type: &BinaryFormat, report: &mut rustsec::Report) {
+    // Filter vulnerabilities
     let vulns = &mut report.vulnerabilities;
     assert_eq!(
         vulns.list.len(),
@@ -21,8 +22,12 @@ pub fn filter_report_by_binary_type(binary_type: &BinaryFormat, report: &mut rus
         .retain(|vuln| advisory_applicable_to_binary(binary_type, &vuln.affected));
     vulns.count = vulns.list.len();
     vulns.found = !vulns.list.is_empty();
-    // TODO: warnings do not have information about the platform they affect,
-    // so they're impossible to filter at this layer. This requires modifications to the `rustsec` crate.
+
+    // Filter warnings
+    let warns = &mut report.warnings;
+    warns.iter_mut().for_each(|(_kind, warnings)| {
+        warnings.retain(|w| advisory_applicable_to_binary(binary_type, &w.affected))
+    });
 }
 
 fn advisory_applicable_to_binary(
@@ -54,6 +59,17 @@ fn at_least_one_os_runs_binary(binary_type: &BinaryFormat, os_list: &[OS]) -> bo
             // Sadly `rustc --print-cfg` doesn't expose this information.
             // Perhaps we can make `platforms` expose the `family` which can be `windows` or `unix` or `unknown`?
             // That way we can capture all the unix-likes as using ELF and discard everything else
+        }
+        Wasm => {
+            // WASM doesn't have an OS, so OS-specific vulns should not be an issue.
+            // There isn't really a way to indicate WASM-specific vulns,
+            // because in Rustc's terms WASM is not an OS.
+            // Assume vulns with `Unknown` and `None` OS still apply,
+            // just to have some last-ditch way to indicate WASM is affected
+            // other than including all the platforms ever.
+            os_list
+                .iter()
+                .any(|os| os == &OS::Unknown || os == &OS::None)
         }
         Unknown => true, // might be possible for detection based on panic messages?
     }

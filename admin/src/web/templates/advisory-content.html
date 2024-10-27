@@ -3,7 +3,8 @@
     {% when Some with (collection) %}
         <span class="floating-menu">
           <a href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">History</a> ⋅ 
-          <a href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a>
+          <a href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a> ⋅
+          <a href="https://api.osv.dev/v1/vulns/{{ advisory.id() }}">JSON (OSV)</a>
         </span>
     {% when None %}
     {% endmatch %}
@@ -29,18 +30,18 @@
       <dt id="reported">Reported</dt>
       <dd>
         <time datetime="{{ advisory.date().as_str() }}">
-          {{ advisory.date() | friendly_date }}
+          {{ advisory.date()|friendly_date }}
         </time>
       </dd>
 
       <dt id="issued">Issued</dt>
       <dd>
         <time datetime="{{ cdate.as_str() }}">
-          {{ cdate.clone() | friendly_date }}
+          {{ cdate.clone()|friendly_date }}
         </time>
         {% if cdate != mdate %}
         <time datetime="{{ mdate.as_str() }}">
-          (last modified: {{ mdate.clone() | friendly_date }})
+          (last modified: {{ mdate.clone()|friendly_date }})
         </time>
         {% endif %}
       </dd>
@@ -65,7 +66,7 @@
         {% match advisory.metadata.informational %}
         {% when Some with (informational) %}
         <span class="tag info">INFO</span>
-        {{ informational.to_string() | capitalize }}
+        {{ informational.to_string()|capitalize }}
         {% when None %}
         Vulnerability
         {% endmatch %}
@@ -86,7 +87,7 @@
       <dt id="keywords">Keywords</dt>
       <dd>
         {% for keyword in advisory.metadata.keywords %}
-          <a href="/keywords/{{ keyword.as_str() | safe_keyword }}.html">#{{ keyword.as_str() | safe_keyword }}</a>
+          <a href="/keywords/{{ keyword.as_str()|safe_keyword }}.html">#{{ keyword.as_str()|safe_keyword }}</a>
         {% endfor %}
       </dd>
       {% endif %}
@@ -109,12 +110,25 @@
       </dd>
       {% endif %}
 
-      {% if advisory.metadata.url.is_some() %}
-      <dt id="details">Details</dt>
+      {% if advisory.metadata.url.is_some() || !advisory.metadata.references.is_empty() %}
+      <dt id="details">References</dt>
       <dd>
-        <a href="{{ advisory.metadata.url.as_ref().unwrap() }}">
-          {{ advisory.metadata.url.as_ref().unwrap() }}
-        </a>
+        <ul>
+        {% if advisory.metadata.url.is_some() %}
+          <li>
+            <a href="{{ advisory.metadata.url.as_ref().unwrap() }}">
+              {{ advisory.metadata.url.as_ref().unwrap() }}
+            </a>
+          </li>
+        {% endif %}
+        {% for reference in advisory.metadata.references %}
+          <li>
+            <a href="{{ reference }}">
+              {{ reference }}
+            </a>
+          </li>
+        {% endfor %}
+        </ul>
       </dd>
       {% endif %}
 
@@ -140,7 +154,7 @@
       {% when Some with (cvss) %}
       <dt id="cvss_score">CVSS Score</dt>
       <dd>{{ cvss.score().value() }} <span class="tag {{ advisory.severity().unwrap() }}">
-        {{ advisory.severity().unwrap() | upper }}
+        {{ advisory.severity().unwrap()|upper }}
       </span></dd>
 
       <dt id="cvss_details">CVSS Details</dt>
@@ -154,7 +168,7 @@
 
           {% match cvss.ac %}
           {% when Some with (ac) %}
-          <dt>Attack complexity</dt><dd>{{ "{:?}"|format(ac) }}</d>
+          <dt>Attack complexity</dt><dd>{{ "{:?}"|format(ac) }}</dd>
           {% when None %}
           {% endmatch %}
 
@@ -277,4 +291,17 @@
 
     <h3 id="description">Description</h3>
     {{ rendered_description|safe }}
+
+    <p id="license" class="license">Advisory available under <a href="https://spdx.org/licenses/{{ advisory.metadata.license.spdx() }}.html">{{ advisory.metadata.license.spdx() }}</a>
+    license.
+
+    {% if advisory.metadata.license == rustsec::advisory::License::CcBy40 %}
+      {# License requires attribution, make it explicit #}
+      {% match advisory.metadata.url %}
+        {% when Some with (url) %}
+          Source: <a href="{{ url }}">{{ url }}</a>
+        {% when None %}
+      {% endmatch %}
+    {% endif %}
+    </p>
   </article>

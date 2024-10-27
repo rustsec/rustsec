@@ -206,7 +206,7 @@ fn version() {
         .unwrap();
     assert_eq!(
         version_information,
-        format!("cargo-audit {}\n", env!("CARGO_PKG_VERSION"))
+        format!("cargo-audit-audit {}\n", env!("CARGO_PKG_VERSION"))
     );
     process.wait().unwrap().expect_success();
 }
@@ -306,4 +306,10 @@ fn notice_advisories_found_json() {
         .unwrap();
 
     assert_eq!(advisory_id, "RUSTSEC-2022-0058");
+}
+
+#[test]
+fn branch_regression() {
+    // Verifies that we don't crash on this Cargo.lock
+    new_cmd_runner("branch-regression").status().expect_code(1);
 }

@@ -1,5 +1,6 @@
 function search(term, redirect) {
-    term = term.trim()
+    original_term = term.trim()
+    term = original_term.toLowerCase()
 
     // Try to open destination directly, only display search page if multiple results
     if (packages.includes(term)) {
@@ -15,7 +16,7 @@ function search(term, redirect) {
     // For this we need to be on the search page, so let's redirect if not already there.
     if (redirect) {
         const params = new URLSearchParams({
-            q: encodeURIComponent(term),
+            q: encodeURIComponent(original_term),
         });
         window.open('/search.html?'+params.toString(),'_self');
         return false;
@@ -26,7 +27,7 @@ function search(term, redirect) {
 
     // use document.createTextNode for escaping
     document.getElementById('searched-term').innerHTML = ""
-    document.getElementById('searched-term').appendChild(document.createTextNode("Search results for '"+term+"'"));
+    document.getElementById('searched-term').appendChild(document.createTextNode("Search results for '"+original_term+"'"));
     if (term in ids) {
         var ul = document.createElement('ul');
         ids[term].forEach(function (item, index) {

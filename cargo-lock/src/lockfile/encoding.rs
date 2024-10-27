@@ -126,7 +126,7 @@ impl From<&Lockfile> for EncodableLockfile {
         }
 
         for package in &lockfile.packages {
-            let mut raw_pkg = EncodablePackage::from(package);
+            let mut raw_pkg = EncodablePackage::from_package(package, lockfile.version);
             let checksum_key = metadata::MetadataKey::for_checksum(&Dependency::from(package));
 
             if lockfile.version == ResolveVersion::V1 {
@@ -169,13 +169,17 @@ impl From<&Lockfile> for EncodableLockfile {
         EncodableLockfile {
             version,
             package: packages,
-            root: lockfile.root.as_ref().map(|root| root.into()),
+            root: lockfile
+                .root
+                .as_ref()
+                .map(|root| EncodablePackage::from_package(root, lockfile.version)),
             metadata,
             patch: lockfile.patch.clone(),
         }
     }
 }
 
+#[allow(clippy::to_string_trait_impl)]
 impl ToString for EncodableLockfile {
     /// Adapted from `serialize_resolve` in upstream Cargo:
     /// <https://github.com/rust-lang/cargo/blob/0c70319/src/cargo/ops/lockfile.rs#L103-L174>
@@ -277,7 +281,7 @@ pub(crate) struct EncodablePackage {
     pub(super) version: Version,
 
     /// Source of a package
-    pub(super) source: Option<SourceId>,
+    pub(super) source: Option<EncodableSourceId>,
 
     /// Package checksum
     pub(super) checksum: Option<Checksum>,
@@ -303,7 +307,7 @@ impl EncodablePackage {
         Ok(Package {
             name: self.name.clone(),
             version: self.version.clone(),
-            source: self.source.clone(),
+            source: self.source.as_ref().map(|s| s.inner.clone()),
             checksum: self.checksum.clone(),
             dependencies,
             replace: self
@@ -320,6 +324,39 @@ impl EncodablePackage {
             dependency.v2(packages);
         }
     }
+
+    fn from_package(package: &Package, version: ResolveVersion) -> EncodablePackage {
+        EncodablePackage {
+            name: package.name.clone(),
+            version: package.version.clone(),
+            source: package
+                .source
+                .clone()
+                .and_then(|id| encodable_source_id(id, version)),
+            checksum: package.checksum.clone(),
+            dependencies: package
+                .dependencies
+                .iter()
+                .map(|dep| EncodableDependency::from_dependency(dep, version))
+                .collect::<Vec<_>>(),
+            replace: package
+                .replace
+                .as_ref()
+                .map(|rep| EncodableDependency::from_dependency(rep, version)),
+        }
+    }
+}
+
+fn encodable_source_id(id: SourceId, version: ResolveVersion) -> Option<EncodableSourceId> {
+    if id.is_path() {
+        None
+    } else {
+        Some(if version >= ResolveVersion::V4 {
+            EncodableSourceId::new(id)
+        } else {
+            EncodableSourceId::without_url_encoded(id)
+        })
+    }
 }
 
 /// Note: this only works for `ResolveVersion::V1` dependencies.
@@ -328,23 +365,6 @@ impl TryFrom<&EncodablePackage> for Package {
 
     fn try_from(raw_package: &EncodablePackage) -> Result<Package> {
         raw_package.resolve(&[])
-    }
-}
-
-impl From<&Package> for EncodablePackage {
-    fn from(package: &Package) -> EncodablePackage {
-        EncodablePackage {
-            name: package.name.clone(),
-            version: package.version.clone(),
-            source: package.source.clone(),
-            checksum: package.checksum.clone(),
-            dependencies: package
-                .dependencies
-                .iter()
-                .map(|dep| dep.into())
-                .collect::<Vec<_>>(),
-            replace: package.replace.as_ref().map(|rep| rep.into()),
-        }
     }
 }
 
@@ -358,7 +378,7 @@ pub(crate) struct EncodableDependency {
     pub(super) version: Option<Version>,
 
     /// Source for the dependency
-    pub(super) source: Option<SourceId>,
+    pub(super) source: Option<EncodableSourceId>,
 }
 
 impl EncodableDependency {
@@ -412,8 +432,20 @@ impl EncodableDependency {
             self.source = None;
         }
     }
+
+    pub fn from_dependency(dep: &Dependency, version: ResolveVersion) -> EncodableDependency {
+        EncodableDependency {
+            name: dep.name.clone(),
+            version: Some(dep.version.clone()),
+            source: dep
+                .source
+                .clone()
+                .and_then(|id| encodable_source_id(id, version)),
+        }
+    }
 }
 
+/// Note: this only works for `ResolveVersion::V1` dependencies.
 impl FromStr for EncodableDependency {
     type Err = Error;
 
@@ -436,7 +468,7 @@ impl FromStr for EncodableDependency {
                         s
                     )))
                 } else {
-                    s[1..(s.len() - 1)].parse()
+                    s[1..(s.len() - 1)].parse::<SourceId>()
                 }
             })
             .transpose()?;
@@ -448,7 +480,10 @@ impl FromStr for EncodableDependency {
         Ok(Self {
             name,
             version,
-            source,
+            // `EncodableDependency::from_str` is found only used by MetadataKey,
+            // which is only a thing in lockfile v1.
+            // Hence, no need for url encoding.
+            source: source.map(EncodableSourceId::without_url_encoded),
         })
     }
 }
@@ -462,7 +497,7 @@ impl fmt::Display for EncodableDependency {
         }
 
         if let Some(source) = &self.source {
-            write!(f, " ({})", source)?;
+            write!(f, " ({})", source.as_url())?;
         }
 
         Ok(())
@@ -475,16 +510,6 @@ impl TryFrom<&EncodableDependency> for Dependency {
 
     fn try_from(raw_dependency: &EncodableDependency) -> Result<Dependency> {
         raw_dependency.resolve(&[])
-    }
-}
-
-impl From<&Dependency> for EncodableDependency {
-    fn from(package: &Dependency) -> EncodableDependency {
-        EncodableDependency {
-            name: package.name.clone(),
-            version: Some(package.version.clone()),
-            source: package.source.clone(),
-        }
     }
 }
 
@@ -503,3 +528,70 @@ impl Serialize for EncodableDependency {
         self.to_string().serialize(serializer)
     }
 }
+
+/// Pretty much equivalent to [`SourceId`] with a different serialization method.
+///
+/// The serialization for `SourceId` doesn't do URL encode for parameters.
+/// In contrast, this type is aware of that whenever [`ResolveVersion`] allows
+/// us to do so (v4 or later).
+#[derive(Deserialize, Debug, PartialOrd, Ord, Clone)]
+#[serde(transparent)]
+pub(super) struct EncodableSourceId {
+    inner: SourceId,
+    /// We don't care about the deserialization of this, as the `url` crate
+    /// will always decode as the URL was encoded.
+    #[serde(skip)]
+    encoded: bool,
+}
+
+impl EncodableSourceId {
+    /// Creates a `EncodableSourceId` that always encodes URL params.
+    fn new(inner: SourceId) -> Self {
+        Self {
+            inner,
+            encoded: true,
+        }
+    }
+
+    /// Creates a `EncodableSourceId` that doesn't encode URL params. This is
+    /// for backward compatibility for order lockfile version.
+    fn without_url_encoded(inner: SourceId) -> Self {
+        Self {
+            inner,
+            encoded: false,
+        }
+    }
+
+    /// Encodes the inner [`SourceId`] as a URL.
+    fn as_url(&self) -> impl fmt::Display + '_ {
+        self.inner.as_url(self.encoded)
+    }
+}
+
+impl std::ops::Deref for EncodableSourceId {
+    type Target = SourceId;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl Serialize for EncodableSourceId {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error> {
+        serializer.collect_str(&self.as_url())
+    }
+}
+
+impl std::hash::Hash for EncodableSourceId {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.inner.hash(state)
+    }
+}
+
+impl PartialEq for EncodableSourceId {
+    fn eq(&self, other: &Self) -> bool {
+        self.inner == other.inner
+    }
+}
+
+impl Eq for EncodableSourceId {}

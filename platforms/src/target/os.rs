@@ -46,6 +46,9 @@ pub enum OS {
     /// `horizon`
     Horizon,
 
+    /// `hurd`
+    Hurd,
+
     /// `illumos`: illumos is a partly free and open-source Unix operating system based on OpenSolaris
     IllumOS,
 
@@ -86,6 +89,9 @@ pub enum OS {
     /// `solid_asp3`
     SolidAsp3,
 
+    /// `teeos`
+    TeeOS,
+
     /// `tvos`
     TvOS,
 
@@ -94,6 +100,9 @@ pub enum OS {
 
     /// `unknown`
     Unknown,
+
+    /// `visionos`
+    VisionOS,
 
     /// `vita`
     Vita,
@@ -112,6 +121,9 @@ pub enum OS {
 
     /// `xous`
     Xous,
+
+    /// `zkvm`
+    Zkvm,
 }
 
 impl OS {
@@ -129,6 +141,7 @@ impl OS {
             OS::Haiku => "haiku",
             OS::Hermit => "hermit",
             OS::Horizon => "horizon",
+            OS::Hurd => "hurd",
             OS::IllumOS => "illumos",
             OS::iOS => "ios",
             OS::L4re => "l4re",
@@ -142,15 +155,18 @@ impl OS {
             OS::Redox => "redox",
             OS::Solaris => "solaris",
             OS::SolidAsp3 => "solid_asp3",
+            OS::TeeOS => "teeos",
             OS::TvOS => "tvos",
             OS::Uefi => "uefi",
             OS::Unknown => "unknown",
+            OS::VisionOS => "visionos",
             OS::Vita => "vita",
             OS::VxWorks => "vxworks",
             OS::Wasi => "wasi",
             OS::WatchOS => "watchos",
             OS::Windows => "windows",
             OS::Xous => "xous",
+            OS::Zkvm => "zkvm",
         }
     }
 }
@@ -172,6 +188,7 @@ impl FromStr for OS {
             "haiku" => OS::Haiku,
             "hermit" => OS::Hermit,
             "horizon" => OS::Horizon,
+            "hurd" => OS::Hurd,
             "illumos" => OS::IllumOS,
             "ios" => OS::iOS,
             "l4re" => OS::L4re,
@@ -185,15 +202,18 @@ impl FromStr for OS {
             "redox" => OS::Redox,
             "solaris" => OS::Solaris,
             "solid_asp3" => OS::SolidAsp3,
+            "teeos" => OS::TeeOS,
             "tvos" => OS::TvOS,
             "uefi" => OS::Uefi,
             "unknown" => OS::Unknown,
+            "visionos" => OS::VisionOS,
             "vita" => OS::Vita,
             "vxworks" => OS::VxWorks,
             "wasi" => OS::Wasi,
             "watchos" => OS::WatchOS,
             "windows" => OS::Windows,
             "xous" => OS::Xous,
+            "zkvm" => OS::Zkvm,
             _ => return Err(Error),
         };
 

@@ -4,6 +4,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.20.0 (2024-02-16)
+
+ - Completely rewritten `cargo audit fix` subcommand ([#1113])
+   - Now it edits `Cargo.lock` as opposed to `Cargo.toml`, and performs only semver-compatible upgrades.
+   - Fixes are performed by calling `cargo update`, migrating away from the unmaintained `cargo-edit-9` crate.
+   - The subcommand is still experimental, and its behavior may change in the future. It still requires enabling the non-default `fix` feature.
+ - Require `tame-index` 0.9.3 or later, fixing [issues with some enterprise firewalls](https://github.com/rustsec/rustsec/issues/1058). ([#1103])
+
+[#1103]: https://github.com/rustsec/rustsec/pull/1103
+[#1113]: https://github.com/rustsec/rustsec/pull/1113
+
+## 0.19.0 (2024-02-03)
+
+### Fixed
+
+ - Fix `--color=auto` always printing terminal escape sequences ([#1057])
+
+### Changed
+
+ - Display the chain of errors instead of just the top-level error for more complete error reporting ([#1063])
+ - Upgrade to clap 4.x and abscissa-core 0.7.x. This may have introduced minor changes to the command-line interface. This is the reason for the minor version bump. ([#1092])
+
+[#1057]: https://github.com/rustsec/rustsec/pull/1057
+[#1063]: https://github.com/rustsec/rustsec/pull/1063
+[#1092]: https://github.com/rustsec/rustsec/pull/1092
+
+## 0.18.3 (2023-10-24)
+
+### Fixed
+
+ - Fix a deadlock when the `Cargo.lock` file is missing. It only occurs with `rustsec` v0.28.3 or later. ([#1051])
+
+[#1051]: https://github.com/rustsec/rustsec/pull/1051
+
+## 0.18.2 (2023-09-25)
+
+### Fixed
+
+- Fix [RUSTSEC-2023-0064](https://rustsec.org/advisories/RUSTSEC-2023-0064.html) security issue by requiring `rustsec` 0.28.2 or higher.
+
+[#980]: https://github.com/rustsec/rustsec/pull/980
+
+## 0.18.1 (2023-08-31)
+
+### Fixed
+
+- Release workflow: don't enable `fix` and `vendored-openssl` features ([#980])
+
+[#980]: https://github.com/rustsec/rustsec/pull/980
+
+## 0.18.0 (2023-08-31)
+
+### Added
+
+ - Implement proper attribution for advisories licensed under CC-BY ([#955])
+ - `cargo audit bin` no longer shows warnings not applicable to the binary type (e.g. no more reports of Windows-only unsoundness in ELF binaries). Previously this was implemented for vulnerabilities, but not warnings. ([#964])
+
+### Changed
+
+ - Upgraded to `rustsec` v0.28, bringing performance, security and compatibility improvements, but also temporarily dropping support for CPU platforms other than x86 and ARM. See the [rustsec changelog](https://github.com/rustsec/rustsec/blob/main/rustsec/CHANGELOG.md) for details.
+
+[#955]: https://github.com/rustsec/rustsec/pull/955
+[#964]: https://github.com/rustsec/rustsec/pull/964
+
 ## 0.17.6 (2023-05-10)
 
 ### Added

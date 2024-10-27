@@ -1,17 +1,19 @@
 //! Core auditing functionality
 
 use crate::{
-    binary_format::BinaryFormat, config::AuditConfig, lockfile, prelude::*, presenter::Presenter,
+    binary_format::BinaryFormat, config::AuditConfig, error::display_err_with_source, prelude::*,
+    presenter::Presenter,
 };
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 use std::{
     io::{self, Read},
     path::Path,
     process::exit,
+    time::Duration,
 };
 
-/// Name of `Cargo.lock`
-const CARGO_LOCK_FILE: &str = "Cargo.lock";
+// TODO: make configurable
+const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 /// Security vulnerability auditor
 pub struct Auditor {
@@ -50,23 +52,47 @@ impl Auditor {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
 
-            let advisory_db_repo = rustsec::repository::git::Repository::fetch(
+            let mut result = rustsec::repository::git::Repository::fetch(
                 advisory_db_url,
                 &advisory_db_path,
                 !config.database.stale,
-            )
-            .unwrap_or_else(|e| {
-                status_err!("couldn't fetch advisory database: {}", e);
+                Duration::from_secs(0),
+            );
+            // If the directory is locked, print a message and wait for it to become unlocked.
+            // If we don't print the message, `cargo audit` would just hang with no explanation.
+            if let Err(e) = &result {
+                if e.kind() == ErrorKind::LockTimeout {
+                    status_warn!("directory {} is locked, waiting for up to {} seconds for it to become available", advisory_db_path.display(), DEFAULT_LOCK_TIMEOUT.as_secs());
+                    result = rustsec::repository::git::Repository::fetch(
+                        advisory_db_url,
+                        &advisory_db_path,
+                        !config.database.stale,
+                        DEFAULT_LOCK_TIMEOUT,
+                    );
+                }
+            }
+
+            let advisory_db_repo = result.unwrap_or_else(|e| {
+                status_err!(
+                    "couldn't fetch advisory database: {}",
+                    display_err_with_source(&e)
+                );
                 exit(1);
             });
 
             rustsec::Database::load_from_repo(&advisory_db_repo).unwrap_or_else(|e| {
-                status_err!("error loading advisory database: {}", e);
+                status_err!(
+                    "error loading advisory database: {}",
+                    display_err_with_source(&e)
+                );
                 exit(1);
             })
         } else {
             rustsec::Database::open(&advisory_db_path).unwrap_or_else(|e| {
-                status_err!("error loading advisory database: {}", e);
+                status_err!(
+                    "error loading advisory database: {}",
+                    display_err_with_source(&e)
+                );
                 exit(1);
             })
         };
@@ -86,7 +112,18 @@ impl Auditor {
                     status_ok!("Updating", "crates.io index");
                 }
 
-                match registry::CachedIndex::fetch() {
+                let mut result = registry::CachedIndex::fetch(None, Duration::from_secs(0));
+
+                // If the directory is locked, print a message and wait for it to become unlocked.
+                // If we don't print the message, `cargo audit` would just hang with no explanation.
+                if let Err(e) = &result {
+                    if e.kind() == ErrorKind::LockTimeout {
+                        status_warn!("directory {} is locked, waiting for up to {} seconds for it to become available", advisory_db_path.display(), DEFAULT_LOCK_TIMEOUT.as_secs());
+                        result = registry::CachedIndex::fetch(None, DEFAULT_LOCK_TIMEOUT);
+                    }
+                }
+
+                match result {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
@@ -97,7 +134,18 @@ impl Auditor {
                     }
                 }
             } else {
-                match registry::CachedIndex::open() {
+                let mut result = registry::CachedIndex::open(Duration::from_secs(0));
+
+                // If the directory is locked, print a message and wait for it to become unlocked.
+                // If we don't print the message, `cargo audit` would just hang with no explanation.
+                if let Err(e) = &result {
+                    if e.kind() == ErrorKind::LockTimeout {
+                        status_warn!("directory {} is locked, waiting for up to {} seconds for it to become available", advisory_db_path.display(), DEFAULT_LOCK_TIMEOUT.as_secs());
+                        result = registry::CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
+                    }
+                }
+
+                match result {
                     Ok(index) => Some(index),
                     Err(err) => {
                         if !config.output.is_quiet() {
@@ -121,27 +169,14 @@ impl Auditor {
     }
 
     /// Perform an audit of a textual `Cargo.lock` file
-    pub fn audit_lockfile(
-        &mut self,
-        maybe_lockfile_path: Option<&Path>,
-    ) -> rustsec::Result<rustsec::Report> {
-        let lockfile_path = match maybe_lockfile_path {
-            Some(p) => p,
-            None => {
-                let path = Path::new(CARGO_LOCK_FILE);
-                if !path.exists() && Path::new("Cargo.toml").exists() {
-                    lockfile::generate()?;
-                }
-                path
-            }
-        };
-
+    pub fn audit_lockfile(&mut self, lockfile_path: &Path) -> rustsec::Result<rustsec::Report> {
         let lockfile = match self.load_lockfile(lockfile_path) {
             Ok(l) => l,
             Err(e) => {
-                return Err(Error::new(
+                return Err(Error::with_source(
                     ErrorKind::NotFound,
-                    &format!("Couldn't load {}: {}", lockfile_path.display(), e),
+                    format!("Couldn't load {}", lockfile_path.display()),
+                    e,
                 ))
             }
         };
@@ -173,7 +208,7 @@ impl Auditor {
                     }
                 }
                 Err(e) => {
-                    status_err!("{}", e);
+                    status_err!("{}", display_err_with_source(&e));
                     summary.errors_encountered = true;
                 }
             }
@@ -254,30 +289,29 @@ impl Auditor {
 
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
-            for pkg in &lockfile.packages {
-                if let Some(source) = &pkg.source {
-                    // only check for yanking if the package comes from crates.io
-                    if source.is_default_registry() {
-                        match index.is_yanked(pkg) {
-                            Ok(false) => (),
-                            Ok(true) => {
-                                match self.report_settings.target_package_info.as_ref() {
-                                    | None => (),
-                                    | Some(info) => if !rustsec::database::dfs(info.package.as_ref(), pkg, &tree) {
-                                        continue;
-                                    },
-                                }
+            let pkgs_to_check: Vec<_> = lockfile
+                .packages
+                .iter()
+                .filter(|pkg| match &pkg.source {
+                    Some(source) => source.is_default_registry(),
+                    None => false,
+                })
+                .collect();
 
-                                let warning = Warning::new(WarningKind::Yanked, pkg, None, None);
-                                result.push(warning);
-                            }
-                            Err(e) => status_err!(
-                                "couldn't check if the package {} is yanked: {}",
-                                &pkg.name,
-                                e
-                            ),
+            let yanked = index.find_yanked(pkgs_to_check);
+
+            for pkg in yanked {
+                match pkg {
+                    Ok(pkg) => {
+                        if rustsec::database::dfs(Some(pkg), pkg, &tree) {
+                            let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
+                            result.push(warning);
                         }
                     }
+                    Err(e) => status_err!(
+                        "couldn't check if the package is yanked: {}",
+                        display_err_with_source(&e)
+                    ),
                 }
             }
         }

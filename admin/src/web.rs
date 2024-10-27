@@ -1,4 +1,4 @@
-//! Code relating to the generation of the https://rustsec.org web site.
+//! Code relating to the generation of the <https://rustsec.org> web site.
 
 use crate::prelude::*;
 use askama::Template;
@@ -421,8 +421,8 @@ fn render_index(
     output_path: &Path,
     advisories: &[(rustsec::Advisory, advisory::Date, advisory::Date)],
 ) {
-    // Map of `ID -> related IDs` (including self, avoid redirecting to non-existent IDs)
-    let mut ids: HashMap<Id, Vec<Id>> = HashMap::new();
+    // Map of `lowercase(ID) -> related IDs` (including self, avoid redirecting to non-existent IDs)
+    let mut ids: HashMap<String, Vec<Id>> = HashMap::new();
     // List of packages
     let mut packages = HashSet::new();
 
@@ -435,11 +435,13 @@ fn render_index(
             .chain(advisory.metadata.related.iter())
             .chain(iter::once(&id))
         {
-            ids.entry(alias.to_owned())
+            // allows case-insensitive access
+            let alias = alias.to_string().to_lowercase();
+            ids.entry(alias)
                 .and_modify(|v| v.push(id.clone()))
                 .or_insert_with(|| vec![id.clone()]);
         }
-        packages.insert(advisory.metadata.package.to_string());
+        packages.insert(advisory.metadata.package.to_string().to_lowercase());
     }
     let ids_json = serde_json::to_string(&ids).unwrap();
     let package_json = serde_json::to_string(&packages).unwrap();
@@ -570,7 +572,6 @@ mod filters {
     use chrono::NaiveDate;
     use rustsec::advisory;
     use std::borrow::Borrow;
-    use std::convert::TryInto;
 
     pub fn friendly_date<T: Borrow<advisory::Date>>(date: T) -> ::askama::Result<String> {
         let date = date.borrow();

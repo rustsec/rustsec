@@ -259,7 +259,7 @@ fn main() {
     if !args.is_empty() {
         args.remove(0);
 
-        if args.get(0).map(AsRef::as_ref) == Some("lock") {
+        if args.first().map(AsRef::as_ref) == Some("lock") {
             args.remove(0);
         }
     }

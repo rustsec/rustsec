@@ -23,10 +23,10 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.65.0 # MSRV
+          - 1.70.0 # MSRV
           - stable
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -40,10 +40,10 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.65.0 # MSRV
+          - 1.70.0 # MSRV
           - stable
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -56,7 +56,7 @@ jobs:
   doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
