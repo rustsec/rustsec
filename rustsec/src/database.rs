@@ -7,6 +7,8 @@ mod query;
 pub use self::query::Query;
 
 use self::{entries::Entries, index::Index};
+#[cfg(feature = "dependency-tree")]
+use crate::package::Package;
 #[cfg(feature = "git")]
 use crate::repository::git;
 use crate::{
@@ -14,11 +16,12 @@ use crate::{
     collection::Collection,
     error::Error,
     fs,
-    package::Package,
     vulnerability::Vulnerability,
     Lockfile,
 };
+#[cfg(feature = "dependency-tree")]
 use cargo_lock::dependency;
+#[cfg(feature = "dependency-tree")]
 use petgraph::visit::Dfs;
 use std::path::Path;
 
