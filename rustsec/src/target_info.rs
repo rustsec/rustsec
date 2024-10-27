@@ -51,7 +51,7 @@ impl TargetPackageInfo {
         let maybe_targets = TargetPackageInfo::filter_name(self, lockfile)?;
     
         match maybe_targets {
-            | None => return Err(Error::new(ErrorKind::NoTargetFound, &format!("IMPOSSIBLE ARM REACHED IN find_target_package"))),
+            | None => unreachable!(),
             | Some(targets) if targets.len() == 1 => Ok(Some(targets[0].clone())),
             | Some(targets) => match self.version {
                 | None => TargetPackageInfo::filter_url(self, targets),
@@ -68,7 +68,7 @@ impl TargetPackageInfo {
             .collect();
         
         match target_packages.is_empty() {
-            | true => return Err(Error::new(ErrorKind::NoTargetFound, &format!("{}", self.cli_identifiers))),
+            | true => Err(Error::new(ErrorKind::NoTargetFound, &self.cli_identifiers)),
             | false => Ok(Some(target_packages))
         }
     }
@@ -77,7 +77,7 @@ impl TargetPackageInfo {
     fn filter_version (&self, targets: Vec<&Package>) -> Result<Option<Package>> {
         match self.version.clone() {
             // None arm should never be accessed with current flow
-            | None => return Err(Error::new(ErrorKind::MultipleTargetsFound, &format!("{}\n{}", self.cli_identifiers, TargetPackageInfo::print_ids(targets)))),
+            | None => Err(Error::new(ErrorKind::MultipleTargetsFound, &format!("{}\n{}", self.cli_identifiers, TargetPackageInfo::print_ids(targets)))),
             | Some(version) => {
                 let filtered_targets:Vec<&Package> = targets
                     .into_iter()
@@ -85,7 +85,7 @@ impl TargetPackageInfo {
                     .collect();
             
                 match filtered_targets.len() {
-                    | 0 => return Err(Error::new(ErrorKind::NoTargetFound, &format!("{}", self.cli_identifiers))),
+                    | 0 => Err(Error::new(ErrorKind::NoTargetFound, &self.cli_identifiers.to_string())),
                     | 1 => Ok(Some(filtered_targets[0].clone())),
                     | _ => TargetPackageInfo::filter_url(self, filtered_targets),
                 }
@@ -96,7 +96,7 @@ impl TargetPackageInfo {
     /// Filters a list of packages for a package matching the target package url, and url if mul.
     fn filter_url (&self, targets: Vec<&Package>) -> Result<Option<Package>> {
         match self.url.clone() {
-            | None => return Err(Error::new(ErrorKind::MultipleTargetsFound, &format!("{}\n{}", self.cli_identifiers, TargetPackageInfo::print_ids(targets)))),
+            | None => Err(Error::new(ErrorKind::MultipleTargetsFound, &format!("{}\n{}", self.cli_identifiers, TargetPackageInfo::print_ids(targets)))),
             | Some(url) => {
                 let filtered_targets:Vec<&Package> = targets
                     .into_iter()
@@ -104,9 +104,9 @@ impl TargetPackageInfo {
                     .collect();
             
                 match filtered_targets.len() {
-                    | 0 => return Err(Error::new(ErrorKind::NoTargetFound, &format!("{}", self.cli_identifiers))),
+                    | 0 => Err(Error::new(ErrorKind::NoTargetFound, &self.cli_identifiers.to_string())),
                     | 1 => Ok(Some(filtered_targets[0].clone())),
-                    | _ => return Err(Error::new(ErrorKind::MultipleTargetsFound, &format!("{}\n{}", self.cli_identifiers, TargetPackageInfo::print_ids(filtered_targets)))),
+                    | _ => Err(Error::new(ErrorKind::MultipleTargetsFound, &format!("{}\n{}", self.cli_identifiers, TargetPackageInfo::print_ids(filtered_targets)))),
                 }
             }
         }
@@ -133,6 +133,6 @@ impl TargetPackageInfo {
             msg.push_str(package.version.to_string().as_str());
             
         }    
-        return msg.to_string();
+        msg.to_string()
     }
 }
