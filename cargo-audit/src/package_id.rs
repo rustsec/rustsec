@@ -33,7 +33,7 @@ impl PackageIdSpec {
     /// Some examples of valid strings
     ///
     /// ```
-    /// use cargo::core::PackageIdSpec;
+    /// use cargo_audit::package_id::PackageIdSpec;
     ///
     /// let specs = vec![
     ///     "https://crates.io/foo",
@@ -47,6 +47,7 @@ impl PackageIdSpec {
     /// for spec in specs {
     ///     assert!(PackageIdSpec::parse(spec).is_ok());
     /// }
+    /// ```
     pub fn parse(spec: &str) -> rustsec::Result<PackageIdSpec> {
         if spec.contains("://") {
             if let Ok(url) = Url::parse(spec).map_err(|s| format!("Invalid url `{}`: {}", spec, s)) {

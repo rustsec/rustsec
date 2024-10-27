@@ -283,6 +283,7 @@ impl Auditor {
     }
 
     fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
+        #[cfg(feature = "dependency-tree")]
         let tree = lockfile
             .dependency_tree()
             .expect("invalid Cargo.lock dependency tree");
@@ -303,10 +304,14 @@ impl Auditor {
             for pkg in yanked {
                 match pkg {
                     Ok(pkg) => {
+                        #[cfg(feature = "dependency-tree")]
                         if rustsec::database::dfs(Some(pkg), pkg, &tree) {
                             let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
                             result.push(warning);
                         }
+                        #[cfg(not(feature = "dependency-tree"))]
+                        let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
+                        result.push(warning);
                     }
                     Err(e) => status_err!(
                         "couldn't check if the package is yanked: {}",

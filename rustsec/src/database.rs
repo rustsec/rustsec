@@ -143,6 +143,7 @@ impl Database {
     pub fn query_vulnerabilities(&self, lockfile: &Lockfile, query: &Query) -> Vec<Vulnerability> {
         let mut vulns = vec![];
 
+        #[cfg(feature = "dependency-tree")]
         let tree = lockfile
             .dependency_tree()
             .expect("invalid Cargo.lock dependency tree");
@@ -151,7 +152,12 @@ impl Database {
 
             let advisories = self.query(&query.clone().package(package));
 
-            if advisories.is_empty() || !dfs(query.target_package.as_ref(), package, &tree) {
+            if advisories.is_empty() {
+                continue
+            }
+            
+            #[cfg(feature = "dependency-tree")]
+            if !dfs(query.target_package.as_ref(), package, &tree) {
                 continue
             }
 
@@ -191,6 +197,7 @@ impl IntoIterator for Database {
     }
 }
 
+#[cfg(feature = "dependency-tree")]
 /// Performs a depth first search of a dependency tree, from the target package, for the vulnerable package.
 pub fn dfs(target:Option<&Package>, vulnerability:&Package, tree:&dependency::Tree) -> bool {
     match target {
