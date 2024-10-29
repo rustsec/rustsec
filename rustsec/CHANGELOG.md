@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.30.0 (2024-10-29)
+
+### Changed
+- MSRV 1.73 ([#1222])
+- Bump `cargo-lock` to v0.10; adds V4 lockfile support ([#1224], [#1264])
+- Bump `gix` to 0.66 ([#1251])
+- Bump `tame-index` to v0.14 ([#1251])
+
+[#1222]: https://github.com/rustsec/rustsec/pull/1222
+[#1224]: https://github.com/rustsec/rustsec/pull/1224
+[#1251]: https://github.com/rustsec/rustsec/pull/1251
+[#1264]: https://github.com/rustsec/rustsec/pull/1264
+
 ## 0.29.2 (2024-05-01)
 
 ### Changed
