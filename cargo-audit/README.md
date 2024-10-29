@@ -147,7 +147,7 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://buildstats.info/crate/cargo-audit
+[crate-image]: https://img.shields.io/crates/v/cargo-audit.svg?logo=rust
 [crate-link]: https://crates.io/crates/cargo-audit
 [build-image]: https://github.com/RustSec/rustsec/actions/workflows/cargo-audit.yml/badge.svg
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/cargo-audit.yml
