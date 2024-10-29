@@ -31,7 +31,7 @@ additional terms or conditions.
 
 [//]: # (badges)
 
-[crate-image]: https://img.shields.io/crates/v/rustsec-admin.svg
+[crate-image]: https://img.shields.io/crates/v/rustsec-admin.svg?logo=rust
 [crate-link]: https://crates.io/crates/rustsec-admin
 [docs-image]: https://docs.rs/rustsec-admin/badge.svg
 [docs-link]: https://docs.rs/rustsec-admin/
