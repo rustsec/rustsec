@@ -42,7 +42,7 @@ If we remove platforms, we will bump the minor version of this crate.
 
 [//]: # (badges)
 
-[crate-image]:  https://buildstats.info/crate/platforms
+[crate-image]: https://img.shields.io/crates/v/platforms.svg?logo=rust
 [crate-link]: https://crates.io/crates/platforms
 [docs-image]: https://docs.rs/platforms/badge.svg
 [docs-link]: https://docs.rs/platforms/
