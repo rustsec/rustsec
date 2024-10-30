@@ -8,19 +8,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - V4 lockfile support ([#1275])
+- `cargo audit bin` can now audit WebAssembly ([#1182])
+- `cargo audit` now honors the `CARGO_TERM_COLOR` environment variable ([#1207])
+- Allow specifying multiple `--target-os` and `--target-arch` flags ([#1185])
 
 ### Changed
 - Bump `auditable-info` => 0.8; `auditable-serde` => v0.7 ([#1229])
 - Bump `abscissa` to v0.8 ([#1262])
 - Bump `rustsec` to v0.30; adds V4 lockfile support ([#1275])
 
+[#1182]: https://github.com/rustsec/rustsec/pull/1182
+[#1185]: https://github.com/rustsec/rustsec/pull/1185
+[#1207]: https://github.com/rustsec/rustsec/pull/1207
 [#1229]: https://github.com/rustsec/rustsec/pull/1229
 [#1262]: https://github.com/rustsec/rustsec/pull/1262
 [#1275]: https://github.com/rustsec/rustsec/pull/1275
 
 ## 0.20.1 (2024-08-16)
 
-TODO
+### Fixed
+ - Fix build for `cargo install --locked` by bumping `time` crate in `Cargo.lock` to work around a [breaking change in rustc](https://github.com/rust-lang/rust/issues/127343).
 
 ## 0.20.0 (2024-02-16)
 
