@@ -74,6 +74,9 @@ pub enum OS {
     /// `nto`
     Nto,
 
+    /// `nuttx`
+    Nuttx,
+
     /// `openbsd`: The OpenBSD operating system
     OpenBSD,
 
@@ -83,6 +86,9 @@ pub enum OS {
     /// `redox`: Redox, a Unix-like OS written in Rust
     Redox,
 
+    /// `rtems`
+    Rtems,
+
     /// `solaris`: Oracle's (formerly Sun) Solaris operating system
     Solaris,
 
@@ -91,6 +97,9 @@ pub enum OS {
 
     /// `teeos`
     TeeOS,
+
+    /// `trusty`
+    Trusty,
 
     /// `tvos`
     TvOS,
@@ -150,12 +159,15 @@ impl OS {
             OS::NetBSD => "netbsd",
             OS::None => "none",
             OS::Nto => "nto",
+            OS::Nuttx => "nuttx",
             OS::OpenBSD => "openbsd",
             OS::Psp => "psp",
             OS::Redox => "redox",
+            OS::Rtems => "rtems",
             OS::Solaris => "solaris",
             OS::SolidAsp3 => "solid_asp3",
             OS::TeeOS => "teeos",
+            OS::Trusty => "trusty",
             OS::TvOS => "tvos",
             OS::Uefi => "uefi",
             OS::Unknown => "unknown",
@@ -197,12 +209,15 @@ impl FromStr for OS {
             "netbsd" => OS::NetBSD,
             "none" => OS::None,
             "nto" => OS::Nto,
+            "nuttx" => OS::Nuttx,
             "openbsd" => OS::OpenBSD,
             "psp" => OS::Psp,
             "redox" => OS::Redox,
+            "rtems" => OS::Rtems,
             "solaris" => OS::Solaris,
             "solid_asp3" => OS::SolidAsp3,
             "teeos" => OS::TeeOS,
+            "trusty" => OS::Trusty,
             "tvos" => OS::TvOS,
             "uefi" => OS::Uefi,
             "unknown" => OS::Unknown,
