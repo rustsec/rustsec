@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.20.1 (2024-08-16)
 
-TODO
+### Fixed
+ - Fix build for `cargo install --locked` by bumping `time` crate in `Cargo.lock` to work around https://github.com/rust-lang/rust/issues/127343
 
 ## 0.20.0 (2024-02-16)
 
