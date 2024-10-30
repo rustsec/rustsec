@@ -25,7 +25,6 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_APPLE_VISIONOS_SIM,
     AARCH64_APPLE_WATCHOS,
     AARCH64_APPLE_WATCHOS_SIM,
-    AARCH64_FUCHSIA,
     AARCH64_KMC_SOLID_ASP3,
     AARCH64_LINUX_ANDROID,
     AARCH64_NINTENDO_SWITCH_FREESTANDING,
@@ -42,10 +41,12 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_NETBSD,
     AARCH64_UNKNOWN_NONE,
     AARCH64_UNKNOWN_NONE_SOFTFLOAT,
+    AARCH64_UNKNOWN_NTO_QNX700,
     AARCH64_UNKNOWN_NTO_QNX710,
     AARCH64_UNKNOWN_OPENBSD,
     AARCH64_UNKNOWN_REDOX,
     AARCH64_UNKNOWN_TEEOS,
+    AARCH64_UNKNOWN_TRUSTY,
     AARCH64_UNKNOWN_UEFI,
     AARCH64_UWP_WINDOWS_MSVC,
     AARCH64_WRS_VXWORKS,
@@ -60,6 +61,7 @@ pub(crate) const ALL: &[Platform] = &[
     ARM64_32_APPLE_WATCHOS,
     ARM64E_APPLE_DARWIN,
     ARM64E_APPLE_IOS,
+    ARM64E_APPLE_TVOS,
     ARM64EC_PC_WINDOWS_MSVC,
     ARMEB_UNKNOWN_LINUX_GNUEABI,
     ARMEBV7R_NONE_EABI,
@@ -74,6 +76,7 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV6_UNKNOWN_NETBSD_EABIHF,
     ARMV6K_NINTENDO_3DS,
     ARMV7_LINUX_ANDROIDEABI,
+    ARMV7_RTEMS_EABIHF,
     ARMV7_SONY_VITA_NEWLIBEABIHF,
     ARMV7_UNKNOWN_FREEBSD,
     ARMV7_UNKNOWN_LINUX_GNUEABI,
@@ -84,6 +87,7 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV7_UNKNOWN_LINUX_UCLIBCEABI,
     ARMV7_UNKNOWN_LINUX_UCLIBCEABIHF,
     ARMV7_UNKNOWN_NETBSD_EABIHF,
+    ARMV7_UNKNOWN_TRUSTY,
     ARMV7_WRS_VXWORKS_EABIHF,
     ARMV7A_KMC_SOLID_ASP3_EABI,
     ARMV7A_KMC_SOLID_ASP3_EABIHF,
@@ -127,6 +131,7 @@ pub(crate) const ALL: &[Platform] = &[
     I686_WRS_VXWORKS,
     LOONGARCH64_UNKNOWN_LINUX_GNU,
     LOONGARCH64_UNKNOWN_LINUX_MUSL,
+    LOONGARCH64_UNKNOWN_LINUX_OHOS,
     LOONGARCH64_UNKNOWN_NONE,
     LOONGARCH64_UNKNOWN_NONE_SOFTFLOAT,
     M68K_UNKNOWN_LINUX_GNU,
@@ -155,6 +160,7 @@ pub(crate) const ALL: &[Platform] = &[
     POWERPC_UNKNOWN_LINUX_GNU,
     POWERPC_UNKNOWN_LINUX_GNUSPE,
     POWERPC_UNKNOWN_LINUX_MUSL,
+    POWERPC_UNKNOWN_LINUX_MUSLSPE,
     POWERPC_UNKNOWN_NETBSD,
     POWERPC_UNKNOWN_OPENBSD,
     POWERPC_WRS_VXWORKS,
@@ -168,6 +174,10 @@ pub(crate) const ALL: &[Platform] = &[
     POWERPC64LE_UNKNOWN_FREEBSD,
     POWERPC64LE_UNKNOWN_LINUX_GNU,
     POWERPC64LE_UNKNOWN_LINUX_MUSL,
+    RISCV32_WRS_VXWORKS,
+    RISCV32E_UNKNOWN_NONE_ELF,
+    RISCV32EM_UNKNOWN_NONE_ELF,
+    RISCV32EMC_UNKNOWN_NONE_ELF,
     RISCV32GC_UNKNOWN_LINUX_GNU,
     RISCV32GC_UNKNOWN_LINUX_MUSL,
     RISCV32I_UNKNOWN_NONE_ELF,
@@ -176,12 +186,16 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV32IMA_UNKNOWN_NONE_ELF,
     RISCV32IMAC_ESP_ESPIDF,
     RISCV32IMAC_UNKNOWN_NONE_ELF,
+    RISCV32IMAC_UNKNOWN_NUTTX_ELF,
     RISCV32IMAC_UNKNOWN_XOUS_ELF,
     RISCV32IMAFC_ESP_ESPIDF,
     RISCV32IMAFC_UNKNOWN_NONE_ELF,
+    RISCV32IMAFC_UNKNOWN_NUTTX_ELF,
     RISCV32IMC_ESP_ESPIDF,
     RISCV32IMC_UNKNOWN_NONE_ELF,
+    RISCV32IMC_UNKNOWN_NUTTX_ELF,
     RISCV64_LINUX_ANDROID,
+    RISCV64_WRS_VXWORKS,
     RISCV64GC_UNKNOWN_FREEBSD,
     RISCV64GC_UNKNOWN_FUCHSIA,
     RISCV64GC_UNKNOWN_HERMIT,
@@ -189,8 +203,10 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV64GC_UNKNOWN_LINUX_MUSL,
     RISCV64GC_UNKNOWN_NETBSD,
     RISCV64GC_UNKNOWN_NONE_ELF,
+    RISCV64GC_UNKNOWN_NUTTX_ELF,
     RISCV64GC_UNKNOWN_OPENBSD,
     RISCV64IMAC_UNKNOWN_NONE_ELF,
+    RISCV64IMAC_UNKNOWN_NUTTX_ELF,
     S390X_UNKNOWN_LINUX_GNU,
     S390X_UNKNOWN_LINUX_MUSL,
     SPARC_UNKNOWN_LINUX_GNU,
@@ -202,23 +218,31 @@ pub(crate) const ALL: &[Platform] = &[
     THUMBV4T_NONE_EABI,
     THUMBV5TE_NONE_EABI,
     THUMBV6M_NONE_EABI,
+    THUMBV6M_NUTTX_EABI,
     THUMBV7A_PC_WINDOWS_MSVC,
     THUMBV7A_UWP_WINDOWS_MSVC,
     THUMBV7EM_NONE_EABI,
     THUMBV7EM_NONE_EABIHF,
+    THUMBV7EM_NUTTX_EABI,
+    THUMBV7EM_NUTTX_EABIHF,
     THUMBV7M_NONE_EABI,
+    THUMBV7M_NUTTX_EABI,
     THUMBV7NEON_LINUX_ANDROIDEABI,
     THUMBV7NEON_UNKNOWN_LINUX_GNUEABIHF,
     THUMBV7NEON_UNKNOWN_LINUX_MUSLEABIHF,
     THUMBV8M_BASE_NONE_EABI,
+    THUMBV8M_BASE_NUTTX_EABI,
     THUMBV8M_MAIN_NONE_EABI,
     THUMBV8M_MAIN_NONE_EABIHF,
+    THUMBV8M_MAIN_NUTTX_EABI,
+    THUMBV8M_MAIN_NUTTX_EABIHF,
     WASM32_UNKNOWN_EMSCRIPTEN,
     WASM32_UNKNOWN_UNKNOWN,
     WASM32_WASI,
     WASM32_WASIP1,
     WASM32_WASIP1_THREADS,
     WASM32_WASIP2,
+    WASM32V1_NONE,
     WASM64_UNKNOWN_UNKNOWN,
     X86_64_APPLE_DARWIN,
     X86_64_APPLE_IOS,
@@ -226,7 +250,6 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_APPLE_TVOS,
     X86_64_APPLE_WATCHOS_SIM,
     X86_64_FORTANIX_UNKNOWN_SGX,
-    X86_64_FUCHSIA,
     X86_64_LINUX_ANDROID,
     X86_64_PC_NTO_QNX710,
     X86_64_PC_SOLARIS,
@@ -239,6 +262,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_FUCHSIA,
     X86_64_UNKNOWN_HAIKU,
     X86_64_UNKNOWN_HERMIT,
+    X86_64_UNKNOWN_HURD_GNU,
     X86_64_UNKNOWN_ILLUMOS,
     X86_64_UNKNOWN_L4RE_UCLIBC,
     X86_64_UNKNOWN_LINUX_GNU,
@@ -250,6 +274,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_NONE,
     X86_64_UNKNOWN_OPENBSD,
     X86_64_UNKNOWN_REDOX,
+    X86_64_UNKNOWN_TRUSTY,
     X86_64_UNKNOWN_UEFI,
     X86_64_UWP_WINDOWS_GNU,
     X86_64_UWP_WINDOWS_MSVC,
@@ -272,7 +297,7 @@ pub(crate) const AARCH64_APPLE_DARWIN: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
+    tier: Tier::One,
 };
 
 /// ARM64 iOS
@@ -286,7 +311,7 @@ pub(crate) const AARCH64_APPLE_IOS: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// Apple Catalyst on ARM64
+/// Mac Catalyst on ARM64
 pub(crate) const AARCH64_APPLE_IOS_MACABI: Platform = Platform {
     target_triple: "aarch64-apple-ios-macabi",
     target_arch: Arch::AArch64,
@@ -294,7 +319,7 @@ pub(crate) const AARCH64_APPLE_IOS_MACABI: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// Apple iOS Simulator on ARM64
@@ -372,17 +397,6 @@ pub(crate) const AARCH64_APPLE_WATCHOS_SIM: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
-};
-
-/// Alias for `aarch64-unknown-fuchsia`
-pub(crate) const AARCH64_FUCHSIA: Platform = Platform {
-    target_triple: "aarch64-fuchsia",
-    target_arch: Arch::AArch64,
-    target_os: OS::Fuchsia,
-    target_env: Env::None,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
 };
 
 /// ARM64 SOLID with TOPPERS/ASP3
@@ -561,6 +575,16 @@ pub(crate) const AARCH64_UNKNOWN_NONE_SOFTFLOAT: Platform = Platform {
     tier: Tier::Two,
 };
 
+pub(crate) const AARCH64_UNKNOWN_NTO_QNX700: Platform = Platform {
+    target_triple: "aarch64-unknown-nto-qnx700",
+    target_arch: Arch::AArch64,
+    target_os: OS::Nto,
+    target_env: Env::Nto70,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 pub(crate) const AARCH64_UNKNOWN_NTO_QNX710: Platform = Platform {
     target_triple: "aarch64-unknown-nto-qnx710",
     target_arch: Arch::AArch64,
@@ -603,6 +627,16 @@ pub(crate) const AARCH64_UNKNOWN_TEEOS: Platform = Platform {
     tier: Tier::Three,
 };
 
+pub(crate) const AARCH64_UNKNOWN_TRUSTY: Platform = Platform {
+    target_triple: "aarch64-unknown-trusty",
+    target_arch: Arch::AArch64,
+    target_os: OS::Trusty,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// ARM64 UEFI
 pub(crate) const AARCH64_UNKNOWN_UEFI: Platform = Platform {
     target_triple: "aarch64-unknown-uefi",
@@ -624,6 +658,7 @@ pub(crate) const AARCH64_UWP_WINDOWS_MSVC: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// ARM64 VxWorks OS
 pub(crate) const AARCH64_WRS_VXWORKS: Platform = Platform {
     target_triple: "aarch64-wrs-vxworks",
     target_arch: Arch::AArch64,
@@ -749,6 +784,17 @@ pub(crate) const ARM64E_APPLE_IOS: Platform = Platform {
     target_triple: "arm64e-apple-ios",
     target_arch: Arch::AArch64,
     target_os: OS::iOS,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64e Apple tvOS
+pub(crate) const ARM64E_APPLE_TVOS: Platform = Platform {
+    target_triple: "arm64e-apple-tvos",
+    target_arch: Arch::AArch64,
+    target_os: OS::TvOS,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
@@ -909,6 +955,17 @@ pub(crate) const ARMV7_LINUX_ANDROIDEABI: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// RTEMS OS for ARM BSPs
+pub(crate) const ARMV7_RTEMS_EABIHF: Platform = Platform {
+    target_triple: "armv7-rtems-eabihf",
+    target_arch: Arch::Arm,
+    target_os: OS::Rtems,
+    target_env: Env::Newlib,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// Armv7-A Cortex-A9 Sony PlayStation Vita (requires VITASDK toolchain)
 pub(crate) const ARMV7_SONY_VITA_NEWLIBEABIHF: Platform = Platform {
     target_triple: "armv7-sony-vita-newlibeabihf",
@@ -1013,6 +1070,16 @@ pub(crate) const ARMV7_UNKNOWN_NETBSD_EABIHF: Platform = Platform {
     target_triple: "armv7-unknown-netbsd-eabihf",
     target_arch: Arch::Arm,
     target_os: OS::NetBSD,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+pub(crate) const ARMV7_UNKNOWN_TRUSTY: Platform = Platform {
+    target_triple: "armv7-unknown-trusty",
+    target_arch: Arch::Arm,
+    target_os: OS::Trusty,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
@@ -1134,7 +1201,7 @@ pub(crate) const AVR_UNKNOWN_GNU_ATMEGA328: Platform = Platform {
     target_triple: "avr-unknown-gnu-atmega328",
     target_arch: Arch::Avr,
     target_os: OS::None,
-    target_env: Env::None,
+    target_env: Env::Gnu,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U16,
     tier: Tier::Three,
@@ -1492,6 +1559,17 @@ pub(crate) const LOONGARCH64_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// LoongArch64 OpenHarmony
+pub(crate) const LOONGARCH64_UNKNOWN_LINUX_OHOS: Platform = Platform {
+    target_triple: "loongarch64-unknown-linux-ohos",
+    target_arch: Arch::Loongarch64,
+    target_os: OS::Linux,
+    target_env: Env::OhOS,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// LoongArch64 Bare-metal (LP64D ABI)
 pub(crate) const LOONGARCH64_UNKNOWN_NONE: Platform = Platform {
     target_triple: "loongarch64-unknown-none",
@@ -1800,6 +1878,17 @@ pub(crate) const POWERPC_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// PowerPC SPE Linux
+pub(crate) const POWERPC_UNKNOWN_LINUX_MUSLSPE: Platform = Platform {
+    target_triple: "powerpc-unknown-linux-muslspe",
+    target_arch: Arch::PowerPc,
+    target_os: OS::Linux,
+    target_env: Env::Musl,
+    target_endian: Endian::Big,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// NetBSD 32-bit powerpc systems
 pub(crate) const POWERPC_UNKNOWN_NETBSD: Platform = Platform {
     target_triple: "powerpc-unknown-netbsd",
@@ -1939,6 +2028,49 @@ pub(crate) const POWERPC64LE_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Three,
 };
 
+pub(crate) const RISCV32_WRS_VXWORKS: Platform = Platform {
+    target_triple: "riscv32-wrs-vxworks",
+    target_arch: Arch::Riscv32,
+    target_os: OS::VxWorks,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// Bare RISC-V (RV32E ISA)
+pub(crate) const RISCV32E_UNKNOWN_NONE_ELF: Platform = Platform {
+    target_triple: "riscv32e-unknown-none-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// Bare RISC-V (RV32EM ISA)
+pub(crate) const RISCV32EM_UNKNOWN_NONE_ELF: Platform = Platform {
+    target_triple: "riscv32em-unknown-none-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// Bare RISC-V (RV32EMC ISA)
+pub(crate) const RISCV32EMC_UNKNOWN_NONE_ELF: Platform = Platform {
+    target_triple: "riscv32emc-unknown-none-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RISC-V Linux (kernel 5.4, glibc 2.33)
 pub(crate) const RISCV32GC_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "riscv32gc-unknown-linux-gnu",
@@ -2027,6 +2159,17 @@ pub(crate) const RISCV32IMAC_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// RISC-V 32bit with NuttX
+pub(crate) const RISCV32IMAC_UNKNOWN_NUTTX_ELF: Platform = Platform {
+    target_triple: "riscv32imac-unknown-nuttx-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RISC-V Xous (RV32IMAC ISA)
 pub(crate) const RISCV32IMAC_UNKNOWN_XOUS_ELF: Platform = Platform {
     target_triple: "riscv32imac-unknown-xous-elf",
@@ -2060,6 +2203,17 @@ pub(crate) const RISCV32IMAFC_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// RISC-V 32bit with NuttX
+pub(crate) const RISCV32IMAFC_UNKNOWN_NUTTX_ELF: Platform = Platform {
+    target_triple: "riscv32imafc-unknown-nuttx-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RISC-V ESP-IDF
 pub(crate) const RISCV32IMC_ESP_ESPIDF: Platform = Platform {
     target_triple: "riscv32imc-esp-espidf",
@@ -2082,12 +2236,33 @@ pub(crate) const RISCV32IMC_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// RISC-V 32bit with NuttX
+pub(crate) const RISCV32IMC_UNKNOWN_NUTTX_ELF: Platform = Platform {
+    target_triple: "riscv32imc-unknown-nuttx-elf",
+    target_arch: Arch::Riscv32,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RISC-V 64-bit Android
 pub(crate) const RISCV64_LINUX_ANDROID: Platform = Platform {
     target_triple: "riscv64-linux-android",
     target_arch: Arch::Riscv64,
     target_os: OS::Android,
     target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+pub(crate) const RISCV64_WRS_VXWORKS: Platform = Platform {
+    target_triple: "riscv64-wrs-vxworks",
+    target_arch: Arch::Riscv64,
+    target_os: OS::VxWorks,
+    target_env: Env::Gnu,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
@@ -2145,7 +2320,7 @@ pub(crate) const RISCV64GC_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_env: Env::Musl,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// RISC-V NetBSD
@@ -2170,6 +2345,17 @@ pub(crate) const RISCV64GC_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// RISC-V 64bit with NuttX
+pub(crate) const RISCV64GC_UNKNOWN_NUTTX_ELF: Platform = Platform {
+    target_triple: "riscv64gc-unknown-nuttx-elf",
+    target_arch: Arch::Riscv64,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// OpenBSD/riscv64
 pub(crate) const RISCV64GC_UNKNOWN_OPENBSD: Platform = Platform {
     target_triple: "riscv64gc-unknown-openbsd",
@@ -2190,6 +2376,17 @@ pub(crate) const RISCV64IMAC_UNKNOWN_NONE_ELF: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
+};
+
+/// RISC-V 64bit with NuttX
+pub(crate) const RISCV64IMAC_UNKNOWN_NUTTX_ELF: Platform = Platform {
+    target_triple: "riscv64imac-unknown-nuttx-elf",
+    target_arch: Arch::Riscv64,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
 };
 
 /// S390x Linux (kernel 3.2, glibc 2.17)
@@ -2313,6 +2510,17 @@ pub(crate) const THUMBV6M_NONE_EABI: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// ARMv6M with NuttX
+pub(crate) const THUMBV6M_NUTTX_EABI: Platform = Platform {
+    target_triple: "thumbv6m-nuttx-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 pub(crate) const THUMBV7A_PC_WINDOWS_MSVC: Platform = Platform {
     target_triple: "thumbv7a-pc-windows-msvc",
     target_arch: Arch::Arm,
@@ -2355,6 +2563,28 @@ pub(crate) const THUMBV7EM_NONE_EABIHF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// ARMv7EM with NuttX
+pub(crate) const THUMBV7EM_NUTTX_EABI: Platform = Platform {
+    target_triple: "thumbv7em-nuttx-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// ARMv7EM with NuttX, hardfloat
+pub(crate) const THUMBV7EM_NUTTX_EABIHF: Platform = Platform {
+    target_triple: "thumbv7em-nuttx-eabihf",
+    target_arch: Arch::Arm,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// Bare Armv7-M
 pub(crate) const THUMBV7M_NONE_EABI: Platform = Platform {
     target_triple: "thumbv7m-none-eabi",
@@ -2364,6 +2594,17 @@ pub(crate) const THUMBV7M_NONE_EABI: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Two,
+};
+
+/// ARMv7M with NuttX
+pub(crate) const THUMBV7M_NUTTX_EABI: Platform = Platform {
+    target_triple: "thumbv7m-nuttx-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
 };
 
 /// Thumb2-mode Armv7-A Android with NEON
@@ -2410,6 +2651,17 @@ pub(crate) const THUMBV8M_BASE_NONE_EABI: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// ARMv8M Baseline with NuttX
+pub(crate) const THUMBV8M_BASE_NUTTX_EABI: Platform = Platform {
+    target_triple: "thumbv8m.base-nuttx-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// Bare Armv8-M Mainline
 pub(crate) const THUMBV8M_MAIN_NONE_EABI: Platform = Platform {
     target_triple: "thumbv8m.main-none-eabi",
@@ -2430,6 +2682,28 @@ pub(crate) const THUMBV8M_MAIN_NONE_EABIHF: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Two,
+};
+
+/// ARMv8M Mainline with NuttX
+pub(crate) const THUMBV8M_MAIN_NUTTX_EABI: Platform = Platform {
+    target_triple: "thumbv8m.main-nuttx-eabi",
+    target_arch: Arch::Arm,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// ARMv8M Mainline with NuttX, hardfloat
+pub(crate) const THUMBV8M_MAIN_NUTTX_EABIHF: Platform = Platform {
+    target_triple: "thumbv8m.main-nuttx-eabihf",
+    target_arch: Arch::Arm,
+    target_os: OS::Nuttx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
 };
 
 /// WebAssembly via Emscripten
@@ -2498,6 +2772,17 @@ pub(crate) const WASM32_WASIP2: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// WebAssembly limited to 1.0 features and no imports
+pub(crate) const WASM32V1_NONE: Platform = Platform {
+    target_triple: "wasm32v1-none",
+    target_arch: Arch::Wasm32,
+    target_os: OS::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Two,
+};
+
 /// WebAssembly
 pub(crate) const WASM64_UNKNOWN_UNKNOWN: Platform = Platform {
     target_triple: "wasm64-unknown-unknown",
@@ -2531,7 +2816,7 @@ pub(crate) const X86_64_APPLE_IOS: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// Apple Catalyst on x86_64
+/// Mac Catalyst on x86_64
 pub(crate) const X86_64_APPLE_IOS_MACABI: Platform = Platform {
     target_triple: "x86_64-apple-ios-macabi",
     target_arch: Arch::X86_64,
@@ -2539,7 +2824,7 @@ pub(crate) const X86_64_APPLE_IOS_MACABI: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// x86 64-bit tvOS
@@ -2570,17 +2855,6 @@ pub(crate) const X86_64_FORTANIX_UNKNOWN_SGX: Platform = Platform {
     target_arch: Arch::X86_64,
     target_os: OS::Unknown,
     target_env: Env::Sgx,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
-};
-
-/// Alias for `x86_64-unknown-fuchsia`
-pub(crate) const X86_64_FUCHSIA: Platform = Platform {
-    target_triple: "x86_64-fuchsia",
-    target_arch: Arch::X86_64,
-    target_os: OS::Fuchsia,
-    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
@@ -2717,6 +2991,17 @@ pub(crate) const X86_64_UNKNOWN_HERMIT: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// 64-bit GNU/Hurd
+pub(crate) const X86_64_UNKNOWN_HURD_GNU: Platform = Platform {
+    target_triple: "x86_64-unknown-hurd-gnu",
+    target_arch: Arch::X86_64,
+    target_os: OS::Hurd,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// illumos
 pub(crate) const X86_64_UNKNOWN_ILLUMOS: Platform = Platform {
     target_triple: "x86_64-unknown-illumos",
@@ -2835,6 +3120,16 @@ pub(crate) const X86_64_UNKNOWN_REDOX: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
+};
+
+pub(crate) const X86_64_UNKNOWN_TRUSTY: Platform = Platform {
+    target_triple: "x86_64-unknown-trusty",
+    target_arch: Arch::X86_64,
+    target_os: OS::Trusty,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
 };
 
 /// 64-bit UEFI
