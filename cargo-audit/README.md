@@ -80,7 +80,7 @@ Run `cargo audit bin` followed by the paths to your binaries to audit them:
 
 <img src="https://github.com/rustsec/rustsec/raw/46eeb09cef411bbe926a82c8a0d678a3e43299a1/.img/screenshot-bin.png" alt="Screenshot" style="max-width:100%;">
 
-You can also scan a directory recursively using [`fd`](https://crates.io/crates/fd-find):
+You can scan a directory recursively using [`fd`](https://crates.io/crates/fd-find):
 
 ```
 fd --type=executable --exec-batch cargo audit bin
