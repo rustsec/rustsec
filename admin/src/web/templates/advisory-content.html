@@ -211,7 +211,14 @@
       </dd>
 
       <dt id="cvss">CVSS Vector</dt>
-      <dd><a href="https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator?vector={{ cvss }}">{{ cvss }}</a></dd>
+
+      {% if cvss.to_string().starts_with("CVSS:3.1/") %}
+      <dd><a href="https://www.first.org/cvss/calculator/3.1#{{ cvss }}">{{ cvss }}</a></dd>
+      {% else if cvss.to_string().starts_with("CVSS:3.0/") %}
+      <dd><a href="https://www.first.org/cvss/calculator/3.0#{{ cvss }}">{{ cvss }}</a></dd>
+      {% else %}
+      <dd>{{ cvss }}</dd>
+      {% endif %}
 
       {% when None %}
       {% endmatch %}
