@@ -13,7 +13,8 @@ pub mod metric;
 mod score;
 
 #[cfg(feature = "v3")]
-pub use self::{base::Base, score::Score};
-
-// For compatibility
-pub use self::metric::MetricType;
+pub use self::{
+    base::Base,
+    metric::{Metric, MetricType},
+    score::Score,
+};
