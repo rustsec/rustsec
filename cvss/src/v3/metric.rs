@@ -1,4 +1,4 @@
-//! CVSS metrics.
+//! CVSS v3.0/v3.1 metrics.
 
 use crate::{Error, Result};
 use alloc::borrow::ToOwned;

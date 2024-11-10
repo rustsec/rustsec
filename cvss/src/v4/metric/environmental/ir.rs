@@ -1,7 +1,7 @@
 //! Integrity Requirements (CR)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -59,8 +59,8 @@ impl Default for IntegrityRequirements {
     }
 }
 
-impl MetricV4 for IntegrityRequirements {
-    const TYPE: MetricTypeV4 = MetricTypeV4::IR;
+impl Metric for IntegrityRequirements {
+    const TYPE: MetricType = MetricType::IR;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -99,7 +99,7 @@ impl FromStr for IntegrityRequirements {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{metric::MetricV4Level, MetricTypeV4},
+        v4::{metric::MetricLevel, MetricType},
         Error,
     };
     use alloc::borrow::ToOwned;
@@ -127,7 +127,7 @@ pub(crate) mod merge {
                 "M" => Ok(MergedIntegrityRequirements::Medium),
                 "H" => Ok(MergedIntegrityRequirements::High),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::IR,
+                    metric_type: MetricType::IR,
                     value: s.to_owned(),
                 }),
             }
@@ -145,7 +145,7 @@ pub(crate) mod merge {
         }
     }
 
-    impl MetricV4Level for MergedIntegrityRequirements {
+    impl MetricLevel for MergedIntegrityRequirements {
         fn level(self) -> f64 {
             // IR_levels = {'H': 0.0, 'M': 0.1, 'L': 0.2}
             match self {

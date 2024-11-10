@@ -1,7 +1,7 @@
 //! Attack Vector (AV)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -75,8 +75,8 @@ impl Default for AttackVector {
     }
 }
 
-impl MetricV4 for AttackVector {
-    const TYPE: MetricTypeV4 = MetricTypeV4::AV;
+impl Metric for AttackVector {
+    const TYPE: MetricType = MetricType::AV;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -116,8 +116,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{environmental::ModifiedAttackVector, MetricV4Level},
-            MetricTypeV4,
+            metric::{environmental::ModifiedAttackVector, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -151,14 +151,14 @@ pub(crate) mod merge {
                 "A" => Ok(MergedAttackVector::Adjacent),
                 "N" => Ok(MergedAttackVector::Network),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::AV,
+                    metric_type: MetricType::AV,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedAttackVector {
+    impl MetricLevel for MergedAttackVector {
         fn level(self) -> f64 {
             // AV_levels = {"N": 0.0, "A": 0.1, "L": 0.2, "P": 0.3}
             match self {

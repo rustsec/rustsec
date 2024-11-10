@@ -1,7 +1,7 @@
 //! Exploit Maturity (E)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -79,8 +79,8 @@ impl Default for ExploitMaturity {
     }
 }
 
-impl MetricV4 for ExploitMaturity {
-    const TYPE: MetricTypeV4 = MetricTypeV4::E;
+impl Metric for ExploitMaturity {
+    const TYPE: MetricType = MetricType::E;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -119,7 +119,7 @@ impl FromStr for ExploitMaturity {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{metric::MetricV4Level, MetricTypeV4},
+        v4::{metric::MetricLevel, MetricType},
         Error,
     };
     use alloc::borrow::ToOwned;
@@ -147,7 +147,7 @@ pub(crate) mod merge {
                 "P" => Ok(MergedExploitMaturity::ProofOfConcept),
                 "U" => Ok(MergedExploitMaturity::Unreported),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::E,
+                    metric_type: MetricType::E,
                     value: s.to_owned(),
                 }),
             }
@@ -165,7 +165,7 @@ pub(crate) mod merge {
         }
     }
 
-    impl MetricV4Level for MergedExploitMaturity {
+    impl MetricLevel for MergedExploitMaturity {
         fn level(self) -> f64 {
             // E_levels = {'U': 0.2, 'P': 0.1, 'A': 0}
             match self {

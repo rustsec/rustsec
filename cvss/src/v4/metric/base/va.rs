@@ -1,7 +1,7 @@
 //! Availability Impact to the Vulnerable System (VA)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -63,8 +63,8 @@ impl Default for AvailabilityImpactToTheVulnerableSystem {
     }
 }
 
-impl MetricV4 for AvailabilityImpactToTheVulnerableSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::VA;
+impl Metric for AvailabilityImpactToTheVulnerableSystem {
+    const TYPE: MetricType = MetricType::VA;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -102,10 +102,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{
-                environmental::ModifiedAvailabilityImpactToTheVulnerableSystem, MetricV4Level,
-            },
-            MetricTypeV4,
+            metric::{environmental::ModifiedAvailabilityImpactToTheVulnerableSystem, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -137,14 +135,14 @@ pub(crate) mod merge {
                 "L" => Ok(MergedAvailabilityImpactToTheVulnerableSystem::Low),
                 "N" => Ok(MergedAvailabilityImpactToTheVulnerableSystem::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::VA,
+                    metric_type: MetricType::VA,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedAvailabilityImpactToTheVulnerableSystem {
+    impl MetricLevel for MergedAvailabilityImpactToTheVulnerableSystem {
         fn level(self) -> f64 {
             // VA_levels = {'H': 0.0, 'L': 0.1, 'N': 0.2}
             match self {

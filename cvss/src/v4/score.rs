@@ -22,7 +22,7 @@ use serde::{de, ser, Deserialize, Serialize};
 ///
 /// > This nomenclature should be used wherever a numerical CVSS value is displayed or communicated.
 #[derive(Clone, Debug, PartialEq)]
-pub struct ScoreV4 {
+pub struct Score {
     value: f64,
     nomenclature: Nomenclature,
 }
@@ -118,7 +118,7 @@ impl Serialize for Nomenclature {
 }
 
 #[cfg(feature = "std")]
-impl From<&Vector> for ScoreV4 {
+impl From<&Vector> for Score {
     fn from(vector: &Vector) -> Self {
         let nomenclature = Nomenclature::from(vector);
         let scoring = ScoringVector::from(vector);
@@ -131,7 +131,7 @@ impl From<&Vector> for ScoreV4 {
     }
 }
 
-impl ScoreV4 {
+impl Score {
     /// Create a new score
     pub fn new(value: f64, nomenclature: Nomenclature) -> Self {
         Self {
@@ -181,21 +181,21 @@ impl ScoreV4 {
 /// There is no defined or recommended format in the specification, nor in existing implementations.
 ///
 /// Using "4.5 (CVSS-BT)".
-impl Display for ScoreV4 {
+impl Display for Score {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // Always show exactly one decimal
         write!(f, "{:.1} ({})", self.value, self.nomenclature)
     }
 }
 
-impl From<ScoreV4> for f64 {
-    fn from(score: ScoreV4) -> f64 {
+impl From<Score> for f64 {
+    fn from(score: Score) -> f64 {
         score.value()
     }
 }
 
-impl From<ScoreV4> for Severity {
-    fn from(score: ScoreV4) -> Severity {
+impl From<Score> for Severity {
+    fn from(score: Score) -> Severity {
         score.severity()
     }
 }
@@ -207,7 +207,7 @@ mod tests {
 
     #[test]
     fn new_score() {
-        let score = ScoreV4::new(5.5, Nomenclature::CvssB);
+        let score = Score::new(5.5, Nomenclature::CvssB);
         assert_eq!(score.value(), 5.5);
     }
 
@@ -215,20 +215,20 @@ mod tests {
     #[cfg(feature = "std")]
     fn round_v4_round() {
         // 8.6 - 7.15 = 1.4499999999999993 (float) => 1.5
-        assert_eq!(ScoreV4::round_v4(8.6 - 7.15), 1.5);
-        assert_eq!(ScoreV4::round_v4(5.12345), 5.1);
+        assert_eq!(Score::round_v4(8.6 - 7.15), 1.5);
+        assert_eq!(Score::round_v4(5.12345), 5.1);
     }
 
     #[test]
     fn into_severity() {
-        let score = ScoreV4::new(5.0, Nomenclature::CvssB);
+        let score = Score::new(5.0, Nomenclature::CvssB);
         let severity: Severity = score.into();
         assert_eq!(severity, Severity::Medium);
     }
 
     #[test]
     fn display_score() {
-        let score = ScoreV4::new(4.5, Nomenclature::CvssB);
+        let score = Score::new(4.5, Nomenclature::CvssB);
         assert_eq!(score.to_string(), "4.5 (CVSS-B)");
     }
 }

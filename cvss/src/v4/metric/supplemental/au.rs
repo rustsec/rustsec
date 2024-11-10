@@ -1,7 +1,7 @@
 //! Automatable (AU)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -44,8 +44,8 @@ impl Default for Automatable {
     }
 }
 
-impl MetricV4 for Automatable {
-    const TYPE: MetricTypeV4 = MetricTypeV4::AU;
+impl Metric for Automatable {
+    const TYPE: MetricType = MetricType::AU;
 
     fn as_str(self) -> &'static str {
         match self {

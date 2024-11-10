@@ -1,7 +1,7 @@
 //! Privileges Required (PR)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -49,8 +49,8 @@ impl Default for PrivilegesRequired {
     }
 }
 
-impl MetricV4 for PrivilegesRequired {
-    const TYPE: MetricTypeV4 = MetricTypeV4::PR;
+impl Metric for PrivilegesRequired {
+    const TYPE: MetricType = MetricType::PR;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -88,8 +88,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{environmental::ModifiedPrivilegesRequired, MetricV4Level},
-            MetricTypeV4,
+            metric::{environmental::ModifiedPrivilegesRequired, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -121,14 +121,14 @@ pub(crate) mod merge {
                 "L" => Ok(MergedPrivilegesRequired::Low),
                 "N" => Ok(MergedPrivilegesRequired::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::PR,
+                    metric_type: MetricType::PR,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedPrivilegesRequired {
+    impl MetricLevel for MergedPrivilegesRequired {
         fn level(self) -> f64 {
             // PR_levels = {"N": 0.0, "L": 0.1, "H": 0.2}
             match self {

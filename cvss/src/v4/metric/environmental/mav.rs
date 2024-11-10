@@ -1,7 +1,7 @@
 //! Attack Vector (MAV)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -76,8 +76,8 @@ impl Default for ModifiedAttackVector {
     }
 }
 
-impl MetricV4 for ModifiedAttackVector {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MAV;
+impl Metric for ModifiedAttackVector {
+    const TYPE: MetricType = MetricType::MAV;
 
     fn as_str(self) -> &'static str {
         match self {

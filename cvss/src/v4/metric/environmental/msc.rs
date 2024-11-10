@@ -1,7 +1,7 @@
 //! Confidentiality Impact to the Subsequent System (MSC)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -57,8 +57,8 @@ impl Default for ModifiedConfidentialityImpactToTheSubsequentSystem {
     }
 }
 
-impl MetricV4 for ModifiedConfidentialityImpactToTheSubsequentSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MSC;
+impl Metric for ModifiedConfidentialityImpactToTheSubsequentSystem {
+    const TYPE: MetricType = MetricType::MSC;
 
     fn as_str(self) -> &'static str {
         match self {

@@ -1,8 +1,8 @@
 //! Error types
 
-use crate::v3::MetricType;
+use crate::v3;
 #[cfg(feature = "v4")]
-use crate::v4::MetricTypeV4;
+use crate::v4;
 use alloc::string::String;
 use core::fmt;
 
@@ -22,7 +22,7 @@ pub enum Error {
     /// Invalid metric for CVSSv3.
     InvalidMetric {
         /// The metric that was invalid.
-        metric_type: MetricType,
+        metric_type: v3::MetricType,
 
         /// The value that was provided which is invalid.
         value: String,
@@ -32,7 +32,7 @@ pub enum Error {
     /// Invalid metric for CVSSv4.
     InvalidMetricV4 {
         /// The metric that was invalid.
-        metric_type: MetricTypeV4,
+        metric_type: v4::MetricType,
 
         /// The value that was provided which is invalid.
         value: String,
@@ -42,14 +42,14 @@ pub enum Error {
     /// Missing metric for CVSSv4.
     MissingMandatoryMetricV4 {
         /// Prefix which is missing.
-        metric_type: MetricTypeV4,
+        metric_type: v4::MetricType,
     },
 
     #[cfg(feature = "v4")]
     /// Metric is duplicated for CVSSv4.
     DuplicateMetricV4 {
         /// Prefix which is doubled.
-        metric_type: MetricTypeV4,
+        metric_type: v4::MetricType,
     },
 
     #[cfg(feature = "v4")]

@@ -9,7 +9,7 @@ mod scoring;
 mod vector;
 
 pub use self::{
-    metric::MetricTypeV4,
-    score::{Nomenclature, ScoreV4},
+    metric::MetricType,
+    score::{Nomenclature, Score},
     vector::Vector,
 };

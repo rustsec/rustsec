@@ -1,7 +1,7 @@
 //! Confidentiality Impact to the Vulnerable System (VC)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -51,8 +51,8 @@ impl Default for ConfidentialityImpactToTheVulnerableSystem {
     }
 }
 
-impl MetricV4 for ConfidentialityImpactToTheVulnerableSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::VC;
+impl Metric for ConfidentialityImpactToTheVulnerableSystem {
+    const TYPE: MetricType = MetricType::VC;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -91,9 +91,9 @@ pub(crate) mod merge {
     use crate::{
         v4::{
             metric::{
-                environmental::ModifiedConfidentialityImpactToTheVulnerableSystem, MetricV4Level,
+                environmental::ModifiedConfidentialityImpactToTheVulnerableSystem, MetricLevel,
             },
-            MetricTypeV4,
+            MetricType,
         },
         Error,
     };
@@ -116,7 +116,7 @@ pub(crate) mod merge {
         }
     }
 
-    impl MetricV4Level for MergedConfidentialityImpactToTheVulnerableSystem {
+    impl MetricLevel for MergedConfidentialityImpactToTheVulnerableSystem {
         fn level(self) -> f64 {
             // VC_levels = {'H': 0.0, 'L': 0.1, 'N': 0.2}
             match self {
@@ -136,7 +136,7 @@ pub(crate) mod merge {
                 "L" => Ok(MergedConfidentialityImpactToTheVulnerableSystem::Low),
                 "N" => Ok(MergedConfidentialityImpactToTheVulnerableSystem::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::VC,
+                    metric_type: MetricType::VC,
                     value: s.to_owned(),
                 }),
             }

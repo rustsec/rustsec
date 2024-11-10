@@ -1,7 +1,7 @@
 //! Availability Impact to the Subsequent System (SA)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -64,8 +64,8 @@ impl Default for AvailabilityImpactToTheSubsequentSystem {
     }
 }
 
-impl MetricV4 for AvailabilityImpactToTheSubsequentSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::SA;
+impl Metric for AvailabilityImpactToTheSubsequentSystem {
+    const TYPE: MetricType = MetricType::SA;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -103,10 +103,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{
-                environmental::ModifiedAvailabilityImpactToTheSubsequentSystem, MetricV4Level,
-            },
-            MetricTypeV4,
+            metric::{environmental::ModifiedAvailabilityImpactToTheSubsequentSystem, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -140,14 +138,14 @@ pub(crate) mod merge {
                 "L" => Ok(MergedAvailabilityImpactToTheSubsequentSystem::Low),
                 "N" => Ok(MergedAvailabilityImpactToTheSubsequentSystem::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::SA,
+                    metric_type: MetricType::SA,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedAvailabilityImpactToTheSubsequentSystem {
+    impl MetricLevel for MergedAvailabilityImpactToTheSubsequentSystem {
         fn level(self) -> f64 {
             // SA_levels = {'S': 0.0, 'H': 0.1, 'L': 0.2, 'N': 0.3}
             match self {

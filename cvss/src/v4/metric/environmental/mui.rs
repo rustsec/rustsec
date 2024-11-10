@@ -1,7 +1,7 @@
 //! User Interaction (MUI)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -64,8 +64,8 @@ impl Default for ModifiedUserInteraction {
     }
 }
 
-impl MetricV4 for ModifiedUserInteraction {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MUI;
+impl Metric for ModifiedUserInteraction {
+    const TYPE: MetricType = MetricType::MUI;
 
     fn as_str(self) -> &'static str {
         match self {

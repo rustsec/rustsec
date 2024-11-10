@@ -1,7 +1,7 @@
 //! Attack Requirements (MAT)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -55,8 +55,8 @@ impl Default for ModifiedAttackRequirements {
     }
 }
 
-impl MetricV4 for ModifiedAttackRequirements {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MAT;
+impl Metric for ModifiedAttackRequirements {
+    const TYPE: MetricType = MetricType::MAT;
 
     fn as_str(self) -> &'static str {
         match self {
