@@ -22,7 +22,7 @@ pub enum Error {
     /// Invalid metric for CVSSv3.
     InvalidMetric {
         /// The metric that was invalid.
-        metric_type: v3::MetricType,
+        metric_type: v3::metric::MetricType,
 
         /// The value that was provided which is invalid.
         value: String,
