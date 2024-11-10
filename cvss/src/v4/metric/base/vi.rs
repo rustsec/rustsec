@@ -1,7 +1,7 @@
 //! Integrity Impact to the Vulnerable System (VI)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -50,8 +50,8 @@ impl Default for IntegrityImpactToTheVulnerableSystem {
     }
 }
 
-impl MetricV4 for IntegrityImpactToTheVulnerableSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::VI;
+impl Metric for IntegrityImpactToTheVulnerableSystem {
+    const TYPE: MetricType = MetricType::VI;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -89,8 +89,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{environmental::ModifiedIntegrityImpactToTheVulnerableSystem, MetricV4Level},
-            MetricTypeV4,
+            metric::{environmental::ModifiedIntegrityImpactToTheVulnerableSystem, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -122,14 +122,14 @@ pub(crate) mod merge {
                 "L" => Ok(MergedIntegrityImpactToTheVulnerableSystem::Low),
                 "N" => Ok(MergedIntegrityImpactToTheVulnerableSystem::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::VI,
+                    metric_type: MetricType::VI,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedIntegrityImpactToTheVulnerableSystem {
+    impl MetricLevel for MergedIntegrityImpactToTheVulnerableSystem {
         fn level(self) -> f64 {
             // VI_levels = {'H': 0.0, 'L': 0.1, 'N': 0.2}
             match self {

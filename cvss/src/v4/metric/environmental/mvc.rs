@@ -1,7 +1,7 @@
 //! Confidentiality Impact to the Vulnerable System (MVC)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -53,8 +53,8 @@ impl Default for ModifiedConfidentialityImpactToTheVulnerableSystem {
     }
 }
 
-impl MetricV4 for ModifiedConfidentialityImpactToTheVulnerableSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MVC;
+impl Metric for ModifiedConfidentialityImpactToTheVulnerableSystem {
+    const TYPE: MetricType = MetricType::MVC;
 
     fn as_str(self) -> &'static str {
         match self {

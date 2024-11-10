@@ -1,7 +1,7 @@
 //! Value Density (V)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -41,8 +41,8 @@ impl Default for ValueDensity {
     }
 }
 
-impl MetricV4 for ValueDensity {
-    const TYPE: MetricTypeV4 = MetricTypeV4::V;
+impl Metric for ValueDensity {
+    const TYPE: MetricType = MetricType::V;
 
     fn as_str(self) -> &'static str {
         match self {

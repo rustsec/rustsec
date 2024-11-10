@@ -1,7 +1,7 @@
 //! Confidentiality Impact to the Subsequent System (SC)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -52,8 +52,8 @@ impl Default for ConfidentialityImpactToTheSubsequentSystem {
     }
 }
 
-impl MetricV4 for ConfidentialityImpactToTheSubsequentSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::SC;
+impl Metric for ConfidentialityImpactToTheSubsequentSystem {
+    const TYPE: MetricType = MetricType::SC;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -92,9 +92,9 @@ pub(crate) mod merge {
     use crate::{
         v4::{
             metric::{
-                environmental::ModifiedConfidentialityImpactToTheSubsequentSystem, MetricV4Level,
+                environmental::ModifiedConfidentialityImpactToTheSubsequentSystem, MetricLevel,
             },
-            MetricTypeV4,
+            MetricType,
         },
         Error,
     };
@@ -126,14 +126,14 @@ pub(crate) mod merge {
                 "L" => Ok(MergedConfidentialityImpactToTheSubsequentSystem::Low),
                 "N" => Ok(MergedConfidentialityImpactToTheSubsequentSystem::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::SC,
+                    metric_type: MetricType::SC,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedConfidentialityImpactToTheSubsequentSystem {
+    impl MetricLevel for MergedConfidentialityImpactToTheSubsequentSystem {
         fn level(self) -> f64 {
             // SC_levels = {'H': 0.1, 'L': 0.2, 'N': 0.3}
             match self {

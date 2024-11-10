@@ -1,7 +1,7 @@
 //! User Interaction (UI)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -62,8 +62,8 @@ impl Default for UserInteraction {
     }
 }
 
-impl MetricV4 for UserInteraction {
-    const TYPE: MetricTypeV4 = MetricTypeV4::UI;
+impl Metric for UserInteraction {
+    const TYPE: MetricType = MetricType::UI;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -101,8 +101,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{environmental::ModifiedUserInteraction, MetricV4Level},
-            MetricTypeV4,
+            metric::{environmental::ModifiedUserInteraction, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -134,14 +134,14 @@ pub(crate) mod merge {
                 "P" => Ok(MergedUserInteraction::Passive),
                 "N" => Ok(MergedUserInteraction::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::UI,
+                    metric_type: MetricType::UI,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedUserInteraction {
+    impl MetricLevel for MergedUserInteraction {
         fn level(self) -> f64 {
             // UI_levels = {"N": 0.0, "P": 0.1, "A": 0.2}
             match self {

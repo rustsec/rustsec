@@ -13,9 +13,9 @@ pub mod supplemental;
 pub mod threat;
 
 /// Trait for CVSS 4.0 metrics.
-pub trait MetricV4: Copy + Clone + Debug + Display + Eq + FromStr + Ord + Default {
-    /// [`MetricTypeV4`] of this metric.
-    const TYPE: MetricTypeV4;
+pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord + Default {
+    /// [`MetricType`] of this metric.
+    const TYPE: MetricType;
 
     /// Get the name of this metric.
     fn name() -> &'static str {
@@ -28,7 +28,7 @@ pub trait MetricV4: Copy + Clone + Debug + Display + Eq + FromStr + Ord + Defaul
 
 #[cfg(feature = "std")]
 /// Some metrics have a level associated with them.
-pub(crate) trait MetricV4Level {
+pub(crate) trait MetricLevel {
     /// Metric level used in scoring.
     fn level(self) -> f64;
 }
@@ -36,7 +36,7 @@ pub(crate) trait MetricV4Level {
 /// Enum over all of the available metrics.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
-pub enum MetricTypeV4 {
+pub enum MetricType {
     /// Attack Complexity (AC)
     AC,
     /// Attack Requirements (AT)
@@ -103,7 +103,7 @@ pub enum MetricTypeV4 {
     V,
 }
 
-impl MetricTypeV4 {
+impl MetricType {
     /// Get the name of this metric (i.e. acronym)
     pub fn name(self) -> &'static str {
         match self {
@@ -181,13 +181,13 @@ impl MetricTypeV4 {
     }
 }
 
-impl Display for MetricTypeV4 {
+impl Display for MetricType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.name())
     }
 }
 
-impl FromStr for MetricTypeV4 {
+impl FromStr for MetricType {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {

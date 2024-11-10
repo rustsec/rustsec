@@ -1,7 +1,7 @@
 //! Modified Attack Complexity (MAC)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -66,8 +66,8 @@ impl Default for ModifiedAttackComplexity {
     }
 }
 
-impl MetricV4 for ModifiedAttackComplexity {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MAC;
+impl Metric for ModifiedAttackComplexity {
+    const TYPE: MetricType = MetricType::MAC;
 
     fn as_str(self) -> &'static str {
         match self {

@@ -1,7 +1,7 @@
 //! Attack Requirements (AT)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -50,8 +50,8 @@ impl Default for AttackRequirements {
     }
 }
 
-impl MetricV4 for AttackRequirements {
-    const TYPE: MetricTypeV4 = MetricTypeV4::AT;
+impl Metric for AttackRequirements {
+    const TYPE: MetricType = MetricType::AT;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -87,8 +87,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{environmental::ModifiedAttackRequirements, MetricV4Level},
-            MetricTypeV4,
+            metric::{environmental::ModifiedAttackRequirements, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -118,14 +118,14 @@ pub(crate) mod merge {
                 "P" => Ok(MergedAttackRequirements::Present),
                 "N" => Ok(MergedAttackRequirements::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::AT,
+                    metric_type: MetricType::AT,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedAttackRequirements {
+    impl MetricLevel for MergedAttackRequirements {
         fn level(self) -> f64 {
             // AT_levels = {'N': 0.0, 'P': 0.1}
             match self {

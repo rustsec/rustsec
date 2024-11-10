@@ -1,7 +1,7 @@
 //! Privileges Required (MPR)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -54,8 +54,8 @@ impl Default for ModifiedPrivilegesRequired {
     }
 }
 
-impl MetricV4 for ModifiedPrivilegesRequired {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MPR;
+impl Metric for ModifiedPrivilegesRequired {
+    const TYPE: MetricType = MetricType::MPR;
 
     fn as_str(self) -> &'static str {
         match self {

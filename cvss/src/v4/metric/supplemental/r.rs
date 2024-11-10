@@ -1,7 +1,7 @@
 //! Recovery (R)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -42,8 +42,8 @@ impl Default for Recovery {
     }
 }
 
-impl MetricV4 for Recovery {
-    const TYPE: MetricTypeV4 = MetricTypeV4::R;
+impl Metric for Recovery {
+    const TYPE: MetricType = MetricType::R;
 
     fn as_str(self) -> &'static str {
         match self {

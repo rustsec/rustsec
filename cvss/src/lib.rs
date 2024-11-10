@@ -30,6 +30,7 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
+// A part of the v3 API is exposed even without the feature for compatibility.
 pub mod v3;
 #[cfg(feature = "v4")]
 pub mod v4;

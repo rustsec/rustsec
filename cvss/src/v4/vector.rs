@@ -27,7 +27,7 @@ use crate::{
             },
             threat::ExploitMaturity,
         },
-        MetricTypeV4,
+        MetricType,
     },
     Error, PREFIX,
 };
@@ -41,7 +41,7 @@ use {
 
 use crate::v4::score::Nomenclature;
 #[cfg(feature = "std")]
-use crate::v4::ScoreV4;
+use crate::v4::Score;
 
 /// A CVSS 4.0 vector
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -118,7 +118,7 @@ pub struct Vector {
 impl Vector {
     /// Get the numerical score of the vector
     #[cfg(feature = "std")]
-    pub fn score(&self) -> ScoreV4 {
+    pub fn score(&self) -> Score {
         self.into()
     }
 
@@ -133,24 +133,24 @@ impl Vector {
     ///
     /// Defined in <https://www.first.org/cvss/v4.0/specification-document#Vector-String>
     fn check_mandatory_metrics(&self) -> Result<(), Error> {
-        fn ensure_present<T>(metric: Option<T>, metric_type: MetricTypeV4) -> Result<(), Error> {
+        fn ensure_present<T>(metric: Option<T>, metric_type: MetricType) -> Result<(), Error> {
             if metric.is_none() {
                 return Err(Error::MissingMandatoryMetricV4 { metric_type });
             }
             Ok(())
         }
 
-        ensure_present(self.ac.as_ref(), MetricTypeV4::AC)?;
-        ensure_present(self.at.as_ref(), MetricTypeV4::AT)?;
-        ensure_present(self.av.as_ref(), MetricTypeV4::AV)?;
-        ensure_present(self.pr.as_ref(), MetricTypeV4::PR)?;
-        ensure_present(self.sa.as_ref(), MetricTypeV4::SA)?;
-        ensure_present(self.sc.as_ref(), MetricTypeV4::SC)?;
-        ensure_present(self.si.as_ref(), MetricTypeV4::SI)?;
-        ensure_present(self.ui.as_ref(), MetricTypeV4::UI)?;
-        ensure_present(self.va.as_ref(), MetricTypeV4::VA)?;
-        ensure_present(self.vc.as_ref(), MetricTypeV4::VC)?;
-        ensure_present(self.vi.as_ref(), MetricTypeV4::VI)?;
+        ensure_present(self.ac.as_ref(), MetricType::AC)?;
+        ensure_present(self.at.as_ref(), MetricType::AT)?;
+        ensure_present(self.av.as_ref(), MetricType::AV)?;
+        ensure_present(self.pr.as_ref(), MetricType::PR)?;
+        ensure_present(self.sa.as_ref(), MetricType::SA)?;
+        ensure_present(self.sc.as_ref(), MetricType::SC)?;
+        ensure_present(self.si.as_ref(), MetricType::SI)?;
+        ensure_present(self.ui.as_ref(), MetricType::UI)?;
+        ensure_present(self.va.as_ref(), MetricType::VA)?;
+        ensure_present(self.vc.as_ref(), MetricType::VC)?;
+        ensure_present(self.vi.as_ref(), MetricType::VI)?;
         Ok(())
     }
 }
@@ -233,7 +233,7 @@ impl FromStr for Vector {
             let value = component.1.to_ascii_uppercase();
 
             fn get_value<T: FromStr<Err = Error>>(
-                metric_type: MetricTypeV4,
+                metric_type: MetricType,
                 current_val: Option<T>,
                 new_val: String,
             ) -> Result<Option<T>, Error> {
@@ -244,61 +244,39 @@ impl FromStr for Vector {
                 Ok(Some(parsed))
             }
 
-            match id.parse::<MetricTypeV4>()? {
-                MetricTypeV4::AV => metrics.av = get_value(MetricTypeV4::AV, metrics.av, value)?,
-                MetricTypeV4::AC => metrics.ac = get_value(MetricTypeV4::AC, metrics.ac, value)?,
-                MetricTypeV4::PR => metrics.pr = get_value(MetricTypeV4::PR, metrics.pr, value)?,
-                MetricTypeV4::UI => metrics.ui = get_value(MetricTypeV4::UI, metrics.ui, value)?,
-                MetricTypeV4::S => metrics.s = get_value(MetricTypeV4::S, metrics.s, value)?,
-                MetricTypeV4::AT => metrics.at = get_value(MetricTypeV4::AT, metrics.at, value)?,
-                MetricTypeV4::SA => metrics.sa = get_value(MetricTypeV4::SA, metrics.sa, value)?,
-                MetricTypeV4::SC => metrics.sc = get_value(MetricTypeV4::SC, metrics.sc, value)?,
-                MetricTypeV4::SI => metrics.si = get_value(MetricTypeV4::SI, metrics.si, value)?,
-                MetricTypeV4::VA => metrics.va = get_value(MetricTypeV4::VA, metrics.va, value)?,
-                MetricTypeV4::VC => metrics.vc = get_value(MetricTypeV4::VC, metrics.vc, value)?,
-                MetricTypeV4::VI => metrics.vi = get_value(MetricTypeV4::VI, metrics.vi, value)?,
-                MetricTypeV4::E => metrics.e = get_value(MetricTypeV4::E, metrics.e, value)?,
-                MetricTypeV4::AR => metrics.ar = get_value(MetricTypeV4::AR, metrics.ar, value)?,
-                MetricTypeV4::CR => metrics.cr = get_value(MetricTypeV4::CR, metrics.cr, value)?,
-                MetricTypeV4::IR => metrics.ir = get_value(MetricTypeV4::IR, metrics.ir, value)?,
-                MetricTypeV4::MAC => {
-                    metrics.mac = get_value(MetricTypeV4::MAC, metrics.mac, value)?
-                }
-                MetricTypeV4::MAT => {
-                    metrics.mat = get_value(MetricTypeV4::MAT, metrics.mat, value)?
-                }
-                MetricTypeV4::MAV => {
-                    metrics.mav = get_value(MetricTypeV4::MAV, metrics.mav, value)?
-                }
-                MetricTypeV4::MPR => {
-                    metrics.mpr = get_value(MetricTypeV4::MPR, metrics.mpr, value)?
-                }
-                MetricTypeV4::MSA => {
-                    metrics.msa = get_value(MetricTypeV4::MSA, metrics.msa, value)?
-                }
-                MetricTypeV4::MSC => {
-                    metrics.msc = get_value(MetricTypeV4::MSC, metrics.msc, value)?
-                }
-                MetricTypeV4::MSI => {
-                    metrics.msi = get_value(MetricTypeV4::MSI, metrics.msi, value)?
-                }
-                MetricTypeV4::MUI => {
-                    metrics.mui = get_value(MetricTypeV4::MUI, metrics.mui, value)?
-                }
-                MetricTypeV4::MVA => {
-                    metrics.mva = get_value(MetricTypeV4::MVA, metrics.mva, value)?
-                }
-                MetricTypeV4::MVC => {
-                    metrics.mvc = get_value(MetricTypeV4::MVC, metrics.mvc, value)?
-                }
-                MetricTypeV4::MVI => {
-                    metrics.mvi = get_value(MetricTypeV4::MVI, metrics.mvi, value)?
-                }
-                MetricTypeV4::AU => metrics.au = get_value(MetricTypeV4::AU, metrics.au, value)?,
-                MetricTypeV4::R => metrics.r = get_value(MetricTypeV4::R, metrics.r, value)?,
-                MetricTypeV4::RE => metrics.re = get_value(MetricTypeV4::RE, metrics.re, value)?,
-                MetricTypeV4::U => metrics.u = get_value(MetricTypeV4::U, metrics.u, value)?,
-                MetricTypeV4::V => metrics.v = get_value(MetricTypeV4::V, metrics.v, value)?,
+            match id.parse::<MetricType>()? {
+                MetricType::AV => metrics.av = get_value(MetricType::AV, metrics.av, value)?,
+                MetricType::AC => metrics.ac = get_value(MetricType::AC, metrics.ac, value)?,
+                MetricType::PR => metrics.pr = get_value(MetricType::PR, metrics.pr, value)?,
+                MetricType::UI => metrics.ui = get_value(MetricType::UI, metrics.ui, value)?,
+                MetricType::S => metrics.s = get_value(MetricType::S, metrics.s, value)?,
+                MetricType::AT => metrics.at = get_value(MetricType::AT, metrics.at, value)?,
+                MetricType::SA => metrics.sa = get_value(MetricType::SA, metrics.sa, value)?,
+                MetricType::SC => metrics.sc = get_value(MetricType::SC, metrics.sc, value)?,
+                MetricType::SI => metrics.si = get_value(MetricType::SI, metrics.si, value)?,
+                MetricType::VA => metrics.va = get_value(MetricType::VA, metrics.va, value)?,
+                MetricType::VC => metrics.vc = get_value(MetricType::VC, metrics.vc, value)?,
+                MetricType::VI => metrics.vi = get_value(MetricType::VI, metrics.vi, value)?,
+                MetricType::E => metrics.e = get_value(MetricType::E, metrics.e, value)?,
+                MetricType::AR => metrics.ar = get_value(MetricType::AR, metrics.ar, value)?,
+                MetricType::CR => metrics.cr = get_value(MetricType::CR, metrics.cr, value)?,
+                MetricType::IR => metrics.ir = get_value(MetricType::IR, metrics.ir, value)?,
+                MetricType::MAC => metrics.mac = get_value(MetricType::MAC, metrics.mac, value)?,
+                MetricType::MAT => metrics.mat = get_value(MetricType::MAT, metrics.mat, value)?,
+                MetricType::MAV => metrics.mav = get_value(MetricType::MAV, metrics.mav, value)?,
+                MetricType::MPR => metrics.mpr = get_value(MetricType::MPR, metrics.mpr, value)?,
+                MetricType::MSA => metrics.msa = get_value(MetricType::MSA, metrics.msa, value)?,
+                MetricType::MSC => metrics.msc = get_value(MetricType::MSC, metrics.msc, value)?,
+                MetricType::MSI => metrics.msi = get_value(MetricType::MSI, metrics.msi, value)?,
+                MetricType::MUI => metrics.mui = get_value(MetricType::MUI, metrics.mui, value)?,
+                MetricType::MVA => metrics.mva = get_value(MetricType::MVA, metrics.mva, value)?,
+                MetricType::MVC => metrics.mvc = get_value(MetricType::MVC, metrics.mvc, value)?,
+                MetricType::MVI => metrics.mvi = get_value(MetricType::MVI, metrics.mvi, value)?,
+                MetricType::AU => metrics.au = get_value(MetricType::AU, metrics.au, value)?,
+                MetricType::R => metrics.r = get_value(MetricType::R, metrics.r, value)?,
+                MetricType::RE => metrics.re = get_value(MetricType::RE, metrics.re, value)?,
+                MetricType::U => metrics.u = get_value(MetricType::U, metrics.u, value)?,
+                MetricType::V => metrics.v = get_value(MetricType::V, metrics.v, value)?,
             }
         }
 
@@ -352,7 +330,7 @@ mod tests {
         assert_eq!(
             Vector::from_str("CVSS:4.0/AV:F/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N"),
             Err(Error::InvalidMetricV4 {
-                metric_type: MetricTypeV4::AV,
+                metric_type: MetricType::AV,
                 value: "F".to_owned()
             })
         );
@@ -360,7 +338,7 @@ mod tests {
         assert_eq!(
             Vector::from_str("CVSS:4.0/AV:N/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N"),
             Err(Error::MissingMandatoryMetricV4 {
-                metric_type: MetricTypeV4::AC
+                metric_type: MetricType::AC
             })
         );
     }

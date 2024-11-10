@@ -1,7 +1,7 @@
 //! Attack Complexity (AC)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -61,8 +61,8 @@ impl Default for AttackComplexity {
     }
 }
 
-impl MetricV4 for AttackComplexity {
-    const TYPE: MetricTypeV4 = MetricTypeV4::AC;
+impl Metric for AttackComplexity {
+    const TYPE: MetricType = MetricType::AC;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -98,8 +98,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{environmental::ModifiedAttackComplexity, MetricV4Level},
-            MetricTypeV4,
+            metric::{environmental::ModifiedAttackComplexity, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -129,14 +129,14 @@ pub(crate) mod merge {
                 "H" => Ok(MergedAttackComplexity::High),
                 "L" => Ok(MergedAttackComplexity::Low),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::AC,
+                    metric_type: MetricType::AC,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedAttackComplexity {
+    impl MetricLevel for MergedAttackComplexity {
         fn level(self) -> f64 {
             // AC_levels = {'L': 0.0, 'H': 0.1}
             match self {

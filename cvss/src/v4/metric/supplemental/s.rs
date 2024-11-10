@@ -1,7 +1,7 @@
 //! Safety (S)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -45,8 +45,8 @@ impl Default for Safety {
     }
 }
 
-impl MetricV4 for Safety {
-    const TYPE: MetricTypeV4 = MetricTypeV4::S;
+impl Metric for Safety {
+    const TYPE: MetricType = MetricType::S;
 
     fn as_str(self) -> &'static str {
         match self {

@@ -20,10 +20,10 @@ use crate::v4::{
             VulnerabilityResponseEffort,
         },
         threat::MergedExploitMaturity,
-        MetricV4Level,
+        MetricLevel,
     },
     scoring::{lookup::lookup_global, max_composed::max_composed, max_severity::max_severity},
-    MetricTypeV4, Vector,
+    MetricType, Vector,
 };
 use alloc::vec::Vec;
 use std::{dbg, format, vec};
@@ -128,28 +128,28 @@ impl ScoringVector {
             let id = component.0.to_ascii_uppercase();
             let value = component.1.to_ascii_uppercase();
 
-            match id.parse::<MetricTypeV4>().unwrap() {
-                MetricTypeV4::AV => metrics.av = value.parse().unwrap(),
-                MetricTypeV4::AC => metrics.ac = value.parse().unwrap(),
-                MetricTypeV4::PR => metrics.pr = value.parse().unwrap(),
-                MetricTypeV4::UI => metrics.ui = value.parse().unwrap(),
-                MetricTypeV4::S => metrics.s = value.parse().unwrap(),
-                MetricTypeV4::AT => metrics.at = value.parse().unwrap(),
-                MetricTypeV4::SA => metrics.sa = value.parse().unwrap(),
-                MetricTypeV4::SC => metrics.sc = value.parse().unwrap(),
-                MetricTypeV4::SI => metrics.si = value.parse().unwrap(),
-                MetricTypeV4::VA => metrics.va = value.parse().unwrap(),
-                MetricTypeV4::VC => metrics.vc = value.parse().unwrap(),
-                MetricTypeV4::VI => metrics.vi = value.parse().unwrap(),
-                MetricTypeV4::E => metrics.e = value.parse().unwrap(),
-                MetricTypeV4::AR => metrics.ar = value.parse().unwrap(),
-                MetricTypeV4::CR => metrics.cr = value.parse().unwrap(),
-                MetricTypeV4::IR => metrics.ir = value.parse().unwrap(),
-                MetricTypeV4::AU => metrics.au = value.parse().unwrap(),
-                MetricTypeV4::R => metrics.r = value.parse().unwrap(),
-                MetricTypeV4::RE => metrics.re = value.parse().unwrap(),
-                MetricTypeV4::U => metrics.u = value.parse().unwrap(),
-                MetricTypeV4::V => metrics.v = value.parse().unwrap(),
+            match id.parse::<MetricType>().unwrap() {
+                MetricType::AV => metrics.av = value.parse().unwrap(),
+                MetricType::AC => metrics.ac = value.parse().unwrap(),
+                MetricType::PR => metrics.pr = value.parse().unwrap(),
+                MetricType::UI => metrics.ui = value.parse().unwrap(),
+                MetricType::S => metrics.s = value.parse().unwrap(),
+                MetricType::AT => metrics.at = value.parse().unwrap(),
+                MetricType::SA => metrics.sa = value.parse().unwrap(),
+                MetricType::SC => metrics.sc = value.parse().unwrap(),
+                MetricType::SI => metrics.si = value.parse().unwrap(),
+                MetricType::VA => metrics.va = value.parse().unwrap(),
+                MetricType::VC => metrics.vc = value.parse().unwrap(),
+                MetricType::VI => metrics.vi = value.parse().unwrap(),
+                MetricType::E => metrics.e = value.parse().unwrap(),
+                MetricType::AR => metrics.ar = value.parse().unwrap(),
+                MetricType::CR => metrics.cr = value.parse().unwrap(),
+                MetricType::IR => metrics.ir = value.parse().unwrap(),
+                MetricType::AU => metrics.au = value.parse().unwrap(),
+                MetricType::R => metrics.r = value.parse().unwrap(),
+                MetricType::RE => metrics.re = value.parse().unwrap(),
+                MetricType::U => metrics.u = value.parse().unwrap(),
+                MetricType::V => metrics.v = value.parse().unwrap(),
                 _ => unreachable!("Invalid metric type in max_composed: {}", id),
             }
         }

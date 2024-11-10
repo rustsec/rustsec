@@ -1,7 +1,7 @@
 //! Integrity Impact to the Vulnerable System (MVI)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -53,8 +53,8 @@ impl Default for ModifiedIntegrityImpactToTheVulnerableSystem {
     }
 }
 
-impl MetricV4 for ModifiedIntegrityImpactToTheVulnerableSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MVI;
+impl Metric for ModifiedIntegrityImpactToTheVulnerableSystem {
+    const TYPE: MetricType = MetricType::MVI;
 
     fn as_str(self) -> &'static str {
         match self {

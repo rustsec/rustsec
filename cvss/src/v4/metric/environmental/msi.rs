@@ -1,7 +1,7 @@
 //! Integrity Impact to the Subsequent System (MSI)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -60,8 +60,8 @@ impl Default for ModifiedIntegrityImpactToTheSubsequentSystem {
     }
 }
 
-impl MetricV4 for ModifiedIntegrityImpactToTheSubsequentSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MSI;
+impl Metric for ModifiedIntegrityImpactToTheSubsequentSystem {
+    const TYPE: MetricType = MetricType::MSI;
 
     fn as_str(self) -> &'static str {
         match self {

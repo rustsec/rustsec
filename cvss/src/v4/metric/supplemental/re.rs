@@ -1,7 +1,7 @@
 //! Vulnerability Response Effort (RE)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -60,8 +60,8 @@ impl Default for VulnerabilityResponseEffort {
     }
 }
 
-impl MetricV4 for VulnerabilityResponseEffort {
-    const TYPE: MetricTypeV4 = MetricTypeV4::RE;
+impl Metric for VulnerabilityResponseEffort {
+    const TYPE: MetricType = MetricType::RE;
 
     fn as_str(self) -> &'static str {
         match self {

@@ -1,7 +1,7 @@
 //! Availability Impact to the Subsequent System (MSA)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -72,8 +72,8 @@ impl Default for ModifiedAvailabilityImpactToTheSubsequentSystem {
     }
 }
 
-impl MetricV4 for ModifiedAvailabilityImpactToTheSubsequentSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MSA;
+impl Metric for ModifiedAvailabilityImpactToTheSubsequentSystem {
+    const TYPE: MetricType = MetricType::MSA;
 
     fn as_str(self) -> &'static str {
         match self {

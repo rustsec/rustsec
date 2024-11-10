@@ -1,7 +1,7 @@
 //! Availability Impact to the Vulnerable System (MVA)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -65,8 +65,8 @@ impl Default for ModifiedAvailabilityImpactToTheVulnerableSystem {
     }
 }
 
-impl MetricV4 for ModifiedAvailabilityImpactToTheVulnerableSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::MVA;
+impl Metric for ModifiedAvailabilityImpactToTheVulnerableSystem {
+    const TYPE: MetricType = MetricType::MVA;
 
     fn as_str(self) -> &'static str {
         match self {

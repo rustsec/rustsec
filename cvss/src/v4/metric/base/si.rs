@@ -1,7 +1,7 @@
 //! Integrity Impact to the Subsequent System (SI)
 
 use crate::{
-    v4::metric::{MetricTypeV4, MetricV4},
+    v4::metric::{Metric, MetricType},
     Error, Result,
 };
 use alloc::borrow::ToOwned;
@@ -51,8 +51,8 @@ impl Default for IntegrityImpactToTheSubsequentSystem {
     }
 }
 
-impl MetricV4 for IntegrityImpactToTheSubsequentSystem {
-    const TYPE: MetricTypeV4 = MetricTypeV4::SI;
+impl Metric for IntegrityImpactToTheSubsequentSystem {
+    const TYPE: MetricType = MetricType::SI;
 
     fn as_str(self) -> &'static str {
         match self {
@@ -90,8 +90,8 @@ pub(crate) mod merge {
     use super::*;
     use crate::{
         v4::{
-            metric::{environmental::ModifiedIntegrityImpactToTheSubsequentSystem, MetricV4Level},
-            MetricTypeV4,
+            metric::{environmental::ModifiedIntegrityImpactToTheSubsequentSystem, MetricLevel},
+            MetricType,
         },
         Error,
     };
@@ -125,14 +125,14 @@ pub(crate) mod merge {
                 "L" => Ok(MergedIntegrityImpactToTheSubsequentSystem::Low),
                 "N" => Ok(MergedIntegrityImpactToTheSubsequentSystem::None),
                 _ => Err(Error::InvalidMetricV4 {
-                    metric_type: MetricTypeV4::SI,
+                    metric_type: MetricType::SI,
                     value: s.to_owned(),
                 }),
             }
         }
     }
 
-    impl MetricV4Level for MergedIntegrityImpactToTheSubsequentSystem {
+    impl MetricLevel for MergedIntegrityImpactToTheSubsequentSystem {
         fn level(self) -> f64 {
             // SI_levels = {'S': 0.0, 'H': 0.1, 'L': 0.2, 'N': 0.3}
             match self {
