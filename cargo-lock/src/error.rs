@@ -25,10 +25,10 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::Io(kind) => write!(f, "I/O operation failed: {}", kind),
-            Error::Parse(s) => write!(f, "parse error: {}", s),
-            Error::Version(err) => write!(f, "version error: {}", err),
-            Error::Resolution(err) => write!(f, "resolution error: {}", err),
+            Error::Io(kind) => write!(f, "I/O operation failed: {kind}"),
+            Error::Parse(s) => write!(f, "parse error: {s}"),
+            Error::Version(err) => write!(f, "version error: {err}"),
+            Error::Resolution(err) => write!(f, "resolution error: {err}"),
         }
     }
 }

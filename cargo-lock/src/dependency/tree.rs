@@ -153,7 +153,7 @@ impl<'g, 's> Presenter<'g, 's> {
         if let Some((&last_continues, rest)) = self.levels_continue.split_last() {
             for &continues in rest {
                 let c = if continues { self.symbols.down } else { " " };
-                write!(w, "{}   ", c)?;
+                write!(w, "{c}   ")?;
             }
 
             let c = if last_continues {
@@ -167,7 +167,7 @@ impl<'g, 's> Presenter<'g, 's> {
 
         if exact {
             let spec = if let Some(checksum) = &package.checksum {
-                format!("checksum:{}", checksum)
+                format!("checksum:{checksum}")
             } else if let Some(src) = &package.source {
                 src.to_string()
             } else {
