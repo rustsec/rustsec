@@ -22,6 +22,7 @@ const ECOSYSTEM: &str = "crates.io";
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct OsvAdvisory {
+    #[serde(skip_serializing_if = "Option::is_none")]
     schema_version: Option<semver::Version>,
     id: Id,
     modified: String,  // maybe add an rfc3339 newtype?
