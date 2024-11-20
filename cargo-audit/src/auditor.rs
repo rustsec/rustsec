@@ -252,6 +252,11 @@ impl Auditor {
         #[allow(unused_variables)] // May be unused when the "binary-scanning" feature is disabled
         binary_format: Option<BinaryFormat>,
     ) -> rustsec::Result<rustsec::Report> {
+        match self.report_settings.target_package_info.as_mut() {
+            None => (),
+            Some(info) => info.package = info.find_target_package(lockfile)?,
+        }
+
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
         #[cfg(feature = "binary-scanning")]
@@ -276,6 +281,11 @@ impl Auditor {
     }
 
     fn check_for_yanked_crates(&mut self, lockfile: &Lockfile) -> Vec<Warning> {
+        #[cfg(feature = "dependency-tree")]
+        let tree = lockfile
+            .dependency_tree()
+            .expect("invalid Cargo.lock dependency tree");
+
         let mut result = Vec::new();
         if let Some(index) = &mut self.registry_index {
             let pkgs_to_check: Vec<_> = lockfile
@@ -293,6 +303,11 @@ impl Auditor {
                 match pkg {
                     Ok(pkg) => {
                         let warning = Warning::new(WarningKind::Yanked, pkg, None, None, None);
+                        #[cfg(feature = "dependency-tree")]
+                        if rustsec::database::dfs(Some(pkg), pkg, &tree) {
+                            result.push(warning);
+                        }
+                        #[cfg(not(feature = "dependency-tree"))]
                         result.push(warning);
                     }
                     Err(e) => status_err!(

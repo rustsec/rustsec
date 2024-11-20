@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use std::{fmt, str::FromStr};
 
 /// Name of a Rust `[[package]]`
-#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, PartialOrd, Ord, Serialize, Default)]
 pub struct Name(String);
 
 impl Name {

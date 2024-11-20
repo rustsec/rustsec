@@ -22,6 +22,7 @@ serde = { workspace = true, features = ["serde_derive"] }
 thiserror = { workspace = true }
 toml = { workspace = true }
 url = { workspace = true, features = ["serde"] }
+petgraph = "0.6.3"
 
 # optional dependencies
 tame-index = { workspace = true, features = ["git", "sparse", "native-certs"], optional = true }
