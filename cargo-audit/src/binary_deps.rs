@@ -2,7 +2,7 @@
 //! 1. Recovers the dependency list embedded by `cargo auditable` (using `auditable-info`)
 //! 2. Failing that, recovers as many crates as possible from panic messages (using `quitters`)
 
-use std::{path::Path, str::FromStr};
+use std::str::FromStr;
 
 use auditable_serde::VersionInfo;
 use cargo_lock::{Dependency, Lockfile, Package};
@@ -10,6 +10,10 @@ use rustsec::{Error, ErrorKind};
 
 use crate::binary_format::BinaryFormat;
 
+/// The default file size limit is 8MB
+const DEFAULT_FILE_SIZE_LIMIT: usize = 8 * 1024 * 1024;
+
+/// Defines the state of a Lockfile 
 pub enum BinaryReport {
     /// Full dependency list embedded by `cargo auditable`
     Complete(Lockfile),
@@ -19,15 +23,14 @@ pub enum BinaryReport {
     None,
 }
 
-/// Load the dependency tree from a binary file
-pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryFormat, BinaryReport)> {
-    // TODO: input size limit
-    let file_contents = std::fs::read(binary_path)?;
+/// Load the dependency tree from some binary. By default the file size limit is 8MB.
+pub fn load_deps_from_binary(file_contents: &[u8], file_size_limit: Option<usize>) -> rustsec::Result<(BinaryFormat, BinaryReport)> {
     let format = detect_format(&file_contents);
-    let stuff = auditable_info::audit_info_from_slice(&file_contents, 8 * 1024 * 1024);
+    let file_size_limit = match file_size_limit { Some(size) => size, None => DEFAULT_FILE_SIZE_LIMIT };
+    let version_info = auditable_info::audit_info_from_slice(&file_contents, file_size_limit);
 
     use auditable_info::Error::*; // otherwise rustfmt makes the matches multiline and unreadable
-    match stuff {
+    match version_info {
         Ok(json_struct) => Ok((
             format,
             BinaryReport::Complete(lockfile_from_version_info_json(&json_struct)?),
@@ -45,20 +48,14 @@ pub fn load_deps_from_binary(binary_path: &Path) -> rustsec::Result<(BinaryForma
             // and this way we don't expose the error types in any public APIs
             Io(_) => Err(Error::with_source(
                 ErrorKind::Io,
-                format!(
-                    "could not extract dependencies from binary {}",
-                    binary_path.display()
-                ),
+                format!("could not extract dependencies from binary"),
                 e,
             )),
             // Everything else is just Parse, but we enumerate them explicitly in case variant list changes
             InputLimitExceeded | OutputLimitExceeded | BinaryParsing(_) | Decompression(_)
             | Json(_) | Utf8(_) => Err(Error::with_source(
                 ErrorKind::Parse,
-                format!(
-                    "could not extract dependencies from binary {}",
-                    binary_path.display()
-                ),
+                format!("could not extract dependencies from binary"),
                 e,
             )),
         },
