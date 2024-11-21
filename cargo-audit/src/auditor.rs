@@ -232,7 +232,8 @@ impl Auditor {
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         use crate::binary_deps::BinaryReport::*;
         let file_contents = std::fs::read(binary_path)?;
-        let (binary_type, report) = crate::binary_deps::load_deps_from_binary(&file_contents, Option::None)?;
+        let (binary_type, report) =
+            crate::binary_deps::load_deps_from_binary(&file_contents, Option::None)?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
