@@ -22,11 +22,6 @@
 
 pub mod application;
 pub mod auditor;
-#[cfg(feature = "binary-scanning")]
-pub mod binary_deps;
-mod binary_format;
-#[cfg(feature = "binary-scanning")]
-mod binary_type_filter;
 pub mod commands;
 pub mod config;
 pub mod error;
