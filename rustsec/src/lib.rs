@@ -17,6 +17,13 @@ pub mod repository;
 mod vulnerability;
 mod warning;
 
+#[cfg(feature = "binary-scanning")]
+pub mod binary_deps;
+#[cfg(feature = "binary-scanning")]
+pub mod binary_format;
+#[cfg(feature = "binary-scanning")]
+pub mod binary_type_filter;
+
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 mod cached_index;

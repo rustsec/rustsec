@@ -4,9 +4,9 @@
 
 use std::str::FromStr;
 
+use crate::{Error, ErrorKind};
 use auditable_serde::VersionInfo;
 use cargo_lock::{Dependency, Lockfile, Package};
-use rustsec::{Error, ErrorKind};
 
 use crate::binary_format::BinaryFormat;
 
@@ -27,7 +27,7 @@ pub enum BinaryReport {
 pub fn load_deps_from_binary(
     file_contents: &[u8],
     file_size_limit: Option<usize>,
-) -> rustsec::Result<(BinaryFormat, BinaryReport)> {
+) -> crate::Result<(BinaryFormat, BinaryReport)> {
     let format = detect_format(file_contents);
     let file_size_limit = match file_size_limit {
         Some(size) => size,
