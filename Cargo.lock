@@ -387,15 +387,11 @@ name = "cargo-audit"
 version = "0.21.0"
 dependencies = [
  "abscissa_core",
- "auditable-info",
- "auditable-serde",
- "binfarce",
  "cargo-lock",
  "clap",
  "display-error-chain",
  "home",
  "once_cell",
- "quitters",
  "rustsec",
  "serde",
  "serde_json",
@@ -2584,9 +2580,9 @@ dependencies = [
 
 [[package]]
 name = "rustls"
-version = "0.23.16"
+version = "0.23.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eee87ff5d9b36712a58574e12e9f0ea80f915a5b0ac518d322b24a465617925e"
+checksum = "9c9cc1d47e243d655ace55ed38201c19ae02c148ae56412ab8750e8f0166ab7f"
 dependencies = [
  "once_cell",
  "ring",
@@ -2639,6 +2635,9 @@ dependencies = [
 name = "rustsec"
 version = "0.30.0"
 dependencies = [
+ "auditable-info",
+ "auditable-serde",
+ "binfarce",
  "cargo-lock",
  "cvss",
  "fs-err",
@@ -2646,6 +2645,7 @@ dependencies = [
  "home",
  "once_cell",
  "platforms",
+ "quitters",
  "semver",
  "serde",
  "serde_json",
