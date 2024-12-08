@@ -227,6 +227,7 @@ mod tests {
     #[test]
     fn compute_tree_git_ref() {
         let lockfile = Lockfile::load("tests/examples/Cargo.lock.git-ref").unwrap();
-        Tree::new(&lockfile).unwrap();
+        let err = Tree::new(&lockfile).unwrap_err();
+        assert_eq!(&err.to_string(), "resolution error: failed to find dependency: tag 0.0.0 (git+https://github.com/rustsec/rustsec?tag=mytag)");
     }
 }
