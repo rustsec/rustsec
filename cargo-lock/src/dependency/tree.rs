@@ -206,20 +206,17 @@ impl<'g, 's> Presenter<'g, 's> {
 mod tests {
     use super::*;
 
-    /// Load this crate's `Cargo.lock`
-    fn load_lockfile() -> Lockfile {
-        Lockfile::load("tests/examples/Cargo.lock.v3").unwrap()
-    }
-
     #[test]
-    fn compute_tree() {
+    fn compute_tree_v3() {
         // TODO(tarcieri): test dependency tree is computed correctly
-        Tree::new(&load_lockfile()).unwrap();
+        let lockfile = Lockfile::load("tests/examples/Cargo.lock.v3").unwrap();
+        Tree::new(&lockfile).unwrap();
     }
 
     #[test]
-    fn compute_roots() {
-        let tree = Tree::new(&load_lockfile()).unwrap();
+    fn compute_roots_v3() {
+        let lockfile = Lockfile::load("tests/examples/Cargo.lock.v3").unwrap();
+        let tree = Tree::new(&lockfile).unwrap();
         let roots = tree.roots();
         assert_eq!(roots.len(), 1);
 
