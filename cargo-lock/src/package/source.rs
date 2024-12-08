@@ -91,10 +91,10 @@ impl SourceId {
                     name: self.name.clone(),
                 };
             }
-        } else if let SourceKind::Git(GitReference::Branch(name)) = &self.kind {
+        } else if let SourceKind::Git(reference) = &self.kind {
             if self.precise.is_some() {
                 return Self {
-                    kind: SourceKind::Git(GitReference::Branch(name.clone())),
+                    kind: SourceKind::Git(reference.clone()),
                     precise: None,
                     url: self.url.clone(),
                     name: self.name.clone(),
