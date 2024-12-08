@@ -223,4 +223,10 @@ mod tests {
         let root_package = &tree.graph[roots[0]];
         assert_eq!(root_package.name.as_str(), "cargo-lock");
     }
+
+    #[test]
+    fn compute_tree_git_ref() {
+        let lockfile = Lockfile::load("tests/examples/Cargo.lock.git-ref").unwrap();
+        Tree::new(&lockfile).unwrap();
+    }
 }
