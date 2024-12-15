@@ -118,7 +118,7 @@ pub struct AdvisoryConfig {
 ///
 /// The advisory database is stored in a Git repository. This section of the
 /// configuration stores settings related to it.
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct DatabaseConfig {
     /// Path to the local copy of advisory database's git repo (default: ~/.cargo/advisory-db)
@@ -128,10 +128,22 @@ pub struct DatabaseConfig {
     pub url: Option<String>,
 
     /// Perform a `git fetch` before auditing (default: true)
+    #[serde(default = "default_true")]
     pub fetch: bool,
 
     /// Allow a stale advisory database? (i.e. one which hasn't been updated in 90 days)
     pub stale: bool,
+}
+
+impl Default for DatabaseConfig {
+    fn default() -> Self {
+        Self {
+            path: None,
+            url: None,
+            fetch: true,
+            stale: false
+        }
+    }
 }
 
 /// Output configuration
