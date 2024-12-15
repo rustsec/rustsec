@@ -141,7 +141,7 @@ impl Default for DatabaseConfig {
             path: None,
             url: None,
             fetch: true,
-            stale: false
+            stale: false,
         }
     }
 }
