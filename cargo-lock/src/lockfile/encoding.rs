@@ -463,9 +463,7 @@ impl FromStr for EncodableDependency {
             .next()
             .map(|s| {
                 if s.len() < 2 || !s.starts_with('(') || !s.ends_with(')') {
-                    Err(Error::Parse(format!(
-                        "malformed source in dependency: {s}"
-                    )))
+                    Err(Error::Parse(format!("malformed source in dependency: {s}")))
                 } else {
                     s[1..(s.len() - 1)].parse::<SourceId>()
                 }
