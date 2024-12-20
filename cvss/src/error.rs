@@ -55,7 +55,7 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::InvalidComponent { component } => {
-                write!(f, "invalid CVSS metric group component: `{}`", component)
+                write!(f, "invalid CVSS metric group component: `{component}`")
             }
             Error::InvalidMetric { metric_type, value } => {
                 write!(
@@ -67,14 +67,14 @@ impl fmt::Display for Error {
                 )
             }
             Error::InvalidPrefix { prefix } => {
-                write!(f, "invalid CVSS string prefix: `{}`", prefix)
+                write!(f, "invalid CVSS string prefix: `{prefix}`")
             }
             Error::InvalidSeverity { name } => {
-                write!(f, "invalid CVSS Qualitative Severity Rating: `{}`", name)
+                write!(f, "invalid CVSS Qualitative Severity Rating: `{name}`")
             }
-            Error::UnknownMetric { name } => write!(f, "unknown CVSS metric name: `{}`", name),
+            Error::UnknownMetric { name } => write!(f, "unknown CVSS metric name: `{name}`"),
             Error::UnsupportedVersion { version } => {
-                write!(f, "unsupported CVSS version: {}", version)
+                write!(f, "unsupported CVSS version: {version}")
             }
         }
     }
