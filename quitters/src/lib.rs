@@ -127,8 +127,8 @@ mod tests {
             "-alpha.1",
             "-alpha.1+zstd.1.5.2",
         ] {
-            let string = format!("new context/cargo/registry/src/github.com-1ecc6299db9ec823/zstd-safe-5.0.2{}/src/lib.rsbad error message from zstdGiven position outside of the buffer bounds.", version_suffix);
-            let expected_version = format!("5.0.2{}", version_suffix);
+            let string = format!("new context/cargo/registry/src/github.com-1ecc6299db9ec823/zstd-safe-5.0.2{version_suffix}/src/lib.rsbad error message from zstdGiven position outside of the buffer bounds.");
+            let expected_version = format!("5.0.2{version_suffix}");
             assert!(versions(string.as_bytes())
                 .contains(&("zstd-safe", Version::parse(&expected_version).unwrap())));
         }

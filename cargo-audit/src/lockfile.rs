@@ -43,8 +43,7 @@ pub fn generate() -> rustsec::Result<()> {
     if !status.success() {
         let msg = match status.code() {
             Some(code) => format!(
-                "non-zero exit status running `cargo update --workspace`: {}",
-                code
+                "non-zero exit status running `cargo update --workspace`: {code}"
             ),
             _ => "no exit status running `cargo update --workspace`!".to_string(),
         };

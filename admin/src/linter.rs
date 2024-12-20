@@ -125,7 +125,7 @@ impl Linter {
             );
 
             for error in lint_result.errors() {
-                println!("  - {}", error);
+                println!("  - {error}");
             }
         }
 
