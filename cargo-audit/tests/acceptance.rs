@@ -308,7 +308,6 @@ fn notice_advisories_found_json() {
     assert_eq!(advisory_id, "RUSTSEC-2022-0058");
 }
 
-
 // Causes tests to time out when run from tests, but works when invoked normally
 // TODO: re-enable
 // #[test]
