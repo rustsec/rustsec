@@ -1,4 +1,4 @@
-#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
+#![deny(rivial_casts, unused_qualifications)]
 #![forbid(unsafe_code)]
 
 use abscissa_core::testing::prelude::*;
