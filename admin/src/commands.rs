@@ -6,6 +6,7 @@
 // https://github.com/rust-lang/rust/issues/120363
 // https://doc.rust-lang.org/rustc/lints/listing/warn-by-default.html#non-local-definitions
 // TODO: move this into abscissa-derive
+#![allow(unknown_lints)] // don't warn/error on older rustc since non_local_definitions is a recent lint
 #![allow(non_local_definitions)]
 
 mod assign_id;
