@@ -91,10 +91,10 @@ impl SourceId {
                     name: self.name.clone(),
                 };
             }
-        } else if let SourceKind::Git(GitReference::Branch(name)) = &self.kind {
+        } else if let SourceKind::Git(reference) = &self.kind {
             if self.precise.is_some() {
                 return Self {
-                    kind: SourceKind::Git(GitReference::Branch(name.clone())),
+                    kind: SourceKind::Git(reference.clone()),
                     precise: None,
                     url: self.url.clone(),
                     name: self.name.clone(),
@@ -119,7 +119,7 @@ impl SourceId {
         let kind = parts.next().unwrap();
         let url = parts
             .next()
-            .ok_or_else(|| Error::Parse(format!("invalid source `{}`", string)))?;
+            .ok_or_else(|| Error::Parse(format!("invalid source `{string}`")))?;
 
         match kind {
             "git" => {
@@ -152,8 +152,7 @@ impl SourceId {
             }
             "path" => Self::new(SourceKind::Path, url.into_url()?),
             kind => Err(Error::Parse(format!(
-                "unsupported source protocol: `{}` from `{string}`",
-                kind
+                "unsupported source protocol: `{kind}` from `{string}`"
             ))),
         }
     }
@@ -312,20 +311,20 @@ impl<'a> fmt::Display for SourceIdAsUrl<'a> {
                 kind: SourceKind::Path,
                 ref url,
                 ..
-            } => write!(f, "path+{}", url),
+            } => write!(f, "path+{url}"),
             SourceId {
                 kind: SourceKind::Git(ref reference),
                 ref url,
                 ref precise,
                 ..
             } => {
-                write!(f, "git+{}", url)?;
+                write!(f, "git+{url}")?;
                 // TODO: set it to true when the default is lockfile v4,
                 if let Some(pretty) = reference.pretty_ref(self.encoded) {
-                    write!(f, "?{}", pretty)?;
+                    write!(f, "?{pretty}")?;
                 }
                 if let Some(precise) = precise.as_ref() {
-                    write!(f, "#{}", precise)?;
+                    write!(f, "#{precise}")?;
                 }
                 Ok(())
             }
@@ -333,23 +332,23 @@ impl<'a> fmt::Display for SourceIdAsUrl<'a> {
                 kind: SourceKind::Registry,
                 ref url,
                 ..
-            } => write!(f, "registry+{}", url),
+            } => write!(f, "registry+{url}"),
             SourceId {
                 kind: SourceKind::SparseRegistry,
                 ref url,
                 ..
-            } => write!(f, "sparse+{}", url),
+            } => write!(f, "sparse+{url}"),
             SourceId {
                 kind: SourceKind::LocalRegistry,
                 ref url,
                 ..
-            } => write!(f, "local-registry+{}", url),
+            } => write!(f, "local-registry+{url}"),
             #[cfg(any(unix, windows))]
             SourceId {
                 kind: SourceKind::Directory,
                 ref url,
                 ..
-            } => write!(f, "directory+{}", url),
+            } => write!(f, "directory+{url}"),
         }
     }
 }
@@ -439,7 +438,7 @@ trait IntoUrl {
 
 impl<'a> IntoUrl for &'a str {
     fn into_url(self) -> Result<Url> {
-        Url::parse(self).map_err(|s| Error::Parse(format!("invalid url `{}`: {}", self, s)))
+        Url::parse(self).map_err(|s| Error::Parse(format!("invalid url `{self}`: {s}")))
     }
 }
 

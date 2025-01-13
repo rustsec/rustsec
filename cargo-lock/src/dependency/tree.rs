@@ -153,7 +153,7 @@ impl<'g, 's> Presenter<'g, 's> {
         if let Some((&last_continues, rest)) = self.levels_continue.split_last() {
             for &continues in rest {
                 let c = if continues { self.symbols.down } else { " " };
-                write!(w, "{}   ", c)?;
+                write!(w, "{c}   ")?;
             }
 
             let c = if last_continues {
@@ -167,7 +167,7 @@ impl<'g, 's> Presenter<'g, 's> {
 
         if exact {
             let spec = if let Some(checksum) = &package.checksum {
-                format!("checksum:{}", checksum)
+                format!("checksum:{checksum}")
             } else if let Some(src) = &package.source {
                 src.to_string()
             } else {
@@ -206,24 +206,27 @@ impl<'g, 's> Presenter<'g, 's> {
 mod tests {
     use super::*;
 
-    /// Load this crate's `Cargo.lock`
-    fn load_lockfile() -> Lockfile {
-        Lockfile::load("tests/examples/Cargo.lock.v3").unwrap()
-    }
-
     #[test]
-    fn compute_tree() {
+    fn compute_tree_v3() {
         // TODO(tarcieri): test dependency tree is computed correctly
-        Tree::new(&load_lockfile()).unwrap();
+        let lockfile = Lockfile::load("tests/examples/Cargo.lock.v3").unwrap();
+        Tree::new(&lockfile).unwrap();
     }
 
     #[test]
-    fn compute_roots() {
-        let tree = Tree::new(&load_lockfile()).unwrap();
+    fn compute_roots_v3() {
+        let lockfile = Lockfile::load("tests/examples/Cargo.lock.v3").unwrap();
+        let tree = Tree::new(&lockfile).unwrap();
         let roots = tree.roots();
         assert_eq!(roots.len(), 1);
 
         let root_package = &tree.graph[roots[0]];
         assert_eq!(root_package.name.as_str(), "cargo-lock");
+    }
+
+    #[test]
+    fn compute_tree_git_ref() {
+        let lockfile = Lockfile::load("tests/examples/Cargo.lock.git-ref").unwrap();
+        Tree::new(&lockfile).unwrap();
     }
 }
