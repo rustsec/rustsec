@@ -17,10 +17,12 @@ pub mod repository;
 mod vulnerability;
 mod warning;
 
+// enabled unconditionally due to being able to name the type being useful
+// and this type alone not pulling in any additional dependencies
+pub mod binary_format;
+
 #[cfg(feature = "binary-scanning")]
 pub mod binary_deps;
-#[cfg(feature = "binary-scanning")]
-pub mod binary_format;
 #[cfg(feature = "binary-scanning")]
 pub mod binary_type_filter;
 

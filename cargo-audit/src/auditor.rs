@@ -5,7 +5,6 @@ use crate::{
 };
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
 
-#[cfg(feature = "binary-scanning")]
 use rustsec::binary_format::BinaryFormat;
 
 use std::{
