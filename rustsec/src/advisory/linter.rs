@@ -317,13 +317,13 @@ impl fmt::Display for Error {
         write!(f, "{}", &self.kind)?;
 
         if let Some(section) = &self.section {
-            write!(f, " in [{}]", section)?;
+            write!(f, " in [{section}]")?;
         } else {
             write!(f, " in toplevel")?;
         }
 
         if let Some(msg) = &self.message {
-            write!(f, ": {}", msg)?
+            write!(f, ": {msg}")?
         }
 
         Ok(())
@@ -374,9 +374,9 @@ impl fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ErrorKind::Malformed => write!(f, "malformed content"),
-            ErrorKind::InvalidKey { name } => write!(f, "invalid key `{}`", name),
+            ErrorKind::InvalidKey { name } => write!(f, "invalid key `{name}`"),
             ErrorKind::InvalidValue { name, value } => {
-                write!(f, "invalid value `{}` for key `{}`", value, name)
+                write!(f, "invalid value `{value}` for key `{name}`")
             }
         }
     }

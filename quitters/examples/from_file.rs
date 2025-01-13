@@ -3,7 +3,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let file = std::fs::read(path)?;
     let versions = quitters::versions(&file);
     for (krate, version) in versions.iter() {
-        println!("{} v{}", krate, version)
+        println!("{krate} v{version}")
     }
     Ok(())
 }
