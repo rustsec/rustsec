@@ -42,7 +42,7 @@ once_cell = { workspace = true }
 serde_json = { workspace = true }
 
 [features]
-default = ["git", "binary-scanning"]
+default = ["git"]
 git = [
     "dep:tame-index",
     "dep:home",
