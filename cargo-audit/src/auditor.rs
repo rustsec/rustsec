@@ -3,9 +3,11 @@
 use crate::{
     config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
 };
-use rustsec::{
-    binary_format::BinaryFormat, registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind,
-};
+use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
+
+#[cfg(feature = "binary-scanning")]
+use rustsec::binary_format::BinaryFormat;
+
 use std::{
     io::{self, Read},
     path::Path,
