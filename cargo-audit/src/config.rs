@@ -228,7 +228,7 @@ impl FromStr for DenyOption {
             "yanked" => Ok(DenyOption::Yanked),
             other => Err(Error::new(
                 ErrorKind::Parse,
-                &format!("invalid deny option: {}", other),
+                &format!("invalid deny option: {other}"),
             )),
         }
     }
