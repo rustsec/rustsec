@@ -3,13 +3,13 @@
 #[allow(dead_code)] // May be unused when the "binary-scanning" feature is disabled
 /// Various binary formats that influence the architecture of the binary
 pub enum BinaryFormat {
-    /// Executable and Linkable Format 32
+    /// Executable and Linkable Format, 32-bit. Used on Unix systems.
     Elf32,
-    /// Executable and Linkable Format 64
+    /// Executable and Linkable Format, 64-bit. Used on Unix systems.
     Elf64,
-    /// Mach object file format
+    /// Mach object file format. Used on Apple systems.
     Macho,
-    /// Portable Executable (PE) format
+    /// Portable Executable (PE) format. used on Windows.
     PE,
     /// WebAssembly
     Wasm,
