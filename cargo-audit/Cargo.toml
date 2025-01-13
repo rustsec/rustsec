@@ -36,4 +36,4 @@ toml = { workspace = true }
 [features]
 default = ["binary-scanning"]
 fix = []
-binary-scanning = []
+binary-scanning = ["rustsec/binary-scanning"]
