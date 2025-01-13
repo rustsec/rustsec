@@ -57,7 +57,7 @@ impl AffectedVersionLister {
                 &acquire_cargo_package_lock().unwrap(),
             )
             .unwrap()
-            .unwrap_or_else(|| panic!("expected crate {} to exist", crate_name));
+            .unwrap_or_else(|| panic!("expected crate {crate_name} to exist"));
         for version in crate_info.versions {
             let parsed_version = rustsec::Version::parse(&version.version).unwrap();
             if advisory.versions.is_vulnerable(&parsed_version) {

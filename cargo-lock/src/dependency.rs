@@ -38,7 +38,7 @@ impl fmt::Display for Dependency {
         write!(f, "{} {}", &self.name, &self.version)?;
 
         if let Some(source) = &self.source {
-            write!(f, " ({})", source)?;
+            write!(f, " ({source})")?;
         }
 
         Ok(())

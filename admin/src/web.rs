@@ -406,13 +406,13 @@ fn title_type(advisory: &rustsec::Advisory) -> String {
     let package = advisory.metadata.package.as_str();
 
     match &advisory.metadata.informational {
-        Some(Informational::Notice) => format!("{}: Security notice about {}", id, package),
-        Some(Informational::Unmaintained) => format!("{}: {} is unmaintained", id, package),
-        Some(Informational::Unsound) => format!("{}: Unsoundness in {}", id, package),
-        Some(Informational::Other(s)) => format!("{}: {} is {}", id, package, s),
-        Some(_) => format!("{}: Advisory for {}", id, package),
+        Some(Informational::Notice) => format!("{id}: Security notice about {package}"),
+        Some(Informational::Unmaintained) => format!("{id}: {package} is unmaintained"),
+        Some(Informational::Unsound) => format!("{id}: Unsoundness in {package}"),
+        Some(Informational::Other(s)) => format!("{id}: {package} is {s}"),
+        Some(_) => format!("{id}: Advisory for {package}"),
         // Not informational => vulnerability
-        None => format!("{}: Vulnerability in {}", id, package),
+        None => format!("{id}: Vulnerability in {package}"),
     }
 }
 
@@ -446,7 +446,7 @@ fn render_index(
     let ids_json = serde_json::to_string(&ids).unwrap();
     let package_json = serde_json::to_string(&packages).unwrap();
 
-    let js = format!("var ids = {}\nvar packages = {}\n", ids_json, package_json);
+    let js = format!("var ids = {ids_json}\nvar packages = {package_json}\n");
     fs::write(output_path, js).unwrap();
 }
 
