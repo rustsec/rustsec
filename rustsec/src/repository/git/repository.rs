@@ -34,7 +34,7 @@ impl Repository {
     pub fn default_path() -> PathBuf {
         home::cargo_home()
             .unwrap_or_else(|err| {
-                panic!("Error locating Cargo home directory: {}", err);
+                panic!("Error locating Cargo home directory: {err}");
             })
             .join(ADVISORY_DB_DIRECTORY)
     }
