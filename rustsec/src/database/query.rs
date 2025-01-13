@@ -33,6 +33,9 @@ pub struct Query {
     /// Target operating system
     target_os: Vec<OS>,
 
+    /// Target package // TODO: Daniel
+    pub target_package: Option<Package>,
+
     /// Year associated with the advisory ID
     year: Option<u32>,
 
@@ -64,6 +67,7 @@ impl Query {
             severity: None,
             target_arch: Default::default(),
             target_os: Default::default(),
+            target_package: None,
             year: None,
             withdrawn: None,
             informational: None,
@@ -134,6 +138,12 @@ impl Query {
     /// Set target operating systems
     pub fn target_os(mut self, os: Vec<OS>) -> Self {
         self.target_os = os;
+        self
+    }
+
+    /// Set the target package
+    pub fn target_package(mut self, package: Package) -> Self {
+        self.target_package = Some(package);
         self
     }
 

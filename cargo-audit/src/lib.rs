@@ -31,6 +31,8 @@ pub mod commands;
 pub mod config;
 pub mod error;
 pub mod lockfile;
+/// Package identifiers. Adapted from Cargo's `package_id_spec.rs`
+pub mod package_id;
 mod prelude;
 pub mod presenter;
 

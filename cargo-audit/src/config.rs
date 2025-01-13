@@ -1,12 +1,17 @@
 //! The configuration file
 
+use crate::package_id;
 use rustsec::{
     advisory,
     platforms::target::{Arch, OS},
-    report, Error, ErrorKind, WarningKind,
+    report,
+    target_info::TargetPackageInfo,
+    Error, ErrorKind, WarningKind,
 };
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, str::FromStr};
+// use semver::Version;
+// use url::Url;
 
 /// `cargo audit` configuration:
 ///
@@ -34,6 +39,14 @@ pub struct AuditConfig {
     /// Configuration for auditing for yanked crates
     #[serde(default)]
     pub yanked: YankedConfig,
+
+    /// Identifiers of target package to restrict output for
+    #[serde(default)]
+    pub target_package_ids: Option<String>,
+
+    /// The parsed identifiers of a target package
+    #[serde(default)]
+    pub target_package_spec: Option<package_id::PackageIdSpec>,
 }
 
 impl AuditConfig {
@@ -44,6 +57,15 @@ impl AuditConfig {
             severity: self.advisories.severity_threshold,
             target_arch: self.target.arch(),
             target_os: self.target.os(),
+            target_package_info: match self.target_package_spec.clone() {
+                None => None,
+                Some(spec) => Some(TargetPackageInfo::new(
+                    spec.name,
+                    spec.version,
+                    spec.url,
+                    self.target_package_ids.clone().unwrap(),
+                )),
+            },
             ..Default::default()
         };
 

@@ -1,0 +1,11 @@
+[package]
+name = "multi_vuln"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "dummy.rs"
+
+[dependencies]
+base64 = "<0.5.2"
+chrono = "0.4.24"

@@ -144,6 +144,18 @@ pub enum ErrorKind {
     /// Errors related to versions
     #[error("bad version")]
     Version,
+
+    /// Error parsing target package
+    #[error("could not parse package")]
+    PackageIdSpec,
+
+    /// Error if no package in lockfile matches target identifiers provided
+    #[error("No target package found matching identifier")]
+    NoTargetFound,
+
+    /// Error if ambiguous target identifiers provided match multiple packages
+    #[error("Multiple packages found matching identifier")]
+    MultipleTargetsFound,
 }
 
 impl From<Utf8Error> for Error {

@@ -395,13 +395,16 @@ dependencies = [
  "display-error-chain",
  "home",
  "once_cell",
+ "petgraph",
  "quitters",
  "rustsec",
+ "semver",
  "serde",
  "serde_json",
  "tempfile",
  "thiserror",
  "toml",
+ "url",
 ]
 
 [[package]]
@@ -2791,6 +2794,7 @@ dependencies = [
  "gix",
  "home",
  "once_cell",
+ "petgraph",
  "platforms",
  "semver",
  "serde",
