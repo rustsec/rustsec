@@ -1,7 +1,8 @@
 //! A shim around `binfarce::Format` so that `binfarce` crate could be an optional dependency
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-#[allow(dead_code)] // May be unused when the "binary-scanning" feature is disabled
-/// Various binary formats that influence the architecture of the binary
+#[non_exhaustive]
+/// Formats of compiled executables that can be scanned
 pub enum BinaryFormat {
     /// Executable and Linkable Format, 32-bit. Used on Unix systems.
     Elf32,
