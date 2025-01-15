@@ -1,6 +1,4 @@
-//! Extracts dependencies from binary files, using one of two ways:
-//! 1. Recovers the dependency list embedded by `cargo auditable` (using `auditable-info`)
-//! 2. Failing that, recovers as many crates as possible from panic messages (using `quitters`)
+//! Extracts the list of dependencies from a binary file
 
 use std::str::FromStr;
 
