@@ -20,7 +20,7 @@ use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
 #[cfg(feature = "binary-scanning")]
-use rustsec::binary_deps::BinaryReport;
+use rustsec::binary_scanning::BinaryReport;
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -66,7 +66,7 @@ impl Presenter {
     #[cfg(feature = "binary-scanning")]
     /// Information to display before a binary file is scanned
     pub fn binary_scan_report(&mut self, report: &BinaryReport, path: &Path) {
-        use rustsec::binary_deps::BinaryReport::*;
+        use rustsec::binary_scanning::BinaryReport::*;
         if !self.config.is_quiet() {
             match report {
                 Complete(lockfile) => status_ok!(

@@ -1,16 +1,16 @@
-//! Filters a `rustsec::Report` to remove advisories not applicable to the given binary type.
-//! For example, Windows-only advisories should not be reported for ELF files.
-
 use std::collections::BTreeSet;
 use std::str::FromStr;
 
 use crate::platforms::{platform::PlatformReq, OS};
 use once_cell::sync::OnceCell;
 
-use crate::binary_format::BinaryFormat;
+use crate::binary_scanning::BinaryFormat;
+use crate::Report;
 
-/// Filters the report by binary type
-pub fn filter_report_by_binary_type(binary_type: &BinaryFormat, report: &mut crate::Report) {
+/// Filters a [Report] to remove advisories not applicable to the given binary type.
+///
+/// For example, Windows-only advisories should not be reported for ELF files.
+pub fn filter_report_by_binary_type(binary_type: &BinaryFormat, report: &mut Report) {
     // Filter vulnerabilities
     let vulns = &mut report.vulnerabilities;
     assert_eq!(
