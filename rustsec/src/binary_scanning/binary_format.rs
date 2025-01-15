@@ -10,7 +10,7 @@ pub enum BinaryFormat {
     Elf64,
     /// Mach object file format. Used on Apple systems.
     Macho,
-    /// Portable Executable (PE) format. used on Windows.
+    /// Portable Executable (PE) format. Used on Windows.
     PE,
     /// WebAssembly
     Wasm,
