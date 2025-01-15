@@ -1,10 +1,12 @@
 //! Core auditing functionality
 
 use crate::{
-    binary_format::BinaryFormat, config::AuditConfig, error::display_err_with_source, prelude::*,
-    presenter::Presenter,
+    config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
 };
 use rustsec::{registry, report, Error, ErrorKind, Lockfile, Warning, WarningKind};
+
+use rustsec::binary_scanning::BinaryFormat;
+
 use std::{
     io::{self, Read},
     path::Path,
@@ -230,8 +232,10 @@ impl Auditor {
     #[cfg(feature = "binary-scanning")]
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
-        use crate::binary_deps::BinaryReport::*;
-        let (binary_type, report) = crate::binary_deps::load_deps_from_binary(binary_path)?;
+        use rustsec::binary_scanning::BinaryReport::*;
+        let file_contents = std::fs::read(binary_path)?;
+        let (binary_type, report) =
+            rustsec::binary_scanning::load_deps_from_binary(&file_contents, Option::None)?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
@@ -256,7 +260,7 @@ impl Auditor {
 
         #[cfg(feature = "binary-scanning")]
         if let Some(format) = binary_format {
-            use crate::binary_type_filter::filter_report_by_binary_type;
+            use rustsec::binary_scanning::filter_report_by_binary_type;
             filter_report_by_binary_type(&format, &mut report);
         }
 
