@@ -387,15 +387,11 @@ name = "cargo-audit"
 version = "0.21.0"
 dependencies = [
  "abscissa_core",
- "auditable-info",
- "auditable-serde",
- "binfarce",
  "cargo-lock",
  "clap",
  "display-error-chain",
  "home",
  "once_cell",
- "quitters",
  "rustsec",
  "serde",
  "serde_json",
@@ -2785,6 +2781,9 @@ dependencies = [
 name = "rustsec"
 version = "0.30.0"
 dependencies = [
+ "auditable-info",
+ "auditable-serde",
+ "binfarce",
  "cargo-lock",
  "cvss",
  "fs-err",
@@ -2792,6 +2791,7 @@ dependencies = [
  "home",
  "once_cell",
  "platforms",
+ "quitters",
  "semver",
  "serde",
  "serde_json",

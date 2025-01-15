@@ -17,6 +17,8 @@ pub mod repository;
 mod vulnerability;
 mod warning;
 
+pub mod binary_scanning;
+
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 mod cached_index;
