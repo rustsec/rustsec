@@ -402,7 +402,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "10.0.1"
+version = "10.1.0"
 dependencies = [
  "gumdrop",
  "petgraph",
