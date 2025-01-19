@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 10.1.0 (2025-01-18)
+### Fixed
+
+ - Fixed git tags in Cargo.lock not being normalized correctly when using lockfile v4 format ([#1298])
+ - Increased MSRV to 1.73 to match the requirements of dependencies in Cargo.lock
+
+[#1298]: https://github.com/RustSec/rustsec/pull/1298
+
 ## 10.0.1 (2024-10-25)
 ### Fixed
 - Remove `precise` from source IDs during normalization ([#1270])
