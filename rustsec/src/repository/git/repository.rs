@@ -248,7 +248,7 @@ impl Repository {
                 .ok()?
                 .tree()
                 .ok()?
-                .lookup_entry_by_path(path, &mut Vec::new())
+                .lookup_entry_by_path(path)
                 .ok()
                 .map(|_e| true)
         };
