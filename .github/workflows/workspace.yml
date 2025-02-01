@@ -1,7 +1,7 @@
 name: Workspace
 
 on:
-  pull_request: {}
+  pull_request: { }
   push:
     branches: main
 
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: 1.78.0
+          toolchain: 1.81.0
           components: clippy
           override: true
           profile: minimal
