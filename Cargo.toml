@@ -44,7 +44,7 @@ termcolor = "1"
 thiserror = "1"
 time = { version = "0.3", default-features = false }
 toml = "0.8"
-toml_edit = "0.22.6"
+toml_edit = "0.22.23"
 url = "2"
 xml-rs = "0.8"
 
