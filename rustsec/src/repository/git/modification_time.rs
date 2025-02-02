@@ -1,6 +1,7 @@
 use crate::advisory::Date;
 use crate::error::{Error, ErrorKind};
 use gix::date::Time;
+use gix::traverse::commit::simple::CommitTimeOrder;
 use std::{
     cmp::{max, min},
     collections::HashMap,
@@ -39,7 +40,9 @@ impl GitModificationTimes {
             .rev_walk(Some(repo.head_id().map_err(|err| {
                 format_err!(ErrorKind::Repo, "unable to find head id: {}", err)
             })?))
-            .sorting(gix::traverse::commit::simple::Sorting::ByCommitTimeNewestFirst)
+            .sorting(gix::revision::walk::Sorting::ByCommitTime(
+                CommitTimeOrder::NewestFirst,
+            ))
             .all()
             .map_err(|err| format_err!(ErrorKind::Repo, "unable to walk commits: {}", err))?;
 
@@ -101,33 +104,33 @@ impl GitModificationTimes {
                 .expect("main tree present")
                 .try_into_tree_iter()
                 .expect("id to be a tree");
-            let previous_tree: Option<_> = {
-                parent_commit_id
-                    .and_then(|id| db.try_find(&id, &mut buf2).ok().flatten())
-                    .and_then(|c| c.decode().ok())
-                    .and_then(gix::objs::ObjectRef::into_commit)
-                    .map(|c| c.tree())
-                    .and_then(|tree| db.try_find(&tree, &mut buf2).ok().flatten())
-                    .and_then(|tree| tree.try_into_tree_iter())
-            };
+            let previous_tree = parent_commit_id
+                .and_then(|id| db.try_find(&id, &mut buf2).ok().flatten())
+                .and_then(|c| c.decode().ok())
+                .and_then(gix::objs::ObjectRef::into_commit)
+                .map(|c| c.tree())
+                .and_then(|tree| db.try_find(&tree, &mut buf2).ok().flatten())
+                .and_then(|tree| tree.try_into_tree_iter())
+                .unwrap_or_default();
 
             let mut recorder = gix::diff::tree::Recorder::default();
-            gix::diff::tree::Changes::from(previous_tree)
-                .needed_to_obtain(
-                    current_tree,
-                    &mut gix::diff::tree::State::default(),
-                    db,
-                    &mut recorder,
+
+            gix::diff::tree(
+                previous_tree,
+                current_tree,
+                &mut gix::diff::tree::State::default(),
+                db,
+                &mut recorder,
+            )
+            .map_err(|err| {
+                format_err!(
+                    ErrorKind::Repo,
+                    "failed to diff commit {} to its parent {:?}: {}",
+                    info.id,
+                    parent_commit_id,
+                    err
                 )
-                .map_err(|err| {
-                    format_err!(
-                        ErrorKind::Repo,
-                        "failed to diff commit {} to its parent {:?}: {}",
-                        info.id,
-                        parent_commit_id,
-                        err
-                    )
-                })?;
+            })?;
 
             for diff in recorder.records {
                 // AFAIK files should never be deleted from an advisory db,
