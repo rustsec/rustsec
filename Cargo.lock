@@ -2745,6 +2745,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "583034fd73374156e66797ed8e5b0d5690409c9226b22d87cb7f19821c05d152"
 
 [[package]]
+name = "rustc-stable-hash"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2febf9acc5ee5e99d1ad0afcdbccc02d87aa3f857a1f01f825b80eacf8edfcd1"
+
+[[package]]
 name = "rustix"
 version = "0.38.38"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3175,9 +3181,9 @@ dependencies = [
 
 [[package]]
 name = "tame-index"
-version = "0.17.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1652caa3694d1e943523f689c6e1b259f9d4a90fad3b3b44f2b01dce0f4b138d"
+checksum = "3bfcad7f766f01a7bd209ac43309c99a1c0a22c641828a42e7e2ee6c0cb46646"
 dependencies = [
  "camino",
  "crossbeam-channel",
@@ -3188,6 +3194,7 @@ dependencies = [
  "memchr",
  "rayon",
  "reqwest",
+ "rustc-stable-hash",
  "semver",
  "serde",
  "serde_json",
