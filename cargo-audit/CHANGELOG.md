@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
- - Upgraded to `rustsec` v0.30.2 to fix an incompatibility with Rust v1.85 and later
+ - Upgraded to `rustsec` v0.30.2 to fix an incompatibility with Rust v1.85 and later ([#1333])
+
+[#1333]: https://github.com/RustSec/rustsec/pull/1333
 
 ## 0.21.1 (2025-01-18)
 

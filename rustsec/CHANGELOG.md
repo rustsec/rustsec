@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
- - Upgraded to `tame-index` v0.18.1 to fix an incompatibility with Rust 1.85 and later
+ - Upgraded to `tame-index` v0.18.1 to fix an incompatibility with Rust 1.85 and later ([#1333])
+
+[#1333]: https://github.com/RustSec/rustsec/pull/1333
 
 ## 0.30.1 (2025-01-18)
 
