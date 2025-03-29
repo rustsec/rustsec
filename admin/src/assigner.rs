@@ -113,15 +113,14 @@ fn assign_ids_across_directory(
         for advisory_entry in fs::read_dir(dir_path).unwrap() {
             let unwrapped_advisory = advisory_entry.unwrap();
             let advisory_path = unwrapped_advisory.path();
+            if !Advisory::is_draft(&advisory_path) {
+                continue;
+            }
+
             let advisory_path_clone = advisory_path.clone();
             let advisory_path_for_reading = advisory_path.clone();
             let advisory_path_for_deleting = advisory_path.clone();
             let displayed_advisory_path = advisory_path.display();
-            let advisory_filename = unwrapped_advisory.file_name();
-            let advisory_filename_str = advisory_filename.into_string().unwrap();
-            if !advisory_filename_str.contains("RUSTSEC-0000-0000") {
-                continue;
-            }
 
             let advisory_data = fs::read_to_string(advisory_path_clone)
                 .map_err(|e| {
