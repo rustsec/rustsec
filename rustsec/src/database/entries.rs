@@ -49,7 +49,7 @@ impl Entries {
         };
 
         // Ensure advisory has the correct filename
-        if path.file_name().unwrap() != expected_filename {
+        if path.file_name().unwrap() != expected_filename && !Advisory::is_draft(path) {
             fail!(
                 ErrorKind::Repo,
                 "expected {} to be named {:?}",
