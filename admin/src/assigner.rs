@@ -117,17 +117,12 @@ fn assign_ids_across_directory(
                 continue;
             }
 
-            let advisory_path_clone = advisory_path.clone();
-            let advisory_path_for_reading = advisory_path.clone();
-            let advisory_path_for_deleting = advisory_path.clone();
-            let displayed_advisory_path = advisory_path.display();
-
-            let advisory_data = fs::read_to_string(advisory_path_clone)
+            let advisory_data = fs::read_to_string(&advisory_path)
                 .map_err(|e| {
                     format_err!(
                         ErrorKind::Io,
                         "Couldn't open {}: {}",
-                        displayed_advisory_path,
+                        advisory_path.display(),
                         e
                     );
                 })
@@ -142,7 +137,7 @@ fn assign_ids_across_directory(
             let string_id = format!("RUSTSEC-{year_str}-{new_id:04}");
             let new_filename = format!("{string_id}.md");
             let new_path = dir_path_clone.join(new_filename);
-            let original_file = File::open(advisory_path_for_reading).unwrap();
+            let original_file = File::open(&advisory_path).unwrap();
             let reader = BufReader::new(original_file);
             let new_file = File::create(new_path).unwrap();
             let mut writer = LineWriter::new(new_file);
@@ -160,7 +155,7 @@ fn assign_ids_across_directory(
                 }
             }
             highest_ids.insert(year, new_id);
-            fs::remove_file(advisory_path_for_deleting).unwrap();
+            fs::remove_file(&advisory_path).unwrap();
             if output_mode == OutputMode::HumanReadable {
                 status_ok!("Assignment", "Assigned {} to {}", string_id, dir_name);
             } else {
