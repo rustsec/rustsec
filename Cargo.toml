@@ -23,7 +23,7 @@ clap = "4"
 comrak = { version = "0.24", default-features = false }
 cvss = { version = "2.0.0", path = "./cvss" }
 display-error-chain = "0.2.0"
-fs-err = "2.11"
+fs-err = "3"
 # NOTE: Keep in sync with `gix` used by `tame-index`.
 gix = { version = "0.70.0", default-features = false }
 gumdrop = "0.8"
