@@ -391,7 +391,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tempfile",
- "thiserror 1.0.69",
+ "thiserror 2.0.11",
  "toml",
 ]
 
@@ -2904,7 +2904,7 @@ dependencies = [
  "serde_json",
  "tame-index",
  "tempfile",
- "thiserror 1.0.69",
+ "thiserror 2.0.11",
  "time",
  "toml",
  "url",
@@ -2928,7 +2928,7 @@ dependencies = [
  "serde_json",
  "tame-index",
  "termcolor",
- "thiserror 1.0.69",
+ "thiserror 2.0.11",
  "toml",
  "toml_edit",
  "xml-rs",
