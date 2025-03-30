@@ -14,8 +14,8 @@ members = [
 abscissa_core = "0.8"
 askama = "0.13"
 atom_syndication = "0.12"
-auditable-info = "0.8"
-auditable-serde = "0.7"
+auditable-info = "0.9"
+auditable-serde = "0.8"
 binfarce = "0.2"
 cargo-lock = { version = "10.1.0", path = "./cargo-lock" }
 chrono = { version = "0.4", default-features = false }
