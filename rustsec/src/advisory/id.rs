@@ -79,7 +79,7 @@ impl Id {
 
         self.string
             .split('-')
-            .last()
+            .next_back()
             .and_then(|s| str::parse(s).ok())
     }
 

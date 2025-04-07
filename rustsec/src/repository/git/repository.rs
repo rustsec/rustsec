@@ -141,10 +141,10 @@ impl Repository {
             .ok()
             .map(|repo| repo.to_thread_local())
             .filter(|repo| {
-                repo.find_remote("origin").map_or(false, |remote| {
+                repo.find_remote("origin").is_ok_and(|remote| {
                     remote
                         .url(DIR)
-                        .map_or(false, |remote_url| remote_url.to_bstring() == url)
+                        .is_some_and(|remote_url| remote_url.to_bstring() == url)
                 })
             })
             .or_else(|| gix::open_opts(&path, open_with_complete_config).ok());

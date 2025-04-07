@@ -304,7 +304,7 @@ pub(crate) struct SourceIdAsUrl<'a> {
     encoded: bool,
 }
 
-impl<'a> fmt::Display for SourceIdAsUrl<'a> {
+impl fmt::Display for SourceIdAsUrl<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self.id {
             SourceId {
@@ -403,7 +403,7 @@ pub struct PrettyRef<'a> {
     url_encoded: bool,
 }
 
-impl<'a> fmt::Display for PrettyRef<'a> {
+impl fmt::Display for PrettyRef<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let value: &str = match self.inner {
             GitReference::Branch(s) => {
@@ -436,14 +436,14 @@ trait IntoUrl {
     fn into_url(self) -> Result<Url>;
 }
 
-impl<'a> IntoUrl for &'a str {
+impl IntoUrl for &str {
     fn into_url(self) -> Result<Url> {
         Url::parse(self).map_err(|s| Error::Parse(format!("invalid url `{self}`: {s}")))
     }
 }
 
 #[cfg(any(unix, windows))]
-impl<'a> IntoUrl for &'a Path {
+impl IntoUrl for &Path {
     fn into_url(self) -> Result<Url> {
         Url::from_file_path(self)
             .map_err(|_| Error::Parse(format!("invalid path url `{}`", self.display())))

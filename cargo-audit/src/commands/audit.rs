@@ -299,23 +299,23 @@ mod tests {
     fn override_default_fetch_option() {
         // Assert the default value for the fetch option is true
         let mut config: AuditConfig = AuditConfig::default();
-        assert_eq!(config.database.fetch, true);
+        assert!(config.database.fetch);
 
         let mut audit_command = AuditCommand::default();
 
         let overridden_config = audit_command.override_config(config.clone()).unwrap();
-        assert_eq!(overridden_config.database.fetch, true);
+        assert!(overridden_config.database.fetch);
 
         // as the CLI flag --no-fetch is false when not provided
         // override_config should not change the fetch option
         // when it is set to false in the config file
         config.database.fetch = false;
         let overridden_config = audit_command.override_config(config.clone()).unwrap();
-        assert_eq!(overridden_config.database.fetch, false);
+        assert!(!overridden_config.database.fetch);
 
         config.database.fetch = true;
         audit_command.no_fetch = true;
         let overridden_config = audit_command.override_config(config.clone()).unwrap();
-        assert_eq!(overridden_config.database.fetch, false);
+        assert!(!overridden_config.database.fetch);
     }
 }
