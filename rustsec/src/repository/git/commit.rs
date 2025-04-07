@@ -121,7 +121,7 @@ impl Commit {
     /// Reset the repository's state to match this commit
     pub(crate) fn reset(&self, repo: &Repository) -> Result<(), Error> {
         let repo = &repo.repo;
-        let workdir = repo.work_dir().ok_or_else(|| {
+        let workdir = repo.workdir().ok_or_else(|| {
             format_err!(ErrorKind::Repo, "unable to checkout, repository is bare")
         })?;
 
