@@ -10,7 +10,7 @@ readme       = "README.md"
 categories   = ["api-bindings", "development-tools"]
 keywords     = ["audit", "rustsec", "security", "advisory", "vulnerability"]
 edition      = "2021"
-rust-version = "1.81"
+rust-version = "1.85"
 
 [dependencies]
 cargo-lock = { workspace = true }

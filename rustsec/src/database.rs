@@ -58,7 +58,7 @@ impl Database {
                         let advisory_path = advisory_entry?.path();
                         let file_name = advisory_path.file_name().and_then(|f| f.to_str());
                         // skip dotfiles like .DS_Store
-                        if file_name.map_or(false, |f| f.starts_with('.')) {
+                        if file_name.is_some_and(|f| f.starts_with('.')) {
                             continue;
                         }
                         advisory_paths.push(advisory_path);
