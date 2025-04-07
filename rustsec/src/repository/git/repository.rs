@@ -237,7 +237,7 @@ impl Repository {
     /// Path to the local checkout of a git repository
     pub fn path(&self) -> &Path {
         // Safety: Would fail if this is a bare repo, which we aren't
-        self.repo.work_dir().unwrap()
+        self.repo.workdir().unwrap()
     }
 
     /// Determines if the tree pointed to by `HEAD` contains the specified path
