@@ -7,7 +7,7 @@ use core::{fmt, str::FromStr};
 #[cfg(feature = "serde")]
 use {
     alloc::string::String,
-    serde::{de, ser, Deserialize, Serialize},
+    serde::{Deserialize, Serialize, de, ser},
 };
 
 /// Qualitative Severity Rating Scale

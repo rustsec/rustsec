@@ -1,9 +1,9 @@
 //! RustSec Advisory DB tool to assign ids
 
-use crate::{error::ErrorKind, prelude::*, Map};
+use crate::{Map, error::ErrorKind, prelude::*};
 use rustsec::{
-    advisory::{IdKind, Parts},
     Advisory, Collection,
+    advisory::{IdKind, Parts},
 };
 use std::{
     fs::{self, File},
