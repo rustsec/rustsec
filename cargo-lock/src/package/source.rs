@@ -250,7 +250,7 @@ impl SourceId {
 
     /// Gets the Git reference if this is a git source, otherwise `None`.
     pub fn git_reference(&self) -> Option<&GitReference> {
-        if let SourceKind::Git(ref s) = self.kind {
+        if let SourceKind::Git(s) = &self.kind {
             Some(s)
         } else {
             None
@@ -306,16 +306,16 @@ pub(crate) struct SourceIdAsUrl<'a> {
 
 impl fmt::Display for SourceIdAsUrl<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self.id {
+        match &self.id {
             SourceId {
                 kind: SourceKind::Path,
-                ref url,
+                url,
                 ..
             } => write!(f, "path+{url}"),
             SourceId {
-                kind: SourceKind::Git(ref reference),
-                ref url,
-                ref precise,
+                kind: SourceKind::Git(reference),
+                url,
+                precise,
                 ..
             } => {
                 write!(f, "git+{url}")?;
@@ -330,23 +330,23 @@ impl fmt::Display for SourceIdAsUrl<'_> {
             }
             SourceId {
                 kind: SourceKind::Registry,
-                ref url,
+                url,
                 ..
             } => write!(f, "registry+{url}"),
             SourceId {
                 kind: SourceKind::SparseRegistry,
-                ref url,
+                url,
                 ..
             } => write!(f, "sparse+{url}"),
             SourceId {
                 kind: SourceKind::LocalRegistry,
-                ref url,
+                url,
                 ..
             } => write!(f, "local-registry+{url}"),
             #[cfg(any(unix, windows))]
             SourceId {
                 kind: SourceKind::Directory,
-                ref url,
+                url,
                 ..
             } => write!(f, "directory+{url}"),
         }
@@ -388,7 +388,7 @@ impl GitReference {
     /// the head of the default branch
     pub fn pretty_ref(&self, url_encoded: bool) -> Option<PrettyRef<'_>> {
         match self {
-            GitReference::Branch(ref s) if *s == DEFAULT_BRANCH => None,
+            GitReference::Branch(s) if *s == DEFAULT_BRANCH => None,
             _ => Some(PrettyRef {
                 inner: self,
                 url_encoded,
