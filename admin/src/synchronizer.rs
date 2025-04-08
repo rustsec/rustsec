@@ -83,8 +83,8 @@ use std::{
     fs, iter,
     path::{Path, PathBuf},
 };
-use tame_index::{index::RemoteGitIndex, KrateName};
-use toml_edit::{value, DocumentMut};
+use tame_index::{KrateName, index::RemoteGitIndex};
+use toml_edit::{DocumentMut, value};
 
 /// Advisory synchronizer
 #[allow(dead_code)]

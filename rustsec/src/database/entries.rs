@@ -2,10 +2,11 @@
 
 use super::Iter;
 use crate::{
+    Map,
     advisory::{self, Advisory},
     collection::Collection,
     error::{Error, ErrorKind},
-    map, Map,
+    map,
 };
 use std::{
     ffi::{OsStr, OsString},

@@ -8,7 +8,7 @@
 //! Licensed under the same terms as the `cargo-lock` crate: Apache 2.0 + MIT
 
 use crate::error::{Error, Result};
-use serde::{de, ser, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de, ser};
 use std::{fmt, str::FromStr};
 use url::Url;
 
@@ -457,8 +457,10 @@ mod tests {
     #[test]
     fn identifies_crates_io() {
         assert!(SourceId::default().is_default_registry());
-        assert!(SourceId::from_url(super::CRATES_IO_SPARSE_INDEX)
-            .expect("failed to parse sparse URL")
-            .is_default_registry());
+        assert!(
+            SourceId::from_url(super::CRATES_IO_SPARSE_INDEX)
+                .expect("failed to parse sparse URL")
+                .is_default_registry()
+        );
     }
 }

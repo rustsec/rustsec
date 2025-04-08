@@ -10,10 +10,10 @@
 
 use super::{Lockfile, ResolveVersion};
 use crate::{
-    metadata, Checksum, Dependency, Error, Metadata, Name, Package, Patch, Result, SourceId,
-    Version,
+    Checksum, Dependency, Error, Metadata, Name, Package, Patch, Result, SourceId, Version,
+    metadata,
 };
-use serde::{de, ser, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de, ser};
 use std::{collections::HashMap, collections::HashSet, fmt, fmt::Write, str::FromStr};
 
 impl<'de> Deserialize<'de> for Lockfile {

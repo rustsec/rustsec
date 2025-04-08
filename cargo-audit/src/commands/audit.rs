@@ -14,7 +14,7 @@ use crate::{
     prelude::*,
 };
 use abscissa_core::{
-    config::Override, error::Context, terminal::ColorChoice, FrameworkError, FrameworkErrorKind,
+    FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
 };
 use clap::{Parser, ValueEnum};
 use rustsec::platforms::target::{Arch, OS};
