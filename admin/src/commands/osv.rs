@@ -8,7 +8,7 @@ use std::{
     process::exit,
 };
 
-use abscissa_core::{status_err, Command, Runnable};
+use abscissa_core::{Command, Runnable, status_err};
 use clap::Parser;
 
 use crate::osv_export::OsvExporter;

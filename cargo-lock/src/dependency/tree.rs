@@ -6,10 +6,10 @@
 // Licensed under the same terms as `cargo-audit` (i.e. Apache 2.0 + MIT)
 
 use super::{
-    graph::{EdgeDirection, Graph, NodeIndex, Nodes},
     Dependency,
+    graph::{EdgeDirection, Graph, NodeIndex, Nodes},
 };
-use crate::{error::Error, lockfile::Lockfile, Map};
+use crate::{Map, error::Error, lockfile::Lockfile};
 use std::{collections::BTreeSet as Set, io};
 
 /// Dependency tree computed from a `Cargo.lock` file

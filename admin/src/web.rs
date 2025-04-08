@@ -7,12 +7,12 @@ use atom_syndication::{
     PersonBuilder, Text,
 };
 use chrono::{Duration, NaiveDate, Utc};
-use comrak::{markdown_to_html, ComrakOptions};
+use comrak::{ComrakOptions, markdown_to_html};
 use rust_embed::RustEmbed;
 use rustsec::advisory::Id;
 use rustsec::repository::git::GitModificationTimes;
 use rustsec::repository::git::GitPath;
-use rustsec::{advisory, Repository};
+use rustsec::{Repository, advisory};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::{

@@ -9,7 +9,7 @@ repository   = "https://github.com/rustsec/rustsec"
 readme       = "README.md"
 categories   = ["api-bindings", "development-tools"]
 keywords     = ["audit", "rustsec", "security", "advisory", "vulnerability"]
-edition      = "2021"
+edition      = "2024"
 rust-version = "1.85"
 
 [dependencies]

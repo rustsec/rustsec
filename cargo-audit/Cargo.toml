@@ -9,7 +9,7 @@ repository   = "https://github.com/rustsec/rustsec"
 readme       = "README.md"
 categories   = ["development-tools::cargo-plugins"]
 keywords     = ["cargo-subcommand", "security", "audit", "vulnerability"]
-edition      = "2021"
+edition      = "2024"
 rust-version = "1.85"
 exclude      = ["tests/"]
 

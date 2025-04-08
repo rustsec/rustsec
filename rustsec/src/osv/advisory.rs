@@ -8,9 +8,9 @@ use tame_index::external::gix;
 use super::ranges_for_advisory;
 use crate::advisory::Versions;
 use crate::{
-    advisory::{affected::FunctionPath, Affected, Category, Id, Informational},
-    repository::git::{self, GitModificationTimes, GitPath},
     Advisory,
+    advisory::{Affected, Category, Id, Informational, affected::FunctionPath},
+    repository::git::{self, GitModificationTimes, GitPath},
 };
 use serde::{Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
