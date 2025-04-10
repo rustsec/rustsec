@@ -1,7 +1,7 @@
 //! Advisory dates
 
 use crate::error::{Error, ErrorKind};
-use serde::{de, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de};
 use std::{
     fmt::{self, Display},
     str::FromStr,

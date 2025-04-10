@@ -1,6 +1,6 @@
 //! Privileges Required (PR)
 
-use crate::{error::Error, Metric, MetricType};
+use crate::{Metric, MetricType, error::Error};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 

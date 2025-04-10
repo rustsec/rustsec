@@ -4,7 +4,7 @@ use super::{
     category::Category, date::Date, id::Id, informational::Informational, keyword::Keyword,
 };
 use crate::advisory::license::License;
-use crate::{collection::Collection, package, SourceId};
+use crate::{SourceId, collection::Collection, package};
 use serde::{Deserialize, Serialize};
 use url::Url;
 

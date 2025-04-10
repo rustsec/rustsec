@@ -15,14 +15,14 @@ pub use self::{
 };
 
 use super::Score;
-use crate::{Error, Metric, MetricType, Result, PREFIX};
+use crate::{Error, Metric, MetricType, PREFIX, Result};
 use alloc::{borrow::ToOwned, vec::Vec};
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
 use {
     alloc::string::{String, ToString},
-    serde::{de, ser, Deserialize, Serialize},
+    serde::{Deserialize, Serialize, de, ser},
 };
 
 #[cfg(feature = "std")]
@@ -191,7 +191,9 @@ macro_rules! write_metrics {
 impl fmt::Display for Base {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:3.{}", PREFIX, self.minor_version)?;
-        write_metrics!(f, self.av, self.ac, self.pr, self.ui, self.s, self.c, self.i, self.a);
+        write_metrics!(
+            f, self.av, self.ac, self.pr, self.ui, self.s, self.c, self.i, self.a
+        );
         Ok(())
     }
 }
@@ -241,7 +243,7 @@ impl FromStr for Base {
                 _ => {
                     return Err(Error::UnsupportedVersion {
                         version: version_string.to_owned(),
-                    })
+                    });
                 }
             },
             ..Default::default()

@@ -3,11 +3,11 @@
 use std::path::{Path, PathBuf};
 
 use rustsec::{
+    Advisory, Collection,
     advisory::Informational,
     fs,
     osv::OsvAdvisory,
     repository::git::{GitModificationTimes, GitPath, Repository},
-    Advisory, Collection,
 };
 
 use crate::{

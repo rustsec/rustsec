@@ -2867,7 +2867,7 @@ dependencies = [
 
 [[package]]
 name = "rustsec"
-version = "0.30.2"
+version = "0.30.3"
 dependencies = [
  "auditable-info",
  "auditable-serde",

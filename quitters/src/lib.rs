@@ -25,8 +25,7 @@ use semver::Version;
 // because crate names publishable on crates.io cannot contain the `.` character,
 // which *must* appear in the version string.
 // Versions like "1" are not valid in Cargo, or under the semver spec.
-const REGEX_STRING: &str =
-    "(?-u)cargo/registry/src/[^/]+/(?P<crate>[0-9A-Za-z_-]+)-(?P<version>[0-9]+\\.[0-9]+\\.[0-9]+[0-9A-Za-z+.-]*)/";
+const REGEX_STRING: &str = "(?-u)cargo/registry/src/[^/]+/(?P<crate>[0-9A-Za-z_-]+)-(?P<version>[0-9]+\\.[0-9]+\\.[0-9]+[0-9A-Za-z+.-]*)/";
 
 // Compiled regular expressions use interior mutability and may cause contention
 // in heavily multi-threaded workloads. This should not be an issue here
@@ -127,10 +126,14 @@ mod tests {
             "-alpha.1",
             "-alpha.1+zstd.1.5.2",
         ] {
-            let string = format!("new context/cargo/registry/src/github.com-1ecc6299db9ec823/zstd-safe-5.0.2{version_suffix}/src/lib.rsbad error message from zstdGiven position outside of the buffer bounds.");
+            let string = format!(
+                "new context/cargo/registry/src/github.com-1ecc6299db9ec823/zstd-safe-5.0.2{version_suffix}/src/lib.rsbad error message from zstdGiven position outside of the buffer bounds."
+            );
             let expected_version = format!("5.0.2{version_suffix}");
-            assert!(versions(string.as_bytes())
-                .contains(&("zstd-safe", Version::parse(&expected_version).unwrap())));
+            assert!(
+                versions(string.as_bytes())
+                    .contains(&("zstd-safe", Version::parse(&expected_version).unwrap()))
+            );
         }
     }
 

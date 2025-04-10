@@ -8,12 +8,12 @@ pub use self::query::Query;
 
 use self::{entries::Entries, index::Index};
 use crate::{
+    Lockfile,
     advisory::{self, Advisory},
     collection::Collection,
     error::Error,
     fs,
     vulnerability::Vulnerability,
-    Lockfile,
 };
 use std::path::Path;
 

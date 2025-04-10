@@ -1,9 +1,9 @@
 //! The configuration file
 
 use rustsec::{
-    advisory,
+    Error, ErrorKind, WarningKind, advisory,
     platforms::target::{Arch, OS},
-    report, Error, ErrorKind, WarningKind,
+    report,
 };
 use serde::{Deserialize, Serialize};
 use std::{path::PathBuf, str::FromStr};

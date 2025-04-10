@@ -5,8 +5,8 @@ use std::str::FromStr;
 // TODO(tarcieri): add more example `Cargo.lock` files which cover more scenarios
 
 use cargo_lock::{
-    package::{GitReference, SourceKind},
     Lockfile, MetadataKey, ResolveVersion, Version,
+    package::{GitReference, SourceKind},
 };
 
 /// Path to a V1 `Cargo.lock` file.

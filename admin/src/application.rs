@@ -7,9 +7,10 @@ use std::sync::Arc;
 
 use crate::{commands::AdminCmd, config::AppConfig};
 use abscissa_core::{
+    Application, FrameworkError, StandardPaths,
     application::{self, AppCell},
     config::{self, CfgCell},
-    trace, Application, FrameworkError, StandardPaths,
+    trace,
 };
 
 /// Application state
