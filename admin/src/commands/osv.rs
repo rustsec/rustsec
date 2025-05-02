@@ -33,7 +33,7 @@ impl Runnable for OsvCmd {
             Some(path) => path,
         };
 
-        let repo_path: Option<&Path> = self.repo_path.as_deref();
+        let repo_path = self.repo_path.as_deref();
         let exporter = OsvExporter::new(repo_path).unwrap_or_else(|e| {
             status_err!("Failed to fetch the advisory database: {}", e);
             exit(1);
