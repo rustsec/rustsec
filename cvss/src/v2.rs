@@ -5,5 +5,6 @@
 pub mod base;
 
 mod score;
+mod metric;
 
-pub use self::{base::Base, score::Score};
+pub use self::{base::Base, score::Score, metric::Metric, metric::MetricType};

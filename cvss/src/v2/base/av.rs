@@ -1,10 +1,11 @@
-//! CVSS v2.0 Base Metrics Group - Access Vector (AV)
+//! CVSS v2.0 Base Metric Group - Access Vector (AV)
 
-use crate::{Error, Metric, MetricType};
+use crate::Error;
+use crate::v2::{Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
-/// Access Vector (AV) - CVSS v2.0 Base Metrics Group
+/// Access Vector (AV) - CVSS v2.0 Base Metric Group
 ///
 /// Described in CVSS v2.0 Specification: Section 2.1.1:
 /// <https://www.first.org/cvss/v2/guide#2-1-1-Access-Vector-AV>
@@ -75,7 +76,7 @@ impl FromStr for AccessVector {
             "L" => Ok(AccessVector::Local),
             "A" => Ok(AccessVector::AdjacentNetwork),
             "N" => Ok(AccessVector::Network),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidV2Metric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

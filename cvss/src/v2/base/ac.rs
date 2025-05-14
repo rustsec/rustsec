@@ -1,10 +1,11 @@
-//! CVSS v2.0 Base Metrics Group - Access Complexity (AC)
+//! CVSS v2.0 Base Metric Group - Access Complexity (AC)
 
-use crate::{Error, Metric, MetricType};
+use crate::Error;
+use crate::v2::{Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
-/// Access Complexity (AC) - CVSS v2.0 Base Metrics Group
+/// Access Complexity (AC) - CVSS v2.0 Base Metric Group
 ///
 /// Described in CVSS v2.0 Specification: Section 2.1.2:
 /// <https://www.first.org/cvss/v2/guide#2-1-2-Access-Complexity-AC>
@@ -101,7 +102,7 @@ impl FromStr for AccessComplexity {
             "H" => Ok(AccessComplexity::High),
             "M" => Ok(AccessComplexity::Medium),
             "L" => Ok(AccessComplexity::Low),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidV2Metric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

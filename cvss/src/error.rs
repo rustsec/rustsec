@@ -6,6 +6,9 @@ use crate::v4;
 use alloc::string::String;
 use core::fmt;
 
+#[cfg(feature = "v2")]
+use crate::v2;
+
 /// Result type with the `cvss` crate's [`Error`] type.
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -17,6 +20,16 @@ pub enum Error {
     InvalidComponent {
         /// Invalid component.
         component: String,
+    },
+
+    #[cfg(feature = "v2")]
+    /// Invalid metric for CVSS v2.0
+    InvalidV2Metric {
+        /// The metric that was invalid.
+        metric_type: v2::MetricType,
+
+        /// The value that was provided which is invalid.
+        value: String,
     },
 
     /// Invalid metric for CVSSv3.
@@ -90,6 +103,38 @@ impl fmt::Display for Error {
             Error::InvalidComponent { component } => {
                 write!(f, "invalid CVSS metric group component: `{component}`")
             }
+            #[cfg(feature = "v2")]
+            Error::InvalidMetricV2 { metric_type, value } => {
+                write!(
+                    f,
+                    "invalid CVSSv2 {} ({}) metric: `{}`",
+                    metric_type.name(),
+                    metric_type.description(),
+                    value
+                )
+            }
+            #[cfg(feature = "v2")]
+            Error::DuplicateMetricV2 { metric_type } => {
+                write!(
+                    f,
+                    "duplicate CVSSv2 {} ({}) metric",
+                    metric_type.name(),
+                    metric_type.description(),
+                )
+            }
+            #[cfg(feature = "v2")]
+            Error::MissingMandatoryMetricV2 { metric_type } => {
+                write!(
+                    f,
+                    "missing mandatory CVSSv2 {} ({}) metric",
+                    metric_type.name(),
+                    metric_type.description(),
+                )
+            }
+            #[cfg(feature = "v2")]
+            Error::InvalidNomenclatureV2 { nomenclature } => {
+                write!(f, "invalid CVSSv2 nomenclature: `{}`", nomenclature)
+            }            
             Error::InvalidMetric { metric_type, value } => {
                 write!(
                     f,

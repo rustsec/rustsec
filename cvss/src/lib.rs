@@ -46,12 +46,15 @@ mod severity;
 // For compatibility
 pub use crate::v3::metric::{Metric, MetricType};
 
-#[cfg(any(feature = "v3", feature = "v4"))]
+#[cfg(any(feature = "v2", feature = "v3", feature = "v4"))]
 pub use crate::cvss::Cvss;
 
 pub use crate::{
     error::{Error, Result},
     severity::Severity,
+    // TODO(oxisto): should be removed at some point in favor of
+    // version-specific metrics
+    metric::{Metric, MetricType},
 };
 
 /// Prefix used by all CVSS strings

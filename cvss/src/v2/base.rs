@@ -1,10 +1,12 @@
 //! CVSS 2.0 Base Metric Group
 
 mod ac;
+mod au;
 mod av;
 
 pub use self::{
     ac::AccessComplexity,
+    au::Authentication,
     av::AccessVector
 };
 
@@ -43,4 +45,7 @@ pub struct Base {
 
     /// Access Complexity (AC)
     pub ac: Option<AccessComplexity>,
+
+    /// Authentication (Au)
+    pub au: Option<Authentication>,
 }

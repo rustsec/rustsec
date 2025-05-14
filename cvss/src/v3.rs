@@ -11,10 +11,15 @@ pub mod metric;
 
 #[cfg(feature = "v3")]
 mod score;
+mod metric;
 
+<<<<<<< HEAD
 #[cfg(feature = "v3")]
 pub use self::{
     base::Base,
     metric::{Metric, MetricType},
     score::Score,
 };
+=======
+pub use self::{base::Base, score::Score, metric::Metric, metric::MetricType};
+>>>>>>> f3ae091 (v2 metrics and Au)
