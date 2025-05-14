@@ -20,6 +20,7 @@
 //!
 //! Serde support is available through the optional `serde` Cargo feature.
 //!
+//! [CVSS v2.0 Specification]: https://www.first.org/cvss/v2/guide
 //! [CVSS v3.1 Specification]: https://www.first.org/cvss/v3.1/specification-document
 //! [CVSS v4.0 Specification]: https://www.first.org/cvss/v4.0/specification-document
 
@@ -30,12 +31,14 @@ extern crate alloc;
 #[cfg(feature = "std")]
 extern crate std;
 
+#[cfg(feature = "v2")]
+pub mod v2;
 // A part of the v3 API is exposed even without the feature for compatibility.
 pub mod v3;
 #[cfg(feature = "v4")]
 pub mod v4;
 
-#[cfg(any(feature = "v3", feature = "v4"))]
+#[cfg(any(feature = "v2", feature = "v3", feature = "v4"))]
 mod cvss;
 mod error;
 mod severity;
