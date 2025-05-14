@@ -28,6 +28,9 @@ pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
 pub enum MetricType {
+    /// Availability Impact (A)
+    A,
+
     /// Access Complexity (AC)
     AC,
 
@@ -36,24 +39,36 @@ pub enum MetricType {
 
     /// Authentication (Au)
     Au,
+
+    /// Confidentiality Impact (C)
+    C,
+
+    /// Integrity Impact (I)
+    I,
 }
 
 impl MetricType {
     /// Get the name of this metric (i.e. acronym)
     pub fn name(self) -> &'static str {
         match self {
+            Self::A => "A",
             Self::AC => "AC",
             Self::Au => "Au",
             Self::AV => "AV",
+            Self::C => "C",
+            Self::I => "I",
         }
     }
 
     /// Get a description of this metric.
     pub fn description(self) -> &'static str {
         match self {
+            Self::A => "Availability Impact",
             Self::AC => "Access Complexity",
             Self::Au => "Authentication",
             Self::AV => "Access Vector",
+            Self::C => "Confidentiality Impact",
+            Self::I => "Integrity Impact",
         }
     }
 }
@@ -69,9 +84,12 @@ impl FromStr for MetricType {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
+            "A" => Ok(Self::A),
             "AC" => Ok(Self::AC),
             "Au" => Ok(Self::Au),
             "AV" => Ok(Self::AV),
+            "C" => Ok(Self::C),
+            "I" => Ok(Self::I),
             _ => Err(Error::UnknownMetric { name: s.to_owned() }),
         }
     }

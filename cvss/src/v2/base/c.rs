@@ -7,7 +7,7 @@ use core::{fmt, str::FromStr};
 
 /// Confidentiality Impact (C) - CVSS v2.0 Base Metric Group
 ///
-/// Described in CVSS v2.0 Specification: Section 2.1.3:
+/// Described in CVSS v2.0 Specification: Section 2.1.4:
 /// <https://www.first.org/cvss/v2/guide#2-1-4-Confidentiality-Impact-C>
 ///
 /// > This metric measures the impact on confidentiality of a successfully
@@ -54,9 +54,9 @@ impl FromStr for ConfidentialityImpact {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "N" => Ok(ConfidentialityImpact::Multiple),
-            "P" => Ok(ConfidentialityImpact::Single),
-            "C" => Ok(ConfidentialityImpact::None),
+            "N" => Ok(ConfidentialityImpact::None),
+            "P" => Ok(ConfidentialityImpact::Partial),
+            "C" => Ok(ConfidentialityImpact::Complete),
             _ => Err(Error::InvalidV2Metric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

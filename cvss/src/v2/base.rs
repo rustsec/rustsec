@@ -1,13 +1,19 @@
 //! CVSS 2.0 Base Metric Group
 
+mod a;
 mod ac;
 mod au;
 mod av;
+mod c;
+mod i;
 
 pub use self::{
+    a::AvailabilityImpact,
     ac::AccessComplexity,
     au::Authentication,
-    av::AccessVector
+    av::AccessVector,
+    c::ConfidentialityImpact,
+    i::IntegrityImpact,
 };
 
 use super::Score;
@@ -48,4 +54,13 @@ pub struct Base {
 
     /// Authentication (Au)
     pub au: Option<Authentication>,
+
+    /// Confidentiality Impact (C)
+    pub c: Option<ConfidentialityImpact>,
+
+    /// Integrity Impact (I)
+    pub i: Option<IntegrityImpact>,
+
+    /// Availability Impact (A)
+    pub a: Option<AvailabilityImpact>,
 }
