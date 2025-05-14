@@ -69,6 +69,7 @@ impl From<&cargo_lock::Name> for OsvPackage {
 #[allow(non_camel_case_types)]
 #[serde(tag = "type", content = "score")]
 enum OsvSeverity {
+    CVSS_V2(cvss::v2::Vector),
     CVSS_V3(cvss::v3::Base),
     CVSS_V4(cvss::v4::Vector),
 }
@@ -78,6 +79,7 @@ impl TryFrom<Cvss> for OsvSeverity {
 
     fn try_from(cvss: Cvss) -> Result<Self, Self::Error> {
         match cvss {
+            Cvss::CvssV20(vector) => Ok(Self::CVSS_V2(vector)),
             Cvss::CvssV30(base) => Ok(Self::CVSS_V3(base)),
             Cvss::CvssV31(base) => Ok(Self::CVSS_V3(base)),
             Cvss::CvssV40(vector) => Ok(Self::CVSS_V4(vector)),

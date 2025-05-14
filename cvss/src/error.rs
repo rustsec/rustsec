@@ -6,6 +6,9 @@ use crate::v4;
 use alloc::string::String;
 use core::fmt;
 
+#[cfg(feature = "v2")]
+use crate::v2;
+
 /// Result type with the `cvss` crate's [`Error`] type.
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -26,6 +29,30 @@ pub enum Error {
 
         /// The value that was provided which is invalid.
         value: String,
+    },
+
+    #[cfg(feature = "v2")]
+    /// Invalid metric for CVSS 2.0
+    InvalidMetricV2 {
+        /// The metric that was invalid.
+        metric_type: v2::MetricType,
+
+        /// The value that was provided which is invalid.
+        value: String,
+    },
+
+    #[cfg(feature = "v2")]
+    /// Metric is duplicated for CVSS v2.0.
+    DuplicateMetricV2 {
+        /// Prefix which is doubled.
+        metric_type: v2::MetricType,
+    },
+
+    #[cfg(feature = "v2")]
+    /// Missing metric for CVSS v2.0.
+    MissingMandatoryMetricV2 {
+        /// Metric which is missing.
+        metric_type: v2::MetricType,
     },
 
     #[cfg(feature = "v4")]
@@ -97,6 +124,34 @@ impl fmt::Display for Error {
                     metric_type.name(),
                     metric_type.description(),
                     value
+                )
+            }
+            #[cfg(feature = "v2")]
+            Self::InvalidMetricV2 { metric_type, value } => {
+                write!(
+                    f,
+                    "invalid CVSSv2 {} ({}) metric: `{}`",
+                    metric_type.name(),
+                    metric_type.description(),
+                    value
+                )
+            }
+            #[cfg(feature = "v2")]
+            Self::DuplicateMetricV2 { metric_type } => {
+                write!(
+                    f,
+                    "duplicate CVSSv2 {} ({}) metric",
+                    metric_type.name(),
+                    metric_type.description(),
+                )
+            }
+            #[cfg(feature = "v2")]
+            Self::MissingMandatoryMetricV2 { metric_type } => {
+                write!(
+                    f,
+                    "missing mandatory CVSSv2 {} ({}) metric",
+                    metric_type.name(),
+                    metric_type.description(),
                 )
             }
             #[cfg(feature = "v4")]
