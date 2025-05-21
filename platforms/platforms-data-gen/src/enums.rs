@@ -1,5 +1,6 @@
 //! Utilities for generating enums from raw info about targets
 
+use regex::{Captures, Regex};
 use std::collections::BTreeSet;
 
 use crate::rustc_target_info::RustcTargetsInfo;
@@ -29,16 +30,13 @@ pub(crate) fn to_enum_name(key: &str) -> &'static str {
 
 #[must_use]
 pub(crate) fn to_enum_variant_name(value: &str) -> String {
-    let mut name = value.to_ascii_lowercase();
+    let name = value.to_ascii_lowercase();
     match name.as_str() {
         "" => "None".to_owned(), // This is used for `Env` which is set to empty string by default
         // Numbers cannot be used as enum discriminants, so for `PointerWidth` enum we need this hack
         "16" => "U16".to_owned(),
         "32" => "U32".to_owned(),
         "64" => "U64".to_owned(),
-        // This is special-cased because making a general rule for this without breaking x86_64 is not easy
-        // and there's only one of these bad boys right now anyway
-        "solid_asp3" => "SolidAsp3".to_owned(),
         // list of exceptions to `Titlecase` enum naming from `platforms` v2.0, as gathered by
         // `rg --only-matching --no-filename --no-line-number '    [A-Z0-9][A-Za-z0-9]*,' | grep -v ' [A-Z][a-z0-9]\+,'`
         "aarch64" => "AArch64".to_owned(),
@@ -55,7 +53,7 @@ pub(crate) fn to_enum_variant_name(value: &str) -> String {
         // Things ending with "BSD", "OS" are handled below
         _ => {
             // Convert to `Titlecase` as per the Rust enum value convention
-            make_ascii_titlecase(&mut name);
+            let mut name = make_ascii_titlecase(&name);
             // Apply generalizable exceptions to `Titlecase`
             let len = name.len();
             if name.ends_with("os") {
@@ -70,11 +68,19 @@ pub(crate) fn to_enum_variant_name(value: &str) -> String {
     }
 }
 
-fn make_ascii_titlecase(s: &mut str) {
-    s.make_ascii_lowercase();
-    if let Some(r) = s.get_mut(0..1) {
-        r.make_ascii_uppercase();
-    }
+fn make_ascii_titlecase(s: &str) -> String {
+    // don't bother to cache the regex. uppercase a lowercase letter after a _ and remove the _
+    // this transforms `foo_bar` into `FooBar` but `x86_64` into `X86_64`
+    let regex = Regex::new("(^|_)(?<letter>[a-z])").unwrap();
+    regex
+        .replace_all(s, |captures: &Captures| {
+            captures
+                .name("letter")
+                .unwrap()
+                .as_str()
+                .to_ascii_uppercase()
+        })
+        .to_string()
 }
 
 #[cfg(test)]
