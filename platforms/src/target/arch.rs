@@ -13,6 +13,9 @@ pub enum Arch {
     /// `aarch64`: ARMv8 64-bit architecture
     AArch64,
 
+    /// `amdgpu`
+    Amdgpu,
+
     /// `arm`: 32-bit ARM architecture
     Arm,
 
@@ -97,6 +100,7 @@ impl Arch {
     pub fn as_str(self) -> &'static str {
         match self {
             Arch::AArch64 => "aarch64",
+            Arch::Amdgpu => "amdgpu",
             Arch::Arm => "arm",
             Arch::Arm64ec => "arm64ec",
             Arch::Avr => "avr",
@@ -134,6 +138,7 @@ impl FromStr for Arch {
     fn from_str(name: &str) -> Result<Self, Self::Err> {
         let result = match name {
             "aarch64" => Arch::AArch64,
+            "amdgpu" => Arch::Amdgpu,
             "arm" => Arch::Arm,
             "arm64ec" => Arch::Arm64ec,
             "avr" => Arch::Avr,
