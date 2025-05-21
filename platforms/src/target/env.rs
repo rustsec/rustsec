@@ -35,6 +35,12 @@ pub enum Env {
     /// `nto71`
     Nto71,
 
+    /// `nto71_iosock`
+    Nto71_iosock,
+
+    /// `nto80`
+    Nto80,
+
     /// `ohos`
     OhOS,
 
@@ -43,9 +49,6 @@ pub enum Env {
 
     /// `p2`
     P2,
-
-    /// `psx`
-    Psx,
 
     /// `relibc`
     Relibc,
@@ -68,10 +71,11 @@ impl Env {
             Env::Newlib => "newlib",
             Env::Nto70 => "nto70",
             Env::Nto71 => "nto71",
+            Env::Nto71_iosock => "nto71_iosock",
+            Env::Nto80 => "nto80",
             Env::OhOS => "ohos",
             Env::P1 => "p1",
             Env::P2 => "p2",
-            Env::Psx => "psx",
             Env::Relibc => "relibc",
             Env::Sgx => "sgx",
             Env::UClibc => "uclibc",
@@ -92,10 +96,11 @@ impl FromStr for Env {
             "newlib" => Env::Newlib,
             "nto70" => Env::Nto70,
             "nto71" => Env::Nto71,
+            "nto71_iosock" => Env::Nto71_iosock,
+            "nto80" => Env::Nto80,
             "ohos" => Env::OhOS,
             "p1" => Env::P1,
             "p2" => Env::P2,
-            "psx" => Env::Psx,
             "relibc" => Env::Relibc,
             "sgx" => Env::Sgx,
             "uclibc" => Env::UClibc,
