@@ -6,6 +6,8 @@ members = [
     "cargo-lock",
     "cvss",
     "platforms",
+    "platforms-data-gen",
+    "platforms-table-gen",
     "quitters",
     "rustsec"
 ]
