@@ -1,7 +1,7 @@
 //! Provides a convenient interface atop of code-generation templates.
 //! The templates themselves are in the `templates` folder.
 
-pub const HEADERS: &[(&'static str, &'static [u8])] = &[
+pub const HEADERS: &[(&str, &[u8])] = &[
     ("target_arch", include_bytes!("../templates/arch_header.rs")),
     ("target_os", include_bytes!("../templates/os_header.rs")),
     ("target_env", include_bytes!("../templates/env_header.rs")),
@@ -15,7 +15,7 @@ pub const HEADERS: &[(&'static str, &'static [u8])] = &[
     ),
 ];
 
-pub const FOOTERS: &[(&'static str, &'static [u8])] = &[
+pub const FOOTERS: &[(&str, &[u8])] = &[
     ("target_arch", include_bytes!("../templates/arch_footer.rs")),
     ("target_os", include_bytes!("../templates/os_footer.rs")),
     ("target_env", include_bytes!("../templates/env_footer.rs")),
@@ -38,8 +38,8 @@ pub(crate) struct Templates {
 
 impl Templates {
     pub fn new() -> Self {
-        let headers = HEADERS.to_owned().into_iter().collect();
-        let footers = FOOTERS.to_owned().into_iter().collect();
+        let headers = HEADERS.iter().copied().collect();
+        let footers = FOOTERS.iter().copied().collect();
         Templates { headers, footers }
     }
 
