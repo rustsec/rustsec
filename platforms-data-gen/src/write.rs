@@ -10,7 +10,7 @@ use crate::enums::*;
 use crate::rustc_target_info::{RustcTargetInfo, RustcTargetsInfo};
 use crate::templates::Templates;
 
-pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
+pub(crate) const FIELDS_WITH_ENUMS: [&str; 5] = [
     "target_arch",
     "target_os",
     "target_env",
@@ -18,7 +18,6 @@ pub(crate) const FIELDS_WITH_ENUMS: [&'static str; 5] = [
     "target_pointer_width",
 ];
 
-#[must_use]
 pub(crate) fn write_targets_file<W: Write>(
     triples: &[String],
     rustc_info: &RustcTargetsInfo,
@@ -54,12 +53,11 @@ use crate::{{
 
     // write the actual targets
     for (triple, info) in triples.iter().zip(rustc_info) {
-        write_target_struct(&triple, &info, &(doc_info[triple]), out)?;
+        write_target_struct(triple, info, &(doc_info[triple]), out)?;
     }
     Ok(())
 }
 
-#[must_use]
 pub(crate) fn write_list_of_targets<W: Write>(triples: &[String], out: &mut W) -> Result<()> {
     writeln!(
         out,
@@ -74,14 +72,13 @@ pub(crate) const ALL: &[Platform] = &["
     Ok(())
 }
 
-#[must_use]
 fn write_target_struct<W: Write>(
     triple: &str,
     rustc_info: &RustcTargetInfo,
     doc_info: &DocTargetInfo,
     out: &mut W,
 ) -> Result<()> {
-    if doc_info.notes != "" {
+    if !doc_info.notes.is_empty() {
         write!(out, "\n/// {}", doc_info.notes)?;
     }
     writeln!(
@@ -102,7 +99,6 @@ pub(crate) const {}: Platform = Platform {{
 
 /// Accepts the key from the `rustc` output and generates an enum from it,
 /// including all `impl`s that depend on the info about available targets
-#[must_use]
 pub(crate) fn write_enum_file<W: Write>(
     key: &str,
     info: &RustcTargetsInfo,
@@ -117,7 +113,6 @@ pub(crate) fn write_enum_file<W: Write>(
 }
 
 /// Accepts the key from the `rustc` output and generates an enum definition from it
-#[must_use]
 fn write_enum_definition<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut W) -> Result<()> {
     writeln!(out, "pub enum {} {{", to_enum_name(key))?;
     let comments = Comments::new();
@@ -132,7 +127,7 @@ fn write_enum_definition<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut
         }
         let enum_variant = to_enum_variant_name(raw_string);
         // deal with names like 'iOS' that violate Rust naming conventions
-        if enum_variant.chars().nth(0).unwrap().is_lowercase() {
+        if enum_variant.chars().next().unwrap().is_lowercase() {
             writeln!(out, "    #[allow(non_camel_case_types)]")?;
         }
         writeln!(out, "    {enum_variant},\n")?;
@@ -141,7 +136,6 @@ fn write_enum_definition<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut
     Ok(())
 }
 
-#[must_use]
 fn write_enum_string_conversions<W: Write>(
     key: &str,
     info: &RustcTargetsInfo,
@@ -160,7 +154,7 @@ impl {enum_name} {{
         match self {{"
     )?;
     for raw_string in &raw_strings {
-        let variant = enumify_value(key, &raw_string);
+        let variant = enumify_value(key, raw_string);
         //                       OS::Android => "android",
         writeln!(out, "            {variant} => \"{raw_string}\",")?;
     }
@@ -183,7 +177,7 @@ impl FromStr for {enum_name} {{
         let result = match name {{"
     )?;
     for raw_string in &raw_strings {
-        let variant = enumify_value(key, &raw_string);
+        let variant = enumify_value(key, raw_string);
         //                            "android" => OS::Android,
         writeln!(out, "            \"{raw_string}\" => {variant},")?;
     }

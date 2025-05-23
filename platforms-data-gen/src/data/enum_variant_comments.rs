@@ -1,6 +1,6 @@
 //! Documentation comments that go on enum variants.
 
-pub(crate) const COMMENTS: &[(&'static str, &'static str)] = &[
+pub(crate) const COMMENTS: &[(&str, &str)] = &[
 // OS
 ("android", "Google's Android mobile operating system"),
 ("cuda", "CUDA parallel computing platform"),

@@ -13,7 +13,7 @@ readme     = "README.md"
 categories = ["development-tools", "no-std"]
 keywords   = ["architectures", "cpu", "os", "targets", "triples"]
 edition    = "2018"
-exclude = ["platforms-data-gen/", "markdown-table-gen/", "README.header.md", "platform-support.md", "regenerate-platforms-crate.sh"]
+exclude = ["README.header.md", "platform-support.md", "regenerate-platforms-crate.sh"]
 
 [dependencies]
 # Don't inherit from workspace, as the MSRV is 1.40.0

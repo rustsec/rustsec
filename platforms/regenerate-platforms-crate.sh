@@ -6,10 +6,7 @@ set -e
 
 curl -o ./platform-support.md https://raw.githubusercontent.com/rust-lang/rust/master/src/doc/rustc/src/platform-support.md
 
-(
-    cd ./platforms-data-gen
-    cargo +nightly run --release -- ../platform-support.md
-)
+cargo +nightly run --manifest-path ../Cargo.toml --bin platforms-data-gen --release -- platform-support.md
 
 cargo fmt
 
@@ -17,7 +14,4 @@ cargo fmt
 
 cp -f README.header.md README.md
 
-(
-    cd ./markdown-table-gen
-    cargo run >> ../README.md
-)
+cargo run --manifest-path ../Cargo.toml --bin platforms-table-gen >> README.md

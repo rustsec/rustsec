@@ -16,7 +16,7 @@ pub(crate) struct Comments {
 
 impl Comments {
     pub fn new() -> Self {
-        let data = COMMENTS.to_owned().into_iter().collect();
+        let data = COMMENTS.iter().copied().collect();
         Comments { data }
     }
 
