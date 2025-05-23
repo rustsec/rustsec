@@ -27,15 +27,12 @@ and pass it as an argument to this program.",
     let rustc_info = rustc_target_info::targets_info(&triples);
 
     for key in FIELDS_WITH_ENUMS.iter() {
-        let filename = format!(
-            "../src/target/{}.rs",
-            enums::to_enum_name(key).to_lowercase()
-        );
+        let filename = format!("src/target/{}.rs", enums::to_enum_name(key).to_lowercase());
         let mut file = File::create(filename)?;
         write_enum_file(key, &rustc_info, &mut file)?;
     }
 
-    let mut file = File::create("../src/platform/platforms.rs")?;
+    let mut file = File::create("src/platform/platforms.rs")?;
     write_targets_file(&triples, &rustc_info, &doc_info, &mut file)?;
     Ok(())
 }

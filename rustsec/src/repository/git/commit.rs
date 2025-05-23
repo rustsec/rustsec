@@ -57,7 +57,15 @@ impl Commit {
         })?;
 
         let commit_id = commit.id;
-        let timestamp = crate::repository::git::gix_time_to_time(cref.committer.time);
+        let Some(time) = gix::date::parse_header(cref.committer.time) else {
+            return Err(format_err!(
+                ErrorKind::Repo,
+                "unable to parse commit time: {}",
+                cref.committer.time
+            ));
+        };
+
+        let timestamp = crate::repository::git::gix_time_to_time(time);
         let author = {
             let sig = cref.author();
             format!("{} <{}>", sig.name, sig.email)
