@@ -194,7 +194,7 @@ impl Repository {
             Self::perform_fetch(&mut repo)?;
         }
 
-        repo.object_cache_size_if_unset(4 * 1024 * 1024);
+        repo.object_cache_size_if_unset(OBJECT_CACHE_SIZE);
         let repo = Self { repo };
 
         let latest_commit = Commit::from_repo_head(&repo)?;
@@ -215,7 +215,7 @@ impl Repository {
     /// Open a repository at the given path
     pub fn open<P: Into<PathBuf>>(into_path: P) -> Result<Self, Error> {
         let path = into_path.into();
-        let repo = gix::open(&path).map_err(|err| {
+        let mut repo = gix::open(&path).map_err(|err| {
             format_err!(
                 ErrorKind::Repo,
                 "failed to open repository at '{}': {}",
@@ -223,6 +223,8 @@ impl Repository {
                 err
             )
         })?;
+
+        repo.object_cache_size_if_unset(OBJECT_CACHE_SIZE);
 
         // TODO: Figure out how to detect if the worktree has modifications
         // as gix currently doesn't have a status/state summary like git2 has
@@ -350,3 +352,5 @@ impl Repository {
         Ok(())
     }
 }
+
+const OBJECT_CACHE_SIZE: usize = 4 * 1024 * 1024;
