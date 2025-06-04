@@ -32,7 +32,7 @@ use crate::{
     fs,
 };
 use serde::{Deserialize, Serialize};
-use std::{path::Path, str::FromStr};
+use std::{ffi::OsStr, path::Path, str::FromStr};
 
 /// RustSec Security Advisories
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -89,6 +89,14 @@ impl Advisory {
     /// Whether the advisory has been withdrawn, i.e. soft-deleted
     pub fn withdrawn(&self) -> bool {
         self.metadata.withdrawn.is_some()
+    }
+
+    /// Whether the given `path` represents a draft advisory
+    pub fn is_draft(path: &Path) -> bool {
+        matches!(
+            path.file_name().and_then(OsStr::to_str),
+            Some(name) if name.starts_with("RUSTSEC-0000-0000."),
+        )
     }
 }
 

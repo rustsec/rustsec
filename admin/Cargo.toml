@@ -1,13 +1,13 @@
 [package]
 name        = "rustsec-admin"
 description = "Admin utility for maintaining the RustSec Advisory Database"
-version     = "0.8.9"
+version     = "0.8.10"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
 license     = "Apache-2.0 OR MIT"
 homepage    = "https://rustsec.org"
 repository  = "https://github.com/rustsec/rustsec"
 readme      = "README.md"
-edition     = "2021"
+edition     = "2024"
 
 [features]
 default = ["gix?/max-performance-safe"]
@@ -34,4 +34,3 @@ xml-rs = { workspace = true }
 [dev-dependencies]
 abscissa_core = { workspace = true, features = ["testing"] }
 once_cell = { workspace = true }
-

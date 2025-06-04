@@ -2,10 +2,11 @@
 
 use super::Iter;
 use crate::{
+    Map,
     advisory::{self, Advisory},
     collection::Collection,
     error::{Error, ErrorKind},
-    map, Map,
+    map,
 };
 use std::{
     ffi::{OsStr, OsString},
@@ -49,7 +50,7 @@ impl Entries {
         };
 
         // Ensure advisory has the correct filename
-        if path.file_name().unwrap() != expected_filename {
+        if path.file_name().unwrap() != expected_filename && !Advisory::is_draft(path) {
             fail!(
                 ErrorKind::Repo,
                 "expected {} to be named {:?}",

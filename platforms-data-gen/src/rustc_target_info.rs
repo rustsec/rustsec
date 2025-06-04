@@ -56,7 +56,7 @@ fn parse_rustc_target_info(rustc_output: &[u8]) -> RustcTargetInfo {
             // rustc outputs some free-standing values as well as key-value pairs
             // we're only interested in the pairs, which are separated by '=' and the value is quoted
             if line.contains("=") {
-                let key = line.split("=").nth(0).unwrap();
+                let key = line.split("=").next().unwrap();
                 let mut value: String = line.split("=").skip(1).collect();
                 // strip first and last chars of the quoted value. Verify that they're quotes
                 assert!(value.pop().unwrap() == '"');

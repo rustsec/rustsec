@@ -3,11 +3,11 @@
 use std::path::{Path, PathBuf};
 
 use rustsec::{
+    Advisory, Collection,
     advisory::Informational,
     fs,
     osv::OsvAdvisory,
     repository::git::{GitModificationTimes, GitPath, Repository},
-    Advisory, Collection,
 };
 
 use crate::{
@@ -44,45 +44,51 @@ impl OsvExporter {
         let collection_path = repo_path.join(Collection::Crates.as_str());
         let mut found_at_least_one_advisory = false;
 
-        if let Ok(collection_entry) = fs::read_dir(collection_path) {
-            for dir_entry in collection_entry {
-                for advisory_entry in fs::read_dir(dir_entry?.path())? {
-                    found_at_least_one_advisory = true;
+        let collection_entry = fs::read_dir(&collection_path).map_err(|err| {
+            format_err!(
+                ErrorKind::Io,
+                format!("No crates advisories found at {collection_path:?}: {err}")
+            )
+        })?;
 
-                    // Load the RustSec advisory
-                    let advisory_path = advisory_entry?.path();
-                    let advisory = Advisory::load_file(&advisory_path)?;
-                    let id = advisory.id().clone();
+        for dir_entry in collection_entry {
+            for advisory_entry in fs::read_dir(dir_entry?.path())? {
+                found_at_least_one_advisory = true;
 
-                    if let Some(kind) = &advisory.metadata.informational {
-                        match kind {
-                            // If not `Unmaintained` or `Unsound` or `Notice`, don't export it to OSV
-                            // to make the output format stable.
-                            // Adding new types should be accompanied by a version bump.
-                            Informational::Unmaintained => (),
-                            Informational::Unsound => (),
-                            Informational::Notice => (),
-                            _ => continue,
-                        }
+                // Load the RustSec advisory
+                let advisory_path = advisory_entry?.path();
+                let advisory = Advisory::load_file(&advisory_path)?;
+                let id = advisory.id().clone();
+
+                if let Some(kind) = &advisory.metadata.informational {
+                    match kind {
+                        // If not `Unmaintained` or `Unsound` or `Notice`, don't export it to OSV
+                        // to make the output format stable.
+                        // Adding new types should be accompanied by a version bump.
+                        Informational::Unmaintained => (),
+                        Informational::Unsound => (),
+                        Informational::Notice => (),
+                        _ => continue,
                     }
-
-                    // Transform the advisory to OSV format
-                    // We've been simply pushing things to the end of the path, so in theory
-                    // it *should* reverse cleanly, hence the `.unwrap()`
-                    let relative_path = advisory_path.strip_prefix(repo_path).unwrap();
-                    let gitpath = GitPath::new(&self.repository, relative_path)?;
-                    let osv = OsvAdvisory::from_rustsec(advisory, &self.mod_times, gitpath);
-
-                    // Serialize the OSV advisory to JSON and write it to file
-                    let mut output_path: PathBuf = destination_folder.join(id.as_str());
-                    output_path.set_extension("json");
-                    let output_file = fs::File::create(output_path)?;
-                    let writer = std::io::BufWriter::new(output_file);
-                    serde_json::to_writer_pretty(writer, &osv)
-                        .map_err(|err| format_err!(ErrorKind::Io, "{}", err))?
                 }
+
+                // Transform the advisory to OSV format
+                // We've been simply pushing things to the end of the path, so in theory
+                // it *should* reverse cleanly, hence the `.unwrap()`
+                let relative_path = advisory_path.strip_prefix(repo_path).unwrap();
+                let gitpath = GitPath::new(&self.repository, relative_path)?;
+                let osv = OsvAdvisory::from_rustsec(advisory, &self.mod_times, gitpath);
+
+                // Serialize the OSV advisory to JSON and write it to file
+                let mut output_path: PathBuf = destination_folder.join(id.as_str());
+                output_path.set_extension("json");
+                let output_file = fs::File::create(output_path)?;
+                let writer = std::io::BufWriter::new(output_file);
+                serde_json::to_writer_pretty(writer, &osv)
+                    .map_err(|err| format_err!(ErrorKind::Io, "{}", err))?
             }
         }
+
         if found_at_least_one_advisory {
             Ok(())
         } else {

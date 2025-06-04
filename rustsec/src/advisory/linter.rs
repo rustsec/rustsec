@@ -3,7 +3,7 @@
 //!
 //! This is run in CI at the time advisories are submitted.
 
-use super::{parts, Advisory, Category};
+use super::{Advisory, Category, parts};
 use crate::advisory::license::License;
 use crate::fs;
 use std::str::FromStr;

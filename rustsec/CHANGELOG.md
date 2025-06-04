@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.30.2 (2025-02-28)
+
+### Fixed
+
+ - Upgraded to `tame-index` v0.18.1 to fix an incompatibility with Rust 1.85 and later ([#1333])
+
+[#1333]: https://github.com/RustSec/rustsec/pull/1333
+
+## 0.30.1 (2025-01-18)
+
+### Added
+
+ - Added public APIs for scanning binary files that were previously private to `cargo audit` ([#1291])
+
+### Fixed
+
+ - Fixed OSV spec compliance issue with schema version being serialized as `null` if not set ([#1287])
+ - Upgraded `cargo-lock` to fix an issue with Cargo.lock v4 format parsing in presence of git tags ([#1298])
+
+[#1287]: https://github.com/rustsec/rustsec/pull/1287
+[#1291]: https://github.com/rustsec/rustsec/pull/1291
+[#1298]: https://github.com/RustSec/rustsec/pull/1298
+
 ## 0.30.0 (2024-10-29)
 
 ### Changed
