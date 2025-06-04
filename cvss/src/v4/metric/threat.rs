@@ -2,6 +2,6 @@
 
 mod e;
 
+pub use self::e::ExploitMaturity;
 #[cfg(feature = "std")]
 pub(crate) use self::e::merge::MergedExploitMaturity;
-pub use self::e::ExploitMaturity;

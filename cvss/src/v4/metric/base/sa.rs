@@ -1,8 +1,8 @@
 //! Availability Impact to the Subsequent System (SA)
 
 use crate::{
-    v4::metric::{Metric, MetricType},
     Error, Result,
+    v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -102,11 +102,11 @@ impl FromStr for AvailabilityImpactToTheSubsequentSystem {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{
-            metric::{environmental::ModifiedAvailabilityImpactToTheSubsequentSystem, MetricLevel},
-            MetricType,
-        },
         Error,
+        v4::{
+            MetricType,
+            metric::{MetricLevel, environmental::ModifiedAvailabilityImpactToTheSubsequentSystem},
+        },
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;

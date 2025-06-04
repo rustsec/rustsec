@@ -1,8 +1,8 @@
 //! Attack Requirements (AT)
 
 use crate::{
-    v4::metric::{Metric, MetricType},
     Error, Result,
+    v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -86,11 +86,11 @@ impl FromStr for AttackRequirements {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{
-            metric::{environmental::ModifiedAttackRequirements, MetricLevel},
-            MetricType,
-        },
         Error,
+        v4::{
+            MetricType,
+            metric::{MetricLevel, environmental::ModifiedAttackRequirements},
+        },
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;

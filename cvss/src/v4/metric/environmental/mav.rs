@@ -1,8 +1,8 @@
 //! Attack Vector (MAV)
 
 use crate::{
-    v4::metric::{Metric, MetricType},
     Error, Result,
+    v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};

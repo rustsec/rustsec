@@ -15,11 +15,6 @@ mod mva;
 mod mvc;
 mod mvi;
 
-#[cfg(feature = "std")]
-pub(crate) use self::{
-    ar::merge::MergedAvailabilityRequirements, cr::merge::MergedConfidentialityRequirements,
-    ir::merge::MergedIntegrityRequirements,
-};
 pub use self::{
     ar::AvailabilityRequirements, cr::ConfidentialityRequirements, ir::IntegrityRequirements,
     mac::ModifiedAttackComplexity, mat::ModifiedAttackRequirements, mav::ModifiedAttackVector,
@@ -29,4 +24,9 @@ pub use self::{
     mva::ModifiedAvailabilityImpactToTheVulnerableSystem,
     mvc::ModifiedConfidentialityImpactToTheVulnerableSystem,
     mvi::ModifiedIntegrityImpactToTheVulnerableSystem,
+};
+#[cfg(feature = "std")]
+pub(crate) use self::{
+    ar::merge::MergedAvailabilityRequirements, cr::merge::MergedConfidentialityRequirements,
+    ir::merge::MergedIntegrityRequirements,
 };

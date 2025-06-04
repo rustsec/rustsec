@@ -1,8 +1,8 @@
 //! Exploit Maturity (E)
 
 use crate::{
-    v4::metric::{Metric, MetricType},
     Error, Result,
+    v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -119,8 +119,8 @@ impl FromStr for ExploitMaturity {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{metric::MetricLevel, MetricType},
         Error,
+        v4::{MetricType, metric::MetricLevel},
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;
