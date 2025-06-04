@@ -1,7 +1,9 @@
 //! Score computation
 
 use crate::v4::{
+    MetricType, Vector,
     metric::{
+        MetricLevel,
         base::{
             MergedAttackComplexity, MergedAttackRequirements, MergedAttackVector,
             MergedAvailabilityImpactToTheSubsequentSystem,
@@ -20,10 +22,8 @@ use crate::v4::{
             VulnerabilityResponseEffort,
         },
         threat::MergedExploitMaturity,
-        MetricLevel,
     },
     scoring::{lookup::lookup_global, max_composed::max_composed, max_severity::max_severity},
-    MetricType, Vector,
 };
 use alloc::vec::Vec;
 use std::{dbg, format, vec};

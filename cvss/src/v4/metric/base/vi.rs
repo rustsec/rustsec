@@ -1,8 +1,8 @@
 //! Integrity Impact to the Vulnerable System (VI)
 
 use crate::{
-    v4::metric::{Metric, MetricType},
     Error, Result,
+    v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -88,11 +88,11 @@ impl FromStr for IntegrityImpactToTheVulnerableSystem {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{
-            metric::{environmental::ModifiedIntegrityImpactToTheVulnerableSystem, MetricLevel},
-            MetricType,
-        },
         Error,
+        v4::{
+            MetricType,
+            metric::{MetricLevel, environmental::ModifiedIntegrityImpactToTheVulnerableSystem},
+        },
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;

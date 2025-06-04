@@ -12,6 +12,13 @@ mod va;
 mod vc;
 mod vi;
 
+pub use self::{
+    ac::AttackComplexity, at::AttackRequirements, av::AttackVector, pr::PrivilegesRequired,
+    sa::AvailabilityImpactToTheSubsequentSystem, sc::ConfidentialityImpactToTheSubsequentSystem,
+    si::IntegrityImpactToTheSubsequentSystem, ui::UserInteraction,
+    va::AvailabilityImpactToTheVulnerableSystem, vc::ConfidentialityImpactToTheVulnerableSystem,
+    vi::IntegrityImpactToTheVulnerableSystem,
+};
 #[cfg(feature = "std")]
 pub(crate) use self::{
     ac::merge::MergedAttackComplexity, at::merge::MergedAttackRequirements,
@@ -22,11 +29,4 @@ pub(crate) use self::{
     va::merge::MergedAvailabilityImpactToTheVulnerableSystem,
     vc::merge::MergedConfidentialityImpactToTheVulnerableSystem,
     vi::merge::MergedIntegrityImpactToTheVulnerableSystem,
-};
-pub use self::{
-    ac::AttackComplexity, at::AttackRequirements, av::AttackVector, pr::PrivilegesRequired,
-    sa::AvailabilityImpactToTheSubsequentSystem, sc::ConfidentialityImpactToTheSubsequentSystem,
-    si::IntegrityImpactToTheSubsequentSystem, ui::UserInteraction,
-    va::AvailabilityImpactToTheVulnerableSystem, vc::ConfidentialityImpactToTheVulnerableSystem,
-    vi::IntegrityImpactToTheVulnerableSystem,
 };

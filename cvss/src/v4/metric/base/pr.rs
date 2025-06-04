@@ -1,8 +1,8 @@
 //! Privileges Required (PR)
 
 use crate::{
-    v4::metric::{Metric, MetricType},
     Error, Result,
+    v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -87,11 +87,11 @@ impl FromStr for PrivilegesRequired {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{
-            metric::{environmental::ModifiedPrivilegesRequired, MetricLevel},
-            MetricType,
-        },
         Error,
+        v4::{
+            MetricType,
+            metric::{MetricLevel, environmental::ModifiedPrivilegesRequired},
+        },
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;

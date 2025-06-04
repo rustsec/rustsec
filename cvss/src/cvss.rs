@@ -6,15 +6,15 @@ use crate::v4;
 use alloc::str::FromStr;
 
 use crate::{
-    error::{Error, Result},
     Severity,
+    error::{Error, Result},
 };
 use alloc::borrow::ToOwned;
 #[cfg(feature = "serde")]
 use {
     alloc::string::String,
     alloc::string::ToString,
-    serde::{de, ser, Deserialize, Serialize},
+    serde::{Deserialize, Serialize, de, ser},
 };
 
 /// Prefix used by all CVSS strings

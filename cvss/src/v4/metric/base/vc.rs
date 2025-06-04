@@ -1,8 +1,8 @@
 //! Confidentiality Impact to the Vulnerable System (VC)
 
 use crate::{
-    v4::metric::{Metric, MetricType},
     Error, Result,
+    v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -89,13 +89,13 @@ impl FromStr for ConfidentialityImpactToTheVulnerableSystem {
 pub(crate) mod merge {
     use super::*;
     use crate::{
-        v4::{
-            metric::{
-                environmental::ModifiedConfidentialityImpactToTheVulnerableSystem, MetricLevel,
-            },
-            MetricType,
-        },
         Error,
+        v4::{
+            MetricType,
+            metric::{
+                MetricLevel, environmental::ModifiedConfidentialityImpactToTheVulnerableSystem,
+            },
+        },
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;

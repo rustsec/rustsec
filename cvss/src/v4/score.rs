@@ -2,7 +2,7 @@
 
 #[cfg(feature = "std")]
 use crate::v4::scoring::ScoringVector;
-use crate::{severity::Severity, v4::Vector, Error};
+use crate::{Error, severity::Severity, v4::Vector};
 use alloc::borrow::ToOwned;
 #[cfg(feature = "serde")]
 use alloc::string::String;
@@ -10,7 +10,7 @@ use alloc::string::String;
 use alloc::string::ToString;
 use core::{fmt, fmt::Display, str::FromStr};
 #[cfg(feature = "serde")]
-use serde::{de, ser, Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de, ser};
 
 /// CVSS v4 scores
 ///

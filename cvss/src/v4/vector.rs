@@ -1,7 +1,9 @@
 //! Score computing for CVSSv4
 
 use crate::{
+    Error, PREFIX,
     v4::{
+        MetricType,
         metric::{
             base::{
                 AttackComplexity, AttackRequirements, AttackVector,
@@ -27,21 +29,19 @@ use crate::{
             },
             threat::ExploitMaturity,
         },
-        MetricType,
     },
-    Error, PREFIX,
 };
 use alloc::{borrow::ToOwned, string::String, vec::Vec};
 use core::{fmt, str::FromStr};
 #[cfg(feature = "serde")]
 use {
     alloc::string::ToString,
-    serde::{de, ser, Deserialize, Serialize},
+    serde::{Deserialize, Serialize, de, ser},
 };
 
-use crate::v4::score::Nomenclature;
 #[cfg(feature = "std")]
 use crate::v4::Score;
+use crate::v4::score::Nomenclature;
 
 /// A CVSS 4.0 vector
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
@@ -222,7 +222,7 @@ impl FromStr for Vector {
                 _ => {
                     return Err(Error::UnsupportedVersion {
                         version: version_string.to_owned(),
-                    })
+                    });
                 }
             },
             ..Default::default()
@@ -345,10 +345,10 @@ mod tests {
 
     #[test]
     fn parse_base_cvss4() {
-        assert!(Vector::from_str(
-            "CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N"
-        )
-        .is_ok());
+        assert!(
+            Vector::from_str("CVSS:4.0/AV:N/AC:L/AT:N/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N")
+                .is_ok()
+        );
     }
 
     #[test]
