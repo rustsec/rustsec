@@ -3,7 +3,6 @@ use crate::v4::scoring::VectorEq;
 /// Max severity distances in EQs MacroVectors (+1)
 ///
 /// <https://github.com/FIRSTdotorg/cvss-v4-calculator/blob/c5b0d409ae9f57c44264c6ce5f27d89298e1d32a/max_severity.js>
-
 pub(super) fn max_severity(eq: VectorEq) -> u8 {
     match eq {
         VectorEq::Eq1(0) => 1,
