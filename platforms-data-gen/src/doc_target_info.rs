@@ -19,7 +19,7 @@ pub struct DocTargetInfo {
 
 pub type DocTargetsInfo = HashMap<String, DocTargetInfo>;
 
-const TABLE_HEADER_REGEX: &'static str = r"target\s+\|.*\s+notes";
+const TABLE_HEADER_REGEX: &str = r"target\s+\|.*\s+notes";
 
 #[must_use]
 #[rustfmt::skip]
@@ -65,7 +65,7 @@ pub fn parse_file(input: &str) -> DocTargetsInfo {
     result
 }
 
-const SECTION_HEADER_REGEX: &'static str = r"## ?Tier \d";
+const SECTION_HEADER_REGEX: &str = r"## ?Tier \d";
 
 #[must_use]
 fn section_headers(input: &str) -> Vec<&str> {
@@ -108,7 +108,7 @@ fn header_to_tier(header: &str) -> u8 {
 mod tests {
     use super::*;
 
-    const SAMPLE_DATA: &'static str = "
+    const SAMPLE_DATA: &str = "
 blah blah
 
 ## Some random header

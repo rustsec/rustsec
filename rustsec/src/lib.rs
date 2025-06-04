@@ -17,6 +17,8 @@ pub mod repository;
 mod vulnerability;
 mod warning;
 
+pub mod binary_scanning;
+
 #[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 mod cached_index;
@@ -28,7 +30,7 @@ pub mod registry {
     pub use super::cached_index::{CachedIndex, ClientBuilder};
 }
 
-pub use cargo_lock::{self, package, Lockfile, SourceId};
+pub use cargo_lock::{self, Lockfile, SourceId, package};
 pub use fs_err as fs;
 pub use platforms;
 pub use semver::{self, Version, VersionReq};
@@ -49,7 +51,7 @@ pub use crate::fixer::Fixer;
 pub use crate::repository::git::Repository;
 
 // Use BTreeMap and BTreeSet as our map and set types
-use std::collections::{btree_map as map, btree_set as set, BTreeMap as Map, BTreeSet as Set};
+use std::collections::{BTreeMap as Map, BTreeSet as Set, btree_map as map, btree_set as set};
 
 /// Current version of the RustSec crate
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

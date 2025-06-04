@@ -1,5 +1,5 @@
 [package]
-name        = "markdown-table-gen"
+name        = "platforms-table-gen"
 description = "Generates a Markdown table of known Rust platforms (for README.md)"
 version     = "0.0.0"
 authors     = ["Tony Arcieri <bascule@gmail.com>"]
@@ -7,7 +7,4 @@ publish     = false
 edition     = "2018"
 
 [dependencies]
-platforms = { path = ".." }
-
-# Exclude this crate from the toplevel workspace
-[workspace]
+platforms = { path = "../platforms" }

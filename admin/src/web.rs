@@ -7,12 +7,12 @@ use atom_syndication::{
     PersonBuilder, Text,
 };
 use chrono::{Duration, NaiveDate, Utc};
-use comrak::{markdown_to_html, ComrakOptions};
+use comrak::{ComrakOptions, markdown_to_html};
 use rust_embed::RustEmbed;
 use rustsec::advisory::Id;
 use rustsec::repository::git::GitModificationTimes;
 use rustsec::repository::git::GitPath;
-use rustsec::{advisory, Repository};
+use rustsec::{Repository, advisory};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
 use std::{
@@ -250,7 +250,7 @@ pub fn render_advisories(output_folder: PathBuf) {
             .keywords
             .as_slice()
             .iter()
-            .map(|k| filters::safe_keyword(k.as_str()).unwrap())
+            .map(|k| filters::safe_keyword(k.as_str(), askama::NO_VALUES).unwrap())
             .collect::<Vec<String>>();
         slug_keywords.sort();
         slug_keywords.dedup();
@@ -573,7 +573,10 @@ mod filters {
     use rustsec::advisory;
     use std::borrow::Borrow;
 
-    pub fn friendly_date<T: Borrow<advisory::Date>>(date: T) -> ::askama::Result<String> {
+    pub fn friendly_date<T: Borrow<advisory::Date>>(
+        date: T,
+        _: &dyn askama::Values,
+    ) -> ::askama::Result<String> {
         let date = date.borrow();
 
         // TODO(tarcieri): fix deprecation of `NaiveDate::from_ymd`
@@ -585,7 +588,7 @@ mod filters {
         Ok(date)
     }
 
-    pub fn safe_keyword(s: &str) -> ::askama::Result<String> {
+    pub fn safe_keyword(s: &str, _: &dyn askama::Values) -> ::askama::Result<String> {
         Ok(s.chars()
             .map(|c| {
                 if c.is_ascii_alphanumeric() || c == '-' || c == '_' {

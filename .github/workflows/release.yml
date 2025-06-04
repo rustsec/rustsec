@@ -64,13 +64,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4.1.1
+      - uses: actions/cache@v4.2.3
         with:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
           # The tag to build or the tag received by the tag event
           ref: ${{ github.event.inputs.version || github.ref }}
-      - uses: actions/cache@v4.1.1
+      - uses: actions/cache@v4.2.3
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
@@ -113,7 +113,7 @@ jobs:
           version=$(echo "${{ github.ref }}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           7z a "../$dst.zip" "$dst"
-      - uses: softprops/action-gh-release@c062e08bd532815e2082a85e87e3ef29c3e6d191
+      - uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
         with:
           files: |
             cargo-audit-*.tgz

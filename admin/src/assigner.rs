@@ -1,9 +1,9 @@
 //! RustSec Advisory DB tool to assign ids
 
-use crate::{error::ErrorKind, prelude::*, Map};
+use crate::{Map, error::ErrorKind, prelude::*};
 use rustsec::{
-    advisory::{IdKind, Parts},
     Advisory, Collection,
+    advisory::{IdKind, Parts},
 };
 use std::{
     fs::{self, File},
@@ -101,68 +101,65 @@ fn assign_ids_across_directory(
     assignments: &mut Vec<String>,
 ) {
     let dir_path = repo_path.join(collection_str);
+    let Ok(collection_entry) = fs::read_dir(dir_path) else {
+        return;
+    };
 
-    if let Ok(collection_entry) = fs::read_dir(dir_path) {
-        for dir_entry in collection_entry {
-            let unwrapped_dir_entry = dir_entry.unwrap();
-            let dir_name = unwrapped_dir_entry.file_name().into_string().unwrap();
-            let dir_path = unwrapped_dir_entry.path();
-            let dir_path_clone = dir_path.clone();
-            for advisory_entry in fs::read_dir(dir_path).unwrap() {
-                let unwrapped_advisory = advisory_entry.unwrap();
-                let advisory_path = unwrapped_advisory.path();
-                let advisory_path_clone = advisory_path.clone();
-                let advisory_path_for_reading = advisory_path.clone();
-                let advisory_path_for_deleting = advisory_path.clone();
-                let displayed_advisory_path = advisory_path.display();
-                let advisory_filename = unwrapped_advisory.file_name();
-                let advisory_filename_str = advisory_filename.into_string().unwrap();
-                if advisory_filename_str.contains("RUSTSEC-0000-0000") {
-                    let advisory_data = fs::read_to_string(advisory_path_clone)
-                        .map_err(|e| {
-                            format_err!(
-                                ErrorKind::Io,
-                                "Couldn't open {}: {}",
-                                displayed_advisory_path,
-                                e
-                            );
-                        })
+    for dir_entry in collection_entry {
+        let unwrapped_dir_entry = dir_entry.unwrap();
+        let dir_name = unwrapped_dir_entry.file_name().into_string().unwrap();
+        let dir_path = unwrapped_dir_entry.path();
+        let dir_path_clone = dir_path.clone();
+        for advisory_entry in fs::read_dir(dir_path).unwrap() {
+            let unwrapped_advisory = advisory_entry.unwrap();
+            let advisory_path = unwrapped_advisory.path();
+            if !Advisory::is_draft(&advisory_path) {
+                continue;
+            }
+
+            let advisory_data = fs::read_to_string(&advisory_path)
+                .map_err(|e| {
+                    format_err!(
+                        ErrorKind::Io,
+                        "Couldn't open {}: {}",
+                        advisory_path.display(),
+                        e
+                    );
+                })
+                .unwrap();
+
+            let advisory_parts = Parts::parse(&advisory_data).unwrap();
+            let advisory: Advisory = toml::from_str(advisory_parts.front_matter).unwrap();
+            let date = advisory.metadata.date;
+            let year = date.year();
+            let new_id = highest_ids.get(&year).cloned().unwrap_or_default() + 1;
+            let year_str = year.to_string();
+            let string_id = format!("RUSTSEC-{year_str}-{new_id:04}");
+            let new_filename = format!("{string_id}.md");
+            let new_path = dir_path_clone.join(new_filename);
+            let original_file = File::open(&advisory_path).unwrap();
+            let reader = BufReader::new(original_file);
+            let new_file = File::create(new_path).unwrap();
+            let mut writer = LineWriter::new(new_file);
+            for line in reader.lines() {
+                let current_line = line.unwrap();
+                if current_line.contains("id = ") {
+                    writer
+                        .write_all(format!("id = \"{string_id}\"\n").as_ref())
                         .unwrap();
-
-                    let advisory_parts = Parts::parse(&advisory_data).unwrap();
-                    let advisory: Advisory = toml::from_str(advisory_parts.front_matter).unwrap();
-                    let date = advisory.metadata.date;
-                    let year = date.year();
-                    let new_id = highest_ids.get(&year).cloned().unwrap_or_default() + 1;
-                    let year_str = year.to_string();
-                    let string_id = format!("RUSTSEC-{year_str}-{new_id:04}");
-                    let new_filename = format!("{string_id}.md");
-                    let new_path = dir_path_clone.join(new_filename);
-                    let original_file = File::open(advisory_path_for_reading).unwrap();
-                    let reader = BufReader::new(original_file);
-                    let new_file = File::create(new_path).unwrap();
-                    let mut writer = LineWriter::new(new_file);
-                    for line in reader.lines() {
-                        let current_line = line.unwrap();
-                        if current_line.contains("id = ") {
-                            writer
-                                .write_all(format!("id = \"{string_id}\"\n").as_ref())
-                                .unwrap();
-                        } else {
-                            let current_line_with_newline = format!("{current_line}\n");
-                            writer
-                                .write_all(current_line_with_newline.as_ref())
-                                .unwrap();
-                        }
-                    }
-                    highest_ids.insert(year, new_id);
-                    fs::remove_file(advisory_path_for_deleting).unwrap();
-                    if output_mode == OutputMode::HumanReadable {
-                        status_ok!("Assignment", "Assigned {} to {}", string_id, dir_name);
-                    } else {
-                        assignments.push(format!("{string_id} to {dir_name}"))
-                    }
+                } else {
+                    let current_line_with_newline = format!("{current_line}\n");
+                    writer
+                        .write_all(current_line_with_newline.as_ref())
+                        .unwrap();
                 }
+            }
+            highest_ids.insert(year, new_id);
+            fs::remove_file(&advisory_path).unwrap();
+            if output_mode == OutputMode::HumanReadable {
+                status_ok!("Assignment", "Assigned {} to {}", string_id, dir_name);
+            } else {
+                assignments.push(format!("{string_id} to {dir_name}"))
             }
         }
     }

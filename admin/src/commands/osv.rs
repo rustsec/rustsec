@@ -8,7 +8,7 @@ use std::{
     process::exit,
 };
 
-use abscissa_core::{status_err, Command, Runnable};
+use abscissa_core::{Command, Runnable, status_err};
 use clap::Parser;
 
 use crate::osv_export::OsvExporter;
@@ -22,22 +22,18 @@ pub struct OsvCmd {
     )]
     repo_path: Option<PathBuf>,
     /// Path to the output directory
-    #[arg(
-        num_args = 1..,
-        help = "filesystem directory where OSV JSON files will be written"
-    )]
-    path: Vec<PathBuf>,
+    #[arg(help = "filesystem directory where OSV JSON files will be written")]
+    path: Option<PathBuf>,
 }
 
 impl Runnable for OsvCmd {
     fn run(&self) {
-        let out_path = match self.path.len() {
-            0 => Path::new("."),
-            1 => self.path[0].as_path(),
-            _ => unreachable!(),
+        let out_path = match &self.path {
+            None => Path::new("."),
+            Some(path) => path,
         };
 
-        let repo_path: Option<&Path> = self.repo_path.as_deref();
+        let repo_path = self.repo_path.as_deref();
         let exporter = OsvExporter::new(repo_path).unwrap_or_else(|e| {
             status_err!("Failed to fetch the advisory database: {}", e);
             exit(1);

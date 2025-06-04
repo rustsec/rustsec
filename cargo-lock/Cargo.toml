@@ -1,7 +1,7 @@
 [package]
 name         = "cargo-lock"
 description  = "Self-contained Cargo.lock parser with optional dependency graph analysis"
-version      = "10.0.1"
+version      = "10.1.0"
 authors      = ["Tony Arcieri <bascule@gmail.com>"]
 license      = "Apache-2.0 OR MIT"
 readme       = "README.md"
@@ -9,8 +9,8 @@ homepage     = "https://rustsec.org"
 repository   = "https://github.com/rustsec/rustsec"
 categories   = ["parser-implementations"]
 keywords     = ["cargo", "dependency", "lock", "lockfile"]
-edition      = "2021"
-rust-version = "1.73"
+edition      = "2024"
+rust-version = "1.85"
 
 [[bin]]
 name = "cargo-lock"
