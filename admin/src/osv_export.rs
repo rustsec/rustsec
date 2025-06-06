@@ -25,7 +25,7 @@ pub struct OsvExporter {
 }
 
 impl OsvExporter {
-    /// Load the the database at the given path
+    /// Load the database at the given path
     pub fn new(repo_path: Option<&Path>) -> Result<Self, Error> {
         let repository = match repo_path {
             Some(path) => Repository::open(path)?,

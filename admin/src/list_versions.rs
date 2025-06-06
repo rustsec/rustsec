@@ -17,7 +17,7 @@ pub struct AffectedVersionLister {
 }
 
 impl AffectedVersionLister {
-    /// Load the the database at the given path
+    /// Load the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
         let lock = acquire_cargo_package_lock()?;

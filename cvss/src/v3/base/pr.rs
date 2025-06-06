@@ -32,7 +32,7 @@ pub enum PrivilegesRequired {
     /// None (N)
     ///
     /// > The attacker is unauthorized prior to attack, and therefore does not
-    /// > require any access to settings or files of the the vulnerable system
+    /// > require any access to settings or files of the vulnerable system
     /// > to carry out an attack.
     None,
 }
