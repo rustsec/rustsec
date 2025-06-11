@@ -57,5 +57,6 @@ osv-export = ["git"]
 binary-scanning = ["dep:auditable-info", "dep:auditable-serde", "dep:binfarce", "dep:quitters", "dep:once_cell"]
 
 [package.metadata.docs.rs]
-all-features = true
+# All features except gix-curl, which is mutually exclusive with gix-reqwest
+features = ["dependency-tree", "osv-export", "binary-scanning"]
 rustdoc-args = ["--cfg", "docsrs"]
