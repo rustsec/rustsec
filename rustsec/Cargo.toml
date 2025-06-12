@@ -60,3 +60,22 @@ binary-scanning = ["dep:auditable-info", "dep:auditable-serde", "dep:binfarce", 
 # All features except gix-curl, which is mutually exclusive with gix-reqwest
 features = ["dependency-tree", "osv-export", "binary-scanning"]
 rustdoc-args = ["--cfg", "docsrs"]
+
+[package.metadata.cargo_check_external_types]
+allowed_external_types = [
+    "binfarce::Format",
+    "cargo_lock",
+    "cargo_lock::*",
+    "cvss::*",
+    "fs_err",
+    "gix_date::Time",
+    "platforms",
+    "platforms::*",
+    "reqwest::async_impl::client::ClientBuilder",
+    "semver",
+    "semver::*",
+    "serde::*",
+    "time::offset_date_time::OffsetDateTime",
+    "toml::ser::Error",
+    "url::Url",
+]
