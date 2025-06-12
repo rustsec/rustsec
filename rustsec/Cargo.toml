@@ -31,7 +31,7 @@ once_cell = { workspace = true, optional = true }
 binfarce = { workspace = true, optional = true }
 
 # optional dependencies
-tame-index = { workspace = true, features = ["git", "sparse", "native-certs"], optional = true }
+tame-index = { workspace = true, features = ["sparse", "native-certs"], optional = true }
 home = { workspace = true, optional = true }
 time = { workspace = true, features = ["formatting", "serde", "parsing"], optional = true }
 gix = { workspace = true, features = ["worktree-mutation", "revision", "max-performance-safe"], optional = true }
@@ -42,17 +42,21 @@ once_cell = { workspace = true }
 serde_json = { workspace = true }
 
 [features]
-default = ["git"]
+default = ["gix-reqwest"]
 git = [
     "dep:tame-index",
     "dep:home",
     "dep:time",
     "dep:gix",
 ]
+# Exactly one of 'gix-reqwest' or 'gix-curl' must be enabled when using the 'git' feature.
+gix-reqwest = ["tame-index/gix-reqwest", "git"]
+gix-curl = ["tame-index/gix-curl", "git"]
 dependency-tree = ["cargo-lock/dependency-tree"]
 osv-export = ["git"]
 binary-scanning = ["dep:auditable-info", "dep:auditable-serde", "dep:binfarce", "dep:quitters", "dep:once_cell"]
 
 [package.metadata.docs.rs]
-all-features = true
+# All features except gix-curl, which is mutually exclusive with gix-reqwest
+features = ["dependency-tree", "osv-export", "binary-scanning"]
 rustdoc-args = ["--cfg", "docsrs"]

@@ -32,7 +32,11 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: clippy
-          args: --all --all-features -- -D warnings
+          args: --workspace --all-features --exclude=rustsec -- -D warnings
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+          args: --package=rustsec --features=dependency-tree,osv-export,binary-scanning -- -D warnings
 
   rustfmt:
     runs-on: ubuntu-latest
