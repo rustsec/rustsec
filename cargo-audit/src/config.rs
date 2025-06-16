@@ -100,10 +100,6 @@ pub struct AdvisoryConfig {
     #[serde(default)]
     pub ignore: Vec<advisory::Id>,
 
-    /// Ignore the source of this advisory, matching any package of the same name.
-    #[serde(default)]
-    pub ignore_source: bool,
-
     /// Warn for the given types of informational advisories
     pub informational_warnings: Option<Vec<advisory::Informational>>,
 
