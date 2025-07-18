@@ -146,6 +146,14 @@ pub struct AuditCommand {
     )]
     quiet: bool,
 
+    /// Output format
+    #[arg(
+        long = "format",
+        value_name = "FORMAT",
+        help = "Output format: terminal, json, or sarif"
+    )]
+    output_format: Option<OutputFormat>,
+
     /// Output reports as JSON
     #[arg(long = "json", help = "Output report in JSON format")]
     output_json: bool,
@@ -228,8 +236,11 @@ impl Override<AuditConfig> for AuditCommand {
 
         config.output.quiet |= self.quiet;
 
+        // Handle output format (--json flag takes precedence for backward compatibility)
         if self.output_json {
             config.output.format = OutputFormat::Json;
+        } else if let Some(format) = self.output_format {
+            config.output.format = format;
         }
 
         Ok(config)
