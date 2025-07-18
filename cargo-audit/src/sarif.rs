@@ -28,24 +28,28 @@ impl SarifLog {
     /// Convert a cargo-audit report to SARIF format
     pub fn from_report(report: &Report, cargo_lock_path: &str) -> Self {
         let mut rules = Vec::new();
-        let mut results = Vec::new();
         let mut rule_indices = HashMap::new();
+        let mut next_rule_index = 0;
 
-        for vuln in report.vulnerabilities.list.iter() {
-            let rule_id = vuln.advisory.id.to_string();
+        let vuln_results: Vec<Result> = report
+            .vulnerabilities
+            .list
+            .iter()
+            .map(|vuln| {
+                let rule_id = vuln.advisory.id.to_string();
 
-            if !rule_indices.contains_key(&rule_id) {
-                rule_indices.insert(rule_id.clone(), rules.len());
-                rules.push(ReportingDescriptor::from_advisory(&vuln.advisory, true));
-            }
+                let rule_index = *rule_indices.entry(rule_id).or_insert_with(|| {
+                    rules.push(ReportingDescriptor::from_advisory(&vuln.advisory, true));
+                    let index = next_rule_index;
+                    next_rule_index += 1;
+                    index
+                });
 
-            results.push(Result::from_vulnerability(
-                vuln,
-                cargo_lock_path,
-                rule_indices[&rule_id],
-            ));
-        }
+                Result::from_vulnerability(vuln, cargo_lock_path, rule_index)
+            })
+            .collect();
 
+        let mut warning_results = Vec::new();
         for (warning_kind, warnings) in &report.warnings {
             for warning in warnings {
                 let rule_id = if let Some(advisory) = &warning.advisory {
@@ -54,22 +58,23 @@ impl SarifLog {
                     format!("{:?}", warning_kind).to_lowercase()
                 };
 
-                if !rule_indices.contains_key(&rule_id) {
-                    rule_indices.insert(rule_id.clone(), rules.len());
+                let rule_index = *rule_indices.entry(rule_id).or_insert_with(|| {
                     if let Some(advisory) = &warning.advisory {
                         rules.push(ReportingDescriptor::from_advisory(advisory, false));
                     } else {
                         rules.push(ReportingDescriptor::from_warning_kind(*warning_kind));
                     }
-                }
+                    let index = next_rule_index;
+                    next_rule_index += 1;
+                    index
+                });
 
-                results.push(Result::from_warning(
-                    warning,
-                    cargo_lock_path,
-                    rule_indices[&rule_id],
-                ));
+                warning_results.push(Result::from_warning(warning, cargo_lock_path, rule_index));
             }
         }
+
+        let mut results = vuln_results;
+        results.extend(warning_results);
 
         SarifLog {
             schema: "https://json.schemastore.org/sarif-2.1.0.json".to_string(),
