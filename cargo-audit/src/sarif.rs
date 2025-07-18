@@ -348,7 +348,9 @@ impl Result {
             }],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
-                fingerprints.insert("primaryLocationLineHash".to_string(), fingerprint);
+                // Use a custom fingerprint key instead of primaryLocationLineHash
+                // to avoid conflicts with GitHub's calculated fingerprints
+                fingerprints.insert("cargo-audit/advisory-fingerprint".to_string(), fingerprint);
                 fingerprints
             },
         }
@@ -404,7 +406,9 @@ impl Result {
             }],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
-                fingerprints.insert("primaryLocationLineHash".to_string(), fingerprint);
+                // Use a custom fingerprint key instead of primaryLocationLineHash
+                // to avoid conflicts with GitHub's calculated fingerprints
+                fingerprints.insert("cargo-audit/advisory-fingerprint".to_string(), fingerprint);
                 fingerprints
             },
         }
