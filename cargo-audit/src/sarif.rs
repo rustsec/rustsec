@@ -24,6 +24,72 @@ pub struct SarifLog {
     pub runs: Vec<Run>,
 }
 
+impl SarifLog {
+    /// Convert a cargo-audit report to SARIF format
+    pub fn from_report(report: &Report, cargo_lock_path: &str) -> Self {
+        let mut rules = Vec::new();
+        let mut results = Vec::new();
+        let mut rule_indices = HashMap::new();
+
+        for vuln in report.vulnerabilities.list.iter() {
+            let rule_id = vuln.advisory.id.to_string();
+
+            if !rule_indices.contains_key(&rule_id) {
+                rule_indices.insert(rule_id.clone(), rules.len());
+                rules.push(ReportingDescriptor::from_advisory(&vuln.advisory, true));
+            }
+
+            results.push(Result::from_vulnerability(
+                vuln,
+                cargo_lock_path,
+                rule_indices[&rule_id],
+            ));
+        }
+
+        for (warning_kind, warnings) in &report.warnings {
+            for warning in warnings {
+                let rule_id = if let Some(advisory) = &warning.advisory {
+                    advisory.id.to_string()
+                } else {
+                    format!("{:?}", warning_kind).to_lowercase()
+                };
+
+                if !rule_indices.contains_key(&rule_id) {
+                    rule_indices.insert(rule_id.clone(), rules.len());
+                    if let Some(advisory) = &warning.advisory {
+                        rules.push(ReportingDescriptor::from_advisory(advisory, false));
+                    } else {
+                        rules.push(ReportingDescriptor::from_warning_kind(*warning_kind));
+                    }
+                }
+
+                results.push(Result::from_warning(
+                    warning,
+                    cargo_lock_path,
+                    rule_indices[&rule_id],
+                ));
+            }
+        }
+
+        SarifLog {
+            schema: "https://json.schemastore.org/sarif-2.1.0.json".to_string(),
+            version: "2.1.0".to_string(),
+            runs: vec![Run {
+                tool: Tool {
+                    driver: ToolComponent {
+                        name: "cargo-audit".to_string(),
+                        version: Some(env!("CARGO_PKG_VERSION").to_string()),
+                        semantic_version: Some(env!("CARGO_PKG_VERSION").to_string()),
+                        rules,
+                    },
+                },
+                results,
+                automation_details: None,
+            }],
+        }
+    }
+}
+
 /// A run represents a single invocation of an analysis tool
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -87,6 +153,100 @@ pub struct ReportingDescriptor {
     pub properties: Option<RuleProperties>,
 }
 
+impl ReportingDescriptor {
+    /// Create a ReportingDescriptor from an advisory
+    pub fn from_advisory(metadata: &advisory::Metadata, is_vulnerability: bool) -> Self {
+        let tags = if is_vulnerability {
+            vec!["security".to_string(), "vulnerability".to_string()]
+        } else {
+            vec!["security".to_string(), "warning".to_string()]
+        };
+
+        let security_severity = metadata
+            .cvss
+            .as_ref()
+            .map(|cvss| format!("{:.1}", cvss.score().value()));
+
+        let default_level = if is_vulnerability { "error" } else { "warning" };
+
+        ReportingDescriptor {
+            id: metadata.id.to_string(),
+            name: Some(metadata.id.to_string()),
+            short_description: Some(MultiformatMessageString {
+                text: metadata.title.clone(),
+                markdown: None,
+            }),
+            full_description: if metadata.description.is_empty() {
+                None
+            } else {
+                Some(MultiformatMessageString {
+                    text: metadata.description.clone(),
+                    markdown: None,
+                })
+            },
+            default_configuration: Some(ReportingConfiguration {
+                level: default_level.to_string(),
+            }),
+            help: metadata.url.as_ref().map(|url| MultiformatMessageString {
+                text: format!("For more information, see: {}", url),
+                markdown: Some(format!(
+                    "For more information, see: [{}]({})",
+                    metadata.id, url
+                )),
+            }),
+            properties: Some(RuleProperties {
+                tags: Some(tags),
+                precision: Some("very-high".to_string()),
+                problem_severity: if !is_vulnerability {
+                    Some("warning".to_string())
+                } else {
+                    None
+                },
+                security_severity,
+            }),
+        }
+    }
+
+    /// Create a ReportingDescriptor from a warning kind
+    pub fn from_warning_kind(kind: WarningKind) -> Self {
+        let (name, description) = match kind {
+            WarningKind::Unmaintained => (
+                "unmaintained",
+                "Package is unmaintained and may have unaddressed security vulnerabilities",
+            ),
+            WarningKind::Unsound => (
+                "unsound",
+                "Package has known soundness issues that may lead to memory safety problems",
+            ),
+            WarningKind::Yanked => (
+                "yanked",
+                "Package version has been yanked from the registry",
+            ),
+            _ => ("unknown", "Unknown warning type"),
+        };
+
+        ReportingDescriptor {
+            id: name.to_string(),
+            name: Some(name.to_string()),
+            short_description: Some(MultiformatMessageString {
+                text: description.to_string(),
+                markdown: None,
+            }),
+            full_description: None,
+            default_configuration: Some(ReportingConfiguration {
+                level: "warning".to_string(),
+            }),
+            help: None,
+            properties: Some(RuleProperties {
+                tags: Some(vec!["security".to_string(), "warning".to_string()]),
+                precision: Some("high".to_string()),
+                problem_severity: Some("warning".to_string()),
+                security_severity: None,
+            }),
+        }
+    }
+}
+
 /// Rule properties
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -144,6 +304,106 @@ pub struct Result {
     pub locations: Vec<Location>,
     /// Fingerprints for result matching
     pub partial_fingerprints: HashMap<String, String>,
+}
+
+impl Result {
+    /// Create a Result from a vulnerability
+    pub fn from_vulnerability(
+        vuln: &Vulnerability,
+        cargo_lock_path: &str,
+        rule_index: usize,
+    ) -> Self {
+        let fingerprint = format!(
+            "{}:{}:{}",
+            vuln.advisory.id, vuln.package.name, vuln.package.version
+        );
+
+        Result {
+            rule_id: vuln.advisory.id.to_string(),
+            rule_index: Some(rule_index),
+            message: Message {
+                text: format!(
+                    "{} {} is vulnerable to {} ({})",
+                    vuln.package.name, vuln.package.version, vuln.advisory.id, vuln.advisory.title
+                ),
+            },
+            level: Some("error".to_string()),
+            locations: vec![Location {
+                physical_location: PhysicalLocation {
+                    artifact_location: ArtifactLocation {
+                        uri: cargo_lock_path.to_string(),
+                    },
+                    region: Region {
+                        start_line: 1,
+                        start_column: None,
+                        end_line: None,
+                        end_column: None,
+                    },
+                },
+            }],
+            partial_fingerprints: {
+                let mut fingerprints = HashMap::new();
+                fingerprints.insert("primaryLocationLineHash".to_string(), fingerprint);
+                fingerprints
+            },
+        }
+    }
+
+    /// Create a Result from a warning
+    pub fn from_warning(warning: &Warning, cargo_lock_path: &str, rule_index: usize) -> Self {
+        let rule_id = if let Some(advisory) = &warning.advisory {
+            advisory.id.to_string()
+        } else {
+            format!("{:?}", warning.kind).to_lowercase()
+        };
+
+        let message_text = if let Some(advisory) = &warning.advisory {
+            format!(
+                "{} {} has a {} warning: {}",
+                warning.package.name,
+                warning.package.version,
+                warning.kind.as_str(),
+                advisory.title
+            )
+        } else {
+            format!(
+                "{} {} has a {} warning",
+                warning.package.name,
+                warning.package.version,
+                warning.kind.as_str()
+            )
+        };
+
+        let fingerprint = format!(
+            "{}:{}:{}",
+            rule_id, warning.package.name, warning.package.version
+        );
+
+        Result {
+            rule_id,
+            rule_index: Some(rule_index),
+            message: Message { text: message_text },
+            level: Some("warning".to_string()),
+            locations: vec![Location {
+                physical_location: PhysicalLocation {
+                    artifact_location: ArtifactLocation {
+                        uri: cargo_lock_path.to_string(),
+                    },
+                    region: Region {
+                        start_line: 1,
+                        start_column: None,
+                        end_line: None,
+                        end_column: None,
+                    },
+                },
+            }],
+            partial_fingerprints: {
+                let mut fingerprints = HashMap::new();
+                fingerprints.insert("primaryLocationLineHash".to_string(), fingerprint);
+                fingerprints
+            },
+        }
+    }
 }
 
 /// Simple message
@@ -206,260 +466,7 @@ pub struct RunAutomationDetails {
 }
 
 /// Convert a cargo-audit report to SARIF format
+/// This is a compatibility wrapper around SarifLog::from_report
 pub fn to_sarif(report: &Report, cargo_lock_path: &str) -> SarifLog {
-    let mut rules = Vec::new();
-    let mut results = Vec::new();
-    let mut rule_indices = HashMap::new();
-
-    // Process vulnerabilities
-    for vuln in report.vulnerabilities.list.iter() {
-        let rule_id = vuln.advisory.id.to_string();
-
-        if !rule_indices.contains_key(&rule_id) {
-            rule_indices.insert(rule_id.clone(), rules.len());
-            rules.push(create_rule_from_advisory(&vuln.advisory, true));
-        }
-
-        results.push(create_result_from_vulnerability(
-            vuln,
-            cargo_lock_path,
-            rule_indices[&rule_id],
-        ));
-    }
-
-    // Process warnings
-    for (warning_kind, warnings) in &report.warnings {
-        for warning in warnings {
-            let rule_id = if let Some(advisory) = &warning.advisory {
-                advisory.id.to_string()
-            } else {
-                format!("{:?}", warning_kind).to_lowercase()
-            };
-
-            if !rule_indices.contains_key(&rule_id) {
-                rule_indices.insert(rule_id.clone(), rules.len());
-                if let Some(advisory) = &warning.advisory {
-                    rules.push(create_rule_from_advisory(advisory, false));
-                } else {
-                    rules.push(create_rule_from_warning_kind(*warning_kind));
-                }
-            }
-
-            results.push(create_result_from_warning(
-                warning,
-                cargo_lock_path,
-                rule_indices[&rule_id],
-            ));
-        }
-    }
-
-    SarifLog {
-        schema: "https://json.schemastore.org/sarif-2.1.0.json".to_string(),
-        version: "2.1.0".to_string(),
-        runs: vec![Run {
-            tool: Tool {
-                driver: ToolComponent {
-                    name: "cargo-audit".to_string(),
-                    version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                    semantic_version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                    rules,
-                },
-            },
-            results,
-            automation_details: None,
-        }],
-    }
-}
-
-fn create_rule_from_advisory(
-    metadata: &advisory::Metadata,
-    is_vulnerability: bool,
-) -> ReportingDescriptor {
-    let tags = if is_vulnerability {
-        vec!["security".to_string(), "vulnerability".to_string()]
-    } else {
-        vec!["security".to_string(), "warning".to_string()]
-    };
-
-    let security_severity = metadata
-        .cvss
-        .as_ref()
-        .map(|cvss| format!("{:.1}", cvss.score().value()));
-
-    let default_level = if is_vulnerability { "error" } else { "warning" };
-
-    ReportingDescriptor {
-        id: metadata.id.to_string(),
-        name: Some(metadata.id.to_string()),
-        short_description: Some(MultiformatMessageString {
-            text: metadata.title.clone(),
-            markdown: None,
-        }),
-        full_description: if metadata.description.is_empty() {
-            None
-        } else {
-            Some(MultiformatMessageString {
-                text: metadata.description.clone(),
-                markdown: None,
-            })
-        },
-        default_configuration: Some(ReportingConfiguration {
-            level: default_level.to_string(),
-        }),
-        help: metadata.url.as_ref().map(|url| MultiformatMessageString {
-            text: format!("For more information, see: {}", url),
-            markdown: Some(format!(
-                "For more information, see: [{}]({})",
-                metadata.id, url
-            )),
-        }),
-        properties: Some(RuleProperties {
-            tags: Some(tags),
-            precision: Some("very-high".to_string()),
-            problem_severity: if !is_vulnerability {
-                Some("warning".to_string())
-            } else {
-                None
-            },
-            security_severity,
-        }),
-    }
-}
-
-fn create_rule_from_warning_kind(kind: WarningKind) -> ReportingDescriptor {
-    let (name, description) = match kind {
-        WarningKind::Unmaintained => (
-            "unmaintained",
-            "Package is unmaintained and may have unaddressed security vulnerabilities",
-        ),
-        WarningKind::Unsound => (
-            "unsound",
-            "Package has known soundness issues that may lead to memory safety problems",
-        ),
-        WarningKind::Yanked => (
-            "yanked",
-            "Package version has been yanked from the registry",
-        ),
-        _ => ("unknown", "Unknown warning type"),
-    };
-
-    ReportingDescriptor {
-        id: name.to_string(),
-        name: Some(name.to_string()),
-        short_description: Some(MultiformatMessageString {
-            text: description.to_string(),
-            markdown: None,
-        }),
-        full_description: None,
-        default_configuration: Some(ReportingConfiguration {
-            level: "warning".to_string(),
-        }),
-        help: None,
-        properties: Some(RuleProperties {
-            tags: Some(vec!["security".to_string(), "warning".to_string()]),
-            precision: Some("high".to_string()),
-            problem_severity: Some("warning".to_string()),
-            security_severity: None,
-        }),
-    }
-}
-
-fn create_result_from_vulnerability(
-    vuln: &Vulnerability,
-    cargo_lock_path: &str,
-    rule_index: usize,
-) -> Result {
-    let fingerprint = format!(
-        "{}:{}:{}",
-        vuln.advisory.id, vuln.package.name, vuln.package.version
-    );
-
-    Result {
-        rule_id: vuln.advisory.id.to_string(),
-        rule_index: Some(rule_index),
-        message: Message {
-            text: format!(
-                "{} {} is vulnerable to {} ({})",
-                vuln.package.name, vuln.package.version, vuln.advisory.id, vuln.advisory.title
-            ),
-        },
-        level: Some("error".to_string()),
-        locations: vec![Location {
-            physical_location: PhysicalLocation {
-                artifact_location: ArtifactLocation {
-                    uri: cargo_lock_path.to_string(),
-                },
-                region: Region {
-                    start_line: 1,
-                    start_column: None,
-                    end_line: None,
-                    end_column: None,
-                },
-            },
-        }],
-        partial_fingerprints: {
-            let mut fingerprints = HashMap::new();
-            fingerprints.insert("primaryLocationLineHash".to_string(), fingerprint);
-            fingerprints
-        },
-    }
-}
-
-fn create_result_from_warning(
-    warning: &Warning,
-    cargo_lock_path: &str,
-    rule_index: usize,
-) -> Result {
-    let rule_id = if let Some(advisory) = &warning.advisory {
-        advisory.id.to_string()
-    } else {
-        format!("{:?}", warning.kind).to_lowercase()
-    };
-
-    let message_text = if let Some(advisory) = &warning.advisory {
-        format!(
-            "{} {} has a {} warning: {}",
-            warning.package.name,
-            warning.package.version,
-            warning.kind.as_str(),
-            advisory.title
-        )
-    } else {
-        format!(
-            "{} {} has a {} warning",
-            warning.package.name,
-            warning.package.version,
-            warning.kind.as_str()
-        )
-    };
-
-    let fingerprint = format!(
-        "{}:{}:{}",
-        rule_id, warning.package.name, warning.package.version
-    );
-
-    Result {
-        rule_id,
-        rule_index: Some(rule_index),
-        message: Message { text: message_text },
-        level: Some("warning".to_string()),
-        locations: vec![Location {
-            physical_location: PhysicalLocation {
-                artifact_location: ArtifactLocation {
-                    uri: cargo_lock_path.to_string(),
-                },
-                region: Region {
-                    start_line: 1,
-                    start_column: None,
-                    end_line: None,
-                    end_column: None,
-                },
-            },
-        }],
-        partial_fingerprints: {
-            let mut fingerprints = HashMap::new();
-            fingerprints.insert("primaryLocationLineHash".to_string(), fingerprint);
-            fingerprints
-        },
-    }
+    SarifLog::from_report(report, cargo_lock_path)
 }
