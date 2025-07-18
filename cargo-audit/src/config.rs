@@ -164,7 +164,7 @@ pub struct OutputConfig {
 impl OutputConfig {
     /// Is quiet mode enabled?
     pub fn is_quiet(&self) -> bool {
-        self.quiet || self.format == OutputFormat::Json
+        self.quiet || self.format == OutputFormat::Json || self.format == OutputFormat::Sarif
     }
 }
 
@@ -231,16 +231,36 @@ impl FromStr for DenyOption {
 }
 
 /// Output format
-#[derive(Default, Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[derive(Default, Copy, Clone, Debug, Deserialize, Eq, PartialEq, Serialize, clap::ValueEnum)]
 pub enum OutputFormat {
     /// Display JSON
     #[serde(rename = "json")]
     Json,
 
+    /// Display SARIF (Static Analysis Results Interchange Format)
+    #[serde(rename = "sarif")]
+    Sarif,
+
     /// Display human-readable output to the terminal
     #[serde(rename = "terminal")]
     #[default]
     Terminal,
+}
+
+impl FromStr for OutputFormat {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        match s {
+            "json" => Ok(OutputFormat::Json),
+            "sarif" => Ok(OutputFormat::Sarif),
+            "terminal" => Ok(OutputFormat::Terminal),
+            other => Err(Error::new(
+                ErrorKind::Parse,
+                &format!("invalid output format: {other}"),
+            )),
+        }
+    }
 }
 
 /// Helper enum for configuring filter values
