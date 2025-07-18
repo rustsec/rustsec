@@ -101,10 +101,24 @@ impl Presenter {
         lockfile: &Lockfile,
         path: Option<&Path>,
     ) {
-        if self.config.format == OutputFormat::Json {
-            serde_json::to_writer(io::stdout(), &report).unwrap();
-            io::stdout().flush().unwrap();
-            return;
+        match self.config.format {
+            OutputFormat::Json => {
+                serde_json::to_writer(io::stdout(), &report).unwrap();
+                io::stdout().flush().unwrap();
+                return;
+            }
+            OutputFormat::Sarif => {
+                let cargo_lock_path = path
+                    .map(|p| p.to_string_lossy().into_owned())
+                    .unwrap_or_else(|| "Cargo.lock".to_string());
+                let sarif_log = crate::sarif::to_sarif(report, &cargo_lock_path);
+                serde_json::to_writer(io::stdout(), &sarif_log).unwrap();
+                io::stdout().flush().unwrap();
+                return;
+            }
+            OutputFormat::Terminal => {
+                // Continue with terminal output below
+            }
         }
 
         let tree = lockfile
