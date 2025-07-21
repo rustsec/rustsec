@@ -9,7 +9,7 @@
 
 use rustsec::{Report, Vulnerability, Warning, WarningKind, advisory};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 /// SARIF log root object
 #[derive(Debug, Serialize, Deserialize)]
@@ -28,28 +28,19 @@ impl SarifLog {
     /// Convert a cargo-audit report to SARIF format
     pub fn from_report(report: &Report, cargo_lock_path: &str) -> Self {
         let mut rules = Vec::new();
-        let mut rule_indices = HashMap::new();
-        let mut next_rule_index = 0;
+        let mut seen_rules = HashSet::new();
+        let mut results = Vec::new();
 
-        let vuln_results: Vec<Result> = report
-            .vulnerabilities
-            .list
-            .iter()
-            .map(|vuln| {
-                let rule_id = vuln.advisory.id.to_string();
+        for vuln in &report.vulnerabilities.list {
+            let rule_id = vuln.advisory.id.to_string();
 
-                let rule_index = *rule_indices.entry(rule_id).or_insert_with(|| {
-                    rules.push(ReportingDescriptor::from_advisory(&vuln.advisory, true));
-                    let index = next_rule_index;
-                    next_rule_index += 1;
-                    index
-                });
+            if seen_rules.insert(rule_id.clone()) {
+                rules.push(ReportingDescriptor::from_advisory(&vuln.advisory, true));
+            }
 
-                Result::from_vulnerability(vuln, cargo_lock_path, rule_index)
-            })
-            .collect();
+            results.push(Result::from_vulnerability(vuln, cargo_lock_path));
+        }
 
-        let mut warning_results = Vec::new();
         for (warning_kind, warnings) in &report.warnings {
             for warning in warnings {
                 let rule_id = if let Some(advisory) = &warning.advisory {
@@ -58,23 +49,17 @@ impl SarifLog {
                     format!("{:?}", warning_kind).to_lowercase()
                 };
 
-                let rule_index = *rule_indices.entry(rule_id).or_insert_with(|| {
+                if seen_rules.insert(rule_id) {
                     if let Some(advisory) = &warning.advisory {
                         rules.push(ReportingDescriptor::from_advisory(advisory, false));
                     } else {
                         rules.push(ReportingDescriptor::from_warning_kind(*warning_kind));
                     }
-                    let index = next_rule_index;
-                    next_rule_index += 1;
-                    index
-                });
+                }
 
-                warning_results.push(Result::from_warning(warning, cargo_lock_path, rule_index));
+                results.push(Result::from_warning(warning, cargo_lock_path));
             }
         }
-
-        let mut results = vuln_results;
-        results.extend(warning_results);
 
         SarifLog {
             schema: "https://json.schemastore.org/sarif-2.1.0.json".to_string(),
@@ -297,9 +282,6 @@ pub struct MultiformatMessageString {
 pub struct Result {
     /// ID of the rule that was violated
     pub rule_id: String,
-    /// Index into the tool.driver.rules array
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub rule_index: Option<usize>,
     /// Message describing the result
     pub message: Message,
     /// Severity level of the result
@@ -313,11 +295,7 @@ pub struct Result {
 
 impl Result {
     /// Create a Result from a vulnerability
-    pub fn from_vulnerability(
-        vuln: &Vulnerability,
-        cargo_lock_path: &str,
-        rule_index: usize,
-    ) -> Self {
+    pub fn from_vulnerability(vuln: &Vulnerability, cargo_lock_path: &str) -> Self {
         let fingerprint = format!(
             "{}:{}:{}",
             vuln.advisory.id, vuln.package.name, vuln.package.version
@@ -325,7 +303,6 @@ impl Result {
 
         Result {
             rule_id: vuln.advisory.id.to_string(),
-            rule_index: Some(rule_index),
             message: Message {
                 text: format!(
                     "{} {} is vulnerable to {} ({})",
@@ -357,7 +334,7 @@ impl Result {
     }
 
     /// Create a Result from a warning
-    pub fn from_warning(warning: &Warning, cargo_lock_path: &str, rule_index: usize) -> Self {
+    pub fn from_warning(warning: &Warning, cargo_lock_path: &str) -> Self {
         let rule_id = if let Some(advisory) = &warning.advisory {
             advisory.id.to_string()
         } else {
@@ -388,7 +365,6 @@ impl Result {
 
         Result {
             rule_id,
-            rule_index: Some(rule_index),
             message: Message { text: message_text },
             level: Some("warning".to_string()),
             locations: vec![Location {
@@ -472,10 +448,4 @@ pub struct Region {
 pub struct RunAutomationDetails {
     /// Unique identifier for the run
     pub id: String,
-}
-
-/// Convert a cargo-audit report to SARIF format
-/// This is a compatibility wrapper around SarifLog::from_report
-pub fn to_sarif(report: &Report, cargo_lock_path: &str) -> SarifLog {
-    SarifLog::from_report(report, cargo_lock_path)
 }
