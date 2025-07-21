@@ -111,7 +111,7 @@ impl Presenter {
                 let cargo_lock_path = path
                     .map(|p| p.to_string_lossy().into_owned())
                     .unwrap_or_else(|| "Cargo.lock".to_string());
-                let sarif_log = crate::sarif::to_sarif(report, &cargo_lock_path);
+                let sarif_log = crate::sarif::SarifLog::from_report(report, &cargo_lock_path);
                 serde_json::to_writer(io::stdout(), &sarif_log).unwrap();
                 io::stdout().flush().unwrap();
                 return;
