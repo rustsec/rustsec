@@ -45,7 +45,7 @@ tempfile = "3"
 termcolor = "1"
 thiserror = "2"
 time = { version = "0.3", default-features = false }
-toml = "0.8"
+toml = { version = "0.9", default-features = false }
 toml_edit = "0.22.6"
 url = "2"
 xml-rs = "0.8"
