@@ -31,7 +31,7 @@ display-error-chain = { workspace = true }
 abscissa_core = { workspace = true, features = ["testing"] }
 once_cell = { workspace = true }
 tempfile = { workspace = true }
-toml = { workspace = true }
+toml = { workspace = true, features = ["parse", "serde"] }
 
 [features]
 default = ["binary-scanning"]
