@@ -98,7 +98,7 @@ fn versions_for_regex<'a>(data: &'a [u8], re: &Regex) -> BTreeSet<(&'a str, Vers
 }
 
 /// Extracts crate and version from a single regex match
-fn parse_capture(c: regex::bytes::Captures) -> Option<(&str, Version)> {
+fn parse_capture(c: regex::bytes::Captures<'_>) -> Option<(&str, Version)> {
     Some((
         std::str::from_utf8(c.name("crate").unwrap().as_bytes()).ok()?,
         Version::parse(std::str::from_utf8(c.name("version").unwrap().as_bytes()).ok()?).ok()?,
