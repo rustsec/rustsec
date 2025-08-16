@@ -11,6 +11,19 @@ use rustsec::{Report, Vulnerability, Warning, WarningKind, advisory};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
+/// SARIF schema URI
+const SARIF_SCHEMA: &str = "https://json.schemastore.org/sarif-2.1.0.json";
+/// SARIF version
+const SARIF_VERSION: &str = "2.1.0";
+/// Tool name
+const TOOL_NAME: &str = "cargo-audit";
+/// Tool version
+const TOOL_VERSION: &str = env!("CARGO_PKG_VERSION");
+/// Security tags for vulnerabilities
+const VULNERABILITY_TAGS: &[&str] = &["security", "vulnerability"];
+/// Security tags for warnings
+const WARNING_TAGS: &[&str] = &["security", "warning"];
+
 /// SARIF log root object
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -46,15 +59,16 @@ impl SarifLog {
                 let rule_id = if let Some(advisory) = &warning.advisory {
                     advisory.id.to_string()
                 } else {
-                    format!("{:?}", warning_kind).to_lowercase()
+                    format!("{warning_kind:?}").to_lowercase()
                 };
 
                 if seen_rules.insert(rule_id) {
-                    if let Some(advisory) = &warning.advisory {
-                        rules.push(ReportingDescriptor::from_advisory(advisory, false));
+                    let descriptor = if let Some(advisory) = &warning.advisory {
+                        ReportingDescriptor::from_advisory(advisory, false)
                     } else {
-                        rules.push(ReportingDescriptor::from_warning_kind(*warning_kind));
-                    }
+                        ReportingDescriptor::from_warning_kind(*warning_kind)
+                    };
+                    rules.push(descriptor);
                 }
 
                 results.push(Result::from_warning(warning, cargo_lock_path));
@@ -62,14 +76,14 @@ impl SarifLog {
         }
 
         SarifLog {
-            schema: "https://json.schemastore.org/sarif-2.1.0.json".to_string(),
-            version: "2.1.0".to_string(),
+            schema: SARIF_SCHEMA.to_string(),
+            version: SARIF_VERSION.to_string(),
             runs: vec![Run {
                 tool: Tool {
                     driver: ToolComponent {
-                        name: "cargo-audit".to_string(),
-                        version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                        semantic_version: Some(env!("CARGO_PKG_VERSION").to_string()),
+                        name: TOOL_NAME.to_string(),
+                        version: Some(TOOL_VERSION.to_string()),
+                        semantic_version: Some(TOOL_VERSION.to_string()),
                         rules,
                     },
                 },
@@ -147,9 +161,9 @@ impl ReportingDescriptor {
     /// Create a ReportingDescriptor from an advisory
     pub fn from_advisory(metadata: &advisory::Metadata, is_vulnerability: bool) -> Self {
         let tags = if is_vulnerability {
-            vec!["security".to_string(), "vulnerability".to_string()]
+            VULNERABILITY_TAGS.iter().map(|&s| s.to_string()).collect()
         } else {
-            vec!["security".to_string(), "warning".to_string()]
+            WARNING_TAGS.iter().map(|&s| s.to_string()).collect()
         };
 
         let security_severity = metadata
@@ -178,7 +192,7 @@ impl ReportingDescriptor {
                 level: default_level.to_string(),
             }),
             help: metadata.url.as_ref().map(|url| MultiformatMessageString {
-                text: format!("For more information, see: {}", url),
+                text: format!("For more information, see: {url}"),
                 markdown: Some(format!(
                     "For more information, see: [{}]({})",
                     metadata.id, url
@@ -228,7 +242,7 @@ impl ReportingDescriptor {
             }),
             help: None,
             properties: Some(RuleProperties {
-                tags: Some(vec!["security".to_string(), "warning".to_string()]),
+                tags: Some(WARNING_TAGS.iter().map(|&s| s.to_string()).collect()),
                 precision: Some("high".to_string()),
                 problem_severity: Some("warning".to_string()),
                 security_severity: None,
