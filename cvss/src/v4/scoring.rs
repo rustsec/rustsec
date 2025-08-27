@@ -26,7 +26,7 @@ use crate::v4::{
     scoring::{lookup::lookup_global, max_composed::max_composed, max_severity::max_severity},
 };
 use alloc::vec::Vec;
-use std::{dbg, format, vec};
+use std::{format, vec};
 
 mod lookup;
 mod max_composed;
