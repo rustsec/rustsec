@@ -26,7 +26,7 @@ use crate::v4::{
     scoring::{lookup::lookup_global, max_composed::max_composed, max_severity::max_severity},
 };
 use alloc::vec::Vec;
-use std::{dbg, format, vec};
+use std::{format, vec};
 
 mod lookup;
 mod max_composed;
@@ -113,7 +113,6 @@ impl ScoringVector {
         let components: Vec<(&str, &str)> = s
             .split('/')
             .map(|component| {
-                dbg!(&component);
                 let mut parts = component.split(':');
                 let id = parts.next().unwrap();
                 let value = parts.next().unwrap();
