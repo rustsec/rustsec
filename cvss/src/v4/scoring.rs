@@ -113,7 +113,6 @@ impl ScoringVector {
         let components: Vec<(&str, &str)> = s
             .split('/')
             .map(|component| {
-                dbg!(&component);
                 let mut parts = component.split(':');
                 let id = parts.next().unwrap();
                 let value = parts.next().unwrap();
