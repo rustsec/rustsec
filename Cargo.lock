@@ -634,7 +634,7 @@ dependencies = [
 
 [[package]]
 name = "cvss"
-version = "2.1.0"
+version = "2.1.1"
 dependencies = [
  "serde",
 ]

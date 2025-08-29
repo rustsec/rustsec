@@ -1,7 +1,7 @@
 [package]
 name         = "cvss"
 description  = "Common Vulnerability Scoring System parser/serializer"
-version      = "2.1.0"
+version      = "2.1.1"
 authors      = ["Tony Arcieri <bascule@gmail.com>"]
 license      = "Apache-2.0 OR MIT"
 repository   = "https://github.com/rustsec/rustsec"
