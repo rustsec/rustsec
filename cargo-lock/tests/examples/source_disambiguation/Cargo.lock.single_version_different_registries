@@ -4,9 +4,9 @@ version = 3
 
 [[package]]
 name = "bytes"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0dcbc35f504eb6fc275a6d20e4ebcda18cf50d40ba6fabff8c711fa16cb3b16"
+version = "1.2.1"
+source = "registry+https://github.com/rustsec/rustsec"
+checksum = "d71b6127be86fdcfddb610f7182ac57211d4b18a3e9c82eb2d17662f2227ad6a"
 
 [[package]]
 name = "bytes"
@@ -20,13 +20,13 @@ version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "86b6a75fd3048808ef06af5cd79712be8111960adaf89d90250974b38fc3928a"
 dependencies = [
- "bytes 1.2.1",
+ "bytes 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "example"
 version = "0.1.0"
 dependencies = [
- "bytes 0.6.0",
+ "bytes 1.2.1 (registry+https://github.com/rustsec/rustsec)",
  "bytestring",
 ]
