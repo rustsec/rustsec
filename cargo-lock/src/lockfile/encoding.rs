@@ -14,7 +14,7 @@ use crate::{
     metadata,
 };
 use serde::{Deserialize, Serialize, de, ser};
-use std::{collections::HashMap, collections::HashSet, fmt, fmt::Write, str::FromStr};
+use std::{fmt, fmt::Write, str::FromStr};
 
 impl<'de> Deserialize<'de> for Lockfile {
     fn deserialize<D: de::Deserializer<'de>>(
@@ -113,18 +113,6 @@ impl From<&Lockfile> for EncodableLockfile {
         let mut packages = Vec::with_capacity(lockfile.packages.len());
         let mut metadata = lockfile.metadata.clone();
 
-        let mut package_to_registries: HashMap<_, HashSet<&SourceId>> = HashMap::new();
-        for package in &lockfile.packages {
-            if let Some(source) = package.source.as_ref() {
-                if source.is_registry() {
-                    package_to_registries
-                        .entry(&package.name)
-                        .or_default()
-                        .insert(source);
-                }
-            }
-        }
-
         for package in &lockfile.packages {
             let mut raw_pkg = EncodablePackage::from_package(package, lockfile.version);
             let checksum_key = metadata::MetadataKey::for_checksum(&Dependency::from(package));
@@ -145,16 +133,6 @@ impl From<&Lockfile> for EncodableLockfile {
                 // metadata table if present
                 raw_pkg.v2_deps(&lockfile.packages);
                 metadata.remove(&checksum_key);
-
-                // If there's only one registry, Cargo does not encode this information so
-                // it should be omitted from encodable packages
-                for dep in raw_pkg.dependencies.iter_mut() {
-                    if let Some(registries) = package_to_registries.get(&dep.name) {
-                        if registries.len() == 1 {
-                            dep.source = None;
-                        }
-                    }
-                }
             }
 
             packages.push(raw_pkg);
@@ -426,9 +404,26 @@ impl EncodableDependency {
             }
         }
 
-        // TODO(tarcieri): better handle other cases?
         if matching.len() == 1 {
+            // Unambiguous match by name, no need to specify version and source
             self.version = None;
+            self.source = None;
+            return;
+        }
+
+        let Some(version) = self.version.as_ref() else {
+            // Version was already removed. This is unexpected. Maybe this function
+            // was already called before?
+            return;
+        };
+
+        if matching
+            .iter()
+            .filter(|package| &package.version == version)
+            .count()
+            == 1
+        {
+            // Unambiguous match by name and version, no need to specify source
             self.source = None;
         }
     }
