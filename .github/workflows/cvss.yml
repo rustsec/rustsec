@@ -26,7 +26,7 @@ jobs:
           - 1.85.0 # MSRV
           - stable
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -43,7 +43,7 @@ jobs:
           - 1.85.0 # MSRV
           - stable
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
@@ -57,7 +57,7 @@ jobs:
   doc:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
