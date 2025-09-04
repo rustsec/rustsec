@@ -54,7 +54,7 @@ impl Linter {
         let advisory_parts = parts::Parts::parse(s)?;
         let front_matter = advisory_parts
             .front_matter
-            .parse::<toml::Value>()
+            .parse::<toml::Table>()
             .map_err(crate::Error::from_toml)?;
 
         let mut linter = Self {
@@ -77,26 +77,18 @@ impl Linter {
     }
 
     /// Lint the provided TOML value as the toplevel table of an advisory
-    fn lint_advisory(&mut self, advisory: &toml::Value) {
-        if let Some(table) = advisory.as_table() {
-            for (key, value) in table {
-                match key.as_str() {
-                    "advisory" => self.lint_metadata(value),
-                    "versions" => self.lint_versions(value),
-                    "affected" => self.lint_affected(value),
-                    _ => self.errors.push(Error {
-                        kind: ErrorKind::key(key),
-                        section: None,
-                        message: None,
-                    }),
-                }
+    fn lint_advisory(&mut self, advisory: &toml::Table) {
+        for (key, value) in advisory {
+            match key.as_str() {
+                "advisory" => self.lint_metadata(value),
+                "versions" => self.lint_versions(value),
+                "affected" => self.lint_affected(value),
+                _ => self.errors.push(Error {
+                    kind: ErrorKind::key(key),
+                    section: None,
+                    message: None,
+                }),
             }
-        } else {
-            self.errors.push(Error {
-                kind: ErrorKind::Malformed,
-                section: None,
-                message: Some("expected table"),
-            });
         }
     }
 
