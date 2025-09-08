@@ -46,9 +46,6 @@ pub struct Run {
     tool: Tool,
     /// Array of results (findings) from the analysis
     results: Vec<SarifResult>,
-    /// Automation details to distinguish between runs
-    #[serde(skip_serializing_if = "Option::is_none")]
-    automation_details: Option<RunAutomationDetails>,
 }
 
 impl Run {
@@ -91,7 +88,6 @@ impl Run {
                 driver: ToolComponent { rules },
             },
             results,
-            automation_details: None,
         }
     }
 }
@@ -460,14 +456,6 @@ struct Region {
     /// Ending column number (1-based)
     #[serde(skip_serializing_if = "Option::is_none")]
     end_column: Option<u32>,
-}
-
-/// Run automation details for distinguishing multiple runs
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-struct RunAutomationDetails {
-    /// Unique identifier for the run
-    id: String,
 }
 
 #[derive(Debug, Serialize)]
