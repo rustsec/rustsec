@@ -76,6 +76,5 @@ allowed_external_types = [
     "semver::*",
     "serde::*",
     "time::offset_date_time::OffsetDateTime",
-    "toml::ser::Error",
     "url::Url",
 ]
