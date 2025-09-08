@@ -38,7 +38,7 @@ impl SarifLog {
                 rules.push(ReportingDescriptor::from_advisory(&vuln.advisory, true));
             }
 
-            results.push(Result::from_vulnerability(vuln, cargo_lock_path));
+            results.push(SarifResult::from_vulnerability(vuln, cargo_lock_path));
         }
 
         for (warning_kind, warnings) in &report.warnings {
@@ -57,7 +57,7 @@ impl SarifLog {
                     }
                 }
 
-                results.push(Result::from_warning(warning, cargo_lock_path));
+                results.push(SarifResult::from_warning(warning, cargo_lock_path));
             }
         }
 
@@ -87,7 +87,7 @@ pub struct Run {
     /// Tool information for this run
     pub tool: Tool,
     /// Array of results (findings) from the analysis
-    pub results: Vec<Result>,
+    pub results: Vec<SarifResult>,
     /// Automation details to distinguish between runs
     #[serde(skip_serializing_if = "Option::is_none")]
     pub automation_details: Option<RunAutomationDetails>,
@@ -279,7 +279,7 @@ pub struct MultiformatMessageString {
 /// A result (finding/alert)
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Result {
+pub struct SarifResult {
     /// ID of the rule that was violated
     pub rule_id: String,
     /// Message describing the result
@@ -293,7 +293,7 @@ pub struct Result {
     pub partial_fingerprints: HashMap<String, String>,
 }
 
-impl Result {
+impl SarifResult {
     /// Create a Result from a vulnerability
     pub fn from_vulnerability(vuln: &Vulnerability, cargo_lock_path: &str) -> Self {
         let fingerprint = format!(
@@ -301,7 +301,7 @@ impl Result {
             vuln.advisory.id, vuln.package.name, vuln.package.version
         );
 
-        Result {
+        SarifResult {
             rule_id: vuln.advisory.id.to_string(),
             message: Message {
                 text: format!(
@@ -363,7 +363,7 @@ impl Result {
             rule_id, warning.package.name, warning.package.version
         );
 
-        Result {
+        SarifResult {
             rule_id,
             message: Message { text: message_text },
             level: Some("warning".to_string()),
