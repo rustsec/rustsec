@@ -195,7 +195,7 @@ impl ReportingDescriptor {
                 tags,
                 precision: Some(Precision::VeryHigh),
                 problem_severity: if !is_vulnerability {
-                    Some("warning".to_string())
+                    Some(ProblemSeverity::Warning)
                 } else {
                     None
                 },
@@ -237,7 +237,7 @@ impl ReportingDescriptor {
             properties: Some(RuleProperties {
                 tags: &[Tag::Security, Tag::Warning],
                 precision: Some(Precision::High),
-                problem_severity: Some("warning".to_string()),
+                problem_severity: Some(ProblemSeverity::Warning),
                 security_severity: None,
             }),
         }
@@ -257,11 +257,17 @@ struct RuleProperties {
     /// Problem severity for non-security issues
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "problem.severity")]
-    problem_severity: Option<String>,
+    problem_severity: Option<ProblemSeverity>,
     /// CVSS score as a string (0.0-10.0)
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "security-severity")]
     security_severity: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "lowercase")]
+enum ProblemSeverity {
+    Warning,
 }
 
 /// Reporting configuration for a rule
