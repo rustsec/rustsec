@@ -3,14 +3,12 @@
 //! It implements the parts of the [OSV schema](https://ossf.github.io/osv-schema) required for
 //! RustSec.
 
-use tame_index::external::gix;
-
 use super::ranges_for_advisory;
 use crate::advisory::Versions;
 use crate::{
     Advisory,
     advisory::{Affected, Category, Id, Informational, affected::FunctionPath},
-    repository::git::{self, GitModificationTimes, GitPath},
+    repository::git::{GitModificationTimes, GitPath},
 };
 use serde::{Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
@@ -262,7 +260,10 @@ impl OsvAdvisory {
         OsvAdvisory {
             schema_version: None,
             id: metadata.id,
-            modified: git_time_to_rfc3339(mod_times.for_path(path)),
+            modified: mod_times
+                .for_path(path)
+                .format(&time::format_description::well_known::Rfc3339)
+                .expect("well-known format to heap never fails"),
             published: rustsec_date_to_rfc3339(&metadata.date),
             affected: vec![OsvAffected {
                 package: (&metadata.package).into(),
@@ -353,13 +354,6 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     } else {
         OsvReferenceKind::WEB
     }
-}
-
-fn git_time_to_rfc3339(time: gix::date::Time) -> String {
-    git::gix_time_to_time(time)
-        .to_offset(time::UtcOffset::UTC)
-        .format(&time::format_description::well_known::Rfc3339)
-        .expect("well-known format to heap never fails")
 }
 
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {

@@ -8,6 +8,7 @@ use std::{
     path::PathBuf,
 };
 use tame_index::external::gix;
+use time::OffsetDateTime;
 
 use super::GitPath;
 
@@ -159,8 +160,9 @@ impl GitModificationTimes {
 
     /// Looks up the Git modification time for a given file path.
     /// The path must be relative to the root of the repository.
-    pub fn for_path(&self, path: GitPath<'_>) -> Time {
-        *self.mtimes.get(path.path()).unwrap()
+    pub fn for_path(&self, path: GitPath<'_>) -> OffsetDateTime {
+        crate::repository::git::gix_time_to_time(*self.mtimes.get(path.path()).unwrap())
+            .to_offset(time::UtcOffset::UTC)
     }
 
     /// Looks up the Git creation time for a given file path.
