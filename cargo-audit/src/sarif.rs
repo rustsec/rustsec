@@ -406,12 +406,7 @@ impl Location {
                 artifact_location: ArtifactLocation {
                     uri: cargo_lock_path.to_string(),
                 },
-                region: Region {
-                    start_line: 1,
-                    start_column: None,
-                    end_line: None,
-                    end_column: None,
-                },
+                region: Region { start_line: 1 },
             },
         }
     }
@@ -441,15 +436,6 @@ struct ArtifactLocation {
 struct Region {
     /// Starting line number (1-based)
     start_line: u32,
-    /// Starting column number (1-based)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    start_column: Option<u32>,
-    /// Ending line number (1-based)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    end_line: Option<u32>,
-    /// Ending column number (1-based)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    end_column: Option<u32>,
 }
 
 #[derive(Debug, Serialize)]
