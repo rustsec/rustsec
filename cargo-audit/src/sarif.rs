@@ -76,11 +76,10 @@ impl Run {
                 };
 
                 if seen_rules.insert(rule_id) {
-                    if let Some(advisory) = &warning.advisory {
-                        rules.push(ReportingDescriptor::from_advisory(advisory, false));
-                    } else {
-                        rules.push(ReportingDescriptor::from_warning_kind(*warning_kind));
-                    }
+                    rules.push(match &warning.advisory {
+                        Some(advisory) => ReportingDescriptor::from_advisory(advisory, false),
+                        None => ReportingDescriptor::from_warning_kind(*warning_kind),
+                    });
                 }
 
                 results.push(SarifResult::from_warning(warning, cargo_lock_path));
