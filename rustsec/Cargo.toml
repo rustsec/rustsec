@@ -68,7 +68,6 @@ allowed_external_types = [
     "cargo_lock::*",
     "cvss::*",
     "fs_err",
-    "gix_date::Time",
     "platforms",
     "platforms::*",
     "reqwest::async_impl::client::ClientBuilder",
