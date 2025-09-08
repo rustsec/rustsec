@@ -7,19 +7,14 @@
 //! to report their findings. This implementation follows SARIF 2.1.0 specification
 //! and is compatible with GitHub's code scanning requirements.
 
-use rustsec::{Report, Vulnerability, Warning, WarningKind, advisory};
-use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
+use rustsec::{Report, Vulnerability, Warning, WarningKind, advisory};
+use serde::{Serialize, Serializer, ser::SerializeStruct};
+
 /// SARIF log root object
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
 pub struct SarifLog {
-    /// URI of the SARIF schema
-    #[serde(rename = "$schema")]
-    pub schema: String,
-    /// SARIF format version
-    pub version: String,
     /// Array of analysis runs
     pub runs: Vec<Run>,
 }
@@ -62,8 +57,6 @@ impl SarifLog {
         }
 
         SarifLog {
-            schema: "https://json.schemastore.org/sarif-2.1.0.json".to_string(),
-            version: "2.1.0".to_string(),
             runs: vec![Run {
                 tool: Tool {
                     driver: ToolComponent {
@@ -77,6 +70,17 @@ impl SarifLog {
                 automation_details: None,
             }],
         }
+    }
+}
+
+impl Serialize for SarifLog {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut state =
+            Serializer::serialize_struct(serializer, "SarifLog", 3)?;
+        state.serialize_field("$schema", "https://json.schemastore.org/sarif-2.1.0.json")?;
+        state.serialize_field("version", "2.1.0")?;
+        state.serialize_field("runs", &self.runs)?;
+        state.end()
     }
 }
 
