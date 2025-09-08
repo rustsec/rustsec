@@ -125,23 +125,19 @@ struct ReportingDescriptor {
     /// Unique identifier for the rule
     id: String,
     /// Human-readable name of the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<String>,
+    name: String,
     /// Brief description of the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    short_description: Option<MultiformatMessageString>,
+    short_description: MultiformatMessageString,
     /// Detailed description of the rule
     #[serde(skip_serializing_if = "Option::is_none")]
     full_description: Option<MultiformatMessageString>,
     /// Default severity and enablement for the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    default_configuration: Option<ReportingConfiguration>,
+    default_configuration: ReportingConfiguration,
     /// Help text or URI for the rule
     #[serde(skip_serializing_if = "Option::is_none")]
     help: Option<MultiformatMessageString>,
     /// Additional properties including tags and severity scores
-    #[serde(skip_serializing_if = "Option::is_none")]
-    properties: Option<RuleProperties>,
+    properties: RuleProperties,
 }
 
 impl ReportingDescriptor {
@@ -160,11 +156,11 @@ impl ReportingDescriptor {
 
         ReportingDescriptor {
             id: metadata.id.to_string(),
-            name: Some(metadata.id.to_string()),
-            short_description: Some(MultiformatMessageString {
+            name: metadata.id.to_string(),
+            short_description: MultiformatMessageString {
                 text: metadata.title.clone(),
                 markdown: None,
-            }),
+            },
             full_description: if metadata.description.is_empty() {
                 None
             } else {
@@ -173,12 +169,12 @@ impl ReportingDescriptor {
                     markdown: None,
                 })
             },
-            default_configuration: Some(ReportingConfiguration {
+            default_configuration: ReportingConfiguration {
                 level: match is_vulnerability {
                     true => ReportingLevel::Error,
                     false => ReportingLevel::Warning,
                 },
-            }),
+            },
             help: metadata.url.as_ref().map(|url| MultiformatMessageString {
                 text: format!("For more information, see: {url}"),
                 markdown: Some(format!(
@@ -186,16 +182,16 @@ impl ReportingDescriptor {
                     metadata.id
                 )),
             }),
-            properties: Some(RuleProperties {
+            properties: RuleProperties {
                 tags,
-                precision: Some(Precision::VeryHigh),
+                precision: Precision::VeryHigh,
                 problem_severity: if !is_vulnerability {
                     Some(ProblemSeverity::Warning)
                 } else {
                     None
                 },
                 security_severity,
-            }),
+            },
         }
     }
 
@@ -219,22 +215,22 @@ impl ReportingDescriptor {
 
         ReportingDescriptor {
             id: name.to_string(),
-            name: Some(name.to_string()),
-            short_description: Some(MultiformatMessageString {
+            name: name.to_string(),
+            short_description: MultiformatMessageString {
                 text: description.to_string(),
                 markdown: None,
-            }),
+            },
             full_description: None,
-            default_configuration: Some(ReportingConfiguration {
+            default_configuration: ReportingConfiguration {
                 level: ReportingLevel::Warning,
-            }),
+            },
             help: None,
-            properties: Some(RuleProperties {
+            properties: RuleProperties {
                 tags: &[Tag::Security, Tag::Warning],
-                precision: Some(Precision::High),
+                precision: Precision::High,
                 problem_severity: Some(ProblemSeverity::Warning),
                 security_severity: None,
-            }),
+            },
         }
     }
 }
@@ -247,8 +243,7 @@ struct RuleProperties {
     #[serde(skip_serializing_if = "<[Tag]>::is_empty")]
     tags: &'static [Tag],
     /// Precision of the rule (e.g., "very-high", "high")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    precision: Option<Precision>,
+    precision: Precision,
     /// Problem severity for non-security issues
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "problem.severity")]
@@ -300,8 +295,7 @@ pub struct SarifResult {
     /// Message describing the result
     message: Message,
     /// Severity level of the result
-    #[serde(skip_serializing_if = "Option::is_none")]
-    level: Option<ResultLevel>,
+    level: ResultLevel,
     /// Locations where the issue was detected
     locations: Vec<Location>,
     /// Fingerprints for result matching
@@ -324,7 +318,7 @@ impl SarifResult {
                     vuln.package.name, vuln.package.version, vuln.advisory.id, vuln.advisory.title
                 ),
             },
-            level: Some(ResultLevel::Error),
+            level: ResultLevel::Error,
             locations: vec![Location::new(cargo_lock_path)],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
@@ -369,7 +363,7 @@ impl SarifResult {
         SarifResult {
             rule_id,
             message: Message { text: message_text },
-            level: Some(ResultLevel::Warning),
+            level: ResultLevel::Warning,
             locations: vec![Location::new(cargo_lock_path)],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
