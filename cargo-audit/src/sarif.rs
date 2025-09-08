@@ -192,7 +192,7 @@ impl ReportingDescriptor {
             }),
             properties: Some(RuleProperties {
                 tags,
-                precision: Some("very-high".to_string()),
+                precision: Some(Precision::VeryHigh),
                 problem_severity: if !is_vulnerability {
                     Some("warning".to_string())
                 } else {
@@ -235,7 +235,7 @@ impl ReportingDescriptor {
             help: None,
             properties: Some(RuleProperties {
                 tags: &[Tag::Security, Tag::Warning],
-                precision: Some("high".to_string()),
+                precision: Some(Precision::High),
                 problem_severity: Some("warning".to_string()),
                 security_severity: None,
             }),
@@ -252,7 +252,7 @@ struct RuleProperties {
     tags: &'static [Tag],
     /// Precision of the rule (e.g., "very-high", "high")
     #[serde(skip_serializing_if = "Option::is_none")]
-    precision: Option<String>,
+    precision: Option<Precision>,
     /// Problem severity for non-security issues
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "problem.severity")]
@@ -462,4 +462,11 @@ enum Tag {
     Security,
     Vulnerability,
     Warning,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "kebab-case")]
+enum Precision {
+    High,
+    VeryHigh,
 }
