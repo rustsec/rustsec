@@ -16,7 +16,7 @@ use serde::{Serialize, Serializer, ser::SerializeStruct};
 #[derive(Debug)]
 pub struct SarifLog {
     /// Array of analysis runs
-    pub runs: Vec<Run>,
+    runs: Vec<Run>,
 }
 
 impl SarifLog {
@@ -43,12 +43,12 @@ impl Serialize for SarifLog {
 #[serde(rename_all = "camelCase")]
 pub struct Run {
     /// Tool information for this run
-    pub tool: Tool,
+    tool: Tool,
     /// Array of results (findings) from the analysis
-    pub results: Vec<SarifResult>,
+    results: Vec<SarifResult>,
     /// Automation details to distinguish between runs
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub automation_details: Option<RunAutomationDetails>,
+    automation_details: Option<RunAutomationDetails>,
 }
 
 impl Run {
@@ -105,56 +105,56 @@ impl Run {
 /// Tool information
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Tool {
+struct Tool {
     /// The analysis tool that was run
-    pub driver: ToolComponent,
+    driver: ToolComponent,
 }
 
 /// Tool component (driver) information
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ToolComponent {
+struct ToolComponent {
     /// Name of the tool component
-    pub name: String,
+    name: String,
     /// Tool version string
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
+    version: Option<String>,
     /// Semantic version of the tool
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub semantic_version: Option<String>,
+    semantic_version: Option<String>,
     /// Rules defined by this tool
-    pub rules: Vec<ReportingDescriptor>,
+    rules: Vec<ReportingDescriptor>,
 }
 
 /// Rule/reporting descriptor
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ReportingDescriptor {
+struct ReportingDescriptor {
     /// Unique identifier for the rule
-    pub id: String,
+    id: String,
     /// Human-readable name of the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
+    name: Option<String>,
     /// Brief description of the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub short_description: Option<MultiformatMessageString>,
+    short_description: Option<MultiformatMessageString>,
     /// Detailed description of the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub full_description: Option<MultiformatMessageString>,
+    full_description: Option<MultiformatMessageString>,
     /// Default severity and enablement for the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_configuration: Option<ReportingConfiguration>,
+    default_configuration: Option<ReportingConfiguration>,
     /// Help text or URI for the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub help: Option<MultiformatMessageString>,
+    help: Option<MultiformatMessageString>,
     /// Additional properties including tags and severity scores
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub properties: Option<RuleProperties>,
+    properties: Option<RuleProperties>,
 }
 
 impl ReportingDescriptor {
     /// Create a ReportingDescriptor from an advisory
-    pub fn from_advisory(metadata: &advisory::Metadata, is_vulnerability: bool) -> Self {
+    fn from_advisory(metadata: &advisory::Metadata, is_vulnerability: bool) -> Self {
         let tags = if is_vulnerability {
             vec!["security".to_string(), "vulnerability".to_string()]
         } else {
@@ -207,7 +207,7 @@ impl ReportingDescriptor {
     }
 
     /// Create a ReportingDescriptor from a warning kind
-    pub fn from_warning_kind(kind: WarningKind) -> Self {
+    fn from_warning_kind(kind: WarningKind) -> Self {
         let (name, description) = match kind {
             WarningKind::Unmaintained => (
                 "unmaintained",
@@ -249,29 +249,29 @@ impl ReportingDescriptor {
 /// Rule properties
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RuleProperties {
+struct RuleProperties {
     /// Tags associated with the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags: Option<Vec<String>>,
+    tags: Option<Vec<String>>,
     /// Precision of the rule (e.g., "very-high", "high")
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub precision: Option<String>,
+    precision: Option<String>,
     /// Problem severity for non-security issues
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "problem.severity")]
-    pub problem_severity: Option<String>,
+    problem_severity: Option<String>,
     /// CVSS score as a string (0.0-10.0)
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "security-severity")]
-    pub security_severity: Option<String>,
+    security_severity: Option<String>,
 }
 
 /// Reporting configuration for a rule
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ReportingConfiguration {
+struct ReportingConfiguration {
     /// Default level for the rule ("error", "warning", "note")
-    pub level: String,
+    level: String,
 }
 
 /// Message with optional markdown
@@ -279,10 +279,10 @@ pub struct ReportingConfiguration {
 #[serde(rename_all = "camelCase")]
 pub struct MultiformatMessageString {
     /// Plain text message
-    pub text: String,
+    text: String,
     /// Optional markdown-formatted message
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub markdown: Option<String>,
+    markdown: Option<String>,
 }
 
 /// A result (finding/alert)
@@ -290,21 +290,21 @@ pub struct MultiformatMessageString {
 #[serde(rename_all = "camelCase")]
 pub struct SarifResult {
     /// ID of the rule that was violated
-    pub rule_id: String,
+    rule_id: String,
     /// Message describing the result
-    pub message: Message,
+    message: Message,
     /// Severity level of the result
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub level: Option<String>,
+    level: Option<String>,
     /// Locations where the issue was detected
-    pub locations: Vec<Location>,
+    locations: Vec<Location>,
     /// Fingerprints for result matching
-    pub partial_fingerprints: HashMap<String, String>,
+    partial_fingerprints: HashMap<String, String>,
 }
 
 impl SarifResult {
     /// Create a Result from a vulnerability
-    pub fn from_vulnerability(vuln: &Vulnerability, cargo_lock_path: &str) -> Self {
+    fn from_vulnerability(vuln: &Vulnerability, cargo_lock_path: &str) -> Self {
         let fingerprint = format!(
             "{}:{}:{}",
             vuln.advisory.id, vuln.package.name, vuln.package.version
@@ -343,7 +343,7 @@ impl SarifResult {
     }
 
     /// Create a Result from a warning
-    pub fn from_warning(warning: &Warning, cargo_lock_path: &str) -> Self {
+    fn from_warning(warning: &Warning, cargo_lock_path: &str) -> Self {
         let rule_id = if let Some(advisory) = &warning.advisory {
             advisory.id.to_string()
         } else {
@@ -403,58 +403,58 @@ impl SarifResult {
 /// Simple message
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Message {
+struct Message {
     /// The message text
-    pub text: String,
+    text: String,
 }
 
 /// Location of a finding
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Location {
+struct Location {
     /// Physical location of the finding
-    pub physical_location: PhysicalLocation,
+    physical_location: PhysicalLocation,
 }
 
 /// Physical location in a file
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PhysicalLocation {
+struct PhysicalLocation {
     /// The artifact (file) containing the issue
-    pub artifact_location: ArtifactLocation,
+    artifact_location: ArtifactLocation,
     /// Region within the artifact
-    pub region: Region,
+    region: Region,
 }
 
 /// Artifact (file) location
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ArtifactLocation {
+struct ArtifactLocation {
     /// URI of the artifact
-    pub uri: String,
+    uri: String,
 }
 
 /// Region within a file
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Region {
+struct Region {
     /// Starting line number (1-based)
-    pub start_line: u32,
+    start_line: u32,
     /// Starting column number (1-based)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub start_column: Option<u32>,
+    start_column: Option<u32>,
     /// Ending line number (1-based)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub end_line: Option<u32>,
+    end_line: Option<u32>,
     /// Ending column number (1-based)
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub end_column: Option<u32>,
+    end_column: Option<u32>,
 }
 
 /// Run automation details for distinguishing multiple runs
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RunAutomationDetails {
+struct RunAutomationDetails {
     /// Unique identifier for the run
-    pub id: String,
+    id: String,
 }
