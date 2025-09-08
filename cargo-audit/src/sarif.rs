@@ -72,7 +72,7 @@ impl Run {
                 let rule_id = if let Some(advisory) = &warning.advisory {
                     advisory.id.to_string()
                 } else {
-                    format!("{:?}", warning_kind).to_lowercase()
+                    format!("{warning_kind:?}").to_lowercase()
                 };
 
                 if seen_rules.insert(rule_id) {
@@ -184,10 +184,10 @@ impl ReportingDescriptor {
                 },
             }),
             help: metadata.url.as_ref().map(|url| MultiformatMessageString {
-                text: format!("For more information, see: {}", url),
+                text: format!("For more information, see: {url}"),
                 markdown: Some(format!(
-                    "For more information, see: [{}]({})",
-                    metadata.id, url
+                    "For more information, see: [{}]({url})",
+                    metadata.id
                 )),
             }),
             properties: Some(RuleProperties {
@@ -366,8 +366,8 @@ impl SarifResult {
         };
 
         let fingerprint = format!(
-            "{}:{}:{}",
-            rule_id, warning.package.name, warning.package.version
+            "{rule_id}:{}:{}",
+            warning.package.name, warning.package.version
         );
 
         SarifResult {
