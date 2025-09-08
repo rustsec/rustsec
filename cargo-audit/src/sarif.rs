@@ -8,11 +8,11 @@
 //! and is compatible with GitHub's code scanning requirements.
 
 use rustsec::{Report, Vulnerability, Warning, WarningKind, advisory};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
 /// SARIF log root object
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SarifLog {
     /// URI of the SARIF schema
@@ -81,7 +81,7 @@ impl SarifLog {
 }
 
 /// A run represents a single invocation of an analysis tool
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Run {
     /// Tool information for this run
@@ -94,7 +94,7 @@ pub struct Run {
 }
 
 /// Tool information
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Tool {
     /// The analysis tool that was run
@@ -102,7 +102,7 @@ pub struct Tool {
 }
 
 /// Tool component (driver) information
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ToolComponent {
     /// Name of the tool component
@@ -118,7 +118,7 @@ pub struct ToolComponent {
 }
 
 /// Rule/reporting descriptor
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReportingDescriptor {
     /// Unique identifier for the rule
@@ -238,7 +238,7 @@ impl ReportingDescriptor {
 }
 
 /// Rule properties
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RuleProperties {
     /// Tags associated with the rule
@@ -258,7 +258,7 @@ pub struct RuleProperties {
 }
 
 /// Reporting configuration for a rule
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReportingConfiguration {
     /// Default level for the rule ("error", "warning", "note")
@@ -266,7 +266,7 @@ pub struct ReportingConfiguration {
 }
 
 /// Message with optional markdown
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MultiformatMessageString {
     /// Plain text message
@@ -277,7 +277,7 @@ pub struct MultiformatMessageString {
 }
 
 /// A result (finding/alert)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Result {
     /// ID of the rule that was violated
@@ -392,7 +392,7 @@ impl Result {
 }
 
 /// Simple message
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Message {
     /// The message text
@@ -400,7 +400,7 @@ pub struct Message {
 }
 
 /// Location of a finding
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Location {
     /// Physical location of the finding
@@ -408,7 +408,7 @@ pub struct Location {
 }
 
 /// Physical location in a file
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PhysicalLocation {
     /// The artifact (file) containing the issue
@@ -418,7 +418,7 @@ pub struct PhysicalLocation {
 }
 
 /// Artifact (file) location
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ArtifactLocation {
     /// URI of the artifact
@@ -426,7 +426,7 @@ pub struct ArtifactLocation {
 }
 
 /// Region within a file
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Region {
     /// Starting line number (1-based)
@@ -443,7 +443,7 @@ pub struct Region {
 }
 
 /// Run automation details for distinguishing multiple runs
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RunAutomationDetails {
     /// Unique identifier for the run
