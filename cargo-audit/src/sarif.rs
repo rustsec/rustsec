@@ -163,8 +163,6 @@ impl ReportingDescriptor {
             .as_ref()
             .map(|cvss| format!("{:.1}", cvss.score().value()));
 
-        let default_level = if is_vulnerability { "error" } else { "warning" };
-
         ReportingDescriptor {
             id: metadata.id.to_string(),
             name: Some(metadata.id.to_string()),
@@ -181,7 +179,10 @@ impl ReportingDescriptor {
                 })
             },
             default_configuration: Some(ReportingConfiguration {
-                level: default_level.to_string(),
+                level: match is_vulnerability {
+                    true => ReportingLevel::Error,
+                    false => ReportingLevel::Warning,
+                },
             }),
             help: metadata.url.as_ref().map(|url| MultiformatMessageString {
                 text: format!("For more information, see: {}", url),
@@ -230,7 +231,7 @@ impl ReportingDescriptor {
             }),
             full_description: None,
             default_configuration: Some(ReportingConfiguration {
-                level: "warning".to_string(),
+                level: ReportingLevel::Warning,
             }),
             help: None,
             properties: Some(RuleProperties {
@@ -268,7 +269,14 @@ struct RuleProperties {
 #[serde(rename_all = "camelCase")]
 struct ReportingConfiguration {
     /// Default level for the rule ("error", "warning", "note")
-    level: String,
+    level: ReportingLevel,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+enum ReportingLevel {
+    Error,
+    Warning,
 }
 
 /// Message with optional markdown
