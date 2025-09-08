@@ -306,7 +306,7 @@ pub struct SarifResult {
     message: Message,
     /// Severity level of the result
     #[serde(skip_serializing_if = "Option::is_none")]
-    level: Option<String>,
+    level: Option<ResultLevel>,
     /// Locations where the issue was detected
     locations: Vec<Location>,
     /// Fingerprints for result matching
@@ -329,7 +329,7 @@ impl SarifResult {
                     vuln.package.name, vuln.package.version, vuln.advisory.id, vuln.advisory.title
                 ),
             },
-            level: Some("error".to_string()),
+            level: Some(ResultLevel::Error),
             locations: vec![Location {
                 physical_location: PhysicalLocation {
                     artifact_location: ArtifactLocation {
@@ -386,7 +386,7 @@ impl SarifResult {
         SarifResult {
             rule_id,
             message: Message { text: message_text },
-            level: Some("warning".to_string()),
+            level: Some(ResultLevel::Warning),
             locations: vec![Location {
                 physical_location: PhysicalLocation {
                     artifact_location: ArtifactLocation {
@@ -409,6 +409,13 @@ impl SarifResult {
             },
         }
     }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+enum ResultLevel {
+    Error,
+    Warning,
 }
 
 /// Simple message
