@@ -330,19 +330,7 @@ impl SarifResult {
                 ),
             },
             level: Some(ResultLevel::Error),
-            locations: vec![Location {
-                physical_location: PhysicalLocation {
-                    artifact_location: ArtifactLocation {
-                        uri: cargo_lock_path.to_string(),
-                    },
-                    region: Region {
-                        start_line: 1,
-                        start_column: None,
-                        end_line: None,
-                        end_column: None,
-                    },
-                },
-            }],
+            locations: vec![Location::new(cargo_lock_path)],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
                 // Use a custom fingerprint key instead of primaryLocationLineHash
@@ -387,19 +375,7 @@ impl SarifResult {
             rule_id,
             message: Message { text: message_text },
             level: Some(ResultLevel::Warning),
-            locations: vec![Location {
-                physical_location: PhysicalLocation {
-                    artifact_location: ArtifactLocation {
-                        uri: cargo_lock_path.to_string(),
-                    },
-                    region: Region {
-                        start_line: 1,
-                        start_column: None,
-                        end_line: None,
-                        end_column: None,
-                    },
-                },
-            }],
+            locations: vec![Location::new(cargo_lock_path)],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
                 // Use a custom fingerprint key instead of primaryLocationLineHash
@@ -432,6 +408,24 @@ struct Message {
 struct Location {
     /// Physical location of the finding
     physical_location: PhysicalLocation,
+}
+
+impl Location {
+    fn new(cargo_lock_path: &str) -> Self {
+        Self {
+            physical_location: PhysicalLocation {
+                artifact_location: ArtifactLocation {
+                    uri: cargo_lock_path.to_string(),
+                },
+                region: Region {
+                    start_line: 1,
+                    start_column: None,
+                    end_line: None,
+                    end_column: None,
+                },
+            },
+        }
+    }
 }
 
 /// Physical location in a file
