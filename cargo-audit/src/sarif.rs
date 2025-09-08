@@ -153,9 +153,9 @@ impl ReportingDescriptor {
     /// Create a ReportingDescriptor from an advisory
     fn from_advisory(metadata: &advisory::Metadata, is_vulnerability: bool) -> Self {
         let tags = if is_vulnerability {
-            vec!["security".to_string(), "vulnerability".to_string()]
+            &[Tag::Security, Tag::Vulnerability]
         } else {
-            vec!["security".to_string(), "warning".to_string()]
+            &[Tag::Security, Tag::Warning]
         };
 
         let security_severity = metadata
@@ -191,7 +191,7 @@ impl ReportingDescriptor {
                 )),
             }),
             properties: Some(RuleProperties {
-                tags: Some(tags),
+                tags,
                 precision: Some("very-high".to_string()),
                 problem_severity: if !is_vulnerability {
                     Some("warning".to_string())
@@ -234,7 +234,7 @@ impl ReportingDescriptor {
             }),
             help: None,
             properties: Some(RuleProperties {
-                tags: Some(vec!["security".to_string(), "warning".to_string()]),
+                tags: &[Tag::Security, Tag::Warning],
                 precision: Some("high".to_string()),
                 problem_severity: Some("warning".to_string()),
                 security_severity: None,
@@ -248,8 +248,8 @@ impl ReportingDescriptor {
 #[serde(rename_all = "camelCase")]
 struct RuleProperties {
     /// Tags associated with the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "<[Tag]>::is_empty")]
+    tags: &'static [Tag],
     /// Precision of the rule (e.g., "very-high", "high")
     #[serde(skip_serializing_if = "Option::is_none")]
     precision: Option<String>,
@@ -454,4 +454,12 @@ struct Region {
 struct RunAutomationDetails {
     /// Unique identifier for the run
     id: String,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+enum Tag {
+    Security,
+    Vulnerability,
+    Warning,
 }
