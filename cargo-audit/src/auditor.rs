@@ -118,7 +118,7 @@ impl Auditor {
                     status_ok!("Updating", "crates.io index");
                 }
 
-                let mut result = registry::CachedIndex::fetch(None, Duration::from_secs(0));
+                let mut result = registry::CachedIndex::fetch(Duration::from_secs(0));
 
                 // If the directory is locked, print a message and wait for it to become unlocked.
                 // If we don't print the message, `cargo audit` would just hang with no explanation.
@@ -129,7 +129,7 @@ impl Auditor {
                             advisory_db_path.display(),
                             DEFAULT_LOCK_TIMEOUT.as_secs()
                         );
-                        result = registry::CachedIndex::fetch(None, DEFAULT_LOCK_TIMEOUT);
+                        result = registry::CachedIndex::fetch(DEFAULT_LOCK_TIMEOUT);
                     }
                 }
 
