@@ -2,10 +2,10 @@
 
 use std::path::{Path, PathBuf};
 
+use fs_err as fs;
 use rustsec::{
     Advisory, Collection,
     advisory::Informational,
-    fs,
     osv::OsvAdvisory,
     repository::git::{GitModificationTimes, GitPath, Repository},
 };

@@ -2976,6 +2976,7 @@ dependencies = [
  "chrono",
  "clap",
  "comrak",
+ "fs-err 3.1.1",
  "gix",
  "once_cell",
  "rust-embed",
