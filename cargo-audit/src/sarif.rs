@@ -89,12 +89,7 @@ impl Run {
 
         Self {
             tool: Tool {
-                driver: ToolComponent {
-                    name: "cargo-audit".to_string(),
-                    version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                    semantic_version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                    rules,
-                },
+                driver: ToolComponent { rules },
             },
             results,
             automation_details: None,
@@ -111,19 +106,21 @@ struct Tool {
 }
 
 /// Tool component (driver) information
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
 struct ToolComponent {
-    /// Name of the tool component
-    name: String,
-    /// Tool version string
-    #[serde(skip_serializing_if = "Option::is_none")]
-    version: Option<String>,
-    /// Semantic version of the tool
-    #[serde(skip_serializing_if = "Option::is_none")]
-    semantic_version: Option<String>,
     /// Rules defined by this tool
     rules: Vec<ReportingDescriptor>,
+}
+
+impl Serialize for ToolComponent {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut state = serializer.serialize_struct("ToolComponent", 4)?;
+        state.serialize_field("name", "cargo-audit")?;
+        state.serialize_field("version", env!("CARGO_PKG_VERSION"))?;
+        state.serialize_field("semanticVersion", env!("CARGO_PKG_VERSION"))?;
+        state.serialize_field("rules", &self.rules)?;
+        state.end()
+    }
 }
 
 /// Rule/reporting descriptor
