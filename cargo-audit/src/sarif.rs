@@ -22,6 +22,37 @@ pub struct SarifLog {
 impl SarifLog {
     /// Convert a cargo-audit report to SARIF format
     pub fn from_report(report: &Report, cargo_lock_path: &str) -> Self {
+        Self {
+            runs: vec![Run::from_report(report, cargo_lock_path)],
+        }
+    }
+}
+
+impl Serialize for SarifLog {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut state = Serializer::serialize_struct(serializer, "SarifLog", 3)?;
+        state.serialize_field("$schema", "https://json.schemastore.org/sarif-2.1.0.json")?;
+        state.serialize_field("version", "2.1.0")?;
+        state.serialize_field("runs", &self.runs)?;
+        state.end()
+    }
+}
+
+/// A run represents a single invocation of an analysis tool
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Run {
+    /// Tool information for this run
+    pub tool: Tool,
+    /// Array of results (findings) from the analysis
+    pub results: Vec<SarifResult>,
+    /// Automation details to distinguish between runs
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub automation_details: Option<RunAutomationDetails>,
+}
+
+impl Run {
+    fn from_report(report: &Report, cargo_lock_path: &str) -> Self {
         let mut rules = Vec::new();
         let mut seen_rules = HashSet::new();
         let mut results = Vec::new();
@@ -56,45 +87,19 @@ impl SarifLog {
             }
         }
 
-        SarifLog {
-            runs: vec![Run {
-                tool: Tool {
-                    driver: ToolComponent {
-                        name: "cargo-audit".to_string(),
-                        version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                        semantic_version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                        rules,
-                    },
+        Self {
+            tool: Tool {
+                driver: ToolComponent {
+                    name: "cargo-audit".to_string(),
+                    version: Some(env!("CARGO_PKG_VERSION").to_string()),
+                    semantic_version: Some(env!("CARGO_PKG_VERSION").to_string()),
+                    rules,
                 },
-                results,
-                automation_details: None,
-            }],
+            },
+            results,
+            automation_details: None,
         }
     }
-}
-
-impl Serialize for SarifLog {
-    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
-        let mut state =
-            Serializer::serialize_struct(serializer, "SarifLog", 3)?;
-        state.serialize_field("$schema", "https://json.schemastore.org/sarif-2.1.0.json")?;
-        state.serialize_field("version", "2.1.0")?;
-        state.serialize_field("runs", &self.runs)?;
-        state.end()
-    }
-}
-
-/// A run represents a single invocation of an analysis tool
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Run {
-    /// Tool information for this run
-    pub tool: Tool,
-    /// Array of results (findings) from the analysis
-    pub results: Vec<SarifResult>,
-    /// Automation details to distinguish between runs
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub automation_details: Option<RunAutomationDetails>,
 }
 
 /// Tool information
