@@ -70,7 +70,6 @@ allowed_external_types = [
     "fs_err",
     "platforms",
     "platforms::*",
-    "reqwest::async_impl::client::ClientBuilder",
     "semver",
     "semver::*",
     "serde::*",

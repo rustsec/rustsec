@@ -27,7 +27,7 @@ mod cached_index;
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 pub mod registry {
     //! Support for interacting with the local crates.io registry index
-    pub use super::cached_index::{CachedIndex, ClientBuilder};
+    pub use super::cached_index::CachedIndex;
 }
 
 pub use cargo_lock::{self, Lockfile, SourceId, package};

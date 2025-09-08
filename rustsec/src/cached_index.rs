@@ -72,8 +72,8 @@ impl CachedIndex {
     ///
     /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
-    pub fn fetch(client: Option<ClientBuilder>, lock_timeout: Duration) -> Result<Self, Error> {
-        Self::fetch_inner(client, lock_timeout).map_err(Error::from_tame)
+    pub fn fetch(lock_timeout: Duration) -> Result<Self, Error> {
+        Self::fetch_inner(None, lock_timeout).map_err(Error::from_tame)
     }
 
     fn fetch_inner(
