@@ -9,7 +9,12 @@
 
 use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize, de, ser};
-use std::{fmt, str::FromStr};
+use std::{
+    cmp::{Ord, Ordering},
+    fmt,
+    hash::Hash,
+    str::FromStr,
+};
 use url::Url;
 
 #[cfg(any(unix, windows))]
@@ -21,7 +26,7 @@ pub const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index"
 pub const CRATES_IO_SPARSE_INDEX: &str = "sparse+https://index.crates.io/";
 
 /// Unique identifier for a source of packages.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Debug)]
 pub struct SourceId {
     /// The source URL.
     url: Url,
@@ -45,36 +50,6 @@ impl SourceId {
             precise: None,
             name: None,
         })
-    }
-
-    /// SourceIds with git references used in package.source fields are subtly
-    /// different than those in parenthesized source URLs that appear in disambiguated
-    /// entries of package.dependencies: the former have the form ?rev=ABBREV#FULLHASH
-    /// whereas the latter have the form ?rev=FULLHASH. This method changes the former
-    /// into the latter, and is used in `impl From<&Package> for Dependency`.
-    pub fn normalize_git_source_for_dependency(&self) -> Self {
-        if let SourceKind::Git(GitReference::Rev(_abbrev)) = &self.kind {
-            if let Some(full) = &self.precise {
-                let mut url = self.url.clone();
-                url.set_fragment(None);
-                return Self {
-                    kind: SourceKind::Git(GitReference::Rev(full.clone())),
-                    precise: None,
-                    url,
-                    name: self.name.clone(),
-                };
-            }
-        } else if let SourceKind::Git(reference) = &self.kind {
-            if self.precise.is_some() {
-                return Self {
-                    kind: SourceKind::Git(reference.clone()),
-                    precise: None,
-                    url: self.url.clone(),
-                    name: self.name.clone(),
-                };
-            }
-        }
-        self.clone()
     }
 
     /// Parses a source URL and returns the corresponding ID.
@@ -250,6 +225,67 @@ impl SourceId {
         SourceIdAsUrl { id: self, encoded }
     }
 }
+
+/// We've seen a number of subtle ways that dependency references (in `package.dependencies`)
+/// can differ from the corresponding `package.source` field for git dependencies.
+/// This `Ord` impl (which is used when storing `SourceId`s in a `BTreeMap`) tries to
+/// account for these differences and treat them as equal.
+///
+/// The `package.source` field for a git dependency includes both the `tag`, `branch` or `rev`
+/// (in a query string) used to fetch the dependency, as well as the full commit hash (in the
+/// fragment), but the `package.dependencies` entry does not include the full commit hash.
+///
+/// Additionally, when the `rev` is specified for a dependency using a longer hash, the `rev`
+/// used in the `package.source` may be an abbreviated hash.
+impl Ord for SourceId {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.url.cmp(&other.url) {
+            Ordering::Equal => {}
+            non_eq => return non_eq,
+        }
+
+        match self.name.cmp(&other.name) {
+            Ordering::Equal => {}
+            non_eq => return non_eq,
+        }
+
+        // Some special handling for git sources follows...
+        match (&self.kind, &other.kind) {
+            (SourceKind::Git(s), SourceKind::Git(o)) => (s, o),
+            (a, b) => return a.cmp(b),
+        };
+
+        if let (Some(s), Some(o)) = (&self.precise, &other.precise) {
+            // If the git hash is the same, we consider the sources equal
+            return s.cmp(o);
+        }
+
+        Ordering::Equal
+    }
+}
+
+impl PartialOrd for SourceId {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Hash for SourceId {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.url.hash(state);
+        self.kind.hash(state);
+        self.precise.hash(state);
+        self.name.hash(state);
+    }
+}
+
+impl PartialEq for SourceId {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == Ordering::Equal
+    }
+}
+
+impl Eq for SourceId {}
 
 impl Serialize for SourceId {
     fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
