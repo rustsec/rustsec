@@ -229,4 +229,10 @@ mod tests {
         let lockfile = Lockfile::load("tests/examples/Cargo.lock.git-ref").unwrap();
         Tree::new(&lockfile).unwrap();
     }
+
+    #[test]
+    fn load_same_git() {
+        let lockfile = Lockfile::load("tests/examples/Cargo.lock.same-git").unwrap();
+        Tree::new(&lockfile).unwrap();
+    }
 }
