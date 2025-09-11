@@ -9,7 +9,7 @@
 
 use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize, de, ser};
-use std::{fmt, str::FromStr};
+use std::{cmp::Ordering, fmt, hash::Hash, str::FromStr};
 use url::Url;
 
 #[cfg(any(unix, windows))]
@@ -105,41 +105,6 @@ impl SourceId {
             url,
             name: None,
         })
-    }
-
-    /// SourceIds with git references used in package.source fields are subtly
-    /// different than those in parenthesized source URLs that appear in disambiguated
-    /// entries of package.dependencies: the former have the form ?rev=ABBREV#FULLHASH
-    /// whereas the latter have the form ?rev=FULLHASH. This method changes the former
-    /// into the latter, and is used in `impl From<&Package> for Dependency`.
-    pub fn normalize_git_source_for_dependency(&self) -> Self {
-        let SourceKind::Git(GitSourceId { reference, precise }) = &self.kind else {
-            return self.clone();
-        };
-
-        match (reference, precise) {
-            (GitReference::Rev(_), Some(full)) => {
-                let mut url = self.url.clone();
-                url.set_fragment(None);
-                Self {
-                    kind: SourceKind::Git(GitSourceId {
-                        reference: GitReference::Rev(full.clone()),
-                        precise: None,
-                    }),
-                    url,
-                    name: self.name.clone(),
-                }
-            }
-            (_, Some(_)) => Self {
-                kind: SourceKind::Git(GitSourceId {
-                    reference: reference.clone(),
-                    precise: None,
-                }),
-                url: self.url.clone(),
-                name: self.name.clone(),
-            },
-            _ => self.clone(),
-        }
     }
 
     /// Parses a source URL and returns the corresponding ID.
@@ -366,13 +331,74 @@ impl fmt::Display for SourceIdAsUrl<'_> {
 }
 
 /// Git source information
-#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[derive(Clone, Debug)]
 pub struct GitSourceId {
     /// The git reference
     pub reference: GitReference,
     /// The precise commit hash, if any
     pub precise: Option<String>,
 }
+
+impl PartialOrd for GitSourceId {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// We've seen a number of subtle ways that dependency references (in `package.dependencies`)
+/// can differ from the corresponding `package.source` field for git dependencies.
+/// This `Ord` impl (which is used when storing `GitSourceId`s in a `BTreeMap`) tries to
+/// account for these differences and treat them as equal.
+///
+/// The `package.source` field for a git dependency includes both the `tag`, `branch` or `rev`
+/// (in a query string) used to fetch the dependency, as well as the full commit hash (in the
+/// fragment), but the `package.dependencies` entry does not include the full commit hash.
+///
+/// Additionally, when the `rev` is specified for a dependency using a longer hash, the `rev`
+/// used in the `package.source` maybe an abbreviated hash.
+impl Ord for GitSourceId {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // If the hash of one matches the rev of the other, consider them equal
+        if let GitReference::Rev(rev) = &self.reference {
+            if other.precise.as_deref() == Some(rev) {
+                return Ordering::Equal;
+            }
+        }
+        if let GitReference::Rev(rev) = &other.reference {
+            if self.precise.as_deref() == Some(rev) {
+                return Ordering::Equal;
+            }
+        }
+
+        match self.reference.cmp(&other.reference) {
+            Ordering::Equal => {}
+            non_eq => return non_eq,
+        }
+
+        // Ignore hashes unless both sides have them
+        match (&self.precise, &other.precise) {
+            (Some(s), Some(o)) => s.cmp(o),
+            _ => Ordering::Equal,
+        }
+    }
+}
+
+impl Hash for GitSourceId {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Drop the precise hash from the hash calculation, since it can differ
+        // between the `package.source` and `package.dependencies` entries.
+        self.reference.hash(state);
+    }
+}
+
+impl PartialEq for GitSourceId {
+    fn eq(&self, other: &Self) -> bool {
+        // Just defer to the `Ord` impl to avoid duplicating a bunch of logic
+        self.cmp(other) == Ordering::Equal
+    }
+}
+
+impl Eq for GitSourceId {}
 
 /// Information to find a specific commit in a Git repository.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
