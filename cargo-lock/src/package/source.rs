@@ -9,7 +9,7 @@
 
 use crate::error::{Error, Result};
 use serde::{Deserialize, Serialize, de, ser};
-use std::{fmt, str::FromStr};
+use std::{cmp::Ordering, fmt, hash::Hash, str::FromStr};
 use url::Url;
 
 #[cfg(any(unix, windows))]
@@ -32,11 +32,45 @@ pub struct SourceId {
     /// The source kind.
     kind: SourceKind,
 
-    /// For example, the exact Git revision of the specified branch for a Git Source.
-    precise: Option<String>,
-
     /// Name of the registry source for alternative registries
     name: Option<String>,
+}
+
+impl Serialize for SourceId {
+    fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
+        if self.is_path() {
+            None::<String>.serialize(s)
+        } else {
+            s.collect_str(&self.to_string())
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for SourceId {
+    fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        let string = String::deserialize(d)?;
+        SourceId::from_url(&string).map_err(de::Error::custom)
+    }
+}
+
+impl FromStr for SourceId {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        Self::from_url(s)
+    }
+}
+
+impl fmt::Display for SourceId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.as_url(false).fmt(f)
+    }
+}
+
+impl Default for SourceId {
+    fn default() -> SourceId {
+        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
+    }
 }
 
 /// The possible kinds of code source.
@@ -44,7 +78,7 @@ pub struct SourceId {
 #[non_exhaustive]
 pub enum SourceKind {
     /// A git repository.
-    Git(GitReference),
+    Git(GitSourceId),
 
     /// A local path..
     Path,
@@ -69,39 +103,8 @@ impl SourceId {
         Ok(Self {
             kind,
             url,
-            precise: None,
             name: None,
         })
-    }
-
-    /// SourceIds with git references used in package.source fields are subtly
-    /// different than those in parenthesized source URLs that appear in disambiguated
-    /// entries of package.dependencies: the former have the form ?rev=ABBREV#FULLHASH
-    /// whereas the latter have the form ?rev=FULLHASH. This method changes the former
-    /// into the latter, and is used in `impl From<&Package> for Dependency`.
-    pub fn normalize_git_source_for_dependency(&self) -> Self {
-        if let SourceKind::Git(GitReference::Rev(_abbrev)) = &self.kind {
-            if let Some(full) = &self.precise {
-                let mut url = self.url.clone();
-                url.set_fragment(None);
-                return Self {
-                    kind: SourceKind::Git(GitReference::Rev(full.clone())),
-                    precise: None,
-                    url,
-                    name: self.name.clone(),
-                };
-            }
-        } else if let SourceKind::Git(reference) = &self.kind {
-            if self.precise.is_some() {
-                return Self {
-                    kind: SourceKind::Git(reference.clone()),
-                    precise: None,
-                    url: self.url.clone(),
-                    name: self.name.clone(),
-                };
-            }
-        }
-        self.clone()
     }
 
     /// Parses a source URL and returns the corresponding ID.
@@ -129,7 +132,6 @@ impl SourceId {
                     match &k[..] {
                         // Map older 'ref' to branch.
                         "branch" | "ref" => reference = GitReference::Branch(v.into_owned()),
-
                         "rev" => reference = GitReference::Rev(v.into_owned()),
                         "tag" => reference = GitReference::Tag(v.into_owned()),
                         _ => {}
@@ -138,17 +140,15 @@ impl SourceId {
                 let precise = url.fragment().map(|s| s.to_owned());
                 url.set_fragment(None);
                 url.set_query(None);
-                Ok(Self::for_git(&url, reference)?.with_precise(precise))
+                Ok(Self::for_git(&url, reference, precise)?)
             }
             "registry" => {
                 let url = url.into_url()?;
-                Ok(SourceId::new(SourceKind::Registry, url)?
-                    .with_precise(Some("locked".to_string())))
+                Ok(SourceId::new(SourceKind::Registry, url)?)
             }
             "sparse" => {
                 let url = url.into_url()?;
-                Ok(SourceId::new(SourceKind::SparseRegistry, url)?
-                    .with_precise(Some("locked".to_string())))
+                Ok(SourceId::new(SourceKind::SparseRegistry, url)?)
             }
             "path" => Self::new(SourceKind::Path, url.into_url()?),
             kind => Err(Error::Parse(format!(
@@ -166,8 +166,11 @@ impl SourceId {
     }
 
     /// Creates a `SourceId` from a Git reference.
-    pub fn for_git(url: &Url, reference: GitReference) -> Result<Self> {
-        Self::new(SourceKind::Git(reference), url.clone())
+    pub fn for_git(url: &Url, reference: GitReference, precise: Option<String>) -> Result<Self> {
+        Self::new(
+            SourceKind::Git(GitSourceId { reference, precise }),
+            url.clone(),
+        )
     }
 
     /// Creates a SourceId from a remote registry URL.
@@ -245,23 +248,18 @@ impl SourceId {
 
     /// Gets the value of the precise field.
     pub fn precise(&self) -> Option<&str> {
-        self.precise.as_ref().map(AsRef::as_ref)
+        match &self.kind {
+            SourceKind::Git(GitSourceId { precise, .. }) => precise.as_deref(),
+            _ => None,
+        }
     }
 
     /// Gets the Git reference if this is a git source, otherwise `None`.
-    pub fn git_reference(&self) -> Option<&GitReference> {
+    pub fn git_id(&self) -> Option<&GitSourceId> {
         if let SourceKind::Git(s) = &self.kind {
             Some(s)
         } else {
             None
-        }
-    }
-
-    /// Creates a new `SourceId` from this source with the given `precise`.
-    pub fn with_precise(&self, v: Option<String>) -> Self {
-        Self {
-            precise: v,
-            ..self.clone()
         }
     }
 
@@ -275,26 +273,6 @@ impl SourceId {
     /// A view of the [`SourceId`] that can be `Display`ed as a URL.
     pub(crate) fn as_url(&self, encoded: bool) -> SourceIdAsUrl<'_> {
         SourceIdAsUrl { id: self, encoded }
-    }
-}
-
-impl Default for SourceId {
-    fn default() -> SourceId {
-        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
-    }
-}
-
-impl FromStr for SourceId {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self> {
-        Self::from_url(s)
-    }
-}
-
-impl fmt::Display for SourceId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.as_url(false).fmt(f)
     }
 }
 
@@ -313,17 +291,16 @@ impl fmt::Display for SourceIdAsUrl<'_> {
                 ..
             } => write!(f, "path+{url}"),
             SourceId {
-                kind: SourceKind::Git(reference),
+                kind: SourceKind::Git(id),
                 url,
-                precise,
                 ..
             } => {
                 write!(f, "git+{url}")?;
                 // TODO: set it to true when the default is lockfile v4,
-                if let Some(pretty) = reference.pretty_ref(self.encoded) {
+                if let Some(pretty) = id.reference.pretty_ref(self.encoded) {
                     write!(f, "?{pretty}")?;
                 }
-                if let Some(precise) = precise.as_ref() {
+                if let Some(precise) = id.precise.as_ref() {
                     write!(f, "#{precise}")?;
                 }
                 Ok(())
@@ -353,22 +330,75 @@ impl fmt::Display for SourceIdAsUrl<'_> {
     }
 }
 
-impl Serialize for SourceId {
-    fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
-        if self.is_path() {
-            None::<String>.serialize(s)
-        } else {
-            s.collect_str(&self.to_string())
+/// Git source information
+#[derive(Clone, Debug)]
+pub struct GitSourceId {
+    /// The git reference
+    pub reference: GitReference,
+    /// The precise commit hash, if any
+    pub precise: Option<String>,
+}
+
+impl PartialOrd for GitSourceId {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+/// We've seen a number of subtle ways that dependency references (in `package.dependencies`)
+/// can differ from the corresponding `package.source` field for git dependencies.
+/// This `Ord` impl (which is used when storing `GitSourceId`s in a `BTreeMap`) tries to
+/// account for these differences and treat them as equal.
+///
+/// The `package.source` field for a git dependency includes both the `tag`, `branch` or `rev`
+/// (in a query string) used to fetch the dependency, as well as the full commit hash (in the
+/// fragment), but the `package.dependencies` entry does not include the full commit hash.
+///
+/// Additionally, when the `rev` is specified for a dependency using a longer hash, the `rev`
+/// used in the `package.source` maybe an abbreviated hash.
+impl Ord for GitSourceId {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // If the hash of one matches the rev of the other, consider them equal
+        if let GitReference::Rev(rev) = &self.reference {
+            if other.precise.as_deref() == Some(rev) {
+                return Ordering::Equal;
+            }
+        }
+        if let GitReference::Rev(rev) = &other.reference {
+            if self.precise.as_deref() == Some(rev) {
+                return Ordering::Equal;
+            }
+        }
+
+        match self.reference.cmp(&other.reference) {
+            Ordering::Equal => {}
+            non_eq => return non_eq,
+        }
+
+        // Ignore hashes unless both sides have them
+        match (&self.precise, &other.precise) {
+            (Some(s), Some(o)) => s.cmp(o),
+            _ => Ordering::Equal,
         }
     }
 }
 
-impl<'de> Deserialize<'de> for SourceId {
-    fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
-        let string = String::deserialize(d)?;
-        SourceId::from_url(&string).map_err(de::Error::custom)
+impl Hash for GitSourceId {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        // Drop the precise hash from the hash calculation, since it can differ
+        // between the `package.source` and `package.dependencies` entries.
+        self.reference.hash(state);
     }
 }
+
+impl PartialEq for GitSourceId {
+    fn eq(&self, other: &Self) -> bool {
+        // Just defer to the `Ord` impl to avoid duplicating a bunch of logic
+        self.cmp(other) == Ordering::Equal
+    }
+}
+
+impl Eq for GitSourceId {}
 
 /// Information to find a specific commit in a Git repository.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

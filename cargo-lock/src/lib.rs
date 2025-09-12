@@ -168,7 +168,7 @@ pub use crate::{
     error::{Error, Result},
     lockfile::{Lockfile, ResolveVersion},
     metadata::{Metadata, MetadataKey, MetadataValue},
-    package::{Checksum, Name, Package, SourceId, Version},
+    package::{Checksum, GitSourceId, Name, Package, SourceId, Version},
     patch::Patch,
 };
 
