@@ -1,8 +1,8 @@
 //! Availability Requirements (AR)
 
 use crate::{
-    Error, Result,
     v4::metric::{Metric, MetricType},
+    Error, Result,
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -83,7 +83,7 @@ impl FromStr for AvailabilityRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(AvailabilityRequirements::NotDefined),
+            "X" => Ok(AvailabilityRequirements::NotDefined),
             "L" => Ok(AvailabilityRequirements::Low),
             "M" => Ok(AvailabilityRequirements::Medium),
             "H" => Ok(AvailabilityRequirements::High),
@@ -99,8 +99,8 @@ impl FromStr for AvailabilityRequirements {
 pub(crate) mod merge {
     use super::*;
     use crate::{
+        v4::{metric::MetricLevel, MetricType},
         Error,
-        v4::{MetricType, metric::MetricLevel},
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;

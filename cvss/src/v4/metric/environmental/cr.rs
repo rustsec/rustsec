@@ -1,8 +1,8 @@
 //! Confidentiality Requirements (CR)
 
 use crate::{
-    Error, Result,
     v4::metric::{Metric, MetricType},
+    Error, Result,
 };
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
@@ -83,7 +83,7 @@ impl FromStr for ConfidentialityRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(ConfidentialityRequirements::NotDefined),
+            "X" => Ok(ConfidentialityRequirements::NotDefined),
             "L" => Ok(ConfidentialityRequirements::Low),
             "M" => Ok(ConfidentialityRequirements::Medium),
             "H" => Ok(ConfidentialityRequirements::High),
@@ -99,8 +99,8 @@ impl FromStr for ConfidentialityRequirements {
 pub(crate) mod merge {
     use super::*;
     use crate::{
+        v4::{metric::MetricLevel, MetricType},
         Error,
-        v4::{MetricType, metric::MetricLevel},
     };
     use alloc::borrow::ToOwned;
     use core::str::FromStr;
