@@ -39,6 +39,43 @@ pub struct SourceId {
     name: Option<String>,
 }
 
+impl Serialize for SourceId {
+    fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
+        if self.is_path() {
+            None::<String>.serialize(s)
+        } else {
+            s.collect_str(&self.to_string())
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for SourceId {
+    fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        let string = String::deserialize(d)?;
+        SourceId::from_url(&string).map_err(de::Error::custom)
+    }
+}
+
+impl FromStr for SourceId {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        Self::from_url(s)
+    }
+}
+
+impl fmt::Display for SourceId {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        self.as_url(false).fmt(f)
+    }
+}
+
+impl Default for SourceId {
+    fn default() -> SourceId {
+        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
+    }
+}
+
 /// The possible kinds of code source.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
@@ -278,26 +315,6 @@ impl SourceId {
     }
 }
 
-impl Default for SourceId {
-    fn default() -> SourceId {
-        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
-    }
-}
-
-impl FromStr for SourceId {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self> {
-        Self::from_url(s)
-    }
-}
-
-impl fmt::Display for SourceId {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.as_url(false).fmt(f)
-    }
-}
-
 /// A `Display`able view into a `SourceId` that will write it as a url
 pub(crate) struct SourceIdAsUrl<'a> {
     id: &'a SourceId,
@@ -350,23 +367,6 @@ impl fmt::Display for SourceIdAsUrl<'_> {
                 ..
             } => write!(f, "directory+{url}"),
         }
-    }
-}
-
-impl Serialize for SourceId {
-    fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
-        if self.is_path() {
-            None::<String>.serialize(s)
-        } else {
-            s.collect_str(&self.to_string())
-        }
-    }
-}
-
-impl<'de> Deserialize<'de> for SourceId {
-    fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
-        let string = String::deserialize(d)?;
-        SourceId::from_url(&string).map_err(de::Error::custom)
     }
 }
 
