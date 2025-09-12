@@ -32,9 +32,6 @@ pub struct SourceId {
     /// The source kind.
     kind: SourceKind,
 
-    /// For example, the exact Git revision of the specified branch for a Git Source.
-    precise: Option<String>,
-
     /// Name of the registry source for alternative registries
     name: Option<String>,
 }
@@ -81,7 +78,7 @@ impl Default for SourceId {
 #[non_exhaustive]
 pub enum SourceKind {
     /// A git repository.
-    Git(GitReference),
+    Git(GitSourceId),
 
     /// A local path..
     Path,
@@ -106,7 +103,6 @@ impl SourceId {
         Ok(Self {
             kind,
             url,
-            precise: None,
             name: None,
         })
     }
@@ -117,28 +113,33 @@ impl SourceId {
     /// whereas the latter have the form ?rev=FULLHASH. This method changes the former
     /// into the latter, and is used in `impl From<&Package> for Dependency`.
     pub fn normalize_git_source_for_dependency(&self) -> Self {
-        if let SourceKind::Git(GitReference::Rev(_abbrev)) = &self.kind {
-            if let Some(full) = &self.precise {
+        let SourceKind::Git(GitSourceId { reference, precise }) = &self.kind else {
+            return self.clone();
+        };
+
+        match (reference, precise) {
+            (GitReference::Rev(_), Some(full)) => {
                 let mut url = self.url.clone();
                 url.set_fragment(None);
-                return Self {
-                    kind: SourceKind::Git(GitReference::Rev(full.clone())),
-                    precise: None,
+                Self {
+                    kind: SourceKind::Git(GitSourceId {
+                        reference: GitReference::Rev(full.clone()),
+                        precise: None,
+                    }),
                     url,
                     name: self.name.clone(),
-                };
+                }
             }
-        } else if let SourceKind::Git(reference) = &self.kind {
-            if self.precise.is_some() {
-                return Self {
-                    kind: SourceKind::Git(reference.clone()),
+            (_, Some(_)) => Self {
+                kind: SourceKind::Git(GitSourceId {
+                    reference: reference.clone(),
                     precise: None,
-                    url: self.url.clone(),
-                    name: self.name.clone(),
-                };
-            }
+                }),
+                url: self.url.clone(),
+                name: self.name.clone(),
+            },
+            _ => self.clone(),
         }
-        self.clone()
     }
 
     /// Parses a source URL and returns the corresponding ID.
@@ -166,7 +167,6 @@ impl SourceId {
                     match &k[..] {
                         // Map older 'ref' to branch.
                         "branch" | "ref" => reference = GitReference::Branch(v.into_owned()),
-
                         "rev" => reference = GitReference::Rev(v.into_owned()),
                         "tag" => reference = GitReference::Tag(v.into_owned()),
                         _ => {}
@@ -175,17 +175,15 @@ impl SourceId {
                 let precise = url.fragment().map(|s| s.to_owned());
                 url.set_fragment(None);
                 url.set_query(None);
-                Ok(Self::for_git(&url, reference)?.with_precise(precise))
+                Ok(Self::for_git(&url, reference, precise)?)
             }
             "registry" => {
                 let url = url.into_url()?;
-                Ok(SourceId::new(SourceKind::Registry, url)?
-                    .with_precise(Some("locked".to_string())))
+                Ok(SourceId::new(SourceKind::Registry, url)?)
             }
             "sparse" => {
                 let url = url.into_url()?;
-                Ok(SourceId::new(SourceKind::SparseRegistry, url)?
-                    .with_precise(Some("locked".to_string())))
+                Ok(SourceId::new(SourceKind::SparseRegistry, url)?)
             }
             "path" => Self::new(SourceKind::Path, url.into_url()?),
             kind => Err(Error::Parse(format!(
@@ -203,8 +201,11 @@ impl SourceId {
     }
 
     /// Creates a `SourceId` from a Git reference.
-    pub fn for_git(url: &Url, reference: GitReference) -> Result<Self> {
-        Self::new(SourceKind::Git(reference), url.clone())
+    pub fn for_git(url: &Url, reference: GitReference, precise: Option<String>) -> Result<Self> {
+        Self::new(
+            SourceKind::Git(GitSourceId { reference, precise }),
+            url.clone(),
+        )
     }
 
     /// Creates a SourceId from a remote registry URL.
@@ -282,23 +283,18 @@ impl SourceId {
 
     /// Gets the value of the precise field.
     pub fn precise(&self) -> Option<&str> {
-        self.precise.as_ref().map(AsRef::as_ref)
+        match &self.kind {
+            SourceKind::Git(GitSourceId { precise, .. }) => precise.as_deref(),
+            _ => None,
+        }
     }
 
     /// Gets the Git reference if this is a git source, otherwise `None`.
-    pub fn git_reference(&self) -> Option<&GitReference> {
+    pub fn git_id(&self) -> Option<&GitSourceId> {
         if let SourceKind::Git(s) = &self.kind {
             Some(s)
         } else {
             None
-        }
-    }
-
-    /// Creates a new `SourceId` from this source with the given `precise`.
-    pub fn with_precise(&self, v: Option<String>) -> Self {
-        Self {
-            precise: v,
-            ..self.clone()
         }
     }
 
@@ -330,17 +326,16 @@ impl fmt::Display for SourceIdAsUrl<'_> {
                 ..
             } => write!(f, "path+{url}"),
             SourceId {
-                kind: SourceKind::Git(reference),
+                kind: SourceKind::Git(id),
                 url,
-                precise,
                 ..
             } => {
                 write!(f, "git+{url}")?;
                 // TODO: set it to true when the default is lockfile v4,
-                if let Some(pretty) = reference.pretty_ref(self.encoded) {
+                if let Some(pretty) = id.reference.pretty_ref(self.encoded) {
                     write!(f, "?{pretty}")?;
                 }
-                if let Some(precise) = precise.as_ref() {
+                if let Some(precise) = id.precise.as_ref() {
                     write!(f, "#{precise}")?;
                 }
                 Ok(())
@@ -368,6 +363,15 @@ impl fmt::Display for SourceIdAsUrl<'_> {
             } => write!(f, "directory+{url}"),
         }
     }
+}
+
+/// Git source information
+#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+pub struct GitSourceId {
+    /// The git reference
+    pub reference: GitReference,
+    /// The precise commit hash, if any
+    pub precise: Option<String>,
 }
 
 /// Information to find a specific commit in a Git repository.
