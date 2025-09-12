@@ -36,30 +36,6 @@ pub struct SourceId {
     name: Option<String>,
 }
 
-/// The possible kinds of code source.
-#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
-#[non_exhaustive]
-pub enum SourceKind {
-    /// A git repository.
-    Git(GitReference),
-
-    /// A local path..
-    Path,
-
-    /// A remote registry.
-    Registry,
-
-    /// A sparse registry.
-    SparseRegistry,
-
-    /// A local filesystem-based registry.
-    LocalRegistry,
-
-    /// A directory-based registry.
-    #[cfg(any(unix, windows))]
-    Directory,
-}
-
 impl SourceId {
     /// Creates a `SourceId` object from the kind and URL.
     fn new(kind: SourceKind, url: Url) -> Result<Self> {
@@ -275,9 +251,20 @@ impl SourceId {
     }
 }
 
-impl Default for SourceId {
-    fn default() -> SourceId {
-        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
+impl Serialize for SourceId {
+    fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
+        if self.is_path() {
+            None::<String>.serialize(s)
+        } else {
+            s.collect_str(&self.to_string())
+        }
+    }
+}
+
+impl<'de> Deserialize<'de> for SourceId {
+    fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
+        let string = String::deserialize(d)?;
+        SourceId::from_url(&string).map_err(de::Error::custom)
     }
 }
 
@@ -293,6 +280,36 @@ impl fmt::Display for SourceId {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.as_url(false).fmt(f)
     }
+}
+
+impl Default for SourceId {
+    fn default() -> SourceId {
+        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
+    }
+}
+
+/// The possible kinds of code source.
+#[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
+#[non_exhaustive]
+pub enum SourceKind {
+    /// A git repository.
+    Git(GitReference),
+
+    /// A local path..
+    Path,
+
+    /// A remote registry.
+    Registry,
+
+    /// A sparse registry.
+    SparseRegistry,
+
+    /// A local filesystem-based registry.
+    LocalRegistry,
+
+    /// A directory-based registry.
+    #[cfg(any(unix, windows))]
+    Directory,
 }
 
 /// A `Display`able view into a `SourceId` that will write it as a url
@@ -347,23 +364,6 @@ impl fmt::Display for SourceIdAsUrl<'_> {
                 ..
             } => write!(f, "directory+{url}"),
         }
-    }
-}
-
-impl Serialize for SourceId {
-    fn serialize<S: ser::Serializer>(&self, s: S) -> std::result::Result<S::Ok, S::Error> {
-        if self.is_path() {
-            None::<String>.serialize(s)
-        } else {
-            s.collect_str(&self.to_string())
-        }
-    }
-}
-
-impl<'de> Deserialize<'de> for SourceId {
-    fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
-        let string = String::deserialize(d)?;
-        SourceId::from_url(&string).map_err(de::Error::custom)
     }
 }
 
