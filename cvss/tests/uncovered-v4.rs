@@ -1,5 +1,5 @@
 #![cfg(all(feature = "v4", feature = "std"))]
-/// Real World Tests
+/// Regression Tests
 ///
 /// NOTE: These CVEs are actually `CVSS:4.0` and have been picked from real
 /// practical cases not covered by Red Hat
