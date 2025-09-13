@@ -83,7 +83,7 @@ impl FromStr for AvailabilityRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(AvailabilityRequirements::NotDefined),
+            "X" => Ok(AvailabilityRequirements::NotDefined),
             "L" => Ok(AvailabilityRequirements::Low),
             "M" => Ok(AvailabilityRequirements::Medium),
             "H" => Ok(AvailabilityRequirements::High),
