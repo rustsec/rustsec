@@ -83,7 +83,7 @@ impl FromStr for ConfidentialityRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(ConfidentialityRequirements::NotDefined),
+            "X" => Ok(ConfidentialityRequirements::NotDefined),
             "L" => Ok(ConfidentialityRequirements::Low),
             "M" => Ok(ConfidentialityRequirements::Medium),
             "H" => Ok(ConfidentialityRequirements::High),
