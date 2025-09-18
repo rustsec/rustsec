@@ -125,9 +125,12 @@ impl Linter {
 
     /// Perform lints that connect to https://crates.io
     fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
-        if !self.name_is_skipped(advisory.metadata.package.as_str())
-            && !self.name_exists_on_crates_io(advisory.metadata.package.as_str())
-        {
+        let crate_name = advisory.metadata.package.as_str();
+        if self.skip_namecheck.iter().any(|name| name == crate_name) {
+            return Ok(());
+        }
+
+        if !self.name_exists_on_crates_io(crate_name) {
             fail!(
                 ErrorKind::CratesIo,
                 "crates.io package name does not match package name in advisory for {} in {}",
@@ -137,11 +140,6 @@ impl Linter {
         }
 
         Ok(())
-    }
-
-    /// Checks whether the name is in the skiplist
-    fn name_is_skipped(&self, package_name: &str) -> bool {
-        self.skip_namecheck.iter().any(|name| name == package_name)
     }
 
     /// Checks if a crate with this name is present on crates.io
