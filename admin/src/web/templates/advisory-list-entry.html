@@ -1,6 +1,6 @@
 <li>
-  <time datetime="{{ cdate.as_str() }}">
-    {{ cdate.clone()|friendly_date }}
+  <time datetime="{{ advisory.created.as_str() }}">
+    {{ advisory.created.clone()|friendly_date }}
   </time>
 
   {% if advisory.withdrawn() %}
