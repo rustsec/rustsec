@@ -19,6 +19,7 @@ use chrono::{Duration, NaiveDate, Utc};
 use comrak::{ComrakOptions, markdown_to_html};
 use rust_embed::RustEmbed;
 use rustsec::advisory::Id;
+use rustsec::osv::OsvAdvisory;
 use rustsec::repository::git::GitModificationTimes;
 use rustsec::repository::git::GitPath;
 use rustsec::{Repository, advisory};
@@ -218,9 +219,25 @@ pub fn render_advisories(output_folder: PathBuf) {
     render_list_index("Packages", packages, folder.as_ref());
     // per package page
     for tpl in &advisories_per_package {
+        // Write HTML
         let output_path = folder.join(tpl.group_by.clone() + ".html");
         fs::write(&output_path, tpl.render().unwrap()).unwrap();
         status_ok!("Rendered", "{}", output_path.display());
+
+        // Write OSV JSON
+        let osv_path = folder.join(tpl.group_by.clone() + ".json");
+        let mut osv_advisories = Vec::new();
+        for (data, _, _) in &tpl.advisories {
+            let git_path = GitPath::new(&repo, &data.path).unwrap();
+            osv_advisories.push(OsvAdvisory::from_rustsec(
+                data.advisory.clone(),
+                &mod_times,
+                git_path,
+            ));
+        }
+        let json = serde_json::to_string_pretty(&osv_advisories).unwrap();
+        fs::write(&osv_path, json).unwrap();
+        status_ok!("Rendered", "{}", osv_path.display());
     }
     status_ok!(
         "Completed",
@@ -573,6 +590,7 @@ mod filters {
 
 struct AdvisoryData {
     advisory: rustsec::Advisory,
+    path: PathBuf,
     created: advisory::Date,
     modified: advisory::Date,
 }
@@ -583,19 +601,19 @@ impl AdvisoryData {
         repo: &Repository,
         mod_times: &GitModificationTimes,
     ) -> Self {
-        let relative_path = format!(
+        let path = PathBuf::from(format!(
             "{}/{}/{}.md",
             advisory.metadata.collection.unwrap(),
             advisory.metadata.package,
             advisory.id()
-        );
+        ));
 
-        let relative_path = Path::new(&relative_path);
-        let git_path = GitPath::new(repo, relative_path).unwrap();
+        let git_path = GitPath::new(repo, &path).unwrap();
         Self {
             advisory,
             created: mod_times.cdate_for_path(git_path),
             modified: mod_times.mdate_for_path(git_path),
+            path,
         }
     }
 }
