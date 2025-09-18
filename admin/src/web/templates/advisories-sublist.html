@@ -12,7 +12,7 @@
     </header>
 
     <ul>
-      {% for (advisory, cdate, rendered_title, advisory_title_type) in advisories %}
+      {% for (advisory, rendered_title, advisory_title_type) in advisories %}
       {% include "advisory-list-entry.html" %}
       {% endfor %}
     </ul>
