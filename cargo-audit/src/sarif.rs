@@ -155,7 +155,7 @@ impl ReportingDescriptor {
         let security_severity = metadata
             .cvss
             .as_ref()
-            .map(|cvss| format!("{:.1}", cvss.score().value()));
+            .map(|cvss| format!("{:.1}", cvss.score()));
 
         let default_level = if is_vulnerability { "error" } else { "warning" };
 
