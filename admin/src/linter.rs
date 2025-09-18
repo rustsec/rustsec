@@ -31,7 +31,7 @@ pub struct Linter {
     valid_advisories: usize,
 
     /// Skip namecheck list
-    skip_namecheck: Option<String>,
+    skip_namecheck: Vec<String>,
 }
 
 impl Linter {
@@ -55,7 +55,10 @@ impl Linter {
             crates_index,
             invalid_advisories: 0,
             valid_advisories: 0,
-            skip_namecheck,
+            skip_namecheck: match skip_namecheck {
+                Some(s) => s.split(',').map(|s| s.to_owned()).collect(),
+                None => Vec::new(),
+            },
         })
     }
 
@@ -147,10 +150,7 @@ impl Linter {
 
     /// Checks whether the name is in the skiplist
     fn name_is_skipped(&self, package_name: &str) -> bool {
-        match &self.skip_namecheck {
-            Some(skips) => skips.split(',').any(|a| a == package_name),
-            None => false,
-        }
+        self.skip_namecheck.iter().any(|name| name == package_name)
     }
 
     /// Checks if a crate with this name is present on crates.io
