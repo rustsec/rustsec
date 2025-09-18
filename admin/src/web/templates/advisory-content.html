@@ -160,53 +160,10 @@
       <dt id="cvss_details">CVSS Details</dt>
       <dd>
         <dl>
-          {% match cvss.av %}
-          {% when Some with (av) %}
-          <dt>Attack vector</dt><dd>{{ "{:?}"|format(av) }}</dd>
-          {% when None %}
-          {% endmatch %}
-
-          {% match cvss.ac %}
-          {% when Some with (ac) %}
-          <dt>Attack complexity</dt><dd>{{ "{:?}"|format(ac) }}</dd>
-          {% when None %}
-          {% endmatch %}
-
-          {% match cvss.pr %}
-          {% when Some with (pr) %}
-          <dt>Privileges required</dt><dd>{{ "{:?}"|format(pr) }}</dd>
-          {% when None %}
-          {% endmatch %}
-
-          {% match cvss.ui %}
-          {% when Some with (ui) %}
-          <dt>User interaction</dt><dd>{{ "{:?}"|format(ui) }}</dd>
-          {% when None %}
-          {% endmatch %}
-
-          {% match cvss.s %}
-          {% when Some with (s) %}
-          <dt>Scope</dt><dd>{{ "{:?}"|format(s) }}</dd>
-          {% when None %}
-          {% endmatch %}
-
-          {% match cvss.c %}
-          {% when Some with (c) %}
-          <dt>Confidentiality</dt><dd>{{ "{:?}"|format(c) }}</dd>
-          {% when None %}
-          {% endmatch %}
-
-          {% match cvss.i %}
-          {% when Some with (i) %}
-          <dt>Integrity</dt><dd>{{ "{:?}"|format(i) }}</dd>
-          {% when None %}
-          {% endmatch %}
-
-          {% match cvss.a %}
-          {% when Some with (a) %}
-          <dt>Availability</dt><dd>{{ "{:?}"|format(a) }}</dd>
-          {% when None %}
-          {% endmatch %}
+          {% for (metric, value) in cvss.metrics() %}
+            <dt>{{ metric.description() }}</dt>
+            <dd>{{ "{:?}"|format(value) }}</dd>
+          {% endfor %}
         </dl>
       </dd>
 
