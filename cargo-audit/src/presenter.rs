@@ -338,7 +338,7 @@ impl Presenter {
             self.print_attr(
                 color,
                 "Severity: ",
-                format!("{} ({})", cvss.score().value(), cvss.score().severity()),
+                format!("{} ({})", cvss.score(), cvss.severity()),
             );
         }
     }
