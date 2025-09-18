@@ -130,31 +130,27 @@ impl Linter {
             return Ok(());
         }
 
-        if !self.name_exists_on_crates_io(crate_name) {
-            fail!(
-                ErrorKind::CratesIo,
-                "crates.io package name does not match package name in advisory for {} in {}",
-                advisory.metadata.package.as_str(),
-                advisory.metadata.id
-            );
-        }
+        // Check if a crate with this name exists on crates.io
 
-        Ok(())
-    }
-
-    /// Checks if a crate with this name is present on crates.io
-    fn name_exists_on_crates_io(&self, name: &str) -> bool {
-        if let Ok(Some(crate_)) = self.crates_index.krate(
-            name.try_into().unwrap(),
+        let result = self.crates_index.krate(
+            crate_name.try_into().unwrap(),
             true,
             &acquire_cargo_package_lock().unwrap(),
-        ) {
+        );
+
+        match result {
             // This check verifies name normalization.
             // A request for "serde-json" might return "serde_json",
             // and we want to catch use a non-canonical name and report it as an error.
-            crate_.name() == name
-        } else {
-            false
+            Ok(Some(krate)) if krate.name() == crate_name => Ok(()),
+            _ => {
+                fail!(
+                    ErrorKind::CratesIo,
+                    "crates.io package name does not match package name in advisory for {} in {}",
+                    advisory.metadata.package.as_str(),
+                    advisory.metadata.id
+                );
+            }
         }
     }
 }
