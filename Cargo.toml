@@ -23,7 +23,7 @@ cargo-lock = { version = "11", path = "./cargo-lock" }
 chrono = { version = "0.4", default-features = false }
 clap = "4"
 comrak = { version = "0.44", default-features = false }
-cvss = { version = "2.0.0", path = "./cvss" }
+cvss = { version = "2.2", path = "./cvss" }
 display-error-chain = "0.2.0"
 fs-err = "3"
 # NOTE: Keep in sync with `gix` used by `tame-index`.
