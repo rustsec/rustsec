@@ -129,6 +129,127 @@ impl Vector {
         Nomenclature::from(self)
     }
 
+    /// Iterate over all defined vector metrics
+    pub fn metrics(&self) -> impl Iterator<Item = (MetricType, &dyn fmt::Debug)> {
+        [
+            (
+                MetricType::AC,
+                self.ac.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::AT,
+                self.at.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::AV,
+                self.av.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::PR,
+                self.pr.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::SA,
+                self.sa.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::SC,
+                self.sc.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::SI,
+                self.si.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::UI,
+                self.ui.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::VA,
+                self.va.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::VC,
+                self.vc.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::VI,
+                self.vi.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (MetricType::E, self.e.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (
+                MetricType::AR,
+                self.ar.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::CR,
+                self.cr.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::IR,
+                self.ir.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MAC,
+                self.mac.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MAT,
+                self.mat.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MAV,
+                self.mav.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MPR,
+                self.mpr.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MSA,
+                self.msa.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MSC,
+                self.msc.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MSI,
+                self.msi.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MUI,
+                self.mui.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MVA,
+                self.mva.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MVC,
+                self.mvc.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::MVI,
+                self.mvi.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::AU,
+                self.au.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (MetricType::R, self.r.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (
+                MetricType::RE,
+                self.re.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (MetricType::S, self.s.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::U, self.u.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::V, self.v.as_ref().map(|m| m as &dyn fmt::Debug)),
+        ]
+        .into_iter()
+        .filter_map(|(ty, m)| m.map(|m| (ty, m)))
+    }
+
     /// Check for required base metrics presence
     ///
     /// Defined in <https://www.first.org/cvss/v4.0/specification-document#Vector-String>

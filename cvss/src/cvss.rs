@@ -1,10 +1,11 @@
+use alloc::boxed::Box;
+use alloc::str::FromStr;
+use core::fmt;
+
 #[cfg(feature = "v3")]
 use crate::v3;
 #[cfg(feature = "v4")]
 use crate::v4;
-
-use alloc::str::FromStr;
-
 use crate::{
     Severity,
     error::{Error, Result},
@@ -62,6 +63,20 @@ impl Cvss {
             Self::CvssV31(base) => base.score().severity(),
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => vector.score().severity(),
+        }
+    }
+
+    /// Get an iterator over all defined metrics
+    pub fn metrics(&self) -> Box<dyn Iterator<Item = (MetricType, &dyn fmt::Debug)> + '_> {
+        match self {
+            #[cfg(feature = "v3")]
+            Self::CvssV30(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            #[cfg(feature = "v3")]
+            Self::CvssV31(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            #[cfg(feature = "v4")]
+            Self::CvssV40(vector) => {
+                Box::new(vector.metrics().map(|(m, v)| (MetricType::V4(m), v)))
+            }
         }
     }
 }
@@ -122,8 +137,8 @@ impl FromStr for Cvss {
     }
 }
 
-impl core::fmt::Display for Cvss {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+impl fmt::Display for Cvss {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             #[cfg(feature = "v3")]
             Self::CvssV30(base) => write!(f, "{}", base),
@@ -131,6 +146,32 @@ impl core::fmt::Display for Cvss {
             Self::CvssV31(base) => write!(f, "{}", base),
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => write!(f, "{}", vector),
+        }
+    }
+}
+
+/// Metric type (across CVSS versions)
+#[non_exhaustive]
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub enum MetricType {
+    V3(v3::MetricType),
+    V4(v4::MetricType),
+}
+
+impl MetricType {
+    /// Get the name of this metric (i.e. acronym)
+    pub fn name(self) -> &'static str {
+        match self {
+            Self::V3(m) => m.name(),
+            Self::V4(m) => m.name(),
+        }
+    }
+
+    /// Get a description of this metric.
+    pub fn description(self) -> &'static str {
+        match self {
+            Self::V3(m) => m.description(),
+            Self::V4(m) => m.description(),
         }
     }
 }
