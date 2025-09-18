@@ -151,9 +151,9 @@
       {% endif %}
 
       {% match advisory.metadata.cvss %}
-      {% when Some with (cvss) %}
+      {% when Some(cvss) %}
       <dt id="cvss_score">CVSS Score</dt>
-      <dd>{{ cvss.score().value() }} <span class="tag {{ advisory.severity().unwrap() }}">
+      <dd>{{ cvss.score() }} <span class="tag {{ advisory.severity().unwrap() }}">
         {{ advisory.severity().unwrap()|upper }}
       </span></dd>
 
@@ -169,13 +169,15 @@
 
       <dt id="cvss">CVSS Vector</dt>
 
-      {% if cvss.to_string().starts_with("CVSS:3.1/") %}
-      <dd><a href="https://www.first.org/cvss/calculator/3.1#{{ cvss }}">{{ cvss }}</a></dd>
-      {% else if cvss.to_string().starts_with("CVSS:3.0/") %}
-      <dd><a href="https://www.first.org/cvss/calculator/3.0#{{ cvss }}">{{ cvss }}</a></dd>
-      {% else %}
-      <dd>{{ cvss }}</dd>
-      {% endif %}
+      {% match cvss %}
+        {% when cvss::Cvss::CvssV40(vector) %}
+          <dd><a href="https://www.first.org/cvss/calculator/3.1#{{ vector }}">{{ vector }}</a></dd>
+        {% when cvss::Cvss::CvssV31(base) %}
+          <dd><a href="https://www.first.org/cvss/calculator/3.1#{{ base }}">{{ base }}</a></dd>
+        {% when cvss::Cvss::CvssV30(base) %}
+          <dd><a href="https://www.first.org/cvss/calculator/3.0#{{ base }}">{{ base }}</a></dd>
+        {% else %}
+      {% endmatch %}
 
       {% when None %}
       {% endmatch %}

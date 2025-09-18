@@ -10,6 +10,7 @@ use crate::{
     advisory::{Affected, Category, Id, Informational, affected::FunctionPath},
     repository::git::{GitModificationTimes, GitPath},
 };
+use cvss::Cvss;
 use serde::{Deserialize, Deserializer, Serialize};
 use std::str::FromStr;
 use url::Url;
@@ -69,11 +70,19 @@ impl From<&cargo_lock::Name> for OsvPackage {
 #[serde(tag = "type", content = "score")]
 pub enum OsvSeverity {
     CVSS_V3(cvss::v3::Base),
+    CVSS_V4(cvss::v4::Vector),
 }
 
-impl From<cvss::v3::Base> for OsvSeverity {
-    fn from(cvss: cvss::v3::Base) -> Self {
-        OsvSeverity::CVSS_V3(cvss)
+impl TryFrom<Cvss> for OsvSeverity {
+    type Error = &'static str;
+
+    fn try_from(cvss: Cvss) -> Result<Self, Self::Error> {
+        match cvss {
+            Cvss::CvssV30(base) => Ok(OsvSeverity::CVSS_V3(base)),
+            Cvss::CvssV31(base) => Ok(OsvSeverity::CVSS_V3(base)),
+            Cvss::CvssV40(vector) => Ok(OsvSeverity::CVSS_V4(vector)),
+            _ => unreachable!(),
+        }
     }
 }
 
@@ -209,7 +218,7 @@ impl From<Affected> for OsvEcosystemSpecificAffected {
 pub struct OsvDatabaseSpecific {
     #[serde(default)]
     categories: Vec<Category>,
-    cvss: Option<cvss::v3::Base>,
+    cvss: Option<Cvss>,
     informational: Option<Informational>,
 }
 
@@ -283,7 +292,13 @@ impl OsvAdvisory {
             aliases: metadata.aliases,
             related: metadata.related,
             summary: metadata.title,
-            severity: metadata.cvss.into_iter().map(|s| s.into()).collect(),
+            severity: match metadata.cvss {
+                Some(cvss) => match cvss.try_into() {
+                    Ok(sev) => vec![sev],
+                    Err(_) => vec![],
+                },
+                None => vec![],
+            },
             details: metadata.description,
             references: osv_references(reference_urls),
             database_specific: MainOsvDatabaseSpecific {
