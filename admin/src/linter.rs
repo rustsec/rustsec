@@ -24,11 +24,11 @@ pub struct Linter {
     /// Loaded crates.io index
     crates_index: RemoteGitIndex,
 
-    /// Loaded Advisory DB
-    advisory_db: rustsec::Database,
-
     /// Total number of invalid advisories encountered
     invalid_advisories: usize,
+
+    /// Total number of valid advisories encountered
+    valid_advisories: usize,
 
     /// Skip namecheck list
     skip_namecheck: Option<String>,
@@ -49,24 +49,18 @@ impl Linter {
             &cargo_package_lock,
         )?;
         crates_index.fetch(&cargo_package_lock)?;
-        let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
             repo_path,
             crates_index,
-            advisory_db,
             invalid_advisories: 0,
+            valid_advisories: 0,
             skip_namecheck,
         })
     }
 
-    /// Borrow the loaded advisory database
-    pub fn advisory_db(&self) -> &rustsec::Database {
-        &self.advisory_db
-    }
-
     /// Lint the loaded database
-    pub fn lint(mut self) -> Result<usize, Error> {
+    pub fn lint(mut self) -> Result<(usize, usize), Error> {
         for collection in COLLECTIONS {
             for crate_entry in fs::read_dir(self.repo_path.join(collection.as_str())).unwrap() {
                 let crate_dir = crate_entry.unwrap().path();
@@ -87,7 +81,7 @@ impl Linter {
             }
         }
 
-        Ok(self.invalid_advisories)
+        Ok((self.valid_advisories, self.invalid_advisories))
     }
 
     /// Lint an advisory at the specified path
@@ -115,6 +109,7 @@ impl Linter {
         let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
 
         if lint_result.errors().is_empty() {
+            self.valid_advisories += 1;
             status_ok!("Linted", "ok: {}", advisory_path.display());
         } else {
             self.invalid_advisories += 1;
