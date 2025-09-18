@@ -19,6 +19,7 @@ atom_syndication = { workspace = true }
 chrono = { workspace = true, features = ["clock"] }
 clap = { workspace = true }
 comrak = { workspace = true }
+cvss = { workspace = true }
 fs-err = { workspace = true }
 tame-index = { workspace = true, features = ["git"] }
 gix = { workspace = true, optional = true }
