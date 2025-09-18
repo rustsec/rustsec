@@ -24,12 +24,6 @@ pub struct Linter {
     /// Loaded crates.io index
     crates_index: RemoteGitIndex,
 
-    /// Total number of invalid advisories encountered
-    invalid_advisories: usize,
-
-    /// Total number of valid advisories encountered
-    valid_advisories: usize,
-
     /// Skip namecheck list
     skip_namecheck: Vec<String>,
 }
@@ -53,8 +47,6 @@ impl Linter {
         Ok(Self {
             repo_path,
             crates_index,
-            invalid_advisories: 0,
-            valid_advisories: 0,
             skip_namecheck: match skip_namecheck {
                 Some(s) => s.split(',').map(|s| s.to_owned()).collect(),
                 None => Vec::new(),
@@ -64,6 +56,7 @@ impl Linter {
 
     /// Lint the loaded database
     pub fn lint(mut self) -> Result<(usize, usize), Error> {
+        let (mut valid, mut invalid) = (0, 0);
         for collection in COLLECTIONS {
             for crate_entry in fs::read_dir(self.repo_path.join(collection.as_str())).unwrap() {
                 let crate_dir = crate_entry.unwrap().path();
@@ -79,21 +72,24 @@ impl Linter {
 
                 for advisory_entry in crate_dir.read_dir().unwrap() {
                     let advisory_path = advisory_entry.unwrap().path();
-                    self.lint_advisory(*collection, &advisory_path)?;
+                    match self.is_valid(*collection, &advisory_path)? {
+                        true => valid += 1,
+                        false => invalid += 1,
+                    }
                 }
             }
         }
 
-        Ok((self.valid_advisories, self.invalid_advisories))
+        Ok((valid, invalid))
     }
 
     /// Lint an advisory at the specified path
     // TODO(tarcieri): separate out presentation (`status_*`) from linting code?
-    fn lint_advisory(
+    fn is_valid(
         &mut self,
         collection: rustsec::Collection,
         advisory_path: &Path,
-    ) -> Result<(), Error> {
+    ) -> Result<bool, Error> {
         if !advisory_path.is_file() {
             fail!(
                 ErrorKind::RustSec,
@@ -112,11 +108,8 @@ impl Linter {
         let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
 
         if lint_result.errors().is_empty() {
-            self.valid_advisories += 1;
             status_ok!("Linted", "ok: {}", advisory_path.display());
         } else {
-            self.invalid_advisories += 1;
-
             status_err!(
                 "{} contained the following lint errors:",
                 advisory_path.display()
@@ -127,7 +120,7 @@ impl Linter {
             }
         }
 
-        Ok(())
+        Ok(lint_result.errors().is_empty())
     }
 
     /// Perform lints that connect to https://crates.io
@@ -135,8 +128,6 @@ impl Linter {
         if !self.name_is_skipped(advisory.metadata.package.as_str())
             && !self.name_exists_on_crates_io(advisory.metadata.package.as_str())
         {
-            self.invalid_advisories += 1;
-
             fail!(
                 ErrorKind::CratesIo,
                 "crates.io package name does not match package name in advisory for {} in {}",
