@@ -99,13 +99,10 @@ impl Linter {
             );
         }
 
-        let advisory = rustsec::Advisory::load_file(advisory_path)?;
-
-        if collection == rustsec::Collection::Crates {
-            self.crates_io_lints(&advisory)?;
-        }
-
         let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
+        if collection == rustsec::Collection::Crates {
+            self.crates_io_lints(lint_result.advisory())?;
+        }
 
         if lint_result.errors().is_empty() {
             status_ok!("Linted", "ok: {}", advisory_path.display());
