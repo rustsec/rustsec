@@ -5,6 +5,7 @@ use crate::{
     lock::acquire_cargo_package_lock,
     prelude::*,
 };
+use rustsec::{Advisory, Collection};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -13,8 +14,7 @@ use tame_index::index::RemoteGitIndex;
 
 /// List of "collections" within the Advisory DB
 // TODO(tarcieri): provide some other means of iterating over the collections?
-pub const COLLECTIONS: &[rustsec::Collection] =
-    &[rustsec::Collection::Crates, rustsec::Collection::Rust];
+pub const COLLECTIONS: &[Collection] = &[Collection::Crates, Collection::Rust];
 
 /// Advisory linter
 pub struct Linter {
@@ -85,11 +85,7 @@ impl Linter {
 
     /// Lint an advisory at the specified path
     // TODO(tarcieri): separate out presentation (`status_*`) from linting code?
-    fn is_valid(
-        &mut self,
-        collection: rustsec::Collection,
-        advisory_path: &Path,
-    ) -> Result<bool, Error> {
+    fn is_valid(&mut self, collection: Collection, advisory_path: &Path) -> Result<bool, Error> {
         if !advisory_path.is_file() {
             fail!(
                 ErrorKind::RustSec,
@@ -100,7 +96,7 @@ impl Linter {
         }
 
         let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
-        if collection == rustsec::Collection::Crates {
+        if collection == Collection::Crates {
             self.crates_io_lints(lint_result.advisory())?;
         }
 
@@ -121,7 +117,7 @@ impl Linter {
     }
 
     /// Perform lints that connect to https://crates.io
-    fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
+    fn crates_io_lints(&mut self, advisory: &Advisory) -> Result<(), Error> {
         let crate_name = advisory.metadata.package.as_str();
         if self.skip_namecheck.iter().any(|name| name == crate_name) {
             return Ok(());
