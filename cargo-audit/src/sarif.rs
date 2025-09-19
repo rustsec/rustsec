@@ -7,26 +7,49 @@
 //! to report their findings. This implementation follows SARIF 2.1.0 specification
 //! and is compatible with GitHub's code scanning requirements.
 
-use rustsec::{Report, Vulnerability, Warning, WarningKind, advisory};
-use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
+use rustsec::{Report, Vulnerability, Warning, WarningKind, advisory};
+use serde::{Serialize, Serializer, ser::SerializeStruct};
+
 /// SARIF log root object
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
 pub struct SarifLog {
-    /// URI of the SARIF schema
-    #[serde(rename = "$schema")]
-    pub schema: String,
-    /// SARIF format version
-    pub version: String,
     /// Array of analysis runs
-    pub runs: Vec<Run>,
+    runs: Vec<Run>,
 }
 
 impl SarifLog {
     /// Convert a cargo-audit report to SARIF format
     pub fn from_report(report: &Report, cargo_lock_path: &str) -> Self {
+        Self {
+            runs: vec![Run::from_report(report, cargo_lock_path)],
+        }
+    }
+}
+
+impl Serialize for SarifLog {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut state = Serializer::serialize_struct(serializer, "SarifLog", 3)?;
+        state.serialize_field("$schema", "https://json.schemastore.org/sarif-2.1.0.json")?;
+        state.serialize_field("version", "2.1.0")?;
+        state.serialize_field("runs", &self.runs)?;
+        state.end()
+    }
+}
+
+/// A run represents a single invocation of an analysis tool
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Run {
+    /// Tool information for this run
+    tool: Tool,
+    /// Array of results (findings) from the analysis
+    results: Vec<SarifResult>,
+}
+
+impl Run {
+    fn from_report(report: &Report, cargo_lock_path: &str) -> Self {
         let mut rules = Vec::new();
         let mut seen_rules = HashSet::new();
         let mut results = Vec::new();
@@ -38,7 +61,7 @@ impl SarifLog {
                 rules.push(ReportingDescriptor::from_advisory(&vuln.advisory, true));
             }
 
-            results.push(Result::from_vulnerability(vuln, cargo_lock_path));
+            results.push(SarifResult::from_vulnerability(vuln, cargo_lock_path));
         }
 
         for (warning_kind, warnings) in &report.warnings {
@@ -46,110 +69,84 @@ impl SarifLog {
                 let rule_id = if let Some(advisory) = &warning.advisory {
                     advisory.id.to_string()
                 } else {
-                    format!("{:?}", warning_kind).to_lowercase()
+                    format!("{warning_kind:?}").to_lowercase()
                 };
 
                 if seen_rules.insert(rule_id) {
-                    if let Some(advisory) = &warning.advisory {
-                        rules.push(ReportingDescriptor::from_advisory(advisory, false));
-                    } else {
-                        rules.push(ReportingDescriptor::from_warning_kind(*warning_kind));
-                    }
+                    rules.push(match &warning.advisory {
+                        Some(advisory) => ReportingDescriptor::from_advisory(advisory, false),
+                        None => ReportingDescriptor::from_warning_kind(*warning_kind),
+                    });
                 }
 
-                results.push(Result::from_warning(warning, cargo_lock_path));
+                results.push(SarifResult::from_warning(warning, cargo_lock_path));
             }
         }
 
-        SarifLog {
-            schema: "https://json.schemastore.org/sarif-2.1.0.json".to_string(),
-            version: "2.1.0".to_string(),
-            runs: vec![Run {
-                tool: Tool {
-                    driver: ToolComponent {
-                        name: "cargo-audit".to_string(),
-                        version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                        semantic_version: Some(env!("CARGO_PKG_VERSION").to_string()),
-                        rules,
-                    },
-                },
-                results,
-                automation_details: None,
-            }],
+        Self {
+            tool: Tool {
+                driver: ToolComponent { rules },
+            },
+            results,
         }
     }
 }
 
-/// A run represents a single invocation of an analysis tool
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Run {
-    /// Tool information for this run
-    pub tool: Tool,
-    /// Array of results (findings) from the analysis
-    pub results: Vec<Result>,
-    /// Automation details to distinguish between runs
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub automation_details: Option<RunAutomationDetails>,
-}
-
 /// Tool information
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Tool {
+struct Tool {
     /// The analysis tool that was run
-    pub driver: ToolComponent,
+    driver: ToolComponent,
 }
 
 /// Tool component (driver) information
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ToolComponent {
-    /// Name of the tool component
-    pub name: String,
-    /// Tool version string
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub version: Option<String>,
-    /// Semantic version of the tool
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub semantic_version: Option<String>,
+#[derive(Debug)]
+struct ToolComponent {
     /// Rules defined by this tool
-    pub rules: Vec<ReportingDescriptor>,
+    rules: Vec<ReportingDescriptor>,
+}
+
+impl Serialize for ToolComponent {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        let mut state = serializer.serialize_struct("ToolComponent", 4)?;
+        state.serialize_field("name", "cargo-audit")?;
+        state.serialize_field("version", env!("CARGO_PKG_VERSION"))?;
+        state.serialize_field("semanticVersion", env!("CARGO_PKG_VERSION"))?;
+        state.serialize_field("rules", &self.rules)?;
+        state.end()
+    }
 }
 
 /// Rule/reporting descriptor
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ReportingDescriptor {
+struct ReportingDescriptor {
     /// Unique identifier for the rule
-    pub id: String,
+    id: String,
     /// Human-readable name of the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub name: Option<String>,
+    name: String,
     /// Brief description of the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub short_description: Option<MultiformatMessageString>,
+    short_description: MultiformatMessageString,
     /// Detailed description of the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub full_description: Option<MultiformatMessageString>,
+    full_description: Option<MultiformatMessageString>,
     /// Default severity and enablement for the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub default_configuration: Option<ReportingConfiguration>,
+    default_configuration: ReportingConfiguration,
     /// Help text or URI for the rule
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub help: Option<MultiformatMessageString>,
+    help: Option<MultiformatMessageString>,
     /// Additional properties including tags and severity scores
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub properties: Option<RuleProperties>,
+    properties: RuleProperties,
 }
 
 impl ReportingDescriptor {
     /// Create a ReportingDescriptor from an advisory
-    pub fn from_advisory(metadata: &advisory::Metadata, is_vulnerability: bool) -> Self {
+    fn from_advisory(metadata: &advisory::Metadata, is_vulnerability: bool) -> Self {
         let tags = if is_vulnerability {
-            vec!["security".to_string(), "vulnerability".to_string()]
+            &[Tag::Security, Tag::Vulnerability]
         } else {
-            vec!["security".to_string(), "warning".to_string()]
+            &[Tag::Security, Tag::Warning]
         };
 
         let security_severity = metadata
@@ -157,15 +154,13 @@ impl ReportingDescriptor {
             .as_ref()
             .map(|cvss| format!("{:.1}", cvss.score().value()));
 
-        let default_level = if is_vulnerability { "error" } else { "warning" };
-
         ReportingDescriptor {
             id: metadata.id.to_string(),
-            name: Some(metadata.id.to_string()),
-            short_description: Some(MultiformatMessageString {
+            name: metadata.id.to_string(),
+            short_description: MultiformatMessageString {
                 text: metadata.title.clone(),
                 markdown: None,
-            }),
+            },
             full_description: if metadata.description.is_empty() {
                 None
             } else {
@@ -174,31 +169,34 @@ impl ReportingDescriptor {
                     markdown: None,
                 })
             },
-            default_configuration: Some(ReportingConfiguration {
-                level: default_level.to_string(),
-            }),
+            default_configuration: ReportingConfiguration {
+                level: match is_vulnerability {
+                    true => ReportingLevel::Error,
+                    false => ReportingLevel::Warning,
+                },
+            },
             help: metadata.url.as_ref().map(|url| MultiformatMessageString {
-                text: format!("For more information, see: {}", url),
+                text: format!("For more information, see: {url}"),
                 markdown: Some(format!(
-                    "For more information, see: [{}]({})",
-                    metadata.id, url
+                    "For more information, see: [{}]({url})",
+                    metadata.id
                 )),
             }),
-            properties: Some(RuleProperties {
-                tags: Some(tags),
-                precision: Some("very-high".to_string()),
+            properties: RuleProperties {
+                tags,
+                precision: Precision::VeryHigh,
                 problem_severity: if !is_vulnerability {
-                    Some("warning".to_string())
+                    Some(ProblemSeverity::Warning)
                 } else {
                     None
                 },
                 security_severity,
-            }),
+            },
         }
     }
 
     /// Create a ReportingDescriptor from a warning kind
-    pub fn from_warning_kind(kind: WarningKind) -> Self {
+    fn from_warning_kind(kind: WarningKind) -> Self {
         let (name, description) = match kind {
             WarningKind::Unmaintained => (
                 "unmaintained",
@@ -217,91 +215,102 @@ impl ReportingDescriptor {
 
         ReportingDescriptor {
             id: name.to_string(),
-            name: Some(name.to_string()),
-            short_description: Some(MultiformatMessageString {
+            name: name.to_string(),
+            short_description: MultiformatMessageString {
                 text: description.to_string(),
                 markdown: None,
-            }),
+            },
             full_description: None,
-            default_configuration: Some(ReportingConfiguration {
-                level: "warning".to_string(),
-            }),
+            default_configuration: ReportingConfiguration {
+                level: ReportingLevel::Warning,
+            },
             help: None,
-            properties: Some(RuleProperties {
-                tags: Some(vec!["security".to_string(), "warning".to_string()]),
-                precision: Some("high".to_string()),
-                problem_severity: Some("warning".to_string()),
+            properties: RuleProperties {
+                tags: &[Tag::Security, Tag::Warning],
+                precision: Precision::High,
+                problem_severity: Some(ProblemSeverity::Warning),
                 security_severity: None,
-            }),
+            },
         }
     }
 }
 
 /// Rule properties
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RuleProperties {
+struct RuleProperties {
     /// Tags associated with the rule
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub tags: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "<[Tag]>::is_empty")]
+    tags: &'static [Tag],
     /// Precision of the rule (e.g., "very-high", "high")
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub precision: Option<String>,
+    precision: Precision,
     /// Problem severity for non-security issues
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "problem.severity")]
-    pub problem_severity: Option<String>,
+    problem_severity: Option<ProblemSeverity>,
     /// CVSS score as a string (0.0-10.0)
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "security-severity")]
-    pub security_severity: Option<String>,
+    security_severity: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "lowercase")]
+enum ProblemSeverity {
+    Warning,
 }
 
 /// Reporting configuration for a rule
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ReportingConfiguration {
+struct ReportingConfiguration {
     /// Default level for the rule ("error", "warning", "note")
-    pub level: String,
+    level: ReportingLevel,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+enum ReportingLevel {
+    Error,
+    Warning,
 }
 
 /// Message with optional markdown
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MultiformatMessageString {
     /// Plain text message
-    pub text: String,
+    text: String,
     /// Optional markdown-formatted message
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub markdown: Option<String>,
+    markdown: Option<String>,
 }
 
 /// A result (finding/alert)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Result {
+pub struct SarifResult {
     /// ID of the rule that was violated
-    pub rule_id: String,
+    rule_id: String,
     /// Message describing the result
-    pub message: Message,
+    message: Message,
     /// Severity level of the result
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub level: Option<String>,
+    level: ResultLevel,
     /// Locations where the issue was detected
-    pub locations: Vec<Location>,
+    locations: Vec<Location>,
     /// Fingerprints for result matching
-    pub partial_fingerprints: HashMap<String, String>,
+    partial_fingerprints: HashMap<String, String>,
 }
 
-impl Result {
+impl SarifResult {
     /// Create a Result from a vulnerability
-    pub fn from_vulnerability(vuln: &Vulnerability, cargo_lock_path: &str) -> Self {
+    fn from_vulnerability(vuln: &Vulnerability, cargo_lock_path: &str) -> Self {
         let fingerprint = format!(
             "{}:{}:{}",
             vuln.advisory.id, vuln.package.name, vuln.package.version
         );
 
-        Result {
+        SarifResult {
             rule_id: vuln.advisory.id.to_string(),
             message: Message {
                 text: format!(
@@ -309,20 +318,8 @@ impl Result {
                     vuln.package.name, vuln.package.version, vuln.advisory.id, vuln.advisory.title
                 ),
             },
-            level: Some("error".to_string()),
-            locations: vec![Location {
-                physical_location: PhysicalLocation {
-                    artifact_location: ArtifactLocation {
-                        uri: cargo_lock_path.to_string(),
-                    },
-                    region: Region {
-                        start_line: 1,
-                        start_column: None,
-                        end_line: None,
-                        end_column: None,
-                    },
-                },
-            }],
+            level: ResultLevel::Error,
+            locations: vec![Location::new(cargo_lock_path)],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
                 // Use a custom fingerprint key instead of primaryLocationLineHash
@@ -334,7 +331,7 @@ impl Result {
     }
 
     /// Create a Result from a warning
-    pub fn from_warning(warning: &Warning, cargo_lock_path: &str) -> Self {
+    fn from_warning(warning: &Warning, cargo_lock_path: &str) -> Self {
         let rule_id = if let Some(advisory) = &warning.advisory {
             advisory.id.to_string()
         } else {
@@ -359,27 +356,15 @@ impl Result {
         };
 
         let fingerprint = format!(
-            "{}:{}:{}",
-            rule_id, warning.package.name, warning.package.version
+            "{rule_id}:{}:{}",
+            warning.package.name, warning.package.version
         );
 
-        Result {
+        SarifResult {
             rule_id,
             message: Message { text: message_text },
-            level: Some("warning".to_string()),
-            locations: vec![Location {
-                physical_location: PhysicalLocation {
-                    artifact_location: ArtifactLocation {
-                        uri: cargo_lock_path.to_string(),
-                    },
-                    region: Region {
-                        start_line: 1,
-                        start_column: None,
-                        end_line: None,
-                        end_column: None,
-                    },
-                },
-            }],
+            level: ResultLevel::Warning,
+            locations: vec![Location::new(cargo_lock_path)],
             partial_fingerprints: {
                 let mut fingerprints = HashMap::new();
                 // Use a custom fingerprint key instead of primaryLocationLineHash
@@ -391,61 +376,79 @@ impl Result {
     }
 }
 
-/// Simple message
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Message {
+enum ResultLevel {
+    Error,
+    Warning,
+}
+
+/// Simple message
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct Message {
     /// The message text
-    pub text: String,
+    text: String,
 }
 
 /// Location of a finding
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Location {
+struct Location {
     /// Physical location of the finding
-    pub physical_location: PhysicalLocation,
+    physical_location: PhysicalLocation,
+}
+
+impl Location {
+    fn new(cargo_lock_path: &str) -> Self {
+        Self {
+            physical_location: PhysicalLocation {
+                artifact_location: ArtifactLocation {
+                    uri: cargo_lock_path.to_string(),
+                },
+                region: Region { start_line: 1 },
+            },
+        }
+    }
 }
 
 /// Physical location in a file
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct PhysicalLocation {
+struct PhysicalLocation {
     /// The artifact (file) containing the issue
-    pub artifact_location: ArtifactLocation,
+    artifact_location: ArtifactLocation,
     /// Region within the artifact
-    pub region: Region,
+    region: Region,
 }
 
 /// Artifact (file) location
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ArtifactLocation {
+struct ArtifactLocation {
     /// URI of the artifact
-    pub uri: String,
+    uri: String,
 }
 
 /// Region within a file
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Region {
+struct Region {
     /// Starting line number (1-based)
-    pub start_line: u32,
-    /// Starting column number (1-based)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub start_column: Option<u32>,
-    /// Ending line number (1-based)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub end_line: Option<u32>,
-    /// Ending column number (1-based)
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub end_column: Option<u32>,
+    start_line: u32,
 }
 
-/// Run automation details for distinguishing multiple runs
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct RunAutomationDetails {
-    /// Unique identifier for the run
-    pub id: String,
+enum Tag {
+    Security,
+    Vulnerability,
+    Warning,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "kebab-case")]
+enum Precision {
+    High,
+    VeryHigh,
 }
