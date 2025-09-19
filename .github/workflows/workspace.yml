@@ -52,3 +52,41 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
+
+  # rustsec relies on mutually exclusive features in gix so we can't used
+  # cargo-semver-checks-action by just checking all-features acrooss all crates
+  semver:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check semver (cvss)
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          package: cvss
+      - name: Check semver (quitters)
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          package: quitters
+      - name: Check semver (cargo-lock)
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          package: cargo-lock
+      - name: Check semver (rustsec + reqwest)
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          package: rustsec
+          features: binary-scanning, default, dependency-tree, git, gix-reqwest, osv-export
+          feature-group: only-explicit-features
+      - name: Check semver (rustsec + curl)
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          package: rustsec
+          features: binary-scanning, dependency-tree, git, gix-curl, osv-export
+          feature-group: only-explicit-features
+      - name: Check semver (cargo-audit)
+        uses: obi1kenobi/cargo-semver-checks-action@v2
+        with:
+          package: cargo-audit
