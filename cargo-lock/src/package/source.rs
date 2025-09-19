@@ -20,9 +20,6 @@ pub const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index"
 /// Location of the crates.io sparse HTTP index
 pub const CRATES_IO_SPARSE_INDEX: &str = "sparse+https://index.crates.io/";
 
-/// Default branch name
-pub const DEFAULT_BRANCH: &str = "master";
-
 /// Unique identifier for a source of packages.
 #[derive(Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 pub struct SourceId {
@@ -124,7 +121,7 @@ impl SourceId {
         match kind {
             "git" => {
                 let mut url = url.into_url()?;
-                let mut reference = GitReference::Branch(DEFAULT_BRANCH.to_string());
+                let mut reference = GitReference::DefaultBranch;
                 for (k, v) in url.query_pairs() {
                     match &k[..] {
                         // Map older 'ref' to branch.
@@ -373,6 +370,9 @@ impl<'de> Deserialize<'de> for SourceId {
 /// Information to find a specific commit in a Git repository.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum GitReference {
+    /// The default branch of the repository, the reference named `HEAD`.
+    DefaultBranch,
+
     /// From a tag.
     Tag(String),
 
@@ -388,7 +388,7 @@ impl GitReference {
     /// the head of the default branch
     pub fn pretty_ref(&self, url_encoded: bool) -> Option<PrettyRef<'_>> {
         match self {
-            GitReference::Branch(s) if *s == DEFAULT_BRANCH => None,
+            Self::DefaultBranch => None,
             _ => Some(PrettyRef {
                 inner: self,
                 url_encoded,
@@ -406,6 +406,7 @@ pub struct PrettyRef<'a> {
 impl fmt::Display for PrettyRef<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let value: &str = match self.inner {
+            GitReference::DefaultBranch => return Ok(()),
             GitReference::Branch(s) => {
                 write!(f, "branch=")?;
                 s
