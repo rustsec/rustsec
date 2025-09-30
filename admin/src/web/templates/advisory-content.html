@@ -2,7 +2,7 @@
     {% match advisory.metadata.collection %}
     {% when Some with (collection) %}
         <span class="floating-menu">
-          <a href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">History</a> ⋅ 
+          <a href="https://github.com/RustSec/advisory-db/commits/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">History</a> ⋅
           <a href="https://github.com/RustSec/advisory-db/edit/main/{{ collection }}/{{ advisory.metadata.package }}/{{ advisory.id() }}.md">Edit</a> ⋅
           <a href="https://api.osv.dev/v1/vulns/{{ advisory.id() }}">JSON (OSV)</a>
         </span>
@@ -36,12 +36,12 @@
 
       <dt id="issued">Issued</dt>
       <dd>
-        <time datetime="{{ cdate.as_str() }}">
-          {{ cdate.clone()|friendly_date }}
+        <time datetime="{{ advisory.created.as_str() }}">
+          {{ advisory.created.clone()|friendly_date }}
         </time>
-        {% if cdate != mdate %}
-        <time datetime="{{ mdate.as_str() }}">
-          (last modified: {{ mdate.clone()|friendly_date }})
+        {% if advisory.created != advisory.modified %}
+        <time datetime="{{ advisory.modified.as_str() }}">
+          (last modified: {{ advisory.modified.clone()|friendly_date }})
         </time>
         {% endif %}
       </dd>
