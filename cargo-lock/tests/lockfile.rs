@@ -6,7 +6,7 @@ use std::str::FromStr;
 // TODO(tarcieri): add more example `Cargo.lock` files which cover more scenarios
 
 use cargo_lock::{
-    Lockfile, MetadataKey, ResolveVersion, Version,
+    GitSourceId, Lockfile, MetadataKey, ResolveVersion, Version,
     package::{GitReference, SourceKind},
 };
 
@@ -92,7 +92,10 @@ fn load_example_v4_lockfile() {
         .unwrap();
     assert_eq!(
         source_kind,
-        &SourceKind::Git(GitReference::Tag("a-_+#$)z".into()))
+        &SourceKind::Git(GitSourceId {
+            reference: GitReference::Tag("a-_+#$)z".into()),
+            precise: Some("54346fa288e16b25b71c45149d7067c752b450e0".to_owned()),
+        })
     );
 
     let source_kind = lockfile
@@ -104,7 +107,10 @@ fn load_example_v4_lockfile() {
         .unwrap();
     assert_eq!(
         source_kind,
-        &SourceKind::Git(GitReference::Branch("a-_+#$)z".into()))
+        &SourceKind::Git(GitSourceId {
+            reference: GitReference::Branch("a-_+#$)z".into()),
+            precise: Some("9e406273177740fa85b86b78e6d5105e932edef0".to_owned()),
+        })
     );
 }
 
