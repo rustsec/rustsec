@@ -20,6 +20,12 @@ pub enum Env {
     /// `gnu`: The GNU C Library (glibc)
     Gnu,
 
+    /// `macabi`
+    Macabi,
+
+    /// `mlibc`
+    Mlibc,
+
     /// `msvc`: Microsoft Visual C(++)
     Msvc,
 
@@ -50,14 +56,23 @@ pub enum Env {
     /// `p2`
     P2,
 
+    /// `p3`
+    P3,
+
     /// `relibc`
     Relibc,
 
     /// `sgx`: Intel Software Guard Extensions (SGX) Enclave
     Sgx,
 
+    /// `sim`
+    Sim,
+
     /// `uclibc`: C library for developing embedded Linux systems
     UClibc,
+
+    /// `v5`
+    V5,
 }
 
 impl Env {
@@ -66,6 +81,8 @@ impl Env {
         match self {
             Env::None => "",
             Env::Gnu => "gnu",
+            Env::Macabi => "macabi",
+            Env::Mlibc => "mlibc",
             Env::Msvc => "msvc",
             Env::Musl => "musl",
             Env::Newlib => "newlib",
@@ -76,9 +93,12 @@ impl Env {
             Env::OhOS => "ohos",
             Env::P1 => "p1",
             Env::P2 => "p2",
+            Env::P3 => "p3",
             Env::Relibc => "relibc",
             Env::Sgx => "sgx",
+            Env::Sim => "sim",
             Env::UClibc => "uclibc",
+            Env::V5 => "v5",
         }
     }
 }
@@ -91,6 +111,8 @@ impl FromStr for Env {
         let result = match name {
             "" => Env::None,
             "gnu" => Env::Gnu,
+            "macabi" => Env::Macabi,
+            "mlibc" => Env::Mlibc,
             "msvc" => Env::Msvc,
             "musl" => Env::Musl,
             "newlib" => Env::Newlib,
@@ -101,9 +123,12 @@ impl FromStr for Env {
             "ohos" => Env::OhOS,
             "p1" => Env::P1,
             "p2" => Env::P2,
+            "p3" => Env::P3,
             "relibc" => Env::Relibc,
             "sgx" => Env::Sgx,
+            "sim" => Env::Sim,
             "uclibc" => Env::UClibc,
+            "v5" => Env::V5,
             _ => return Err(Error),
         };
 

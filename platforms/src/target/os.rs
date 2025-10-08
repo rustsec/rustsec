@@ -74,6 +74,12 @@ pub enum OS {
     /// `macos`: Apple's Mac OS X
     MacOS,
 
+    /// `managarm`
+    Managarm,
+
+    /// `motor`
+    Motor,
+
     /// `netbsd`: The NetBSD operating system
     NetBSD,
 
@@ -121,6 +127,9 @@ pub enum OS {
 
     /// `unknown`
     Unknown,
+
+    /// `vexos`
+    VexOS,
 
     /// `visionos`
     VisionOS,
@@ -171,6 +180,8 @@ impl OS {
             OS::Linux => "linux",
             OS::Lynxos178 => "lynxos178",
             OS::MacOS => "macos",
+            OS::Managarm => "managarm",
+            OS::Motor => "motor",
             OS::NetBSD => "netbsd",
             OS::None => "none",
             OS::Nto => "nto",
@@ -187,6 +198,7 @@ impl OS {
             OS::TvOS => "tvos",
             OS::Uefi => "uefi",
             OS::Unknown => "unknown",
+            OS::VexOS => "vexos",
             OS::VisionOS => "visionos",
             OS::Vita => "vita",
             OS::VxWorks => "vxworks",
@@ -225,6 +237,8 @@ impl FromStr for OS {
             "linux" => OS::Linux,
             "lynxos178" => OS::Lynxos178,
             "macos" => OS::MacOS,
+            "managarm" => OS::Managarm,
+            "motor" => OS::Motor,
             "netbsd" => OS::NetBSD,
             "none" => OS::None,
             "nto" => OS::Nto,
@@ -241,6 +255,7 @@ impl FromStr for OS {
             "tvos" => OS::TvOS,
             "uefi" => OS::Uefi,
             "unknown" => OS::Unknown,
+            "vexos" => OS::VexOS,
             "visionos" => OS::VisionOS,
             "vita" => OS::Vita,
             "vxworks" => OS::VxWorks,
