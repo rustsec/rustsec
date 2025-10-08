@@ -34,6 +34,9 @@ pub enum Arch {
     /// `hexagon`
     Hexagon,
 
+    /// `loongarch32`
+    Loongarch32,
+
     /// `loongarch64`
     Loongarch64,
 
@@ -107,6 +110,7 @@ impl Arch {
             Arch::Bpf => "bpf",
             Arch::Csky => "csky",
             Arch::Hexagon => "hexagon",
+            Arch::Loongarch32 => "loongarch32",
             Arch::Loongarch64 => "loongarch64",
             Arch::M68k => "m68k",
             Arch::Mips => "mips",
@@ -145,6 +149,7 @@ impl FromStr for Arch {
             "bpf" => Arch::Bpf,
             "csky" => Arch::Csky,
             "hexagon" => Arch::Hexagon,
+            "loongarch32" => Arch::Loongarch32,
             "loongarch64" => Arch::Loongarch64,
             "m68k" => Arch::M68k,
             "mips" => Arch::Mips,
