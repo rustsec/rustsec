@@ -6,6 +6,7 @@ use std::path::Path;
 ///
 /// This type is immutable.
 #[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
+#[derive(Clone, Copy)]
 pub struct GitPath<'a> {
     repo: &'a Repository,
     path: &'a Path,
