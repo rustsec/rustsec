@@ -113,7 +113,7 @@ jobs:
           version=$(echo "${{ github.ref }}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           7z a "../$dst.zip" "$dst"
-      - uses: softprops/action-gh-release@62c96d0c4e8a889135c1f3a25910db8dbe0e85f7
+      - uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
         with:
           files: |
             cargo-audit-*.tgz
