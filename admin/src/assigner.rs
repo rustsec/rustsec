@@ -87,9 +87,19 @@ pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
         );
     }
 
-    if output_mode == OutputMode::GithubAction {
-        println!("Assigned {}", assignments.join(", "));
+    if output_mode != OutputMode::GithubAction {
+        return;
     }
+
+    let mut title = format!("Assigned {}", assignments.join(", "));
+    let mut dropped = 0;
+    while title.len() > 255 {
+        dropped += 1;
+        let new = title.rsplit_once(", ").unwrap().0;
+        title = format!("{new} and {dropped} more");
+    }
+
+    println!("{title}");
 }
 
 ///Assign ids to files with placeholder IDs within the directory defined by dir_path
