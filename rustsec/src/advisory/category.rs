@@ -56,6 +56,11 @@ pub enum Category {
     /// semantically the wrong thing.
     LogicBug,
 
+    /// Parser code is tricked into processing data incorrectly, for example
+    /// when escaping is resolved incorrectly, or an edge-case being handled
+    /// incorrectly while processing a file-format, leading to incorrect results
+    ParserConfusion,
+
     /// Other types of categories: left open-ended to add more of them in the future.
     Other(String),
 }
@@ -74,6 +79,7 @@ impl Category {
             Category::PrivilegeEscalation => "privilege-escalation",
             Category::ThreadSafety => "thread-safety",
             Category::LogicBug => "logic-bug",
+            Category::ParserConfusion => "parser-confusion",
             Category::Other(other) => other,
         }
     }
@@ -100,6 +106,7 @@ impl FromStr for Category {
             "privilege-escalation" => Category::PrivilegeEscalation,
             "thread-safety" => Category::ThreadSafety,
             "logic-bug" => Category::LogicBug,
+            "parser-confusion" => Category::ParserConfusion,
             other => Category::Other(other.to_owned()),
         })
     }
