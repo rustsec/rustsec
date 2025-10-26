@@ -32,8 +32,12 @@ updates:
   - dependency-name: toml
     versions:
     - 0.5.8
+  cooldown:
+    default-days: 7
 - package-ecosystem: "github-actions"
   directory: "/"
   schedule:
     interval: "weekly"
   open-pull-requests-limit: 10
+  cooldown:
+    default-days: 7
