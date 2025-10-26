@@ -19,7 +19,7 @@ jobs:
           toolchain: stable
           override: true
           profile: minimal
-      - uses: actions-rs/cargo@ae10961054e4aa8b4aa7dffede299aaf087aa33b # v1.0.1
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1.0.3
         with:
           command: check
 
@@ -35,11 +35,11 @@ jobs:
           components: clippy
           override: true
           profile: minimal
-      - uses: actions-rs/cargo@ae10961054e4aa8b4aa7dffede299aaf087aa33b # v1.0.1
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1.0.3
         with:
           command: clippy
           args: --workspace --all-features --exclude=rustsec -- -D warnings
-      - uses: actions-rs/cargo@ae10961054e4aa8b4aa7dffede299aaf087aa33b # v1.0.1
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1.0.3
         with:
           command: clippy
           args: --package=rustsec --features=dependency-tree,osv-export,binary-scanning -- -D warnings
@@ -56,7 +56,7 @@ jobs:
           components: rustfmt
           override: true
           profile: minimal
-      - uses: actions-rs/cargo@ae10961054e4aa8b4aa7dffede299aaf087aa33b # v1.0.1
+      - uses: actions-rs/cargo@844f36862e911db73fe0815f00a4a2602c279505 # v1.0.3
         with:
           command: fmt
           args: --all -- --check
