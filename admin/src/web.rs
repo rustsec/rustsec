@@ -16,7 +16,7 @@ use atom_syndication::{
     PersonBuilder, Text,
 };
 use chrono::{Duration, NaiveDate, Utc};
-use comrak::{ComrakOptions, markdown_to_html};
+use comrak::markdown_to_html;
 use rust_embed::RustEmbed;
 use rustsec::advisory::Id;
 use rustsec::osv::OsvAdvisory;
@@ -119,7 +119,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     let contributing_md = fs::read_to_string(contributing_path).unwrap();
     let static_template = StaticTemplate {
         title: "Reporting Vulnerabilities".to_string(),
-        content: markdown_to_html(&contributing_md, &ComrakOptions::default()),
+        content: markdown_to_html(&contributing_md, &comrak::Options::default()),
     };
     let contributing_page = static_template.render().unwrap();
     fs::write(output_folder.join("contributing.html"), contributing_page).unwrap();
@@ -131,8 +131,9 @@ pub fn render_advisories(output_folder: PathBuf) {
     for data in &advisories {
         let output_path = advisories_folder.join(data.id().as_str().to_owned() + ".html");
 
-        let rendered_description = markdown_to_html(data.description(), &ComrakOptions::default());
-        let rendered_title = markdown_to_html(data.title(), &ComrakOptions::default());
+        let rendered_description =
+            markdown_to_html(data.description(), &comrak::Options::default());
+        let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
 
         let advisory_tmpl = AdvisoryTemplate {
             advisory: data,
@@ -164,7 +165,7 @@ pub fn render_advisories(output_folder: PathBuf) {
 
     let mut advisories_index = vec![];
     for data in &advisories {
-        let rendered_title = markdown_to_html(data.title(), &ComrakOptions::default());
+        let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
         let advisory_title_type = title_type(data);
         advisories_index.push((data, rendered_title, advisory_title_type));
     }
@@ -185,7 +186,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     let mut advisories_per_package = Vec::<AdvisoriesSubList>::new();
     let mut packages = Vec::<(String, String, Option<usize>)>::new();
     for data in &advisories {
-        let rendered_title = markdown_to_html(data.title(), &ComrakOptions::default());
+        let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
         let advisory_title_type = title_type(data);
         let package = data.metadata.package.to_string();
 
@@ -249,7 +250,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     let mut advisories_per_keyword = Vec::<AdvisoriesSubList>::new();
     let mut keywords = Vec::<(String, String, Option<usize>)>::new();
     for data in &advisories {
-        let rendered_title = markdown_to_html(data.title(), &ComrakOptions::default());
+        let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
         let advisory_title_type = title_type(data);
 
         // merge keywords with the same slug
@@ -307,7 +308,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     let mut advisories_per_category = Vec::<AdvisoriesSubList>::new();
     let mut categories = Vec::<(String, String, Option<usize>)>::new();
     for data in &advisories {
-        let rendered_title = markdown_to_html(data.title(), &ComrakOptions::default());
+        let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
         let advisory_title_type = title_type(data);
 
         for category in data.metadata.categories.as_slice() {
@@ -475,8 +476,9 @@ fn render_feed(output_path: &Path, advisories: &[AdvisoryData]) {
             );
         }
 
-        let rendered_description = markdown_to_html(data.description(), &ComrakOptions::default());
-        let rendered_title = markdown_to_html(data.title(), &ComrakOptions::default());
+        let rendered_description =
+            markdown_to_html(data.description(), &comrak::Options::default());
+        let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
 
         let advisory_tmpl = AdvisoryContentTemplate {
             advisory: data,
