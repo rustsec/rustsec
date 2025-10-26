@@ -1,5 +1,7 @@
 name: Release
 
+permissions: {}
+
 on:
   workflow_dispatch:
     inputs:
@@ -19,6 +21,8 @@ env:
 
 jobs:
   build:
+    permissions:
+      contents: write # to create releases
     strategy:
       matrix:
         name:
@@ -63,17 +67,21 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/cache@v4.3.0
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cargo/registry
           key: ${{ runner.os }}-cargo-registry-${{ hashFiles('Cargo.lock') }}
           # The tag to build or the tag received by the tag event
           ref: ${{ github.event.inputs.version || github.ref }}
-      - uses: actions/cache@v4.3.0
+          lookup-only: true
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           path: ~/.cargo/git
           key: ${{ runner.os }}-cargo-index-${{ hashFiles('Cargo.lock') }}
+          lookup-only: true
       - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af
         with:
           toolchain: stable
@@ -94,23 +102,23 @@ jobs:
           ext=""
           [[ "${{ matrix.name }}" == windows-* ]] && ext=".exe"
           bin="../target/${{ matrix.target }}/release/cargo-audit${ext}"
-          version=$(echo "${{ github.ref }}" | cut -d/ -f4)
+          version=$(echo "${GITHUB_REF}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           mkdir "$dst"
           mv "$bin" "$dst/"
           mv README.md CHANGELOG.md LICENSE-APACHE LICENSE-MIT "$dst/"
       - name: Archive (tar)
-        if: '! startsWith(matrix.name, ''windows-'')'
+        if: "! startsWith(matrix.name, 'windows-')"
         shell: bash
         run: |
-          version=$(echo "${{ github.ref }}" | cut -d/ -f4)
+          version=$(echo "${GITHUB_REF}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           tar cavf "../$dst.tgz" "$dst"
       - name: Archive (zip)
         if: startsWith(matrix.name, 'windows-')
         shell: bash
         run: |
-          version=$(echo "${{ github.ref }}" | cut -d/ -f4)
+          version=$(echo "${GITHUB_REF}" | cut -d/ -f4)
           dst="cargo-audit-${{ matrix.target }}-${version}"
           7z a "../$dst.zip" "$dst"
       - uses: softprops/action-gh-release@6da8fa9354ddfdc4aeace5fc48d7f679b5214090
