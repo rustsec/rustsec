@@ -255,7 +255,7 @@ impl Auditor {
             }
             None => Err(Error::new(
                 ErrorKind::Parse,
-                &"No dependency information found! Is this a Rust executable built with cargo?",
+                "No dependency information found! Is this a Rust executable built with cargo?",
             )),
         }
     }
