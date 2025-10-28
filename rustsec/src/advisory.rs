@@ -53,12 +53,21 @@ impl Advisory {
     pub fn load_file(path: impl AsRef<Path>) -> Result<Self, Error> {
         let path = path.as_ref();
 
-        let advisory_data = fs::read_to_string(path)
-            .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?;
+        let advisory_data = fs::read_to_string(path).map_err(|e| {
+            Error::with_source(
+                ErrorKind::Io,
+                format!("couldn't open {}", path.display()),
+                e,
+            )
+        })?;
 
-        advisory_data
-            .parse()
-            .map_err(|e| format_err!(ErrorKind::Parse, "error parsing {}: {}", path.display(), e))
+        advisory_data.parse().map_err(|e| {
+            Error::with_source(
+                ErrorKind::Parse,
+                format!("error parsing {}", path.display()),
+                e,
+            )
+        })
     }
 
     /// Get advisory ID

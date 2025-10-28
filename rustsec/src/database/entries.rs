@@ -61,10 +61,9 @@ impl Entries {
 
         // Ensure advisory is in a directory named after its package
         let package_dir = path.parent().ok_or_else(|| {
-            format_err!(
+            Error::new(
                 ErrorKind::Repo,
-                "advisory has no parent dir: {}",
-                path.display()
+                format!("advisory has no parent dir: {}", path.display()),
             )
         })?;
 
@@ -82,10 +81,9 @@ impl Entries {
         let collection_dir = package_dir
             .parent()
             .ok_or_else(|| {
-                format_err!(
+                Error::new(
                     ErrorKind::Repo,
-                    "advisory has no collection: {}",
-                    path.display()
+                    format!("advisory has no collection: {}", path.display()),
                 )
             })?
             .file_name()

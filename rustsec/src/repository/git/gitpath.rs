@@ -25,10 +25,9 @@ impl<'a> GitPath<'a> {
         }
 
         if !repo.has_relative_path(path) {
-            Err(format_err!(
+            Err(Error::new(
                 ErrorKind::Repo,
-                "HEAD commit does not contain path '{}'",
-                path.display()
+                format!("HEAD commit does not contain path '{}'", path.display()),
             ))
         } else {
             Ok(GitPath { repo, path })

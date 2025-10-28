@@ -34,11 +34,10 @@ impl Linter {
         }
 
         let advisory_data = fs::read_to_string(path).map_err(|e| {
-            format_err!(
+            crate::Error::with_source(
                 crate::ErrorKind::Io,
-                "couldn't open {}: {}",
-                path.display(),
-                e
+                format!("couldn't open {}", path.display()),
+                e,
             )
         })?;
 

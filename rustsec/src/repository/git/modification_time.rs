@@ -39,13 +39,15 @@ impl GitModificationTimes {
 
         let walk = repo
             .rev_walk(Some(repo.head_id().map_err(|err| {
-                format_err!(ErrorKind::Repo, "unable to find head id: {}", err)
+                Error::with_source(ErrorKind::Repo, "unable to find head id".to_owned(), err)
             })?))
             .sorting(gix::revision::walk::Sorting::ByCommitTime(
                 CommitTimeOrder::NewestFirst,
             ))
             .all()
-            .map_err(|err| format_err!(ErrorKind::Repo, "unable to walk commits: {}", err))?;
+            .map_err(|err| {
+                Error::with_source(ErrorKind::Repo, "unable to walk commits".to_owned(), err)
+            })?;
 
         let db = &repo.objects;
 
@@ -53,7 +55,11 @@ impl GitModificationTimes {
         let mut buf2 = Vec::new();
         for info in walk {
             let info = info.map_err(|err| {
-                format_err!(ErrorKind::Repo, "failed to retrieve commit info: {}", err)
+                Error::with_source(
+                    ErrorKind::Repo,
+                    "failed to retrieve commit info".to_owned(),
+                    err,
+                )
             })?;
 
             let parent_commit_id = match info.parent_ids.len() {
@@ -68,23 +74,20 @@ impl GitModificationTimes {
                 let commit = db
                     .try_find(&info.id, &mut buf)
                     .map_err(|err| {
-                        format_err!(
+                        Error::new(
                             ErrorKind::Repo,
-                            "failed to find commit '{}': {}",
-                            info.id,
-                            err
+                            format!("failed to find commit '{}': {err}", info.id),
                         )
                     })?
                     .ok_or_else(|| {
-                        format_err!(ErrorKind::Repo, "commit '{}' not present", info.id)
+                        Error::new(ErrorKind::Repo, format!("commit '{}' not present", info.id))
                     })?
                     .decode()
                     .map_err(|err| {
-                        format_err!(
+                        Error::with_source(
                             ErrorKind::Repo,
-                            "unable to decode commit '{}': {}",
-                            info.id,
-                            err
+                            format!("unable to decode commit '{}'", info.id),
+                            err,
                         )
                     })?
                     .into_commit()
@@ -95,11 +98,9 @@ impl GitModificationTimes {
             let current_tree = db
                 .try_find(&main_tree_id, &mut buf)
                 .map_err(|err| {
-                    format_err!(
+                    Error::new(
                         ErrorKind::Repo,
-                        "failed to find tree for commit '{}': {}",
-                        info.id,
-                        err
+                        format!("failed to find tree for commit '{}': {err}", info.id),
                     )
                 })?
                 .expect("main tree present")
@@ -124,12 +125,13 @@ impl GitModificationTimes {
                 &mut recorder,
             )
             .map_err(|err| {
-                format_err!(
+                Error::with_source(
                     ErrorKind::Repo,
-                    "failed to diff commit {} to its parent {:?}: {}",
-                    info.id,
-                    parent_commit_id,
-                    err
+                    format!(
+                        "failed to diff commit {} to its parent {:?}",
+                        info.id, parent_commit_id
+                    ),
+                    err,
                 )
             })?;
 
