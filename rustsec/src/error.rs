@@ -8,20 +8,10 @@ use std::{
 };
 use thiserror::Error;
 
-/// Create a new error (of a given enum variant) with a formatted message
-macro_rules! format_err {
-    ($kind:path, $msg:expr) => {
-        crate::error::Error::new($kind, $msg)
-    };
-    ($kind:path, $fmt:expr, $($arg:tt)+) => {
-        format_err!($kind, &format!($fmt, $($arg)+))
-    };
-}
-
 /// Create and return an error with a formatted message
 macro_rules! fail {
     ($kind:path, $msg:expr) => {
-        return Err(format_err!($kind, $msg).into())
+        return Err(crate::error::Error::new($kind, $msg))
     };
     ($kind:path, $fmt:expr, $($arg:tt)+) => {
         fail!($kind, &format!($fmt, $($arg)+))
@@ -63,6 +53,13 @@ impl Error {
             msg: description.to_string(),
             source: None,
         }
+    }
+
+    pub(crate) fn from_source(
+        kind: ErrorKind,
+        source: impl std::error::Error + Send + Sync + 'static,
+    ) -> Self {
+        Self::with_source(kind, source.to_string(), source)
     }
 
     /// Creates a new [`Error`](struct@Error) whose [`std::error::Error::source()`] is `source`.
@@ -146,25 +143,25 @@ pub enum ErrorKind {
 
 impl From<Utf8Error> for Error {
     fn from(other: Utf8Error) -> Self {
-        format_err!(ErrorKind::Parse, &other)
+        Self::from_source(ErrorKind::Parse, other)
     }
 }
 
 impl From<cargo_lock::Error> for Error {
     fn from(other: cargo_lock::Error) -> Self {
-        format_err!(ErrorKind::Io, &other)
+        Self::from_source(ErrorKind::Io, other)
     }
 }
 
 impl From<fmt::Error> for Error {
     fn from(other: fmt::Error) -> Self {
-        format_err!(ErrorKind::Io, &other)
+        Self::from_source(ErrorKind::Io, other)
     }
 }
 
 impl From<io::Error> for Error {
     fn from(other: io::Error) -> Self {
-        format_err!(ErrorKind::Io, &other)
+        Self::from_source(ErrorKind::Io, other)
     }
 }
 
@@ -183,11 +180,11 @@ impl Error {
         match err {
             tame_index::Error::Lock(lock_err) => match &lock_err.source {
                 LockError::TimedOut | LockError::Contested => {
-                    format_err!(ErrorKind::LockTimeout, "{}", lock_err)
+                    Self::from_source(ErrorKind::LockTimeout, lock_err)
                 }
-                _ => format_err!(ErrorKind::Io, "{}", lock_err),
+                _ => Self::from_source(ErrorKind::Io, lock_err),
             },
-            other => format_err!(ErrorKind::Registry, "{}", other),
+            other => Self::from_source(ErrorKind::Registry, other),
         }
     }
 
@@ -196,6 +193,6 @@ impl Error {
     /// This is used so rarely that there is no need to `impl From`,
     /// and this way we can avoid leaking it into the public API.
     pub(crate) fn from_toml(other: toml::de::Error) -> Self {
-        format_err!(ErrorKind::Parse, &other)
+        Self::with_source(ErrorKind::Parse, other.to_string(), other)
     }
 }

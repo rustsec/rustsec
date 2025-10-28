@@ -64,9 +64,9 @@ impl UnaffectedRange {
         if start.less_or_equal(&end) {
             Ok(UnaffectedRange { start, end })
         } else {
-            Err(format_err!(
+            Err(Error::new(
                 BadParam,
-                "Invalid range: start must be <= end; if equal, both bounds must be inclusive"
+                "Invalid range: start must be <= end; if equal, both bounds must be inclusive",
             ))
         }
     }
