@@ -10,10 +10,7 @@ use thiserror::Error;
 /// Create a new error (of a given enum variant) with a formatted message
 macro_rules! format_err {
     ($kind:path, $msg:expr) => {
-        crate::error::Error::new(
-            $kind,
-            &$msg.to_string()
-        )
+        crate::error::Error::new($kind, $msg)
     };
     ($kind:path, $fmt:expr, $($arg:tt)+) => {
         format_err!($kind, &format!($fmt, $($arg)+))
@@ -55,7 +52,7 @@ impl Error {
     /// Creates a new [`Error`](struct@Error) with the given description.
     ///
     /// Do not use this for wrapping [`std::error::Error`]; use [`Error::with_source()`] instead.
-    pub fn new<S: ToString>(kind: ErrorKind, description: &S) -> Self {
+    pub fn new(kind: ErrorKind, description: impl Display) -> Self {
         // TODO: In a semver-breaking release, deprecate accepting anything but a `String`,
         // or maybe `AsRef<str>`. This will discourage putting error types in the `description`
         // position, which makes it impossible to retrieve their `.source()` info. It will also
