@@ -4,6 +4,7 @@ use std::{
     fmt::{self, Display},
     io,
     str::Utf8Error,
+    sync::Arc,
 };
 use thiserror::Error;
 
@@ -31,7 +32,7 @@ macro_rules! fail {
 pub type Result<T> = std::result::Result<T, Error>;
 
 /// Error type
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Error {
     /// Kind of error
     kind: ErrorKind,
@@ -45,7 +46,7 @@ pub struct Error {
     ///
     /// The specific type of this error should not be considered part of the stable interface of
     /// this crate.
-    source: Option<Box<dyn std::error::Error + Send + Sync>>,
+    source: Option<Arc<dyn std::error::Error + Send + Sync>>,
 }
 
 impl Error {
@@ -77,7 +78,7 @@ impl Error {
         Self {
             kind,
             msg,
-            source: Some(Box::new(source)),
+            source: Some(Arc::new(source)),
         }
     }
 
