@@ -4,11 +4,8 @@
 #![forbid(unsafe_code)]
 
 use abscissa_core::{
-    Application, Component, Configurable, Runnable, Shutdown,
-    application::fatal_error,
-    config::Override,
-    terminal::component::Terminal,
-    trace::{Config, Tracing},
+    Application, Component, Configurable, Runnable, Shutdown, application::fatal_error,
+    config::Override, terminal::ColorChoice, terminal::component::Terminal,
 };
 use cargo_audit::{
     application::{APP, CargoAuditApplication},
@@ -16,6 +13,8 @@ use cargo_audit::{
     config::AuditConfig,
 };
 use clap::Parser;
+use tracing_log::LogTracer;
+use tracing_subscriber::FmtSubscriber;
 
 fn main() {
     // Parse command line options
@@ -24,19 +23,31 @@ fn main() {
     // Initialize application
     let mut app = CargoAuditApplication::default();
     let terminal = Terminal::new(command.term_colors());
-    let tracing = Tracing::new(
-        match command.verbose {
-            true => Config::verbose(),
-            false => Config::default(),
-        },
-        command.term_colors(),
-    )
-    .expect("tracing subsystem failed to initialize");
+    let components = vec![Box::new(terminal) as Box<dyn Component<CargoAuditApplication>>];
 
-    let components = vec![
-        Box::new(terminal) as Box<dyn Component<CargoAuditApplication>>,
-        Box::new(tracing),
-    ];
+    if let Err(error) = LogTracer::init() {
+        fatal_error(&app, &error);
+    }
+
+    // Construct a tracing subscriber with the supplied filter and enable reloading.
+    let subscriber = FmtSubscriber::builder()
+        .with_ansi(match command.term_colors() {
+            ColorChoice::Always => true,
+            ColorChoice::AlwaysAnsi => true,
+            ColorChoice::Auto => true,
+            ColorChoice::Never => false,
+        })
+        .with_env_filter(match command.verbose {
+            true => "debug".to_owned(),
+            false => std::env::var("RUST_LOG").unwrap_or("info".to_owned()),
+        })
+        .finish();
+
+    // Now set it as the global tracing subscriber and save the handle.
+    if let Err(error) = tracing::subscriber::set_global_default(subscriber) {
+        fatal_error(&app, &error)
+    }
+
     if let Err(error) = app.state.components_mut().register(components) {
         fatal_error(&app, &error);
     };
