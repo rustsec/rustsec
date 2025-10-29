@@ -1,18 +1,17 @@
 //! Core auditing functionality
 
-use crate::{
-    config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
-};
-use rustsec::{Error, ErrorKind, Lockfile, Warning, WarningKind, registry, report};
-
-use rustsec::binary_scanning::BinaryFormat;
-
 use std::{
     io::{self, Read},
     path::Path,
     process::exit,
     time::Duration,
 };
+
+use abscissa_core::{status_err, status_ok, status_warn};
+use rustsec::binary_scanning::BinaryFormat;
+use rustsec::{Error, ErrorKind, Lockfile, Warning, WarningKind, registry, report};
+
+use crate::{config::AuditConfig, error::display_err_with_source, presenter::Presenter};
 
 // TODO: make configurable
 const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);

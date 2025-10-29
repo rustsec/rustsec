@@ -364,6 +364,7 @@ dependencies = [
  "abscissa_core",
  "cargo-lock",
  "clap",
+ "color-eyre",
  "display-error-chain",
  "home",
  "once_cell",
@@ -373,6 +374,9 @@ dependencies = [
  "tempfile",
  "thiserror",
  "toml 0.9.8",
+ "tracing",
+ "tracing-log",
+ "tracing-subscriber",
 ]
 
 [[package]]
