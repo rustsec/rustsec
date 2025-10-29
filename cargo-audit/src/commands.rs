@@ -12,8 +12,6 @@
 mod audit;
 
 use self::audit::AuditCommand;
-use crate::config::AuditConfig;
-use abscissa_core::{Command, Configurable, FrameworkError, Runnable, config::Override};
 use clap::Parser;
 use std::{ops::Deref, path::PathBuf};
 
@@ -23,8 +21,7 @@ use std::{ops::Deref, path::PathBuf};
 pub const CONFIG_FILE: &str = "audit.toml";
 
 /// `cargo audit` subcommands (presently only `audit`)
-#[derive(Command, Debug, Parser, Runnable)]
-#[command(bin_name = "cargo")]
+#[derive(Debug, Parser)]
 pub enum CargoAuditSubCommand {
     /// The `cargo audit` subcommand
     #[command(about = "Audit Cargo.lock files for vulnerable crates")]
@@ -32,8 +29,7 @@ pub enum CargoAuditSubCommand {
 }
 
 /// `cargo audit` entrypoint
-#[derive(Command, Debug, Parser)]
-#[command(author, version, about)]
+#[derive(Debug, Parser)]
 pub struct CargoAuditCommand {
     /// Subcommand
     #[command(subcommand)]
@@ -44,15 +40,9 @@ pub struct CargoAuditCommand {
     pub verbose: bool,
 }
 
-impl Runnable for CargoAuditCommand {
-    fn run(&self) {
-        self.cmd.run()
-    }
-}
-
-impl Configurable<AuditConfig> for CargoAuditCommand {
-    /// Location of `audit.toml` (if it exists)
-    fn config_path(&self) -> Option<PathBuf> {
+impl CargoAuditCommand {
+    /// Yield path to config file if it exists
+    pub fn config_path(&self) -> Option<PathBuf> {
         // Check if the config file exists, and if it does not, ignore it.
         //
         // The order of precedence for which config file to use is:
@@ -72,13 +62,6 @@ impl Configurable<AuditConfig> for CargoAuditCommand {
             Some(home_config_filename)
         } else {
             None
-        }
-    }
-
-    /// Override loaded config with explicit command-line arguments
-    fn process_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
-        match &self.cmd {
-            CargoAuditSubCommand::Audit(cmd) => cmd.override_config(config),
         }
     }
 }

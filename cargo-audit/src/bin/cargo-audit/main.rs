@@ -5,9 +5,9 @@
 
 use std::fs;
 
-use abscissa_core::{Configurable, Runnable, config::Override, terminal::ColorChoice};
+use abscissa_core::terminal::ColorChoice;
 use cargo_audit::{
-    application::CargoAuditApplication,
+    auditor::Auditor,
     commands::{CargoAuditCommand, CargoAuditSubCommand},
     config::AuditConfig,
 };
@@ -18,9 +18,6 @@ use tracing_subscriber::FmtSubscriber;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Parse command line options
     let command = CargoAuditCommand::parse();
-
-    // Initialize application
-    let app = CargoAuditApplication::default();
     if command.term_colors() != ColorChoice::Never {
         color_eyre::install()?;
     }
@@ -58,8 +55,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CargoAuditSubCommand::Audit(cmd) => cmd.override_config(config)?,
     };
 
-    // Run the command
-    app.config.set_once(config);
-    command.run();
+    let mut auditor = Auditor::new(&config);
+    command.run(&mut auditor, &config);
     Ok(())
 }
