@@ -20,10 +20,10 @@ pub static APP: AppCell<CargoAuditApplication> = AppCell::new();
 #[derive(Debug)]
 pub struct CargoAuditApplication {
     /// Application configuration.
-    config: CfgCell<AuditConfig>,
+    pub config: CfgCell<AuditConfig>,
 
     /// Application state.
-    state: application::State<Self>,
+    pub state: application::State<Self>,
 }
 
 /// Initialize a new application instance.
