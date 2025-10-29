@@ -20,6 +20,7 @@ maintenance = { status = "actively-developed" }
 abscissa_core = { workspace = true }
 cargo-lock = { workspace = true }
 clap = { workspace = true }
+color-eyre = { workspace = true }
 display-error-chain = { workspace = true }
 home = { workspace = true }
 rustsec = { workspace = true, features = ["dependency-tree"] }

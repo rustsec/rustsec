@@ -3,10 +3,7 @@
 #![deny(warnings, missing_docs, unused_qualifications)]
 #![forbid(unsafe_code)]
 
-use abscissa_core::{
-    Application, Component, Configurable, Runnable, Shutdown, config::Override,
-    terminal::ColorChoice, terminal::component::Terminal,
-};
+use abscissa_core::{Application, Configurable, Runnable, config::Override, terminal::ColorChoice};
 use cargo_audit::{
     application::CargoAuditApplication,
     commands::{CargoAuditCommand, CargoAuditSubCommand},
@@ -22,8 +19,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Initialize application
     let mut app = CargoAuditApplication::default();
-    let terminal = Terminal::new(command.term_colors());
-    let components = vec![Box::new(terminal) as Box<dyn Component<CargoAuditApplication>>];
+    if command.term_colors() != ColorChoice::Never {
+        color_eyre::install()?;
+    }
 
     LogTracer::init()?;
 
@@ -45,7 +43,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Now set it as the global tracing subscriber and save the handle.
     tracing::subscriber::set_global_default(subscriber)?;
-    app.state.components_mut().register(components)?;
 
     // Load configuration
     let config = match command.config_path() {
@@ -60,12 +57,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Run the command
-    app.state.components_mut().after_config(&config)?;
     app.config.set_once(config);
     command.run();
-
-    // Exit gracefully
-    let components = app.state().components();
-    components.shutdown(&app, Shutdown::Graceful)?;
     Ok(())
 }

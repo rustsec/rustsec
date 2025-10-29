@@ -364,6 +364,7 @@ dependencies = [
  "abscissa_core",
  "cargo-lock",
  "clap",
+ "color-eyre",
  "display-error-chain",
  "home",
  "once_cell",
