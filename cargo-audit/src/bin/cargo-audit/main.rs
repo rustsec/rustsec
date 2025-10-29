@@ -3,9 +3,12 @@
 #![deny(warnings, missing_docs, unused_qualifications)]
 #![forbid(unsafe_code)]
 
+use std::fs;
+
 use abscissa_core::{
-    Application, Component, Configurable, Runnable, Shutdown, config::Override,
-    terminal::ColorChoice, terminal::component::Terminal,
+    Application, Component, Configurable, Runnable, Shutdown,
+    config::Override,
+    terminal::{ColorChoice, component::Terminal},
 };
 use cargo_audit::{
     application::{APP, CargoAuditApplication},
@@ -21,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let command = CargoAuditCommand::parse();
 
     // Initialize application
-    let mut app = CargoAuditApplication::default();
+    let app = CargoAuditApplication::default();
     let terminal = Terminal::new(command.term_colors());
     let components = vec![Box::new(terminal) as Box<dyn Component<CargoAuditApplication>>];
 
@@ -47,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Load configuration
     let config = match command.config_path() {
-        Some(path) => app.load_config(&path)?,
+        Some(path) => toml::from_str(&fs::read_to_string(&path.canonicalize()?)?)?,
         None => AuditConfig::default(),
     };
 
