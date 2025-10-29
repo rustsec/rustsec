@@ -6,15 +6,14 @@ use std::{
     process::exit,
 };
 
-use abscissa_core::{Application, Command, Runnable, status_err, status_ok, status_warn};
+use abscissa_core::{status_err, status_ok, status_warn};
 use cargo_lock::Lockfile;
 use clap::Parser;
 use rustsec::{Fixer, advisory::Id};
 
-use crate::{application::APP, auditor::Auditor, lockfile};
+use crate::{auditor::Auditor, config::AuditConfig, lockfile};
 
-#[derive(Command, Clone, Default, Debug, Parser)]
-#[command(author, version, about)]
+#[derive(Clone, Default, Debug, Parser)]
 pub struct FixCommand {
     /// Path to `Cargo.lock`
     #[arg(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
@@ -26,25 +25,18 @@ pub struct FixCommand {
 }
 
 impl FixCommand {
-    /// Initialize `Auditor`
-    pub fn auditor(&self) -> Auditor {
-        Auditor::new(&APP.get().unwrap().config())
-    }
-
     /// Locate `Cargo.lock`
     pub fn cargo_lock_path(&self) -> Option<&Path> {
         self.file.as_deref()
     }
-}
 
-impl Runnable for FixCommand {
-    fn run(&self) {
+    pub fn run(&self, auditor: &mut Auditor, config: &AuditConfig) {
         let path = lockfile::locate_or_generate(self.cargo_lock_path()).unwrap_or_else(|e| {
             status_err!("{}", e);
             exit(2);
         });
 
-        let report = self.auditor().audit_lockfile(&path);
+        let report = auditor.audit_lockfile(&path);
         let report = match report {
             Ok(report) => {
                 // TODO: also handle warnings
@@ -125,7 +117,7 @@ impl Runnable for FixCommand {
                 "Verifying",
                 "that the vulnerabilities are fixed after updating dependencies"
             );
-            let mut config = (*APP.get().unwrap().config()).clone();
+            let mut config = config.to_owned();
             config.output.quiet = true;
             let mut auditor = Auditor::new(&config);
 

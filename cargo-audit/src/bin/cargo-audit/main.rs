@@ -6,12 +6,12 @@
 use std::fs;
 
 use abscissa_core::{
-    Application, Component, Configurable, Runnable, Shutdown,
-    config::Override,
+    Component,
     terminal::{ColorChoice, component::Terminal},
 };
 use cargo_audit::{
-    application::{APP, CargoAuditApplication},
+    application::CargoAuditApplication,
+    auditor::Auditor,
     commands::{CargoAuditCommand, CargoAuditSubCommand},
     config::AuditConfig,
 };
@@ -60,14 +60,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         CargoAuditSubCommand::Audit(cmd) => cmd.override_config(config)?,
     };
 
-    // Run the command
-    app.state.components_mut().after_config(&config)?;
-    app.config.set_once(config);
-    let app = APP.get_or_init(|| app);
-    command.run();
-
-    // Exit gracefully
-    let components = app.state().components();
-    components.shutdown(app, Shutdown::Graceful)?;
+    let mut auditor = Auditor::new(&config);
+    command.audit(&mut auditor, &config);
     Ok(())
 }

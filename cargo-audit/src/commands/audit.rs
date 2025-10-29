@@ -3,8 +3,8 @@
 use std::{fmt, path::PathBuf, process::exit};
 
 use abscissa_core::{
-    Application, Command, FrameworkError, FrameworkErrorKind, Runnable, config::Override,
-    error::Context, status_err, terminal::ColorChoice,
+    Command, FrameworkError, FrameworkErrorKind, Runnable, error::Context, status_err,
+    terminal::ColorChoice,
 };
 #[cfg(any(feature = "fix", feature = "binary-scanning"))]
 use clap::Subcommand;
@@ -12,7 +12,6 @@ use clap::{Parser, ValueEnum};
 use rustsec::platforms::target::{Arch, OS};
 
 use crate::{
-    application::APP,
     auditor::Auditor,
     config::{AuditConfig, DenyOption, FilterList, OutputFormat},
     error::display_err_with_source,
@@ -161,9 +160,15 @@ pub struct AuditCommand {
     output_json: bool,
 }
 
+impl Runnable for AuditCommand {
+    fn run(&self) {
+        unreachable!()
+    }
+}
+
 /// Subcommands of `cargo audit`
 #[cfg(any(feature = "fix", feature = "binary-scanning"))]
-#[derive(Subcommand, Clone, Debug, Runnable)]
+#[derive(Subcommand, Clone, Debug)]
 pub enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
@@ -183,6 +188,42 @@ If not, recovers a part of the dependency list from panic messages."
 }
 
 impl AuditCommand {
+    pub fn audit(&self, auditor: &mut Auditor, _config: &AuditConfig) {
+        #[cfg(feature = "fix")]
+        if let Some(AuditSubcommand::Fix(fix)) = &self.subcommand {
+            fix.run(auditor, _config);
+            exit(0)
+        }
+
+        #[cfg(feature = "binary-scanning")]
+        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
+            bin.run(auditor);
+            exit(0)
+        }
+
+        let maybe_path = self.file.as_deref();
+        // It is important to generate the lockfile before initializing the auditor,
+        // otherwise we might deadlock because both need the Cargo package lock
+        let path = lockfile::locate_or_generate(maybe_path).unwrap_or_else(|e| {
+            status_err!("{}", display_err_with_source(&e));
+            exit(2);
+        });
+
+        let report = auditor.audit_lockfile(&path);
+        match report {
+            Ok(report) => {
+                if auditor.should_exit_with_failure(&report) {
+                    exit(1);
+                }
+                exit(0);
+            }
+            Err(e) => {
+                status_err!("{}", display_err_with_source(&e));
+                exit(2);
+            }
+        };
+    }
+
     /// Get the color configuration
     pub fn term_colors(&self) -> ColorChoice {
         if let Some(color) = self.color {
@@ -196,10 +237,8 @@ impl AuditCommand {
             }
         }
     }
-}
 
-impl Override<AuditConfig> for AuditCommand {
-    fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
+    pub fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
         let mut config = config;
         if let Some(db) = &self.db {
             config.database.path = Some(db.into());
@@ -246,51 +285,6 @@ impl Override<AuditConfig> for AuditCommand {
         }
 
         Ok(config)
-    }
-}
-
-impl Runnable for AuditCommand {
-    fn run(&self) {
-        #[cfg(feature = "fix")]
-        if let Some(AuditSubcommand::Fix(fix)) = &self.subcommand {
-            fix.run();
-            exit(0)
-        }
-
-        #[cfg(feature = "binary-scanning")]
-        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
-            bin.run();
-            exit(0)
-        }
-
-        let maybe_path = self.file.as_deref();
-        // It is important to generate the lockfile before initializing the auditor,
-        // otherwise we might deadlock because both need the Cargo package lock
-        let path = lockfile::locate_or_generate(maybe_path).unwrap_or_else(|e| {
-            status_err!("{}", display_err_with_source(&e));
-            exit(2);
-        });
-        let mut auditor = self.auditor();
-        let report = auditor.audit_lockfile(&path);
-        match report {
-            Ok(report) => {
-                if auditor.should_exit_with_failure(&report) {
-                    exit(1);
-                }
-                exit(0);
-            }
-            Err(e) => {
-                status_err!("{}", display_err_with_source(&e));
-                exit(2);
-            }
-        };
-    }
-}
-
-impl AuditCommand {
-    /// Initialize `Auditor`
-    pub fn auditor(&self) -> Auditor {
-        Auditor::new(&APP.get().unwrap().config())
     }
 }
 
