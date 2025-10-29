@@ -40,31 +40,28 @@ impl Runnable for LintCmd {
             exit(1);
         });
 
-        let advisories = linter.advisory_db().iter();
+        let (valid, invalid) = linter.lint().unwrap_or_else(|e| {
+            status_err!("error linting advisory DB {}: {}", repo_path.display(), e);
+
+            exit(1);
+        });
 
         // Ensure we're parsing some advisories
-        if advisories.len() == 0 {
+        if valid == 0 && invalid == 0 {
             status_err!("no advisories found!");
             exit(1);
         }
 
         status_ok!(
             "Loaded",
-            "{} security advisories (from {})",
-            advisories.len(),
+            "{valid} valid security advisories (from {})",
             repo_path.display()
         );
 
-        let invalid_advisory_count = linter.lint().unwrap_or_else(|e| {
-            status_err!("error linting advisory DB {}: {}", repo_path.display(), e);
-
-            exit(1);
-        });
-
-        if invalid_advisory_count == 0 {
+        if invalid == 0 {
             status_ok!("Success", "all advisories are well-formed");
         } else {
-            status_err!("{} advisories contain errors!", invalid_advisory_count);
+            status_err!("{invalid} advisories contain errors!");
             exit(1);
         }
     }
