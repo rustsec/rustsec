@@ -20,12 +20,12 @@ maintenance = { status = "actively-developed" }
 abscissa_core = { workspace = true }
 cargo-lock = { workspace = true }
 clap = { workspace = true }
+display-error-chain = { workspace = true }
 home = { workspace = true }
 rustsec = { workspace = true, features = ["dependency-tree"] }
 serde = { workspace = true, features = ["serde_derive"] }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-display-error-chain = { workspace = true }
 
 [dev-dependencies]
 abscissa_core = { workspace = true, features = ["testing"] }
