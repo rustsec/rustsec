@@ -3,7 +3,9 @@
 #![deny(warnings, missing_docs, unused_qualifications)]
 #![forbid(unsafe_code)]
 
-use abscissa_core::{Application, Configurable, Runnable, config::Override, terminal::ColorChoice};
+use std::fs;
+
+use abscissa_core::{Configurable, Runnable, config::Override, terminal::ColorChoice};
 use cargo_audit::{
     application::CargoAuditApplication,
     commands::{CargoAuditCommand, CargoAuditSubCommand},
@@ -18,7 +20,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let command = CargoAuditCommand::parse();
 
     // Initialize application
-    let mut app = CargoAuditApplication::default();
+    let app = CargoAuditApplication::default();
     if command.term_colors() != ColorChoice::Never {
         color_eyre::install()?;
     }
@@ -46,7 +48,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Load configuration
     let config = match command.config_path() {
-        Some(path) => app.load_config(&path)?,
+        Some(path) => toml::from_str(&fs::read_to_string(&path.canonicalize()?)?)?,
         None => AuditConfig::default(),
     };
 
