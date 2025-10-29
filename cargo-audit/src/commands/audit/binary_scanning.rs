@@ -37,6 +37,6 @@ impl Runnable for BinCommand {
 impl BinCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
-        Auditor::new(&APP.config())
+        Auditor::new(&APP.get().unwrap().config())
     }
 }

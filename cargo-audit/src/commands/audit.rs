@@ -290,7 +290,7 @@ impl Runnable for AuditCommand {
 impl AuditCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
-        Auditor::new(&APP.config())
+        Auditor::new(&APP.get().unwrap().config())
     }
 }
 
