@@ -35,8 +35,9 @@ pub enum CargoAuditSubCommand {
 #[derive(Command, Debug, Parser)]
 #[command(author, version, about)]
 pub struct CargoAuditCommand {
+    /// Subcommand
     #[command(subcommand)]
-    cmd: CargoAuditSubCommand,
+    pub cmd: CargoAuditSubCommand,
 
     /// Increase verbosity setting
     #[arg(short = 'v', long, help = "Increase verbosity")]

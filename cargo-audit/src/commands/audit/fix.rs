@@ -28,7 +28,7 @@ pub struct FixCommand {
 impl FixCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
-        Auditor::new(&APP.config())
+        Auditor::new(&APP.get().unwrap().config())
     }
 
     /// Locate `Cargo.lock`
@@ -125,7 +125,7 @@ impl Runnable for FixCommand {
                 "Verifying",
                 "that the vulnerabilities are fixed after updating dependencies"
             );
-            let mut config = (*APP.config()).to_owned();
+            let mut config = (*APP.get().unwrap().config()).clone();
             config.output.quiet = true;
             let mut auditor = Auditor::new(&config);
 
