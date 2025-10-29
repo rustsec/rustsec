@@ -1,15 +1,17 @@
 //! The `cargo audit fix` subcommand
 
-use crate::{auditor::Auditor, lockfile, prelude::*};
-use abscissa_core::{Command, Runnable};
-use cargo_lock::Lockfile;
-use clap::Parser;
-use rustsec::{Fixer, advisory::Id};
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
     process::exit,
 };
+
+use abscissa_core::{Application, Command, Runnable, status_err, status_ok, status_warn};
+use cargo_lock::Lockfile;
+use clap::Parser;
+use rustsec::{Fixer, advisory::Id};
+
+use crate::{application::APP, auditor::Auditor, lockfile};
 
 #[derive(Command, Clone, Default, Debug, Parser)]
 #[command(author, version, about)]

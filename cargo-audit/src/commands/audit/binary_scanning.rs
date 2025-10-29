@@ -1,8 +1,11 @@
 //! The `cargo audit bin` subcommand
 
-use crate::{auditor::Auditor, prelude::*};
-use clap::Parser;
 use std::{path::PathBuf, process::exit};
+
+use abscissa_core::{Application, Command, Runnable};
+use clap::Parser;
+
+use crate::{application::APP, auditor::Auditor};
 
 #[cfg(feature = "binary-scanning")]
 /// The `cargo audit` subcommand
