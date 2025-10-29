@@ -1,31 +1,33 @@
 //! The `cargo audit` subcommand
 
-#[cfg(feature = "fix")]
-mod fix;
+use std::{fmt, path::PathBuf, process::exit};
 
-#[cfg(feature = "binary-scanning")]
-mod binary_scanning;
+use abscissa_core::{
+    Application, Command, FrameworkError, FrameworkErrorKind, Runnable, config::Override,
+    error::Context, status_err, terminal::ColorChoice,
+};
+#[cfg(any(feature = "fix", feature = "binary-scanning"))]
+use clap::Subcommand;
+use clap::{Parser, ValueEnum};
+use rustsec::platforms::target::{Arch, OS};
 
 use crate::{
+    application::APP,
     auditor::Auditor,
     config::{AuditConfig, DenyOption, FilterList, OutputFormat},
     error::display_err_with_source,
     lockfile,
-    prelude::*,
 };
-use abscissa_core::{
-    FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
-};
-use clap::{Parser, ValueEnum};
-use rustsec::platforms::target::{Arch, OS};
-use std::{fmt, path::PathBuf, process::exit};
 
-#[cfg(feature = "binary-scanning")]
-use self::binary_scanning::BinCommand;
+#[cfg(feature = "fix")]
+mod fix;
 #[cfg(feature = "fix")]
 use self::fix::FixCommand;
-#[cfg(any(feature = "fix", feature = "binary-scanning"))]
-use clap::Subcommand;
+
+#[cfg(feature = "binary-scanning")]
+mod binary_scanning;
+#[cfg(feature = "binary-scanning")]
+use binary_scanning::BinCommand;
 
 #[derive(Debug, Clone, Copy, Default, ValueEnum)]
 #[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.

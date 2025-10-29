@@ -1,13 +1,15 @@
 //! Presenter for `rustsec::Report` information.
 
-use crate::{
-    config::{DenyOption, OutputConfig, OutputFormat},
-    prelude::*,
-};
+use std::{collections::BTreeSet as Set, io, path::Path};
+use std::{io::Write as _, string::ToString as _};
+
 use abscissa_core::terminal::{
     self,
     Color::{self, Red, Yellow},
 };
+use abscissa_core::{status_err, status_ok, status_warn};
+#[cfg(feature = "binary-scanning")]
+use rustsec::binary_scanning::BinaryReport;
 use rustsec::{
     WarningKind,
     advisory::License,
@@ -16,11 +18,8 @@ use rustsec::{
         dependency::{self, Dependency, graph::EdgeDirection},
     },
 };
-use std::{collections::BTreeSet as Set, io, path::Path};
-use std::{io::Write as _, string::ToString as _};
 
-#[cfg(feature = "binary-scanning")]
-use rustsec::binary_scanning::BinaryReport;
+use crate::config::{DenyOption, OutputConfig, OutputFormat};
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
