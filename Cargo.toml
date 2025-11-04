@@ -22,7 +22,7 @@ binfarce = "0.2"
 cargo-lock = { version = "11", path = "./cargo-lock" }
 chrono = { version = "0.4", default-features = false }
 clap = "4"
-comrak = { version = "0.45", default-features = false }
+comrak = { version = "0.46", default-features = false }
 cvss = { version = "2.2", path = "./cvss" }
 display-error-chain = "0.2.0"
 fs-err = "3"
