@@ -31,6 +31,7 @@ jobs:
           - linux-armv7-gnu
           - linux-arm64-gnu
           - mac-x86-64
+          - mac-arm64
           - windows-x86-64
         include:
           - name: linux-x86-64-gnu
@@ -56,6 +57,11 @@ jobs:
           - name: mac-x86-64
             os: macos-latest
             target: x86_64-apple-darwin
+            cross: false
+
+          - name: mac-arm64
+            os: macos-latest
+            target: aarch64-apple-darwin
             cross: false
 
           - name: windows-x86-64
