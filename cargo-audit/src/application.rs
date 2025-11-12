@@ -2,28 +2,22 @@
 //!
 //! <https://docs.rs/abscissa_core>
 
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 use crate::{commands::CargoAuditCommand, config::AuditConfig};
 use abscissa_core::{
-    Application, FrameworkError, StandardPaths,
-    application::{self, AppCell},
-    config::CfgCell,
-    terminal::ColorChoice,
-    trace,
+    Application, FrameworkError, StandardPaths, application, config::CfgCell,
+    terminal::ColorChoice, trace,
 };
-
-/// Application state
-pub static APP: AppCell<CargoAuditApplication> = AppCell::new();
 
 /// `cargo audit` application
 #[derive(Debug)]
 pub struct CargoAuditApplication {
     /// Application configuration.
-    config: CfgCell<AuditConfig>,
+    pub config: CfgCell<AuditConfig>,
 
     /// Application state.
-    state: application::State<Self>,
+    pub state: application::State<Self>,
 }
 
 /// Initialize a new application instance.
@@ -87,3 +81,6 @@ impl Application for CargoAuditApplication {
         }
     }
 }
+
+#[allow(missing_docs)]
+pub static APP: OnceLock<CargoAuditApplication> = OnceLock::new();
