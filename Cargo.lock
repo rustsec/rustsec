@@ -4,9 +4,9 @@ version = 4
 
 [[package]]
 name = "abscissa_core"
-version = "0.8.2"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3083187ad864402d6bde86c5b51767b921edf4d02bf03b8ba40172dbd2a9773b"
+checksum = "7cd87587023faadfc7f6e93b1ad45074b72f1f6d22c1e0f19333a952446ab1c1"
 dependencies = [
  "abscissa_derive",
  "arc-swap",
@@ -14,14 +14,14 @@ dependencies = [
  "canonical-path",
  "clap",
  "color-eyre",
- "fs-err 2.11.0",
+ "fs-err",
  "once_cell",
  "regex",
  "secrecy",
  "semver",
  "serde",
  "termcolor",
- "toml 0.8.23",
+ "toml",
  "tracing",
  "tracing-log",
  "tracing-subscriber",
@@ -30,15 +30,15 @@ dependencies = [
 
 [[package]]
 name = "abscissa_derive"
-version = "0.8.2"
+version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08d914621d2ef4da433fe01907e323ee3f2807738d392d5a34c287b381f87fe2"
+checksum = "3da54f552dccbdec19736d713720dd88af932a82eb02ca0f22410de5d31ad726"
 dependencies = [
  "ident_case",
  "proc-macro2",
  "quote",
- "syn 1.0.109",
- "synstructure 0.12.6",
+ "syn 2.0.108",
+ "synstructure",
 ]
 
 [[package]]
@@ -372,7 +372,7 @@ dependencies = [
  "serde_json",
  "tempfile",
  "thiserror",
- "toml 0.9.8",
+ "toml",
 ]
 
 [[package]]
@@ -383,7 +383,7 @@ dependencies = [
  "petgraph",
  "semver",
  "serde",
- "toml 0.9.8",
+ "toml",
  "url",
 ]
 
@@ -889,15 +889,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cb4cb245038516f5f85277875cdaa4f7d2c9a0fa0468de06ed190163b1581fcf"
 dependencies = [
  "percent-encoding",
-]
-
-[[package]]
-name = "fs-err"
-version = "2.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88a41f105fe1d5b6b34b2055e3dc59bb79b46b48b2040b9e6c7b4b5de097aa41"
-dependencies = [
- "autocfg",
 ]
 
 [[package]]
@@ -2942,7 +2933,7 @@ dependencies = [
  "binfarce",
  "cargo-lock",
  "cvss",
- "fs-err 3.1.3",
+ "fs-err",
  "gix",
  "home",
  "once_cell",
@@ -2955,7 +2946,7 @@ dependencies = [
  "tempfile",
  "thiserror",
  "time",
- "toml 0.9.8",
+ "toml",
  "url",
 ]
 
@@ -2970,7 +2961,7 @@ dependencies = [
  "clap",
  "comrak",
  "cvss",
- "fs-err 3.1.3",
+ "fs-err",
  "gix",
  "once_cell",
  "rust-embed",
@@ -2980,8 +2971,8 @@ dependencies = [
  "tame-index",
  "termcolor",
  "thiserror",
- "toml 0.9.8",
- "toml_edit 0.23.7",
+ "toml",
+ "toml_edit",
  "xml",
 ]
 
@@ -3105,15 +3096,6 @@ dependencies = [
  "ryu",
  "serde",
  "serde_core",
-]
-
-[[package]]
-name = "serde_spanned"
-version = "0.6.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf41e0cfaf7226dca15e8197172c295a782857fcb97fad1808a166870dee75a3"
-dependencies = [
- "serde",
 ]
 
 [[package]]
@@ -3281,18 +3263,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0bf256ce5efdfa370213c1dabab5935a12e49f2c58d15e9eac2870d3b4f27263"
 dependencies = [
  "futures-core",
-]
-
-[[package]]
-name = "synstructure"
-version = "0.12.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f36bdaa60a83aca3921b5259d5400cbf5e90fc51931376a9bd4a0eb79aa7210f"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
- "unicode-xid",
 ]
 
 [[package]]
@@ -3499,26 +3469,14 @@ dependencies = [
 
 [[package]]
 name = "toml"
-version = "0.8.23"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc1beb996b9d83529a9e75c17a1686767d148d70663143c7854d8b4a09ced362"
-dependencies = [
- "serde",
- "serde_spanned 0.6.9",
- "toml_datetime 0.6.11",
- "toml_edit 0.22.27",
-]
-
-[[package]]
-name = "toml"
 version = "0.9.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0dc8b1fb61449e27716ec0e1bdf0f6b8f3e8f6b05391e8497b8b6d7804ea6d8"
 dependencies = [
  "indexmap",
  "serde_core",
- "serde_spanned 1.0.3",
- "toml_datetime 0.7.3",
+ "serde_spanned",
+ "toml_datetime",
  "toml_parser",
  "toml_writer",
  "winnow",
@@ -3535,15 +3493,6 @@ dependencies = [
 
 [[package]]
 name = "toml_datetime"
-version = "0.6.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22cddaf88f4fbc13c51aebbf5f8eceb5c7c5a9da2ac40a13519eb5b0a0e8f11c"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "toml_datetime"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2cdb639ebbc97961c51720f858597f7f24c4fc295327923af55b74c3c724533"
@@ -3553,26 +3502,12 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.27"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41fe8c660ae4257887cf66394862d21dbca4a6ddd26f04a3560410406a2f819a"
-dependencies = [
- "indexmap",
- "serde",
- "serde_spanned 0.6.9",
- "toml_datetime 0.6.11",
- "toml_write",
- "winnow",
-]
-
-[[package]]
-name = "toml_edit"
 version = "0.23.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6485ef6d0d9b5d0ec17244ff7eb05310113c3f316f2d14200d4de56b3cb98f8d"
 dependencies = [
  "indexmap",
- "toml_datetime 0.7.3",
+ "toml_datetime",
  "toml_parser",
  "toml_writer",
  "winnow",
@@ -3586,12 +3521,6 @@ checksum = "c0cbe268d35bdb4bb5a56a2de88d0ad0eb70af5384a99d648cd4b3d04039800e"
 dependencies = [
  "winnow",
 ]
-
-[[package]]
-name = "toml_write"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d99f8c9a7727884afe522e9bd5edbfc91a3312b36a77b5fb8926e4c31a41801"
 
 [[package]]
 name = "toml_writer"
@@ -3764,12 +3693,6 @@ checksum = "5033c97c4262335cded6d6fc3e5c18ab755e1a3dc96376350f3d8e9f009ad956"
 dependencies = [
  "tinyvec",
 ]
-
-[[package]]
-name = "unicode-xid"
-version = "0.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 
 [[package]]
 name = "unicode_categories"
@@ -4307,7 +4230,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.108",
- "synstructure 0.13.2",
+ "synstructure",
 ]
 
 [[package]]
@@ -4348,7 +4271,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.108",
- "synstructure 0.13.2",
+ "synstructure",
 ]
 
 [[package]]
