@@ -28,9 +28,6 @@ use {
     serde::{Deserialize, Serialize, de, ser},
 };
 
-#[cfg(feature = "std")]
-use crate::Severity;
-
 /// CVSS v2.0 Base Metric Group
 ///
 /// Described in CVSS v2.0 Specification: Section 2.1:
@@ -92,13 +89,8 @@ impl Base {
     /// Calculate Base Exploitability score: sub-score for measuring
     /// ease of exploitation.
     ///
-    /// Described in CVSS v3.1 Specification: Section 2:
-    /// <https://www.first.org/cvss/specification-document#t6>
-    ///
-    /// > The Exploitability metrics reflect the ease and technical means by which
-    /// > the vulnerability can be exploited. That is, they represent characteristics
-    /// > of *the thing that is vulnerable*, which we refer to formally as the
-    /// > *vulnerable component*.
+    /// Described in CVSS v2.0 Specification: Section 3.2.1:
+    /// <https://www.first.org/cvss/v2/guide#3-2-1-Base-Equation>
     pub fn exploitability(&self) -> Score {
         let av_score = self.av.map(|av| av.score()).unwrap_or(0.0);
         let ac_score = self.ac.map(|ac| ac.score()).unwrap_or(0.0);
@@ -107,16 +99,11 @@ impl Base {
         (20.0 * av_score * ac_score * au_score).into()
     }
 
-    /// Calculate Base Impact Score (ISS): sub-score for measuring the
+    /// Calculate Base Impact Score: sub-score for measuring the
     /// consequences of successful exploitation.
     ///
-    /// Described in CVSS v3.1 Specification: Section 2:
-    /// <https://www.first.org/cvss/specification-document#t6>
-    ///
-    /// > The Impact metrics reflect the direct consequence
-    /// > of a successful exploit, and represent the consequence to the
-    /// > *thing that suffers the impact*, which we refer to formally as the
-    /// > *impacted component*.
+    /// Described in CVSS v2.0 Specification: Section 3.2.1:
+    /// <https://www.first.org/cvss/v2/guide#3-2-1-Base-Equation>
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn impact(&self) -> Score {
