@@ -55,7 +55,7 @@ impl FromStr for IntegrityImpact {
             "N" => Ok(IntegrityImpact::None),
             "P" => Ok(IntegrityImpact::Partial),
             "C" => Ok(IntegrityImpact::Complete),
-            _ => Err(Error::InvalidV2Metric {
+            _ => Err(Error::InvalidMetricV2 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

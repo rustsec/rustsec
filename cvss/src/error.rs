@@ -24,12 +24,26 @@ pub enum Error {
 
     #[cfg(feature = "v2")]
     /// Invalid metric for CVSS v2.0
-    InvalidV2Metric {
+    InvalidMetricV2 {
         /// The metric that was invalid.
         metric_type: v2::MetricType,
 
         /// The value that was provided which is invalid.
         value: String,
+    },
+
+    #[cfg(feature = "v2")]
+    /// Missing metric for CVSSv4.
+    MissingMandatoryMetricV2 {
+        /// Prefix which is missing.
+        metric_type: v2::MetricType,
+    },
+
+    #[cfg(feature = "v2")]
+    /// Metric is duplicated for CVSSv2.
+    DuplicateMetricV2 {
+        /// Prefix which is doubled.
+        metric_type: v2::MetricType,
     },
 
     /// Invalid metric for CVSSv3.
@@ -131,10 +145,6 @@ impl fmt::Display for Error {
                     metric_type.description(),
                 )
             }
-            #[cfg(feature = "v2")]
-            Error::InvalidNomenclatureV2 { nomenclature } => {
-                write!(f, "invalid CVSSv2 nomenclature: `{}`", nomenclature)
-            }            
             Error::InvalidMetric { metric_type, value } => {
                 write!(
                     f,

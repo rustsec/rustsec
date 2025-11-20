@@ -16,6 +16,7 @@ serde = { workspace = true, optional = true }
 
 [features]
 default = ["std", "v2", "v3", "v4"]
+v2 = []
 v3 = []
 v4 = []
 std = []

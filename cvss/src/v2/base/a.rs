@@ -57,7 +57,7 @@ impl FromStr for AvailabilityImpact {
             "N" => Ok(AvailabilityImpact::None),
             "P" => Ok(AvailabilityImpact::Partial),
             "C" => Ok(AvailabilityImpact::Complete),
-            _ => Err(Error::InvalidV2Metric {
+            _ => Err(Error::InvalidMetricV2 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

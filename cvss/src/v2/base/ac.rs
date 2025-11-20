@@ -102,7 +102,7 @@ impl FromStr for AccessComplexity {
             "H" => Ok(AccessComplexity::High),
             "M" => Ok(AccessComplexity::Medium),
             "L" => Ok(AccessComplexity::Low),
-            _ => Err(Error::InvalidV2Metric {
+            _ => Err(Error::InvalidMetricV2 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

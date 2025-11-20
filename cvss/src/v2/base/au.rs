@@ -71,7 +71,7 @@ impl FromStr for Authentication {
             "M" => Ok(Authentication::Multiple),
             "S" => Ok(Authentication::Single),
             "N" => Ok(Authentication::None),
-            _ => Err(Error::InvalidV2Metric {
+            _ => Err(Error::InvalidMetricV2 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

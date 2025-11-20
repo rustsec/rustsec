@@ -57,7 +57,7 @@ impl FromStr for ConfidentialityImpact {
             "N" => Ok(ConfidentialityImpact::None),
             "P" => Ok(ConfidentialityImpact::Partial),
             "C" => Ok(ConfidentialityImpact::Complete),
-            _ => Err(Error::InvalidV2Metric {
+            _ => Err(Error::InvalidMetricV2 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

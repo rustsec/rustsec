@@ -76,7 +76,7 @@ impl FromStr for AccessVector {
             "L" => Ok(AccessVector::Local),
             "A" => Ok(AccessVector::AdjacentNetwork),
             "N" => Ok(AccessVector::Network),
-            _ => Err(Error::InvalidV2Metric {
+            _ => Err(Error::InvalidMetricV2 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

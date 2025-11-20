@@ -51,10 +51,7 @@ pub use crate::cvss::Cvss;
 
 pub use crate::{
     error::{Error, Result},
-    severity::Severity,
-    // TODO(oxisto): should be removed at some point in favor of
-    // version-specific metrics
-    metric::{Metric, MetricType},
+    severity::Severity
 };
 
 /// Prefix used by all CVSS strings
