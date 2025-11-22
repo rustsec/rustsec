@@ -8,17 +8,13 @@ mod c;
 mod i;
 
 pub use self::{
-    a::AvailabilityImpact,
-    ac::AccessComplexity,
-    au::Authentication,
-    av::AccessVector,
-    c::ConfidentialityImpact,
-    i::IntegrityImpact,
+    a::AvailabilityImpact, ac::AccessComplexity, au::Authentication, av::AccessVector,
+    c::ConfidentialityImpact, i::IntegrityImpact,
 };
 
 use super::Score;
-use crate::{Error, PREFIX, Result};
 use crate::v2::{Metric, MetricType};
+use crate::{Error, Result};
 use alloc::{borrow::ToOwned, vec::Vec};
 use core::{fmt, str::FromStr};
 
@@ -75,13 +71,9 @@ impl Base {
         let exploitability = self.exploitability().value();
         let impact = self.impact().value();
 
-        let f_impact = if impact == 0.0 {
-            0.0
-        } else {
-            1.176
-        };
+        let f_impact = if impact == 0.0 { 0.0 } else { 1.176 };
 
-        let score = ((0.6*impact)+(0.4*exploitability)-1.5)*f_impact;
+        let score = ((0.6 * impact) + (0.4 * exploitability) - 1.5) * f_impact;
 
         Score::new(score).roundup()
     }
@@ -114,12 +106,17 @@ impl Base {
     }
 }
 
-
 macro_rules! write_metrics {
     ($f:expr, $($metric:expr),+) => {
+        let mut __first = true;
         $(
             if let Some(metric) = $metric {
-                write!($f, "/{}", metric)?;
+                if __first {
+                    write!($f, "{}", metric)?;
+                    __first = false;
+                } else {
+                    write!($f, "/{}", metric)?;
+                }
             }
         )+
     };
@@ -127,9 +124,7 @@ macro_rules! write_metrics {
 
 impl fmt::Display for Base {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write_metrics!(
-            f, self.av, self.ac, self.au, self.c, self.i, self.a
-        );
+        write_metrics!(f, self.av, self.ac, self.au, self.c, self.i, self.a);
         Ok(())
     }
 }
@@ -161,26 +156,16 @@ impl FromStr for Base {
             })
             .collect::<Result<Vec<_>>>()?;
 
-        let mut components = component_vec.iter();
-        let &(id, version_string) = components.next().ok_or(Error::InvalidPrefix {
-            prefix: s.to_owned(),
-        })?;
-
-        if id != PREFIX {
-            return Err(Error::InvalidPrefix {
-                prefix: id.to_owned(),
-            });
-        }
-
+        let components = component_vec.iter();
         let mut metrics = Self {
             ..Default::default()
         };
 
         for &component in components {
-            let id = component.0.to_ascii_uppercase();
-            let value = component.1.to_ascii_uppercase();
+            let key = component.0;
+            let value = component.1;
 
-            match id.parse::<MetricType>()? {
+            match key.parse::<MetricType>()? {
                 MetricType::AV => metrics.av = Some(value.parse()?),
                 MetricType::AC => metrics.ac = Some(value.parse()?),
                 MetricType::Au => metrics.au = Some(value.parse()?),

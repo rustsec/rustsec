@@ -23,14 +23,8 @@ impl Score {
     /// Round the score up to 1 decimal (`round_to_1_decimal`)
     #[cfg(feature = "std")]
     pub fn roundup(self) -> Score {
-        let score_int = (self.0 * 100_000.0) as u64;
-
-        if score_int % 10000 == 0 {
-            Score((score_int as f64) / 100_000.0)
-        } else {
-            let score_floor = ((score_int as f64) / 10_000.0).floor();
-            Score((score_floor + 1.0) / 10.0)
-        }
+        let rounded = (self.0 * 10.0).round() / 10.0;
+        Score(rounded)
     }
 
     /// Convert the numeric score into a `Severity`

@@ -42,16 +42,16 @@ impl Metric for Authentication {
 
     fn score(self) -> f64 {
         match self {
-            Authentication::Multiple => 0.395,
-            Authentication::Single => 0.646,
-            Authentication::None => 1.0,
+            Authentication::Multiple => 0.45,
+            Authentication::Single => 0.56,
+            Authentication::None => 0.704,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            Authentication::Multiple => "L",
-            Authentication::Single => "A",
+            Authentication::Multiple => "M",
+            Authentication::Single => "S",
             Authentication::None => "N",
         }
     }
