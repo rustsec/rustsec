@@ -6,7 +6,7 @@ use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
 /// Target Distribution (TD) - CVSS v2.0 Environmental Metric
-/// 
+///
 /// Described in CVSS v2.0 Specification: Section 2.3.2:
 /// <https://www.first.org/cvss/v2/guide#2-3-2-Target-Distribution-TD>
 ///

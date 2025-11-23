@@ -51,7 +51,7 @@ pub use crate::cvss::Cvss;
 
 pub use crate::{
     error::{Error, Result},
-    severity::Severity
+    severity::Severity,
 };
 
 /// Prefix used by all CVSS strings

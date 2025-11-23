@@ -6,7 +6,7 @@ use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
 /// Collateral Damage Potential (CDP) - CVSS v2.0 Environmental Metric
-/// 
+///
 /// Described in CVSS v2.0 Specification: Section 2.3.1:
 /// <https://www.first.org/cvss/v2/guide#2-3-1-Collateral-Damage-Potential-CDP>
 ///

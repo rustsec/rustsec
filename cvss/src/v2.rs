@@ -3,11 +3,11 @@
 //! <https://www.first.org/cvss/v2/guide>
 
 pub mod base;
-pub mod temporal;
 pub mod environmental;
+pub mod temporal;
 
-mod score;
 mod metric;
+mod score;
 mod vector;
 
-pub use self::{score::Score, metric::Metric, metric::MetricType, vector::Vector};
+pub use self::{metric::Metric, metric::MetricType, score::Score, vector::Vector};

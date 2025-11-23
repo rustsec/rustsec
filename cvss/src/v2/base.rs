@@ -22,16 +22,16 @@ impl Vector {
     /// <https://www.first.org/cvss/v2/guide#3-2-1-Base-Equation>
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    pub fn base_score(&self) -> Score {        
+    pub fn base_score(&self) -> Score {
         self.base_score_internal(self.impact()).roundup()
     }
 
     /// Internal calculation of Base CVSS that takes impact as parameter.
-    /// 
+    ///
     /// This is primarily needed in environmental score calculation where the
     /// impact is adjusted.
     pub(crate) fn base_score_internal(&self, impact: Score) -> Score {
-        let exploitability = self.exploitability(); 
+        let exploitability = self.exploitability();
         let f_impact = if impact.value() == 0.0 { 0.0 } else { 1.176 };
 
         let score = ((0.6 * impact.value()) + (0.4 * exploitability.value()) - 1.5) * f_impact;

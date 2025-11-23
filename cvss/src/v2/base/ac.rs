@@ -36,7 +36,7 @@ pub enum AccessComplexity {
     High,
 
     /// Medium (M)
-    /// 
+    ///
     /// > The access conditions are somewhat specialized; the following are
     /// > examples:
     /// > - The attacking party is limited to a group of systems or users at

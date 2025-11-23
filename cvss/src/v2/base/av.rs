@@ -16,7 +16,7 @@ use core::{fmt, str::FromStr};
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum AccessVector {
     /// Local (L)
-    /// 
+    ///
     /// > A vulnerability exploitable with only local access requires the
     /// > attacker to have either physical access to the vulnerable system or a
     /// > local (shell) account. Examples of locally exploitable vulnerabilities
