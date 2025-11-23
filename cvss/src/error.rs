@@ -22,30 +22,6 @@ pub enum Error {
         component: String,
     },
 
-    #[cfg(feature = "v2")]
-    /// Invalid metric for CVSS v2.0
-    InvalidMetricV2 {
-        /// The metric that was invalid.
-        metric_type: v2::MetricType,
-
-        /// The value that was provided which is invalid.
-        value: String,
-    },
-
-    #[cfg(feature = "v2")]
-    /// Missing metric for CVSSv4.
-    MissingMandatoryMetricV2 {
-        /// Prefix which is missing.
-        metric_type: v2::MetricType,
-    },
-
-    #[cfg(feature = "v2")]
-    /// Metric is duplicated for CVSSv2.
-    DuplicateMetricV2 {
-        /// Prefix which is doubled.
-        metric_type: v2::MetricType,
-    },
-
     /// Invalid metric for CVSSv3.
     InvalidMetric {
         /// The metric that was invalid.
@@ -109,6 +85,24 @@ pub enum Error {
         /// Provided version string.
         version: String,
     },
+
+    #[cfg(feature = "v2")]
+    /// Invalid metric for CVSS 2.0
+    InvalidMetricV2 {
+        /// The metric that was invalid.
+        metric_type: v2::MetricType,
+
+        /// The value that was provided which is invalid.
+        value: String,
+    },
+
+    #[cfg(feature = "v2")]
+    /// Metric is duplicated for CVSS v2.0.
+    DuplicateMetricV2 {
+        /// Prefix which is doubled.
+        metric_type: v2::MetricType,
+    },
+
 }
 
 impl fmt::Display for Error {
@@ -132,15 +126,6 @@ impl fmt::Display for Error {
                 write!(
                     f,
                     "duplicate CVSSv2 {} ({}) metric",
-                    metric_type.name(),
-                    metric_type.description(),
-                )
-            }
-            #[cfg(feature = "v2")]
-            Error::MissingMandatoryMetricV2 { metric_type } => {
-                write!(
-                    f,
-                    "missing mandatory CVSSv2 {} ({}) metric",
                     metric_type.name(),
                     metric_type.description(),
                 )
