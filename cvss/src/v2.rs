@@ -4,6 +4,7 @@
 
 pub mod base;
 pub mod temporal;
+pub mod environmental;
 
 mod score;
 mod metric;
