@@ -102,7 +102,6 @@ pub enum Error {
         /// Prefix which is doubled.
         metric_type: v2::MetricType,
     },
-
 }
 
 impl fmt::Display for Error {

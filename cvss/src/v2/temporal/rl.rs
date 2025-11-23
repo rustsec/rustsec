@@ -11,8 +11,8 @@ use core::{fmt, str::FromStr};
 /// <https://www.first.org/cvss/v2/guide#2-2-2-Remediation-Level-RL>
 ///
 /// > The remediation level of a vulnerability is an important factor for
-/// prioritization. The typical vulnerability is unpatched when initially
-/// published.
+/// > prioritization. The typical vulnerability is unpatched when initially
+/// > published.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum RemediationLevel {
     /// Official Fix (OF)
