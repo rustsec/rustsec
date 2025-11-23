@@ -17,7 +17,7 @@ pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
         Self::TYPE.name()
     }
 
-    /// Get CVSS v3.1 score for this metric.
+    /// Get CVSS v2.0 score for this metric.
     fn score(self) -> f64;
 
     /// Get `str` describing this metric's value
@@ -45,30 +45,80 @@ pub enum MetricType {
 
     /// Integrity Impact (I)
     I,
+
+    /// Exploitability (E)
+    E,
+
+    /// Remediation Level (RL)
+    RL,
+
+    /// Report Confidence (RC)
+    RC,
+
+    /// Collateral Damage Potential (CDP)
+    CDP,
+
+    /// Target Distribution (TD)
+    TD,
+
+    /// Confidentiality Requirement (CR)
+    CR,
+
+    /// Integrity Requirement (IR)
+    IR,
+
+    /// Availability Requirement (AR)   
+    AR,
 }
 
 impl MetricType {
     /// Get the name of this metric (i.e. acronym)
     pub fn name(self) -> &'static str {
         match self {
+            // Base Metrics
             Self::A => "A",
             Self::AC => "AC",
             Self::Au => "Au",
             Self::AV => "AV",
             Self::C => "C",
             Self::I => "I",
+
+            // Temporal Metrics
+            Self::E => "E",
+            Self::RL => "RL",
+            Self::RC => "RC",
+
+            // Environmental Metrics
+            Self::CDP => "CDP",
+            Self::TD => "TD",
+            Self::CR => "CR",
+            Self::IR => "IR",
+            Self::AR => "AR",
         }
     }
 
     /// Get a description of this metric.
     pub fn description(self) -> &'static str {
         match self {
+            // Base Metrics
             Self::A => "Availability Impact",
             Self::AC => "Access Complexity",
             Self::Au => "Authentication",
             Self::AV => "Access Vector",
             Self::C => "Confidentiality Impact",
             Self::I => "Integrity Impact",
+
+            // Temporal Metrics
+            Self::E => "Exploitability",
+            Self::RL => "Remediation Level",
+            Self::RC => "Report Confidence",
+
+            // Environmental Metrics
+            Self::CDP => "Collateral Damage Potential",
+            Self::TD => "Target Distribution",
+            Self::CR => "Confidentiality Requirement",
+            Self::IR => "Integrity Requirement",
+            Self::AR => "Availability Requirement",
         }
     }
 }
@@ -84,12 +134,26 @@ impl FromStr for MetricType {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
+            // Base Metrics
             "A" => Ok(Self::A),
             "AC" => Ok(Self::AC),
             "Au" => Ok(Self::Au),
             "AV" => Ok(Self::AV),
             "C" => Ok(Self::C),
             "I" => Ok(Self::I),
+
+            // Temporal Metrics
+            "E" => Ok(Self::E),
+            "RL" => Ok(Self::RL),
+            "RC" => Ok(Self::RC),
+
+            // Environmental Metrics
+            "CDP" => Ok(Self::CDP),
+            "TD" => Ok(Self::TD),
+            "CR" => Ok(Self::CR),
+            "IR" => Ok(Self::IR),
+            "AR" => Ok(Self::AR),
+
             _ => Err(Error::UnknownMetric { name: s.to_owned() }),
         }
     }
