@@ -18,8 +18,21 @@ use core::{fmt, str::FromStr};
 /// > increases the vulnerability score.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ConfidentialityImpact {
+    /// None (N)
+    /// > There is no impact to the confidentiality of the system.
     None,
+
+    /// Partial (P)
+    /// > There is considerable informational disclosure. Access to some system
+    /// > files is possible, but the attacker does not have control over what is
+    /// > obtained, or the scope of the loss is constrained. An example is a
+    /// > vulnerability that divulges only certain tables in a database.
     Partial,
+
+    /// Complete (C)
+    /// > There is total information disclosure, resulting in all system files
+    /// > being revealed. The attacker is able to read all of the system's data
+    /// > (memory, files, etc.)
     Complete,
 }
 

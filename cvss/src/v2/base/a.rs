@@ -18,8 +18,19 @@ use core::{fmt, str::FromStr};
 /// > availability impact increases the vulnerability score.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum AvailabilityImpact {
+    /// None (N)
+    /// > There is no impact to the availability of the system.
     None,
+
+    /// Partial (P)
+    /// > There is reduced performance or interruptions in resource
+    /// > availability. An example is a network-based flood attack that permits
+    /// > a limited number of successful connections to an Internet service.
     Partial,
+
+    /// Complete (C)
+    /// > There is a total shutdown of the affected resource. The attacker can
+    /// > render the resource completely unavailable.
     Complete,
 }
 

@@ -16,8 +16,24 @@ use core::{fmt, str::FromStr};
 /// > Table 5. Increased integrity impact increases the vulnerability score.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum IntegrityImpact {
+    /// None (N)
+    /// > There is no impact to the integrity of the system.
     None,
+
+    /// Partial (P)
+    /// > Modification of some system files or information is possible, but the
+    /// > attacker does not have control over what can be modified, or the scope
+    /// > of what the attacker can affect is limited. For example, system or
+    /// > application files may be overwritten or modified, but either the
+    /// > attacker has no control over which files are affected or the attacker
+    /// > can modify files within only a limited context or scope.
     Partial,
+
+    /// Complete (C)
+    /// > There is a total compromise of system integrity. There is a complete
+    /// > loss of system protection, resulting in the entire system being
+    /// > compromised. The attacker is able to modify any files on the target
+    /// > system.
     Complete,
 }
 
