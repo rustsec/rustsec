@@ -88,9 +88,13 @@ impl Cvss {
             #[cfg(feature = "v3")]
             Self::CvssV31(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
             #[cfg(feature = "v3")]
-            Self::CvssV30Extended(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            Self::CvssV30Extended(base) => {
+                Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v)))
+            }
             #[cfg(feature = "v3")]
-            Self::CvssV31Extended(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            Self::CvssV31Extended(base) => {
+                Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v)))
+            }
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => {
                 Box::new(vector.metrics().map(|(m, v)| (MetricType::V4(m), v)))

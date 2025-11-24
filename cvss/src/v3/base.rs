@@ -28,8 +28,10 @@ use crate::Severity;
 /// Calling any of its methods will create a [crate::v3::Vector] internally and
 /// delegate the calls to it.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
-#[deprecated(note = "Use `cvss::v3::Vector` instead")]
 pub struct Base {
+    /// Minor component of the version
+    pub minor_version: usize,
+
     /// Attack Vector
     pub av: Option<AttackVector>,
 
@@ -58,6 +60,7 @@ pub struct Base {
 impl Base {
     fn build_vector(&self) -> Vector {
         let vec = Vector {
+            minor_version: self.minor_version,
             av: self.av,
             ac: self.ac,
             pr: self.pr,
@@ -78,7 +81,6 @@ impl Base {
     /// Note: this method will create a [crate::v3::Vector] internally.
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    #[deprecated(note = "Use `Vector::base_score` instead")]
     pub fn score(&self) -> Score {
         self.build_vector().base_score()
     }
@@ -90,7 +92,6 @@ impl Base {
     /// Note: this method will create a [crate::v3::Vector] internally.
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    #[deprecated(note = "Use `Vector::exploitability` instead")]
     pub fn exploitability(&self) -> Score {
         self.build_vector().exploitability()
     }
@@ -102,7 +103,6 @@ impl Base {
     /// Note: this method will create a [crate::v3::Vector] internally.
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    #[deprecated(note = "Use `Vector::impact` instead")]
     pub fn impact(&self) -> Score {
         self.build_vector().exploitability()
     }
@@ -141,7 +141,6 @@ impl Base {
     /// Note: this method will create a [crate::v3::Vector] internally.
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    #[deprecated(note = "Use `Vector::severity` instead")]
     pub fn severity(&self) -> Severity {
         self.score().severity()
     }
@@ -159,6 +158,7 @@ impl FromStr for Base {
     fn from_str(s: &str) -> Result<Self> {
         let vector = Vector::from_str(s)?;
         Ok(Base {
+            minor_version: vector.minor_version,
             av: vector.av,
             ac: vector.ac,
             pr: vector.pr,
