@@ -9,11 +9,34 @@ use core::{fmt, str::FromStr};
 /// Described in CVSS v3.1 Specification: Section 4.2:
 /// <https://www.first.org/cvss/v3-1/specification-document#4-2-Modified-Base-Metrics>
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
-pub struct ModifiedPrivilegesRequired(pub Option<PrivilegesRequired>);
+pub struct ModifiedPrivilegesRequired {
+    pub modified: Option<PrivilegesRequired>,
+    pub base: Option<PrivilegesRequired>,
+}
 
-impl From<PrivilegesRequired> for ModifiedPrivilegesRequired {
-    fn from(pr: PrivilegesRequired) -> Self {
-        ModifiedPrivilegesRequired(Some(pr))
+impl ModifiedPrivilegesRequired {
+    pub fn from_str(s: &str, base: Option<PrivilegesRequired>) -> Result<Self, Error> {
+        if s == "X" {
+            Ok(ModifiedPrivilegesRequired {
+                modified: None,
+                base,
+            })
+        } else {
+            Ok(ModifiedPrivilegesRequired {
+                modified: Some(s.parse()?),
+                base,
+            })
+        }
+    }
+
+    pub fn scoped_score(self, scope_changed: bool) -> f64 {
+        if let Some(m) = self.modified {
+            m.scoped_score(scope_changed)
+        } else if let Some(b) = self.base {
+            b.scoped_score(scope_changed)
+        } else {
+            0.0
+        }
     }
 }
 
@@ -21,11 +44,12 @@ impl Metric for ModifiedPrivilegesRequired {
     const TYPE: MetricType = MetricType::MPR;
 
     fn score(self) -> f64 {
-        self.0.map_or(0.0, |v| v.score())
+        // Default to unscoped score (false) for Metric::score
+        self.scoped_score(false)
     }
 
     fn as_str(self) -> &'static str {
-        match self.0 {
+        match self.modified {
             Some(v) => v.as_str(),
             None => "X",
         }
@@ -35,17 +59,5 @@ impl Metric for ModifiedPrivilegesRequired {
 impl fmt::Display for ModifiedPrivilegesRequired {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:{}", Self::name(), self.as_str())
-    }
-}
-
-impl FromStr for ModifiedPrivilegesRequired {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Error> {
-        if s == "X" {
-            Ok(ModifiedPrivilegesRequired(None))
-        } else {
-            Ok(ModifiedPrivilegesRequired(Some(s.parse()?)))
-        }
     }
 }
