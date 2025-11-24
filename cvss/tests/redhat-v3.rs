@@ -1,6 +1,6 @@
 #![cfg(all(feature = "v3", feature = "std"))]
 
-use cvss::v3::Base;
+use cvss::v3::Vector;
 use std::{fs, str::FromStr};
 
 // Run the test set from Red Hat's Security Python implementation: https://github.com/RedHatProductSecurity/cvss
@@ -17,7 +17,7 @@ fn run_tests_from_file(name: &str) {
         // "(base, _, _)"
         let score = parts[1].split(',').next().unwrap().trim_start_matches('(');
 
-        let cvss = Base::from_str(vector).unwrap();
+        let cvss = Vector::from_str(vector).unwrap();
         // Test correct serialization.
         assert_eq!(cvss.to_string(), parts[0]);
         assert!(cvss.score().value() >= 0.0);
