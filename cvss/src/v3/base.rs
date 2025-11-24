@@ -15,78 +15,27 @@ pub use self::{
 };
 
 use super::Score;
-use crate::{Error, Metric, MetricType, PREFIX, Result};
-use alloc::{borrow::ToOwned, vec::Vec};
-use core::{fmt, str::FromStr};
-
-#[cfg(feature = "serde")]
-use {
-    alloc::string::{String, ToString},
-    serde::{Deserialize, Serialize, de, ser},
-};
+use crate::{Metric, MetricType, v3::Vector};
+use core::fmt;
 
 #[cfg(feature = "std")]
 use crate::Severity;
 
-/// CVSS v3.1 Base Metric Group
-///
-/// Note: This struct only supports the basic Base metrics (and is deprecated).
-/// In order to parse vectors with Temporal or Environmental metrics, use the
-/// [Vector] struct.
-///
-/// Described in CVSS v3.1 Specification: Section 2:
-/// <https://www.first.org/cvss/specification-document#t6>
-///
-/// > The Base metric group represents the intrinsic characteristics of a
-/// > vulnerability that are constant over time and across user environments. It
-/// > is composed of two sets of metrics: the Exploitability metrics and the
-/// > Impact metrics.
-/// >
-/// > The Exploitability metrics reflect the ease and technical means by which
-/// > the vulnerability can be exploited. That is, they represent
-/// > characteristics of *the thing that is vulnerable*, which we refer to
-/// > formally as the *vulnerable component*. The Impact metrics reflect the
-/// > direct consequence of a successful exploit, and represent the consequence
-/// > to the *thing that suffers the impact*, which we refer to formally as the
-/// > *impacted component*.
-/// >
-/// > While the vulnerable component is typically a software application,
-/// > module, driver, etc. (or possibly a hardware device), the impacted
-/// > component could be a software application, a hardware device or a network
-/// > resource. This potential for measuring the impact of a vulnerability other
-/// > than the vulnerable component, was a key feature introduced with CVSS
-/// > v3.0. This property is captured by the Scope metric.
-#[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct Base {
-    /// Minor component of the version
-    pub minor_version: usize,
+/// CVSS v3.x Base Vector. This is actually just an alias for
+/// [crate::v3::Vector] for backwards compatibility and should not be used
+/// anymore.
+pub type Base = Vector;
 
-    /// Attack Vector (AV)
-    pub av: Option<AttackVector>,
+impl Vector {
+    /// Calculate the CVSS (base) score. This is an alias for
+    /// [Vector::base_score] for backwards compatibility and should not be used
+    /// anymore.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    pub fn score(&self) -> Score {
+        self.base_score()
+    }
 
-    /// Attack Complexity (AC)
-    pub ac: Option<AttackComplexity>,
-
-    /// Privileges Required (PR)
-    pub pr: Option<PrivilegesRequired>,
-
-    /// User Interaction (UI)
-    pub ui: Option<UserInteraction>,
-
-    /// Scope (S)
-    pub s: Option<Scope>,
-
-    /// Confidentiality Impact (C)
-    pub c: Option<Confidentiality>,
-
-    /// Integrity Impact (I)
-    pub i: Option<Integrity>,
-
-    /// Availability Impact (A)
-    pub a: Option<Availability>,
-}
-
-impl Base {
     /// Calculate Base CVSS score: overall value for determining the severity
     /// of a vulnerability, generally referred to as the "CVSS score".
     ///
@@ -103,7 +52,7 @@ impl Base {
     /// > derived from the Base Impact metrics.
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
-    pub fn score(&self) -> Score {
+    pub fn base_score(&self) -> Score {
         let exploitability = self.exploitability().value();
         let iss = self.impact().value();
 
@@ -207,125 +156,5 @@ impl Base {
     /// Has the scope changed?
     fn is_scope_changed(&self) -> bool {
         self.s.map(|s| s.is_changed()).unwrap_or(false)
-    }
-}
-
-macro_rules! write_metrics {
-    ($f:expr, $($metric:expr),+) => {
-        $(
-            if let Some(metric) = $metric {
-                write!($f, "/{}", metric)?;
-            }
-        )+
-    };
-}
-
-impl fmt::Display for Base {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}:3.{}", PREFIX, self.minor_version)?;
-        write_metrics!(
-            f, self.av, self.ac, self.pr, self.ui, self.s, self.c, self.i, self.a
-        );
-        Ok(())
-    }
-}
-
-impl FromStr for Base {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self> {
-        let component_vec = s
-            .split('/')
-            .map(|component| {
-                let mut parts = component.split(':');
-
-                let id = parts.next().ok_or_else(|| Error::InvalidComponent {
-                    component: component.to_owned(),
-                })?;
-
-                let value = parts.next().ok_or_else(|| Error::InvalidComponent {
-                    component: component.to_owned(),
-                })?;
-
-                if parts.next().is_some() {
-                    return Err(Error::InvalidComponent {
-                        component: component.to_owned(),
-                    });
-                }
-
-                Ok((id, value))
-            })
-            .collect::<Result<Vec<_>>>()?;
-
-        let mut components = component_vec.iter();
-        let &(id, version_string) = components.next().ok_or(Error::InvalidPrefix {
-            prefix: s.to_owned(),
-        })?;
-
-        if id != PREFIX {
-            return Err(Error::InvalidPrefix {
-                prefix: id.to_owned(),
-            });
-        }
-
-        let mut metrics = Self {
-            minor_version: match version_string {
-                "3.0" => 0,
-                "3.1" => 1,
-                _ => {
-                    return Err(Error::UnsupportedVersion {
-                        version: version_string.to_owned(),
-                    });
-                }
-            },
-            ..Default::default()
-        };
-
-        for &component in components {
-            let id = component.0.to_ascii_uppercase();
-            let value = component.1.to_ascii_uppercase();
-
-            match id.parse::<MetricType>()? {
-                MetricType::AV => metrics.av = Some(value.parse()?),
-                MetricType::AC => metrics.ac = Some(value.parse()?),
-                MetricType::PR => metrics.pr = Some(value.parse()?),
-                MetricType::UI => metrics.ui = Some(value.parse()?),
-                MetricType::S => metrics.s = Some(value.parse()?),
-                MetricType::C => metrics.c = Some(value.parse()?),
-                MetricType::I => metrics.i = Some(value.parse()?),
-                MetricType::A => metrics.a = Some(value.parse()?),
-                other => {
-                    return Err(Error::InvalidMetric {
-                        metric_type: other,
-                        value: value.to_owned(),
-                    });
-                }
-            }
-        }
-
-        Ok(metrics)
-    }
-}
-
-#[cfg(feature = "serde")]
-#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-impl<'de> Deserialize<'de> for Base {
-    fn deserialize<D: de::Deserializer<'de>>(
-        deserializer: D,
-    ) -> core::result::Result<Self, D::Error> {
-        String::deserialize(deserializer)?
-            .parse()
-            .map_err(de::Error::custom)
-    }
-}
-
-#[cfg(feature = "serde")]
-#[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-impl Serialize for Base {
-    fn serialize<S: ser::Serializer>(
-        &self,
-        serializer: S,
-    ) -> core::result::Result<S::Ok, S::Error> {
-        self.to_string().serialize(serializer)
     }
 }
