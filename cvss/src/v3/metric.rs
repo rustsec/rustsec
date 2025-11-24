@@ -8,7 +8,7 @@ use core::{
 };
 
 /// Trait for CVSSv3 metrics.
-pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
+pub trait Metric: Copy + Clone + Debug + Display + Eq + Ord {
     /// [`MetricType`] of this metric.
     const TYPE: MetricType;
 

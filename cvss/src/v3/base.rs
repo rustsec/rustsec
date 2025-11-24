@@ -68,7 +68,7 @@ impl Vector {
             (1.08 * (iss_scoped + exploitability)).min(10.0)
         };
 
-        Score::new(score).roundup()
+        Score::new(score).roundup_for_version(self.minor_version)
     }
 
     /// Calculate Base Exploitability score: sub-score for measuring
@@ -124,7 +124,7 @@ impl Vector {
     }
 
     /// Has the scope changed?
-    fn is_scope_changed(&self) -> bool {
+    pub(crate) fn is_scope_changed(&self) -> bool {
         self.s.map(|s| s.is_changed()).unwrap_or(false)
     }
 }

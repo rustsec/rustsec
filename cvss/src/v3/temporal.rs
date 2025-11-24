@@ -23,6 +23,6 @@ impl Vector {
 
         let temporal_score = base_score * e_score * rl_score * rc_score;
 
-        Score::new(temporal_score).roundup()
+        Score::new(temporal_score).roundup_for_version(self.minor_version)
     }
 }
