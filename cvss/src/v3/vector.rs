@@ -44,49 +44,45 @@ pub struct Vector {
     pub a: Option<Availability>,
 
     /// Exploit Code Maturity (E)
-    e: Option<ExploitCodeMaturity>,
+    pub e: Option<ExploitCodeMaturity>,
 
     /// Remediation Level (RL)
-    rl: Option<RemediationLevel>,
+    pub rl: Option<RemediationLevel>,
 
     /// Report Confidence (RC)
-    rc: Option<ReportConfidence>,
+    pub rc: Option<ReportConfidence>,
+}
+
+// Helper macro to build the array of (MetricType, Option<&dyn fmt::Debug>)
+macro_rules! metrics_array {
+    ($s:expr, $( ($metric_ty:expr, $field:ident) ),+ $(,)?) => {
+        [
+            $(
+                ($metric_ty, $s.$field.as_ref().map(|m| m as &dyn fmt::Debug)),
+            )+
+        ]
+    };
 }
 
 impl Vector {
     /// Iterate over all defined metrics in this vector
     pub fn metrics(&self) -> impl Iterator<Item = (MetricType, &dyn fmt::Debug)> {
-        [
-            (
-                MetricType::AV,
-                self.av.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (
-                MetricType::AC,
-                self.ac.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (
-                MetricType::PR,
-                self.pr.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (
-                MetricType::UI,
-                self.ui.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (MetricType::S, self.s.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (MetricType::C, self.c.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (MetricType::I, self.i.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (MetricType::A, self.a.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (MetricType::E, self.e.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (
-                MetricType::RL,
-                self.rl.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (
-                MetricType::RC,
-                self.rc.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-        ]
+        metrics_array!(
+            self,
+            (MetricType::AV, av),
+            (MetricType::AC, ac),
+            (MetricType::PR, pr),
+            (MetricType::UI, ui),
+            (MetricType::S, s),
+            (MetricType::C, c),
+            (MetricType::I, i),
+            (MetricType::A, a),
+
+            // Temporal metrics
+            (MetricType::E, e),
+            (MetricType::RL, rl),
+            (MetricType::RC, rc),
+        )
         .into_iter()
         .filter_map(|(name, metric)| metric.as_ref().map(|&m| (name, m)))
     }
