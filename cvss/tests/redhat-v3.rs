@@ -20,9 +20,9 @@ fn run_tests_from_file(name: &str) {
         let cvss = Vector::from_str(vector).unwrap();
         // Test correct serialization.
         assert_eq!(cvss.to_string(), parts[0]);
-        assert!(cvss.score().value() >= 0.0);
-        assert!(cvss.score().value() <= 10.0);
-        let diff: f64 = cvss.score().value() - score.parse::<f64>().unwrap();
+        assert!(cvss.base_score().value() >= 0.0);
+        assert!(cvss.base_score().value() <= 10.0);
+        let diff: f64 = cvss.base_score().value() - score.parse::<f64>().unwrap();
         assert!(diff.abs() < 0.0001);
     }
 }

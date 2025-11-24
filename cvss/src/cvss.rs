@@ -32,6 +32,12 @@ pub enum Cvss {
     /// A CVSS 2.0 base vector
     CvssV20(v2::Vector),
     #[cfg(feature = "v3")]
+    /// A CVSS 3.0 vector that also includes temporal and environmental metrics
+    CvssV30Extended(v3::Vector),
+    #[cfg(feature = "v3")]
+    /// A CVSS 3.1 vector that also includes temporal and environmental metrics
+    CvssV31Extended(v3::Vector),
+    #[cfg(feature = "v3")]
     /// A CVSS 3.0 base vector
     CvssV30(v3::Base),
     #[cfg(feature = "v3")]
@@ -56,6 +62,10 @@ impl Cvss {
             Self::CvssV30(base) => base.score().value(),
             #[cfg(feature = "v3")]
             Self::CvssV31(base) => base.score().value(),
+            #[cfg(feature = "v3")]
+            Self::CvssV30Extended(base) => base.base_score().value(),
+            #[cfg(feature = "v3")]
+            Self::CvssV31Extended(base) => base.base_score().value(),
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => vector.score().value(),
         }
@@ -71,6 +81,10 @@ impl Cvss {
             Self::CvssV30(base) => base.score().severity(),
             #[cfg(feature = "v3")]
             Self::CvssV31(base) => base.score().severity(),
+            #[cfg(feature = "v3")]
+            Self::CvssV30Extended(base) => base.base_score().severity(),
+            #[cfg(feature = "v3")]
+            Self::CvssV31Extended(base) => base.base_score().severity(),
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => vector.score().severity(),
         }
@@ -85,6 +99,10 @@ impl Cvss {
             Self::CvssV30(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
             #[cfg(feature = "v3")]
             Self::CvssV31(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            #[cfg(feature = "v3")]
+            Self::CvssV30Extended(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            #[cfg(feature = "v3")]
+            Self::CvssV31Extended(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => {
                 Box::new(vector.metrics().map(|(m, v)| (MetricType::V4(m), v)))
@@ -141,9 +159,9 @@ impl FromStr for Cvss {
 
         match (prefix, major_version, minor_version) {
             #[cfg(feature = "v3")]
-            (PREFIX, "3", "0") => v3::Base::from_str(s).map(Self::CvssV30),
+            (PREFIX, "3", "0") => v3::Vector::from_str(s).map(Self::CvssV30Extended),
             #[cfg(feature = "v3")]
-            (PREFIX, "3", "1") => v3::Base::from_str(s).map(Self::CvssV31),
+            (PREFIX, "3", "1") => v3::Vector::from_str(s).map(Self::CvssV31Extended),
             #[cfg(feature = "v4")]
             (PREFIX, "4", "0") => v4::Vector::from_str(s).map(Self::CvssV40),
             (PREFIX, _, _) => Err(Error::UnsupportedVersion {
@@ -165,6 +183,10 @@ impl fmt::Display for Cvss {
             Self::CvssV30(base) => write!(f, "{}", base),
             #[cfg(feature = "v3")]
             Self::CvssV31(base) => write!(f, "{}", base),
+            #[cfg(feature = "v3")]
+            Self::CvssV30Extended(vector) => write!(f, "{}", vector),
+            #[cfg(feature = "v3")]
+            Self::CvssV31Extended(vector) => write!(f, "{}", vector),
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => write!(f, "{}", vector),
         }
