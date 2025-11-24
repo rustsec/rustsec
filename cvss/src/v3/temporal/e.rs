@@ -50,10 +50,10 @@ impl Metric for ExploitCodeMaturity {
     fn score(self) -> f64 {
         match self {
             ExploitCodeMaturity::NotDefined => 1.0,
-            ExploitCodeMaturity::High => 0.85,
-            ExploitCodeMaturity::Functional => 0.62,
-            ExploitCodeMaturity::ProofOfConcept => 0.40,
-            ExploitCodeMaturity::Unproven => 0.20,
+            ExploitCodeMaturity::High => 1.0,
+            ExploitCodeMaturity::Functional => 0.97,
+            ExploitCodeMaturity::ProofOfConcept => 0.94,
+            ExploitCodeMaturity::Unproven => 0.91,
         }
     }
 

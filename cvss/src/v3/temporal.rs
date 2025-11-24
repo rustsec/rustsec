@@ -17,9 +17,9 @@ impl Vector {
     pub fn temporal_score(&self) -> Score {
         let base_score = self.base_score().value();
 
-        let e_score = self.e.map(|e| e.score()).unwrap_or(0.0);
-        let rl_score = self.rl.map(|rl| rl.score()).unwrap_or(0.0);
-        let rc_score = self.rc.map(|rc| rc.score()).unwrap_or(0.0);
+        let e_score = self.e.unwrap_or(ExploitCodeMaturity::NotDefined).score();
+        let rl_score = self.rl.unwrap_or(RemediationLevel::NotDefined).score();
+        let rc_score = self.rc.unwrap_or(ReportConfidence::NotDefined).score();
 
         let temporal_score = base_score * e_score * rl_score * rc_score;
 
