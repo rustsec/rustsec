@@ -2,6 +2,11 @@ use crate::v3::base::{
     AttackComplexity, AttackVector, Availability, Confidentiality, Integrity, PrivilegesRequired,
     Scope, UserInteraction,
 };
+use crate::v3::environmental::{
+    AvailabilityRequirement, ConfidentialityRequirement, IntegrityRequirement,
+    ModifiedAttackComplexity, ModifiedAttackVector, ModifiedAvailability, ModifiedConfidentiality,
+    ModifiedIntegrity, ModifiedPrivilegesRequired, ModifiedScope, ModifiedUserInteraction,
+};
 use crate::v3::temporal::{ExploitCodeMaturity, RemediationLevel, ReportConfidence};
 use crate::{Error, MetricType, PREFIX, Result};
 use alloc::{borrow::ToOwned, vec::Vec};
@@ -51,6 +56,39 @@ pub struct Vector {
 
     /// Report Confidence (RC)
     pub rc: Option<ReportConfidence>,
+
+    /// Modified Attack Vector (MAV)
+    pub mav: Option<ModifiedAttackVector>,
+
+    /// Confidentiality Requirements (CR)
+    pub cr: Option<ConfidentialityRequirement>,
+
+    /// Integrity Requirements (IR)
+    pub ir: Option<IntegrityRequirement>,
+
+    /// Availability Requirements (AR)
+    pub ar: Option<AvailabilityRequirement>,
+
+    /// Modified Attack Complexity (MAC)
+    pub mac: Option<ModifiedAttackComplexity>,
+
+    /// Modified Privileges Required (MPR)
+    pub mpr: Option<ModifiedPrivilegesRequired>,
+
+    /// Modified User Interaction (MUI)
+    pub mui: Option<ModifiedUserInteraction>,
+
+    /// Modified Scope (MS)
+    pub ms: Option<ModifiedScope>,
+
+    /// Modified Confidentiality (MC)
+    pub mc: Option<ModifiedConfidentiality>,
+
+    /// Modified Integrity (MI)
+    pub mi: Option<ModifiedIntegrity>,
+
+    /// Modified Availability (MA)
+    pub ma: Option<ModifiedAvailability>,
 }
 
 // Helper macro to build the array of (MetricType, Option<&dyn fmt::Debug>)
@@ -77,11 +115,22 @@ impl Vector {
             (MetricType::C, c),
             (MetricType::I, i),
             (MetricType::A, a),
-
             // Temporal metrics
             (MetricType::E, e),
             (MetricType::RL, rl),
             (MetricType::RC, rc),
+            // Environmental metrics
+            (MetricType::MAV, mav),
+            (MetricType::MAC, mac),
+            (MetricType::MPR, mpr),
+            (MetricType::MUI, mui),
+            (MetricType::MS, ms),
+            (MetricType::MC, mc),
+            (MetricType::MI, mi),
+            (MetricType::CR, cr),
+            (MetricType::IR, ir),
+            (MetricType::AR, ar),
+            (MetricType::MA, ma),
         )
         .into_iter()
         .filter_map(|(name, metric)| metric.as_ref().map(|&m| (name, m)))
@@ -102,7 +151,11 @@ impl fmt::Display for Vector {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:3.{}", PREFIX, self.minor_version)?;
         write_metrics!(
-            f, self.av, self.ac, self.pr, self.ui, self.s, self.c, self.i, self.a
+            f, self.av, self.ac, self.pr, self.ui, self.s, self.c, self.i, self.a,
+            // Temporal
+            self.e, self.rl, self.rc, // Requirements (standard order)
+            self.cr, self.ir, self.ar, // Modified base metrics
+            self.mav, self.mac, self.mpr, self.mui, self.ms, self.mc, self.mi, self.ma
         );
         Ok(())
     }
@@ -178,6 +231,19 @@ impl FromStr for Vector {
                 MetricType::E => metrics.e = Some(value.parse()?),
                 MetricType::RL => metrics.rl = Some(value.parse()?),
                 MetricType::RC => metrics.rc = Some(value.parse()?),
+
+                // Environmental metrics
+                MetricType::MAV => metrics.mav = Some(value.parse()?),
+                MetricType::MAC => metrics.mac = Some(value.parse()?),
+                MetricType::MPR => metrics.mpr = Some(value.parse()?),
+                MetricType::MUI => metrics.mui = Some(value.parse()?),
+                MetricType::MS => metrics.ms = Some(value.parse()?),
+                MetricType::MC => metrics.mc = Some(value.parse()?),
+                MetricType::MI => metrics.mi = Some(value.parse()?),
+                MetricType::MA => metrics.ma = Some(value.parse()?),
+                MetricType::CR => metrics.cr = Some(value.parse()?),
+                MetricType::IR => metrics.ir = Some(value.parse()?),
+                MetricType::AR => metrics.ar = Some(value.parse()?),
             }
         }
 

@@ -60,6 +60,39 @@ pub enum MetricType {
 
     /// Report Confidence (RC)
     RC,
+
+    /// Confidentiality Requirements (CR)
+    CR,
+
+    /// Integrity Requirements (IR)
+    IR,
+
+    /// Availability Requirements (AR)
+    AR,
+
+    /// Modified Attack Vector (MAV)
+    MAV,
+
+    /// Modified Attack Complexity (MAC)
+    MAC,
+
+    /// Modified Privileges Required (MPR)
+    MPR,
+
+    /// Modified User Interaction (MUI)
+    MUI,
+
+    /// Modified Scope (MS)
+    MS,
+
+    /// Modified Confidentiality (MC)
+    MC,
+
+    /// Modified Integrity (MI)
+    MI,
+
+    /// Modified Availability (MA)
+    MA,
 }
 
 impl MetricType {
@@ -80,6 +113,19 @@ impl MetricType {
             Self::E => "E",
             Self::RL => "RL",
             Self::RC => "RC",
+
+            // Environmental metrics
+            Self::CR => "CR",
+            Self::IR => "IR",
+            Self::AR => "AR",
+            Self::MAV => "MAV",
+            Self::MAC => "MAC",
+            Self::MPR => "MPR",
+            Self::MUI => "MUI",
+            Self::MS => "MS",
+            Self::MC => "MC",
+            Self::MI => "MI",
+            Self::MA => "MA",
         }
     }
 
@@ -100,6 +146,19 @@ impl MetricType {
             Self::E => "Exploit Code Maturity",
             Self::RL => "Remediation Level",
             Self::RC => "Report Confidence",
+
+            // Environmental metrics
+            Self::CR => "Confidentiality Requirements",
+            Self::IR => "Integrity Requirements",
+            Self::AR => "Availability Requirements",
+            Self::MAV => "Modified Attack Vector",
+            Self::MAC => "Modified Attack Complexity",
+            Self::MPR => "Modified Privileges Required",
+            Self::MUI => "Modified User Interaction",
+            Self::MS => "Modified Scope",
+            Self::MC => "Modified Confidentiality",
+            Self::MI => "Modified Integrity",
+            Self::MA => "Modified Availability",
         }
     }
 }
@@ -115,6 +174,7 @@ impl FromStr for MetricType {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
+            // Base metrics
             "A" => Ok(Self::A),
             "AC" => Ok(Self::AC),
             "AV" => Ok(Self::AV),
@@ -123,6 +183,24 @@ impl FromStr for MetricType {
             "PR" => Ok(Self::PR),
             "S" => Ok(Self::S),
             "UI" => Ok(Self::UI),
+
+            // Temporal metrics
+            "E" => Ok(Self::E),
+            "RL" => Ok(Self::RL),
+            "RC" => Ok(Self::RC),
+
+            // Environmental metrics
+            "CR" => Ok(Self::CR),
+            "IR" => Ok(Self::IR),
+            "AR" => Ok(Self::AR),
+            "MAV" => Ok(Self::MAV),
+            "MAC" => Ok(Self::MAC),
+            "MPR" => Ok(Self::MPR),
+            "MUI" => Ok(Self::MUI),
+            "MS" => Ok(Self::MS),
+            "MC" => Ok(Self::MC),
+            "MI" => Ok(Self::MI),
+            "MA" => Ok(Self::MA),
             _ => Err(Error::UnknownMetric { name: s.to_owned() }),
         }
     }

@@ -4,6 +4,8 @@
 
 #[cfg(feature = "v3")]
 pub mod base;
+#[cfg(feature = "v3")]
+pub mod environmental;
 pub mod metric;
 #[cfg(feature = "v3")]
 pub mod temporal;
