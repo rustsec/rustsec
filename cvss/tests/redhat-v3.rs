@@ -10,10 +10,6 @@ fn run_tests_from_file(name: &str) {
     for l in content.lines() {
         let parts = l.split(" - ").collect::<Vec<&str>>();
         let vector = parts[0];
-        if vector.len() > 44 {
-            // more than base, skip
-            continue;
-        }
         // "(base, _, _)"
         let score = parts[1].split(',').next().unwrap().trim_start_matches('(');
 

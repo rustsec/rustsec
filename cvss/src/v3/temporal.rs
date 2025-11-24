@@ -14,7 +14,7 @@ impl Vector {
     ///
     /// Described in CVSS v3.1 Specification: Section 7.2:
     /// <https://www.first.org/cvss/v3-1/specification-document#7-2-Temporal-Metrics-Equations>
-    fn temporal_score(&self) -> Score {
+    pub fn temporal_score(&self) -> Score {
         let base_score = self.base_score().value();
 
         let e_score = self.e.map(|e| e.score()).unwrap_or(0.0);
