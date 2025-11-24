@@ -53,6 +53,36 @@ pub struct Vector {
     pub rc: Option<ReportConfidence>,
 }
 
+impl Vector {
+    /// Iterate over all defined metrics in this vector
+    pub fn metrics(&self) -> impl Iterator<Item = (MetricType, &dyn fmt::Debug)> {
+        [
+            (
+                MetricType::AV,
+                self.av.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::AC,
+                self.ac.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::PR,
+                self.pr.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::UI,
+                self.ui.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (MetricType::S, self.s.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::C, self.c.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::I, self.i.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::A, self.a.as_ref().map(|m| m as &dyn fmt::Debug)),
+        ]
+        .into_iter()
+        .filter_map(|(name, metric)| metric.as_ref().map(|&m| (name, m)))
+    }
+}
+
 macro_rules! write_metrics {
     ($f:expr, $($metric:expr),+) => {
         $(

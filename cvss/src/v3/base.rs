@@ -15,8 +15,8 @@ pub use self::{
 };
 
 use super::Score;
-use crate::{Metric, MetricType, v3::Vector};
-use core::fmt;
+use crate::{Error, Metric, MetricType, Result, v3::Vector};
+use core::{fmt, str::FromStr};
 
 #[cfg(feature = "std")]
 use crate::Severity;
@@ -24,18 +24,154 @@ use crate::Severity;
 /// CVSS v3.x Base Vector. This is actually just an alias for
 /// [crate::v3::Vector] for backwards compatibility and should not be used
 /// anymore.
-pub type Base = Vector;
+///
+/// Calling any of its methods will create a [crate::v3::Vector] internally and
+/// delegate the calls to it.
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+#[deprecated(note = "Use `cvss::v3::Vector` instead")]
+pub struct Base {
+    /// Attack Vector
+    pub av: Option<AttackVector>,
 
-impl Vector {
+    /// Attack Complexity
+    pub ac: Option<AttackComplexity>,
+
+    /// Privileges Required
+    pub pr: Option<PrivilegesRequired>,
+
+    /// User Interaction
+    pub ui: Option<UserInteraction>,
+
+    /// Scope
+    pub s: Option<Scope>,
+
+    /// Confidentiality
+    pub c: Option<Confidentiality>,
+
+    /// Integrity
+    pub i: Option<Integrity>,
+
+    /// Availability
+    pub a: Option<Availability>,
+}
+
+impl Base {
+    fn build_vector(&self) -> Vector {
+        let vec = Vector {
+            av: self.av,
+            ac: self.ac,
+            pr: self.pr,
+            ui: self.ui,
+            s: self.s,
+            c: self.c,
+            i: self.i,
+            a: self.a,
+            ..Default::default()
+        };
+        vec
+    }
+
     /// Calculate the CVSS (base) score. This is an alias for
     /// [Vector::base_score] for backwards compatibility and should not be used
     /// anymore.
+    /// ///
+    /// Note: this method will create a [crate::v3::Vector] internally.
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    #[deprecated(note = "Use `Vector::base_score` instead")]
     pub fn score(&self) -> Score {
-        self.base_score()
+        self.build_vector().base_score()
     }
 
+    /// Calculate the CVSS exploitability sub-score. This is an alias for
+    /// [Vector::exploitability] for backwards compatibility and should not be
+    /// used anymore.
+    ///
+    /// Note: this method will create a [crate::v3::Vector] internally.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    #[deprecated(note = "Use `Vector::exploitability` instead")]
+    pub fn exploitability(&self) -> Score {
+        self.build_vector().exploitability()
+    }
+
+    /// Calculate the CVSS impact sub-score. This is an alias for
+    /// [Vector::impact] for backwards compatibility and should not be
+    /// used anymore.
+    ///
+    /// Note: this method will create a [crate::v3::Vector] internally.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    #[deprecated(note = "Use `Vector::impact` instead")]
+    pub fn impact(&self) -> Score {
+        self.build_vector().exploitability()
+    }
+
+    /// Iterate over all defined Base metrics
+    pub fn metrics(&self) -> impl Iterator<Item = (MetricType, &dyn fmt::Debug)> {
+        [
+            (
+                MetricType::AV,
+                self.av.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::AC,
+                self.ac.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::PR,
+                self.pr.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::UI,
+                self.ui.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (MetricType::S, self.s.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::C, self.c.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::I, self.i.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::A, self.a.as_ref().map(|m| m as &dyn fmt::Debug)),
+        ]
+        .into_iter()
+        .filter_map(|(name, metric)| metric.as_ref().map(|&m| (name, m)))
+    }
+
+    /// Calculate the CVSS severity. This is an alias for [Vector::severity] for
+    /// backwards compatibility and should not be used anymore.
+    ///
+    /// Note: this method will create a [crate::v3::Vector] internally.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    #[deprecated(note = "Use `Vector::severity` instead")]
+    pub fn severity(&self) -> Severity {
+        self.score().severity()
+    }
+}
+
+impl fmt::Display for Base {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.build_vector())
+    }
+}
+
+impl FromStr for Base {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self> {
+        let vector = Vector::from_str(s)?;
+        Ok(Base {
+            av: vector.av,
+            ac: vector.ac,
+            pr: vector.pr,
+            ui: vector.ui,
+            s: vector.s,
+            c: vector.c,
+            i: vector.i,
+            a: vector.a,
+        })
+    }
+}
+
+impl Vector {
     /// Calculate Base CVSS score: overall value for determining the severity
     /// of a vulnerability, generally referred to as the "CVSS score".
     ///
@@ -114,34 +250,6 @@ impl Vector {
         (1.0 - ((1.0 - c_score) * (1.0 - i_score) * (1.0 - a_score)).abs()).into()
     }
 
-    /// Iterate over all defined Base metrics
-    pub fn metrics(&self) -> impl Iterator<Item = (MetricType, &dyn fmt::Debug)> {
-        [
-            (
-                MetricType::AV,
-                self.av.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (
-                MetricType::AC,
-                self.ac.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (
-                MetricType::PR,
-                self.pr.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (
-                MetricType::UI,
-                self.ui.as_ref().map(|m| m as &dyn fmt::Debug),
-            ),
-            (MetricType::S, self.s.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (MetricType::C, self.c.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (MetricType::I, self.i.as_ref().map(|m| m as &dyn fmt::Debug)),
-            (MetricType::A, self.a.as_ref().map(|m| m as &dyn fmt::Debug)),
-        ]
-        .into_iter()
-        .filter_map(|(name, metric)| metric.as_ref().map(|&m| (name, m)))
-    }
-
     /// Calculate Base CVSS `Severity` according to the
     /// Qualitative Severity Rating Scale (i.e. Low / Medium / High / Critical)
     ///
@@ -150,7 +258,7 @@ impl Vector {
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn severity(&self) -> Severity {
-        self.score().severity()
+        self.base_score().severity()
     }
 
     /// Has the scope changed?
