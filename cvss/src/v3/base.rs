@@ -30,28 +30,32 @@ use crate::Severity;
 
 /// CVSS v3.1 Base Metric Group
 ///
+/// Note: This struct only supports the basic Base metrics (and is deprecated).
+/// In order to parse vectors with Temporal or Environmental metrics, use the
+/// [Vector] struct.
+///
 /// Described in CVSS v3.1 Specification: Section 2:
 /// <https://www.first.org/cvss/specification-document#t6>
 ///
 /// > The Base metric group represents the intrinsic characteristics of a
-/// > vulnerability that are constant over time and across user environments.
-/// > It is composed of two sets of metrics: the Exploitability metrics and
-/// > the Impact metrics.
+/// > vulnerability that are constant over time and across user environments. It
+/// > is composed of two sets of metrics: the Exploitability metrics and the
+/// > Impact metrics.
 /// >
 /// > The Exploitability metrics reflect the ease and technical means by which
-/// > the vulnerability can be exploited. That is, they represent characteristics
-/// > of *the thing that is vulnerable*, which we refer to formally as the
-/// > *vulnerable component*. The Impact metrics reflect the direct consequence
-/// > of a successful exploit, and represent the consequence to the
-/// > *thing that suffers the impact*, which we refer to formally as the
+/// > the vulnerability can be exploited. That is, they represent
+/// > characteristics of *the thing that is vulnerable*, which we refer to
+/// > formally as the *vulnerable component*. The Impact metrics reflect the
+/// > direct consequence of a successful exploit, and represent the consequence
+/// > to the *thing that suffers the impact*, which we refer to formally as the
 /// > *impacted component*.
 /// >
 /// > While the vulnerable component is typically a software application,
 /// > module, driver, etc. (or possibly a hardware device), the impacted
 /// > component could be a software application, a hardware device or a network
 /// > resource. This potential for measuring the impact of a vulnerability other
-/// > than the vulnerable component, was a key feature introduced with
-/// > CVSS v3.0. This property is captured by the Scope metric.
+/// > than the vulnerable component, was a key feature introduced with CVSS
+/// > v3.0. This property is captured by the Scope metric.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
 pub struct Base {
     /// Minor component of the version
@@ -290,6 +294,12 @@ impl FromStr for Base {
                 MetricType::C => metrics.c = Some(value.parse()?),
                 MetricType::I => metrics.i = Some(value.parse()?),
                 MetricType::A => metrics.a = Some(value.parse()?),
+                other => {
+                    return Err(Error::InvalidMetric {
+                        metric_type: other,
+                        value: value.to_owned(),
+                    });
+                }
             }
         }
 

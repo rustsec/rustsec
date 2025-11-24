@@ -51,12 +51,22 @@ pub enum MetricType {
 
     /// User Interaction (UI)
     UI,
+
+    /// Exploit Code Maturity (E)
+    E,
+
+    /// Remediation Level (RL)
+    RL,
+
+    /// Report Confidence (RC)
+    RC,
 }
 
 impl MetricType {
     /// Get the name of this metric (i.e. acronym)
     pub fn name(self) -> &'static str {
         match self {
+            // Base metrics
             Self::A => "A",
             Self::AC => "AC",
             Self::AV => "AV",
@@ -65,12 +75,18 @@ impl MetricType {
             Self::PR => "PR",
             Self::S => "S",
             Self::UI => "UI",
+
+            // Temporal metrics
+            Self::E => "E",
+            Self::RL => "RL",
+            Self::RC => "RC",
         }
     }
 
     /// Get a description of this metric.
     pub fn description(self) -> &'static str {
         match self {
+            // Base metrics
             Self::A => "Availability Impact",
             Self::AC => "Attack Complexity",
             Self::AV => "Attack Vector",
@@ -79,6 +95,11 @@ impl MetricType {
             Self::PR => "Privileges Required",
             Self::S => "Scope",
             Self::UI => "User Interaction",
+
+            // Temporal metrics
+            Self::E => "Exploit Code Maturity",
+            Self::RL => "Remediation Level",
+            Self::RC => "Report Confidence",
         }
     }
 }
