@@ -44,13 +44,13 @@ pub struct Vector {
     pub a: Option<Availability>,
 
     /// Exploit Code Maturity (E)
-    pub e: Option<ExploitCodeMaturity>,
+    e: Option<ExploitCodeMaturity>,
 
     /// Remediation Level (RL)
-    pub rl: Option<RemediationLevel>,
+    rl: Option<RemediationLevel>,
 
     /// Report Confidence (RC)
-    pub rc: Option<ReportConfidence>,
+    rc: Option<ReportConfidence>,
 }
 
 impl Vector {
@@ -77,6 +77,15 @@ impl Vector {
             (MetricType::C, self.c.as_ref().map(|m| m as &dyn fmt::Debug)),
             (MetricType::I, self.i.as_ref().map(|m| m as &dyn fmt::Debug)),
             (MetricType::A, self.a.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (MetricType::E, self.e.as_ref().map(|m| m as &dyn fmt::Debug)),
+            (
+                MetricType::RL,
+                self.rl.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
+            (
+                MetricType::RC,
+                self.rc.as_ref().map(|m| m as &dyn fmt::Debug),
+            ),
         ]
         .into_iter()
         .filter_map(|(name, metric)| metric.as_ref().map(|&m| (name, m)))
