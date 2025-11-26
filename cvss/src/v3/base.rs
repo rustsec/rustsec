@@ -31,7 +31,7 @@ pub type Base = Vector;
 impl Vector {
     /// Alias for `base_score()`. Should not be used anymore.
     pub fn score(&self) -> Score {
-        return self.base_score();
+        self.base_score()
     }
 
     /// Calculate Base CVSS score: overall value for determining the severity

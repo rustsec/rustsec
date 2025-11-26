@@ -23,8 +23,9 @@ impl ModifiedPrivilegesRequired {
     /// Calculate the Scoped Score for the Modified Privileges Required (MPR)
     /// metric
     ///
-    /// Its value depends on whether the scope of the [ModifiedScope] (or
-    /// [Scope] base) metric has changed.
+    /// Its value depends on whether the scope of the
+    /// [crate::v3::environmental::ModifiedScope] (or [crate::v3::base::Scope]
+    /// base) metric has changed.
     pub fn scoped_score(self, scope_changed: bool, base: Option<PrivilegesRequired>) -> f64 {
         match self {
             ModifiedPrivilegesRequired::Modified(v) => v.scoped_score(scope_changed),
