@@ -276,13 +276,13 @@ impl Serialize for Vector {
 
 #[cfg(test)]
 mod tests {
-    use crate::v3::Vector;
+    use crate::v3::{Vector, environmental};
     use core::str::FromStr;
     use std::string::ToString;
 
     #[test]
     fn parse_full_cvss3() {
-        // See https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator?vector=AV:A/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N/E:P/RL:T/RC:R/CR:X/IR:X/AR:H/MAV:X/MAC:H/MPR:X/MUI:R/MS:C/MC:L/MI:X/MA:N&version=3.1
+        // See https://www.first.org/cvss/calculator/3-1#CVSS:3.1/AV:A/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N/E:P/RL:T/RC:R/AR:H/MAC:H/MUI:R/MS:C/MC:L/MA:N
         let vector_s = "CVSS:3.1/AV:A/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N/E:P/RL:T/RC:R/CR:X/IR:X/AR:H/MAV:X/MAC:H/MPR:X/MUI:R/MS:C/MC:L/MI:X/MA:N";
         let v: Vector = Vector::from_str(vector_s).unwrap();
         assert_eq!(vector_s, v.to_string());
@@ -295,5 +295,34 @@ mod tests {
 
         let environmental_score = v.environmental_score().value();
         assert_eq!(environmental_score, 3.5);
+    }
+
+    #[test]
+    fn cvss30_vs_cvss31() {
+        // See https://www.first.org/cvss/calculator/3-0#CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H
+        let v30 = "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H";
+        // See https://www.first.org/cvss/calculator/3-1#CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H
+        let v31 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:H/I:H/A:H";
+
+        let vec30: Vector = Vector::from_str(v30).unwrap();
+        let vec31: Vector = Vector::from_str(v31).unwrap();
+
+        let base_score_30 = vec30.base_score().value();
+        let base_score_31 = vec31.base_score().value();
+        assert_eq!(base_score_30, base_score_31);
+
+        let temporal_score_30 = vec30.temporal_score().value();
+        let temporal_score_31 = vec31.temporal_score().value();
+        assert_eq!(temporal_score_30, temporal_score_31);
+
+        // Environmental scores are different between CVSS v3.0 and v3.1 for
+        // this vector because of the different exponent used in the calculation
+        // of the Modified Impact sub-score when Scope is changed.
+        let environmental_score_30 = vec30.environmental_score().value();
+        let environmental_score_31 = vec31.environmental_score().value();
+
+        assert_ne!(environmental_score_30, environmental_score_31);
+        assert_eq!(environmental_score_30, 9.6);
+        assert_eq!(environmental_score_31, 9.7);
     }
 }

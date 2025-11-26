@@ -25,7 +25,10 @@ use crate::v3::temporal::{ExploitCodeMaturity, RemediationLevel, ReportConfidenc
 use crate::v3::{Score, Vector};
 
 impl Vector {
-    /// Calculate the CVSS 3.1 Environmental Score for this vector.
+    /// Calculate the CVSS 3.x Environmental Score for this vector.
+    ///
+    /// Described in CVSS v3.0 Specification: Section 8.2:
+    /// <https://www.first.org/cvss/v3-0/specification-document#8-3-Environmental>
     ///
     /// Described in CVSS v3.1 Specification: Section 7.3:
     /// <https://www.first.org/cvss/v3-1/specification-document#7-3-Environmental-Metrics-Equations>
@@ -86,10 +89,16 @@ impl Vector {
         miss.min(0.915)
     }
 
+    /// Calculate the CVSS 3.x Modified Impact sub-score (MISS) for
+    /// environmental score calculations.
     pub(crate) fn modified_impact(&self) -> f64 {
         let miss = self.modified_impact_sub_score();
         if self.is_modified_scope_changed() {
-            7.52 * (miss - 0.029) - 3.25 * (miss * 0.9731 - 0.02).powf(13.0)
+            if self.minor_version == 0 {
+                7.52 * (miss - 0.029) - 3.25 * (miss - 0.02).powf(15.0)
+            } else {
+                7.52 * (miss - 0.029) - 3.25 * (miss * 0.9731 - 0.02).powf(13.0)
+            }
         } else {
             6.42 * miss
         }
