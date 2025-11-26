@@ -276,7 +276,7 @@ impl Serialize for Vector {
 
 #[cfg(test)]
 mod tests {
-    use crate::v3::{Vector, environmental};
+    use crate::v3::Vector;
     use core::str::FromStr;
     use std::string::ToString;
 

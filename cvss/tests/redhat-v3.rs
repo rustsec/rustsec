@@ -1,6 +1,6 @@
 #![cfg(all(feature = "v3", feature = "std"))]
 
-use cvss::v3::{Vector};
+use cvss::v3::Vector;
 use std::{fs, str::FromStr};
 
 // Run the test set from Red Hat's Security Python implementation: https://github.com/RedHatProductSecurity/cvss
