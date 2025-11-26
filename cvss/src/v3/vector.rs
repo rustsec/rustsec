@@ -233,42 +233,14 @@ impl FromStr for Vector {
                 MetricType::RC => metrics.rc = Some(value.parse()?),
 
                 // Environmental metrics (use constructors that accept the base metric)
-                MetricType::MAV => {
-                    metrics.mav = Some(ModifiedAttackVector::from_str(value.as_str(), metrics.av)?)
-                }
-                MetricType::MAC => {
-                    metrics.mac = Some(ModifiedAttackComplexity::from_str(
-                        value.as_str(),
-                        metrics.ac,
-                    )?)
-                }
-                MetricType::MPR => {
-                    metrics.mpr = Some(ModifiedPrivilegesRequired::from_str(
-                        value.as_str(),
-                        metrics.pr,
-                    )?)
-                }
-                MetricType::MUI => {
-                    metrics.mui = Some(ModifiedUserInteraction::from_str(
-                        value.as_str(),
-                        metrics.ui,
-                    )?)
-                }
-                MetricType::MS => {
-                    metrics.ms = Some(ModifiedScope::from_str(value.as_str(), metrics.s)?)
-                }
-                MetricType::MC => {
-                    metrics.mc = Some(ModifiedConfidentiality::from_str(
-                        value.as_str(),
-                        metrics.c,
-                    )?)
-                }
-                MetricType::MI => {
-                    metrics.mi = Some(ModifiedIntegrity::from_str(value.as_str(), metrics.i)?)
-                }
-                MetricType::MA => {
-                    metrics.ma = Some(ModifiedAvailability::from_str(value.as_str(), metrics.a)?)
-                }
+                MetricType::MAV => metrics.mav = Some(value.parse()?),
+                MetricType::MAC => metrics.mac = Some(value.parse()?),
+                MetricType::MPR => metrics.mpr = Some(value.parse()?),
+                MetricType::MUI => metrics.mui = Some(value.parse()?),
+                MetricType::MS => metrics.ms = Some(value.parse()?),
+                MetricType::MC => metrics.mc = Some(value.parse()?),
+                MetricType::MI => metrics.mi = Some(value.parse()?),
+                MetricType::MA => metrics.ma = Some(value.parse()?),
                 MetricType::CR => metrics.cr = Some(value.parse()?),
                 MetricType::IR => metrics.ir = Some(value.parse()?),
                 MetricType::AR => metrics.ar = Some(value.parse()?),
@@ -302,6 +274,7 @@ impl Serialize for Vector {
     }
 }
 
+#[cfg(test)]
 mod tests {
     use crate::v3::Vector;
     use core::str::FromStr;
@@ -311,7 +284,7 @@ mod tests {
     fn parse_full_cvss3() {
         // See https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator?vector=AV:A/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N/E:P/RL:T/RC:R/CR:X/IR:X/AR:H/MAV:X/MAC:H/MPR:X/MUI:R/MS:C/MC:L/MI:X/MA:N&version=3.1
         let vector_s = "CVSS:3.1/AV:A/AC:H/PR:L/UI:N/S:U/C:L/I:L/A:N/E:P/RL:T/RC:R/CR:X/IR:X/AR:H/MAV:X/MAC:H/MPR:X/MUI:R/MS:C/MC:L/MI:X/MA:N";
-        let v = Vector::from_str(vector_s).unwrap();
+        let v: Vector = Vector::from_str(vector_s).unwrap();
         assert_eq!(vector_s, v.to_string());
 
         let base_score = v.base_score().value();

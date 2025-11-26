@@ -24,6 +24,16 @@ pub trait Metric: Copy + Clone + Debug + Display + Eq + Ord {
     fn as_str(self) -> &'static str;
 }
 
+/// Trait for CVSSv3 modified metrics.
+pub trait ModifiedMetric<M: Metric>: Metric {
+    /// Get CVSS v3.1 modified score for this metric, given the base metric
+    /// value.
+    ///
+    /// If the modified metric is `NotDefined`, the base metric value is used to
+    /// compute the score.
+    fn modified_score(self, base: Option<M>) -> f64;
+}
+
 /// Enum over all of the available CVSSv3 metrics.
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
