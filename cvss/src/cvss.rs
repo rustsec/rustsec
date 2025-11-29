@@ -154,7 +154,9 @@ impl fmt::Display for Cvss {
 #[non_exhaustive]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum MetricType {
+    #[cfg(feature = "v3")]
     V3(v3::MetricType),
+    #[cfg(feature = "v4")]
     V4(v4::MetricType),
 }
 
@@ -162,7 +164,9 @@ impl MetricType {
     /// Get the name of this metric (i.e. acronym)
     pub fn name(self) -> &'static str {
         match self {
+            #[cfg(feature = "v3")]
             Self::V3(m) => m.name(),
+            #[cfg(feature = "v4")]
             Self::V4(m) => m.name(),
         }
     }
@@ -170,7 +174,9 @@ impl MetricType {
     /// Get a description of this metric.
     pub fn description(self) -> &'static str {
         match self {
+            #[cfg(feature = "v3")]
             Self::V3(m) => m.description(),
+            #[cfg(feature = "v4")]
             Self::V4(m) => m.description(),
         }
     }
