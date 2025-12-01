@@ -55,9 +55,10 @@ jobs:
           profile: minimal
           toolchain: ${{ matrix.rust }}
           override: true
+      - uses: taiki-e/install-action@cargo-hack
       - run: git submodule update --init
       - run: cargo check
-      - run: cargo test --release
+      - run: cargo hack test --feature-powerset
       - run: cargo test --all-features --release
 
   doc:
