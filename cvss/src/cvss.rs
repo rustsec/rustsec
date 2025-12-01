@@ -2,14 +2,13 @@ use alloc::boxed::Box;
 use alloc::str::FromStr;
 use core::fmt;
 
+#[cfg(feature = "std")]
+use crate::Severity;
+use crate::error::{Error, Result};
 #[cfg(feature = "v3")]
 use crate::v3;
 #[cfg(feature = "v4")]
 use crate::v4;
-use crate::{
-    Severity,
-    error::{Error, Result},
-};
 use alloc::borrow::ToOwned;
 #[cfg(feature = "serde")]
 use {
