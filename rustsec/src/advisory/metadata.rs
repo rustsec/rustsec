@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use url::Url;
 
 /// The `[advisory]` section of a RustSec security advisory
+#[non_exhaustive]
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 pub struct Metadata {
     /// Security advisory ID (e.g. RUSTSEC-YYYY-NNNN)
