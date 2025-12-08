@@ -5,6 +5,7 @@ use crate::{
     lock::acquire_cargo_package_lock,
     prelude::*,
 };
+use rustsec::{Advisory, Collection};
 use std::{
     fs,
     path::{Path, PathBuf},
@@ -13,8 +14,7 @@ use tame_index::index::RemoteGitIndex;
 
 /// List of "collections" within the Advisory DB
 // TODO(tarcieri): provide some other means of iterating over the collections?
-pub const COLLECTIONS: &[rustsec::Collection] =
-    &[rustsec::Collection::Crates, rustsec::Collection::Rust];
+pub const COLLECTIONS: &[Collection] = &[Collection::Crates, Collection::Rust];
 
 /// Advisory linter
 pub struct Linter {
@@ -24,14 +24,8 @@ pub struct Linter {
     /// Loaded crates.io index
     crates_index: RemoteGitIndex,
 
-    /// Loaded Advisory DB
-    advisory_db: rustsec::Database,
-
-    /// Total number of invalid advisories encountered
-    invalid_advisories: usize,
-
     /// Skip namecheck list
-    skip_namecheck: Option<String>,
+    skip_namecheck: Vec<String>,
 }
 
 impl Linter {
@@ -49,24 +43,20 @@ impl Linter {
             &cargo_package_lock,
         )?;
         crates_index.fetch(&cargo_package_lock)?;
-        let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
             repo_path,
             crates_index,
-            advisory_db,
-            invalid_advisories: 0,
-            skip_namecheck,
+            skip_namecheck: match skip_namecheck {
+                Some(s) => s.split(',').map(|s| s.to_owned()).collect(),
+                None => Vec::new(),
+            },
         })
     }
 
-    /// Borrow the loaded advisory database
-    pub fn advisory_db(&self) -> &rustsec::Database {
-        &self.advisory_db
-    }
-
     /// Lint the loaded database
-    pub fn lint(mut self) -> Result<usize, Error> {
+    pub fn lint(mut self) -> Result<(usize, usize), Error> {
+        let (mut valid, mut invalid) = (0, 0);
         for collection in COLLECTIONS {
             for crate_entry in fs::read_dir(self.repo_path.join(collection.as_str())).unwrap() {
                 let crate_dir = crate_entry.unwrap().path();
@@ -82,21 +72,20 @@ impl Linter {
 
                 for advisory_entry in crate_dir.read_dir().unwrap() {
                     let advisory_path = advisory_entry.unwrap().path();
-                    self.lint_advisory(*collection, &advisory_path)?;
+                    match self.is_valid(*collection, &advisory_path)? {
+                        true => valid += 1,
+                        false => invalid += 1,
+                    }
                 }
             }
         }
 
-        Ok(self.invalid_advisories)
+        Ok((valid, invalid))
     }
 
     /// Lint an advisory at the specified path
     // TODO(tarcieri): separate out presentation (`status_*`) from linting code?
-    fn lint_advisory(
-        &mut self,
-        collection: rustsec::Collection,
-        advisory_path: &Path,
-    ) -> Result<(), Error> {
+    fn is_valid(&mut self, collection: Collection, advisory_path: &Path) -> Result<bool, Error> {
         if !advisory_path.is_file() {
             fail!(
                 ErrorKind::RustSec,
@@ -106,19 +95,14 @@ impl Linter {
             );
         }
 
-        let advisory = rustsec::Advisory::load_file(advisory_path)?;
-
-        if collection == rustsec::Collection::Crates {
-            self.crates_io_lints(&advisory)?;
-        }
-
         let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
+        if collection == Collection::Crates {
+            self.crates_io_lints(lint_result.advisory())?;
+        }
 
         if lint_result.errors().is_empty() {
             status_ok!("Linted", "ok: {}", advisory_path.display());
         } else {
-            self.invalid_advisories += 1;
-
             status_err!(
                 "{} contained the following lint errors:",
                 advisory_path.display()
@@ -129,48 +113,37 @@ impl Linter {
             }
         }
 
-        Ok(())
+        Ok(lint_result.errors().is_empty())
     }
 
     /// Perform lints that connect to https://crates.io
-    fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
-        if !self.name_is_skipped(advisory.metadata.package.as_str())
-            && !self.name_exists_on_crates_io(advisory.metadata.package.as_str())
-        {
-            self.invalid_advisories += 1;
-
-            fail!(
-                ErrorKind::CratesIo,
-                "crates.io package name does not match package name in advisory for {} in {}",
-                advisory.metadata.package.as_str(),
-                advisory.metadata.id
-            );
+    fn crates_io_lints(&mut self, advisory: &Advisory) -> Result<(), Error> {
+        let crate_name = advisory.metadata.package.as_str();
+        if self.skip_namecheck.iter().any(|name| name == crate_name) {
+            return Ok(());
         }
 
-        Ok(())
-    }
+        // Check if a crate with this name exists on crates.io
 
-    /// Checks whether the name is in the skiplist
-    fn name_is_skipped(&self, package_name: &str) -> bool {
-        match &self.skip_namecheck {
-            Some(skips) => skips.split(',').any(|a| a == package_name),
-            None => false,
-        }
-    }
-
-    /// Checks if a crate with this name is present on crates.io
-    fn name_exists_on_crates_io(&self, name: &str) -> bool {
-        if let Ok(Some(crate_)) = self.crates_index.krate(
-            name.try_into().unwrap(),
+        let result = self.crates_index.krate(
+            crate_name.try_into().unwrap(),
             true,
             &acquire_cargo_package_lock().unwrap(),
-        ) {
+        );
+
+        match result {
             // This check verifies name normalization.
             // A request for "serde-json" might return "serde_json",
             // and we want to catch use a non-canonical name and report it as an error.
-            crate_.name() == name
-        } else {
-            false
+            Ok(Some(krate)) if krate.name() == crate_name => Ok(()),
+            _ => {
+                fail!(
+                    ErrorKind::CratesIo,
+                    "crates.io package name does not match package name in advisory for {} in {}",
+                    advisory.metadata.package.as_str(),
+                    advisory.metadata.id
+                );
+            }
         }
     }
 }
