@@ -55,7 +55,7 @@ jobs:
           toolchain: ${{ matrix.toolchain }}
           profile: minimal
           override: true
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
       - run: cargo test --no-default-features
       - run: cargo test
       - run: cargo test --all-features
@@ -71,7 +71,7 @@ jobs:
           toolchain: 1.85.0
           override: true
           profile: minimal
-      - uses: Swatinem/rust-cache@f13886b937689c021905a6b90929199931d60db1 # v2.8.1
+      - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
       - run: cargo doc --all-features
 
   self-audit:
