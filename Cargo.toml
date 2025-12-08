@@ -36,7 +36,7 @@ platforms = { version = "3", path = "./platforms" }
 quitters = { version = "0.1.0", path = "./quitters" }
 regex = { version = "1.10.6", default-features = false }
 rust-embed = "8.5.0"
-rustsec = { version = "0.31", path = "./rustsec" }
+rustsec = { version = "0.32", path = "./rustsec" }
 semver = "1.0.23"
 serde = "1"
 serde_json = "1"
