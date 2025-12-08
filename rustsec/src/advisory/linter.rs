@@ -208,7 +208,7 @@ impl Linter {
                         }
                     }
                     "aliases" | "cvss" | "keywords" | "package" | "references" | "related"
-                    | "title" | "withdrawn" | "description" => (),
+                    | "title" | "withdrawn" | "description" | "expect-deleted" => (),
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),
