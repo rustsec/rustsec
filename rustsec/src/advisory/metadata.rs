@@ -87,4 +87,11 @@ pub struct Metadata {
     /// License under which the advisory content is available
     #[serde(default)]
     pub license: License,
+
+    /// Whether the crate is expected to be deleted from the registry
+    ///
+    /// Linting normally checks that a crate is available on crates.io, but this might not be the
+    /// case, for example if a malicious crate has been completely removed.
+    #[serde(rename = "expect-deleted", default)]
+    pub expect_deleted: bool,
 }
