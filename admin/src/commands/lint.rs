@@ -17,9 +17,6 @@ pub struct LintCmd {
         help = "filesystem path to the RustSec advisory DB git repo"
     )]
     path: Vec<PathBuf>,
-
-    #[arg(long, help = "Skip name check comma separated crates list")]
-    skip_namecheck: Option<String>,
 }
 
 impl Runnable for LintCmd {
