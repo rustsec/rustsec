@@ -19,7 +19,7 @@ use core::{fmt, str::FromStr};
 /// > system (e.g. due to insufficient logging).
 /// > The resulting score is greatest when the consequence to the system is
 /// > highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum IntegrityImpactToTheVulnerableSystem {
     /// None (N)
     ///
@@ -41,13 +41,8 @@ pub enum IntegrityImpactToTheVulnerableSystem {
     /// > the Vulnerable System. Alternatively, only some files can be modified,
     /// > but malicious modification would present a direct, serious consequence
     /// > to the Vulnerable System.
+    #[default]
     High,
-}
-
-impl Default for IntegrityImpactToTheVulnerableSystem {
-    fn default() -> Self {
-        Self::High
-    }
 }
 
 impl Metric for IntegrityImpactToTheVulnerableSystem {
@@ -100,17 +95,12 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedIntegrityImpactToTheVulnerableSystem {
+        #[default]
         High,
         Low,
         None,
-    }
-
-    impl Default for MergedIntegrityImpactToTheVulnerableSystem {
-        fn default() -> Self {
-            Self::High
-        }
     }
 
     impl FromStr for MergedIntegrityImpactToTheVulnerableSystem {

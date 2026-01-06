@@ -20,11 +20,12 @@ use core::{fmt, str::FromStr};
 /// > system (e.g. due to insufficient logging).
 /// > The resulting score is greatest when the consequence to the system is
 /// > highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedIntegrityImpactToTheVulnerableSystem {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
     /// None (N)
     ///
@@ -45,12 +46,6 @@ pub enum ModifiedIntegrityImpactToTheVulnerableSystem {
     /// > but malicious modification would present a direct, serious consequence
     /// > to the Vulnerable System.
     High,
-}
-
-impl Default for ModifiedIntegrityImpactToTheVulnerableSystem {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedIntegrityImpactToTheVulnerableSystem {

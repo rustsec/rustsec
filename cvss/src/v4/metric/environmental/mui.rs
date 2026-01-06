@@ -17,11 +17,12 @@ use core::{fmt, str::FromStr};
 /// > solely at the will of the attacker, or whether a separate user (or
 /// > user-initiated process) must participate in some manner. The resulting
 /// > score is greatest when no user interaction is required.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedUserInteraction {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
     /// Active (A)
     ///
@@ -56,12 +57,6 @@ pub enum ModifiedUserInteraction {
     /// > attacker is able to send packets to a target system a locally
     /// > authenticated attacker executes code to elevate privileges
     None,
-}
-
-impl Default for ModifiedUserInteraction {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedUserInteraction {

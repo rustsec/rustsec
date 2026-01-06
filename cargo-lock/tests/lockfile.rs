@@ -228,7 +228,7 @@ fn source_disambiguation_two_versions_same_registry() {
 /// the lock file contains multiple versions of the same crate and/or multiple
 /// sources for the same crate.
 fn source_disambiguation(test_file_suffix: &str) {
-    let original = fs::read_to_string(&format!(
+    let original = fs::read_to_string(format!(
         "tests/examples/source_disambiguation/Cargo.lock.{}",
         test_file_suffix
     ))

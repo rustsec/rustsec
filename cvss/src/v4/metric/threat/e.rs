@@ -37,7 +37,7 @@ use core::{fmt, str::FromStr};
 /// > multiple sources of threat intelligence as many are not comprehensive.
 /// > This information should be updated as frequently as possible and its
 /// > application to CVSS assessment should be automated.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ExploitMaturity {
     /// Not Defined (X)
     ///
@@ -45,6 +45,7 @@ pub enum ExploitMaturity {
     /// > Maturity characteristics. This is the default value and is equivalent
     /// > to Attacked (A) for the purposes of the calculation of the score by
     /// > assuming the worst case.
+    #[default]
     NotDefined,
     /// Unreported (U)
     ///
@@ -71,12 +72,6 @@ pub enum ExploitMaturity {
     /// > vulnerability are publicly or privately available (such as exploit
     /// > toolkits)
     Attacked,
-}
-
-impl Default for ExploitMaturity {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ExploitMaturity {
@@ -125,17 +120,12 @@ pub(crate) mod merge {
     use alloc::borrow::ToOwned;
     use core::str::FromStr;
 
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedExploitMaturity {
+        #[default]
         Attacked,
         ProofOfConcept,
         Unreported,
-    }
-
-    impl Default for MergedExploitMaturity {
-        fn default() -> Self {
-            Self::Attacked
-        }
     }
 
     impl FromStr for MergedExploitMaturity {
