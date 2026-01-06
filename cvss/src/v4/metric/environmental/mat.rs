@@ -19,11 +19,12 @@ use core::{fmt, str::FromStr};
 /// > of the deployment and execution of the vulnerable system. If the attacker
 /// > does not take action to overcome these conditions, the attack may succeed
 /// > only occasionally or not succeed at all.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedAttackRequirements {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Present (P)
@@ -47,12 +48,6 @@ pub enum ModifiedAttackRequirements {
     /// > able to reach the vulnerability and execute the exploit under all or
     /// > most instances of the vulnerability.
     None,
-}
-
-impl Default for ModifiedAttackRequirements {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedAttackRequirements {

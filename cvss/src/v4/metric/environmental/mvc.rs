@@ -18,11 +18,12 @@ use core::{fmt, str::FromStr};
 /// > only authorized users, as well as preventing access by, or disclosure to,
 /// > unauthorized ones. The resulting score is greatest when the loss to the
 /// > system is highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedConfidentialityImpactToTheVulnerableSystem {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
     /// None (N)
     ///
@@ -45,12 +46,6 @@ pub enum ModifiedConfidentialityImpactToTheVulnerableSystem {
     /// > example, an attacker steals the administrator's password, or private
     /// > encryption keys of a web server.
     High,
-}
-
-impl Default for ModifiedConfidentialityImpactToTheVulnerableSystem {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedConfidentialityImpactToTheVulnerableSystem {

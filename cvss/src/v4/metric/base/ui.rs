@@ -17,7 +17,7 @@ use core::{fmt, str::FromStr};
 /// > solely at the will of the attacker, or whether a separate user (or
 /// > user-initiated process) must participate in some manner. The resulting
 /// > score is greatest when no user interaction is required.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum UserInteraction {
     /// Active (A)
     ///
@@ -53,13 +53,8 @@ pub enum UserInteraction {
     /// > human user, other than the attacker. Examples include: a remote
     /// > attacker is able to send packets to a target system a locally
     /// > authenticated attacker executes code to elevate privileges
+    #[default]
     None,
-}
-
-impl Default for UserInteraction {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 impl Metric for UserInteraction {
@@ -112,17 +107,12 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedUserInteraction {
         Active,
         Passive,
+        #[default]
         None,
-    }
-
-    impl Default for MergedUserInteraction {
-        fn default() -> Self {
-            Self::None
-        }
     }
 
     impl FromStr for MergedUserInteraction {

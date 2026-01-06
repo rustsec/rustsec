@@ -19,11 +19,12 @@ use core::{fmt, str::FromStr};
 /// > may have Safety impact which can be represented in the Supplemental
 /// > Metrics group. Lack of a Safety metric value being supplied does NOT mean
 /// > that there may not be any Safety-related impacts.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum Safety {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Present (P)
@@ -37,12 +38,6 @@ pub enum Safety {
     /// > Consequences of the vulnerability meet definition of IEC 61508
     /// > consequence category "negligible."
     Negligible,
-}
-
-impl Default for Safety {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for Safety {

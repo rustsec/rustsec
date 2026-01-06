@@ -19,7 +19,7 @@ use core::{fmt, str::FromStr};
 /// > of the deployment and execution of the vulnerable system. If the attacker
 /// > does not take action to overcome these conditions, the attack may succeed
 /// > only occasionally or not succeed at all.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum AttackRequirements {
     /// Present (P)
     ///
@@ -41,13 +41,8 @@ pub enum AttackRequirements {
     /// > conditions of the vulnerable system. The attacker can expect to be
     /// > able to reach the vulnerability and execute the exploit under all or
     /// > most instances of the vulnerability.
+    #[default]
     None,
-}
-
-impl Default for AttackRequirements {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 impl Metric for AttackRequirements {
@@ -98,16 +93,11 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedAttackRequirements {
         Present,
+        #[default]
         None,
-    }
-
-    impl Default for MergedAttackRequirements {
-        fn default() -> Self {
-            Self::None
-        }
     }
 
     impl FromStr for MergedAttackRequirements {
