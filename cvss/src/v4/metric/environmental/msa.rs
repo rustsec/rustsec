@@ -22,11 +22,12 @@ use core::{fmt, str::FromStr};
 /// > attacks that consume network bandwidth, processor cycles, or disk space
 /// > all impact the availability of a system. The resulting score is greatest
 /// > when the consequence to the system is highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedAvailabilityImpactToTheSubsequentSystem {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Negligible (N)
@@ -64,12 +65,6 @@ pub enum ModifiedAvailabilityImpactToTheSubsequentSystem {
 
     /// Safety (S)
     Safety,
-}
-
-impl Default for ModifiedAvailabilityImpactToTheSubsequentSystem {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedAvailabilityImpactToTheSubsequentSystem {

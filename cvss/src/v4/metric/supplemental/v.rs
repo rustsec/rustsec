@@ -10,11 +10,12 @@ use core::{fmt, str::FromStr};
 /// Value Density (V) - CVSS v4.0 Supplemental Metric Group
 ///
 /// Described in CVSS v4.0 Specification: Section 5.5
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ValueDensity {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Diffuse (D)
@@ -33,12 +34,6 @@ pub enum ValueDensity {
     /// > rather than users. An example of Concentrated (think: broad) Value
     /// > Density would be an attack on a central email server.
     Concentrated,
-}
-
-impl Default for ValueDensity {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ValueDensity {

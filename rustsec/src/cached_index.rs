@@ -13,7 +13,7 @@ pub use tame_index::external::reqwest::ClientBuilder;
 use tame_index::utils::flock::{FileLock, LockOptions};
 
 enum Index {
-    Git(tame_index::index::RemoteGitIndex),
+    Git(Box<tame_index::index::RemoteGitIndex>),
     SparseCached(tame_index::index::SparseIndex),
     SparseRemote(tame_index::index::AsyncRemoteSparseIndex),
 }
@@ -90,7 +90,7 @@ impl CachedIndex {
             tame_index::index::ComboIndexCache::Git(gi) => {
                 let mut rgi = tame_index::index::RemoteGitIndex::new(gi, &lock)?;
                 rgi.fetch(&lock)?;
-                Index::Git(rgi)
+                Index::Git(Box::new(rgi))
             }
             tame_index::index::ComboIndexCache::Sparse(si) => {
                 let client_builder = client.unwrap_or_default();
@@ -139,7 +139,7 @@ impl CachedIndex {
         let index = match index {
             tame_index::index::ComboIndexCache::Git(gi) => {
                 let rgi = tame_index::index::RemoteGitIndex::new(gi, &lock)?;
-                Index::Git(rgi)
+                Index::Git(Box::new(rgi))
             }
             tame_index::index::ComboIndexCache::Sparse(si) => Index::SparseCached(si),
             _ => panic!("Unsupported crates.io index type"),

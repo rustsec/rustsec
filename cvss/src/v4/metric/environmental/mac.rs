@@ -26,11 +26,12 @@ use core::{fmt, str::FromStr};
 /// > The evasion or satisfaction of authentication mechanisms or requisites is
 /// > included in the Privileges Required assessment and is *not* considered
 /// > here as a factor of relevance for Attack Complexity.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedAttackComplexity {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// High (H)
@@ -58,12 +59,6 @@ pub enum ModifiedAttackComplexity {
     /// > exploit the vulnerability. An attacker can expect repeatable success
     /// > against the vulnerable system.
     Low,
-}
-
-impl Default for ModifiedAttackComplexity {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedAttackComplexity {

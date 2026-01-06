@@ -27,11 +27,12 @@ use core::{fmt, str::FromStr};
 /// >
 /// > The Penultimate Product Provider (PPP) is best positioned to provide a
 /// > direct assessment of Provider Urgency.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ProviderUrgency {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
     /// Red
     ///
@@ -53,12 +54,6 @@ pub enum ProviderUrgency {
     /// > Provider has assessed the impact of this vulnerability as having no
     /// > urgency (Informational).
     Clear,
-}
-
-impl Default for ProviderUrgency {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ProviderUrgency {

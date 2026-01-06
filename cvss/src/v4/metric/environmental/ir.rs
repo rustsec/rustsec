@@ -25,13 +25,14 @@ use core::{fmt, str::FromStr};
 /// > assuming “reasonable worst case”, in absence of explicit values, these
 /// > metrics are set to the default value of Not Defined (X), which is
 /// > equivalent to the metric value of High (H).
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum IntegrityRequirements {
     /// Not Defined (X)
     ///
     /// > This is the default value. Assigning this value indicates there is
     /// > insufficient information to choose one of the other values. This has
     /// > the same effect as assigning High as the worst case.
+    #[default]
     NotDefined,
     /// Low (L)
     ///
@@ -51,12 +52,6 @@ pub enum IntegrityRequirements {
     /// > effect on the organization or individuals associated with the
     /// > organization (e.g., employees, customers).
     High,
-}
-
-impl Default for IntegrityRequirements {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for IntegrityRequirements {
@@ -105,17 +100,12 @@ pub(crate) mod merge {
     use alloc::borrow::ToOwned;
     use core::str::FromStr;
 
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedIntegrityRequirements {
         Low,
         Medium,
+        #[default]
         High,
-    }
-
-    impl Default for MergedIntegrityRequirements {
-        fn default() -> Self {
-            Self::High
-        }
     }
 
     impl FromStr for MergedIntegrityRequirements {

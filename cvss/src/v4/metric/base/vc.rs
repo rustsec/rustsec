@@ -18,7 +18,7 @@ use core::{fmt, str::FromStr};
 /// > only authorized users, as well as preventing access by, or disclosure to,
 /// > unauthorized ones. The resulting score is greatest when the loss to the
 /// > system is highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ConfidentialityImpactToTheVulnerableSystem {
     /// None (N)
     ///
@@ -42,13 +42,8 @@ pub enum ConfidentialityImpactToTheVulnerableSystem {
     /// > but the disclosed information presents a direct, serious impact. For
     /// > example, an attacker steals the administrator's password, or private
     /// > encryption keys of a web server.
+    #[default]
     High,
-}
-
-impl Default for ConfidentialityImpactToTheVulnerableSystem {
-    fn default() -> Self {
-        Self::High
-    }
 }
 
 impl Metric for ConfidentialityImpactToTheVulnerableSystem {
@@ -103,17 +98,12 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedConfidentialityImpactToTheVulnerableSystem {
+        #[default]
         High,
         Low,
         None,
-    }
-
-    impl Default for MergedConfidentialityImpactToTheVulnerableSystem {
-        fn default() -> Self {
-            Self::High
-        }
     }
 
     impl MetricLevel for MergedConfidentialityImpactToTheVulnerableSystem {

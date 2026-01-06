@@ -19,7 +19,7 @@ use core::{fmt, str::FromStr};
 /// > from across a network is larger than the number of potential attackers
 /// > that could exploit a vulnerability requiring physical access to a device,
 /// > and therefore warrants a greater severity.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum AttackVector {
     /// Physical (P)
     ///
@@ -66,13 +66,8 @@ pub enum AttackVector {
     /// > across one or more routers). An example of a network attack is an
     /// > attacker causing a denial of service (DoS) by sending a specially
     /// > crafted TCP packet across a wide area network (e.g., CVE-2004-0230).
+    #[default]
     Network,
-}
-
-impl Default for AttackVector {
-    fn default() -> Self {
-        Self::Network
-    }
 }
 
 impl Metric for AttackVector {
@@ -127,18 +122,13 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedAttackVector {
         Physical,
         Local,
         Adjacent,
+        #[default]
         Network,
-    }
-
-    impl Default for MergedAttackVector {
-        fn default() -> Self {
-            Self::Network
-        }
     }
 
     impl FromStr for MergedAttackVector {

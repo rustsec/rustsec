@@ -18,11 +18,12 @@ use core::{fmt, str::FromStr};
 /// > self-service provisioned accounts do not constitute a privilege
 /// > requirement if the attacker can grant themselves privileges as part of the
 /// > attack.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedPrivilegesRequired {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// High (H)
@@ -46,12 +47,6 @@ pub enum ModifiedPrivilegesRequired {
     /// > not require any access to settings or files of the vulnerable system
     /// > to carry out an attack.
     None,
-}
-
-impl Default for ModifiedPrivilegesRequired {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedPrivilegesRequired {
