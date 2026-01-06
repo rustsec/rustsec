@@ -259,7 +259,11 @@ pub fn render_advisories(output_folder: PathBuf) {
             .keywords
             .as_slice()
             .iter()
-            .map(|k| filters::safe_keyword(k.as_str(), askama::NO_VALUES).unwrap())
+            .map(|k| {
+                filters::safe_keyword::default()
+                    .execute(k.as_str(), askama::NO_VALUES)
+                    .unwrap()
+            })
             .collect::<Vec<String>>();
         slug_keywords.sort();
         slug_keywords.dedup();
@@ -558,10 +562,13 @@ fn copy_static_assets(output_folder: &Path) {
 }
 
 mod filters {
-    use chrono::NaiveDate;
-    use rustsec::advisory;
     use std::borrow::Borrow;
 
+    use askama::filter_fn;
+    use chrono::NaiveDate;
+    use rustsec::advisory;
+
+    #[filter_fn]
     pub fn friendly_date<T: Borrow<advisory::Date>>(
         date: T,
         _: &dyn askama::Values,
@@ -577,6 +584,7 @@ mod filters {
         Ok(date)
     }
 
+    #[filter_fn]
     pub fn safe_keyword(s: &str, _: &dyn askama::Values) -> ::askama::Result<String> {
         Ok(s.chars()
             .map(|c| {
