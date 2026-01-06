@@ -19,7 +19,7 @@ use core::{fmt, str::FromStr};
 /// > from across a network is larger than the number of potential attackers
 /// > that could exploit a vulnerability requiring physical access to a device,
 /// > and therefore warrants a greater severity.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedAttackVector {
     /// Physical (P)
     ///
@@ -67,13 +67,8 @@ pub enum ModifiedAttackVector {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
-}
-
-impl Default for ModifiedAttackVector {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedAttackVector {

@@ -16,11 +16,12 @@ use core::{fmt, str::FromStr};
 /// > multiple targets?” based on steps 1-4 of the kill chain [Hutchins et al.,
 /// > 2011]. These steps are reconnaissance, weaponization, delivery, and
 /// > exploitation.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum Automatable {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Yes (Y)
@@ -36,12 +37,6 @@ pub enum Automatable {
     /// > this vulnerability for some reason. These steps are reconnaissance,
     /// > weaponization, delivery, and exploitation.
     No,
-}
-
-impl Default for Automatable {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for Automatable {

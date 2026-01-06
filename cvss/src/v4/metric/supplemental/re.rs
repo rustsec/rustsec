@@ -10,11 +10,12 @@ use core::{fmt, str::FromStr};
 /// Vulnerability Response Effort (RE) - CVSS v4.0 Supplemental Metric Group
 ///
 /// Described in CVSS v4.0 Specification: Section 5.6
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum VulnerabilityResponseEffort {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Low (L)
@@ -52,12 +53,6 @@ pub enum VulnerabilityResponseEffort {
     /// > devices, or other non-recoverable under warranty hardware, should also
     /// > be scored as having a High effort.
     High,
-}
-
-impl Default for VulnerabilityResponseEffort {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for VulnerabilityResponseEffort {

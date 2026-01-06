@@ -26,7 +26,7 @@ use core::{fmt, str::FromStr};
 /// > The evasion or satisfaction of authentication mechanisms or requisites is
 /// > included in the Privileges Required assessment and is *not* considered
 /// > here as a factor of relevance for Attack Complexity.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum AttackComplexity {
     /// High (H)
     ///
@@ -52,13 +52,8 @@ pub enum AttackComplexity {
     /// > vulnerability. The attack requires no target-specific circumvention to
     /// > exploit the vulnerability. An attacker can expect repeatable success
     /// > against the vulnerable system.
+    #[default]
     Low,
-}
-
-impl Default for AttackComplexity {
-    fn default() -> Self {
-        Self::Low
-    }
 }
 
 impl Metric for AttackComplexity {
@@ -109,16 +104,11 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedAttackComplexity {
         High,
+        #[default]
         Low,
-    }
-
-    impl Default for MergedAttackComplexity {
-        fn default() -> Self {
-            Self::Low
-        }
     }
 
     impl FromStr for MergedAttackComplexity {

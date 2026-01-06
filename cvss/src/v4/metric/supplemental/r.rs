@@ -10,11 +10,12 @@ use core::{fmt, str::FromStr};
 /// Recovery (R) - CVSS v4.0 Supplemental Metric Group
 ///
 /// Described in CVSS v4.0 Specification: Section 5.4
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum Recovery {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Automatic (A)
@@ -34,12 +35,6 @@ pub enum Recovery {
     /// > The system services are irrecoverable by the user, after an attack has
     /// > been performed.
     Irrecoverable,
-}
-
-impl Default for Recovery {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for Recovery {

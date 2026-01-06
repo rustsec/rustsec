@@ -22,7 +22,7 @@ use core::{fmt, str::FromStr};
 /// > attacks that consume network bandwidth, processor cycles, or disk space
 /// > all impact the availability of a system. The resulting score is greatest
 /// > when the consequence to the system is highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum AvailabilityImpactToTheSubsequentSystem {
     /// None (N)
     ///
@@ -55,13 +55,8 @@ pub enum AvailabilityImpactToTheSubsequentSystem {
     /// > instance of a successful attack, leaks a only small amount of memory,
     /// > but after repeated exploitation causes a service to become completely
     /// > unavailable).
+    #[default]
     High,
-}
-
-impl Default for AvailabilityImpactToTheSubsequentSystem {
-    fn default() -> Self {
-        Self::High
-    }
 }
 
 impl Metric for AvailabilityImpactToTheSubsequentSystem {
@@ -114,18 +109,13 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedAvailabilityImpactToTheSubsequentSystem {
         Safety,
+        #[default]
         High,
         Low,
         None,
-    }
-
-    impl Default for MergedAvailabilityImpactToTheSubsequentSystem {
-        fn default() -> Self {
-            Self::High
-        }
     }
 
     impl FromStr for MergedAvailabilityImpactToTheSubsequentSystem {
