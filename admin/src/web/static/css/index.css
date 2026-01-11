@@ -258,7 +258,7 @@ a.button:hover{
     color: black;
   }
 
-  .logo-image {
+  .logo-image, img[src="/img/osv.png"], img[src="/img/github.png"] {
     filter: drop-shadow(3px 3px 3px #0004);
   }
 
@@ -277,13 +277,5 @@ a.button:hover{
 
   a.button:hover {
     border-color: black;
-  }
-
-  img[src="/img/osv.png"] {
-    filter: drop-shadow(3px 3px 3px #0004);
-  }
-
-  img[src="/img/github.png"] {
-    filter: invert(1);
   }
 }
