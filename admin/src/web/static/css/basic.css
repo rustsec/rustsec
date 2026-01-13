@@ -238,3 +238,53 @@ header span.subtitle p {
     font-style: italic;
     margin-top: 1.5em;
 }
+
+/* Light theme */
+
+@media (prefers-color-scheme: light) {
+  article a {
+    color: #57f;
+  }
+
+  a:hover {
+    color: #494949;
+  }
+
+  .withdrawn {
+    color: #494949;
+  }
+
+  .search-index input[type="search"], .search input[type="search"] {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: black;
+    border-color: black;
+  }
+
+  .search-index input[type=search]::placeholder, .search input[type=search]::placeholder {
+    color: black;
+  }
+
+  .critical {
+    background: #b00;
+  }
+
+  .high {
+    background: #c00;
+  }
+
+  .medium {
+    background: #ea0;
+  }
+
+  .low {
+    background: #dd0;
+  }
+
+  .info {
+    background: #77f;
+  }
+
+  .advisory article a:not(.floating-menu a):not([href^="/"]):not([href^="#"])::after {
+    filter: invert(1);
+  }
+}

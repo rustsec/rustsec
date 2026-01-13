@@ -244,3 +244,38 @@ a.button {
 a.button:hover{
     border-color: rgba(255,255,255,1);
 }
+
+/* Light theme */
+
+@media (prefers-color-scheme: light) {
+  body {
+    background-color: #d2d2d2;
+    color: black;
+  }
+
+  body > header {
+    background-color: #d7d7d7;
+    color: black;
+  }
+
+  .logo-image, img[src="/img/osv.png"], img[src="/img/github.png"] {
+    filter: drop-shadow(3px 3px 3px #0004);
+  }
+
+  .column {
+    background-color: #b2b2b2;
+  }
+
+  code {
+    background-color: rgba(107, 107, 107, 0.12);
+    color: #333;
+  }
+
+  a.button {
+    background-color: #46d;
+  }
+
+  a.button:hover {
+    border-color: black;
+  }
+}
