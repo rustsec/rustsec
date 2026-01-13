@@ -18,7 +18,7 @@ use core::{fmt, str::FromStr};
 /// > self-service provisioned accounts do not constitute a privilege
 /// > requirement if the attacker can grant themselves privileges as part of the
 /// > attack.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum PrivilegesRequired {
     /// High (H)
     ///
@@ -40,13 +40,8 @@ pub enum PrivilegesRequired {
     /// > The attacker is unauthenticated prior to attack, and therefore does
     /// > not require any access to settings or files of the vulnerable system
     /// > to carry out an attack.
+    #[default]
     None,
-}
-
-impl Default for PrivilegesRequired {
-    fn default() -> Self {
-        Self::None
-    }
 }
 
 impl Metric for PrivilegesRequired {
@@ -99,17 +94,12 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedPrivilegesRequired {
         High,
         Low,
+        #[default]
         None,
-    }
-
-    impl Default for MergedPrivilegesRequired {
-        fn default() -> Self {
-            Self::None
-        }
     }
 
     impl FromStr for MergedPrivilegesRequired {

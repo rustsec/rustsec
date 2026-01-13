@@ -20,11 +20,12 @@ use core::{fmt, str::FromStr};
 /// > system (e.g. due to insufficient logging).
 /// > The resulting score is greatest when the consequence to the system is
 /// > highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedIntegrityImpactToTheSubsequentSystem {
     /// Not Defined (X)
     ///
     /// > The metric has not been evaluated.
+    #[default]
     NotDefined,
 
     /// Negligible (N)
@@ -52,12 +53,6 @@ pub enum ModifiedIntegrityImpactToTheSubsequentSystem {
 
     /// Safety (S)
     Safety,
-}
-
-impl Default for ModifiedIntegrityImpactToTheSubsequentSystem {
-    fn default() -> Self {
-        Self::NotDefined
-    }
 }
 
 impl Metric for ModifiedIntegrityImpactToTheSubsequentSystem {

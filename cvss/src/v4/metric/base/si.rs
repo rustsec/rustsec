@@ -19,7 +19,7 @@ use core::{fmt, str::FromStr};
 /// > system (e.g. due to insufficient logging).
 /// > The resulting score is greatest when the consequence to the system is
 /// > highest.
-#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
 pub enum IntegrityImpactToTheSubsequentSystem {
     /// None (N)
     ///
@@ -42,13 +42,8 @@ pub enum IntegrityImpactToTheSubsequentSystem {
     /// > the Subsequent System. Alternatively, only some files can be modified,
     /// > but malicious modification would present a direct, serious consequence
     /// > to the Subsequent System.
+    #[default]
     High,
-}
-
-impl Default for IntegrityImpactToTheSubsequentSystem {
-    fn default() -> Self {
-        Self::High
-    }
 }
 
 impl Metric for IntegrityImpactToTheSubsequentSystem {
@@ -101,18 +96,13 @@ pub(crate) mod merge {
     /// Result of the merging of the base and modified metrics.
     ///
     /// Used in scoring.
-    #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+    #[derive(Copy, Clone, Debug, Default, Eq, PartialEq, PartialOrd, Ord)]
     pub(crate) enum MergedIntegrityImpactToTheSubsequentSystem {
         Safety,
+        #[default]
         High,
         Low,
         None,
-    }
-
-    impl Default for MergedIntegrityImpactToTheSubsequentSystem {
-        fn default() -> Self {
-            Self::High
-        }
     }
 
     impl FromStr for MergedIntegrityImpactToTheSubsequentSystem {
