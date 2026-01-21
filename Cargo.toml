@@ -27,7 +27,7 @@ cvss = { version = "2.2", path = "./cvss" }
 display-error-chain = "0.2.0"
 fs-err = "3"
 # NOTE: Keep in sync with `gix` used by `tame-index`.
-gix = { version = "0.75", default-features = false }
+gix = { version = "0.77", default-features = false }
 gumdrop = "0.8"
 home = "0.5"
 once_cell = "1.15.0"
