@@ -16,6 +16,16 @@ pub struct BinCommand {
         help = "Paths to the binaries to be scanned"
     )]
     binary_paths: Vec<PathBuf>,
+
+    /// Maximum size (bytes) of the input binary file that will be read into memory.
+    /// Defaults to 512 MiB. Set to 0 to disable the limit (not recommended).
+    #[arg(long, value_parser)]
+    max_binary_size: Option<u64>,
+
+    /// Maximum size (bytes) of embedded `cargo-auditable` metadata to extract.
+    /// If unset, rustsec defaults to 8 MiB.
+    #[arg(long, value_parser)]
+    audit_data_size_limit: Option<usize>,
 }
 
 impl Runnable for BinCommand {
@@ -34,6 +44,13 @@ impl Runnable for BinCommand {
 impl BinCommand {
     /// Initialize `Auditor`
     pub fn auditor(&self) -> Auditor {
-        Auditor::new(&APP.config())
+        let mut config = APP.config().as_ref().clone();
+        if let Some(limit) = self.max_binary_size {
+            config.binary.max_binary_size = Some(limit);
+        }
+        if let Some(limit) = self.audit_data_size_limit {
+            config.binary.audit_data_size_limit = Some(limit);
+        }
+        Auditor::new(&config)
     }
 }

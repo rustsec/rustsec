@@ -17,6 +17,9 @@ use std::{
 // TODO: make configurable
 const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
+// Default max size of an input binary file we will read into memory for `cargo audit bin`.
+const DEFAULT_MAX_BINARY_SIZE: u64 = 512 * 1024 * 1024; // 512 MiB
+
 /// Security vulnerability auditor
 pub struct Auditor {
     /// RustSec Advisory Database
@@ -30,6 +33,13 @@ pub struct Auditor {
 
     /// Audit report settings
     report_settings: report::Settings,
+
+    /// Binary scanning: max input binary size (bytes). None => unlimited.
+    #[cfg(feature = "binary-scanning")]
+    max_binary_size: Option<u64>,
+    /// Binary scanning: max embedded audit-data size (bytes) passed into rustsec extraction.
+    #[cfg(feature = "binary-scanning")]
+    audit_data_size_limit: Option<usize>,
 }
 
 impl Auditor {
@@ -174,11 +184,25 @@ impl Auditor {
             None
         };
 
+        #[cfg(feature = "binary-scanning")]
+        let max_binary_size = match config.binary.max_binary_size {
+            Some(0) => None,
+            Some(limit) => Some(limit),
+            None => Some(DEFAULT_MAX_BINARY_SIZE),
+        };
+
+        #[cfg(feature = "binary-scanning")]
+        let audit_data_size_limit = config.binary.audit_data_size_limit;
+
         Self {
             database,
             registry_index,
             presenter: Presenter::new(&config.output),
             report_settings: config.report_settings(),
+            #[cfg(feature = "binary-scanning")]
+            max_binary_size,
+            #[cfg(feature = "binary-scanning")]
+            audit_data_size_limit,
         }
     }
 
@@ -245,9 +269,28 @@ impl Auditor {
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         use rustsec::binary_scanning::BinaryReport::*;
+
+        // Guardrail: don't read arbitrarily large inputs into memory.
+        let size = std::fs::metadata(binary_path)?.len();
+        if let Some(limit) = self.max_binary_size {
+            if size > limit {
+                return Err(Error::new(
+                    ErrorKind::BadParam,
+                    format!(
+                        "refusing to scan '{}': file size {} bytes exceeds max_binary_size {} bytes (configure in audit.toml [binary] or via CLI)",
+                        binary_path.display(),
+                        size,
+                        limit
+                    ),
+                ));
+            }
+        }
+
         let file_contents = std::fs::read(binary_path)?;
-        let (binary_type, report) =
-            rustsec::binary_scanning::load_deps_from_binary(&file_contents, Option::None)?;
+        let (binary_type, report) = rustsec::binary_scanning::load_deps_from_binary(
+            &file_contents,
+            self.audit_data_size_limit,
+        )?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {

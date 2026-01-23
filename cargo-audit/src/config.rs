@@ -34,6 +34,10 @@ pub struct AuditConfig {
     /// Configuration for auditing for yanked crates
     #[serde(default)]
     pub yanked: YankedConfig,
+
+    /// Binary scanning configuration (`cargo audit bin`)
+    #[serde(default)]
+    pub binary: BinaryConfig,
 }
 
 impl AuditConfig {
@@ -309,6 +313,22 @@ impl TargetConfig {
             None => vec![],
         }
     }
+}
+
+/// Configuration for `cargo audit bin`
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct BinaryConfig {
+    /// Maximum size (in bytes) of the *input binary file* that will be read into memory.
+    ///
+    /// If unset, a default is used by cargo-audit.
+    /// If set to 0, the limit is disabled (not recommended).
+    pub max_binary_size: Option<u64>,
+
+    /// Maximum size (in bytes) of embedded `cargo-auditable` metadata to extract.
+    ///
+    /// If unset, rustsec defaults to 8MB.
+    pub audit_data_size_limit: Option<usize>,
 }
 
 /// Configuration for auditing for yanked crates
