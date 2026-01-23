@@ -18,6 +18,7 @@ use std::{
 const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 // Default max size of an input binary file we will read into memory for `cargo audit bin`.
+#[cfg(feature = "binary-scanning")]
 const DEFAULT_MAX_BINARY_SIZE: u64 = 512 * 1024 * 1024; // 512 MiB
 
 /// Security vulnerability auditor
