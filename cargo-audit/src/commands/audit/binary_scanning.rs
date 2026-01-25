@@ -9,6 +9,22 @@ use std::{path::PathBuf, process::exit};
 #[derive(Command, Clone, Default, Debug, Parser)]
 #[command()]
 pub struct BinCommand {
+    /// Maximum binary size in bytes to read
+    #[arg(
+        long = "max-binary-size",
+        value_name = "BYTES",
+        help = "Maximum binary size in bytes to read"
+    )]
+    pub(super) max_binary_size: Option<u64>,
+
+    /// Maximum audit data size in bytes to parse
+    #[arg(
+        long = "audit-data-size-limit",
+        value_name = "BYTES",
+        help = "Maximum audit data size in bytes to parse (default: 8MB)"
+    )]
+    pub(super) audit_data_size_limit: Option<usize>,
+
     /// Paths to the binaries to be scanned
     #[arg(
         value_parser,

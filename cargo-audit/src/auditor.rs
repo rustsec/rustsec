@@ -30,6 +30,10 @@ pub struct Auditor {
 
     /// Audit report settings
     report_settings: report::Settings,
+
+    /// Binary scanning configuration
+    #[cfg(feature = "binary-scanning")]
+    binary: crate::config::BinaryConfig,
 }
 
 impl Auditor {
@@ -179,6 +183,8 @@ impl Auditor {
             registry_index,
             presenter: Presenter::new(&config.output),
             report_settings: config.report_settings(),
+            #[cfg(feature = "binary-scanning")]
+            binary: config.binary.clone(),
         }
     }
 
@@ -245,9 +251,11 @@ impl Auditor {
     /// Perform an audit of a binary file with dependency data embedded by `cargo auditable`
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         use rustsec::binary_scanning::BinaryReport::*;
-        let file_contents = std::fs::read(binary_path)?;
-        let (binary_type, report) =
-            rustsec::binary_scanning::load_deps_from_binary(&file_contents, Option::None)?;
+        let file_contents = self.read_binary_with_limit(binary_path)?;
+        let (binary_type, report) = rustsec::binary_scanning::load_deps_from_binary(
+            &file_contents,
+            self.binary.audit_data_size_limit,
+        )?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
@@ -257,6 +265,31 @@ impl Auditor {
                 ErrorKind::Parse,
                 "No dependency information found! Is this a Rust executable built with cargo?",
             )),
+        }
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    fn read_binary_with_limit(&self, binary_path: &Path) -> rustsec::Result<Vec<u8>> {
+        let mut file = std::fs::File::open(binary_path)?;
+        if let Some(limit) = self.binary.max_binary_size {
+            let mut limited = file.take(limit.saturating_add(1));
+            let mut buffer = Vec::new();
+            limited.read_to_end(&mut buffer)?;
+            if buffer.len() as u64 > limit {
+                return Err(Error::new(
+                    ErrorKind::BadParam,
+                    format!(
+                        "binary {} exceeds max size limit of {} bytes",
+                        binary_path.display(),
+                        limit
+                    ),
+                ));
+            }
+            Ok(buffer)
+        } else {
+            let mut buffer = Vec::new();
+            file.read_to_end(&mut buffer)?;
+            Ok(buffer)
         }
     }
 

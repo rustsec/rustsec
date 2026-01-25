@@ -27,6 +27,10 @@ pub struct AuditConfig {
     #[serde(default)]
     pub output: OutputConfig,
 
+    /// Binary scanning configuration
+    #[serde(default)]
+    pub binary: BinaryConfig,
+
     /// Target-related configuration
     #[serde(default)]
     pub target: TargetConfig,
@@ -166,6 +170,17 @@ impl OutputConfig {
     pub fn is_quiet(&self) -> bool {
         self.quiet || self.format == OutputFormat::Json || self.format == OutputFormat::Sarif
     }
+}
+
+/// Binary scanning configuration
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct BinaryConfig {
+    /// Maximum binary size in bytes to read (no limit if unset)
+    pub max_binary_size: Option<u64>,
+
+    /// Maximum audit data size in bytes to parse (defaults to 8MB if unset)
+    pub audit_data_size_limit: Option<usize>,
 }
 
 /// Warning kinds

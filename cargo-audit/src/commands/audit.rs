@@ -222,6 +222,17 @@ impl Override<AuditConfig> for AuditCommand {
             config.target.os = Some(FilterList::Many(self.target_os.clone()));
         }
 
+        #[cfg(feature = "binary-scanning")]
+        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
+            if let Some(max_binary_size) = bin.max_binary_size {
+                config.binary.max_binary_size = Some(max_binary_size);
+            }
+
+            if let Some(audit_data_size_limit) = bin.audit_data_size_limit {
+                config.binary.audit_data_size_limit = Some(audit_data_size_limit);
+            }
+        }
+
         if let Some(url) = &self.url {
             config.database.url = Some(url.clone())
         }
@@ -320,5 +331,21 @@ mod tests {
         audit_command.no_fetch = true;
         let overridden_config = audit_command.override_config(config.clone()).unwrap();
         assert!(!overridden_config.database.fetch);
+    }
+
+    #[cfg(feature = "binary-scanning")]
+    #[test]
+    fn override_binary_limits_from_cli() {
+        let config: AuditConfig = AuditConfig::default();
+        let mut audit_command = AuditCommand::default();
+
+        let mut bin = BinCommand::default();
+        bin.max_binary_size = Some(1024);
+        bin.audit_data_size_limit = Some(2048);
+        audit_command.subcommand = Some(AuditSubcommand::Bin(bin));
+
+        let overridden_config = audit_command.override_config(config).unwrap();
+        assert_eq!(overridden_config.binary.max_binary_size, Some(1024));
+        assert_eq!(overridden_config.binary.audit_data_size_limit, Some(2048));
     }
 }

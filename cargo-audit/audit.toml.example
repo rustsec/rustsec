@@ -25,6 +25,11 @@ format = "terminal" # "terminal" (human readable report) or "json"
 quiet = false # Only print information on error
 show_tree = true # Show inverse dependency trees along with advisories (default: true)
 
+# Binary scanning configuration
+[binary]
+max_binary_size = 104857600 # Max size of binary to read in bytes (default: unlimited)
+audit_data_size_limit = 8388608 # Max size of embedded audit data in bytes (default: 8MB)
+
 # Target Configuration
 [target]
 arch = ["x86_64"] # Ignore advisories for CPU architectures other than these
