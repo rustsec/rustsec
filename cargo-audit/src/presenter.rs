@@ -103,8 +103,10 @@ impl Presenter {
     ) {
         match self.config.format {
             OutputFormat::Json => {
-                serde_json::to_writer(io::stdout(), &report).unwrap();
-                io::stdout().flush().unwrap();
+                let mut stdout = io::stdout().lock();
+                serde_json::to_writer(&mut stdout, &report).unwrap();
+                // End with a newline as a terminator/separator. Another json report may follow.
+                writeln!(&mut stdout).unwrap();
                 return;
             }
             OutputFormat::Sarif => {
@@ -112,8 +114,10 @@ impl Presenter {
                     .map(|p| p.to_string_lossy().into_owned())
                     .unwrap_or_else(|| "Cargo.lock".to_string());
                 let sarif_log = crate::sarif::SarifLog::from_report(report, &cargo_lock_path);
-                serde_json::to_writer(io::stdout(), &sarif_log).unwrap();
-                io::stdout().flush().unwrap();
+                let mut stdout = io::stdout().lock();
+                serde_json::to_writer(&mut stdout, &sarif_log).unwrap();
+                // End with a newline as a terminator/separator. Another sarif report may follow.
+                writeln!(&mut stdout).unwrap();
                 return;
             }
             OutputFormat::Terminal => {
