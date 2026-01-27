@@ -18,7 +18,12 @@ use abscissa_core::{
 };
 use clap::{Parser, ValueEnum};
 use rustsec::platforms::target::{Arch, OS};
-use std::{fmt, path::PathBuf, process::exit};
+use std::{
+    fmt,
+    io::{self, IsTerminal},
+    path::PathBuf,
+    process::exit,
+};
 
 #[cfg(feature = "binary-scanning")]
 use self::binary_scanning::BinCommand;
@@ -184,14 +189,17 @@ impl AuditCommand {
     /// Get the color configuration
     pub fn term_colors(&self) -> ColorChoice {
         if let Some(color) = self.color {
-            color.into()
-        } else {
-            match std::env::var("CARGO_TERM_COLOR") {
-                Ok(e) if e == "always" => ColorChoice::Always,
-                Ok(e) if e == "never" => ColorChoice::Never,
-                Ok(e) if e == "auto" => ColorChoice::Auto,
-                _ => ColorChoice::default(),
-            }
+            return color.into();
+        }
+
+        match std::env::var("CARGO_TERM_COLOR") {
+            Ok(e) if e == "always" => ColorChoice::Always,
+            Ok(e) if e == "never" => ColorChoice::Never,
+            Ok(e) if e == "auto" => ColorChoice::Auto,
+            _ => match io::stdout().is_terminal() {
+                true => ColorChoice::Auto,
+                false => ColorChoice::Never,
+            },
         }
     }
 }
