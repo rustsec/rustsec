@@ -1,15 +1,18 @@
 //! RustSec Advisory DB Linter
 
-use crate::{
-    error::{Error, ErrorKind},
-    lock::acquire_cargo_package_lock,
-    prelude::*,
-};
 use std::{
     fs,
     path::{Path, PathBuf},
 };
-use tame_index::index::RemoteGitIndex;
+
+use tame_index::index::AsyncRemoteSparseIndex;
+
+use crate::{
+    crates_index,
+    error::{Error, ErrorKind},
+    lock::acquire_cargo_package_lock,
+    prelude::*,
+};
 
 /// List of "collections" within the Advisory DB
 // TODO(tarcieri): provide some other means of iterating over the collections?
@@ -22,7 +25,7 @@ pub struct Linter {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: RemoteGitIndex,
+    crates_index: AsyncRemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -35,19 +38,11 @@ impl Linter {
     /// Create a new linter for the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let cargo_package_lock = acquire_cargo_package_lock()?;
-        let mut crates_index = RemoteGitIndex::new(
-            tame_index::GitIndex::new(tame_index::IndexLocation::new(
-                tame_index::IndexUrl::CratesIoGit,
-            ))?,
-            &cargo_package_lock,
-        )?;
-        crates_index.fetch(&cargo_package_lock)?;
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         Ok(Self {
             repo_path,
-            crates_index,
+            crates_index: crates_index()?,
             advisory_db,
             invalid_advisories: 0,
         })
@@ -147,11 +142,14 @@ impl Linter {
 
     /// Checks if a crate with this name is present on crates.io
     fn name_exists_on_crates_io(&self, name: &str) -> bool {
-        if let Ok(Some(crate_)) = self.crates_index.krate(
-            name.try_into().unwrap(),
-            true,
-            &acquire_cargo_package_lock().unwrap(),
-        ) {
+        let lock = match acquire_cargo_package_lock() {
+            Ok(lock) => lock,
+            Err(_) => return false,
+        };
+        if let Ok(Some(crate_)) = self
+            .crates_index
+            .cached_krate(name.try_into().unwrap(), &lock)
+        {
             // This check verifies name normalization.
             // A request for "serde-json" might return "serde_json",
             // and we want to catch use a non-canonical name and report it as an error.
