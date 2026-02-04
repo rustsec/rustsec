@@ -32,8 +32,8 @@
 //!
 //!
 //! Workflow:
-//!    
-//! ```text                                                     
+//!
+//! ```text
 //!          ┌───────────────────────────────────┐
 //!          │                                   │
 //!     ┌────┴────┐         ┌─────────┐        ┌─▼────┐
@@ -69,22 +69,25 @@
 //! When an advisory contains no reference to an existing RustSec advisory, it is likely
 //! missing.
 
-use crate::{
-    error::{Error, ErrorKind},
-    lock::acquire_cargo_package_lock,
-    prelude::*,
-};
-use rustsec::advisory::{Id, IdKind, Parts};
-use rustsec::osv::OsvAdvisory;
-use rustsec::{Advisory, Collection};
 use std::fs::read_to_string;
 use std::iter::FromIterator;
 use std::{
     fs, iter,
     path::{Path, PathBuf},
 };
-use tame_index::{KrateName, index::RemoteGitIndex};
+
+use rustsec::advisory::{Id, IdKind, Parts};
+use rustsec::osv::OsvAdvisory;
+use rustsec::{Advisory, Collection};
+use tame_index::{KrateName, index::AsyncRemoteSparseIndex};
 use toml_edit::{DocumentMut, value};
+
+use crate::{
+    crates_index,
+    error::{Error, ErrorKind},
+    lock::acquire_cargo_package_lock,
+    prelude::*,
+};
 
 /// Advisory synchronizer
 #[allow(dead_code)]
@@ -93,7 +96,7 @@ pub struct Synchronizer {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: RemoteGitIndex,
+    crates_index: AsyncRemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -112,14 +115,6 @@ impl Synchronizer {
     /// Create a new synchronizer for the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>, osv_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let cargo_package_lock = acquire_cargo_package_lock()?;
-        let mut crates_index = RemoteGitIndex::new(
-            tame_index::GitIndex::new(tame_index::IndexLocation::new(
-                tame_index::IndexUrl::CratesIoGit,
-            ))?,
-            &cargo_package_lock,
-        )?;
-        crates_index.fetch(&cargo_package_lock)?;
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
         let osv = Self::load_osv_export(&osv_path.into())?;
@@ -132,7 +127,7 @@ impl Synchronizer {
 
         Ok(Self {
             repo_path,
-            crates_index,
+            crates_index: crates_index()?,
             advisory_db,
             osv,
             updated_advisories: 0,
@@ -202,11 +197,10 @@ impl Synchronizer {
                         }
                     };
 
-                    if let Ok(Some(_)) = self.crates_index.krate(
-                        crate_name,
-                        true,
-                        &acquire_cargo_package_lock().unwrap(),
-                    ) {
+                    if let Ok(Some(_)) = self
+                        .crates_index
+                        .cached_krate(crate_name, &acquire_cargo_package_lock().unwrap())
+                    {
                         self.missing_advisories.push(osv.clone());
                     } else {
                         status_info!(

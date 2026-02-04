@@ -19,3 +19,17 @@ pub mod synchronizer;
 pub mod web;
 
 use std::collections::BTreeMap as Map;
+
+use tame_index::{SparseIndex, index::AsyncRemoteSparseIndex};
+
+/// Get an async crates.io index
+pub fn crates_index() -> Result<AsyncRemoteSparseIndex, tame_index::Error> {
+    Ok(AsyncRemoteSparseIndex::new(
+        SparseIndex::new(tame_index::IndexLocation::new(
+            tame_index::IndexUrl::crates_io(None, None, None)?,
+        ))?,
+        tame_index::external::reqwest::ClientBuilder::new()
+            .build()
+            .map_err(tame_index::Error::from)?,
+    ))
+}

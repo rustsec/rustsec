@@ -21,7 +21,7 @@ clap = { workspace = true }
 comrak = { workspace = true }
 cvss = { workspace = true }
 fs-err = { workspace = true }
-tame-index = { workspace = true, features = ["git"] }
+tame-index = { workspace = true, features = ["sparse"] }
 gix = { workspace = true, optional = true }
 rust-embed = { workspace = true }
 rustsec = { workspace = true, features = ["osv-export"] }
