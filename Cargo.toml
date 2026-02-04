@@ -40,7 +40,7 @@ rustsec = { version = "0.32", path = "./rustsec" }
 semver = "1.0.23"
 serde = "1"
 serde_json = "1"
-tame-index = { version = "0.25", default-features = false }
+tame-index = { version = "0.26", default-features = false }
 tempfile = "3"
 termcolor = "1"
 thiserror = "2"

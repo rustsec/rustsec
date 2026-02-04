@@ -7,7 +7,6 @@ use std::{
     collections::HashMap,
     path::PathBuf,
 };
-use tame_index::external::gix;
 use time::OffsetDateTime;
 
 use super::GitPath;
