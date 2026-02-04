@@ -46,6 +46,9 @@ pub enum OS {
     /// `haiku`: Haiku, an open source BeOS clone
     Haiku,
 
+    /// `helenos`
+    HelenOS,
+
     /// `hermit`: HermitCore is a novel unikernel operating system targeting a scalable and predictable runtime behavior for HPC and cloud environments
     Hermit,
 
@@ -100,6 +103,9 @@ pub enum OS {
 
     /// `psx`
     Psx,
+
+    /// `qurt`
+    Qurt,
 
     /// `redox`: Redox, a Unix-like OS written in Rust
     Redox,
@@ -171,6 +177,7 @@ impl OS {
             OS::FreeBSD => "freebsd",
             OS::Fuchsia => "fuchsia",
             OS::Haiku => "haiku",
+            OS::HelenOS => "helenos",
             OS::Hermit => "hermit",
             OS::Horizon => "horizon",
             OS::Hurd => "hurd",
@@ -189,6 +196,7 @@ impl OS {
             OS::OpenBSD => "openbsd",
             OS::Psp => "psp",
             OS::Psx => "psx",
+            OS::Qurt => "qurt",
             OS::Redox => "redox",
             OS::Rtems => "rtems",
             OS::Solaris => "solaris",
@@ -228,6 +236,7 @@ impl FromStr for OS {
             "freebsd" => OS::FreeBSD,
             "fuchsia" => OS::Fuchsia,
             "haiku" => OS::Haiku,
+            "helenos" => OS::HelenOS,
             "hermit" => OS::Hermit,
             "horizon" => OS::Horizon,
             "hurd" => OS::Hurd,
@@ -246,6 +255,7 @@ impl FromStr for OS {
             "openbsd" => OS::OpenBSD,
             "psp" => OS::Psp,
             "psx" => OS::Psx,
+            "qurt" => OS::Qurt,
             "redox" => OS::Redox,
             "rtems" => OS::Rtems,
             "solaris" => OS::Solaris,
