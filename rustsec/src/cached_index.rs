@@ -13,7 +13,6 @@ pub use tame_index::external::reqwest::ClientBuilder;
 use tame_index::utils::flock::{FileLock, LockOptions};
 
 enum Index {
-    Git(Box<tame_index::index::RemoteGitIndex>),
     SparseCached(tame_index::index::SparseIndex),
     SparseRemote(tame_index::index::AsyncRemoteSparseIndex),
 }
@@ -27,7 +26,6 @@ impl Index {
     ) -> Result<Option<tame_index::IndexKrate>, Error> {
         let name = name.as_str().try_into().map_err(Error::from_tame)?;
         let res = match self {
-            Self::Git(gi) => gi.krate(name, true, lock),
             Self::SparseCached(si) => si.cached_krate(name, lock),
             Self::SparseRemote(rsi) => rsi.cached_krate(name, lock),
         }
@@ -80,29 +78,19 @@ impl CachedIndex {
         client: Option<ClientBuilder>,
         lock_timeout: Duration,
     ) -> Result<Self, tame_index::Error> {
-        let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
+        let si = tame_index::index::SparseIndex::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
 
         let lock = acquire_cargo_package_lock(lock_timeout)?;
 
-        let index = match index {
-            tame_index::index::ComboIndexCache::Git(gi) => {
-                let mut rgi = tame_index::index::RemoteGitIndex::new(gi, &lock)?;
-                rgi.fetch(&lock)?;
-                Index::Git(Box::new(rgi))
-            }
-            tame_index::index::ComboIndexCache::Sparse(si) => {
-                let client_builder = client.unwrap_or_default();
-                // note: this would need to change if rustsec ever adds the capability
-                // to query other indices that _might_ not support HTTP/2, but
-                // hopefully that would never need to happen
-                let client = client_builder.build().map_err(tame_index::Error::from)?;
+        let client_builder = client.unwrap_or_default();
+        // note: this would need to change if rustsec ever adds the capability
+        // to query other indices that _might_ not support HTTP/2, but
+        // hopefully that would never need to happen
+        let client = client_builder.build().map_err(tame_index::Error::from)?;
 
-                Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client))
-            }
-            _ => panic!("Unsupported crates.io index type"),
-        };
+        let index = Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client));
 
         Ok(CachedIndex {
             index,
@@ -130,20 +118,13 @@ impl CachedIndex {
     }
 
     fn open_inner(lock_timeout: Duration) -> Result<Self, tame_index::Error> {
-        let index = tame_index::index::ComboIndexCache::new(tame_index::IndexLocation::new(
+        let si = tame_index::index::SparseIndex::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
 
         let lock = acquire_cargo_package_lock(lock_timeout)?;
 
-        let index = match index {
-            tame_index::index::ComboIndexCache::Git(gi) => {
-                let rgi = tame_index::index::RemoteGitIndex::new(gi, &lock)?;
-                Index::Git(Box::new(rgi))
-            }
-            tame_index::index::ComboIndexCache::Sparse(si) => Index::SparseCached(si),
-            _ => panic!("Unsupported crates.io index type"),
-        };
+        let index = Index::SparseCached(si);
 
         Ok(CachedIndex {
             index,
@@ -157,7 +138,7 @@ impl CachedIndex {
         // only look up info on packages that aren't yet cached
         packages.retain(|pkg| !self.cache.contains_key(pkg));
         match &self.index {
-            Index::Git(_) | Index::SparseCached(_) => {
+            Index::SparseCached(_) => {
                 for pkg in packages {
                     self.insert(pkg.to_owned(), self.index.krate(pkg, &self.lock));
                 }

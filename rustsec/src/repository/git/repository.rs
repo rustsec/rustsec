@@ -8,7 +8,7 @@ use std::{
 };
 
 use gix::{bstr::ByteSlice, protocol::handshake::Ref};
-use tame_index::{external::gix, utils::flock::LockOptions};
+use tame_index::utils::flock::LockOptions;
 
 use super::{Commit, DEFAULT_URL};
 use crate::error::{Error, ErrorKind};
