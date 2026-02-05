@@ -20,6 +20,7 @@ chrono = { workspace = true, features = ["clock"] }
 clap = { workspace = true }
 comrak = { workspace = true }
 cvss = { workspace = true }
+display-error-chain = { workspace = true }
 fs-err = { workspace = true }
 tame-index = { workspace = true, features = ["sparse"] }
 gix = { workspace = true, optional = true }
