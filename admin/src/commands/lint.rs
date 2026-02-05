@@ -1,12 +1,14 @@
 //! `rustsec-admin lint` subcommand
 
-use crate::{linter::Linter, prelude::*};
-use abscissa_core::{Command, Runnable};
-use clap::Parser;
 use std::{
     path::{Path, PathBuf},
     process::exit,
 };
+
+use abscissa_core::{Command, Runnable};
+use clap::Parser;
+
+use crate::{display_err_with_source, linter::Linter, prelude::*};
 
 /// `rustsec-admin lint` subcommand
 #[derive(Command, Debug, Default, Parser)]
@@ -28,12 +30,7 @@ impl Runnable for LintCmd {
         };
 
         let linter = Linter::new(repo_path).unwrap_or_else(|e| {
-            status_err!(
-                "error loading advisory DB repo from {}: {}",
-                repo_path.display(),
-                e
-            );
-
+            status_err!("{}", display_err_with_source(&e));
             exit(1);
         });
 
@@ -53,8 +50,7 @@ impl Runnable for LintCmd {
         );
 
         let invalid_advisory_count = linter.lint().unwrap_or_else(|e| {
-            status_err!("error linting advisory DB {}: {}", repo_path.display(), e);
-
+            status_err!("{}", display_err_with_source(&e));
             exit(1);
         });
 
