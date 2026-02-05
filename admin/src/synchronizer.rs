@@ -79,7 +79,7 @@ use std::{
 use rustsec::advisory::{Id, IdKind, Parts};
 use rustsec::osv::OsvAdvisory;
 use rustsec::{Advisory, Collection};
-use tame_index::{KrateName, index::AsyncRemoteSparseIndex};
+use tame_index::{KrateName, index::RemoteSparseIndex};
 use toml_edit::{DocumentMut, value};
 
 use crate::{
@@ -96,7 +96,7 @@ pub struct Synchronizer {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: AsyncRemoteSparseIndex,
+    crates_index: RemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -197,10 +197,11 @@ impl Synchronizer {
                         }
                     };
 
-                    if let Ok(Some(_)) = self
-                        .crates_index
-                        .cached_krate(crate_name, &acquire_cargo_package_lock().unwrap())
-                    {
+                    if let Ok(Some(_)) = self.crates_index.krate(
+                        crate_name,
+                        true,
+                        &acquire_cargo_package_lock().unwrap(),
+                    ) {
                         self.missing_advisories.push(osv.clone());
                     } else {
                         status_info!(
