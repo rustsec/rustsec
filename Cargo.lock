@@ -3084,6 +3084,7 @@ dependencies = [
  "clap",
  "comrak",
  "cvss",
+ "display-error-chain",
  "fs-err",
  "gix",
  "once_cell",
