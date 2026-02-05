@@ -5,7 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use tame_index::index::AsyncRemoteSparseIndex;
+use tame_index::index::RemoteSparseIndex;
 
 use crate::{
     crates_index,
@@ -25,7 +25,7 @@ pub struct Linter {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: AsyncRemoteSparseIndex,
+    crates_index: RemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: rustsec::Database,
@@ -148,7 +148,7 @@ impl Linter {
         };
         if let Ok(Some(crate_)) = self
             .crates_index
-            .cached_krate(name.try_into().unwrap(), &lock)
+            .krate(name.try_into().unwrap(), true, &lock)
         {
             // This check verifies name normalization.
             // A request for "serde-json" might return "serde_json",
