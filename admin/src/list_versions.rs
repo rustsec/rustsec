@@ -3,14 +3,14 @@
 use std::path::PathBuf;
 
 use rustsec::{Advisory, Database};
-use tame_index::index::AsyncRemoteSparseIndex;
+use tame_index::index::RemoteSparseIndex;
 
 use crate::{crates_index, error::Error, lock::acquire_cargo_package_lock, prelude::*};
 
 /// Lists all versions for a crate and prints info on which ones are affected
 pub struct AffectedVersionLister {
     /// Loaded crates.io index
-    crates_index: AsyncRemoteSparseIndex,
+    crates_index: RemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: Database,
@@ -45,7 +45,7 @@ impl AffectedVersionLister {
         let lock = acquire_cargo_package_lock().unwrap();
         let crate_info = self
             .crates_index
-            .cached_krate(crate_name.try_into().unwrap(), &lock)
+            .krate(crate_name.try_into().unwrap(), true, &lock)
             .unwrap()
             .unwrap_or_else(|| panic!("expected crate {crate_name} to exist"));
         for version in crate_info.versions {
