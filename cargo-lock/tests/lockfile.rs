@@ -173,7 +173,7 @@ fn serde_matches_v3() {
 
 /// Test that encoded lockfiles with unused patch match what Cargo would normally write.
 #[test]
-fn serde_matches_usused_patch() {
+fn serde_matches_unused_patch() {
     let file_path = "tests/examples/Cargo.lock.unused-patch";
     let lockfile = Lockfile::load(file_path).unwrap();
     let reserialized = lockfile.to_string();
