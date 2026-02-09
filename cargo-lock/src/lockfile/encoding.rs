@@ -207,7 +207,7 @@ impl ToString for EncodableLockfile {
         }
 
         // Trim redundant newlines
-        if out.ends_with("\n\n") {
+        while out.ends_with("\n\n") {
             out.pop();
         }
 
