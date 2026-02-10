@@ -157,14 +157,14 @@ impl Linter {
                         }
                     }
                     "url" => {
-                        if let Some(url) = value.as_str() {
-                            if !url.starts_with("https://") {
-                                self.errors.push(Error {
-                                    kind: ErrorKind::value("url", value.to_string()),
-                                    section: Some("advisory"),
-                                    message: Some("URL must start with https://"),
-                                });
-                            }
+                        if let Some(url) = value.as_str()
+                            && !url.starts_with("https://")
+                        {
+                            self.errors.push(Error {
+                                kind: ErrorKind::value("url", value.to_string()),
+                                section: Some("advisory"),
+                                message: Some("URL must start with https://"),
+                            });
                         }
                     }
                     "date" => {
