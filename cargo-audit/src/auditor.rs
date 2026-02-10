@@ -62,20 +62,20 @@ impl Auditor {
             );
             // If the directory is locked, print a message and wait for it to become unlocked.
             // If we don't print the message, `cargo audit` would just hang with no explanation.
-            if let Err(e) = &result {
-                if e.kind() == ErrorKind::LockTimeout {
-                    status_warn!(
-                        "directory {} is locked, waiting for up to {} seconds for it to become available",
-                        advisory_db_path.display(),
-                        DEFAULT_LOCK_TIMEOUT.as_secs()
-                    );
-                    result = rustsec::repository::git::Repository::fetch(
-                        advisory_db_url,
-                        &advisory_db_path,
-                        !config.database.stale,
-                        DEFAULT_LOCK_TIMEOUT,
-                    );
-                }
+            if let Err(e) = &result
+                && e.kind() == ErrorKind::LockTimeout
+            {
+                status_warn!(
+                    "directory {} is locked, waiting for up to {} seconds for it to become available",
+                    advisory_db_path.display(),
+                    DEFAULT_LOCK_TIMEOUT.as_secs()
+                );
+                result = rustsec::repository::git::Repository::fetch(
+                    advisory_db_url,
+                    &advisory_db_path,
+                    !config.database.stale,
+                    DEFAULT_LOCK_TIMEOUT,
+                );
             }
 
             let advisory_db_repo = result.unwrap_or_else(|e| {
@@ -122,15 +122,15 @@ impl Auditor {
 
                 // If the directory is locked, print a message and wait for it to become unlocked.
                 // If we don't print the message, `cargo audit` would just hang with no explanation.
-                if let Err(e) = &result {
-                    if e.kind() == ErrorKind::LockTimeout {
-                        status_warn!(
-                            "directory {} is locked, waiting for up to {} seconds for it to become available",
-                            advisory_db_path.display(),
-                            DEFAULT_LOCK_TIMEOUT.as_secs()
-                        );
-                        result = registry::CachedIndex::fetch(DEFAULT_LOCK_TIMEOUT);
-                    }
+                if let Err(e) = &result
+                    && e.kind() == ErrorKind::LockTimeout
+                {
+                    status_warn!(
+                        "directory {} is locked, waiting for up to {} seconds for it to become available",
+                        advisory_db_path.display(),
+                        DEFAULT_LOCK_TIMEOUT.as_secs()
+                    );
+                    result = registry::CachedIndex::fetch(DEFAULT_LOCK_TIMEOUT);
                 }
 
                 match result {
@@ -148,15 +148,15 @@ impl Auditor {
 
                 // If the directory is locked, print a message and wait for it to become unlocked.
                 // If we don't print the message, `cargo audit` would just hang with no explanation.
-                if let Err(e) = &result {
-                    if e.kind() == ErrorKind::LockTimeout {
-                        status_warn!(
-                            "directory {} is locked, waiting for up to {} seconds for it to become available",
-                            advisory_db_path.display(),
-                            DEFAULT_LOCK_TIMEOUT.as_secs()
-                        );
-                        result = registry::CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
-                    }
+                if let Err(e) = &result
+                    && e.kind() == ErrorKind::LockTimeout
+                {
+                    status_warn!(
+                        "directory {} is locked, waiting for up to {} seconds for it to become available",
+                        advisory_db_path.display(),
+                        DEFAULT_LOCK_TIMEOUT.as_secs()
+                    );
+                    result = registry::CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
                 }
 
                 match result {
