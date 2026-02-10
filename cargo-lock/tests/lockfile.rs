@@ -171,6 +171,17 @@ fn serde_matches_v3() {
     assert_eq!(reserialized, file_content);
 }
 
+/// Test that encoded lockfiles with unused patch match what Cargo would normally write.
+#[test]
+fn serde_matches_unused_patch() {
+    let file_path = "tests/examples/Cargo.lock.unused-patch";
+    let lockfile = Lockfile::load(file_path).unwrap();
+    let reserialized = lockfile.to_string();
+    let file_content = fs::read_to_string(file_path).unwrap();
+
+    assert_eq!(reserialized, file_content);
+}
+
 /// Dependency tree tests
 #[cfg(feature = "dependency-tree")]
 mod tree {
