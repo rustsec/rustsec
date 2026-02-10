@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         rust:
-          - 1.85.0 # MSRV
+          - 1.88.0 # MSRV
           - stable
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -53,7 +53,7 @@ jobs:
           persist-credentials: false
       - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
         with:
-          toolchain: 1.85.0 # MSRV
+          toolchain: 1.88.0 # MSRV
           override: true
           profile: minimal
       - uses: Swatinem/rust-cache@779680da715d629ac1d338a641029a2f4372abb5 # v2.8.2
