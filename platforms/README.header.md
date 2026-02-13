@@ -56,7 +56,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [//]: # (general links)
 
 [RustSec Advisory Database]: https://github.com/RustSec
-[wg-secure-code]: https://www.rust-lang.org/governance/wgs/wg-secure-code
+[wg-secure-code]: https://rust-lang.org/governance/teams/#team-wg-secure-code
 
 ## Registered Platforms
 
