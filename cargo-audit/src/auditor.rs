@@ -197,7 +197,7 @@ impl Auditor {
 
         self.presenter.before_report(lockfile_path, &lockfile);
 
-        let report = self.audit(&lockfile, None, None);
+        let report = self.audit(&lockfile, None, None, None);
 
         let self_advisories = self.self_advisories();
 
@@ -250,9 +250,12 @@ impl Auditor {
             rustsec::binary_scanning::load_deps_from_binary(&file_contents, Option::None)?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
-            Complete(lockfile) | Incomplete(lockfile) => {
-                self.audit(&lockfile, Some(binary_path), Some(binary_type))
-            }
+            Complete(lockfile) | Incomplete(lockfile) => self.audit(
+                &lockfile,
+                Some(binary_path),
+                Some(binary_type),
+                Some(&file_contents),
+            ),
             None => Err(Error::new(
                 ErrorKind::Parse,
                 "No dependency information found! Is this a Rust executable built with cargo?",
@@ -267,6 +270,8 @@ impl Auditor {
         path: Option<&Path>,
         #[allow(unused_variables)] // May be unused when the "binary-scanning" feature is disabled
         binary_format: Option<BinaryFormat>,
+        #[allow(unused_variables)] // May be unused when the "binary-scanning" feature is disabled
+        binary_contents: Option<&[u8]>,
     ) -> rustsec::Result<rustsec::Report> {
         let mut report = rustsec::Report::generate(&self.database, lockfile, &self.report_settings);
 
@@ -286,7 +291,8 @@ impl Auditor {
                 .append(&mut yanked);
         }
 
-        self.presenter.print_report(&report, lockfile, path);
+        self.presenter
+            .print_report(&report, lockfile, path, binary_contents);
 
         Ok(report)
     }
