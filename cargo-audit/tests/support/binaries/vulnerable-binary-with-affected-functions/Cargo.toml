@@ -1,0 +1,28 @@
+[package]
+name = "vulnerable-binary-with-affected-functions"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+
+[dependencies]
+anstream = "<0.6.8"
+branca = "<0.10.0"
+crayon = ">=0.6.0"
+failure = ">=0.1.0"
+gix-date = "<=0.11.1"
+lzf = "<0.3.2"
+mail-internals = ">=0.2.0"
+mp3-metadata = "<0.4.0"
+ntru = ">=0.4.3"
+parse_duration = "*"
+rtvm-interpreter = "<=4.0.0"
+ruint = "<1.17.0, >=1.2.0"                                                 # algorithms was made pub in 1.2.0
+rustc-serialize = "*"
+sequoia-openpgp = "<2.1.0"
+shaman = "<=0.1.0"
+time = "<0.2.23"
+wasmtime-jit-debug = { version = "<=24.0.0", features = ["perf_jitdump"] }
+whoami = "<1.5.0"
+xmp_toolkit = "<1.9.0"
+zlib-rs = "<=0.3.1"
