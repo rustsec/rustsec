@@ -282,6 +282,7 @@ impl Auditor {
             self.audit_data_size_limit,
         )?;
         self.presenter.binary_scan_report(&report, binary_path);
+        self.presenter.set_binary_contents(file_contents);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
                 self.audit(&lockfile, Some(binary_path), Some(binary_type))

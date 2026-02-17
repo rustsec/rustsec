@@ -21,9 +21,12 @@ abscissa_core = { workspace = true }
 cargo-lock = { workspace = true }
 clap = { workspace = true }
 home = { workspace = true }
+object = { workspace = true, optional = true }
+rustc-demangle = { workspace = true, optional = true }
 rustsec = { workspace = true, features = ["dependency-tree"] }
 serde = { workspace = true, features = ["serde_derive"] }
 serde_json = { workspace = true }
+syn = { workspace = true, optional = true }
 thiserror = { workspace = true }
 display-error-chain = { workspace = true }
 
@@ -36,4 +39,9 @@ toml = { workspace = true }
 [features]
 default = ["binary-scanning"]
 fix = []
-binary-scanning = ["rustsec/binary-scanning"]
+binary-scanning = [
+    "rustsec/binary-scanning",
+    "dep:object",
+    "dep:rustc-demangle",
+    "dep:syn",
+]

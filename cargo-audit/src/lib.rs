@@ -31,5 +31,8 @@ pub mod presenter;
 mod sarif;
 pub use sarif::SarifLog;
 
+#[cfg(feature = "binary-scanning")]
+mod binary_scanning;
+
 /// Current version of the `cargo-audit` crate
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
