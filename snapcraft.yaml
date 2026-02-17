@@ -1,0 +1,28 @@
+name: cargo-audit
+title: cargo audit
+base: core24
+version: "0.22.1"
+summary: Audit Cargo.lock and Rust binaries for crates with security vulnerabilities.
+description: |
+  cargo-audit can scan a Cargo.lock file for known security vulnerabilities.
+  Or, it can scan a binary compiled with cargo-auditable to see if it was compiled
+  with known security vulnerabilities.
+
+grade: stable
+# It is reasonable you may want to `cargo-audit bin` files anywhere on your computer,
+# so you need classic confinement
+confinement: classic
+
+parts:
+  cargo-audit:
+    plugin: rust
+    source-type: local
+    source: .
+    source-subdir: cargo-audit
+    # snap docs claim that default features are enabled by default
+    # but this does not seem to be the case
+    rust-features: ["binary-scanning"]
+
+apps:
+  cargo-audit:
+    command: bin/cargo-audit
