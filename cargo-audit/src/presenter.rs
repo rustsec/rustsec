@@ -40,6 +40,10 @@ pub struct Presenter {
 
     /// Output configuration
     config: OutputConfig,
+
+    /// Binary contents for affected-function analysis
+    #[cfg(feature = "binary-scanning")]
+    binary_contents: Option<Vec<u8>>,
 }
 
 impl Presenter {
@@ -54,7 +58,15 @@ impl Presenter {
                 .copied()
                 .collect(),
             config: config.clone(),
+            #[cfg(feature = "binary-scanning")]
+            binary_contents: None,
         }
+    }
+
+    /// Set the binary contents for affected-function analysis
+    #[cfg(feature = "binary-scanning")]
+    pub fn set_binary_contents(&mut self, contents: Vec<u8>) {
+        self.binary_contents = Some(contents);
     }
 
     /// Information to display before a report is generated
@@ -106,8 +118,6 @@ impl Presenter {
         report: &rustsec::Report,
         lockfile: &Lockfile,
         path: Option<&Path>,
-        #[allow(unused_variables)] // May be unused when the "binary-scanning" feature is disabled
-        binary_contents: Option<&[u8]>,
     ) {
         match self.config.format {
             OutputFormat::Json => {
@@ -138,7 +148,7 @@ impl Presenter {
             .expect("invalid Cargo.lock dependency tree");
 
         #[cfg(feature = "binary-scanning")]
-        let symbols = binary_contents.and_then(|binary_contents| {
+        let symbols = self.binary_contents.as_deref().and_then(|binary_contents| {
             let crate_names: HashSet<String> = std::iter::empty()
                 .chain(
                     report
