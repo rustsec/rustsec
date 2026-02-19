@@ -56,8 +56,8 @@ impl Linter {
     /// Lint the loaded database
     pub fn lint(mut self) -> Result<usize, Error> {
         for collection in COLLECTIONS {
-            for crate_entry in fs::read_dir(self.repo_path.join(collection.as_str())).unwrap() {
-                let crate_dir = crate_entry.unwrap().path();
+            for crate_entry in read_dir_sorted(self.repo_path.join(collection.as_str()))? {
+                let crate_dir = crate_entry.path();
 
                 if !crate_dir.is_dir() {
                     fail!(
@@ -68,8 +68,8 @@ impl Linter {
                     );
                 }
 
-                for advisory_entry in crate_dir.read_dir().unwrap() {
-                    let advisory_path = advisory_entry.unwrap().path();
+                for advisory_entry in read_dir_sorted(crate_dir)? {
+                    let advisory_path = advisory_entry.path();
                     self.lint_advisory(*collection, &advisory_path)?;
                 }
             }
@@ -158,4 +158,11 @@ impl Linter {
             false
         }
     }
+}
+
+fn read_dir_sorted<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<fs::DirEntry>> {
+    let read_dir = fs::read_dir(path)?;
+    let mut crate_entries = read_dir.into_iter().collect::<Result<Vec<_>, _>>()?;
+    crate_entries.sort_by_key(fs::DirEntry::path);
+    Ok(crate_entries)
 }
