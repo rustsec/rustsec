@@ -89,7 +89,11 @@ error: 1 vulnerability found!
 
         <div class="row">
             <div class="column details">
-                <a href="https://osv.dev/"><img src="/img/osv.png"/></a>
+              <a href="https://osv.dev/">
+	        <picture>
+                  <source srcset="/img/osv-logo-light.svg"  media="(prefers-color-scheme: light)">
+                  <img src="/img/osv-logo-dark.svg" alt="OSV logo" class="logo-image">
+                </picture>
                 <p>
                     We export all our data to <a href="https://osv.dev/">Open Source Vulnerabilities</a> in real time.
                     This enables many other tools, such as <a href="https://aquasecurity.github.io/trivy/">Trivy</a>, to
@@ -101,7 +105,12 @@ error: 1 vulnerability found!
                 </p>
             </div>
             <div class="column">
-                <a href="https://github.com/advisories"><img src="/img/github.png"/></a>
+              <a href="https://github.com/advisories">
+                <picture>
+                  <source srcset="/img/github-logo-light.svg"  media="(prefers-color-scheme: light)">
+                  <img src="/img/github-logo-dark.svg" alt="GitHub logo" class="logo-image">
+                </picture>
+	      </a>
                 <p>
                     The <a href="https://github.com/advisories">Github Advisory Database</a> imports our advisories and makes them available in its
                     <a href="https://docs.github.com/en/graphql/reference/objects#securityadvisory">public API</a>.

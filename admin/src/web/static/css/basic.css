@@ -243,7 +243,7 @@ header span.subtitle p {
 
 @media (prefers-color-scheme: light) {
   article a {
-    color: #57f;
+    color: #1233b6;
   }
 
   a:hover {
@@ -255,7 +255,7 @@ header span.subtitle p {
   }
 
   .search-index input[type="search"], .search input[type="search"] {
-    background-color: rgba(0, 0, 0, 0.3);
+    background-color: #b2b2b2;
     color: black;
     border-color: black;
   }

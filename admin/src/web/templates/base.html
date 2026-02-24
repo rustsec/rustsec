@@ -17,7 +17,12 @@
 
 <header>
   <div class="header-top">
-    <h1><a href="/"><img class="logo-image" src="/img/rustsec-logo.svg" /></a></h1>
+    <h1><a href="/">
+	<picture>
+          <source srcset="/img/rustsec-logo-light.svg"  media="(prefers-color-scheme: light)">
+          <img src="/img/rustsec-logo-dark.svg" alt="RustSec logo" class="logo-image">
+        </picture>
+    </a></h1>
     {% block search %}
     <div class="search">
       <form onsubmit="return searchform();">
