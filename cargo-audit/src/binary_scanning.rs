@@ -30,11 +30,12 @@ pub(crate) fn demangled_symbols(
 
 fn flatten_type_path(type_path: &TypePath) -> Vec<syn::Ident> {
     let mut idents = Vec::new();
-    if let Some(qself) = &type_path.qself {
-        if let syn::Type::Path(inner) = &*qself.ty {
-            idents.extend(flatten_type_path(inner));
-        }
+    if let Some(qself) = &type_path.qself
+        && let syn::Type::Path(inner) = &*qself.ty
+    {
+        idents.extend(flatten_type_path(inner));
     }
+
     for segments in &type_path.path.segments {
         idents.push(segments.ident.clone());
     }
