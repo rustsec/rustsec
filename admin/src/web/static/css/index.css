@@ -154,6 +154,10 @@ nav, body > footer {
   text-align: left;
 }
 
+.homepage img.logo-image {
+  width: 50%;
+}
+
 /* For blocks on the homepage */
 
 .row {
@@ -256,10 +260,6 @@ a.button:hover{
   body > header {
     background-color: #d7d7d7;
     color: black;
-  }
-
-  .logo-image, img[src="/img/osv.png"], img[src="/img/github.png"] {
-    filter: drop-shadow(3px 3px 3px #0004);
   }
 
   .column {
