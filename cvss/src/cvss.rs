@@ -26,10 +26,10 @@ pub const PREFIX: &str = "CVSS";
 pub enum Cvss {
     #[cfg(feature = "v3")]
     /// A CVSS 3.0 base vector
-    CvssV30(v3::Base),
+    CvssV30(v3::Vector),
     #[cfg(feature = "v3")]
     /// A CVSS 3.1 base vector
-    CvssV31(v3::Base),
+    CvssV31(v3::Vector),
     #[cfg(feature = "v4")]
     /// A CVSS 4.0 vector
     CvssV40(v4::Vector),
@@ -47,6 +47,7 @@ impl Cvss {
             Self::CvssV30(base) => base.score().value(),
             #[cfg(feature = "v3")]
             Self::CvssV31(base) => base.score().value(),
+            #[cfg(feature = "v3")]
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => vector.score().value(),
         }
@@ -57,9 +58,9 @@ impl Cvss {
     pub fn severity(&self) -> Severity {
         match self {
             #[cfg(feature = "v3")]
-            Self::CvssV30(base) => base.score().severity(),
+            Self::CvssV30(vector) => vector.score().severity(),
             #[cfg(feature = "v3")]
-            Self::CvssV31(base) => base.score().severity(),
+            Self::CvssV31(vector) => vector.score().severity(),
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => vector.score().severity(),
         }
@@ -69,9 +70,13 @@ impl Cvss {
     pub fn metrics(&self) -> Box<dyn Iterator<Item = (MetricType, &dyn fmt::Debug)> + '_> {
         match self {
             #[cfg(feature = "v3")]
-            Self::CvssV30(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            Self::CvssV30(vector) => {
+                Box::new(vector.metrics().map(|(m, v)| (MetricType::V3(m), v)))
+            }
             #[cfg(feature = "v3")]
-            Self::CvssV31(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V3(m), v))),
+            Self::CvssV31(vector) => {
+                Box::new(vector.metrics().map(|(m, v)| (MetricType::V3(m), v)))
+            }
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => {
                 Box::new(vector.metrics().map(|(m, v)| (MetricType::V4(m), v)))
@@ -121,9 +126,9 @@ impl FromStr for Cvss {
 
         match (prefix, major_version, minor_version) {
             #[cfg(feature = "v3")]
-            (PREFIX, "3", "0") => v3::Base::from_str(s).map(Self::CvssV30),
+            (PREFIX, "3", "0") => v3::Vector::from_str(s).map(Self::CvssV30),
             #[cfg(feature = "v3")]
-            (PREFIX, "3", "1") => v3::Base::from_str(s).map(Self::CvssV31),
+            (PREFIX, "3", "1") => v3::Vector::from_str(s).map(Self::CvssV31),
             #[cfg(feature = "v4")]
             (PREFIX, "4", "0") => v4::Vector::from_str(s).map(Self::CvssV40),
             (PREFIX, _, _) => Err(Error::UnsupportedVersion {

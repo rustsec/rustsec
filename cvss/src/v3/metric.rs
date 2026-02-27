@@ -8,7 +8,7 @@ use core::{
 };
 
 /// Trait for CVSSv3 metrics.
-pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
+pub trait Metric: Copy + Clone + Debug + Display + Eq + Ord {
     /// [`MetricType`] of this metric.
     const TYPE: MetricType;
 
@@ -22,6 +22,16 @@ pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
 
     /// Get `str` describing this metric's value
     fn as_str(self) -> &'static str;
+}
+
+/// Trait for CVSSv3 modified metrics.
+pub trait ModifiedMetric<M: Metric>: Metric {
+    /// Get CVSS v3.1 modified score for this metric, given the base metric
+    /// value.
+    ///
+    /// If the modified metric is `NotDefined`, the base metric value is used to
+    /// compute the score.
+    fn modified_score(self, base: Option<M>) -> f64;
 }
 
 /// Enum over all of the available CVSSv3 metrics.
@@ -51,12 +61,55 @@ pub enum MetricType {
 
     /// User Interaction (UI)
     UI,
+
+    /// Exploit Code Maturity (E)
+    E,
+
+    /// Remediation Level (RL)
+    RL,
+
+    /// Report Confidence (RC)
+    RC,
+
+    /// Confidentiality Requirements (CR)
+    CR,
+
+    /// Integrity Requirements (IR)
+    IR,
+
+    /// Availability Requirements (AR)
+    AR,
+
+    /// Modified Attack Vector (MAV)
+    MAV,
+
+    /// Modified Attack Complexity (MAC)
+    MAC,
+
+    /// Modified Privileges Required (MPR)
+    MPR,
+
+    /// Modified User Interaction (MUI)
+    MUI,
+
+    /// Modified Scope (MS)
+    MS,
+
+    /// Modified Confidentiality (MC)
+    MC,
+
+    /// Modified Integrity (MI)
+    MI,
+
+    /// Modified Availability (MA)
+    MA,
 }
 
 impl MetricType {
     /// Get the name of this metric (i.e. acronym)
     pub fn name(self) -> &'static str {
         match self {
+            // Base metrics
             Self::A => "A",
             Self::AC => "AC",
             Self::AV => "AV",
@@ -65,12 +118,31 @@ impl MetricType {
             Self::PR => "PR",
             Self::S => "S",
             Self::UI => "UI",
+
+            // Temporal metrics
+            Self::E => "E",
+            Self::RL => "RL",
+            Self::RC => "RC",
+
+            // Environmental metrics
+            Self::CR => "CR",
+            Self::IR => "IR",
+            Self::AR => "AR",
+            Self::MAV => "MAV",
+            Self::MAC => "MAC",
+            Self::MPR => "MPR",
+            Self::MUI => "MUI",
+            Self::MS => "MS",
+            Self::MC => "MC",
+            Self::MI => "MI",
+            Self::MA => "MA",
         }
     }
 
     /// Get a description of this metric.
     pub fn description(self) -> &'static str {
         match self {
+            // Base metrics
             Self::A => "Availability Impact",
             Self::AC => "Attack Complexity",
             Self::AV => "Attack Vector",
@@ -79,6 +151,24 @@ impl MetricType {
             Self::PR => "Privileges Required",
             Self::S => "Scope",
             Self::UI => "User Interaction",
+
+            // Temporal metrics
+            Self::E => "Exploit Code Maturity",
+            Self::RL => "Remediation Level",
+            Self::RC => "Report Confidence",
+
+            // Environmental metrics
+            Self::CR => "Confidentiality Requirements",
+            Self::IR => "Integrity Requirements",
+            Self::AR => "Availability Requirements",
+            Self::MAV => "Modified Attack Vector",
+            Self::MAC => "Modified Attack Complexity",
+            Self::MPR => "Modified Privileges Required",
+            Self::MUI => "Modified User Interaction",
+            Self::MS => "Modified Scope",
+            Self::MC => "Modified Confidentiality",
+            Self::MI => "Modified Integrity",
+            Self::MA => "Modified Availability",
         }
     }
 }
@@ -94,6 +184,7 @@ impl FromStr for MetricType {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
+            // Base metrics
             "A" => Ok(Self::A),
             "AC" => Ok(Self::AC),
             "AV" => Ok(Self::AV),
@@ -102,6 +193,24 @@ impl FromStr for MetricType {
             "PR" => Ok(Self::PR),
             "S" => Ok(Self::S),
             "UI" => Ok(Self::UI),
+
+            // Temporal metrics
+            "E" => Ok(Self::E),
+            "RL" => Ok(Self::RL),
+            "RC" => Ok(Self::RC),
+
+            // Environmental metrics
+            "CR" => Ok(Self::CR),
+            "IR" => Ok(Self::IR),
+            "AR" => Ok(Self::AR),
+            "MAV" => Ok(Self::MAV),
+            "MAC" => Ok(Self::MAC),
+            "MPR" => Ok(Self::MPR),
+            "MUI" => Ok(Self::MUI),
+            "MS" => Ok(Self::MS),
+            "MC" => Ok(Self::MC),
+            "MI" => Ok(Self::MI),
+            "MA" => Ok(Self::MA),
             _ => Err(Error::UnknownMetric { name: s.to_owned() }),
         }
     }
