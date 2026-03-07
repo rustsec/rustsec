@@ -80,6 +80,12 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-apple-ios]                    | aarch64     | ios        |            |
 | [aarch64-apple-ios-macabi]             | aarch64     | ios        | macabi     |
 | [aarch64-apple-ios-sim]                | aarch64     | ios        | sim        |
+| [aarch64-apple-tvos]                   | aarch64     | tvos       |            |
+| [aarch64-apple-tvos-sim]               | aarch64     | tvos       | sim        |
+| [aarch64-apple-visionos]               | aarch64     | visionos   |            |
+| [aarch64-apple-visionos-sim]           | aarch64     | visionos   | sim        |
+| [aarch64-apple-watchos]                | aarch64     | watchos    |            |
+| [aarch64-apple-watchos-sim]            | aarch64     | watchos    | sim        |
 | [aarch64-linux-android]                | aarch64     | android    |            |
 | [aarch64-pc-windows-gnullvm]           | aarch64     | windows    | gnu        |
 | [aarch64-unknown-fuchsia]              | aarch64     | fuchsia    |            |
@@ -130,12 +136,14 @@ If we remove platforms, we will bump the minor version of this crate.
 | [riscv32imac-unknown-none-elf]         | riscv32     | none       |            |
 | [riscv32imafc-unknown-none-elf]        | riscv32     | none       |            |
 | [riscv32imc-unknown-none-elf]          | riscv32     | none       |            |
+| [riscv64a23-unknown-linux-gnu]         | riscv64     | linux      | gnu        |
 | [riscv64gc-unknown-linux-gnu]          | riscv64     | linux      | gnu        |
 | [riscv64gc-unknown-linux-musl]         | riscv64     | linux      | musl       |
 | [riscv64gc-unknown-none-elf]           | riscv64     | none       |            |
 | [riscv64im-unknown-none-elf]           | riscv64     | none       |            |
 | [riscv64imac-unknown-none-elf]         | riscv64     | none       |            |
 | [s390x-unknown-linux-gnu]              | s390x       | linux      | gnu        |
+| [s390x-unknown-none-softfloat]         | s390x       | none       |            |
 | [sparc64-unknown-linux-gnu]            | sparc64     | linux      | gnu        |
 | [sparcv9-sun-solaris]                  | sparc64     | solaris    |            |
 | [thumbv6m-none-eabi]                   | arm         | none       |            |
@@ -176,12 +184,6 @@ If we remove platforms, we will bump the minor version of this crate.
 
 | target triple                          | target_arch | target_os  | target_env |
 |----------------------------------------|-------------|------------|------------|
-| [aarch64-apple-tvos]                   | aarch64     | tvos       |            |
-| [aarch64-apple-tvos-sim]               | aarch64     | tvos       | sim        |
-| [aarch64-apple-visionos]               | aarch64     | visionos   |            |
-| [aarch64-apple-visionos-sim]           | aarch64     | visionos   | sim        |
-| [aarch64-apple-watchos]                | aarch64     | watchos    |            |
-| [aarch64-apple-watchos-sim]            | aarch64     | watchos    | sim        |
 | [aarch64-kmc-solid_asp3]               | aarch64     | solid_asp3 |            |
 | [aarch64-nintendo-switch-freestanding] | aarch64     | horizon    |            |
 | [aarch64-unknown-freebsd]              | aarch64     | freebsd    |            |
@@ -323,7 +325,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [riscv32imc-unknown-nuttx-elf]         | riscv32     | nuttx      |            |
 | [riscv64-linux-android]                | riscv64     | android    |            |
 | [riscv64-wrs-vxworks]                  | riscv64     | vxworks    | gnu        |
-| [riscv64a23-unknown-linux-gnu]         | riscv64     | linux      | gnu        |
 | [riscv64gc-unknown-freebsd]            | riscv64     | freebsd    |            |
 | [riscv64gc-unknown-fuchsia]            | riscv64     | fuchsia    |            |
 | [riscv64gc-unknown-hermit]             | riscv64     | hermit     |            |
@@ -616,6 +617,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [riscv64imac-unknown-nuttx-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64IMAC_UNKNOWN_NUTTX_ELF.html
 [s390x-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.S390X_UNKNOWN_LINUX_GNU.html
 [s390x-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.S390X_UNKNOWN_LINUX_MUSL.html
+[s390x-unknown-none-softfloat]: https://docs.rs/platforms/latest/platforms/platform/constant.S390X_UNKNOWN_NONE_SOFTFLOAT.html
 [sparc-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.SPARC_UNKNOWN_LINUX_GNU.html
 [sparc-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.SPARC_UNKNOWN_NONE_ELF.html
 [sparc64-unknown-helenos]: https://docs.rs/platforms/latest/platforms/platform/constant.SPARC64_UNKNOWN_HELENOS.html
