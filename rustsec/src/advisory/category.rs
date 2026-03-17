@@ -37,6 +37,10 @@ pub enum Category {
     /// otherwise unexpected operations, e.g. shell escaping, SQL injection, XSS.
     FormatInjection,
 
+    /// Malicious code or other malware (e.g. credential exfiltration,
+    /// cryptocurrency miners, et al).
+    Malicious,
+
     /// Memory unsafety vulnerabilities allowing an attacker to write to
     /// unintended locations in memory.
     MemoryCorruption,
@@ -65,6 +69,7 @@ impl Category {
             Category::DenialOfService => "denial-of-service",
             Category::FileDisclosure => "file-disclosure",
             Category::FormatInjection => "format-injection",
+            Category::Malicious => "malicious",
             Category::MemoryCorruption => "memory-corruption",
             Category::MemoryExposure => "memory-exposure",
             Category::PrivilegeEscalation => "privilege-escalation",
@@ -90,6 +95,7 @@ impl FromStr for Category {
             "denial-of-service" => Category::DenialOfService,
             "file-disclosure" => Category::FileDisclosure,
             "format-injection" => Category::FormatInjection,
+            "malicious" => Category::Malicious,
             "memory-corruption" => Category::MemoryCorruption,
             "memory-exposure" => Category::MemoryExposure,
             "privilege-escalation" => Category::PrivilegeEscalation,
