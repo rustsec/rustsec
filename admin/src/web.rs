@@ -18,7 +18,7 @@ use atom_syndication::{
 use chrono::{Duration, NaiveDate, Utc};
 use comrak::markdown_to_html;
 use rust_embed::RustEmbed;
-use rustsec::advisory::Id;
+use rustsec::advisory::{Category, Id};
 use rustsec::osv::OsvAdvisory;
 use rustsec::repository::git::GitModificationTimes;
 use rustsec::repository::git::GitPath;
@@ -412,6 +412,9 @@ fn title_type(advisory: &rustsec::Advisory) -> String {
         Some(Informational::Unsound) => format!("{id}: Unsoundness in {package}"),
         Some(Informational::Other(s)) => format!("{id}: {package} is {s}"),
         Some(_) => format!("{id}: Advisory for {package}"),
+        None if advisory.metadata.categories.contains(&Category::Malicious) => {
+            format!("{id}: {package} contained malicious code")
+        }
         // Not informational => vulnerability
         None => format!("{id}: Vulnerability in {package}"),
     }
