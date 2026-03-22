@@ -4,6 +4,7 @@ use std::path::PathBuf;
 
 use abscissa_core::testing::prelude::*;
 use once_cell::sync::Lazy;
+use std::{fs, io::Read};
 use tempfile::TempDir;
 
 /// Directory containing the advisory database.
@@ -37,6 +38,31 @@ fn binaries_dir() -> PathBuf {
 
 fn cmd_runner() -> CmdRunner {
     RUNNER.clone()
+}
+
+#[test]
+fn oversized_binary_is_rejected() {
+    let tmpdir = TempDir::new().unwrap();
+    let binary_path = tmpdir.path().join("not-a-real-binary");
+
+    // Ensure the file is larger than the configured max size.
+    fs::write(&binary_path, b"0123").unwrap();
+
+    let mut runner = cmd_runner();
+    runner
+        .arg(&binary_path)
+        .arg("--max-binary-size")
+        .arg("1")
+        .capture_stderr();
+
+    let mut process = runner.run();
+    let mut stderr = String::new();
+    process.stderr().read_to_string(&mut stderr).unwrap();
+    process.wait().unwrap().expect_code(2);
+    assert!(
+        stderr.contains("exceeds max size limit of 1 bytes"),
+        "{stderr}"
+    );
 }
 
 #[test]
