@@ -36,8 +36,8 @@ fn flatten_type_path(type_path: &TypePath) -> Vec<syn::Ident> {
         idents.extend(flatten_type_path(inner));
     }
 
-    for segments in &type_path.path.segments {
-        idents.push(segments.ident.clone());
+    for segment in &type_path.path.segments {
+        idents.push(segment.ident.clone());
     }
     idents
 }
