@@ -528,7 +528,7 @@ mod tests {
 
         // Verify that each report with an "Affected" line was expected.
         for report in reports {
-            if report.get("Affected").is_none() {
+            if !report.contains_key("Affected") {
                 continue;
             }
             let id = report.get("ID").unwrap();
