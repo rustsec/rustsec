@@ -88,6 +88,18 @@ fn filter_by_symbols(function_paths: Vec<FunctionPath>, symbols: &SymbolSet) -> 
         .collect()
 }
 
+/// Compares an advisory's function path against a binary's symbol to determine whether they match.
+///
+/// Path parameters are stripped from either before comparison:
+///
+/// - The advisory's function path's parameters are removed by [`remove_function_path_parameters`].
+/// - The binary's symbol's parameters are removed during extraction in [`flatten_type_path`], since
+///   the [`syn::Ident`] of each [`syn::PathSegment`] is cloned, but the [`syn::PathArguments`] are
+///   not.
+///
+/// Matching requires that the initial (i.e., crate) and final (i.e., function) identifiers match
+/// exactly, and that the function path's identifiers form a subsequence of the binary symbol's
+/// identifiers.
 fn function_path_matches_symbol(
     function_path: &FunctionPath,
     symbol_idents: &[syn::Ident],
