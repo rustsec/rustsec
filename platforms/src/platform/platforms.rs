@@ -311,6 +311,8 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_L4RE_UCLIBC,
     X86_64_UNKNOWN_LINUX_GNU,
     X86_64_UNKNOWN_LINUX_GNUASAN,
+    X86_64_UNKNOWN_LINUX_GNUMSAN,
+    X86_64_UNKNOWN_LINUX_GNUTSAN,
     X86_64_UNKNOWN_LINUX_GNUX32,
     X86_64_UNKNOWN_LINUX_MUSL,
     X86_64_UNKNOWN_LINUX_NONE,
@@ -3564,6 +3566,28 @@ pub(crate) const X86_64_UNKNOWN_LINUX_GNU: Platform = Platform {
 /// 64-bit Linux (kernel 3.2+, glibc 2.17+) with ASAN enabled by default
 pub(crate) const X86_64_UNKNOWN_LINUX_GNUASAN: Platform = Platform {
     target_triple: "x86_64-unknown-linux-gnuasan",
+    target_arch: Arch::X86_64,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Two,
+};
+
+/// 64-bit Linux (kernel 3.2+, glibc 2.17+) with MSAN enabled by default
+pub(crate) const X86_64_UNKNOWN_LINUX_GNUMSAN: Platform = Platform {
+    target_triple: "x86_64-unknown-linux-gnumsan",
+    target_arch: Arch::X86_64,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Two,
+};
+
+/// 64-bit Linux (kernel 3.2+, glibc 2.17+) with TSAN enabled by default
+pub(crate) const X86_64_UNKNOWN_LINUX_GNUTSAN: Platform = Platform {
+    target_triple: "x86_64-unknown-linux-gnutsan",
     target_arch: Arch::X86_64,
     target_os: OS::Linux,
     target_env: Env::Gnu,
