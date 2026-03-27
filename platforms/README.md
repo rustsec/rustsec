@@ -172,6 +172,8 @@ If we remove platforms, we will bump the minor version of this crate.
 | [x86_64-unknown-fuchsia]               | x86_64      | fuchsia    |            |
 | [x86_64-unknown-illumos]               | x86_64      | illumos    |            |
 | [x86_64-unknown-linux-gnuasan]         | x86_64      | linux      | gnu        |
+| [x86_64-unknown-linux-gnumsan]         | x86_64      | linux      | gnu        |
+| [x86_64-unknown-linux-gnutsan]         | x86_64      | linux      | gnu        |
 | [x86_64-unknown-linux-gnux32]          | x86_64      | linux      | gnu        |
 | [x86_64-unknown-linux-musl]            | x86_64      | linux      | musl       |
 | [x86_64-unknown-linux-ohos]            | x86_64      | linux      | ohos       |
@@ -691,6 +693,8 @@ If we remove platforms, we will bump the minor version of this crate.
 [x86_64-unknown-l4re-uclibc]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_L4RE_UCLIBC.html
 [x86_64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_GNU.html
 [x86_64-unknown-linux-gnuasan]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_GNUASAN.html
+[x86_64-unknown-linux-gnumsan]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_GNUMSAN.html
+[x86_64-unknown-linux-gnutsan]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_GNUTSAN.html
 [x86_64-unknown-linux-gnux32]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_GNUX32.html
 [x86_64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_MUSL.html
 [x86_64-unknown-linux-none]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_NONE.html
