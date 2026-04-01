@@ -249,6 +249,7 @@ impl Auditor {
         let (binary_type, report) =
             rustsec::binary_scanning::load_deps_from_binary(&file_contents, Option::None)?;
         self.presenter.binary_scan_report(&report, binary_path);
+        self.presenter.set_binary_contents(file_contents);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {
                 self.audit(&lockfile, Some(binary_path), Some(binary_type))
