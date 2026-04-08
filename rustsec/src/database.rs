@@ -146,6 +146,14 @@ impl Database {
         let mut vulns = vec![];
 
         for package in &lockfile.packages {
+            if package
+                .source
+                .as_ref()
+                .is_none_or(|source| !source.is_default_registry())
+            {
+                continue;
+            }
+
             let advisories = self.query(&query.clone().package(package));
 
             vulns.extend(
