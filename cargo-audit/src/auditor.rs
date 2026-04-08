@@ -38,6 +38,9 @@ pub struct Auditor {
     #[cfg(feature = "binary-scanning")]
     binary_size_limit: Option<u64>,
 
+    /// Binary scanning configuration (max auditable payload size)
+    #[cfg(feature = "binary-scanning")]
+    audit_data_size_limit: Option<usize>,
 }
 
 impl Auditor {
@@ -189,6 +192,8 @@ impl Auditor {
             report_settings: config.report_settings(),
             #[cfg(feature = "binary-scanning")]
             binary_size_limit: Some(DEFAULT_MAX_BINARY_SIZE),
+            #[cfg(feature = "binary-scanning")]
+            audit_data_size_limit: None,
         }
     }
 
@@ -261,8 +266,10 @@ impl Auditor {
     pub fn set_binary_scan_limits(
         &mut self,
         max_binary_size: Option<u64>,
+        audit_data_size_limit: Option<usize>,
     ) {
         self.binary_size_limit = Some(max_binary_size.unwrap_or(DEFAULT_MAX_BINARY_SIZE));
+        self.audit_data_size_limit = audit_data_size_limit.or(Some(8 * 1024 * 1024));
     }
 
     #[cfg(feature = "binary-scanning")]
@@ -270,7 +277,10 @@ impl Auditor {
     fn audit_binary(&mut self, binary_path: &Path) -> rustsec::Result<rustsec::Report> {
         use rustsec::binary_scanning::BinaryReport::*;
         let file_contents = self.read_binary_with_limit(binary_path)?;
-        let (binary_type, report) = rustsec::binary_scanning::load_deps_from_binary(&file_contents, Option::None)?;
+        let (binary_type, report) = rustsec::binary_scanning::load_deps_from_binary(
+            &file_contents,
+            self.audit_data_size_limit,
+        )?;
         self.presenter.binary_scan_report(&report, binary_path);
         match report {
             Complete(lockfile) | Incomplete(lockfile) => {

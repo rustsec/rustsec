@@ -37,7 +37,7 @@ pub struct BinCommand {
 impl Runnable for BinCommand {
     fn run(&self) {
         let mut auditor = self.auditor();
-        auditor.set_binary_scan_limits(self.max_binary_size);
+        auditor.set_binary_scan_limits(self.max_binary_size, self.audit_data_size_limit);
         let report = auditor.audit_binaries(&self.binary_paths);
         if report.vulnerabilities_found {
             exit(1)
