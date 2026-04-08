@@ -113,6 +113,10 @@ pub struct AuditCommand {
     )]
     ignore: Vec<String>,
 
+    /// Skip checking for yanked crates
+    #[arg(long = "no-yanked", help = "do not check for yanked crates")]
+    no_yanked: bool,
+
     /// Skip fetching the advisory database git repository
     #[arg(
         short = 'n',
@@ -249,6 +253,10 @@ impl Override<AuditConfig> for AuditCommand {
             config.output.format = OutputFormat::Json;
         } else if let Some(format) = self.output_format {
             config.output.format = format;
+        }
+
+        if self.no_yanked {
+            config.yanked.enabled = false;
         }
 
         Ok(config)
