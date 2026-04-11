@@ -9,10 +9,32 @@ use rustsec::binary_scanning::BinaryFormat;
 
 use std::{
     io::{self, Read},
-    path::Path,
+    path::{Path, PathBuf},
     process::exit,
     time::Duration,
 };
+
+/// Expand a leading `~/` or bare `~` in a path to the user's home directory.
+///
+/// Shell tilde expansion is not performed when paths are read from config
+/// files, so a user who writes `path = "~/.cargo/advisory-db"` in
+/// `audit.toml` would otherwise get a literal `~` directory created in their
+/// working directory. This helper makes such paths work as expected.
+fn expand_tilde(path: PathBuf) -> PathBuf {
+    let s = match path.to_str() {
+        Some(s) => s,
+        None => return path,
+    };
+    if s == "~" {
+        return home::home_dir().unwrap_or(path);
+    }
+    if let Some(rest) = s.strip_prefix("~/") {
+        if let Some(home) = home::home_dir() {
+            return home.join(rest);
+        }
+    }
+    path
+}
 
 // TODO: make configurable
 const DEFAULT_LOCK_TIMEOUT: Duration = Duration::from_secs(5 * 60);
@@ -58,6 +80,7 @@ impl Auditor {
             .path
             .as_ref()
             .cloned()
+            .map(expand_tilde)
             .unwrap_or_else(rustsec::repository::git::Repository::default_path);
 
         let database = if config.database.fetch {
