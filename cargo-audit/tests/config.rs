@@ -1,6 +1,6 @@
 //! Configuration file tests
 
-use std::{fs, path::Path};
+use std::fs;
 
 use cargo_audit::config::AuditConfig;
 use rustsec::platforms::{Arch, OS};
@@ -11,10 +11,9 @@ fn parse_audit_toml_example() {
     let toml_string = fs::read_to_string("audit.toml.example").unwrap();
     let config: AuditConfig = toml::from_str(&toml_string).unwrap();
 
-    assert_eq!(
-        config.database.path.unwrap(),
-        Path::new("~/.cargo/advisory-db")
-    );
+    // path is intentionally omitted from the example config to avoid tilde
+    // expansion issues (see https://github.com/rustsec/rustsec/issues/585)
+    assert!(config.database.path.is_none());
     assert_eq!(
         config.database.url.unwrap(),
         "https://github.com/RustSec/advisory-db.git"
