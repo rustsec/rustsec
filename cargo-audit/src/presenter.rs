@@ -173,12 +173,27 @@ impl Presenter {
 
         // Print out vulnerabilities and warnings
         for vulnerability in &report.vulnerabilities.list {
-            self.print_vulnerability(vulnerability, symbols.as_ref(), &tree);
+            self.print_vulnerability(vulnerability);
+            #[cfg(feature = "binary-scanning")]
+            if let Some(symbols) = &symbols {
+                let funcs = symbols.paths_from_vulnerability(vulnerability);
+                self.print_affected(Red, funcs);
+            }
+            self.print_tree(Red, &vulnerability.package, &tree);
+            println!();
         }
 
         for warnings in report.warnings.values() {
             for warning in warnings.iter() {
-                self.print_warning(warning, symbols.as_ref(), &tree)
+                let color = self.warning_color(self.deny_warning_kinds.contains(&warning.kind));
+                self.print_warning(warning, color);
+                #[cfg(feature = "binary-scanning")]
+                if let Some(symbols) = &symbols {
+                    let funcs = symbols.paths_from_warning(warning);
+                    self.print_affected(color, funcs);
+                }
+                self.print_tree(color, &warning.package, &tree);
+                println!();
             }
         }
 
@@ -301,12 +316,7 @@ impl Presenter {
     }
 
     /// Print information about the given vulnerability
-    fn print_vulnerability(
-        &mut self,
-        vulnerability: &Vulnerability,
-        symbols: Option<&SymbolSet>,
-        tree: &Tree,
-    ) {
+    fn print_vulnerability(&self, vulnerability: &Vulnerability) {
         self.print_attr(Red, "Crate:    ", &vulnerability.package.name);
         self.print_attr(Red, "Version:  ", vulnerability.package.version.to_string());
         self.print_metadata(&vulnerability.advisory, Red);
@@ -330,21 +340,10 @@ impl Presenter {
                 ),
             );
         }
-
-        #[cfg(feature = "binary-scanning")]
-        if let Some(symbols) = &symbols {
-            let funcs = symbols.paths_from_vulnerability(vulnerability);
-            self.print_affected(Red, funcs);
-        }
-
-        self.print_tree(Red, &vulnerability.package, tree);
-        println!();
     }
 
     /// Print information about a given warning
-    fn print_warning(&mut self, warning: &Warning, symbols: Option<&SymbolSet>, tree: &Tree) {
-        let color = self.warning_color(self.deny_warning_kinds.contains(&warning.kind));
-
+    fn print_warning(&self, warning: &Warning, color: Color) {
         self.print_attr(color, "Crate:    ", &warning.package.name);
         self.print_attr(color, "Version:  ", warning.package.version.to_string());
         self.print_attr(color, "Warning:  ", warning.kind.as_str());
@@ -352,15 +351,6 @@ impl Presenter {
         if let Some(metadata) = &warning.advisory {
             self.print_metadata(metadata, color)
         }
-
-        #[cfg(feature = "binary-scanning")]
-        if let Some(symbols) = &symbols {
-            let funcs = symbols.paths_from_warning(warning);
-            self.print_affected(color, funcs);
-        }
-
-        self.print_tree(color, &warning.package, tree);
-        println!();
     }
 
     /// Get the color to use when displaying warnings
