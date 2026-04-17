@@ -10,6 +10,12 @@
 Audit your dependencies for crates with security vulnerabilities reported to the
 [RustSec Advisory Database].
 
+## Related Experimental Tool
+
+If you want additional function-level reachability context, see
+[`reachsec`](https://github.com/xizheyin/reachsec), an experimental standalone
+companion to `cargo audit`.
+
 ## Requirements
 
 `cargo audit` requires Rust **1.74** or later.
