@@ -83,8 +83,12 @@ fn flatten_type_path(mut type_path: &TypePath) -> Vec<Ident> {
 fn function_path_matches_symbol(affected: &FunctionPath, symbol: &[Ident]) -> bool {
     let affected = affected
         .iter()
-        .map(|ident| remove_function_path_parameters(ident.as_str()))
+        .map(|ident| match ident.as_str().split_once('<') {
+            Some((path, _)) => path,
+            None => ident.as_str(),
+        })
         .collect::<Vec<_>>();
+
     match (symbol, affected.as_slice()) {
         ([], []) => true,
         ([ident], [affected]) => ident == affected,
@@ -101,13 +105,6 @@ fn function_path_matches_symbol(affected: &FunctionPath, symbol: &[Ident]) -> bo
                 && ident_last == affected_last
         }
         (_, _) => false,
-    }
-}
-
-fn remove_function_path_parameters(ident: &str) -> &str {
-    match ident.split_once('<') {
-        Some((path, _)) => path,
-        None => ident,
     }
 }
 
