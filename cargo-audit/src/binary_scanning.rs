@@ -13,13 +13,13 @@ impl SymbolSet {
     pub(crate) fn from_file<'a>(
         contents: &[u8],
         vulnerable_crates: impl Iterator<Item = &'a Package>,
-    ) -> Option<Self> {
+    ) -> Result<Self, object::read::Error> {
         let crate_names = vulnerable_crates
             .map(|c| c.name.as_str().replace('-', "_"))
             .collect::<HashSet<_>>();
 
-        let file = File::parse(contents).ok()?;
-        Some(Self(
+        let file = File::parse(contents)?;
+        Ok(Self(
             file.symbols()
                 .filter_map(|sym| {
                     let name = sym.name().ok()?;
