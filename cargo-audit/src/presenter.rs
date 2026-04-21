@@ -423,7 +423,7 @@ impl Presenter {
             return;
         }
 
-        if !self.config.show_tree.unwrap_or(true) {
+        if !self.config.show_tree {
             return;
         }
 
