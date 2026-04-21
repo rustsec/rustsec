@@ -105,12 +105,10 @@ fn function_path_matches_symbol(affected: &FunctionPath, symbol: &[Ident]) -> bo
 }
 
 fn remove_function_path_parameters(ident: &str) -> &str {
-    ident
-        .as_bytes()
-        .iter()
-        .position(|&x| x == b'<')
-        .map(|n| &ident[..n])
-        .unwrap_or(ident)
+    match ident.split_once('<') {
+        Some((path, _)) => path,
+        None => ident,
+    }
 }
 
 fn is_subsequence(function_path: &[&str], symbol: &[Ident]) -> bool {
