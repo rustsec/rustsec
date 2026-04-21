@@ -145,15 +145,28 @@ impl Presenter {
             .expect("invalid Cargo.lock dependency tree");
 
         #[cfg(feature = "binary-scanning")]
-        let symbols = self.binary_contents.as_deref().and_then(|binary_contents| {
-            let packages = report
-                .vulnerabilities
-                .list
-                .iter()
-                .map(|v| &v.package)
-                .chain(report.warnings.values().flatten().map(|w| &w.package));
-            SymbolSet::from_file(binary_contents, packages)
-        });
+        let symbols = match &self.binary_contents {
+            Some(binary_contents) => {
+                let packages = report
+                    .vulnerabilities
+                    .list
+                    .iter()
+                    .map(|v| &v.package)
+                    .chain(report.warnings.values().flatten().map(|w| &w.package));
+
+                match SymbolSet::from_file(binary_contents, packages) {
+                    Ok(symbols) => Some(symbols),
+                    Err(e) => {
+                        status_warn!(
+                            "Failed to extract symbols from binary for affected-function analysis: {}",
+                            e
+                        );
+                        None
+                    }
+                }
+            }
+            None => None,
+        };
 
         // NOTE: when modifying the following logic, be sure to also update should_exit_with_failure()
 
