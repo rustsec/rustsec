@@ -461,7 +461,7 @@ mod tests {
         let binary_path = Path::new("tests/support/binaries/binary-with-affected-functions");
 
         // Run `cargo audit bin...` on the binary and read its stdout.
-        let mut cmd = cmd_runner();
+        let mut cmd = RUNNER.clone();
         let mut process = cmd.arg(binary_path).capture_stdout().capture_stderr().run();
         let reports = read_process_stdout(&mut process);
 
@@ -545,10 +545,6 @@ mod tests {
         ("RUSTSEC-2025-0140", &["gix_date::parse::TimeBuf::as_str"]),
         ("RUSTSEC-2026-0097", &["rand::rng"]),
     ];
-
-    fn cmd_runner() -> CmdRunner {
-        RUNNER.clone()
-    }
 
     static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
         let mut runner = CmdRunner::default();
