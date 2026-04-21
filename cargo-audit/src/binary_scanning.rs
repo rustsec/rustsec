@@ -19,18 +19,19 @@ impl SymbolSet {
             .collect::<HashSet<_>>();
 
         let file = File::parse(contents).ok()?;
-        // `parse_str::<TypePath>` is expensive. The filter on `crate_names`
-        // eliminates symbols that we know would be irrelevant.
         Some(Self(
             file.symbols()
                 .filter_map(|sym| {
                     let name = sym.name().ok()?;
+                    // `parse_str::<TypePath>` is expensive. The filter on `crate_names`
+                    // eliminates symbols that we know would be irrelevant.
                     if !crate_names
                         .iter()
                         .any(|crate_name| name.contains(crate_name.as_str()))
                     {
                         return None;
                     }
+
                     let name = format!("{:#}", demangle(name));
                     let type_path = parse_str::<TypePath>(&name).ok()?;
                     Some(flatten_type_path(&type_path))
