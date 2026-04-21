@@ -6,7 +6,7 @@ use rustc_demangle::demangle;
 use rustsec::advisory::affected::FunctionPath;
 use syn::{Ident, Type, TypePath, parse_str};
 
-pub(crate) struct SymbolSet(HashSet<Vec<Ident>>);
+pub(crate) struct SymbolSet(Vec<Vec<Ident>>);
 
 impl SymbolSet {
     /// Extract and demangle all symbols from a binary.
@@ -19,7 +19,7 @@ impl SymbolSet {
             .collect::<HashSet<_>>();
 
         let file = File::parse(contents)?;
-        let mut symbols = HashSet::default();
+        let mut symbols = Vec::new();
         for symbol in file.symbols() {
             let Ok(name) = symbol.name() else {
                 continue;
@@ -36,10 +36,12 @@ impl SymbolSet {
 
             let name = format!("{:#}", demangle(name));
             if let Ok(type_path) = parse_str::<TypePath>(&name) {
-                symbols.insert(flatten_type_path(&type_path));
+                symbols.push(flatten_type_path(&type_path));
             }
         }
 
+        symbols.sort();
+        symbols.dedup();
         Ok(Self(symbols))
     }
 
