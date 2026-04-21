@@ -158,7 +158,8 @@ pub struct OutputConfig {
     pub quiet: bool,
 
     /// Show inverse dependency trees along with advisories (default: true)
-    pub show_tree: Option<bool>,
+    #[serde(default = "default_show_tree")]
+    pub show_tree: bool,
 }
 
 impl OutputConfig {
@@ -166,6 +167,10 @@ impl OutputConfig {
     pub fn is_quiet(&self) -> bool {
         self.quiet || self.format == OutputFormat::Json || self.format == OutputFormat::Sarif
     }
+}
+
+fn default_show_tree() -> bool {
+    true
 }
 
 /// Warning kinds
