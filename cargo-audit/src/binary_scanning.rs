@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 
+use cargo_lock::Package;
 use object::{File, Object, ObjectSymbol};
 use rustc_demangle::demangle;
 use rustsec::{Vulnerability, Warning, advisory::affected::FunctionPath};
@@ -9,7 +10,14 @@ pub(crate) struct SymbolSet(HashSet<Vec<Ident>>);
 
 impl SymbolSet {
     /// Extract and demangle all symbols from a binary.
-    pub(crate) fn from_file(contents: &[u8], crate_names: &HashSet<String>) -> Option<Self> {
+    pub(crate) fn from_file<'a>(
+        contents: &[u8],
+        vulnerable_crates: impl Iterator<Item = &'a Package>,
+    ) -> Option<Self> {
+        let crate_names = vulnerable_crates
+            .map(|c| c.name.as_str().replace('-', "_"))
+            .collect::<HashSet<_>>();
+
         let file = File::parse(contents).ok()?;
         // `parse_str::<TypePath>` is expensive. The filter on `crate_names`
         // eliminates symbols that we know would be irrelevant.
