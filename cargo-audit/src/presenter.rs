@@ -5,10 +5,6 @@ use std::iter::empty;
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
-use crate::{
-    config::{DenyOption, OutputConfig, OutputFormat},
-    prelude::*,
-};
 use abscissa_core::terminal::{
     self,
     Color::{self, Red, Yellow},
@@ -21,12 +17,15 @@ use rustsec::{
         dependency::{Dependency, Tree, graph::EdgeDirection},
     },
 };
+#[cfg(feature = "binary-scanning")]
+use rustsec::{advisory::affected::FunctionPath, binary_scanning::BinaryReport};
 
 #[cfg(feature = "binary-scanning")]
 use crate::binary_scanning::SymbolSet;
-
-#[cfg(feature = "binary-scanning")]
-use rustsec::{advisory::affected::FunctionPath, binary_scanning::BinaryReport};
+use crate::{
+    config::{DenyOption, OutputConfig, OutputFormat},
+    prelude::*,
+};
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
