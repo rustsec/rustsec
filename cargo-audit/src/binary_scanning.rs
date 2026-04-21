@@ -69,11 +69,14 @@ fn flatten_type_path(mut type_path: &TypePath) -> Vec<Ident> {
             break;
         }
     }
+
     while let Some(type_path) = stack.pop() {
         for segment in &type_path.path.segments {
+            // Discard any generic parameters.
             idents.push(segment.ident.clone());
         }
     }
+
     idents
 }
 
