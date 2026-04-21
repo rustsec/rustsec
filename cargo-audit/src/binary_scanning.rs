@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use cargo_lock::Package;
 use object::{File, Object, ObjectSymbol};
 use rustc_demangle::demangle;
-use rustsec::{Vulnerability, Warning, advisory::affected::FunctionPath};
+use rustsec::advisory::affected::FunctionPath;
 use syn::{Ident, Type, TypePath, parse_str};
 
 pub(crate) struct SymbolSet(HashSet<Vec<Ident>>);
@@ -43,39 +43,7 @@ impl SymbolSet {
         Ok(Self(symbols))
     }
 
-    /// Return the affected function paths that appear in the binary's symbol table based on a vulnerability.
-    pub(crate) fn paths_from_vulnerability(
-        &self,
-        vulnerability: &Vulnerability,
-    ) -> impl Iterator<Item = FunctionPath> {
-        self.filter(vulnerability.affected_functions().unwrap_or_default())
-    }
-
-    /// Return the affected function paths that appear in the binary's symbol table based on a warning.
-    pub(crate) fn paths_from_warning(
-        &self,
-        warning: &Warning,
-    ) -> impl Iterator<Item = FunctionPath> {
-        self.filter(
-            warning
-                .affected
-                .as_ref()
-                .map(|affected| affected.functions.iter())
-                .unwrap_or_default()
-                .filter_map(|(path, version_reqs)| {
-                    if version_reqs
-                        .iter()
-                        .any(|req| req.matches(&warning.package.version))
-                    {
-                        Some(path.clone())
-                    } else {
-                        None
-                    }
-                }),
-        )
-    }
-
-    fn filter(
+    pub(crate) fn filter(
         &self,
         affected: impl IntoIterator<Item = FunctionPath>,
     ) -> impl Iterator<Item = FunctionPath> {
