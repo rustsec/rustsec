@@ -48,15 +48,15 @@ impl SymbolSet {
         affected: impl IntoIterator<Item = FunctionPath>,
     ) -> impl Iterator<Item = FunctionPath> {
         affected.into_iter().filter(|affected| {
-            self.0.iter().any(|symbol| {
-                let affected = affected
-                    .iter()
-                    .map(|ident| match ident.as_str().split_once('<') {
-                        Some((path, _)) => path,
-                        None => ident.as_str(),
-                    })
-                    .collect::<Vec<_>>();
+            let affected = affected
+                .iter()
+                .map(|ident| match ident.as_str().split_once('<') {
+                    Some((path, _)) => path,
+                    None => ident.as_str(),
+                })
+                .collect::<Vec<_>>();
 
+            self.0.iter().any(|symbol| {
                 match (symbol.as_slice(), affected.as_slice()) {
                     ([], []) => true,
                     ([ident], [affected]) => ident == affected,
