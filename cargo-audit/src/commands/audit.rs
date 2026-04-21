@@ -247,6 +247,9 @@ impl Override<AuditConfig> for AuditCommand {
         }
 
         config.output.quiet |= self.quiet;
+        if self.quiet {
+            config.output.show_tree = false;
+        }
 
         // Handle output format (--json flag takes precedence for backward compatibility)
         if self.output_json {
