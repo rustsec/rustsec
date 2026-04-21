@@ -48,9 +48,33 @@ impl SymbolSet {
         affected: impl IntoIterator<Item = FunctionPath>,
     ) -> impl Iterator<Item = FunctionPath> {
         affected.into_iter().filter(|affected| {
-            self.0
-                .iter()
-                .any(|symbol| function_path_matches_symbol(affected, symbol))
+            self.0.iter().any(|symbol| {
+                let affected = affected
+                    .iter()
+                    .map(|ident| match ident.as_str().split_once('<') {
+                        Some((path, _)) => path,
+                        None => ident.as_str(),
+                    })
+                    .collect::<Vec<_>>();
+
+                match (symbol.as_slice(), affected.as_slice()) {
+                    ([], []) => true,
+                    ([ident], [affected]) => ident == affected,
+                    (
+                        [ident_first, ident_middle @ .., ident_last],
+                        [affected_first, affected_middle @ .., affected_last],
+                    ) => {
+                        // First segments must match (crate name).
+                        ident_first == affected_first
+                            // In between the first and last segments, the function path segments must
+                            // be a subsequence of the symbol segments.
+                            && is_subsequence(affected_middle, ident_middle)
+                            // Last segments must match (function name).
+                            && ident_last == affected_last
+                    }
+                    (_, _) => false,
+                }
+            })
         })
     }
 }
@@ -78,34 +102,6 @@ fn flatten_type_path(mut type_path: &TypePath) -> Vec<Ident> {
     }
 
     idents
-}
-
-fn function_path_matches_symbol(affected: &FunctionPath, symbol: &[Ident]) -> bool {
-    let affected = affected
-        .iter()
-        .map(|ident| match ident.as_str().split_once('<') {
-            Some((path, _)) => path,
-            None => ident.as_str(),
-        })
-        .collect::<Vec<_>>();
-
-    match (symbol, affected.as_slice()) {
-        ([], []) => true,
-        ([ident], [affected]) => ident == affected,
-        (
-            [ident_first, ident_middle @ .., ident_last],
-            [affected_first, affected_middle @ .., affected_last],
-        ) => {
-            // First segments must match (crate name).
-            ident_first == affected_first
-                // In between the first and last segments, the function path segments must
-                // be a subsequence of the symbol segments.
-                && is_subsequence(affected_middle, ident_middle)
-                // Last segments must match (function name).
-                && ident_last == affected_last
-        }
-        (_, _) => false,
-    }
 }
 
 fn is_subsequence(function_path: &[&str], symbol: &[Ident]) -> bool {
