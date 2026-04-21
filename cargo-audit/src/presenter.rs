@@ -173,11 +173,15 @@ impl Presenter {
         // Print out vulnerabilities and warnings
         for vulnerability in &report.vulnerabilities.list {
             self.print_vulnerability(vulnerability);
+
             #[cfg(feature = "binary-scanning")]
             if let Some(symbols) = &symbols {
-                let funcs = symbols.paths_from_vulnerability(vulnerability);
-                self.print_affected(Red, funcs);
+                self.print_affected(
+                    Red,
+                    symbols.filter(vulnerability.affected_functions().unwrap_or_default()),
+                );
             }
+
             self.print_tree(Red, &vulnerability.package, &tree);
             println!();
         }
@@ -186,11 +190,31 @@ impl Presenter {
             for warning in warnings.iter() {
                 let color = self.warning_color(self.deny_warning_kinds.contains(&warning.kind));
                 self.print_warning(warning, color);
+
                 #[cfg(feature = "binary-scanning")]
                 if let Some(symbols) = &symbols {
-                    let funcs = symbols.paths_from_warning(warning);
-                    self.print_affected(color, funcs);
+                    self.print_affected(
+                        color,
+                        symbols.filter(
+                            warning
+                                .affected
+                                .as_ref()
+                                .map(|affected| affected.functions.iter())
+                                .unwrap_or_default()
+                                .filter_map(|(path, version_reqs)| {
+                                    if version_reqs
+                                        .iter()
+                                        .any(|req| req.matches(&warning.package.version))
+                                    {
+                                        Some(path.clone())
+                                    } else {
+                                        None
+                                    }
+                                }),
+                        ),
+                    );
                 }
+
                 self.print_tree(color, &warning.package, &tree);
                 println!();
             }
