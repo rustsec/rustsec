@@ -1,7 +1,5 @@
 //! Presenter for `rustsec::Report` information.
 
-#[cfg(feature = "binary-scanning")]
-use std::iter::empty;
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
@@ -148,24 +146,13 @@ impl Presenter {
 
         #[cfg(feature = "binary-scanning")]
         let symbols = self.binary_contents.as_deref().and_then(|binary_contents| {
-            let crate_names = empty()
-                .chain(
-                    report
-                        .vulnerabilities
-                        .list
-                        .iter()
-                        .map(|v| v.package.name.as_str()),
-                )
-                .chain(
-                    report
-                        .warnings
-                        .values()
-                        .flatten()
-                        .map(|w| w.package.name.as_str()),
-                )
-                .map(|name| name.replace('-', "_"))
-                .collect();
-            SymbolSet::from_file(binary_contents, &crate_names)
+            let packages = report
+                .vulnerabilities
+                .list
+                .iter()
+                .map(|v| &v.package)
+                .chain(report.warnings.values().flatten().map(|w| &w.package));
+            SymbolSet::from_file(binary_contents, packages)
         });
 
         // NOTE: when modifying the following logic, be sure to also update should_exit_with_failure()
