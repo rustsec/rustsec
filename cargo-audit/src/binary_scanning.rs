@@ -19,25 +19,28 @@ impl SymbolSet {
             .collect::<HashSet<_>>();
 
         let file = File::parse(contents)?;
-        Ok(Self(
-            file.symbols()
-                .filter_map(|sym| {
-                    let name = sym.name().ok()?;
-                    // `parse_str::<TypePath>` is expensive. The filter on `crate_names`
-                    // eliminates symbols that we know would be irrelevant.
-                    if !crate_names
-                        .iter()
-                        .any(|crate_name| name.contains(crate_name.as_str()))
-                    {
-                        return None;
-                    }
+        let mut symbols = HashSet::default();
+        for symbol in file.symbols() {
+            let Ok(name) = symbol.name() else {
+                continue;
+            };
 
-                    let name = format!("{:#}", demangle(name));
-                    let type_path = parse_str::<TypePath>(&name).ok()?;
-                    Some(flatten_type_path(&type_path))
-                })
-                .collect(),
-        ))
+            // `parse_str::<TypePath>` is expensive. The filter on `crate_names`
+            // eliminates symbols that we know would be irrelevant.
+            if !crate_names
+                .iter()
+                .any(|crate_name| name.contains(crate_name.as_str()))
+            {
+                continue;
+            }
+
+            let name = format!("{:#}", demangle(name));
+            if let Ok(type_path) = parse_str::<TypePath>(&name) {
+                symbols.insert(flatten_type_path(&type_path));
+            }
+        }
+
+        Ok(Self(symbols))
     }
 
     /// Return the affected function paths that appear in the binary's symbol table based on a vulnerability.
