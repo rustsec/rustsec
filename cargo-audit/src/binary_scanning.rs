@@ -60,7 +60,6 @@ impl SymbolSet {
 
             self.0.iter().any(|symbol| {
                 match (symbol.as_slice(), affected.as_slice()) {
-                    ([], []) => true,
                     ([ident], [affected]) => ident == affected,
                     (
                         [ident_first, ident_middle @ .., ident_last],
