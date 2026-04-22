@@ -1,14 +1,8 @@
 //! Presenter for `rustsec::Report` information.
 
-#[cfg(feature = "binary-scanning")]
-use std::iter::empty;
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
-use crate::{
-    config::{DenyOption, OutputConfig, OutputFormat},
-    prelude::*,
-};
 use abscissa_core::terminal::{
     self,
     Color::{self, Red, Yellow},
@@ -21,12 +15,15 @@ use rustsec::{
         dependency::{Dependency, Tree, graph::EdgeDirection},
     },
 };
+#[cfg(feature = "binary-scanning")]
+use rustsec::{advisory::affected::FunctionPath, binary_scanning::BinaryReport};
 
 #[cfg(feature = "binary-scanning")]
 use crate::binary_scanning::SymbolSet;
-
-#[cfg(feature = "binary-scanning")]
-use rustsec::{advisory::affected::FunctionPath, binary_scanning::BinaryReport};
+use crate::{
+    config::{DenyOption, OutputConfig, OutputFormat},
+    prelude::*,
+};
 
 /// Vulnerability information presenter
 #[derive(Clone, Debug)]
@@ -148,37 +145,43 @@ impl Presenter {
             .expect("invalid Cargo.lock dependency tree");
 
         #[cfg(feature = "binary-scanning")]
-        let symbols = self.binary_contents.as_deref().and_then(|binary_contents| {
-            let crate_names = empty()
-                .chain(
-                    report
-                        .vulnerabilities
-                        .list
-                        .iter()
-                        .map(|v| v.package.name.as_str()),
-                )
-                .chain(
-                    report
-                        .warnings
-                        .values()
-                        .flatten()
-                        .map(|w| w.package.name.as_str()),
-                )
-                .map(|name| name.replace('-', "_"))
-                .collect();
-            SymbolSet::from_file(binary_contents, &crate_names)
-        });
+        let symbols = match &self.binary_contents {
+            Some(binary_contents) => {
+                let packages = report
+                    .vulnerabilities
+                    .list
+                    .iter()
+                    .map(|v| &v.package)
+                    .chain(report.warnings.values().flatten().map(|w| &w.package));
+
+                match SymbolSet::from_file(binary_contents, packages) {
+                    Ok(symbols) => Some(symbols),
+                    Err(e) => {
+                        status_warn!(
+                            "Failed to extract symbols from binary for affected-function analysis: {}",
+                            e
+                        );
+                        None
+                    }
+                }
+            }
+            None => None,
+        };
 
         // NOTE: when modifying the following logic, be sure to also update should_exit_with_failure()
 
         // Print out vulnerabilities and warnings
         for vulnerability in &report.vulnerabilities.list {
             self.print_vulnerability(vulnerability);
+
             #[cfg(feature = "binary-scanning")]
             if let Some(symbols) = &symbols {
-                let funcs = symbols.paths_from_vulnerability(vulnerability);
-                self.print_affected(Red, funcs);
+                self.print_affected(
+                    Red,
+                    symbols.filter(vulnerability.affected_functions().unwrap_or_default()),
+                );
             }
+
             self.print_tree(Red, &vulnerability.package, &tree);
             println!();
         }
@@ -187,11 +190,31 @@ impl Presenter {
             for warning in warnings.iter() {
                 let color = self.warning_color(self.deny_warning_kinds.contains(&warning.kind));
                 self.print_warning(warning, color);
+
                 #[cfg(feature = "binary-scanning")]
                 if let Some(symbols) = &symbols {
-                    let funcs = symbols.paths_from_warning(warning);
-                    self.print_affected(color, funcs);
+                    self.print_affected(
+                        color,
+                        symbols.filter(
+                            warning
+                                .affected
+                                .as_ref()
+                                .map(|affected| affected.functions.iter())
+                                .unwrap_or_default()
+                                .filter_map(|(path, version_reqs)| {
+                                    if version_reqs
+                                        .iter()
+                                        .any(|req| req.matches(&warning.package.version))
+                                    {
+                                        Some(path.clone())
+                                    } else {
+                                        None
+                                    }
+                                }),
+                        ),
+                    );
                 }
+
                 self.print_tree(color, &warning.package, &tree);
                 println!();
             }
@@ -457,54 +480,12 @@ mod tests {
     };
     use tempfile::TempDir;
 
-    #[rustfmt::skip]
-    const EXPECTED_FUNCTION_PATHS: &[(&str, &[&str])] = &[
-        ("RUSTSEC-2019-0036", &["failure::Fail::__private_get_type_id__"]),
-        ("RUSTSEC-2020-0071", &["time::OffsetDateTime::now_local", "time::OffsetDateTime::try_now_local", "time::UtcOffset::current_local_offset", "time::UtcOffset::local_offset_at", "time::UtcOffset::try_current_local_offset", "time::UtcOffset::try_local_offset_at"]),
-        ("RUSTSEC-2020-0075", &["branca::Branca::decode", "branca::decode"]),
-        ("RUSTSEC-2021-0041", &["parse_duration::parse"]),
-        ("RUSTSEC-2022-0004", &["rustc_serialize::json::Json::from_str"]),
-        ("RUSTSEC-2022-0067", &["lzf::compress", "lzf::decompress"]),
-        ("RUSTSEC-2023-0032", &["ntru::types::PrivateKey::export", "ntru::types::PublicKey::export"]),
-        ("RUSTSEC-2023-0054", &["mail_internals::utils::vec_insert_bytes"]),
-        ("RUSTSEC-2024-0018", &["crayon::utils::object_pool::ObjectPool<H,T>::free"]),
-        ("RUSTSEC-2024-0020", &["whoami::realname", "whoami::realname_os", "whoami::username", "whoami::username_os"]),
-        ("RUSTSEC-2024-0360", &["xmp_toolkit::XmpFile::close"]),
-        ("RUSTSEC-2024-0401", &["zlib_rs::inflate::inflate"]),
-        ("RUSTSEC-2024-0404", &["anstream::adapter::strip_str"]),
-        ("RUSTSEC-2024-0442", &["wasmtime_jit_debug::perf_jitdump::JitDumpFile::dump_code_load_record"]),
-        ("RUSTSEC-2025-0027", &["mp3_metadata::read_from_slice"]),
-        ("RUSTSEC-2025-0113", &["shaman::cryptoutil::read_u32v_be", "shaman::cryptoutil::read_u32v_le", "shaman::cryptoutil::read_u64v_be", "shaman::cryptoutil::read_u64v_le", "shaman::cryptoutil::write_u32v_le", "shaman::cryptoutil::write_u64v_le"]),
-        ("RUSTSEC-2025-0131", &["rtvm_interpreter::Interpreter::program_counter"]),
-        ("RUSTSEC-2025-0136", &["sequoia_openpgp::crypto::ecdh::aes_key_unwrap"]),
-        ("RUSTSEC-2025-0137", &["ruint::algorithms::div::reciprocal_mg10"]),
-        ("RUSTSEC-2025-0140", &["gix_date::parse::TimeBuf::as_str"]),
-        ("RUSTSEC-2026-0097", &["rand::rng"]),
-    ];
-
-    static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
-
-    static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
-        let mut runner = CmdRunner::default();
-        runner
-            .arg("audit")
-            .arg("--color=never")
-            .arg("--db")
-            .arg(ADVISORY_DB_DIR.path())
-            .arg("bin");
-        runner
-    });
-
-    fn cmd_runner() -> CmdRunner {
-        RUNNER.clone()
-    }
-
     #[test]
     fn affected_functions() {
         let binary_path = Path::new("tests/support/binaries/binary-with-affected-functions");
 
         // Run `cargo audit bin...` on the binary and read its stdout.
-        let mut cmd = cmd_runner();
+        let mut cmd = RUNNER.clone();
         let mut process = cmd.arg(binary_path).capture_stdout().capture_stderr().run();
         let reports = read_process_stdout(&mut process);
 
@@ -563,4 +544,42 @@ mod tests {
         }
         reports
     }
+
+    #[rustfmt::skip]
+    const EXPECTED_FUNCTION_PATHS: &[(&str, &[&str])] = &[
+        ("RUSTSEC-2019-0036", &["failure::Fail::__private_get_type_id__"]),
+        ("RUSTSEC-2020-0071", &["time::OffsetDateTime::now_local", "time::OffsetDateTime::try_now_local", "time::UtcOffset::current_local_offset", "time::UtcOffset::local_offset_at", "time::UtcOffset::try_current_local_offset", "time::UtcOffset::try_local_offset_at"]),
+        ("RUSTSEC-2020-0075", &["branca::Branca::decode", "branca::decode"]),
+        ("RUSTSEC-2021-0041", &["parse_duration::parse"]),
+        ("RUSTSEC-2022-0004", &["rustc_serialize::json::Json::from_str"]),
+        ("RUSTSEC-2022-0067", &["lzf::compress", "lzf::decompress"]),
+        ("RUSTSEC-2023-0032", &["ntru::types::PrivateKey::export", "ntru::types::PublicKey::export"]),
+        ("RUSTSEC-2023-0054", &["mail_internals::utils::vec_insert_bytes"]),
+        ("RUSTSEC-2024-0018", &["crayon::utils::object_pool::ObjectPool<H,T>::free"]),
+        ("RUSTSEC-2024-0020", &["whoami::realname", "whoami::realname_os", "whoami::username", "whoami::username_os"]),
+        ("RUSTSEC-2024-0360", &["xmp_toolkit::XmpFile::close"]),
+        ("RUSTSEC-2024-0401", &["zlib_rs::inflate::inflate"]),
+        ("RUSTSEC-2024-0404", &["anstream::adapter::strip_str"]),
+        ("RUSTSEC-2024-0442", &["wasmtime_jit_debug::perf_jitdump::JitDumpFile::dump_code_load_record"]),
+        ("RUSTSEC-2025-0027", &["mp3_metadata::read_from_slice"]),
+        ("RUSTSEC-2025-0113", &["shaman::cryptoutil::read_u32v_be", "shaman::cryptoutil::read_u32v_le", "shaman::cryptoutil::read_u64v_be", "shaman::cryptoutil::read_u64v_le", "shaman::cryptoutil::write_u32v_le", "shaman::cryptoutil::write_u64v_le"]),
+        ("RUSTSEC-2025-0131", &["rtvm_interpreter::Interpreter::program_counter"]),
+        ("RUSTSEC-2025-0136", &["sequoia_openpgp::crypto::ecdh::aes_key_unwrap"]),
+        ("RUSTSEC-2025-0137", &["ruint::algorithms::div::reciprocal_mg10"]),
+        ("RUSTSEC-2025-0140", &["gix_date::parse::TimeBuf::as_str"]),
+        ("RUSTSEC-2026-0097", &["rand::rng"]),
+    ];
+
+    static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
+        let mut runner = CmdRunner::default();
+        runner
+            .arg("audit")
+            .arg("--color=never")
+            .arg("--db")
+            .arg(ADVISORY_DB_DIR.path())
+            .arg("bin");
+        runner
+    });
+
+    static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 }
