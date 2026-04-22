@@ -118,3 +118,39 @@ fn is_subsequence(function_path: &[&str], symbol: &[Ident]) -> bool {
     }
     true
 }
+
+#[cfg(test)]
+mod tests {
+    use std::{str::FromStr, vec};
+
+    use cargo_lock::Name;
+    use rustsec::Version;
+
+    use super::*;
+
+    // Test case based on https://rustsec.org/advisories/RUSTSEC-2024-0360
+    #[test]
+    fn filter() {
+        let package = Package {
+            name: Name::from_str("xmp_toolkit").unwrap(),
+            version: Version::from_str("0.1.0").unwrap(),
+            source: None,
+            replace: None,
+            checksum: None,
+            dependencies: Vec::new(),
+        };
+
+        let set = SymbolSet::from_file(
+            include_bytes!("../tests/support/binaries/binary-with-affected-functions"),
+            [&package].into_iter(),
+        )
+        .unwrap();
+
+        let affected = vec![FunctionPath::from_str("xmp_toolkit::XmpFile::close").unwrap()];
+        let filtered = set.filter(affected).collect::<Vec<_>>();
+        assert_eq!(
+            filtered,
+            vec![FunctionPath::from_str("xmp_toolkit::XmpFile::close").unwrap()]
+        );
+    }
+}
