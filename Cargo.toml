@@ -26,7 +26,7 @@ comrak = { version = "0.52", default-features = false }
 cvss = { version = "2.2", path = "./cvss" }
 display-error-chain = "0.2.0"
 fs-err = "3"
-gix = { version = "0.81", default-features = false, features = ["sha1"] }
+gix = { version = "0.83", default-features = false, features = ["sha1"] }
 gumdrop = "0.8"
 home = "0.5"
 object = { version = "0.39", default-features = false, features = ["read", "wasm"] }
