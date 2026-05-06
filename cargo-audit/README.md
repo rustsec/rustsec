@@ -27,7 +27,7 @@ companion to `cargo audit`.
 `cargo audit` is a Cargo subcommand and can be installed with `cargo install`:
 
 ```
-$ cargo install cargo-audit --locked
+$ cargo install cargo-audit
 ```
 
 Once installed, run `cargo audit` at the toplevel of any Cargo project.
@@ -68,7 +68,7 @@ to fix vulnerable dependency requirements.
 To enable it, install `cargo audit` with the `fix` feature enabled:
 
 ```
-$ cargo install cargo-audit --locked --features=fix
+$ cargo install cargo-audit --features=fix
 ```
 
 Once installed, run `cargo audit fix` to automatically fix vulnerable
@@ -123,7 +123,7 @@ To automatically run `cargo audit` on every build in Travis CI, you can add the 
 language: rust
 cache: cargo # cache cargo-audit once installed
 before_script:
-  - cargo install --force --locked cargo-audit
+  - cargo install --force cargo-audit
   - cargo generate-lockfile
 script:
   - cargo audit

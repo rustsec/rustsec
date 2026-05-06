@@ -258,7 +258,7 @@ impl Presenter {
         }
         // Print out any self-advisories
         let msg = "This copy of cargo-audit has known advisories! Upgrade cargo-audit to the \
-        latest version: cargo install --force cargo-audit --locked";
+        latest version: cargo install --force cargo-audit";
 
         if self.config.deny.contains(&DenyOption::Warnings) {
             status_err!(msg);
