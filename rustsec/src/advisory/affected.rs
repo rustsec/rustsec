@@ -176,7 +176,7 @@ fn validate_identifier(identifier: &str) -> Result<(), Error> {
             ),
             _ => fail!(
                 ErrorKind::Parse,
-                "invalid character in identifier: '{}'",
+                "invalid character {c:?} in identifier: '{}'",
                 identifier
             ),
         }
