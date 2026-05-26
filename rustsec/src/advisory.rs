@@ -144,6 +144,11 @@ impl FromStr for Advisory {
             advisory.metadata.description = parts.description.to_owned();
         }
 
+        // Default to normalized package name (see #1575)
+        if advisory.metadata.crate_name.is_empty() {
+            advisory.metadata.crate_name = advisory.metadata.package.as_str().replace("-", "_");
+        }
+
         Ok(advisory)
     }
 }
