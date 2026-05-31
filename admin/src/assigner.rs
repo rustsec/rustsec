@@ -153,7 +153,7 @@ fn assign_ids_across_directory(
             let mut writer = LineWriter::new(new_file);
             for line in reader.lines() {
                 let current_line = line.unwrap();
-                if current_line.contains("id = ") {
+                if is_id_line(&current_line) {
                     writer
                         .write_all(format!("id = \"{string_id}\"\n").as_ref())
                         .unwrap();
@@ -172,5 +172,35 @@ fn assign_ids_across_directory(
                 assignments.push(format!("{string_id} to {dir_name}"))
             }
         }
+    }
+}
+
+/// Returns true if `line` is a top-level `id = ` assignment, i.e. the front
+/// matter's `id` field that the assigner overwrites with the freshly allocated
+/// RustSec id.
+///
+/// The `id` field is written at the start of the line, so anchoring the check
+/// avoids rewriting unrelated lines that merely contain the substring `id = `,
+/// such as an indented `let mut grid = ...` in an advisory's example code
+/// (#1602).
+fn is_id_line(line: &str) -> bool {
+    line.starts_with("id = ")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::is_id_line;
+
+    #[test]
+    fn matches_the_id_field() {
+        assert!(is_id_line(r#"id = "RUSTSEC-0000-0000""#));
+    }
+
+    #[test]
+    fn ignores_lines_that_only_contain_the_substring() {
+        // Regression for #1602: these were rewritten into the advisory id,
+        // corrupting example code in the advisory body.
+        assert!(!is_id_line("    let mut grid = vec![];"));
+        assert!(!is_id_line("let valid = true;"));
     }
 }
