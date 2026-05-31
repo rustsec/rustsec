@@ -6,6 +6,10 @@ use std::{
     fmt::{self, Display},
     str::FromStr,
 };
+use time::{
+    Date as TimeDate,
+    format_description::well_known::Iso8601,
+};
 
 /// Minimum allowed year on advisory dates
 pub(crate) const YEAR_MIN: u32 = 2000;
@@ -64,7 +68,20 @@ impl FromStr for Date {
 
     /// Create a `Date` from the given RFC 3339 date string
     fn from_str(rfc3339_date: &str) -> Result<Self, Error> {
-        validate_date(rfc3339_date)?;
+        let date = TimeDate::parse(rfc3339_date, &Iso8601::DATE).map_err(|_| {
+            Error::new(ErrorKind::Parse, format!("invalid date: {rfc3339_date}"))
+        })?;
+
+        if !(YEAR_MIN..=YEAR_MAX).contains(&(date.year() as u32)) {
+            fail!(
+                ErrorKind::Parse,
+                "year must be between {} and {}: {}",
+                YEAR_MIN,
+                YEAR_MAX,
+                rfc3339_date
+            );
+        }
+
         Ok(Date(rfc3339_date.into()))
     }
 }
@@ -76,39 +93,6 @@ impl<'de> Deserialize<'de> for Date {
             .parse()
             .map_err(D::Error::custom)
     }
-}
-
-macro_rules! check_date_part {
-    ($name:expr, $string:expr, $parts:expr, $len:expr, $min:expr, $max:expr) => {
-        let part = $parts
-            .next()
-            .ok_or_else(|| Error::new(ErrorKind::Parse, format!("invalid date: {}", $string)))?;
-
-        if part.len() != $len {
-            fail!(ErrorKind::Parse, "malformed {}: {}", $name, $string);
-        }
-
-        match part.parse::<u32>() {
-            Ok($min..=$max) => (),
-            _ => fail!(ErrorKind::Parse, "malformed {}: {}", $name, $string),
-        }
-    };
-}
-
-/// Validate that a date is well-formed
-fn validate_date(string: &str) -> Result<(), Error> {
-    let mut parts = string.split('-');
-
-    check_date_part!("year", string, parts, 4, YEAR_MIN, YEAR_MAX);
-    check_date_part!("month", string, parts, 2, 1, 12);
-    // TODO: ensure day is in range for month
-    check_date_part!("day", string, parts, 2, 1, 31);
-
-    if parts.next().is_some() {
-        fail!(ErrorKind::Parse, "invalid date: {}", string)
-    }
-
-    Ok(())
 }
 
 #[cfg(test)]
@@ -133,6 +117,14 @@ mod tests {
         assert!(Date::from_str("2017-01-32").is_err());
         assert!(Date::from_str("2017-01-").is_err());
         assert!(Date::from_str("2017-01-01-01").is_err());
+        assert!(Date::from_str("2017-02-29").is_err());
+        assert!(Date::from_str("2017-04-31").is_err());
+        assert!(Date::from_str("2017-02-30").is_err());
+
+        // Leap year February 29th
+        assert!(Date::from_str("2000-02-29").is_ok());
+        assert!(Date::from_str("2004-02-29").is_ok());
+        assert!(Date::from_str("2100-02-29").is_err());
     }
 
     #[test]
