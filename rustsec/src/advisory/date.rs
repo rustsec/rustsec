@@ -6,10 +6,7 @@ use std::{
     fmt::{self, Display},
     str::FromStr,
 };
-use time::{
-    Date as TimeDate,
-    format_description::well_known::Iso8601,
-};
+use time::{Date as TimeDate, format_description::well_known::Iso8601};
 
 /// Minimum allowed year on advisory dates
 pub(crate) const YEAR_MIN: u32 = 2000;
@@ -68,9 +65,8 @@ impl FromStr for Date {
 
     /// Create a `Date` from the given RFC 3339 date string
     fn from_str(rfc3339_date: &str) -> Result<Self, Error> {
-        let date = TimeDate::parse(rfc3339_date, &Iso8601::DATE).map_err(|_| {
-            Error::new(ErrorKind::Parse, format!("invalid date: {rfc3339_date}"))
-        })?;
+        let date = TimeDate::parse(rfc3339_date, &Iso8601::DATE)
+            .map_err(|_| Error::new(ErrorKind::Parse, format!("invalid date: {rfc3339_date}")))?;
 
         if !(YEAR_MIN..=YEAR_MAX).contains(&(date.year() as u32)) {
             fail!(
