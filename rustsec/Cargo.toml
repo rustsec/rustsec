@@ -22,6 +22,7 @@ serde = { workspace = true, features = ["serde_derive"] }
 thiserror = { workspace = true }
 toml = { workspace = true }
 url = { workspace = true, features = ["serde"] }
+jiff = { workspace = true, features = ["std"] }
 
 # for scanning binary files
 auditable-info = { workspace = true, features = ["wasm"], optional = true }
