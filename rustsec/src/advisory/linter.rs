@@ -41,11 +41,11 @@ impl Linter {
             )
         })?;
 
-        Self::lint_string(&advisory_data)
+        Self::lint_string(&advisory_data, Some(Advisory::is_draft(path)))
     }
 
     /// Lint the given advisory data
-    pub fn lint_string(s: &str) -> Result<Self, crate::Error> {
+    pub fn lint_string(s: &str, draft: Option<bool>) -> Result<Self, crate::Error> {
         // Ensure the advisory parses according to the normal parser first
         let advisory = s.parse::<Advisory>()?;
 
@@ -61,7 +61,7 @@ impl Linter {
             errors: vec![],
         };
 
-        linter.lint_advisory(&front_matter);
+        linter.lint_advisory(&front_matter, draft);
         Ok(linter)
     }
 
@@ -76,10 +76,10 @@ impl Linter {
     }
 
     /// Lint the provided TOML value as the toplevel table of an advisory
-    fn lint_advisory(&mut self, advisory: &toml::Table) {
+    fn lint_advisory(&mut self, advisory: &toml::Table, draft: Option<bool>) {
         for (key, value) in advisory {
             match key.as_str() {
-                "advisory" => self.lint_metadata(value),
+                "advisory" => self.lint_metadata(value, draft),
                 "versions" => self.lint_versions(value),
                 "affected" => self.lint_affected(value),
                 _ => self.errors.push(Error {
@@ -92,13 +92,22 @@ impl Linter {
     }
 
     /// Lint the `[advisory]` metadata section
-    fn lint_metadata(&mut self, metadata: &toml::Value) {
+    fn lint_metadata(&mut self, metadata: &toml::Value, draft: Option<bool>) {
         let mut year = None;
 
         if let Some(table) = metadata.as_table() {
             for (key, value) in table {
                 match key.as_str() {
                     "id" => {
+                        if let Some(draft) = draft
+                            && self.advisory.metadata.id.is_placeholder() != draft
+                        {
+                            self.errors.push(Error {
+                                kind: ErrorKind::value("id", value.to_string()),
+                                section: Some("advisory"),
+                                message: Some("advisory ID draft status does not match file name"),
+                            });
+                        }
                         if self.advisory.metadata.id.is_other() {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("id", value.to_string()),

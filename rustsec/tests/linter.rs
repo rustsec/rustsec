@@ -2,13 +2,15 @@
 
 #![warn(rust_2018_idioms, unused_qualifications)]
 
+use rustsec::advisory::Linter;
+
 /// Example RustSec Advisory
 const EXAMPLE_ADVISORY_PATH: &str = "./tests/support/example_advisory_v3.md";
 
 /// Ensure example advisory passes lint
 #[test]
 fn valid_advisory() {
-    let lint = rustsec::advisory::Linter::lint_file(EXAMPLE_ADVISORY_PATH).unwrap();
+    let lint = Linter::lint_file(EXAMPLE_ADVISORY_PATH).unwrap();
     assert_eq!(lint.errors(), &[]);
 }
 
@@ -46,7 +48,7 @@ You have no chance to survive. Make your time.
 /// Advisory which fails lint for multiple msgs
 #[test]
 fn invalid_example() {
-    let lint = rustsec::advisory::Linter::lint_string(INVALID_ADVISORY_MD).unwrap();
+    let lint = Linter::lint_string(INVALID_ADVISORY_MD, Some(false)).unwrap();
 
     // Do we get the expected number of errors?
     assert_eq!(lint.errors().len(), 7);
@@ -98,4 +100,57 @@ fn invalid_example() {
     // `invalid-section`
     let invalid_section = lint.errors()[6].to_string();
     assert_eq!(invalid_section, "invalid key `invalid-section` in toplevel");
+}
+
+/// A valid advisory with a real (non-placeholder) ID
+const VALID_ADVISORY_MD: &str = include_str!("support/example_advisory_v3.md");
+
+/// The advisory ID's placeholder status must match the draft flag
+#[test]
+fn draft_id_mismatch() {
+    let placeholder = VALID_ADVISORY_MD.replace("RUSTSEC-2001-2101", "RUSTSEC-0000-0000");
+
+    // Real ID flagged as a draft is an error
+    let lint = Linter::lint_string(VALID_ADVISORY_MD, Some(true)).unwrap();
+    assert_eq!(
+        lint.errors()
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>(),
+        vec![
+            "invalid value `\"RUSTSEC-2001-2101\"` for key `id` in [advisory]: \
+             advisory ID draft status does not match file name"
+        ]
+    );
+
+    // Placeholder ID flagged as non-draft is an error
+    let lint = Linter::lint_string(&placeholder, Some(false)).unwrap();
+    assert_eq!(
+        lint.errors()
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>(),
+        vec![
+            "invalid value `\"RUSTSEC-0000-0000\"` for key `id` in [advisory]: \
+             advisory ID draft status does not match file name"
+        ]
+    );
+
+    // Matching draft status (or no draft info) produces no error
+    assert_eq!(
+        Linter::lint_string(VALID_ADVISORY_MD, Some(false))
+            .unwrap()
+            .errors(),
+        &[]
+    );
+    assert_eq!(
+        Linter::lint_string(&placeholder, Some(true))
+            .unwrap()
+            .errors(),
+        &[]
+    );
+    assert_eq!(
+        Linter::lint_string(&placeholder, None).unwrap().errors(),
+        &[]
+    );
 }
