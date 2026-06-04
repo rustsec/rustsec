@@ -131,10 +131,8 @@ fn assign_ids_across_directory(
             })?;
 
         let dir_path = unwrapped_dir_entry.path();
-        let dir_path_clone = dir_path.clone();
-        for advisory_entry in fs::read_dir(dir_path)? {
-            let unwrapped_advisory = advisory_entry?;
-            let advisory_path = unwrapped_advisory.path();
+        for advisory_entry in fs::read_dir(dir_path.clone())? {
+            let advisory_path = advisory_entry?.path();
             if !Advisory::is_draft(&advisory_path) {
                 continue;
             }
@@ -159,18 +157,14 @@ fn assign_ids_across_directory(
                 )
             })?;
 
-            let date = advisory.metadata.date;
-            let year = date.year();
+            let year = advisory.metadata.date.year();
             let new_id = highest_ids.get(&year).cloned().unwrap_or_default() + 1;
             let year_str = year.to_string();
             let string_id = format!("RUSTSEC-{year_str}-{new_id:04}");
-            let new_filename = format!("{string_id}.md");
-            let new_path = dir_path_clone.join(new_filename);
-            let original_file = File::open(&advisory_path)?;
-            let reader = BufReader::new(original_file);
-            let new_file = File::create(new_path)?;
-            let mut writer = LineWriter::new(new_file);
-            for line in reader.lines() {
+            let mut writer =
+                LineWriter::new(File::create(dir_path.join(format!("{string_id}.md")))?);
+
+            for line in BufReader::new(File::open(&advisory_path)?).lines() {
                 let current_line = line?;
                 if current_line.trim() == "id = \"RUSTSEC-0000-0000\"" {
                     writer.write_all(format!("id = \"{string_id}\"\n").as_ref())?;
@@ -179,6 +173,7 @@ fn assign_ids_across_directory(
                     writer.write_all(current_line_with_newline.as_ref())?;
                 }
             }
+
             highest_ids.insert(year, new_id);
             fs::remove_file(&advisory_path)?;
             if output_mode == OutputMode::HumanReadable {
