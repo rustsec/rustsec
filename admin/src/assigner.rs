@@ -164,14 +164,26 @@ fn assign_ids_across_directory(
             let mut writer =
                 LineWriter::new(File::create(dir_path.join(format!("{string_id}.md")))?);
 
+            let mut id_replaced = false;
             for line in BufReader::new(File::open(&advisory_path)?).lines() {
                 let current_line = line?;
                 if current_line.trim() == "id = \"RUSTSEC-0000-0000\"" {
                     writer.write_all(format!("id = \"{string_id}\"\n").as_ref())?;
+                    id_replaced = true;
                 } else {
                     let current_line_with_newline = format!("{current_line}\n");
                     writer.write_all(current_line_with_newline.as_ref())?;
                 }
+            }
+
+            if !id_replaced {
+                return Err(rustsec::Error::new(
+                    rustsec::ErrorKind::Parse,
+                    format!(
+                        "Couldn't find placeholder ID in {}",
+                        advisory_path.display()
+                    ),
+                ));
             }
 
             highest_ids.insert(year, new_id);
