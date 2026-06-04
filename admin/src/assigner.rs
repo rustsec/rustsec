@@ -153,7 +153,7 @@ fn assign_ids_across_directory(
             let mut writer = LineWriter::new(new_file);
             for line in reader.lines() {
                 let current_line = line.unwrap();
-                if current_line.contains("id = ") {
+                if current_line.trim() == "id = \"RUSTSEC-0000-0000\"" {
                     writer
                         .write_all(format!("id = \"{string_id}\"\n").as_ref())
                         .unwrap();
