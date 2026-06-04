@@ -5,6 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use rustsec::{Advisory, Collection, Database};
 use tame_index::index::RemoteSparseIndex;
 
 use crate::{
@@ -16,8 +17,7 @@ use crate::{
 
 /// List of "collections" within the Advisory DB
 // TODO(tarcieri): provide some other means of iterating over the collections?
-pub const COLLECTIONS: &[rustsec::Collection] =
-    &[rustsec::Collection::Crates, rustsec::Collection::Rust];
+pub const COLLECTIONS: &[Collection] = &[Collection::Crates, Collection::Rust];
 
 /// Advisory linter
 pub struct Linter {
@@ -28,7 +28,7 @@ pub struct Linter {
     crates_index: RemoteSparseIndex,
 
     /// Loaded Advisory DB
-    advisory_db: rustsec::Database,
+    advisory_db: Database,
 
     /// Total number of invalid advisories encountered
     invalid_advisories: usize,
@@ -38,7 +38,7 @@ impl Linter {
     /// Create a new linter for the database at the given path
     pub fn new(repo_path: impl Into<PathBuf>) -> Result<Self, Error> {
         let repo_path = repo_path.into();
-        let advisory_db = rustsec::Database::open(&repo_path)?;
+        let advisory_db = Database::open(&repo_path)?;
 
         Ok(Self {
             repo_path,
@@ -49,7 +49,7 @@ impl Linter {
     }
 
     /// Borrow the loaded advisory database
-    pub fn advisory_db(&self) -> &rustsec::Database {
+    pub fn advisory_db(&self) -> &Database {
         &self.advisory_db
     }
 
@@ -80,11 +80,7 @@ impl Linter {
 
     /// Lint an advisory at the specified path
     // TODO(tarcieri): separate out presentation (`status_*`) from linting code?
-    fn lint_advisory(
-        &mut self,
-        collection: rustsec::Collection,
-        advisory_path: &Path,
-    ) -> Result<(), Error> {
+    fn lint_advisory(&mut self, collection: Collection, advisory_path: &Path) -> Result<(), Error> {
         if !advisory_path.is_file() {
             fail!(
                 ErrorKind::RustSec,
@@ -94,9 +90,9 @@ impl Linter {
             );
         }
 
-        let advisory = rustsec::Advisory::load_file(advisory_path)?;
+        let advisory = Advisory::load_file(advisory_path)?;
 
-        if collection == rustsec::Collection::Crates {
+        if collection == Collection::Crates {
             self.crates_io_lints(&advisory)?;
         }
 
@@ -121,7 +117,7 @@ impl Linter {
     }
 
     /// Perform lints that connect to https://crates.io
-    fn crates_io_lints(&mut self, advisory: &rustsec::Advisory) -> Result<(), Error> {
+    fn crates_io_lints(&mut self, advisory: &Advisory) -> Result<(), Error> {
         if advisory.metadata.expect_deleted {
             return Ok(());
         }
