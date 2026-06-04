@@ -70,16 +70,10 @@ pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
         }
     }
 
-    let mut collection_strs = vec![];
-    let crates_str = Collection::Crates.to_string();
-    let rust_str = Collection::Rust.to_string();
-    collection_strs.push(crates_str);
-    collection_strs.push(rust_str);
-
     let mut assignments = vec![];
-    for collection_str in collection_strs {
+    for collection in [Collection::Crates, Collection::Rust] {
         assign_ids_across_directory(
-            collection_str,
+            collection,
             repo_path,
             &mut highest_id,
             output_mode,
@@ -104,13 +98,13 @@ pub fn assign_ids(repo_path: &Path, output_mode: OutputMode) {
 
 ///Assign ids to files with placeholder IDs within the directory defined by dir_path
 fn assign_ids_across_directory(
-    collection_str: String,
+    collection: Collection,
     repo_path: &Path,
     highest_ids: &mut Map<u32, u32>,
     output_mode: OutputMode,
     assignments: &mut Vec<String>,
 ) {
-    let dir_path = repo_path.join(collection_str);
+    let dir_path = repo_path.join(collection.to_string());
     let Ok(collection_entry) = fs::read_dir(dir_path) else {
         return;
     };
