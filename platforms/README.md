@@ -147,14 +147,19 @@ If we remove platforms, we will bump the minor version of this crate.
 | [sparc64-unknown-linux-gnu]            | sparc64     | linux      | gnu        |
 | [sparcv9-sun-solaris]                  | sparc64     | solaris    |            |
 | [thumbv6m-none-eabi]                   | arm         | none       |            |
+| [thumbv7a-none-eabi]                   | arm         | none       |            |
+| [thumbv7a-none-eabihf]                 | arm         | none       |            |
 | [thumbv7em-none-eabi]                  | arm         | none       |            |
 | [thumbv7em-none-eabihf]                | arm         | none       |            |
 | [thumbv7m-none-eabi]                   | arm         | none       |            |
 | [thumbv7neon-linux-androideabi]        | arm         | android    |            |
 | [thumbv7neon-unknown-linux-gnueabihf]  | arm         | linux      | gnu        |
+| [thumbv7r-none-eabi]                   | arm         | none       |            |
+| [thumbv7r-none-eabihf]                 | arm         | none       |            |
 | [thumbv8m.base-none-eabi]              | arm         | none       |            |
 | [thumbv8m.main-none-eabi]              | arm         | none       |            |
 | [thumbv8m.main-none-eabihf]            | arm         | none       |            |
+| [thumbv8r-none-eabihf]                 | arm         | none       |            |
 | [wasm32-unknown-emscripten]            | wasm32      | emscripten |            |
 | [wasm32-unknown-unknown]               | wasm32      | unknown    |            |
 | [wasm32-wasip1]                        | wasm32      | wasi       | p1         |
@@ -346,8 +351,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv5te-none-eabi]                  | arm         | none       |            |
 | [thumbv6-none-eabi]                    | arm         | none       |            |
 | [thumbv6m-nuttx-eabi]                  | arm         | nuttx      |            |
-| [thumbv7a-none-eabi]                   | arm         | none       |            |
-| [thumbv7a-none-eabihf]                 | arm         | none       |            |
 | [thumbv7a-nuttx-eabi]                  | arm         | nuttx      |            |
 | [thumbv7a-nuttx-eabihf]                | arm         | nuttx      |            |
 | [thumbv7a-pc-windows-msvc]             | arm         | windows    | msvc       |
@@ -356,12 +359,9 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv7em-nuttx-eabihf]               | arm         | nuttx      |            |
 | [thumbv7m-nuttx-eabi]                  | arm         | nuttx      |            |
 | [thumbv7neon-unknown-linux-musleabihf] | arm         | linux      | musl       |
-| [thumbv7r-none-eabi]                   | arm         | none       |            |
-| [thumbv7r-none-eabihf]                 | arm         | none       |            |
 | [thumbv8m.base-nuttx-eabi]             | arm         | nuttx      |            |
 | [thumbv8m.main-nuttx-eabi]             | arm         | nuttx      |            |
 | [thumbv8m.main-nuttx-eabihf]           | arm         | nuttx      |            |
-| [thumbv8r-none-eabihf]                 | arm         | none       |            |
 | [wasm32-wali-linux-musl]               | wasm32      | linux      | musl       |
 | [wasm32-wasip3]                        | wasm32      | wasi       | p3         |
 | [wasm64-unknown-unknown]               | wasm64      | unknown    |            |

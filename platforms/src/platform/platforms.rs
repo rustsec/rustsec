@@ -2918,7 +2918,7 @@ pub(crate) const THUMBV7A_NONE_EABI: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// Thumb-mode Bare Armv7-A, hardfloat
@@ -2929,7 +2929,7 @@ pub(crate) const THUMBV7A_NONE_EABIHF: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// ARMv7-A with NuttX
@@ -3081,7 +3081,7 @@ pub(crate) const THUMBV7R_NONE_EABI: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// Thumb-mode Bare Armv7-R, hardfloat
@@ -3092,7 +3092,7 @@ pub(crate) const THUMBV7R_NONE_EABIHF: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// Bare Armv8-M Baseline
@@ -3169,7 +3169,7 @@ pub(crate) const THUMBV8R_NONE_EABIHF: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// WebAssembly via Emscripten
