@@ -15,7 +15,8 @@ rust-version = "1.85"
 serde = { workspace = true, optional = true }
 
 [features]
-default = ["std", "v3", "v4"]
+default = ["std", "v2", "v3", "v4"]
+v2 = []
 v3 = []
 v4 = []
 std = []
