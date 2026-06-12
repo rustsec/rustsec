@@ -192,6 +192,7 @@ pub(crate) const ALL: &[Platform] = &[
     POWERPC64_IBM_AIX,
     POWERPC64_UNKNOWN_FREEBSD,
     POWERPC64_UNKNOWN_LINUX_GNU,
+    POWERPC64_UNKNOWN_LINUX_GNUELFV2,
     POWERPC64_UNKNOWN_LINUX_MUSL,
     POWERPC64_UNKNOWN_OPENBSD,
     POWERPC64_WRS_VXWORKS,
@@ -512,7 +513,7 @@ pub(crate) const AARCH64_UNKNOWN_FREEBSD: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// ARM64 Fuchsia
@@ -1882,7 +1883,7 @@ pub(crate) const M68K_UNKNOWN_NONE_ELF: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// Bare MIPS32r2 (BE) softfloat
+/// Bare MIPS32r2 (BE) softfloat [^snan-inverted]
 pub(crate) const MIPS_MTI_NONE_ELF: Platform = Platform {
     target_triple: "mips-mti-none-elf",
     target_arch: Arch::Mips,
@@ -1893,7 +1894,7 @@ pub(crate) const MIPS_MTI_NONE_ELF: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS Linux (kernel 4.4, glibc 2.23)
+/// MIPS Linux (kernel 4.4, glibc 2.23) [^snan-inverted]
 pub(crate) const MIPS_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "mips-unknown-linux-gnu",
     target_arch: Arch::Mips,
@@ -1904,7 +1905,7 @@ pub(crate) const MIPS_UNKNOWN_LINUX_GNU: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS Linux with musl 1.2.5
+/// MIPS Linux with musl 1.2.5 [^snan-inverted]
 pub(crate) const MIPS_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_triple: "mips-unknown-linux-musl",
     target_arch: Arch::Mips,
@@ -1915,7 +1916,7 @@ pub(crate) const MIPS_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS Linux with uClibc
+/// MIPS Linux with uClibc [^snan-inverted]
 pub(crate) const MIPS_UNKNOWN_LINUX_UCLIBC: Platform = Platform {
     target_triple: "mips-unknown-linux-uclibc",
     target_arch: Arch::Mips,
@@ -1926,7 +1927,7 @@ pub(crate) const MIPS_UNKNOWN_LINUX_UCLIBC: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS64 for OpenWrt Linux musl 1.2.5
+/// MIPS64 for OpenWrt Linux musl 1.2.5 [^snan-inverted]
 pub(crate) const MIPS64_OPENWRT_LINUX_MUSL: Platform = Platform {
     target_triple: "mips64-openwrt-linux-musl",
     target_arch: Arch::Mips64,
@@ -1937,7 +1938,7 @@ pub(crate) const MIPS64_OPENWRT_LINUX_MUSL: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS64 Linux, N64 ABI (kernel 4.4, glibc 2.23)
+/// MIPS64 Linux, N64 ABI (kernel 4.4, glibc 2.23) [^snan-inverted]
 pub(crate) const MIPS64_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     target_triple: "mips64-unknown-linux-gnuabi64",
     target_arch: Arch::Mips64,
@@ -1948,7 +1949,7 @@ pub(crate) const MIPS64_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS64 Linux, N64 ABI, musl 1.2.5
+/// MIPS64 Linux, N64 ABI, musl 1.2.5 [^snan-inverted]
 pub(crate) const MIPS64_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     target_triple: "mips64-unknown-linux-muslabi64",
     target_arch: Arch::Mips64,
@@ -1959,7 +1960,7 @@ pub(crate) const MIPS64_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS64 (little endian) Linux, N64 ABI (kernel 4.4, glibc 2.23)
+/// MIPS64 (little endian) Linux, N64 ABI (kernel 4.4, glibc 2.23) [^snan-inverted]
 pub(crate) const MIPS64EL_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     target_triple: "mips64el-unknown-linux-gnuabi64",
     target_arch: Arch::Mips64,
@@ -1970,7 +1971,7 @@ pub(crate) const MIPS64EL_UNKNOWN_LINUX_GNUABI64: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS64 (little endian) Linux, N64 ABI, musl 1.2.5
+/// MIPS64 (little endian) Linux, N64 ABI, musl 1.2.5 [^snan-inverted]
 pub(crate) const MIPS64EL_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     target_triple: "mips64el-unknown-linux-muslabi64",
     target_arch: Arch::Mips64,
@@ -1981,7 +1982,7 @@ pub(crate) const MIPS64EL_UNKNOWN_LINUX_MUSLABI64: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// Bare MIPS32r2 (LE) softfloat
+/// Bare MIPS32r2 (LE) softfloat [^snan-inverted]
 pub(crate) const MIPSEL_MTI_NONE_ELF: Platform = Platform {
     target_triple: "mipsel-mti-none-elf",
     target_arch: Arch::Mips,
@@ -1992,7 +1993,7 @@ pub(crate) const MIPSEL_MTI_NONE_ELF: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS (LE) Sony PlayStation Portable (PSP)
+/// MIPS (LE) Sony PlayStation Portable (PSP) [^snan-inverted]
 pub(crate) const MIPSEL_SONY_PSP: Platform = Platform {
     target_triple: "mipsel-sony-psp",
     target_arch: Arch::Mips,
@@ -2003,7 +2004,7 @@ pub(crate) const MIPSEL_SONY_PSP: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS (LE) Sony PlayStation 1 (PSX)
+/// MIPS (LE) Sony PlayStation 1 (PSX) [^snan-inverted]
 pub(crate) const MIPSEL_SONY_PSX: Platform = Platform {
     target_triple: "mipsel-sony-psx",
     target_arch: Arch::Mips,
@@ -2014,7 +2015,7 @@ pub(crate) const MIPSEL_SONY_PSX: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS (little endian) Linux (kernel 4.4, glibc 2.23)
+/// MIPS (little endian) Linux (kernel 4.4, glibc 2.23) [^snan-inverted]
 pub(crate) const MIPSEL_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_triple: "mipsel-unknown-linux-gnu",
     target_arch: Arch::Mips,
@@ -2025,7 +2026,7 @@ pub(crate) const MIPSEL_UNKNOWN_LINUX_GNU: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS (little endian) Linux with musl 1.2.5
+/// MIPS (little endian) Linux with musl 1.2.5 [^snan-inverted]
 pub(crate) const MIPSEL_UNKNOWN_LINUX_MUSL: Platform = Platform {
     target_triple: "mipsel-unknown-linux-musl",
     target_arch: Arch::Mips,
@@ -2036,7 +2037,7 @@ pub(crate) const MIPSEL_UNKNOWN_LINUX_MUSL: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// MIPS (LE) Linux with uClibc
+/// MIPS (LE) Linux with uClibc [^snan-inverted]
 pub(crate) const MIPSEL_UNKNOWN_LINUX_UCLIBC: Platform = Platform {
     target_triple: "mipsel-unknown-linux-uclibc",
     target_arch: Arch::Mips,
@@ -2047,7 +2048,7 @@ pub(crate) const MIPSEL_UNKNOWN_LINUX_UCLIBC: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit MIPS (LE), requires mips32 cpu support
+/// 32-bit MIPS (LE), requires mips32 cpu support [^snan-inverted]
 pub(crate) const MIPSEL_UNKNOWN_NETBSD: Platform = Platform {
     target_triple: "mipsel-unknown-netbsd",
     target_arch: Arch::Mips,
@@ -2058,7 +2059,7 @@ pub(crate) const MIPSEL_UNKNOWN_NETBSD: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// Bare MIPS (LE) softfloat
+/// Bare MIPS (LE) softfloat [^snan-inverted]
 pub(crate) const MIPSEL_UNKNOWN_NONE: Platform = Platform {
     target_triple: "mipsel-unknown-none",
     target_arch: Arch::Mips,
@@ -2273,6 +2274,17 @@ pub(crate) const POWERPC64_UNKNOWN_LINUX_GNU: Platform = Platform {
     target_endian: Endian::Big,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
+};
+
+/// PPC64 Linux (ELFv2 ABI, kernel 3.2, glibc 2.17)
+pub(crate) const POWERPC64_UNKNOWN_LINUX_GNUELFV2: Platform = Platform {
+    target_triple: "powerpc64-unknown-linux-gnuelfv2",
+    target_arch: Arch::PowerPc64,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Big,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
 };
 
 /// PPC64 Linux (kernel 4.19+, musl 1.2.5)

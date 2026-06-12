@@ -88,6 +88,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-apple-watchos-sim]            | aarch64     | watchos    | sim        |
 | [aarch64-linux-android]                | aarch64     | android    |            |
 | [aarch64-pc-windows-gnullvm]           | aarch64     | windows    | gnu        |
+| [aarch64-unknown-freebsd]              | aarch64     | freebsd    |            |
 | [aarch64-unknown-fuchsia]              | aarch64     | fuchsia    |            |
 | [aarch64-unknown-linux-musl]           | aarch64     | linux      | musl       |
 | [aarch64-unknown-linux-ohos]           | aarch64     | linux      | ohos       |
@@ -193,7 +194,6 @@ If we remove platforms, we will bump the minor version of this crate.
 |----------------------------------------|-------------|------------|------------|
 | [aarch64-kmc-solid_asp3]               | aarch64     | solid_asp3 |            |
 | [aarch64-nintendo-switch-freestanding] | aarch64     | horizon    |            |
-| [aarch64-unknown-freebsd]              | aarch64     | freebsd    |            |
 | [aarch64-unknown-helenos]              | aarch64     | helenos    |            |
 | [aarch64-unknown-hermit]               | aarch64     | hermit     |            |
 | [aarch64-unknown-illumos]              | aarch64     | illumos    |            |
@@ -312,6 +312,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [powerpc-wrs-vxworks-spe]              | powerpc     | vxworks    | gnu        |
 | [powerpc64-ibm-aix]                    | powerpc64   | aix        |            |
 | [powerpc64-unknown-freebsd]            | powerpc64   | freebsd    |            |
+| [powerpc64-unknown-linux-gnuelfv2]     | powerpc64   | linux      | gnu        |
 | [powerpc64-unknown-openbsd]            | powerpc64   | openbsd    |            |
 | [powerpc64-wrs-vxworks]                | powerpc64   | vxworks    | gnu        |
 | [powerpc64le-unknown-freebsd]          | powerpc64   | freebsd    |            |
@@ -574,6 +575,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [powerpc64-ibm-aix]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_IBM_AIX.html
 [powerpc64-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_FREEBSD.html
 [powerpc64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_LINUX_GNU.html
+[powerpc64-unknown-linux-gnuelfv2]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_LINUX_GNUELFV2.html
 [powerpc64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_LINUX_MUSL.html
 [powerpc64-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_OPENBSD.html
 [powerpc64-wrs-vxworks]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_WRS_VXWORKS.html
