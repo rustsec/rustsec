@@ -7,7 +7,8 @@
 
 use std::collections::HashMap;
 
-use regex::Regex;
+use comrak::nodes::NodeValue;
+use comrak::{format_commonmark, parse_document, Arena, Options};
 
 /// Information about a given target triple extracted from tier documentation located at
 /// https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
@@ -17,89 +18,154 @@ pub struct DocTargetInfo {
     pub notes: String,
 }
 
-const TABLE_HEADER_REGEX: &str = r"target\s+\|.*\s+notes";
-
 #[must_use]
-#[rustfmt::skip]
 pub fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
-    // compile the regex once outside the loop; not that it really matters
-    let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
+    let arena = Arena::new();
+    let mut options = Options::default();
+    options.extension.table = true;
+    options.extension.footnotes = true;
+    let root = parse_document(&arena, input, &options);
 
-    let mut result: HashMap<String, DocTargetInfo> = HashMap::new();
+    let mut result = HashMap::<String, DocTargetInfo>::new();
+    let mut current_tier = None;
+    let mut found_table = false;
 
-    // find the headers delineating the support tiers
-    let section_headers = section_headers(input);
-    let sections = sections(input);
-
-    // Make sure the format hasn't changed drastically, and that we can still extract data
-    assert!(sections
-        .iter()
-        .any(|section| table_header_regex.is_match(section)));
-
-    // Locate and parse the tables describing architectures and tiers
-    for (header, section) in section_headers.iter().zip(sections) {
-        // There are no Tier 1 platforms without host tools, so that header does not contain a table
-        if let Some(table_header) = table_header_regex.find(section) {
-            let after_table_header = &section[table_header.end()..];
-            for table_row in after_table_header
-                .lines()
-                .skip(2) // skip the table header and the separator line
-                .take_while(|l| l.contains("|")) // read until the end of the table
-            {
-                let (arch, notes) = parse_table_row(table_row);
-                let target_info = DocTargetInfo {
-                    tier: header_to_tier(header),
-                    notes: notes.to_string(),
+    for node in root.children() {
+        match node.data.borrow().value {
+            // Headings delineate the support tiers
+            NodeValue::Heading(_) => {
+                let Some(inner) = node.first_child().map(|n| n.data.borrow()) else {
+                    continue;
                 };
-                // The same target triple can appear several times in the documentation.
-                // For example, `i686-pc-windows-msvc` is both tier 1 and tier 3,
-                // with the tier 3 version being for Windows XP only.
-                // To deal with that, we only keep the first (highest) tier encountered.
-                result.entry(arch.to_string()).or_insert(target_info);
+
+                let NodeValue::Text(s) = &inner.value else {
+                    continue;
+                };
+
+                let Some(rest) = s.trim().strip_prefix("Tier ") else {
+                    continue;
+                };
+
+                let Some(digit) = rest.chars().next().and_then(|c| c.to_digit(10)) else {
+                    continue;
+                };
+
+                current_tier = Some(digit as u8);
             }
+
+            // Locate and parse the tables describing architectures and tiers
+            NodeValue::Table(_) => {
+                let Some(tier) = current_tier else { continue };
+
+                let mut rows = node.children();
+                let Some(header) = rows.next() else {
+                    continue;
+                };
+
+                let (mut target_column, mut notes_column) = (None, None);
+                for (i, cell) in header.children().enumerate() {
+                    let Some(inner) = cell.first_child().map(|n| n.data.borrow()) else {
+                        continue;
+                    };
+
+                    let NodeValue::Text(s) = &inner.value else {
+                        continue;
+                    };
+
+                    if s.trim() == "target" {
+                        target_column = Some(i);
+                    } else if s.trim() == "notes" {
+                        notes_column = Some(i);
+                    }
+                }
+
+                let (Some(target_column), Some(notes_column)) = (target_column, notes_column)
+                else {
+                    continue;
+                };
+
+                for row in rows {
+                    let (mut target, mut notes) = (None, None);
+                    for (i, cell) in row.children().enumerate() {
+                        if i == target_column {
+                            target = Some(cell);
+                        } else if i == notes_column {
+                            notes = Some(cell);
+                        }
+                    }
+
+                    let (Some(mut target_nodes), Some(notes_nodes)) = (target, notes) else {
+                        eprintln!("warning: skipping a row in tier {tier} table;");
+                        eprintln!("         expected to find `target` and `notes` columns");
+                        continue;
+                    };
+
+                    let target = loop {
+                        let data = target_nodes.data.borrow();
+                        match &data.value {
+                            NodeValue::Code(inner) => break Some(inner.literal.clone()),
+                            _ => match target_nodes.first_child() {
+                                Some(n) => {
+                                    drop(data);
+                                    target_nodes = n;
+                                }
+                                None => break None,
+                            },
+                        }
+                    };
+
+                    let Some(target) = target else {
+                        eprintln!("warning: skipping a row in tier {tier} table;");
+                        eprintln!("         target name not found");
+                        continue;
+                    };
+
+                    let mut notes = String::new();
+                    for node in notes_nodes.children() {
+                        if matches!(
+                            node.data.borrow().value,
+                            NodeValue::SoftBreak
+                                | NodeValue::LineBreak
+                                | NodeValue::FootnoteReference(_)
+                        ) {
+                            continue;
+                        }
+
+                        if let Err(error) = format_commonmark(node, &options, &mut notes) {
+                            eprintln!(
+                                "warning: failed to format notes for {target} in tier {tier}"
+                            );
+                            eprintln!("         {error}");
+                            continue;
+                        }
+
+                        notes.truncate(notes.trim_end_matches(['\n', '\r']).len());
+                    }
+
+                    // The same target triple can appear several times in the documentation.
+                    // For example, `i686-pc-windows-msvc` is both tier 1 and tier 3,
+                    // with the tier 3 version being for Windows XP only.
+                    // To deal with that, we only keep the first (highest) tier encountered.
+                    notes.truncate(notes.trim_end().len());
+                    let notes = notes.replace("\\_", "_").replace("\\-", "-");
+                    result
+                        .entry(target)
+                        .or_insert(DocTargetInfo { tier, notes });
+                }
+
+                found_table = true;
+            }
+            _ => {}
         }
     }
 
+    // Make sure the format hasn't changed drastically, and that we can still extract data
+    assert!(
+        found_table,
+        "no `target | ... | notes` table found in the input"
+    );
+
     result
-}
-
-const SECTION_HEADER_REGEX: &str = r"## ?Tier \d";
-
-#[must_use]
-fn section_headers(input: &str) -> Vec<&str> {
-    let section_header_regex = Regex::new(SECTION_HEADER_REGEX).unwrap();
-    assert!(section_header_regex.is_match(input));
-    section_header_regex
-        .find_iter(input)
-        .map(|m| m.as_str())
-        .collect()
-}
-
-#[must_use]
-fn sections(input: &str) -> Vec<&str> {
-    let section_header_regex = Regex::new(SECTION_HEADER_REGEX).unwrap();
-    assert!(section_header_regex.is_match(input));
-    section_header_regex.split(input).skip(1).collect()
-}
-
-/// Accepts a table line string and returns the tuple of `(arch, notes)`
-#[must_use]
-fn parse_table_row(line: &str) -> (&str, &str) {
-    let arch = line.split('`').nth(1).unwrap();
-    let notes = &line[(line.rfind('|').unwrap() + 1)..].trim_matches(|c: char| c.is_whitespace());
-    (arch, notes)
-}
-
-#[must_use]
-fn header_to_tier(header: &str) -> u8 {
-    header
-        .chars()
-        .last()
-        .unwrap()
-        .to_digit(10)
-        .unwrap()
-        .try_into()
-        .unwrap()
 }
 
 #[cfg(test)]
@@ -170,45 +236,9 @@ target | std | host | notes
 `i686-pc-windows-msvc` | * |  | 32-bit Windows XP support
 
 blah blah I guess
+
+[^missing-stack-probes]: blah
 ";
-
-    #[test]
-    fn test_table_header_regex() {
-        let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
-        let found: Vec<&str> = table_header_regex
-            .find_iter(SAMPLE_DATA)
-            .map(|m| m.as_str())
-            .collect();
-        let expected = [
-            "target | notes",
-            "target | notes",
-            "target | std | notes",
-            "target | std | host | notes",
-        ];
-        assert_eq!(found, expected);
-    }
-
-    #[test]
-    fn test_row_parser() {
-        assert_eq!(
-            parse_table_row("`i686-pc-windows-gnu` | 32-bit MinGW (Windows 7+)"),
-            ("i686-pc-windows-gnu", "32-bit MinGW (Windows 7+)")
-        );
-        assert_eq!(
-            parse_table_row("[`aarch64-kmc-solid_asp3`](platform-support/kmc-solid.md) | ✓ |  | ARM64 SOLID with TOPPERS/ASP3"),
-            ("aarch64-kmc-solid_asp3", "ARM64 SOLID with TOPPERS/ASP3")
-        );
-    }
-
-    #[test]
-    fn test_section_parser() {
-        let section_headers = section_headers(SAMPLE_DATA);
-        assert_eq!(section_headers.len(), 5);
-
-        let sections = sections(SAMPLE_DATA);
-        assert_eq!(sections.len(), 5);
-        assert_eq!(sections[0].lines().count(), 8);
-    }
 
     #[test]
     fn test_doc_parser() {
@@ -217,7 +247,7 @@ blah blah I guess
         assert_eq!(result["aarch64-unknown-linux-gnu"].tier, 1);
         assert_eq!(
             &result["aarch64-unknown-linux-gnu"].notes,
-            "ARM64 Linux (kernel 4.2, glibc 2.17+) [^missing-stack-probes]"
+            "ARM64 Linux (kernel 4.2, glibc 2.17+)"
         );
 
         assert_eq!(result["i686-pc-windows-gnu"].tier, 1);
@@ -230,6 +260,18 @@ blah blah I guess
         assert_eq!(
             &result["i686-pc-windows-msvc"].notes,
             "32-bit MSVC (Windows 7+)"
+        );
+
+        // Targets written as Markdown links should be parsed too, using the code span as the triple.
+        assert_eq!(result["aarch64-apple-ios-sim"].tier, 2);
+        assert_eq!(
+            &result["aarch64-apple-ios-sim"].notes,
+            "Apple iOS Simulator on ARM64"
+        );
+        assert_eq!(result["aarch64-kmc-solid_asp3"].tier, 3);
+        assert_eq!(
+            &result["aarch64-kmc-solid_asp3"].notes,
+            "ARM64 SOLID with TOPPERS/ASP3"
         );
     }
 }
