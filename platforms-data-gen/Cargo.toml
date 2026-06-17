@@ -5,4 +5,3 @@ edition = "2021"
 
 [dependencies]
 comrak = { workspace = true }
-regex = { workspace = true }

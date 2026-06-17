@@ -2679,7 +2679,6 @@ name = "platforms-data-gen"
 version = "0.1.0"
 dependencies = [
  "comrak",
- "regex",
 ]
 
 [[package]]
