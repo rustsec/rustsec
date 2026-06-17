@@ -17,13 +17,11 @@ pub struct DocTargetInfo {
     pub notes: String,
 }
 
-pub type DocTargetsInfo = HashMap<String, DocTargetInfo>;
-
 const TABLE_HEADER_REGEX: &str = r"target\s+\|.*\s+notes";
 
 #[must_use]
 #[rustfmt::skip]
-pub fn parse_file(input: &str) -> DocTargetsInfo {
+pub fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     // compile the regex once outside the loop; not that it really matters
     let table_header_regex = Regex::new(TABLE_HEADER_REGEX).unwrap();
 

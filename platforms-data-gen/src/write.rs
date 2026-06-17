@@ -1,13 +1,12 @@
 //! Generates and writes contents of the auto-generated files
 
+use std::collections::HashMap;
 use std::io::Result;
 use std::io::Write;
 
 use crate::comments::Comments;
 use crate::doc_target_info::DocTargetInfo;
-use crate::doc_target_info::DocTargetsInfo;
 use crate::enums::*;
-use crate::rustc_target_info::{RustcTargetInfo, RustcTargetsInfo};
 use crate::templates::Templates;
 
 pub(crate) const FIELDS_WITH_ENUMS: [&str; 5] = [
@@ -20,8 +19,8 @@ pub(crate) const FIELDS_WITH_ENUMS: [&str; 5] = [
 
 pub(crate) fn write_targets_file<W: Write>(
     triples: &[String],
-    rustc_info: &RustcTargetsInfo,
-    doc_info: &DocTargetsInfo,
+    rustc_info: &Vec<HashMap<String, String>>,
+    doc_info: &HashMap<String, DocTargetInfo>,
     out: &mut W,
 ) -> Result<()> {
     // write the header
@@ -74,7 +73,7 @@ pub(crate) const ALL: &[Platform] = &["
 
 fn write_target_struct<W: Write>(
     triple: &str,
-    rustc_info: &RustcTargetInfo,
+    rustc_info: &HashMap<String, String>,
     doc_info: &DocTargetInfo,
     out: &mut W,
 ) -> Result<()> {
@@ -101,7 +100,7 @@ pub(crate) const {}: Platform = Platform {{
 /// including all `impl`s that depend on the info about available targets
 pub(crate) fn write_enum_file<W: Write>(
     key: &str,
-    info: &RustcTargetsInfo,
+    info: &[HashMap<String, String>],
     out: &mut W,
 ) -> Result<()> {
     let templates = Templates::new();
@@ -113,7 +112,11 @@ pub(crate) fn write_enum_file<W: Write>(
 }
 
 /// Accepts the key from the `rustc` output and generates an enum definition from it
-fn write_enum_definition<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut W) -> Result<()> {
+fn write_enum_definition<W: Write>(
+    key: &str,
+    info: &[HashMap<String, String>],
+    out: &mut W,
+) -> Result<()> {
     writeln!(out, "pub enum {} {{", to_enum_name(key))?;
     let comments = Comments::new();
     let raw_strings = distinct_values(key, info);
@@ -138,7 +141,7 @@ fn write_enum_definition<W: Write>(key: &str, info: &RustcTargetsInfo, out: &mut
 
 fn write_enum_string_conversions<W: Write>(
     key: &str,
-    info: &RustcTargetsInfo,
+    info: &[HashMap<String, String>],
     out: &mut W,
 ) -> Result<()> {
     let raw_strings = distinct_values(key, info);

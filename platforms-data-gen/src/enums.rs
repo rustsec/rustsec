@@ -1,12 +1,10 @@
 //! Utilities for generating enums from raw info about targets
 
 use regex::{Captures, Regex};
-use std::collections::BTreeSet;
-
-use crate::rustc_target_info::RustcTargetsInfo;
+use std::collections::{BTreeSet, HashMap};
 
 #[must_use]
-pub(crate) fn distinct_values(key: &str, info: &RustcTargetsInfo) -> BTreeSet<String> {
+pub(crate) fn distinct_values(key: &str, info: &[HashMap<String, String>]) -> BTreeSet<String> {
     info.iter().map(|t| &t[key]).cloned().collect()
 }
 
