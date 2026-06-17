@@ -1,6 +1,5 @@
 //! Utilities for generating enums from raw info about targets
 
-use regex::{Captures, Regex};
 use std::collections::{BTreeSet, HashMap};
 
 #[must_use]
@@ -67,18 +66,31 @@ pub(crate) fn to_enum_variant_name(value: &str) -> String {
 }
 
 fn make_ascii_titlecase(s: &str) -> String {
-    // don't bother to cache the regex. uppercase a lowercase letter after a _ and remove the _
+    // uppercase a lowercase letter at the start of the string or after a `_`, removing the `_`.
     // this transforms `foo_bar` into `FooBar` but `x86_64` into `X86_64`
-    let regex = Regex::new("(^|_)(?<letter>[a-z])").unwrap();
-    regex
-        .replace_all(s, |captures: &Captures| {
-            captures
-                .name("letter")
-                .unwrap()
-                .as_str()
-                .to_ascii_uppercase()
-        })
-        .to_string()
+    let mut out = String::with_capacity(s.len());
+    let mut at_boundary = true;
+
+    for c in s.chars() {
+        at_boundary = match (c, at_boundary) {
+            ('_', _) => true,
+            (c, true) if c.is_ascii_digit() => {
+                out.push('_');
+                out.push(c);
+                false
+            }
+            (c, true) if c.is_ascii_lowercase() => {
+                out.push(c.to_ascii_uppercase());
+                false
+            }
+            (c, _) => {
+                out.push(c);
+                false
+            }
+        };
+    }
+
+    out
 }
 
 #[cfg(test)]
