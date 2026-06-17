@@ -6,10 +6,15 @@ mod rustc_target_info;
 mod templates;
 mod write;
 
-use std::{collections::HashSet, env::args_os, fs::File};
+use std::{
+    collections::{HashMap, HashSet},
+    env::args_os,
+    fs::File,
+};
 
-use doc_target_info::DocTargetsInfo;
 use write::{write_enum_file, write_targets_file, FIELDS_WITH_ENUMS};
+
+use crate::doc_target_info::DocTargetInfo;
 
 fn main() -> std::io::Result<()> {
     let file = args_os().nth(1).expect(
@@ -37,7 +42,10 @@ and pass it as an argument to this program.",
     Ok(())
 }
 
-fn ensure_rustc_and_docs_agree(rustc_triples: &[String], doc_triples: &DocTargetsInfo) {
+fn ensure_rustc_and_docs_agree(
+    rustc_triples: &[String],
+    doc_triples: &HashMap<String, DocTargetInfo>,
+) {
     // Verify that all target triples known to the compiler are documented
     // and that all documented triples are recognized by rustc
     let rustc_triples: HashSet<String> = rustc_triples.iter().cloned().collect();
