@@ -1,0 +1,9 @@
+[package]
+name = "unaffected-newer"
+version = "0.1.0"
+edition = "2024"
+
+[workspace]
+
+[dependencies]
+hickory-proto = "0.25.1"
