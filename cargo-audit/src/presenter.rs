@@ -9,7 +9,7 @@ use abscissa_core::terminal::{
     Color::{self, Red, Yellow},
 };
 use rustsec::{
-    Vulnerability, Warning, WarningKind,
+    Version, VersionReq, Vulnerability, Warning, WarningKind,
     advisory::License,
     cargo_lock::{
         Lockfile, Package,
@@ -345,15 +345,34 @@ impl Presenter {
         self.print_attr(Red, "Version:  ", vulnerability.package.version.to_string());
         self.print_metadata(&vulnerability.advisory, Red);
 
-        if vulnerability.versions.patched().is_empty() {
-            self.print_attr(Red, "Solution: ", "No fixed upgrade is available!");
-        } else {
+        let versions = &vulnerability.versions;
+        if !versions.patched().is_empty() {
             self.print_attr(
                 Red,
                 "Solution: ",
-                format!("Upgrade to {}", join_reqs(vulnerability.versions.patched())),
+                format!("Upgrade to {} (patched)", join_reqs(versions.patched())),
             );
+            return;
         }
+
+        let newer_unaffected = versions
+            .unaffected()
+            .iter()
+            .filter(|req| permits_newer(req, &vulnerability.package.version))
+            .collect::<Vec<_>>();
+
+        if newer_unaffected.is_empty() {
+            self.print_attr(Red, "Solution: ", "No fixed upgrade is available!");
+            return;
+        }
+
+        // No patched release exists, but some never-affected versions are newer than the one
+        // in use, so moving to them is still a way forward.
+        self.print_attr(
+            Red,
+            "Solution: ",
+            format!("Upgrade to {} (unaffected)", join_reqs(&newer_unaffected)),
+        );
     }
 
     /// Print information about a given warning
@@ -457,6 +476,31 @@ impl Presenter {
         )
         .unwrap();
     }
+}
+
+/// Whether `req` is satisfied by any version strictly newer than `current`.
+///
+/// `VersionReq` exposes no bounds, so probe candidate versions with [`VersionReq::matches()`]: the
+/// smallest releases just above `current`, plus the lower bound implied by each comparator (also
+/// bumped, to cover strict `>` operators). A match on any candidate above `current` proves a newer
+/// version is allowed; finding none is conservative and simply suppresses the hint.
+fn permits_newer(req: &VersionReq, current: &Version) -> bool {
+    let mut candidates = vec![
+        Version::new(current.major, current.minor, current.patch + 1),
+        Version::new(current.major, current.minor + 1, 0),
+        Version::new(current.major + 1, 0, 0),
+    ];
+
+    for cmp in &req.comparators {
+        let (major, minor, patch) = (cmp.major, cmp.minor.unwrap_or(0), cmp.patch.unwrap_or(0));
+        candidates.push(Version::new(major, minor, patch));
+        candidates.push(Version::new(major, minor, patch + 1));
+        candidates.push(Version::new(major, minor + 1, 0));
+    }
+
+    candidates
+        .iter()
+        .any(|candidate| candidate > current && req.matches(candidate))
 }
 
 /// Join version requirements into a human-readable `" OR "`-separated list
@@ -581,4 +625,22 @@ mod tests {
     });
 
     static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
+
+    #[test]
+    fn permits_newer() {
+        fn check(req: &str, current: &str) -> bool {
+            super::permits_newer(&req.parse().unwrap(), &current.parse().unwrap())
+        }
+
+        // Newer unaffected ranges: a way forward exists.
+        assert!(check(">=5.0.0", "1.5.0"));
+        assert!(check(">=1.6.0", "1.5.0"));
+        assert!(check(">=1.6.0, <1.9.0", "1.5.0"));
+        assert!(check(">1.5.0", "1.5.0"));
+
+        // Older unaffected ranges (the common pre-vulnerability case): no upgrade.
+        assert!(!check("<1.0.0", "1.5.0"));
+        assert!(!check("^0.4", "0.6.0"));
+        assert!(!check("=1.2.3", "1.5.0"));
+    }
 }
