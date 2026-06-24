@@ -9,7 +9,7 @@
 
 use abscissa_core::testing::prelude::*;
 use once_cell::sync::Lazy;
-use std::{io::BufRead, path::PathBuf};
+use std::{collections::HashSet, io::BufRead, path::PathBuf};
 use tempfile::TempDir;
 
 /// Directory containing the advisory database.
@@ -81,6 +81,12 @@ pub fn unsound_cmd_runner() -> CmdRunner {
 /// Get a `CmdRunner` to a project with a dependency with a notice advisory
 pub fn notice_cmd_runner() -> CmdRunner {
     new_cmd_runner("notice")
+}
+
+/// Get a `CmdRunner` to a project with vulnerable dependencies that have
+/// unaffected newer versions available to upgrade to.
+pub fn unaffected_newer_cmd_runner() -> CmdRunner {
+    new_cmd_runner("unaffected-newer")
 }
 
 /// Get the advisory JSON output from a `CmdRunner`
@@ -306,6 +312,69 @@ fn notice_advisories_found_json() {
         .unwrap();
 
     assert_eq!(advisory_id, "RUSTSEC-2022-0058");
+}
+
+#[test]
+fn unaffected_newer_suggests_upgrades() {
+    let mut runner = unaffected_newer_cmd_runner();
+    runner.arg("--json");
+
+    let mut process = runner.run();
+    let json = get_advisories_json(&mut process);
+    process.wait().unwrap().expect_code(1);
+
+    // There should be (at least) two advisories:
+    //
+    // 1. RUSTSEC-2026-0118, which will suggest an unaffected version >= 0.26.0-beta.1,
+    // 2. RUSTSEC-2026-0119, which will suggest a patched version >= 0.26.1.
+    //
+    // We're going to verify that these are in the JSON output before we re-run
+    // the audit to validate the presenter output. If they aren't, then this
+    // test may need to be regenerated against the current advisory database.
+    let vulns = json
+        .pointer("/vulnerabilities/list")
+        .unwrap()
+        .as_array()
+        .unwrap();
+
+    let ids = HashSet::<&str>::from_iter(
+        vulns
+            .into_iter()
+            .map(|v| v.pointer("/advisory/id").unwrap().as_str().unwrap()),
+    );
+
+    assert!(ids.contains("RUSTSEC-2026-0118"));
+    assert!(ids.contains("RUSTSEC-2026-0119"));
+
+    // OK, now let's re-run without the --json flag and verify that the
+    // presenter rendered the suggested solutions as expected.
+    let runner = unaffected_newer_cmd_runner();
+    let mut process = runner.run();
+
+    // We'll just grab the Solution: lines, since that's all we're interested in.
+    let mut lines = Vec::new();
+    let mut line = String::new();
+    while process.stdout().read_line(&mut line).unwrap() > 0 {
+        if line.starts_with("Solution:") {
+            lines.push(line.clone());
+        }
+        line.clear();
+    }
+    process.wait().unwrap().expect_code(1);
+
+    // These expectations are based on the same advisories as listed above. Note
+    // that we're interested both in whether the solutions exist, and that they
+    // are correctly annotated as being based on the version being unaffected or
+    // patched, respectively.
+    for expected in [
+        "Upgrade to >=0.26.0-beta.1 (unaffected)",
+        "Upgrade to >=0.26.1 (patched)",
+    ] {
+        assert!(
+            lines.iter().any(|line| line.contains(expected)),
+            "looking for: {expected}"
+        );
+    }
 }
 
 // Causes tests to time out when run from tests, but works when invoked normally
