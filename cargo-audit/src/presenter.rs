@@ -1,5 +1,6 @@
 //! Presenter for `rustsec::Report` information.
 
+use std::fmt;
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
@@ -350,17 +351,7 @@ impl Presenter {
             self.print_attr(
                 Red,
                 "Solution: ",
-                format!(
-                    "Upgrade to {}",
-                    vulnerability
-                        .versions
-                        .patched()
-                        .iter()
-                        .map(ToString::to_string)
-                        .collect::<Vec<_>>()
-                        .as_slice()
-                        .join(" OR ")
-                ),
+                format!("Upgrade to {}", join_reqs(vulnerability.versions.patched())),
             );
         }
     }
@@ -466,6 +457,14 @@ impl Presenter {
         )
         .unwrap();
     }
+}
+
+/// Join version requirements into a human-readable `" OR "`-separated list
+fn join_reqs(reqs: &[impl fmt::Display]) -> String {
+    reqs.iter()
+        .map(ToString::to_string)
+        .collect::<Vec<_>>()
+        .join(" OR ")
 }
 
 #[cfg(test)]
