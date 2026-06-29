@@ -1,6 +1,7 @@
 //! RustSec Advisory DB Linter
 
 use std::{
+    collections::BTreeSet,
     fs,
     path::{Path, PathBuf},
 };
@@ -56,7 +57,9 @@ impl Linter {
     /// Lint the loaded database
     pub fn lint(mut self) -> Result<usize, Error> {
         for collection in COLLECTIONS {
-            for crate_entry in read_dir_sorted(self.repo_path.join(collection.as_str()))? {
+            let crate_entries = read_dir_sorted(self.repo_path.join(collection.as_str()))?;
+            let mut advisories = Vec::with_capacity(crate_entries.len());
+            for crate_entry in &crate_entries {
                 let crate_dir = crate_entry.path();
 
                 if !crate_dir.is_dir() {
@@ -70,8 +73,12 @@ impl Linter {
 
                 for advisory_entry in read_dir_sorted(crate_dir)? {
                     let advisory_path = advisory_entry.path();
-                    self.lint_advisory(*collection, &advisory_path)?;
+                    advisories.push(self.lint_advisory(*collection, &advisory_path)?);
                 }
+            }
+
+            if collection == &Collection::Crates {
+                self.crates_io_lints(&advisories)?;
             }
         }
 
@@ -80,7 +87,11 @@ impl Linter {
 
     /// Lint an advisory at the specified path
     // TODO(tarcieri): separate out presentation (`status_*`) from linting code?
-    fn lint_advisory(&mut self, collection: Collection, advisory_path: &Path) -> Result<(), Error> {
+    fn lint_advisory(
+        &mut self,
+        collection: Collection,
+        advisory_path: &Path,
+    ) -> Result<Advisory, Error> {
         if !advisory_path.is_file() {
             fail!(
                 ErrorKind::RustSec,
@@ -91,13 +102,7 @@ impl Linter {
         }
 
         let advisory = Advisory::load_file(advisory_path)?;
-
-        if collection == Collection::Crates {
-            self.crates_io_lints(&advisory)?;
-        }
-
         let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
-
         if lint_result.errors().is_empty() {
             status_ok!("Linted", "ok: {}", advisory_path.display());
         } else {
@@ -113,46 +118,75 @@ impl Linter {
             }
         }
 
-        Ok(())
+        Ok(advisory)
     }
 
     /// Perform lints that connect to https://crates.io
-    fn crates_io_lints(&mut self, advisory: &Advisory) -> Result<(), Error> {
-        if advisory.metadata.expect_deleted {
-            return Ok(());
-        }
+    fn crates_io_lints(&mut self, advisories: &[Advisory]) -> Result<(), Error> {
+        let names = BTreeSet::from_iter(advisories.iter().filter_map(|advisory| {
+            match advisory.metadata.expect_deleted {
+                false => Some(advisory.metadata.package.as_str().to_owned()),
+                true => None,
+            }
+        }));
 
-        if !self.name_exists_on_crates_io(advisory.metadata.package.as_str()) {
-            self.invalid_advisories += 1;
+        let lock = match acquire_cargo_package_lock() {
+            Ok(lock) => lock,
+            Err(error) => {
+                status_err!("Failed to acquire cargo package lock: {}", error);
+                status_err!("Skipping crates.io lints");
+                return Ok(());
+            }
+        };
 
-            fail!(
-                ErrorKind::CratesIo,
-                "crates.io package name does not match package name in advisory for {} in {}",
-                advisory.metadata.package.as_str(),
-                advisory.metadata.id
-            );
+        // Check if crates with these names exist on crates.io
+
+        let metadata = self.crates_index.krates(names, true, &lock);
+        for advisory in advisories {
+            if advisory.metadata.expect_deleted {
+                continue;
+            }
+
+            match metadata.get(advisory.metadata.package.as_str()) {
+                Some(Ok(Some(crate_))) => {
+                    // This check verifies name normalization.
+                    // A request for "serde-json" might return "serde_json",
+                    // and we want to catch use a non-canonical name and report it as an error.
+                    if crate_.name() != advisory.metadata.package.as_str() {
+                        self.invalid_advisories += 1;
+
+                        fail!(
+                            ErrorKind::CratesIo,
+                            "crates.io package name does not match package name in advisory for {} in {}",
+                            advisory.metadata.package.as_str(),
+                            advisory.metadata.id
+                        );
+                    }
+                }
+                Some(Ok(None)) | None => {
+                    self.invalid_advisories += 1;
+
+                    fail!(
+                        ErrorKind::CratesIo,
+                        "crates.io package name does not exist for {} in {}",
+                        advisory.metadata.package.as_str(),
+                        advisory.metadata.id
+                    );
+                }
+                Some(Err(error)) => {
+                    self.invalid_advisories += 1;
+
+                    fail!(
+                        ErrorKind::CratesIo,
+                        "failed to fetch crates.io metadata for {} in {}: {error}",
+                        advisory.metadata.package.as_str(),
+                        advisory.metadata.id
+                    );
+                }
+            }
         }
 
         Ok(())
-    }
-
-    /// Checks if a crate with this name is present on crates.io
-    fn name_exists_on_crates_io(&self, name: &str) -> bool {
-        let lock = match acquire_cargo_package_lock() {
-            Ok(lock) => lock,
-            Err(_) => return false,
-        };
-        if let Ok(Some(crate_)) = self
-            .crates_index
-            .krate(name.try_into().unwrap(), true, &lock)
-        {
-            // This check verifies name normalization.
-            // A request for "serde-json" might return "serde_json",
-            // and we want to catch use a non-canonical name and report it as an error.
-            crate_.name() == name
-        } else {
-            false
-        }
     }
 }
 
