@@ -95,4 +95,10 @@ pub struct Metadata {
     /// case, for example if a malicious crate has been completely removed.
     #[serde(rename = "expect-deleted", default)]
     pub expect_deleted: bool,
+
+    /// Recommended alternative crates to use instead of the affected crate.
+    ///
+    /// Typically used with `informational = "unmaintained"` advisories.
+    #[serde(default)]
+    pub alternatives: Vec<package::Name>,
 }
