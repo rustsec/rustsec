@@ -71,29 +71,25 @@ impl CachedIndex {
     /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
     pub fn fetch(lock_timeout: Duration) -> Result<Self, Error> {
-        Self::fetch_inner(None, lock_timeout).map_err(Error::from_tame)
+        Self::fetch_inner(lock_timeout).map_err(Error::from_tame)
     }
 
-    fn fetch_inner(
-        client: Option<ClientBuilder>,
-        lock_timeout: Duration,
-    ) -> Result<Self, tame_index::Error> {
+    fn fetch_inner(lock_timeout: Duration) -> Result<Self, tame_index::Error> {
         let si = tame_index::index::SparseIndex::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
 
         let lock = acquire_cargo_package_lock(lock_timeout)?;
 
-        let client_builder = client.unwrap_or_default();
         // note: this would need to change if rustsec ever adds the capability
         // to query other indices that _might_ not support HTTP/2, but
         // hopefully that would never need to happen
-        let client = client_builder.build().map_err(tame_index::Error::from)?;
-
-        let index = Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client));
+        let client = ClientBuilder::default()
+            .build()
+            .map_err(tame_index::Error::from)?;
 
         Ok(CachedIndex {
-            index,
+            index: Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client)),
             cache: Default::default(),
             lock,
         })
