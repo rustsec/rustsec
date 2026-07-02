@@ -68,13 +68,25 @@ impl CachedIndex {
     /// It will fail with [`rustsec::Error::LockTimeout`](Error) if the lock is still held
     /// after that time.
     ///
-    /// If `lock_timeout` is set to `std::time::Duration::from_secs(0)`, it will not wait at all,
+    /// If `lock_timeout` is set to `Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
-    pub fn fetch(lock_timeout: Duration) -> Result<Self, Error> {
-        Self::fetch_inner(lock_timeout).map_err(Error::from_tame)
+    pub fn fetch_as(lock_timeout: Duration, user_agent: String) -> Result<Self, Error> {
+        Self::fetch_inner(lock_timeout, user_agent).map_err(Error::from_tame)
     }
 
-    fn fetch_inner(lock_timeout: Duration) -> Result<Self, tame_index::Error> {
+    /// Open the local crates.io index
+    ///
+    /// Synthesizes a user agent string based on the current version of `rustsec`.
+    #[deprecated(since = "0.30.0", note = "Use `CachedIndex::fetch_as()` instead")]
+    pub fn fetch(lock_timeout: Duration) -> Result<Self, Error> {
+        Self::fetch_inner(
+            lock_timeout,
+            format!("rustsec/{}", env!("CARGO_PKG_VERSION")),
+        )
+        .map_err(Error::from_tame)
+    }
+
+    fn fetch_inner(lock_timeout: Duration, user_agent: String) -> Result<Self, tame_index::Error> {
         let si = tame_index::index::SparseIndex::new(tame_index::IndexLocation::new(
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?;
@@ -85,6 +97,7 @@ impl CachedIndex {
         // to query other indices that _might_ not support HTTP/2, but
         // hopefully that would never need to happen
         let client = ClientBuilder::default()
+            .user_agent(user_agent)
             .build()
             .map_err(tame_index::Error::from)?;
 
