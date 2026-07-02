@@ -29,6 +29,7 @@ pub fn crates_index() -> Result<RemoteSparseIndex, tame_index::Error> {
             tame_index::IndexUrl::crates_io(None, None, None)?,
         ))?,
         tame_index::external::reqwest::blocking::ClientBuilder::new()
+            .user_agent(format!("rustsec-admin/{}", env!("CARGO_PKG_VERSION")))
             .build()
             .map_err(tame_index::Error::from)?,
     ))
