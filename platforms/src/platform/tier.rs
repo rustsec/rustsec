@@ -1,10 +1,11 @@
 //! Rust platform tiers
 
-use crate::error::Error;
 use core::{convert::TryFrom, fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
 use serde::{de, ser, Deserialize, Serialize};
+
+use crate::error::Error;
 
 /// Rust platform tiers: support levels are organized into three tiers, each
 /// with a different set of guarantees.

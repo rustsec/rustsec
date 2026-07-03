@@ -4,9 +4,16 @@
 //! <https://doc.rust-lang.org/reference/attributes.html#conditional-compilation>
 
 mod arch;
-mod endian;
-mod env;
-mod os;
-mod pointerwidth;
+pub use arch::Arch;
 
-pub use self::{arch::Arch, endian::Endian, env::Env, os::Os, pointerwidth::PointerWidth};
+mod endian;
+pub use endian::Endian;
+
+mod env;
+pub use env::Env;
+
+mod os;
+pub use os::Os;
+
+mod pointerwidth;
+pub use pointerwidth::PointerWidth;

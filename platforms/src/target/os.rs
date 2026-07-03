@@ -1,10 +1,11 @@
 //! Operating systems
 
-use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
 use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
+
+use crate::error::Error;
 
 /// `target_os`: Operating system of the target.
 ///
