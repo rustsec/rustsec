@@ -2,11 +2,8 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use rustsec::{
-    Error, ErrorKind, WarningKind, advisory,
-    platforms::{Arch, Os},
-    report,
-};
+use platforms::{Arch, Os};
+use rustsec::{Error, ErrorKind, WarningKind, advisory, report};
 use serde::{Deserialize, Serialize};
 
 /// `cargo audit` configuration:

@@ -1,10 +1,17 @@
 //! The `cargo audit` subcommand
 
-#[cfg(feature = "fix")]
-mod fix;
+use std::{
+    fmt,
+    io::{self, IsTerminal},
+    path::PathBuf,
+    process::exit,
+};
 
-#[cfg(feature = "binary-scanning")]
-mod binary_scanning;
+use abscissa_core::{
+    FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
+};
+use clap::{Parser, ValueEnum};
+use platforms::{Arch, Os};
 
 use crate::{
     auditor::Auditor,
@@ -13,17 +20,12 @@ use crate::{
     lockfile,
     prelude::*,
 };
-use abscissa_core::{
-    FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
-};
-use clap::{Parser, ValueEnum};
-use rustsec::platforms::{Arch, Os};
-use std::{
-    fmt,
-    io::{self, IsTerminal},
-    path::PathBuf,
-    process::exit,
-};
+
+#[cfg(feature = "fix")]
+mod fix;
+
+#[cfg(feature = "binary-scanning")]
+mod binary_scanning;
 
 #[cfg(feature = "binary-scanning")]
 use self::binary_scanning::BinCommand;

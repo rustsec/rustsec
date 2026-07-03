@@ -410,6 +410,7 @@ dependencies = [
  "home",
  "object 0.39.1",
  "once_cell",
+ "platforms",
  "rustc-demangle",
  "rustsec",
  "serde",
