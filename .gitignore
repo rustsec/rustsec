@@ -1,2 +1,2 @@
 platforms/**/Cargo.lock
-target
+/target
