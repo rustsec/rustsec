@@ -1,10 +1,11 @@
 //! Pointer width of the target architecture
 
-use crate::error::Error;
 use core::{fmt, str::FromStr};
 
 #[cfg(feature = "serde")]
 use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
+
+use crate::error::Error;
 
 /// `target_pointer_width`: Size of native pointer types (`usize`, `isize`) in bits
 ///

@@ -1,19 +1,19 @@
 //! Rust platforms
 
+use core::fmt;
+
+use crate::target::{Arch, Endian, Env, Os, PointerWidth};
+
 mod platforms;
+use platforms::ALL;
 
 #[cfg(feature = "std")]
 mod req;
-mod tier;
-
-pub use self::tier::Tier;
-
 #[cfg(feature = "std")]
-pub use self::req::PlatformReq;
+pub use req::PlatformReq;
 
-use self::platforms::ALL;
-use crate::target::*;
-use core::fmt;
+mod tier;
+pub use tier::Tier;
 
 /// Rust platforms supported by mainline rustc
 ///
@@ -78,8 +78,9 @@ impl fmt::Display for Platform {
 
 #[cfg(all(test, feature = "std"))]
 mod tests {
-    use super::Platform;
-    use std::collections::HashSet;
+    use std::collections::{HashMap, HashSet};
+
+    use super::*;
 
     /// Ensure there are no duplicate target triples in the platforms list
     #[test]
@@ -94,10 +95,6 @@ mod tests {
             );
         }
     }
-
-    use std::collections::HashMap;
-
-    use super::*;
 
     /// `platforms` v2.0 used to provide various constants passed as `cfg` values,
     /// and attempted to detect the target triple based on that.

@@ -1,11 +1,12 @@
 //! Platform requirements
 
-use crate::error::Error;
-use crate::platform::Platform;
 use std::{fmt, str::FromStr, string::String};
 
 #[cfg(feature = "serde")]
 use serde::{de, ser, Deserialize, Serialize};
+
+use crate::error::Error;
+use crate::platform::Platform;
 
 /// Platform requirements: glob-like expressions for matching Rust platforms
 /// as identified by a "target triple", e.g. `i686-apple-darwin`.
