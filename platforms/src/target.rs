@@ -9,4 +9,4 @@ mod env;
 mod os;
 mod pointerwidth;
 
-pub use self::{arch::Arch, endian::Endian, env::Env, os::OS, pointerwidth::PointerWidth};
+pub use self::{arch::Arch, endian::Endian, env::Env, os::Os, pointerwidth::PointerWidth};

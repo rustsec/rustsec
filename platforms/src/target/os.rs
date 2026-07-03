@@ -12,7 +12,7 @@ use serde::{de, de::Error as DeError, ser, Deserialize, Serialize};
 /// of the platform target triple, though it is not identical.
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[non_exhaustive]
-pub enum OS {
+pub enum Os {
     /// `aix`
     Aix,
 
@@ -165,120 +165,120 @@ pub enum OS {
     Zkvm,
 }
 
-impl OS {
-    /// String representing this `OS` which matches `#[cfg(target_os)]`
+impl Os {
+    /// String representing this `Os` which matches `#[cfg(target_os)]`
     pub fn as_str(self) -> &'static str {
         match self {
-            OS::Aix => "aix",
-            OS::Amdhsa => "amdhsa",
-            OS::Android => "android",
-            OS::Cuda => "cuda",
-            OS::Cygwin => "cygwin",
-            OS::Dragonfly => "dragonfly",
-            OS::Emscripten => "emscripten",
-            OS::Espidf => "espidf",
-            OS::FreeBSD => "freebsd",
-            OS::Fuchsia => "fuchsia",
-            OS::Haiku => "haiku",
-            OS::HelenOS => "helenos",
-            OS::Hermit => "hermit",
-            OS::Horizon => "horizon",
-            OS::Hurd => "hurd",
-            OS::IllumOS => "illumos",
-            OS::iOS => "ios",
-            OS::L4re => "l4re",
-            OS::Linux => "linux",
-            OS::Lynxos178 => "lynxos178",
-            OS::MacOS => "macos",
-            OS::Managarm => "managarm",
-            OS::Motor => "motor",
-            OS::NetBSD => "netbsd",
-            OS::None => "none",
-            OS::Nto => "nto",
-            OS::Nuttx => "nuttx",
-            OS::OpenBSD => "openbsd",
-            OS::Psp => "psp",
-            OS::Psx => "psx",
-            OS::Qnx => "qnx",
-            OS::Qurt => "qurt",
-            OS::Redox => "redox",
-            OS::Rtems => "rtems",
-            OS::Solaris => "solaris",
-            OS::SolidAsp3 => "solid_asp3",
-            OS::TeeOS => "teeos",
-            OS::Trusty => "trusty",
-            OS::TvOS => "tvos",
-            OS::Uefi => "uefi",
-            OS::Unknown => "unknown",
-            OS::VexOS => "vexos",
-            OS::VisionOS => "visionos",
-            OS::Vita => "vita",
-            OS::VxWorks => "vxworks",
-            OS::Wasi => "wasi",
-            OS::WatchOS => "watchos",
-            OS::Windows => "windows",
-            OS::Xous => "xous",
-            OS::Zkvm => "zkvm",
+            Os::Aix => "aix",
+            Os::Amdhsa => "amdhsa",
+            Os::Android => "android",
+            Os::Cuda => "cuda",
+            Os::Cygwin => "cygwin",
+            Os::Dragonfly => "dragonfly",
+            Os::Emscripten => "emscripten",
+            Os::Espidf => "espidf",
+            Os::FreeBSD => "freebsd",
+            Os::Fuchsia => "fuchsia",
+            Os::Haiku => "haiku",
+            Os::HelenOS => "helenos",
+            Os::Hermit => "hermit",
+            Os::Horizon => "horizon",
+            Os::Hurd => "hurd",
+            Os::IllumOS => "illumos",
+            Os::iOS => "ios",
+            Os::L4re => "l4re",
+            Os::Linux => "linux",
+            Os::Lynxos178 => "lynxos178",
+            Os::MacOS => "macos",
+            Os::Managarm => "managarm",
+            Os::Motor => "motor",
+            Os::NetBSD => "netbsd",
+            Os::None => "none",
+            Os::Nto => "nto",
+            Os::Nuttx => "nuttx",
+            Os::OpenBSD => "openbsd",
+            Os::Psp => "psp",
+            Os::Psx => "psx",
+            Os::Qnx => "qnx",
+            Os::Qurt => "qurt",
+            Os::Redox => "redox",
+            Os::Rtems => "rtems",
+            Os::Solaris => "solaris",
+            Os::SolidAsp3 => "solid_asp3",
+            Os::TeeOS => "teeos",
+            Os::Trusty => "trusty",
+            Os::TvOS => "tvos",
+            Os::Uefi => "uefi",
+            Os::Unknown => "unknown",
+            Os::VexOS => "vexos",
+            Os::VisionOS => "visionos",
+            Os::Vita => "vita",
+            Os::VxWorks => "vxworks",
+            Os::Wasi => "wasi",
+            Os::WatchOS => "watchos",
+            Os::Windows => "windows",
+            Os::Xous => "xous",
+            Os::Zkvm => "zkvm",
         }
     }
 }
 
-impl FromStr for OS {
+impl FromStr for Os {
     type Err = Error;
 
-    /// Create a new `OS` from the given string
+    /// Create a new `Os` from the given string
     fn from_str(name: &str) -> Result<Self, Self::Err> {
         let result = match name {
-            "aix" => OS::Aix,
-            "amdhsa" => OS::Amdhsa,
-            "android" => OS::Android,
-            "cuda" => OS::Cuda,
-            "cygwin" => OS::Cygwin,
-            "dragonfly" => OS::Dragonfly,
-            "emscripten" => OS::Emscripten,
-            "espidf" => OS::Espidf,
-            "freebsd" => OS::FreeBSD,
-            "fuchsia" => OS::Fuchsia,
-            "haiku" => OS::Haiku,
-            "helenos" => OS::HelenOS,
-            "hermit" => OS::Hermit,
-            "horizon" => OS::Horizon,
-            "hurd" => OS::Hurd,
-            "illumos" => OS::IllumOS,
-            "ios" => OS::iOS,
-            "l4re" => OS::L4re,
-            "linux" => OS::Linux,
-            "lynxos178" => OS::Lynxos178,
-            "macos" => OS::MacOS,
-            "managarm" => OS::Managarm,
-            "motor" => OS::Motor,
-            "netbsd" => OS::NetBSD,
-            "none" => OS::None,
-            "nto" => OS::Nto,
-            "nuttx" => OS::Nuttx,
-            "openbsd" => OS::OpenBSD,
-            "psp" => OS::Psp,
-            "psx" => OS::Psx,
-            "qnx" => OS::Qnx,
-            "qurt" => OS::Qurt,
-            "redox" => OS::Redox,
-            "rtems" => OS::Rtems,
-            "solaris" => OS::Solaris,
-            "solid_asp3" => OS::SolidAsp3,
-            "teeos" => OS::TeeOS,
-            "trusty" => OS::Trusty,
-            "tvos" => OS::TvOS,
-            "uefi" => OS::Uefi,
-            "unknown" => OS::Unknown,
-            "vexos" => OS::VexOS,
-            "visionos" => OS::VisionOS,
-            "vita" => OS::Vita,
-            "vxworks" => OS::VxWorks,
-            "wasi" => OS::Wasi,
-            "watchos" => OS::WatchOS,
-            "windows" => OS::Windows,
-            "xous" => OS::Xous,
-            "zkvm" => OS::Zkvm,
+            "aix" => Os::Aix,
+            "amdhsa" => Os::Amdhsa,
+            "android" => Os::Android,
+            "cuda" => Os::Cuda,
+            "cygwin" => Os::Cygwin,
+            "dragonfly" => Os::Dragonfly,
+            "emscripten" => Os::Emscripten,
+            "espidf" => Os::Espidf,
+            "freebsd" => Os::FreeBSD,
+            "fuchsia" => Os::Fuchsia,
+            "haiku" => Os::Haiku,
+            "helenos" => Os::HelenOS,
+            "hermit" => Os::Hermit,
+            "horizon" => Os::Horizon,
+            "hurd" => Os::Hurd,
+            "illumos" => Os::IllumOS,
+            "ios" => Os::iOS,
+            "l4re" => Os::L4re,
+            "linux" => Os::Linux,
+            "lynxos178" => Os::Lynxos178,
+            "macos" => Os::MacOS,
+            "managarm" => Os::Managarm,
+            "motor" => Os::Motor,
+            "netbsd" => Os::NetBSD,
+            "none" => Os::None,
+            "nto" => Os::Nto,
+            "nuttx" => Os::Nuttx,
+            "openbsd" => Os::OpenBSD,
+            "psp" => Os::Psp,
+            "psx" => Os::Psx,
+            "qnx" => Os::Qnx,
+            "qurt" => Os::Qurt,
+            "redox" => Os::Redox,
+            "rtems" => Os::Rtems,
+            "solaris" => Os::Solaris,
+            "solid_asp3" => Os::SolidAsp3,
+            "teeos" => Os::TeeOS,
+            "trusty" => Os::Trusty,
+            "tvos" => Os::TvOS,
+            "uefi" => Os::Uefi,
+            "unknown" => Os::Unknown,
+            "vexos" => Os::VexOS,
+            "visionos" => Os::VisionOS,
+            "vita" => Os::Vita,
+            "vxworks" => Os::VxWorks,
+            "wasi" => Os::Wasi,
+            "watchos" => Os::WatchOS,
+            "windows" => Os::Windows,
+            "xous" => Os::Xous,
+            "zkvm" => Os::Zkvm,
             _ => return Err(Error),
         };
 
@@ -286,21 +286,21 @@ impl FromStr for OS {
     }
 }
 
-impl fmt::Display for OS {
+impl fmt::Display for Os {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
     }
 }
 
 #[cfg(feature = "serde")]
-impl Serialize for OS {
+impl Serialize for Os {
     fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         serializer.serialize_str(self.as_str())
     }
 }
 
 #[cfg(all(feature = "serde", feature = "std"))]
-impl<'de> Deserialize<'de> for OS {
+impl<'de> Deserialize<'de> for Os {
     fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         let string = std::string::String::deserialize(deserializer)?;
         string.parse().map_err(|_| {

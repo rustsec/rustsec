@@ -1,12 +1,13 @@
 //! The configuration file
 
+use std::{path::PathBuf, str::FromStr};
+
 use rustsec::{
     Error, ErrorKind, WarningKind, advisory,
-    platforms::{Arch, OS},
+    platforms::{Arch, Os},
     report,
 };
 use serde::{Deserialize, Serialize};
-use std::{path::PathBuf, str::FromStr};
 
 /// `cargo audit` configuration:
 ///
@@ -293,7 +294,7 @@ pub struct TargetConfig {
     pub arch: Option<FilterList<Arch>>,
 
     /// Target OS to find vulnerabilities for
-    pub os: Option<FilterList<OS>>,
+    pub os: Option<FilterList<Os>>,
 }
 
 impl TargetConfig {
@@ -307,7 +308,7 @@ impl TargetConfig {
     }
 
     /// Returns list of configured target operating systems, cloning if needed
-    pub fn os(&self) -> Vec<OS> {
+    pub fn os(&self) -> Vec<Os> {
         match &self.os {
             Some(FilterList::Single(single)) => vec![*single],
             Some(FilterList::Many(many)) => many.clone(),

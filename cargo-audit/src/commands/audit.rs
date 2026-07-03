@@ -17,7 +17,7 @@ use abscissa_core::{
     FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
 };
 use clap::{Parser, ValueEnum};
-use rustsec::platforms::{Arch, OS};
+use rustsec::platforms::{Arch, Os};
 use std::{
     fmt,
     io::{self, IsTerminal},
@@ -141,7 +141,7 @@ pub struct AuditCommand {
         long = "target-os",
         help = "filter vulnerabilities by OS (default: no filter). Can be specified multiple times"
     )]
-    target_os: Vec<OS>,
+    target_os: Vec<Os>,
 
     /// URL to the advisory database git repository
     #[arg(short = 'u', long = "url", help = "URL for advisory database git repo")]

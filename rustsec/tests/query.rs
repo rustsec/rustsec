@@ -2,7 +2,7 @@
 
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-use platforms::{Arch, OS};
+use platforms::{Arch, Os};
 use rustsec::{advisory::Severity, database::Query, package};
 
 /// Load example advisory from the filesystem
@@ -46,10 +46,10 @@ fn matches_severity() {
 fn matches_target_os() {
     let advisory = load_advisory();
 
-    let query_matches = Query::new().target_os(vec![OS::Windows, OS::Linux]);
+    let query_matches = Query::new().target_os(vec![Os::Windows, Os::Linux]);
     assert!(query_matches.matches(&advisory));
 
-    let query_normal = Query::new().target_os(vec![OS::MacOS, OS::FreeBSD]);
+    let query_normal = Query::new().target_os(vec![Os::MacOS, Os::FreeBSD]);
     assert!(!query_normal.matches(&advisory));
 }
 
