@@ -15,5 +15,5 @@ pub use env::Env;
 mod os;
 pub use os::Os;
 
-mod pointerwidth;
-pub use pointerwidth::PointerWidth;
+mod pointer_width;
+pub use pointer_width::PointerWidth;
