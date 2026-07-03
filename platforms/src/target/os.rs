@@ -104,6 +104,9 @@ pub enum OS {
     /// `psx`
     Psx,
 
+    /// `qnx`
+    Qnx,
+
     /// `qurt`
     Qurt,
 
@@ -196,6 +199,7 @@ impl OS {
             OS::OpenBSD => "openbsd",
             OS::Psp => "psp",
             OS::Psx => "psx",
+            OS::Qnx => "qnx",
             OS::Qurt => "qurt",
             OS::Redox => "redox",
             OS::Rtems => "rtems",
@@ -255,6 +259,7 @@ impl FromStr for OS {
             "openbsd" => OS::OpenBSD,
             "psp" => OS::Psp,
             "psx" => OS::Psx,
+            "qnx" => OS::Qnx,
             "qurt" => OS::Qurt,
             "redox" => OS::Redox,
             "rtems" => OS::Rtems,

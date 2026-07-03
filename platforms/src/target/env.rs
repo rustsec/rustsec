@@ -44,9 +44,6 @@ pub enum Env {
     /// `nto71_iosock`
     Nto71Iosock,
 
-    /// `nto80`
-    Nto80,
-
     /// `ohos`
     OhOS,
 
@@ -89,7 +86,6 @@ impl Env {
             Env::Nto70 => "nto70",
             Env::Nto71 => "nto71",
             Env::Nto71Iosock => "nto71_iosock",
-            Env::Nto80 => "nto80",
             Env::OhOS => "ohos",
             Env::P1 => "p1",
             Env::P2 => "p2",
@@ -119,7 +115,6 @@ impl FromStr for Env {
             "nto70" => Env::Nto70,
             "nto71" => Env::Nto71,
             "nto71_iosock" => Env::Nto71Iosock,
-            "nto80" => Env::Nto80,
             "ohos" => Env::OhOS,
             "p1" => Env::P1,
             "p2" => Env::P2,
