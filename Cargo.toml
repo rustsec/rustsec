@@ -32,7 +32,7 @@ home = "0.5"
 object = { version = "0.39", default-features = false, features = ["read", "wasm"] }
 once_cell = "1.15.0"
 petgraph = "0.8.2"
-platforms = { version = "3", path = "./platforms" }
+platforms = { version = "4", path = "./platforms" }
 quitters = { version = "0.1.0", path = "./quitters" }
 regex = { version = "1.10.6", default-features = false }
 rust-embed = { version = "8.5.0", features = ["deterministic-timestamps"] }
