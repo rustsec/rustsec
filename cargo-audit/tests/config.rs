@@ -3,7 +3,7 @@
 use std::{fs, path::Path};
 
 use cargo_audit::config::AuditConfig;
-use rustsec::platforms::{Arch, Os};
+use platforms::{Arch, Os};
 
 /// Ensure `audit.toml.example` parses as a valid config file
 #[test]

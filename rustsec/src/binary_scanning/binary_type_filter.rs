@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 use std::str::FromStr;
 
-use crate::platforms::{Os, PlatformReq};
 use once_cell::sync::OnceCell;
+use platforms::{Os, PlatformReq};
 
 use crate::Report;
 use crate::binary_scanning::BinaryFormat;
