@@ -16,7 +16,7 @@ pub(crate) fn enumify_value(key: &str, value: &str) -> String {
 pub(crate) fn to_enum_name(key: &str) -> &'static str {
     match key {
         "target_arch" => "Arch",
-        "target_os" => "OS",
+        "target_os" => "Os",
         "target_env" => "Env",
         "tier" => "Tier",
         "target_endian" => "Endian",

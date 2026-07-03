@@ -33,7 +33,7 @@ pub struct Platform {
     pub target_arch: Arch,
 
     /// Target OS `cfg` attribute (i.e. `cfg(target_os)`).
-    pub target_os: OS,
+    pub target_os: Os,
 
     /// Target environment `cfg` attribute (i.e. `cfg(target_env)`).
     /// Only used when needed for disambiguation, e.g. on many GNU platforms

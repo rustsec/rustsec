@@ -7,7 +7,7 @@ use crate::{
     Lockfile, Map, advisory,
     database::{Database, Query},
     map,
-    platforms::{Arch, OS},
+    platforms::{Arch, Os},
     vulnerability::Vulnerability,
     warning::{self, Warning},
 };
@@ -63,7 +63,7 @@ pub struct Settings {
     pub target_arch: Vec<Arch>,
 
     /// Operating system
-    pub target_os: Vec<OS>,
+    pub target_os: Vec<Os>,
 
     /// Severity threshold to alert at
     pub severity: Option<advisory::Severity>,

@@ -6,7 +6,7 @@ use crate::{
     collection::Collection,
     package::{self, Package},
 };
-use platforms::{Arch, OS};
+use platforms::{Arch, Os};
 use semver::Version;
 
 /// Queries against the RustSec database
@@ -31,7 +31,7 @@ pub struct Query {
     target_arch: Vec<Arch>,
 
     /// Target operating system
-    target_os: Vec<OS>,
+    target_os: Vec<Os>,
 
     /// Year associated with the advisory ID
     year: Option<u32>,
@@ -132,7 +132,7 @@ impl Query {
     }
 
     /// Set target operating systems
-    pub fn target_os(mut self, os: Vec<OS>) -> Self {
+    pub fn target_os(mut self, os: Vec<Os>) -> Self {
         self.target_os = os;
         self
     }
