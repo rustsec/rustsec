@@ -194,18 +194,20 @@ If we remove platforms, we will bump the minor version of this crate.
 |----------------------------------------|-------------|------------|------------|
 | [aarch64-kmc-solid_asp3]               | aarch64     | solid_asp3 |            |
 | [aarch64-nintendo-switch-freestanding] | aarch64     | horizon    |            |
+| [aarch64-oe-linux-gnu]                 | aarch64     | linux      | gnu        |
 | [aarch64-unknown-helenos]              | aarch64     | helenos    |            |
 | [aarch64-unknown-hermit]               | aarch64     | hermit     |            |
 | [aarch64-unknown-illumos]              | aarch64     | illumos    |            |
 | [aarch64-unknown-linux-gnu_ilp32]      | aarch64     | linux      | gnu        |
+| [aarch64-unknown-linux-pauthtest]      | aarch64     | linux      | musl       |
 | [aarch64-unknown-managarm-mlibc]       | aarch64     | managarm   | mlibc      |
 | [aarch64-unknown-netbsd]               | aarch64     | netbsd     |            |
 | [aarch64-unknown-nto-qnx700]           | aarch64     | nto        | nto70      |
 | [aarch64-unknown-nto-qnx710]           | aarch64     | nto        | nto71      |
 | [aarch64-unknown-nto-qnx710_iosock]    | aarch64     | nto        | nto71_iosock |
-| [aarch64-unknown-nto-qnx800]           | aarch64     | nto        | nto80      |
 | [aarch64-unknown-nuttx]                | aarch64     | nuttx      |            |
 | [aarch64-unknown-openbsd]              | aarch64     | openbsd    |            |
+| [aarch64-unknown-qnx]                  | aarch64     | qnx        |            |
 | [aarch64-unknown-redox]                | aarch64     | redox      | relibc     |
 | [aarch64-unknown-teeos]                | aarch64     | teeos      |            |
 | [aarch64-unknown-trusty]               | aarch64     | trusty     |            |
@@ -236,6 +238,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [armv6-unknown-freebsd]                | arm         | freebsd    |            |
 | [armv6-unknown-netbsd-eabihf]          | arm         | netbsd     |            |
 | [armv6k-nintendo-3ds]                  | arm         | horizon    | newlib     |
+| [armv7-oe-linux-gnueabihf]             | arm         | linux      | gnu        |
 | [armv7-rtems-eabihf]                   | arm         | rtems      | newlib     |
 | [armv7-sony-vita-newlibeabihf]         | arm         | vita       | newlib     |
 | [armv7-unknown-freebsd]                | arm         | freebsd    |            |
@@ -263,6 +266,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [i586-unknown-netbsd]                  | x86         | netbsd     |            |
 | [i586-unknown-redox]                   | x86         | redox      | relibc     |
 | [i686-apple-darwin]                    | x86         | macos      |            |
+| [i686-oe-linux-gnu]                    | x86         | linux      | gnu        |
 | [i686-pc-nto-qnx700]                   | x86         | nto        | nto70      |
 | [i686-unknown-haiku]                   | x86         | haiku      |            |
 | [i686-unknown-helenos]                 | x86         | helenos    |            |
@@ -332,6 +336,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [riscv32imc-esp-espidf]                | riscv32     | espidf     | newlib     |
 | [riscv32imc-unknown-nuttx-elf]         | riscv32     | nuttx      |            |
 | [riscv64-linux-android]                | riscv64     | android    |            |
+| [riscv64-oe-linux-gnu]                 | riscv64     | linux      | gnu        |
 | [riscv64-wrs-vxworks]                  | riscv64     | vxworks    | gnu        |
 | [riscv64gc-unknown-freebsd]            | riscv64     | freebsd    |            |
 | [riscv64gc-unknown-fuchsia]            | riscv64     | fuchsia    |            |
@@ -369,10 +374,11 @@ If we remove platforms, we will bump the minor version of this crate.
 | [x86_64-apple-tvos]                    | x86_64      | tvos       | sim        |
 | [x86_64-apple-watchos-sim]             | x86_64      | watchos    | sim        |
 | [x86_64-lynx-lynxos178]                | x86_64      | lynxos178  |            |
+| [x86_64-oe-linux-gnu]                  | x86_64      | linux      | gnu        |
 | [x86_64-pc-cygwin]                     | x86_64      | cygwin     |            |
 | [x86_64-pc-nto-qnx710]                 | x86_64      | nto        | nto71      |
 | [x86_64-pc-nto-qnx710_iosock]          | x86_64      | nto        | nto71_iosock |
-| [x86_64-pc-nto-qnx800]                 | x86_64      | nto        | nto80      |
+| [x86_64-pc-qnx]                        | x86_64      | qnx        |            |
 | [x86_64-unikraft-linux-musl]           | x86_64      | linux      | musl       |
 | [x86_64-unknown-dragonfly]             | x86_64      | dragonfly  |            |
 | [x86_64-unknown-haiku]                 | x86_64      | haiku      |            |
@@ -411,6 +417,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-kmc-solid_asp3]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_KMC_SOLID_ASP3.html
 [aarch64-linux-android]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_LINUX_ANDROID.html
 [aarch64-nintendo-switch-freestanding]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_NINTENDO_SWITCH_FREESTANDING.html
+[aarch64-oe-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_OE_LINUX_GNU.html
 [aarch64-pc-windows-gnullvm]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_PC_WINDOWS_GNULLVM.html
 [aarch64-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_PC_WINDOWS_MSVC.html
 [aarch64-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_FREEBSD.html
@@ -422,6 +429,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-unknown-linux-gnu_ilp32]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_GNU_ILP32.html
 [aarch64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_MUSL.html
 [aarch64-unknown-linux-ohos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_OHOS.html
+[aarch64-unknown-linux-pauthtest]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_PAUTHTEST.html
 [aarch64-unknown-managarm-mlibc]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_MANAGARM_MLIBC.html
 [aarch64-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NETBSD.html
 [aarch64-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NONE.html
@@ -429,9 +437,9 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-unknown-nto-qnx700]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NTO_QNX700.html
 [aarch64-unknown-nto-qnx710]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NTO_QNX710.html
 [aarch64-unknown-nto-qnx710_iosock]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NTO_QNX710_IOSOCK.html
-[aarch64-unknown-nto-qnx800]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NTO_QNX800.html
 [aarch64-unknown-nuttx]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NUTTX.html
 [aarch64-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_OPENBSD.html
+[aarch64-unknown-qnx]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_QNX.html
 [aarch64-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_REDOX.html
 [aarch64-unknown-teeos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_TEEOS.html
 [aarch64-unknown-trusty]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_TRUSTY.html
@@ -472,6 +480,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [armv6-unknown-netbsd-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV6_UNKNOWN_NETBSD_EABIHF.html
 [armv6k-nintendo-3ds]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV6K_NINTENDO_3DS.html
 [armv7-linux-androideabi]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_LINUX_ANDROIDEABI.html
+[armv7-oe-linux-gnueabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_OE_LINUX_GNUEABIHF.html
 [armv7-rtems-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_RTEMS_EABIHF.html
 [armv7-sony-vita-newlibeabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_SONY_VITA_NEWLIBEABIHF.html
 [armv7-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7_UNKNOWN_FREEBSD.html
@@ -512,6 +521,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [i586-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/constant.I586_UNKNOWN_REDOX.html
 [i686-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_APPLE_DARWIN.html
 [i686-linux-android]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_LINUX_ANDROID.html
+[i686-oe-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_OE_LINUX_GNU.html
 [i686-pc-nto-qnx700]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_PC_NTO_QNX700.html
 [i686-pc-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_PC_WINDOWS_GNU.html
 [i686-pc-windows-gnullvm]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_PC_WINDOWS_GNULLVM.html
@@ -603,6 +613,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [riscv32imc-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_UNKNOWN_NONE_ELF.html
 [riscv32imc-unknown-nuttx-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_UNKNOWN_NUTTX_ELF.html
 [riscv64-linux-android]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64_LINUX_ANDROID.html
+[riscv64-oe-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64_OE_LINUX_GNU.html
 [riscv64-wrs-vxworks]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64_WRS_VXWORKS.html
 [riscv64a23-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64A23_UNKNOWN_LINUX_GNU.html
 [riscv64gc-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64GC_UNKNOWN_FREEBSD.html
@@ -675,10 +686,11 @@ If we remove platforms, we will bump the minor version of this crate.
 [x86_64-fortanix-unknown-sgx]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_FORTANIX_UNKNOWN_SGX.html
 [x86_64-linux-android]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_LINUX_ANDROID.html
 [x86_64-lynx-lynxos178]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_LYNX_LYNXOS178.html
+[x86_64-oe-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_OE_LINUX_GNU.html
 [x86_64-pc-cygwin]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_CYGWIN.html
 [x86_64-pc-nto-qnx710]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_NTO_QNX710.html
 [x86_64-pc-nto-qnx710_iosock]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_NTO_QNX710_IOSOCK.html
-[x86_64-pc-nto-qnx800]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_NTO_QNX800.html
+[x86_64-pc-qnx]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_QNX.html
 [x86_64-pc-solaris]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_SOLARIS.html
 [x86_64-pc-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_WINDOWS_GNU.html
 [x86_64-pc-windows-gnullvm]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_PC_WINDOWS_GNULLVM.html

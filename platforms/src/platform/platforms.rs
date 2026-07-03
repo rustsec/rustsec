@@ -28,6 +28,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_KMC_SOLID_ASP3,
     AARCH64_LINUX_ANDROID,
     AARCH64_NINTENDO_SWITCH_FREESTANDING,
+    AARCH64_OE_LINUX_GNU,
     AARCH64_PC_WINDOWS_GNULLVM,
     AARCH64_PC_WINDOWS_MSVC,
     AARCH64_UNKNOWN_FREEBSD,
@@ -39,6 +40,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_LINUX_GNU_ILP32,
     AARCH64_UNKNOWN_LINUX_MUSL,
     AARCH64_UNKNOWN_LINUX_OHOS,
+    AARCH64_UNKNOWN_LINUX_PAUTHTEST,
     AARCH64_UNKNOWN_MANAGARM_MLIBC,
     AARCH64_UNKNOWN_NETBSD,
     AARCH64_UNKNOWN_NONE,
@@ -46,9 +48,9 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_NTO_QNX700,
     AARCH64_UNKNOWN_NTO_QNX710,
     AARCH64_UNKNOWN_NTO_QNX710_IOSOCK,
-    AARCH64_UNKNOWN_NTO_QNX800,
     AARCH64_UNKNOWN_NUTTX,
     AARCH64_UNKNOWN_OPENBSD,
+    AARCH64_UNKNOWN_QNX,
     AARCH64_UNKNOWN_REDOX,
     AARCH64_UNKNOWN_TEEOS,
     AARCH64_UNKNOWN_TRUSTY,
@@ -89,6 +91,7 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV6_UNKNOWN_NETBSD_EABIHF,
     ARMV6K_NINTENDO_3DS,
     ARMV7_LINUX_ANDROIDEABI,
+    ARMV7_OE_LINUX_GNUEABIHF,
     ARMV7_RTEMS_EABIHF,
     ARMV7_SONY_VITA_NEWLIBEABIHF,
     ARMV7_UNKNOWN_FREEBSD,
@@ -129,6 +132,7 @@ pub(crate) const ALL: &[Platform] = &[
     I586_UNKNOWN_REDOX,
     I686_APPLE_DARWIN,
     I686_LINUX_ANDROID,
+    I686_OE_LINUX_GNU,
     I686_PC_NTO_QNX700,
     I686_PC_WINDOWS_GNU,
     I686_PC_WINDOWS_GNULLVM,
@@ -220,6 +224,7 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV32IMC_UNKNOWN_NONE_ELF,
     RISCV32IMC_UNKNOWN_NUTTX_ELF,
     RISCV64_LINUX_ANDROID,
+    RISCV64_OE_LINUX_GNU,
     RISCV64_WRS_VXWORKS,
     RISCV64A23_UNKNOWN_LINUX_GNU,
     RISCV64GC_UNKNOWN_FREEBSD,
@@ -292,10 +297,11 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_FORTANIX_UNKNOWN_SGX,
     X86_64_LINUX_ANDROID,
     X86_64_LYNX_LYNXOS178,
+    X86_64_OE_LINUX_GNU,
     X86_64_PC_CYGWIN,
     X86_64_PC_NTO_QNX710,
     X86_64_PC_NTO_QNX710_IOSOCK,
-    X86_64_PC_NTO_QNX800,
+    X86_64_PC_QNX,
     X86_64_PC_SOLARIS,
     X86_64_PC_WINDOWS_GNU,
     X86_64_PC_WINDOWS_GNULLVM,
@@ -483,6 +489,17 @@ pub(crate) const AARCH64_NINTENDO_SWITCH_FREESTANDING: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// ARM64 OpenEmbedded/Yocto Linux (GNU)
+pub(crate) const AARCH64_OE_LINUX_GNU: Platform = Platform {
+    target_triple: "aarch64-oe-linux-gnu",
+    target_arch: Arch::AArch64,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// ARM64 MinGW (Windows 10+), LLVM ABI
 pub(crate) const AARCH64_PC_WINDOWS_GNULLVM: Platform = Platform {
     target_triple: "aarch64-pc-windows-gnullvm",
@@ -604,6 +621,17 @@ pub(crate) const AARCH64_UNKNOWN_LINUX_OHOS: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// ARM64 PAC ELF ABI
+pub(crate) const AARCH64_UNKNOWN_LINUX_PAUTHTEST: Platform = Platform {
+    target_triple: "aarch64-unknown-linux-pauthtest",
+    target_arch: Arch::AArch64,
+    target_os: OS::Linux,
+    target_env: Env::Musl,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// ARM64 Managarm
 pub(crate) const AARCH64_UNKNOWN_MANAGARM_MLIBC: Platform = Platform {
     target_triple: "aarch64-unknown-managarm-mlibc",
@@ -681,17 +709,6 @@ pub(crate) const AARCH64_UNKNOWN_NTO_QNX710_IOSOCK: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// ARM64 QNX Neutrino 8.0 RTOS
-pub(crate) const AARCH64_UNKNOWN_NTO_QNX800: Platform = Platform {
-    target_triple: "aarch64-unknown-nto-qnx800",
-    target_arch: Arch::AArch64,
-    target_os: OS::Nto,
-    target_env: Env::Nto80,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U64,
-    tier: Tier::Three,
-};
-
 /// ARM64 with NuttX
 pub(crate) const AARCH64_UNKNOWN_NUTTX: Platform = Platform {
     target_triple: "aarch64-unknown-nuttx",
@@ -708,6 +725,17 @@ pub(crate) const AARCH64_UNKNOWN_OPENBSD: Platform = Platform {
     target_triple: "aarch64-unknown-openbsd",
     target_arch: Arch::AArch64,
     target_os: OS::OpenBSD,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64 QNX SDP 8.0+
+pub(crate) const AARCH64_UNKNOWN_QNX: Platform = Platform {
+    target_triple: "aarch64-unknown-qnx",
+    target_arch: Arch::AArch64,
+    target_os: OS::Qnx,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
@@ -1152,6 +1180,17 @@ pub(crate) const ARMV7_LINUX_ANDROIDEABI: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// ARMv7 OpenEmbedded/Yocto Linux (GNU)
+pub(crate) const ARMV7_OE_LINUX_GNUEABIHF: Platform = Platform {
+    target_triple: "armv7-oe-linux-gnueabihf",
+    target_arch: Arch::Arm,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RTEMS OS for ARM BSPs
 pub(crate) const ARMV7_RTEMS_EABIHF: Platform = Platform {
     target_triple: "armv7-rtems-eabihf",
@@ -1589,6 +1628,17 @@ pub(crate) const I686_LINUX_ANDROID: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
     tier: Tier::Two,
+};
+
+/// 32-bit x86 OpenEmbedded/Yocto Linux (GNU)
+pub(crate) const I686_OE_LINUX_GNU: Platform = Platform {
+    target_triple: "i686-oe-linux-gnu",
+    target_arch: Arch::X86,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
 };
 
 /// 32-bit x86 QNX Neutrino 7.0 RTOS (Pentium 4)
@@ -2584,6 +2634,17 @@ pub(crate) const RISCV64_LINUX_ANDROID: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// RISC-V OpenEmbedded/Yocto Linux (GNU)
+pub(crate) const RISCV64_OE_LINUX_GNU: Platform = Platform {
+    target_triple: "riscv64-oe-linux-gnu",
+    target_arch: Arch::Riscv64,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 pub(crate) const RISCV64_WRS_VXWORKS: Platform = Platform {
     target_triple: "riscv64-wrs-vxworks",
     target_arch: Arch::Riscv64,
@@ -3373,6 +3434,17 @@ pub(crate) const X86_64_LYNX_LYNXOS178: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// x86 64-bit OpenEmbedded/Yocto Linux (GNU)
+pub(crate) const X86_64_OE_LINUX_GNU: Platform = Platform {
+    target_triple: "x86_64-oe-linux-gnu",
+    target_arch: Arch::X86_64,
+    target_os: OS::Linux,
+    target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// 64-bit x86 Cygwin
 pub(crate) const X86_64_PC_CYGWIN: Platform = Platform {
     target_triple: "x86_64-pc-cygwin",
@@ -3406,12 +3478,12 @@ pub(crate) const X86_64_PC_NTO_QNX710_IOSOCK: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// x86 64-bit QNX Neutrino 8.0 RTOS
-pub(crate) const X86_64_PC_NTO_QNX800: Platform = Platform {
-    target_triple: "x86_64-pc-nto-qnx800",
+/// x86 64-bit QNX SDP 8.0+
+pub(crate) const X86_64_PC_QNX: Platform = Platform {
+    target_triple: "x86_64-pc-qnx",
     target_arch: Arch::X86_64,
-    target_os: OS::Nto,
-    target_env: Env::Nto80,
+    target_os: OS::Qnx,
+    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
