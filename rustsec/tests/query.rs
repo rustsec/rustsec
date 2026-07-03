@@ -2,7 +2,7 @@
 
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-use platforms::target::{Arch, OS};
+use platforms::{Arch, OS};
 use rustsec::{advisory::Severity, database::Query, package};
 
 /// Load example advisory from the filesystem

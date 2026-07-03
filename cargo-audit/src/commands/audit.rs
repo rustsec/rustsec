@@ -17,7 +17,7 @@ use abscissa_core::{
     FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
 };
 use clap::{Parser, ValueEnum};
-use rustsec::platforms::target::{Arch, OS};
+use rustsec::platforms::{Arch, OS};
 use std::{
     fmt,
     io::{self, IsTerminal},

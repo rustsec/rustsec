@@ -21,8 +21,8 @@
 extern crate std;
 
 pub(crate) mod error;
-pub mod platform;
-pub mod target;
+mod platform;
+mod target;
 
 pub use crate::{
     error::Error,

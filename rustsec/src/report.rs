@@ -7,7 +7,7 @@ use crate::{
     Lockfile, Map, advisory,
     database::{Database, Query},
     map,
-    platforms::target::{Arch, OS},
+    platforms::{Arch, OS},
     vulnerability::Vulnerability,
     warning::{self, Warning},
 };

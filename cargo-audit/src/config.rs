@@ -2,7 +2,7 @@
 
 use rustsec::{
     Error, ErrorKind, WarningKind, advisory,
-    platforms::target::{Arch, OS},
+    platforms::{Arch, OS},
     report,
 };
 use serde::{Deserialize, Serialize};

@@ -2,9 +2,11 @@
 
 #![warn(rust_2018_idioms, unused_qualifications)]
 
-use cvss::Cvss;
-use rustsec::advisory::{Category, License};
 use std::path::Path;
+
+use cvss::Cvss;
+use platforms::{Arch, OS};
+use rustsec::advisory::{Category, License};
 
 /// Load example advisory from the filesystem
 fn load_advisory(case: &str) -> rustsec::Advisory {
@@ -58,8 +60,8 @@ fn parse_metadata() {
 #[test]
 fn parse_affected() {
     let affected = load_advisory("v3").affected.unwrap();
-    assert_eq!(affected.arch[0], platforms::target::Arch::X86);
-    assert_eq!(affected.os[0], platforms::target::OS::Windows);
+    assert_eq!(affected.arch[0], Arch::X86);
+    assert_eq!(affected.os[0], OS::Windows);
 
     let example_function = "base::belongs::All".parse().unwrap();
     let req = &affected.functions.get(&example_function).unwrap()[0];

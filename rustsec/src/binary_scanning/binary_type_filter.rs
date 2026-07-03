@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::str::FromStr;
 
-use crate::platforms::{OS, platform::PlatformReq};
+use crate::platforms::{OS, PlatformReq};
 use once_cell::sync::OnceCell;
 
 use crate::Report;

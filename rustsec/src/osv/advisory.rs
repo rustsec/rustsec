@@ -197,8 +197,8 @@ pub struct OsvEcosystemSpecific {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OsvEcosystemSpecificAffected {
-    arch: Vec<platforms::target::Arch>,
-    os: Vec<platforms::target::OS>,
+    arch: Vec<platforms::Arch>,
+    os: Vec<platforms::OS>,
     /// We include function names only in order to allow changing
     /// the way versions are specified without an API break
     functions: Vec<FunctionPath>,
