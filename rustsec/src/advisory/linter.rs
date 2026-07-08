@@ -64,6 +64,50 @@ impl Linter {
             errors: vec![],
         };
 
+        // Lint against user mentions to avoid spamming
+        if advisory_parts.markdown.contains("@") {
+            let front_matter_lines = advisory_parts.front_matter.lines().count();
+            for (i, line) in advisory_parts.markdown.lines().enumerate() {
+                let mut found = None;
+                for (pi, part) in line.split_inclusive("@").enumerate() {
+                    if pi == 0 {
+                        continue;
+                    }
+
+                    if !part.starts_with(|s: char| s.is_ascii_alphanumeric()) {
+                        continue;
+                    }
+
+                    let Some(username) = part.split_whitespace().next() else {
+                        continue;
+                    };
+
+                    if username.contains(['.', '@', '`']) {
+                        continue;
+                    }
+
+                    found = Some(username.trim_end_matches([')']));
+                    break;
+                }
+
+                let Some(user) = found else {
+                    continue;
+                };
+
+                linter.errors.push(Error {
+                    kind: ErrorKind::Malformed,
+                    section: Some("markdown"),
+                    message: Some(
+                        format!(
+                            "bare @{user} in advisory on line {} (use explicit link to avoid spam)",
+                            front_matter_lines + 4 + i
+                        )
+                        .into(),
+                    ),
+                });
+            }
+        }
+
         linter.lint_advisory(&front_matter, draft);
         Ok(linter)
     }
