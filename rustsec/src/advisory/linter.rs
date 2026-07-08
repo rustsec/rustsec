@@ -3,11 +3,13 @@
 //!
 //! This is run in CI at the time advisories are submitted.
 
+use std::borrow::Cow;
+use std::str::FromStr;
+use std::{fmt, path::Path};
+
 use super::{Advisory, Category, parts};
 use crate::advisory::license::License;
 use crate::fs;
-use std::str::FromStr;
-use std::{fmt, path::Path};
 
 /// Lint information about a particular advisory
 #[derive(Debug)]
@@ -105,14 +107,16 @@ impl Linter {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("id", value.to_string()),
                                 section: Some("advisory"),
-                                message: Some("advisory ID draft status does not match file name"),
+                                message: Some(
+                                    "advisory ID draft status does not match file name".into(),
+                                ),
                             });
                         }
                         if self.advisory.metadata.id.is_other() {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("id", value.to_string()),
                                 section: Some("advisory"),
-                                message: Some("unknown advisory ID type"),
+                                message: Some("unknown advisory ID type".into()),
                             });
                         } else if let Some(y1) = self.advisory.metadata.id.year() {
                             // Exclude CVE IDs, since the year from CVE ID may not match the report date
@@ -123,7 +127,7 @@ impl Linter {
                                             kind: ErrorKind::value("id", value.to_string()),
                                             section: Some("advisory"),
                                             message: Some(
-                                                "year in advisory ID does not match date",
+                                                "year in advisory ID does not match date".into(),
                                             ),
                                         });
                                     }
@@ -139,7 +143,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("category", other.to_string()),
                                     section: Some("advisory"),
-                                    message: Some("unknown category"),
+                                    message: Some("unknown category".into()),
                                 });
                             }
                         }
@@ -147,7 +151,9 @@ impl Linter {
                     "collection" => self.errors.push(Error {
                         kind: ErrorKind::Malformed,
                         section: Some("advisory"),
-                        message: Some("collection shouldn't be explicit; inferred by location"),
+                        message: Some(
+                            "collection shouldn't be explicit; inferred by location".into(),
+                        ),
                     }),
                     "informational" => {
                         let informational = self
@@ -161,7 +167,7 @@ impl Linter {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("informational", informational.as_str()),
                                 section: Some("advisory"),
-                                message: Some("unknown informational advisory type"),
+                                message: Some("unknown informational advisory type".into()),
                             });
                         }
                     }
@@ -172,7 +178,7 @@ impl Linter {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("url", value.to_string()),
                                 section: Some("advisory"),
-                                message: Some("URL must start with https://"),
+                                message: Some("URL must start with https://".into()),
                             });
                         }
                     }
@@ -184,7 +190,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("date", value.to_string()),
                                     section: Some("advisory"),
-                                    message: Some("year in advisory ID does not match date"),
+                                    message: Some("year in advisory ID does not match date".into()),
                                 });
                             }
                         } else {
@@ -197,7 +203,8 @@ impl Linter {
                                 kind: ErrorKind::Malformed,
                                 section: Some("metadata"),
                                 message: Some(
-                                    "Field `yanked` is deprecated, use `withdrawn` field instead",
+                                    "field `yanked` is deprecated, use `withdrawn` field instead"
+                                        .into(),
                                 ),
                             });
                         }
@@ -211,7 +218,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("license", l.to_string()),
                                     section: Some("advisory"),
-                                    message: Some("Unknown license"),
+                                    message: Some("unknown license".into()),
                                 });
                             }
                         }
@@ -229,7 +236,7 @@ impl Linter {
             self.errors.push(Error {
                 kind: ErrorKind::Malformed,
                 section: Some("advisory"),
-                message: Some("expected table"),
+                message: Some("expected table".into()),
             });
         }
     }
@@ -265,7 +272,9 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("functions", function.to_string()),
                                     section: Some("affected"),
-                                    message: Some("function path must start with crate name"),
+                                    message: Some(
+                                        "function path must start with crate name".into(),
+                                    ),
                                 });
                             }
                         }
@@ -292,7 +301,7 @@ pub struct Error {
     section: Option<&'static str>,
 
     /// Message about why it's invalid
-    message: Option<&'static str>,
+    message: Option<Cow<'static, str>>,
 }
 
 impl Error {
