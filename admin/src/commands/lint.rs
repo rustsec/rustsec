@@ -19,6 +19,8 @@ pub(crate) struct LintCmd {
         help = "filesystem path to the RustSec advisory DB git repo"
     )]
     path: Vec<PathBuf>,
+    #[arg(short, long, help = "enable verbose output")]
+    verbose: bool,
 }
 
 impl Runnable for LintCmd {
@@ -49,7 +51,7 @@ impl Runnable for LintCmd {
             repo_path.display()
         );
 
-        let invalid_advisory_count = linter.lint().unwrap_or_else(|e| {
+        let invalid_advisory_count = linter.lint(self.verbose).unwrap_or_else(|e| {
             status_err!("{}", display_err_with_source(&e));
             exit(1);
         });

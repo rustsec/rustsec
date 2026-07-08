@@ -55,7 +55,7 @@ impl Linter {
     }
 
     /// Lint the loaded database
-    pub fn lint(mut self) -> Result<usize, Error> {
+    pub fn lint(mut self, verbose: bool) -> Result<usize, Error> {
         for collection in COLLECTIONS {
             let crate_entries = read_dir_sorted(self.repo_path.join(collection.as_str()))?;
             let mut advisories = Vec::with_capacity(crate_entries.len());
@@ -73,7 +73,7 @@ impl Linter {
 
                 for advisory_entry in read_dir_sorted(crate_dir)? {
                     let advisory_path = advisory_entry.path();
-                    advisories.push(self.lint_advisory(*collection, &advisory_path)?);
+                    advisories.push(self.lint_advisory(*collection, &advisory_path, verbose)?);
                 }
             }
 
@@ -91,6 +91,7 @@ impl Linter {
         &mut self,
         collection: Collection,
         advisory_path: &Path,
+        verbose: bool,
     ) -> Result<Advisory, Error> {
         if !advisory_path.is_file() {
             fail!(
@@ -104,18 +105,19 @@ impl Linter {
         let advisory = Advisory::load_file(advisory_path)?;
         let lint_result = rustsec::advisory::Linter::lint_file(advisory_path)?;
         if lint_result.errors().is_empty() {
-            status_ok!("Linted", "ok: {}", advisory_path.display());
-        } else {
-            self.invalid_advisories += 1;
-
-            status_err!(
-                "{} contained the following lint errors:",
-                advisory_path.display()
-            );
-
-            for error in lint_result.errors() {
-                println!("  - {error}");
+            if verbose {
+                status_ok!("Linted", "ok: {}", advisory_path.display());
             }
+            return Ok(advisory);
+        }
+
+        self.invalid_advisories += 1;
+        status_err!(
+            "{} contained the following lint errors:",
+            advisory_path.display()
+        );
+        for error in lint_result.errors() {
+            println!("  - {error}");
         }
 
         Ok(advisory)
