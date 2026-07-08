@@ -57,7 +57,7 @@ fn invalid_example() {
     let invalid_category = lint.errors()[0].to_string();
     assert_eq!(
         invalid_category,
-        "invalid value `invalid-category` for key `category` in [advisory]: unknown category"
+        "invalid value `invalid-category` for key `category` in [advisory]: unknown category \"invalid-category\""
     );
 
     // explicit `collection` is disallowed

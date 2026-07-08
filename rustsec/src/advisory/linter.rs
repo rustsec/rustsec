@@ -8,6 +8,7 @@ use std::str::FromStr;
 use std::{fmt, path::Path};
 
 use super::{Advisory, Category, parts};
+use crate::advisory::Informational;
 use crate::advisory::license::License;
 use crate::fs;
 
@@ -143,7 +144,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("category", other.to_string()),
                                     section: Some("advisory"),
-                                    message: Some("unknown category".into()),
+                                    message: Some(format!("unknown category {other:?}").into()),
                                 });
                             }
                         }
@@ -163,11 +164,13 @@ impl Linter {
                             .as_ref()
                             .expect("parsed informational");
 
-                        if informational.is_other() {
+                        if let Informational::Other(key) = informational {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("informational", informational.as_str()),
                                 section: Some("advisory"),
-                                message: Some("unknown informational advisory type".into()),
+                                message: Some(
+                                    format!("unknown informational advisory type {key:?}").into(),
+                                ),
                             });
                         }
                     }
@@ -218,7 +221,7 @@ impl Linter {
                                 self.errors.push(Error {
                                     kind: ErrorKind::value("license", l.to_string()),
                                     section: Some("advisory"),
-                                    message: Some("unknown license".into()),
+                                    message: Some(format!("unknown license {l:?}").into()),
                                 });
                             }
                         }
