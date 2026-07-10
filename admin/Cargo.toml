@@ -36,3 +36,6 @@ xml = { workspace = true }
 [dev-dependencies]
 abscissa_core = { workspace = true, features = ["testing"] }
 once_cell = { workspace = true }
+
+[lints]
+workspace = true

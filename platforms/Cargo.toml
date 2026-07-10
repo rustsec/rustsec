@@ -21,3 +21,6 @@ serde = { version = "1", optional = true }
 [features]
 default = ["std"]
 std = []
+
+[lints]
+workspace = true

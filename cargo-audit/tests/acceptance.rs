@@ -4,7 +4,6 @@
 //! For more information, see:
 //! <https://docs.rs/abscissa_core/latest/abscissa_core/testing/index.html>
 
-#![deny(warnings, missing_docs, trivial_casts, unused_qualifications)]
 #![forbid(unsafe_code)]
 
 use abscissa_core::testing::prelude::*;
