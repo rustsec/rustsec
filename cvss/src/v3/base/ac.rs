@@ -52,8 +52,8 @@ pub enum AttackComplexity {
 
 #[allow(clippy::derivable_impls)]
 impl Default for AttackComplexity {
-    fn default() -> AttackComplexity {
-        AttackComplexity::High
+    fn default() -> Self {
+        Self::High
     }
 }
 
@@ -62,15 +62,15 @@ impl Metric for AttackComplexity {
 
     fn score(self) -> f64 {
         match self {
-            AttackComplexity::High => 0.44,
-            AttackComplexity::Low => 0.77,
+            Self::High => 0.44,
+            Self::Low => 0.77,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            AttackComplexity::High => "H",
-            AttackComplexity::Low => "L",
+            Self::High => "H",
+            Self::Low => "L",
         }
     }
 }
@@ -86,8 +86,8 @@ impl FromStr for AttackComplexity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "H" => Ok(AttackComplexity::High),
-            "L" => Ok(AttackComplexity::Low),
+            "H" => Ok(Self::High),
+            "L" => Ok(Self::Low),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

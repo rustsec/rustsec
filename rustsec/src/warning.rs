@@ -101,10 +101,10 @@ impl FromStr for WarningKind {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         Ok(match s {
-            "notice" => WarningKind::Notice,
-            "unmaintained" => WarningKind::Unmaintained,
-            "unsound" => WarningKind::Unsound,
-            "yanked" => WarningKind::Yanked,
+            "notice" => Self::Notice,
+            "unmaintained" => Self::Unmaintained,
+            "unsound" => Self::Unsound,
+            "yanked" => Self::Yanked,
             other => fail!(ErrorKind::Parse, "invalid warning type: {}", other),
         })
     }

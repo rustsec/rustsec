@@ -61,8 +61,8 @@ impl Metric for AttackComplexity {
 
     fn as_str(self) -> &'static str {
         match self {
-            AttackComplexity::High => "H",
-            AttackComplexity::Low => "L",
+            Self::High => "H",
+            Self::Low => "L",
         }
     }
 }
@@ -78,8 +78,8 @@ impl FromStr for AttackComplexity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "H" => Ok(AttackComplexity::High),
-            "L" => Ok(AttackComplexity::Low),
+            "H" => Ok(Self::High),
+            "L" => Ok(Self::Low),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -116,8 +116,8 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "H" => Ok(MergedAttackComplexity::High),
-                "L" => Ok(MergedAttackComplexity::Low),
+                "H" => Ok(Self::High),
+                "L" => Ok(Self::Low),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::AC,
                     value: s.to_owned(),

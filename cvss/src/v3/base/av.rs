@@ -74,19 +74,19 @@ impl Metric for AttackVector {
 
     fn score(self) -> f64 {
         match self {
-            AttackVector::Physical => 0.20,
-            AttackVector::Local => 0.55,
-            AttackVector::Adjacent => 0.62,
-            AttackVector::Network => 0.85,
+            Self::Physical => 0.20,
+            Self::Local => 0.55,
+            Self::Adjacent => 0.62,
+            Self::Network => 0.85,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            AttackVector::Physical => "P",
-            AttackVector::Local => "L",
-            AttackVector::Adjacent => "A",
-            AttackVector::Network => "N",
+            Self::Physical => "P",
+            Self::Local => "L",
+            Self::Adjacent => "A",
+            Self::Network => "N",
         }
     }
 }
@@ -102,10 +102,10 @@ impl FromStr for AttackVector {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "P" => Ok(AttackVector::Physical),
-            "L" => Ok(AttackVector::Local),
-            "A" => Ok(AttackVector::Adjacent),
-            "N" => Ok(AttackVector::Network),
+            "P" => Ok(Self::Physical),
+            "L" => Ok(Self::Local),
+            "A" => Ok(Self::Adjacent),
+            "N" => Ok(Self::Network),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

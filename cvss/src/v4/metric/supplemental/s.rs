@@ -45,9 +45,9 @@ impl Metric for Safety {
 
     fn as_str(self) -> &'static str {
         match self {
-            Safety::NotDefined => "X",
-            Safety::Present => "P",
-            Safety::Negligible => "N",
+            Self::NotDefined => "X",
+            Self::Present => "P",
+            Self::Negligible => "N",
         }
     }
 }
@@ -63,9 +63,9 @@ impl FromStr for Safety {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(Safety::NotDefined),
-            "P" => Ok(Safety::Present),
-            "N" => Ok(Safety::Negligible),
+            "X" => Ok(Self::NotDefined),
+            "P" => Ok(Self::Present),
+            "N" => Ok(Self::Negligible),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

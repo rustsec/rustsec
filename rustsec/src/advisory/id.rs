@@ -116,11 +116,11 @@ impl AsRef<str> for Id {
 }
 
 impl Default for Id {
-    fn default() -> Id {
-        Id {
+    fn default() -> Self {
+        Self {
             kind: IdKind::RustSec,
             year: None,
-            string: Id::PLACEHOLDER.into(),
+            string: Self::PLACEHOLDER.into(),
         }
     }
 }
@@ -136,8 +136,8 @@ impl FromStr for Id {
 
     /// Create an `Id` from the given string
     fn from_str(advisory_id: &str) -> Result<Self, Error> {
-        if advisory_id == Id::PLACEHOLDER {
-            return Ok(Id::default());
+        if advisory_id == Self::PLACEHOLDER {
+            return Ok(Self::default());
         }
 
         let kind = IdKind::detect(advisory_id);
@@ -192,15 +192,15 @@ impl IdKind {
     /// Detect the identifier kind for the given string
     pub fn detect(string: &str) -> Self {
         if string.starts_with("RUSTSEC-") {
-            IdKind::RustSec
+            Self::RustSec
         } else if string.starts_with("CVE-") {
-            IdKind::Cve
+            Self::Cve
         } else if string.starts_with("TALOS-") {
-            IdKind::Talos
+            Self::Talos
         } else if string.starts_with("GHSA-") {
-            IdKind::Ghsa
+            Self::Ghsa
         } else {
-            IdKind::Other
+            Self::Other
         }
     }
 }

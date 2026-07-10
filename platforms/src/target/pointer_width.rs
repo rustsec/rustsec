@@ -27,9 +27,9 @@ impl PointerWidth {
     /// String representing this `PointerWidth` which matches `#[cfg(target_pointer_width)]`
     pub fn as_str(self) -> &'static str {
         match self {
-            PointerWidth::U16 => "16",
-            PointerWidth::U32 => "32",
-            PointerWidth::U64 => "64",
+            Self::U16 => "16",
+            Self::U32 => "32",
+            Self::U64 => "64",
         }
     }
 }
@@ -40,9 +40,9 @@ impl FromStr for PointerWidth {
     /// Create a new `PointerWidth` from the given string
     fn from_str(name: &str) -> Result<Self, Self::Err> {
         let result = match name {
-            "16" => PointerWidth::U16,
-            "32" => PointerWidth::U32,
-            "64" => PointerWidth::U64,
+            "16" => Self::U16,
+            "32" => Self::U32,
+            "64" => Self::U64,
             _ => return Err(Error),
         };
 
@@ -57,9 +57,9 @@ impl TryFrom<u8> for PointerWidth {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
-            64 => Ok(PointerWidth::U64),
-            32 => Ok(PointerWidth::U32),
-            16 => Ok(PointerWidth::U16),
+            64 => Ok(Self::U64),
+            32 => Ok(Self::U32),
+            16 => Ok(Self::U16),
             _ => Err("Invalid pointer width!"),
         }
     }

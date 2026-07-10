@@ -17,9 +17,9 @@ impl Bound {
     /// Returns just the version, ignoring whether the bound is inclusive or exclusive
     pub(super) fn version(&self) -> Option<&Version> {
         match &self {
-            Bound::Unbounded => None,
-            Bound::Exclusive(v) => Some(v),
-            Bound::Inclusive(v) => Some(v),
+            Self::Unbounded => None,
+            Self::Exclusive(v) => Some(v),
+            Self::Inclusive(v) => Some(v),
         }
     }
 
@@ -27,7 +27,7 @@ impl Bound {
     /// the first bound is start of a range, and the other bound is the end of a range.
     /// **Make sure** this is the way you call it.
     /// This is also why we don't define PartialOrd.
-    fn less_or_equal(&self, other: &Bound) -> bool {
+    fn less_or_equal(&self, other: &Self) -> bool {
         // It's defined on Bound and not UnaffectedRange
         // so that it could be used on bounds from different ranges.
         let start = self;
@@ -35,13 +35,13 @@ impl Bound {
         // This appears to be a false positive in Clippy:
         // https://github.com/rust-lang/rust-clippy/issues/7383
         #[allow(clippy::if_same_then_else)]
-        if start == &Bound::Unbounded || end == &Bound::Unbounded {
+        if start == &Self::Unbounded || end == &Self::Unbounded {
             true
         } else if start.version().unwrap() < end.version().unwrap() {
             true
         } else {
             match (&start, &end) {
-                (Bound::Inclusive(v_start), Bound::Inclusive(v_end)) => v_start == v_end,
+                (Self::Inclusive(v_start), Self::Inclusive(v_end)) => v_start == v_end,
                 (_, _) => false,
             }
         }
@@ -62,7 +62,7 @@ pub(crate) struct UnaffectedRange {
 impl UnaffectedRange {
     fn new(start: Bound, end: Bound) -> Result<Self, Error> {
         if start.less_or_equal(&end) {
-            Ok(UnaffectedRange { start, end })
+            Ok(Self { start, end })
         } else {
             Err(Error::new(
                 BadParam,
@@ -79,7 +79,7 @@ impl UnaffectedRange {
         &self.end
     }
 
-    pub(super) fn overlaps(&self, other: &UnaffectedRange) -> bool {
+    pub(super) fn overlaps(&self, other: &Self) -> bool {
         // range check for well-formed ranges is `(Start1 <= End2) && (Start2 <= End1)`
         self.start.less_or_equal(&other.end) && other.start.less_or_equal(&self.end)
     }
@@ -237,7 +237,7 @@ impl TryFrom<&semver::VersionReq> for UnaffectedRange {
                 }
             }
         }
-        UnaffectedRange::new(start, end)
+        Self::new(start, end)
     }
 }
 

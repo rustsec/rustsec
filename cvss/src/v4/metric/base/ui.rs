@@ -62,9 +62,9 @@ impl Metric for UserInteraction {
 
     fn as_str(self) -> &'static str {
         match self {
-            UserInteraction::None => "N",
-            UserInteraction::Passive => "P",
-            UserInteraction::Active => "A",
+            Self::None => "N",
+            Self::Passive => "P",
+            Self::Active => "A",
         }
     }
 }
@@ -80,9 +80,9 @@ impl FromStr for UserInteraction {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(UserInteraction::None),
-            "P" => Ok(UserInteraction::Passive),
-            "A" => Ok(UserInteraction::Active),
+            "N" => Ok(Self::None),
+            "P" => Ok(Self::Passive),
+            "A" => Ok(Self::Active),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -120,9 +120,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "A" => Ok(MergedUserInteraction::Active),
-                "P" => Ok(MergedUserInteraction::Passive),
-                "N" => Ok(MergedUserInteraction::None),
+                "A" => Ok(Self::Active),
+                "P" => Ok(Self::Passive),
+                "N" => Ok(Self::None),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::UI,
                     value: s.to_owned(),

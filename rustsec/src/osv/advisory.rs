@@ -57,7 +57,7 @@ struct OsvPackage {
 
 impl From<&cargo_lock::Name> for OsvPackage {
     fn from(package: &cargo_lock::Name) -> Self {
-        OsvPackage {
+        Self {
             ecosystem: ECOSYSTEM.to_string(),
             name: package.to_string(),
             purl: Some("pkg:cargo/".to_string() + package.as_str()),
@@ -78,9 +78,9 @@ impl TryFrom<Cvss> for OsvSeverity {
 
     fn try_from(cvss: Cvss) -> Result<Self, Self::Error> {
         match cvss {
-            Cvss::CvssV30(base) => Ok(OsvSeverity::CVSS_V3(base)),
-            Cvss::CvssV31(base) => Ok(OsvSeverity::CVSS_V3(base)),
-            Cvss::CvssV40(vector) => Ok(OsvSeverity::CVSS_V4(vector)),
+            Cvss::CvssV30(base) => Ok(Self::CVSS_V3(base)),
+            Cvss::CvssV31(base) => Ok(Self::CVSS_V3(base)),
+            Cvss::CvssV40(vector) => Ok(Self::CVSS_V4(vector)),
             _ => unreachable!(),
         }
     }
@@ -169,7 +169,7 @@ struct OsvReference {
 
 impl From<Url> for OsvReference {
     fn from(url: Url) -> Self {
-        OsvReference {
+        Self {
             kind: guess_url_kind(&url),
             url,
         }
@@ -206,7 +206,7 @@ struct OsvEcosystemSpecificAffected {
 
 impl From<Affected> for OsvEcosystemSpecificAffected {
     fn from(a: Affected) -> Self {
-        OsvEcosystemSpecificAffected {
+        Self {
             arch: a.arch,
             os: a.os,
             functions: a.functions.into_keys().collect(),
@@ -266,7 +266,7 @@ impl OsvAdvisory {
         // other references
         reference_urls.extend(metadata.references);
 
-        OsvAdvisory {
+        Self {
             schema_version: None,
             id: metadata.id,
             modified: mod_times

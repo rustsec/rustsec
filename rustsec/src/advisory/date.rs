@@ -78,7 +78,7 @@ impl FromStr for Date {
             );
         }
 
-        Ok(Date(rfc3339_date.into()))
+        Ok(Self(rfc3339_date.into()))
     }
 }
 

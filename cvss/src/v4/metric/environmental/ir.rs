@@ -59,10 +59,10 @@ impl Metric for IntegrityRequirements {
 
     fn as_str(self) -> &'static str {
         match self {
-            IntegrityRequirements::NotDefined => "X",
-            IntegrityRequirements::Low => "L",
-            IntegrityRequirements::Medium => "M",
-            IntegrityRequirements::High => "H",
+            Self::NotDefined => "X",
+            Self::Low => "L",
+            Self::Medium => "M",
+            Self::High => "H",
         }
     }
 }
@@ -78,10 +78,10 @@ impl FromStr for IntegrityRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(IntegrityRequirements::NotDefined),
-            "L" => Ok(IntegrityRequirements::Low),
-            "M" => Ok(IntegrityRequirements::Medium),
-            "H" => Ok(IntegrityRequirements::High),
+            "X" => Ok(Self::NotDefined),
+            "L" => Ok(Self::Low),
+            "M" => Ok(Self::Medium),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -113,9 +113,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "L" => Ok(MergedIntegrityRequirements::Low),
-                "M" => Ok(MergedIntegrityRequirements::Medium),
-                "H" => Ok(MergedIntegrityRequirements::High),
+                "L" => Ok(Self::Low),
+                "M" => Ok(Self::Medium),
+                "H" => Ok(Self::High),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::IR,
                     value: s.to_owned(),

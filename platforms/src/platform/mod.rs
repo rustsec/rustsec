@@ -60,10 +60,10 @@ impl Platform {
     /// All valid Rust platforms usable from the mainline compiler.
     ///
     /// Note that this list will evolve over time, and platforms will be both added and removed.
-    pub const ALL: &'static [Platform] = ALL;
+    pub const ALL: &'static [Self] = ALL;
 
     /// Find a Rust platform by its "target triple", e.g. `i686-apple-darwin`
-    pub fn find(target_triple: &str) -> Option<&'static Platform> {
+    pub fn find(target_triple: &str) -> Option<&'static Self> {
         Self::ALL
             .iter()
             .find(|platform| platform.target_triple == target_triple)

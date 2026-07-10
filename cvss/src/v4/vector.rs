@@ -327,7 +327,7 @@ impl FromStr for Vector {
             .collect::<crate::Result<Vec<_>>>()?;
 
         let mut components = component_vec.iter();
-        let &(id, version_string) = components.next().ok_or(Error::InvalidPrefix {
+        let &(id, version_string) = components.next().ok_or_else(|| Error::InvalidPrefix {
             prefix: s.to_owned(),
         })?;
 

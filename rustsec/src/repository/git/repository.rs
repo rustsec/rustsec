@@ -50,7 +50,7 @@ impl Repository {
     pub fn fetch_default_repo() -> Result<Self, Error> {
         Self::fetch(
             DEFAULT_URL,
-            Repository::default_path(),
+            Self::default_path(),
             true,
             DEFAULT_LOCK_TIMEOUT,
         )

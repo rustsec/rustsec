@@ -72,11 +72,11 @@ impl Metric for ModifiedAvailabilityImpactToTheSubsequentSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedAvailabilityImpactToTheSubsequentSystem::NotDefined => "X",
-            ModifiedAvailabilityImpactToTheSubsequentSystem::Negligible => "N",
-            ModifiedAvailabilityImpactToTheSubsequentSystem::Low => "L",
-            ModifiedAvailabilityImpactToTheSubsequentSystem::High => "H",
-            ModifiedAvailabilityImpactToTheSubsequentSystem::Safety => "S",
+            Self::NotDefined => "X",
+            Self::Negligible => "N",
+            Self::Low => "L",
+            Self::High => "H",
+            Self::Safety => "S",
         }
     }
 }
@@ -92,11 +92,11 @@ impl FromStr for ModifiedAvailabilityImpactToTheSubsequentSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedAvailabilityImpactToTheSubsequentSystem::NotDefined),
-            "N" => Ok(ModifiedAvailabilityImpactToTheSubsequentSystem::Negligible),
-            "L" => Ok(ModifiedAvailabilityImpactToTheSubsequentSystem::Low),
-            "H" => Ok(ModifiedAvailabilityImpactToTheSubsequentSystem::High),
-            "S" => Ok(ModifiedAvailabilityImpactToTheSubsequentSystem::Safety),
+            "X" => Ok(Self::NotDefined),
+            "N" => Ok(Self::Negligible),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
+            "S" => Ok(Self::Safety),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

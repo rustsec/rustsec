@@ -90,12 +90,11 @@ impl SourceId {
             }
             "registry" => {
                 let url = url.into_url()?;
-                Ok(SourceId::new(SourceKind::Registry, url)?
-                    .with_precise(Some("locked".to_string())))
+                Ok(Self::new(SourceKind::Registry, url)?.with_precise(Some("locked".to_string())))
             }
             "sparse" => {
                 let url = url.into_url()?;
-                Ok(SourceId::new(SourceKind::SparseRegistry, url)?
+                Ok(Self::new(SourceKind::SparseRegistry, url)?
                     .with_precise(Some("locked".to_string())))
             }
             "path" => Self::new(SourceKind::Path, url.into_url()?),
@@ -300,7 +299,7 @@ impl Serialize for SourceId {
 impl<'de> Deserialize<'de> for SourceId {
     fn deserialize<D: de::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
         let string = String::deserialize(d)?;
-        SourceId::from_url(&string).map_err(de::Error::custom)
+        Self::from_url(&string).map_err(de::Error::custom)
     }
 }
 
@@ -319,8 +318,8 @@ impl fmt::Display for SourceId {
 }
 
 impl Default for SourceId {
-    fn default() -> SourceId {
-        SourceId::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
+    fn default() -> Self {
+        Self::for_registry(&CRATES_IO_INDEX.into_url().unwrap()).unwrap()
     }
 }
 

@@ -247,7 +247,7 @@ impl Query {
 }
 
 impl Default for Query {
-    fn default() -> Query {
-        Query::crate_scope()
+    fn default() -> Self {
+        Self::crate_scope()
     }
 }

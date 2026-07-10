@@ -60,10 +60,10 @@ impl Metric for VulnerabilityResponseEffort {
 
     fn as_str(self) -> &'static str {
         match self {
-            VulnerabilityResponseEffort::NotDefined => "X",
-            VulnerabilityResponseEffort::Low => "L",
-            VulnerabilityResponseEffort::Moderate => "M",
-            VulnerabilityResponseEffort::High => "H",
+            Self::NotDefined => "X",
+            Self::Low => "L",
+            Self::Moderate => "M",
+            Self::High => "H",
         }
     }
 }
@@ -79,10 +79,10 @@ impl FromStr for VulnerabilityResponseEffort {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(VulnerabilityResponseEffort::NotDefined),
-            "L" => Ok(VulnerabilityResponseEffort::Low),
-            "M" => Ok(VulnerabilityResponseEffort::Moderate),
-            "H" => Ok(VulnerabilityResponseEffort::High),
+            "X" => Ok(Self::NotDefined),
+            "L" => Ok(Self::Low),
+            "M" => Ok(Self::Moderate),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

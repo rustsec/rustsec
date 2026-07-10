@@ -51,9 +51,9 @@ impl Metric for ConfidentialityImpactToTheVulnerableSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            ConfidentialityImpactToTheVulnerableSystem::None => "N",
-            ConfidentialityImpactToTheVulnerableSystem::Low => "L",
-            ConfidentialityImpactToTheVulnerableSystem::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -69,9 +69,9 @@ impl FromStr for ConfidentialityImpactToTheVulnerableSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(ConfidentialityImpactToTheVulnerableSystem::None),
-            "L" => Ok(ConfidentialityImpactToTheVulnerableSystem::Low),
-            "H" => Ok(ConfidentialityImpactToTheVulnerableSystem::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -122,9 +122,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "H" => Ok(MergedConfidentialityImpactToTheVulnerableSystem::High),
-                "L" => Ok(MergedConfidentialityImpactToTheVulnerableSystem::Low),
-                "N" => Ok(MergedConfidentialityImpactToTheVulnerableSystem::None),
+                "H" => Ok(Self::High),
+                "L" => Ok(Self::Low),
+                "N" => Ok(Self::None),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::VC,
                     value: s.to_owned(),

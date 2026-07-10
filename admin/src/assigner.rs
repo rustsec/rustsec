@@ -158,7 +158,7 @@ fn assign_ids_across_directory(
             })?;
 
             let year = advisory.metadata.date.year();
-            let new_id = highest_ids.get(&year).cloned().unwrap_or_default() + 1;
+            let new_id = highest_ids.get(&year).copied().unwrap_or_default() + 1;
             let year_str = year.to_string();
             let string_id = format!("RUSTSEC-{year_str}-{new_id:04}");
             let mut writer =

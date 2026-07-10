@@ -53,10 +53,10 @@ impl Metric for ModifiedIntegrityImpactToTheVulnerableSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedIntegrityImpactToTheVulnerableSystem::NotDefined => "X",
-            ModifiedIntegrityImpactToTheVulnerableSystem::None => "N",
-            ModifiedIntegrityImpactToTheVulnerableSystem::Low => "L",
-            ModifiedIntegrityImpactToTheVulnerableSystem::High => "H",
+            Self::NotDefined => "X",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -72,10 +72,10 @@ impl FromStr for ModifiedIntegrityImpactToTheVulnerableSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedIntegrityImpactToTheVulnerableSystem::NotDefined),
-            "N" => Ok(ModifiedIntegrityImpactToTheVulnerableSystem::None),
-            "L" => Ok(ModifiedIntegrityImpactToTheVulnerableSystem::Low),
-            "H" => Ok(ModifiedIntegrityImpactToTheVulnerableSystem::High),
+            "X" => Ok(Self::NotDefined),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

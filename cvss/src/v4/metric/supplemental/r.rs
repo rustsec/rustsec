@@ -42,10 +42,10 @@ impl Metric for Recovery {
 
     fn as_str(self) -> &'static str {
         match self {
-            Recovery::NotDefined => "X",
-            Recovery::Automatic => "A",
-            Recovery::User => "U",
-            Recovery::Irrecoverable => "I",
+            Self::NotDefined => "X",
+            Self::Automatic => "A",
+            Self::User => "U",
+            Self::Irrecoverable => "I",
         }
     }
 }
@@ -61,10 +61,10 @@ impl FromStr for Recovery {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(Recovery::NotDefined),
-            "A" => Ok(Recovery::Automatic),
-            "U" => Ok(Recovery::User),
-            "I" => Ok(Recovery::Irrecoverable),
+            "X" => Ok(Self::NotDefined),
+            "A" => Ok(Self::Automatic),
+            "U" => Ok(Self::User),
+            "I" => Ok(Self::Irrecoverable),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

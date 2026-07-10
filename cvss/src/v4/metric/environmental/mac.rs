@@ -66,9 +66,9 @@ impl Metric for ModifiedAttackComplexity {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedAttackComplexity::NotDefined => "X",
-            ModifiedAttackComplexity::High => "H",
-            ModifiedAttackComplexity::Low => "L",
+            Self::NotDefined => "X",
+            Self::High => "H",
+            Self::Low => "L",
         }
     }
 }
@@ -84,9 +84,9 @@ impl FromStr for ModifiedAttackComplexity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedAttackComplexity::NotDefined),
-            "H" => Ok(ModifiedAttackComplexity::High),
-            "L" => Ok(ModifiedAttackComplexity::Low),
+            "X" => Ok(Self::NotDefined),
+            "H" => Ok(Self::High),
+            "L" => Ok(Self::Low),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

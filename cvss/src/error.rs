@@ -87,10 +87,10 @@ pub enum Error {
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Error::InvalidComponent { component } => {
+            Self::InvalidComponent { component } => {
                 write!(f, "invalid CVSS metric group component: `{component}`")
             }
-            Error::InvalidMetric { metric_type, value } => {
+            Self::InvalidMetric { metric_type, value } => {
                 write!(
                     f,
                     "invalid CVSSv4 {} ({}) metric: `{}`",
@@ -100,7 +100,7 @@ impl fmt::Display for Error {
                 )
             }
             #[cfg(feature = "v4")]
-            Error::InvalidMetricV4 { metric_type, value } => {
+            Self::InvalidMetricV4 { metric_type, value } => {
                 write!(
                     f,
                     "invalid CVSSv4 {} ({}) metric: `{}`",
@@ -110,7 +110,7 @@ impl fmt::Display for Error {
                 )
             }
             #[cfg(feature = "v4")]
-            Error::DuplicateMetricV4 { metric_type } => {
+            Self::DuplicateMetricV4 { metric_type } => {
                 write!(
                     f,
                     "duplicate CVSSv4 {} ({}) metric",
@@ -119,7 +119,7 @@ impl fmt::Display for Error {
                 )
             }
             #[cfg(feature = "v4")]
-            Error::MissingMandatoryMetricV4 { metric_type } => {
+            Self::MissingMandatoryMetricV4 { metric_type } => {
                 write!(
                     f,
                     "missing mandatory CVSSv4 {} ({}) metric",
@@ -128,17 +128,17 @@ impl fmt::Display for Error {
                 )
             }
             #[cfg(feature = "v4")]
-            Error::InvalidNomenclatureV4 { nomenclature } => {
+            Self::InvalidNomenclatureV4 { nomenclature } => {
                 write!(f, "invalid CVSSv4 nomenclature: `{}`", nomenclature)
             }
-            Error::InvalidPrefix { prefix } => {
+            Self::InvalidPrefix { prefix } => {
                 write!(f, "invalid CVSS string prefix: `{prefix}`")
             }
-            Error::InvalidSeverity { name } => {
+            Self::InvalidSeverity { name } => {
                 write!(f, "invalid CVSS Qualitative Severity Rating: `{name}`")
             }
-            Error::UnknownMetric { name } => write!(f, "unknown CVSS metric name: `{name}`"),
-            Error::UnsupportedVersion { version } => {
+            Self::UnknownMetric { name } => write!(f, "unknown CVSS metric name: `{name}`"),
+            Self::UnsupportedVersion { version } => {
                 write!(f, "unsupported CVSS version: {version}")
             }
         }

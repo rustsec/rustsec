@@ -54,10 +54,10 @@ impl Metric for ModifiedPrivilegesRequired {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedPrivilegesRequired::NotDefined => "X",
-            ModifiedPrivilegesRequired::None => "N",
-            ModifiedPrivilegesRequired::Low => "L",
-            ModifiedPrivilegesRequired::High => "H",
+            Self::NotDefined => "X",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -73,10 +73,10 @@ impl FromStr for ModifiedPrivilegesRequired {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedPrivilegesRequired::NotDefined),
-            "N" => Ok(ModifiedPrivilegesRequired::None),
-            "L" => Ok(ModifiedPrivilegesRequired::Low),
-            "H" => Ok(ModifiedPrivilegesRequired::High),
+            "X" => Ok(Self::NotDefined),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

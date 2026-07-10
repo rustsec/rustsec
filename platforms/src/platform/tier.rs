@@ -45,24 +45,24 @@ impl Tier {
     /// Get a number identifying this tier
     pub fn to_usize(self) -> usize {
         match self {
-            Tier::One => 1,
-            Tier::Two => 2,
-            Tier::Three => 3,
+            Self::One => 1,
+            Self::Two => 2,
+            Self::Three => 3,
         }
     }
 
     /// Get a string identifying this tier
     pub fn as_str(self) -> &'static str {
         match self {
-            Tier::One => "tier1",
-            Tier::Two => "tier2",
-            Tier::Three => "tier3",
+            Self::One => "tier1",
+            Self::Two => "tier2",
+            Self::Three => "tier3",
         }
     }
 }
 
 impl From<Tier> for usize {
-    fn from(tier: Tier) -> usize {
+    fn from(tier: Tier) -> Self {
         tier.to_usize()
     }
 }
@@ -70,11 +70,11 @@ impl From<Tier> for usize {
 impl TryFrom<usize> for Tier {
     type Error = Error;
 
-    fn try_from(num: usize) -> Result<Tier, Error> {
+    fn try_from(num: usize) -> Result<Self, Error> {
         match num {
-            1 => Ok(Tier::One),
-            2 => Ok(Tier::Two),
-            3 => Ok(Tier::Three),
+            1 => Ok(Self::One),
+            2 => Ok(Self::Two),
+            3 => Ok(Self::Three),
             _ => Err(Error),
         }
     }
@@ -83,11 +83,11 @@ impl TryFrom<usize> for Tier {
 impl FromStr for Tier {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Tier, Error> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "tier1" => Ok(Tier::One),
-            "tier2" => Ok(Tier::Two),
-            "tier3" => Ok(Tier::Three),
+            "tier1" => Ok(Self::One),
+            "tier2" => Ok(Self::Two),
+            "tier3" => Ok(Self::Three),
             _ => Err(Error),
         }
     }

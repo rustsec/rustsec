@@ -47,17 +47,17 @@ impl Metric for Confidentiality {
 
     fn score(self) -> f64 {
         match self {
-            Confidentiality::None => 0.0,
-            Confidentiality::Low => 0.22,
-            Confidentiality::High => 0.56,
+            Self::None => 0.0,
+            Self::Low => 0.22,
+            Self::High => 0.56,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            Confidentiality::None => "N",
-            Confidentiality::Low => "L",
-            Confidentiality::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -73,9 +73,9 @@ impl FromStr for Confidentiality {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "N" => Ok(Confidentiality::None),
-            "L" => Ok(Confidentiality::Low),
-            "H" => Ok(Confidentiality::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

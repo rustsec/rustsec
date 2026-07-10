@@ -48,9 +48,9 @@ enum Color {
 impl From<Color> for ColorChoice {
     fn from(value: Color) -> Self {
         match value {
-            Color::Always => ColorChoice::Always,
-            Color::Auto => ColorChoice::Auto,
-            Color::Never => ColorChoice::Never,
+            Color::Always => Self::Always,
+            Color::Auto => Self::Auto,
+            Color::Never => Self::Never,
         }
     }
 }
@@ -59,9 +59,9 @@ impl fmt::Display for Color {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         // NOTE: This must be in sync with values genereted in ValueEnum implementation.
         match self {
-            Color::Always => f.write_str("always"),
-            Color::Auto => f.write_str("auto"),
-            Color::Never => f.write_str("never"),
+            Self::Always => f.write_str("always"),
+            Self::Auto => f.write_str("auto"),
+            Self::Never => f.write_str("never"),
         }
     }
 }

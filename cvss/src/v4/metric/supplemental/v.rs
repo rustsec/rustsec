@@ -41,9 +41,9 @@ impl Metric for ValueDensity {
 
     fn as_str(self) -> &'static str {
         match self {
-            ValueDensity::NotDefined => "X",
-            ValueDensity::Diffuse => "D",
-            ValueDensity::Concentrated => "C",
+            Self::NotDefined => "X",
+            Self::Diffuse => "D",
+            Self::Concentrated => "C",
         }
     }
 }
@@ -59,9 +59,9 @@ impl FromStr for ValueDensity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ValueDensity::NotDefined),
-            "D" => Ok(ValueDensity::Diffuse),
-            "C" => Ok(ValueDensity::Concentrated),
+            "X" => Ok(Self::NotDefined),
+            "D" => Ok(Self::Diffuse),
+            "C" => Ok(Self::Concentrated),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

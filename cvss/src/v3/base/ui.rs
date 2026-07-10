@@ -36,15 +36,15 @@ impl Metric for UserInteraction {
 
     fn score(self) -> f64 {
         match self {
-            UserInteraction::Required => 0.62,
-            UserInteraction::None => 0.85,
+            Self::Required => 0.62,
+            Self::None => 0.85,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            UserInteraction::Required => "R",
-            UserInteraction::None => "N",
+            Self::Required => "R",
+            Self::None => "N",
         }
     }
 }
@@ -60,8 +60,8 @@ impl FromStr for UserInteraction {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "R" => Ok(UserInteraction::Required),
-            "N" => Ok(UserInteraction::None),
+            "R" => Ok(Self::Required),
+            "N" => Ok(Self::None),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

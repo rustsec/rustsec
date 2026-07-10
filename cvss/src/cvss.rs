@@ -110,16 +110,18 @@ impl FromStr for Cvss {
 
     fn from_str(s: &str) -> Result<Self> {
         // Parse the prefix and select the right vector parser
-        let (id, _) = s.split_once('/').ok_or(Error::InvalidComponent {
+        let (id, _) = s.split_once('/').ok_or_else(|| Error::InvalidComponent {
             component: s.to_owned(),
         })?;
-        let (prefix, version) = id.split_once(':').ok_or(Error::InvalidComponent {
+        let (prefix, version) = id.split_once(':').ok_or_else(|| Error::InvalidComponent {
             component: id.to_owned(),
         })?;
         let (major_version, minor_version) =
-            version.split_once('.').ok_or(Error::InvalidComponent {
-                component: id.to_owned(),
-            })?;
+            version
+                .split_once('.')
+                .ok_or_else(|| Error::InvalidComponent {
+                    component: id.to_owned(),
+                })?;
 
         match (prefix, major_version, minor_version) {
             #[cfg(feature = "v3")]

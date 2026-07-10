@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 use crate::{
     Lockfile, Map, advisory,
     database::{Database, Query},
-    map,
     vulnerability::Vulnerability,
     warning::{self, Warning},
 };
@@ -181,36 +180,32 @@ pub fn find_warnings(db: &Database, lockfile: &Lockfile, settings: &Settings) ->
             continue;
         }
 
-        if settings
+        if !settings
             .informational_warnings
             .iter()
             .any(|info| Some(info) == advisory.informational.as_ref())
         {
-            let warning_kind = match advisory
-                .informational
-                .as_ref()
-                .expect("informational advisory")
-                .warning_kind()
-            {
-                Some(kind) => kind,
-                None => continue,
-            };
-
-            let warning = Warning::new(
-                warning_kind,
-                &advisory_vuln.package,
-                Some(advisory.clone()),
-                advisory_vuln.affected.clone(),
-                Some(advisory_vuln.versions.clone()),
-            );
-
-            match warnings.entry(warning.kind) {
-                map::Entry::Occupied(entry) => (*entry.into_mut()).push(warning),
-                map::Entry::Vacant(entry) => {
-                    entry.insert(vec![warning]);
-                }
-            }
+            continue;
         }
+
+        let Some(warning_kind) = advisory
+            .informational
+            .as_ref()
+            .expect("informational advisory")
+            .warning_kind()
+        else {
+            continue;
+        };
+
+        let warning = Warning::new(
+            warning_kind,
+            &advisory_vuln.package,
+            Some(advisory.clone()),
+            advisory_vuln.affected.clone(),
+            Some(advisory_vuln.versions.clone()),
+        );
+
+        warnings.entry(warning.kind).or_default().push(warning);
     }
 
     warnings

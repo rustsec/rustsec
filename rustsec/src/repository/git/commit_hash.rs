@@ -18,7 +18,7 @@ impl CommitHash {
     }
 
     pub(crate) fn from_gix(hash: gix::ObjectId) -> Self {
-        CommitHash { hash }
+        Self { hash }
     }
 
     /// Interpret this object id as raw byte slice.

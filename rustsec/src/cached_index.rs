@@ -101,7 +101,7 @@ impl CachedIndex {
             .build()
             .map_err(tame_index::Error::from)?;
 
-        Ok(CachedIndex {
+        Ok(Self {
             index: Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client)),
             cache: Default::default(),
             lock,
@@ -135,7 +135,7 @@ impl CachedIndex {
 
         let index = Index::SparseCached(si);
 
-        Ok(CachedIndex {
+        Ok(Self {
             index,
             cache: Default::default(),
             lock,

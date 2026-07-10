@@ -11,8 +11,8 @@ pub struct Score(f64);
 
 impl Score {
     /// Create a new score object
-    pub fn new(score: f64) -> Score {
-        Score(score)
+    pub fn new(score: f64) -> Self {
+        Self(score)
     }
 
     /// Get the score as a floating point value
@@ -25,14 +25,14 @@ impl Score {
     ///
     /// <https://www.first.org/cvss/specification-document#t25>
     #[cfg(feature = "std")]
-    pub fn roundup(self) -> Score {
+    pub fn roundup(self) -> Self {
         let score_int = (self.0 * 100_000.0) as u64;
 
         if score_int % 10000 == 0 {
-            Score((score_int as f64) / 100_000.0)
+            Self((score_int as f64) / 100_000.0)
         } else {
             let score_floor = ((score_int as f64) / 10_000.0).floor();
-            Score((score_floor + 1.0) / 10.0)
+            Self((score_floor + 1.0) / 10.0)
         }
     }
 
@@ -53,19 +53,19 @@ impl Score {
 }
 
 impl From<f64> for Score {
-    fn from(score: f64) -> Score {
-        Score(score)
+    fn from(score: f64) -> Self {
+        Self(score)
     }
 }
 
 impl From<Score> for f64 {
-    fn from(score: Score) -> f64 {
+    fn from(score: Score) -> Self {
         score.value()
     }
 }
 
 impl From<Score> for Severity {
-    fn from(score: Score) -> Severity {
+    fn from(score: Score) -> Self {
         score.severity()
     }
 }

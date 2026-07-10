@@ -91,10 +91,10 @@ impl From<&Vector> for Nomenclature {
             || vector.mvi.is_some();
 
         match (has_threat, has_environmental) {
-            (true, true) => Nomenclature::CvssBTE,
-            (true, false) => Nomenclature::CvssBT,
-            (false, true) => Nomenclature::CvssBE,
-            (false, false) => Nomenclature::CvssB,
+            (true, true) => Self::CvssBTE,
+            (true, false) => Self::CvssBT,
+            (false, true) => Self::CvssBE,
+            (false, false) => Self::CvssB,
         }
     }
 }
@@ -189,13 +189,13 @@ impl Display for Score {
 }
 
 impl From<Score> for f64 {
-    fn from(score: Score) -> f64 {
+    fn from(score: Score) -> Self {
         score.value()
     }
 }
 
 impl From<Score> for Severity {
-    fn from(score: Score) -> Severity {
+    fn from(score: Score) -> Self {
         score.severity()
     }
 }

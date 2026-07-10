@@ -56,7 +56,7 @@ pub enum Scope {
 impl Scope {
     /// Has the scope changed?
     pub fn is_changed(self) -> bool {
-        self == Scope::Changed
+        self == Self::Changed
     }
 }
 
@@ -69,8 +69,8 @@ impl Metric for Scope {
 
     fn as_str(self) -> &'static str {
         match self {
-            Scope::Unchanged => "U",
-            Scope::Changed => "C",
+            Self::Unchanged => "U",
+            Self::Changed => "C",
         }
     }
 }
@@ -86,8 +86,8 @@ impl FromStr for Scope {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "U" => Ok(Scope::Unchanged),
-            "C" => Ok(Scope::Changed),
+            "U" => Ok(Self::Unchanged),
+            "C" => Ok(Self::Changed),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

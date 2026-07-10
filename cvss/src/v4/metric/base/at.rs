@@ -50,8 +50,8 @@ impl Metric for AttackRequirements {
 
     fn as_str(self) -> &'static str {
         match self {
-            AttackRequirements::Present => "P",
-            AttackRequirements::None => "N",
+            Self::Present => "P",
+            Self::None => "N",
         }
     }
 }
@@ -67,8 +67,8 @@ impl FromStr for AttackRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "P" => Ok(AttackRequirements::Present),
-            "N" => Ok(AttackRequirements::None),
+            "P" => Ok(Self::Present),
+            "N" => Ok(Self::None),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -105,8 +105,8 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "P" => Ok(MergedAttackRequirements::Present),
-                "N" => Ok(MergedAttackRequirements::None),
+                "P" => Ok(Self::Present),
+                "N" => Ok(Self::None),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::AT,
                     value: s.to_owned(),

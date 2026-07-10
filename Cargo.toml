@@ -73,3 +73,10 @@ unreachable_pub = "warn"
 unused_extern_crates = "warn"
 unused_import_braces = "warn"
 unused_qualifications = "warn"
+
+[workspace.lints.clippy]
+cloned_instead_of_copied = "warn"
+manual_let_else = "warn"
+or_fun_call = "warn"
+upper_case_acronyms = "warn"
+use_self = "warn"
