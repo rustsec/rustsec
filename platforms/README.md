@@ -335,6 +335,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [riscv32imafc-unknown-nuttx-elf]       | riscv32     | nuttx      |            |
 | [riscv32imc-esp-espidf]                | riscv32     | espidf     | newlib     |
 | [riscv32imc-unknown-nuttx-elf]         | riscv32     | nuttx      |            |
+| [riscv32imfc-unknown-none-elf]         | riscv32     | none       |            |
 | [riscv64-linux-android]                | riscv64     | android    |            |
 | [riscv64-oe-linux-gnu]                 | riscv64     | linux      | gnu        |
 | [riscv64-wrs-vxworks]                  | riscv64     | vxworks    | gnu        |
@@ -612,6 +613,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [riscv32imc-esp-espidf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_ESP_ESPIDF.html
 [riscv32imc-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_UNKNOWN_NONE_ELF.html
 [riscv32imc-unknown-nuttx-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMC_UNKNOWN_NUTTX_ELF.html
+[riscv32imfc-unknown-none-elf]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV32IMFC_UNKNOWN_NONE_ELF.html
 [riscv64-linux-android]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64_LINUX_ANDROID.html
 [riscv64-oe-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64_OE_LINUX_GNU.html
 [riscv64-wrs-vxworks]: https://docs.rs/platforms/latest/platforms/platform/constant.RISCV64_WRS_VXWORKS.html
