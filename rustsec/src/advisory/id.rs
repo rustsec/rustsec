@@ -92,17 +92,17 @@ impl Id {
                 if self.is_placeholder() {
                     None
                 } else {
-                    Some(format!("https://rustsec.org/advisories/{}", &self.string))
+                    Some(format!("https://rustsec.org/advisories/{}", self.string))
                 }
             }
             IdKind::Cve => Some(format!(
                 "https://cve.mitre.org/cgi-bin/cvename.cgi?name={}",
-                &self.string
+                self.string
             )),
-            IdKind::Ghsa => Some(format!("https://github.com/advisories/{}", &self.string)),
+            IdKind::Ghsa => Some(format!("https://github.com/advisories/{}", self.string)),
             IdKind::Talos => Some(format!(
                 "https://www.talosintelligence.com/reports/{}",
-                &self.string
+                self.string
             )),
             _ => None,
         }

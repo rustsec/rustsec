@@ -232,13 +232,13 @@ impl CachedIndex {
                     ErrorKind::NotFound,
                     format!(
                         "No such version in crates.io index: {} {}",
-                        &package.name, &package.version
+                        package.name, package.version
                     ),
                 )),
             },
             Ok(None) => Err(Error::new(
                 ErrorKind::NotFound,
-                format!("No such crate in crates.io index: {}", &package.name),
+                format!("No such crate in crates.io index: {}", package.name),
             )),
             Err(err) => Err(err.clone()),
         }

@@ -35,7 +35,7 @@ impl Dependency {
 
 impl fmt::Display for Dependency {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} {}", &self.name, &self.version)?;
+        write!(f, "{} {}", self.name, self.version)?;
 
         if let Some(source) = &self.source {
             write!(f, " ({source})")?;
