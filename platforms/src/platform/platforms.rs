@@ -223,6 +223,7 @@ pub(crate) const ALL: &[Platform] = &[
     RISCV32IMC_ESP_ESPIDF,
     RISCV32IMC_UNKNOWN_NONE_ELF,
     RISCV32IMC_UNKNOWN_NUTTX_ELF,
+    RISCV32IMFC_UNKNOWN_NONE_ELF,
     RISCV64_LINUX_ANDROID,
     RISCV64_OE_LINUX_GNU,
     RISCV64_WRS_VXWORKS,
@@ -676,7 +677,7 @@ pub(crate) const AARCH64_UNKNOWN_NONE_SOFTFLOAT: Platform = Platform {
     tier: Tier::Two,
 };
 
-/// ARM64 QNX Neutrino 7.0 RTOS
+/// ARM64 QNX SDP 7.0
 pub(crate) const AARCH64_UNKNOWN_NTO_QNX700: Platform = Platform {
     target_triple: "aarch64-unknown-nto-qnx700",
     target_arch: Arch::AArch64,
@@ -687,7 +688,7 @@ pub(crate) const AARCH64_UNKNOWN_NTO_QNX700: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// ARM64 QNX Neutrino 7.1 RTOS with default network stack (io-pkt)
+/// ARM64 QNX SDP 7.1 with default network stack (io-pkt)
 pub(crate) const AARCH64_UNKNOWN_NTO_QNX710: Platform = Platform {
     target_triple: "aarch64-unknown-nto-qnx710",
     target_arch: Arch::AArch64,
@@ -698,7 +699,7 @@ pub(crate) const AARCH64_UNKNOWN_NTO_QNX710: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// ARM64 QNX Neutrino 7.1 RTOS with new network stack (io-sock)
+/// ARM64 QNX SDP 7.1 with new network stack (io-sock)
 pub(crate) const AARCH64_UNKNOWN_NTO_QNX710_IOSOCK: Platform = Platform {
     target_triple: "aarch64-unknown-nto-qnx710_iosock",
     target_arch: Arch::AArch64,
@@ -1641,7 +1642,7 @@ pub(crate) const I686_OE_LINUX_GNU: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// 32-bit x86 QNX Neutrino 7.0 RTOS (Pentium 4)
+/// 32-bit x86 QNX SDP 7.0 (Pentium 4)
 pub(crate) const I686_PC_NTO_QNX700: Platform = Platform {
     target_triple: "i686-pc-nto-qnx700",
     target_arch: Arch::X86,
@@ -2623,6 +2624,17 @@ pub(crate) const RISCV32IMC_UNKNOWN_NUTTX_ELF: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// Bare RISC-V (RV32IMFC ISA, hardware single-float, no atomics)
+pub(crate) const RISCV32IMFC_UNKNOWN_NONE_ELF: Platform = Platform {
+    target_triple: "riscv32imfc-unknown-none-elf",
+    target_arch: Arch::Riscv32,
+    target_os: Os::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// RISC-V 64-bit Android
 pub(crate) const RISCV64_LINUX_ANDROID: Platform = Platform {
     target_triple: "riscv64-linux-android",
@@ -3456,7 +3468,7 @@ pub(crate) const X86_64_PC_CYGWIN: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// x86 64-bit QNX Neutrino 7.1 RTOS with default network stack (io-pkt)
+/// x86 64-bit QNX SDP 7.1 with default network stack (io-pkt)
 pub(crate) const X86_64_PC_NTO_QNX710: Platform = Platform {
     target_triple: "x86_64-pc-nto-qnx710",
     target_arch: Arch::X86_64,
@@ -3467,7 +3479,7 @@ pub(crate) const X86_64_PC_NTO_QNX710: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// x86 64-bit QNX Neutrino 7.1 RTOS with new network stack (io-sock)
+/// x86 64-bit QNX SDP 7.1 with new network stack (io-sock)
 pub(crate) const X86_64_PC_NTO_QNX710_IOSOCK: Platform = Platform {
     target_triple: "x86_64-pc-nto-qnx710_iosock",
     target_arch: Arch::X86_64,
