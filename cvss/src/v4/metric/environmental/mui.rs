@@ -64,10 +64,10 @@ impl Metric for ModifiedUserInteraction {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedUserInteraction::NotDefined => "X",
-            ModifiedUserInteraction::None => "N",
-            ModifiedUserInteraction::Passive => "P",
-            ModifiedUserInteraction::Active => "A",
+            Self::NotDefined => "X",
+            Self::None => "N",
+            Self::Passive => "P",
+            Self::Active => "A",
         }
     }
 }
@@ -83,10 +83,10 @@ impl FromStr for ModifiedUserInteraction {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedUserInteraction::NotDefined),
-            "N" => Ok(ModifiedUserInteraction::None),
-            "P" => Ok(ModifiedUserInteraction::Passive),
-            "A" => Ok(ModifiedUserInteraction::Active),
+            "X" => Ok(Self::NotDefined),
+            "N" => Ok(Self::None),
+            "P" => Ok(Self::Passive),
+            "A" => Ok(Self::Active),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

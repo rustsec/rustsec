@@ -95,8 +95,8 @@ impl FromStr for PlatformReq {
     ///
     /// Must match at least one known Rust platform "target triple"
     /// (e.g. `x86_64-unknown-linux-gnu`) to be considered valid.
-    fn from_str(req_str: &str) -> Result<PlatformReq, Error> {
-        let platform_req = PlatformReq(req_str.into());
+    fn from_str(req_str: &str) -> Result<Self, Error> {
+        let platform_req = Self(req_str.into());
 
         if platform_req.0.is_empty() || platform_req.matching_platforms().next().is_none() {
             Err(Error)

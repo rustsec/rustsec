@@ -72,7 +72,7 @@ impl EncodableLockfile {
 impl TryFrom<EncodableLockfile> for Lockfile {
     type Error = Error;
 
-    fn try_from(raw_lockfile: EncodableLockfile) -> Result<Lockfile> {
+    fn try_from(raw_lockfile: EncodableLockfile) -> Result<Self> {
         let version = match raw_lockfile.version {
             Some(n) => n.try_into()?,
             None => ResolveVersion::detect(&raw_lockfile.package, &raw_lockfile.metadata)?,
@@ -94,7 +94,7 @@ impl TryFrom<EncodableLockfile> for Lockfile {
             })
         }
 
-        Ok(Lockfile {
+        Ok(Self {
             version,
             packages,
             root: raw_lockfile
@@ -109,7 +109,7 @@ impl TryFrom<EncodableLockfile> for Lockfile {
 }
 
 impl From<&Lockfile> for EncodableLockfile {
-    fn from(lockfile: &Lockfile) -> EncodableLockfile {
+    fn from(lockfile: &Lockfile) -> Self {
         let mut packages = Vec::with_capacity(lockfile.packages.len());
         let mut metadata = lockfile.metadata.clone();
 
@@ -144,7 +144,7 @@ impl From<&Lockfile> for EncodableLockfile {
             None
         };
 
-        EncodableLockfile {
+        Self {
             version,
             package: packages,
             root: lockfile
@@ -275,7 +275,7 @@ pub(crate) struct EncodablePackage {
 impl EncodablePackage {
     /// Resolve all of the dependencies of a package, which in the V2 format
     /// may be abbreviated to prevent merge conflicts
-    fn resolve(&self, packages: &[EncodablePackage]) -> Result<Package> {
+    fn resolve(&self, packages: &[Self]) -> Result<Package> {
         let mut dependencies = Vec::with_capacity(self.dependencies.len());
 
         for dep in &self.dependencies {
@@ -303,8 +303,8 @@ impl EncodablePackage {
         }
     }
 
-    fn from_package(package: &Package, version: ResolveVersion) -> EncodablePackage {
-        EncodablePackage {
+    fn from_package(package: &Package, version: ResolveVersion) -> Self {
+        Self {
             name: package.name.clone(),
             version: package.version.clone(),
             source: package
@@ -341,7 +341,7 @@ fn encodable_source_id(id: SourceId, version: ResolveVersion) -> Option<Encodabl
 impl TryFrom<&EncodablePackage> for Package {
     type Error = Error;
 
-    fn try_from(raw_package: &EncodablePackage) -> Result<Package> {
+    fn try_from(raw_package: &EncodablePackage) -> Result<Self> {
         raw_package.resolve(&[])
     }
 }
@@ -422,8 +422,8 @@ impl EncodableDependency {
         }
     }
 
-    fn from_dependency(dep: &Dependency, version: ResolveVersion) -> EncodableDependency {
-        EncodableDependency {
+    fn from_dependency(dep: &Dependency, version: ResolveVersion) -> Self {
+        Self {
             name: dep.name.clone(),
             version: Some(dep.version.clone()),
             source: dep
@@ -494,7 +494,7 @@ impl fmt::Display for EncodableDependency {
 impl TryFrom<&EncodableDependency> for Dependency {
     type Error = Error;
 
-    fn try_from(raw_dependency: &EncodableDependency) -> Result<Dependency> {
+    fn try_from(raw_dependency: &EncodableDependency) -> Result<Self> {
         raw_dependency.resolve(&[])
     }
 }

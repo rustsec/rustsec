@@ -57,10 +57,10 @@ impl Metric for ModifiedConfidentialityImpactToTheSubsequentSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedConfidentialityImpactToTheSubsequentSystem::NotDefined => "X",
-            ModifiedConfidentialityImpactToTheSubsequentSystem::Negligible => "N",
-            ModifiedConfidentialityImpactToTheSubsequentSystem::Low => "L",
-            ModifiedConfidentialityImpactToTheSubsequentSystem::High => "H",
+            Self::NotDefined => "X",
+            Self::Negligible => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -76,10 +76,10 @@ impl FromStr for ModifiedConfidentialityImpactToTheSubsequentSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedConfidentialityImpactToTheSubsequentSystem::NotDefined),
-            "N" => Ok(ModifiedConfidentialityImpactToTheSubsequentSystem::Negligible),
-            "L" => Ok(ModifiedConfidentialityImpactToTheSubsequentSystem::Low),
-            "H" => Ok(ModifiedConfidentialityImpactToTheSubsequentSystem::High),
+            "X" => Ok(Self::NotDefined),
+            "N" => Ok(Self::Negligible),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

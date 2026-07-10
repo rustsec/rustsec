@@ -22,8 +22,8 @@ impl Endian {
     /// String representing this `Endian` which matches `#[cfg(target_endian)]`
     pub fn as_str(self) -> &'static str {
         match self {
-            Endian::Big => "big",
-            Endian::Little => "little",
+            Self::Big => "big",
+            Self::Little => "little",
         }
     }
 }
@@ -34,8 +34,8 @@ impl FromStr for Endian {
     /// Create a new `Endian` from the given string
     fn from_str(name: &str) -> Result<Self, Self::Err> {
         let result = match name {
-            "big" => Endian::Big,
-            "little" => Endian::Little,
+            "big" => Self::Big,
+            "little" => Self::Little,
             _ => return Err(Error),
         };
 

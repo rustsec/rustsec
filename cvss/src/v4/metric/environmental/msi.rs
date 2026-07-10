@@ -60,11 +60,11 @@ impl Metric for ModifiedIntegrityImpactToTheSubsequentSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedIntegrityImpactToTheSubsequentSystem::NotDefined => "X",
-            ModifiedIntegrityImpactToTheSubsequentSystem::Negligible => "N",
-            ModifiedIntegrityImpactToTheSubsequentSystem::Low => "L",
-            ModifiedIntegrityImpactToTheSubsequentSystem::High => "H",
-            ModifiedIntegrityImpactToTheSubsequentSystem::Safety => "S",
+            Self::NotDefined => "X",
+            Self::Negligible => "N",
+            Self::Low => "L",
+            Self::High => "H",
+            Self::Safety => "S",
         }
     }
 }
@@ -80,11 +80,11 @@ impl FromStr for ModifiedIntegrityImpactToTheSubsequentSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedIntegrityImpactToTheSubsequentSystem::NotDefined),
-            "N" => Ok(ModifiedIntegrityImpactToTheSubsequentSystem::Negligible),
-            "L" => Ok(ModifiedIntegrityImpactToTheSubsequentSystem::Low),
-            "H" => Ok(ModifiedIntegrityImpactToTheSubsequentSystem::High),
-            "S" => Ok(ModifiedIntegrityImpactToTheSubsequentSystem::Safety),
+            "X" => Ok(Self::NotDefined),
+            "N" => Ok(Self::Negligible),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
+            "S" => Ok(Self::Safety),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

@@ -39,7 +39,7 @@ pub enum ErrorKind {
 
 impl ErrorKind {
     /// Create an error context from this error
-    pub fn context(self, source: impl Into<BoxError>) -> Context<ErrorKind> {
+    pub fn context(self, source: impl Into<BoxError>) -> Context<Self> {
         Context::new(self, Some(source.into()))
     }
 }
@@ -71,7 +71,7 @@ impl Display for Error {
 
 impl From<Context<ErrorKind>> for Error {
     fn from(context: Context<ErrorKind>) -> Self {
-        Error(Box::new(context))
+        Self(Box::new(context))
     }
 }
 

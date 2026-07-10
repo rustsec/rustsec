@@ -55,9 +55,9 @@ impl Metric for ModifiedAttackRequirements {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedAttackRequirements::NotDefined => "X",
-            ModifiedAttackRequirements::Present => "P",
-            ModifiedAttackRequirements::None => "N",
+            Self::NotDefined => "X",
+            Self::Present => "P",
+            Self::None => "N",
         }
     }
 }
@@ -73,9 +73,9 @@ impl FromStr for ModifiedAttackRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedAttackRequirements::NotDefined),
-            "P" => Ok(ModifiedAttackRequirements::Present),
-            "N" => Ok(ModifiedAttackRequirements::None),
+            "X" => Ok(Self::NotDefined),
+            "P" => Ok(Self::Present),
+            "N" => Ok(Self::None),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

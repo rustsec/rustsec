@@ -75,10 +75,10 @@ impl Metric for AttackVector {
 
     fn as_str(self) -> &'static str {
         match self {
-            AttackVector::Network => "N",
-            AttackVector::Adjacent => "A",
-            AttackVector::Local => "L",
-            AttackVector::Physical => "P",
+            Self::Network => "N",
+            Self::Adjacent => "A",
+            Self::Local => "L",
+            Self::Physical => "P",
         }
     }
 }
@@ -94,10 +94,10 @@ impl FromStr for AttackVector {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(AttackVector::Network),
-            "A" => Ok(AttackVector::Adjacent),
-            "L" => Ok(AttackVector::Local),
-            "P" => Ok(AttackVector::Physical),
+            "N" => Ok(Self::Network),
+            "A" => Ok(Self::Adjacent),
+            "L" => Ok(Self::Local),
+            "P" => Ok(Self::Physical),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -136,10 +136,10 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "P" => Ok(MergedAttackVector::Physical),
-                "L" => Ok(MergedAttackVector::Local),
-                "A" => Ok(MergedAttackVector::Adjacent),
-                "N" => Ok(MergedAttackVector::Network),
+                "P" => Ok(Self::Physical),
+                "L" => Ok(Self::Local),
+                "A" => Ok(Self::Adjacent),
+                "N" => Ok(Self::Network),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::AV,
                     value: s.to_owned(),

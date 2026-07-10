@@ -195,23 +195,23 @@ impl DenyOption {
     /// Get all of the possible warnings to be denied
     pub fn all() -> Vec<Self> {
         vec![
-            DenyOption::Warnings,
-            DenyOption::Unmaintained,
-            DenyOption::Unsound,
-            DenyOption::Yanked,
+            Self::Warnings,
+            Self::Unmaintained,
+            Self::Unsound,
+            Self::Yanked,
         ]
     }
     /// Get the warning::Kind that corresponds to self, if applicable
     pub fn get_warning_kind(self) -> &'static [WarningKind] {
         match self {
-            DenyOption::Warnings => &[
+            Self::Warnings => &[
                 WarningKind::Unmaintained,
                 WarningKind::Unsound,
                 WarningKind::Yanked,
             ],
-            DenyOption::Unmaintained => &[WarningKind::Unmaintained],
-            DenyOption::Unsound => &[WarningKind::Unsound],
-            DenyOption::Yanked => &[WarningKind::Yanked],
+            Self::Unmaintained => &[WarningKind::Unmaintained],
+            Self::Unsound => &[WarningKind::Unsound],
+            Self::Yanked => &[WarningKind::Yanked],
         }
     }
 }
@@ -221,10 +221,10 @@ impl FromStr for DenyOption {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "warnings" => Ok(DenyOption::Warnings),
-            "unmaintained" => Ok(DenyOption::Unmaintained),
-            "unsound" => Ok(DenyOption::Unsound),
-            "yanked" => Ok(DenyOption::Yanked),
+            "warnings" => Ok(Self::Warnings),
+            "unmaintained" => Ok(Self::Unmaintained),
+            "unsound" => Ok(Self::Unsound),
+            "yanked" => Ok(Self::Yanked),
             other => Err(Error::new(
                 ErrorKind::Parse,
                 format!("invalid deny option: {other}"),
@@ -255,9 +255,9 @@ impl FromStr for OutputFormat {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "json" => Ok(OutputFormat::Json),
-            "sarif" => Ok(OutputFormat::Sarif),
-            "terminal" => Ok(OutputFormat::Terminal),
+            "json" => Ok(Self::Json),
+            "sarif" => Ok(Self::Sarif),
+            "terminal" => Ok(Self::Terminal),
             other => Err(Error::new(
                 ErrorKind::Parse,
                 format!("invalid output format: {other}"),

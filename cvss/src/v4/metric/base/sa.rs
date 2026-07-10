@@ -64,9 +64,9 @@ impl Metric for AvailabilityImpactToTheSubsequentSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            AvailabilityImpactToTheSubsequentSystem::None => "N",
-            AvailabilityImpactToTheSubsequentSystem::Low => "L",
-            AvailabilityImpactToTheSubsequentSystem::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -82,9 +82,9 @@ impl FromStr for AvailabilityImpactToTheSubsequentSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(AvailabilityImpactToTheSubsequentSystem::None),
-            "L" => Ok(AvailabilityImpactToTheSubsequentSystem::Low),
-            "H" => Ok(AvailabilityImpactToTheSubsequentSystem::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -123,10 +123,10 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "S" => Ok(MergedAvailabilityImpactToTheSubsequentSystem::Safety),
-                "H" => Ok(MergedAvailabilityImpactToTheSubsequentSystem::High),
-                "L" => Ok(MergedAvailabilityImpactToTheSubsequentSystem::Low),
-                "N" => Ok(MergedAvailabilityImpactToTheSubsequentSystem::None),
+                "S" => Ok(Self::Safety),
+                "H" => Ok(Self::High),
+                "L" => Ok(Self::Low),
+                "N" => Ok(Self::None),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::SA,
                     value: s.to_owned(),

@@ -43,17 +43,17 @@ impl Metric for Integrity {
 
     fn score(self) -> f64 {
         match self {
-            Integrity::None => 0.0,
-            Integrity::Low => 0.22,
-            Integrity::High => 0.56,
+            Self::None => 0.0,
+            Self::Low => 0.22,
+            Self::High => 0.56,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            Integrity::None => "N",
-            Integrity::Low => "L",
-            Integrity::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -69,9 +69,9 @@ impl FromStr for Integrity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(Integrity::None),
-            "L" => Ok(Integrity::Low),
-            "H" => Ok(Integrity::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

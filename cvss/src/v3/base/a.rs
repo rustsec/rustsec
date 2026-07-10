@@ -61,17 +61,17 @@ impl Metric for Availability {
 
     fn score(self) -> f64 {
         match self {
-            Availability::None => 0.0,
-            Availability::Low => 0.22,
-            Availability::High => 0.56,
+            Self::None => 0.0,
+            Self::Low => 0.22,
+            Self::High => 0.56,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            Availability::None => "N",
-            Availability::Low => "L",
-            Availability::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -87,9 +87,9 @@ impl FromStr for Availability {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(Availability::None),
-            "L" => Ok(Availability::Low),
-            "H" => Ok(Availability::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

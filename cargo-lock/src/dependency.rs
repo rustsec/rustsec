@@ -47,7 +47,7 @@ impl fmt::Display for Dependency {
 
 impl From<&Package> for Dependency {
     /// Get the [`Dependency`] requirement for this `[[package]]`
-    fn from(pkg: &Package) -> Dependency {
+    fn from(pkg: &Package) -> Self {
         Self {
             name: pkg.name.clone(),
             version: pkg.version.clone(),

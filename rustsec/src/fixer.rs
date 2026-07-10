@@ -42,7 +42,11 @@ impl Fixer {
     /// the vulnerability was actually fixed!
     /// It may remain if no semver-compatible fix was available.
     pub fn get_fix_command(&self, vulnerability: &Vulnerability, dry_run: bool) -> Command {
-        let cargo_path: &Path = self.path_to_cargo.as_deref().unwrap_or(Path::new("cargo"));
+        let cargo_path = self
+            .path_to_cargo
+            .as_deref()
+            .unwrap_or_else(|| Path::new("cargo"));
+
         let pkg_name = &vulnerability.package.name;
         let mut command = Command::new(cargo_path);
         command.arg("update");

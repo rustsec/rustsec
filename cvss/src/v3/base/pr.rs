@@ -41,21 +41,21 @@ impl PrivilegesRequired {
     /// Score when accounting for scope change
     pub fn scoped_score(self, scope_change: bool) -> f64 {
         match self {
-            PrivilegesRequired::High => {
+            Self::High => {
                 if scope_change {
                     0.50
                 } else {
                     0.27
                 }
             }
-            PrivilegesRequired::Low => {
+            Self::Low => {
                 if scope_change {
                     0.68
                 } else {
                     0.62
                 }
             }
-            PrivilegesRequired::None => 0.85,
+            Self::None => 0.85,
         }
     }
 }
@@ -69,9 +69,9 @@ impl Metric for PrivilegesRequired {
 
     fn as_str(self) -> &'static str {
         match self {
-            PrivilegesRequired::High => "H",
-            PrivilegesRequired::Low => "L",
-            PrivilegesRequired::None => "N",
+            Self::High => "H",
+            Self::Low => "L",
+            Self::None => "N",
         }
     }
 }
@@ -87,9 +87,9 @@ impl FromStr for PrivilegesRequired {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "H" => Ok(PrivilegesRequired::High),
-            "L" => Ok(PrivilegesRequired::Low),
-            "N" => Ok(PrivilegesRequired::None),
+            "H" => Ok(Self::High),
+            "L" => Ok(Self::Low),
+            "N" => Ok(Self::None),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

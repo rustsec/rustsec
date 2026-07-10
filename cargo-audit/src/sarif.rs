@@ -154,7 +154,7 @@ impl ReportingDescriptor {
             .as_ref()
             .map(|cvss| format!("{:.1}", cvss.score()));
 
-        ReportingDescriptor {
+        Self {
             id: metadata.id.to_string(),
             name: metadata.id.to_string(),
             short_description: MultiformatMessageString {
@@ -213,7 +213,7 @@ impl ReportingDescriptor {
             _ => ("unknown", "Unknown warning type"),
         };
 
-        ReportingDescriptor {
+        Self {
             id: name.to_string(),
             name: name.to_string(),
             short_description: MultiformatMessageString {
@@ -310,7 +310,7 @@ impl SarifResult {
             vuln.advisory.id, vuln.package.name, vuln.package.version
         );
 
-        SarifResult {
+        Self {
             rule_id: vuln.advisory.id.to_string(),
             message: Message {
                 text: format!(
@@ -360,7 +360,7 @@ impl SarifResult {
             warning.package.name, warning.package.version
         );
 
-        SarifResult {
+        Self {
             rule_id,
             message: Message { text: message_text },
             level: ResultLevel::Warning,

@@ -49,7 +49,7 @@ impl Tree {
             }
         }
 
-        Ok(Tree { graph, nodes })
+        Ok(Self { graph, nodes })
     }
 
     /// Render the dependency graph for the given [`NodeIndex`] using the
@@ -103,7 +103,7 @@ pub struct Symbols {
 }
 
 impl Default for Symbols {
-    fn default() -> Symbols {
+    fn default() -> Self {
         Self {
             down: "│",
             tee: "├",

@@ -63,9 +63,9 @@ impl Metric for AvailabilityImpactToTheVulnerableSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            AvailabilityImpactToTheVulnerableSystem::None => "N",
-            AvailabilityImpactToTheVulnerableSystem::Low => "L",
-            AvailabilityImpactToTheVulnerableSystem::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -81,9 +81,9 @@ impl FromStr for AvailabilityImpactToTheVulnerableSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(AvailabilityImpactToTheVulnerableSystem::None),
-            "L" => Ok(AvailabilityImpactToTheVulnerableSystem::Low),
-            "H" => Ok(AvailabilityImpactToTheVulnerableSystem::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -121,9 +121,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "H" => Ok(MergedAvailabilityImpactToTheVulnerableSystem::High),
-                "L" => Ok(MergedAvailabilityImpactToTheVulnerableSystem::Low),
-                "N" => Ok(MergedAvailabilityImpactToTheVulnerableSystem::None),
+                "H" => Ok(Self::High),
+                "L" => Ok(Self::Low),
+                "N" => Ok(Self::None),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::VA,
                     value: s.to_owned(),

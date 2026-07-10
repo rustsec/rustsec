@@ -44,11 +44,11 @@ impl Severity {
     /// Get a `str` describing the severity level
     pub fn as_str(self) -> &'static str {
         match self {
-            Severity::None => "none",
-            Severity::Low => "low",
-            Severity::Medium => "medium",
-            Severity::High => "high",
-            Severity::Critical => "critical",
+            Self::None => "none",
+            Self::Low => "low",
+            Self::Medium => "medium",
+            Self::High => "high",
+            Self::Critical => "critical",
         }
     }
 }
@@ -58,11 +58,11 @@ impl FromStr for Severity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s.to_ascii_lowercase().as_str() {
-            "none" => Ok(Severity::None),
-            "low" => Ok(Severity::Low),
-            "medium" => Ok(Severity::Medium),
-            "high" => Ok(Severity::High),
-            "critical" => Ok(Severity::Critical),
+            "none" => Ok(Self::None),
+            "low" => Ok(Self::Low),
+            "medium" => Ok(Self::Medium),
+            "high" => Ok(Self::High),
+            "critical" => Ok(Self::Critical),
             _ => Err(Error::InvalidSeverity { name: s.to_owned() }),
         }
     }

@@ -356,14 +356,14 @@ pub enum ErrorKind {
 impl ErrorKind {
     /// Invalid key
     pub fn key(name: &str) -> Self {
-        ErrorKind::InvalidKey {
+        Self::InvalidKey {
             name: name.to_owned(),
         }
     }
 
     /// Invalid value
     pub fn value(name: &str, value: impl Into<String>) -> Self {
-        ErrorKind::InvalidValue {
+        Self::InvalidValue {
             name: name.to_owned(),
             value: value.into(),
         }
@@ -373,9 +373,9 @@ impl ErrorKind {
 impl fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ErrorKind::Malformed => write!(f, "malformed content"),
-            ErrorKind::InvalidKey { name } => write!(f, "invalid key `{name}`"),
-            ErrorKind::InvalidValue { name, value } => {
+            Self::Malformed => write!(f, "malformed content"),
+            Self::InvalidKey { name } => write!(f, "invalid key `{name}`"),
+            Self::InvalidValue { name, value } => {
                 write!(f, "invalid value `{value}` for key `{name}`")
             }
         }

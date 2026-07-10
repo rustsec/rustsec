@@ -59,10 +59,10 @@ impl Metric for ConfidentialityRequirements {
 
     fn as_str(self) -> &'static str {
         match self {
-            ConfidentialityRequirements::NotDefined => "X",
-            ConfidentialityRequirements::Low => "L",
-            ConfidentialityRequirements::Medium => "M",
-            ConfidentialityRequirements::High => "H",
+            Self::NotDefined => "X",
+            Self::Low => "L",
+            Self::Medium => "M",
+            Self::High => "H",
         }
     }
 }
@@ -78,10 +78,10 @@ impl FromStr for ConfidentialityRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ConfidentialityRequirements::NotDefined),
-            "L" => Ok(ConfidentialityRequirements::Low),
-            "M" => Ok(ConfidentialityRequirements::Medium),
-            "H" => Ok(ConfidentialityRequirements::High),
+            "X" => Ok(Self::NotDefined),
+            "L" => Ok(Self::Low),
+            "M" => Ok(Self::Medium),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -113,9 +113,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "L" => Ok(MergedConfidentialityRequirements::Low),
-                "M" => Ok(MergedConfidentialityRequirements::Medium),
-                "H" => Ok(MergedConfidentialityRequirements::High),
+                "L" => Ok(Self::Low),
+                "M" => Ok(Self::Medium),
+                "H" => Ok(Self::High),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::CR,
                     value: s.to_owned(),

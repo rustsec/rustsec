@@ -40,16 +40,16 @@ impl Templates {
     pub(crate) fn new() -> Self {
         let headers = HEADERS.iter().copied().collect();
         let footers = FOOTERS.iter().copied().collect();
-        Templates { headers, footers }
+        Self { headers, footers }
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
     pub(crate) fn header(&self, key: &str) -> Option<&'static [u8]> {
-        self.headers.get(key).cloned()
+        self.headers.get(key).copied()
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
     pub(crate) fn footer(&self, key: &str) -> Option<&'static [u8]> {
-        self.footers.get(key).cloned()
+        self.footers.get(key).copied()
     }
 }

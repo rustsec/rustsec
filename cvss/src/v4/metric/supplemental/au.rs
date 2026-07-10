@@ -44,9 +44,9 @@ impl Metric for Automatable {
 
     fn as_str(self) -> &'static str {
         match self {
-            Automatable::NotDefined => "X",
-            Automatable::Yes => "Y",
-            Automatable::No => "N",
+            Self::NotDefined => "X",
+            Self::Yes => "Y",
+            Self::No => "N",
         }
     }
 }
@@ -62,9 +62,9 @@ impl FromStr for Automatable {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(Automatable::NotDefined),
-            "Y" => Ok(Automatable::Yes),
-            "N" => Ok(Automatable::No),
+            "X" => Ok(Self::NotDefined),
+            "Y" => Ok(Self::Yes),
+            "N" => Ok(Self::No),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

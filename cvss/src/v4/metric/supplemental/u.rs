@@ -61,11 +61,11 @@ impl Metric for ProviderUrgency {
 
     fn as_str(self) -> &'static str {
         match self {
-            ProviderUrgency::NotDefined => "X",
-            ProviderUrgency::Red => "Red",
-            ProviderUrgency::Amber => "Amber",
-            ProviderUrgency::Green => "Green",
-            ProviderUrgency::Clear => "Clear",
+            Self::NotDefined => "X",
+            Self::Red => "Red",
+            Self::Amber => "Amber",
+            Self::Green => "Green",
+            Self::Clear => "Clear",
         }
     }
 }
@@ -81,11 +81,11 @@ impl FromStr for ProviderUrgency {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ProviderUrgency::NotDefined),
-            "RED" => Ok(ProviderUrgency::Red),
-            "AMBER" => Ok(ProviderUrgency::Amber),
-            "GREEN" => Ok(ProviderUrgency::Green),
-            "CLEAR" => Ok(ProviderUrgency::Clear),
+            "X" => Ok(Self::NotDefined),
+            "RED" => Ok(Self::Red),
+            "AMBER" => Ok(Self::Amber),
+            "GREEN" => Ok(Self::Green),
+            "CLEAR" => Ok(Self::Clear),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

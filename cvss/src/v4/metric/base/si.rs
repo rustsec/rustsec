@@ -51,9 +51,9 @@ impl Metric for IntegrityImpactToTheSubsequentSystem {
 
     fn as_str(self) -> &'static str {
         match self {
-            IntegrityImpactToTheSubsequentSystem::None => "N",
-            IntegrityImpactToTheSubsequentSystem::Low => "L",
-            IntegrityImpactToTheSubsequentSystem::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -69,9 +69,9 @@ impl FromStr for IntegrityImpactToTheSubsequentSystem {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(IntegrityImpactToTheSubsequentSystem::None),
-            "L" => Ok(IntegrityImpactToTheSubsequentSystem::Low),
-            "H" => Ok(IntegrityImpactToTheSubsequentSystem::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -110,10 +110,10 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "S" => Ok(MergedIntegrityImpactToTheSubsequentSystem::Safety),
-                "H" => Ok(MergedIntegrityImpactToTheSubsequentSystem::High),
-                "L" => Ok(MergedIntegrityImpactToTheSubsequentSystem::Low),
-                "N" => Ok(MergedIntegrityImpactToTheSubsequentSystem::None),
+                "S" => Ok(Self::Safety),
+                "H" => Ok(Self::High),
+                "L" => Ok(Self::Low),
+                "N" => Ok(Self::None),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::SI,
                     value: s.to_owned(),

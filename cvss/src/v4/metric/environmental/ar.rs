@@ -59,10 +59,10 @@ impl Metric for AvailabilityRequirements {
 
     fn as_str(self) -> &'static str {
         match self {
-            AvailabilityRequirements::NotDefined => "X",
-            AvailabilityRequirements::Low => "L",
-            AvailabilityRequirements::Medium => "M",
-            AvailabilityRequirements::High => "H",
+            Self::NotDefined => "X",
+            Self::Low => "L",
+            Self::Medium => "M",
+            Self::High => "H",
         }
     }
 }
@@ -78,10 +78,10 @@ impl FromStr for AvailabilityRequirements {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(AvailabilityRequirements::NotDefined),
-            "L" => Ok(AvailabilityRequirements::Low),
-            "M" => Ok(AvailabilityRequirements::Medium),
-            "H" => Ok(AvailabilityRequirements::High),
+            "X" => Ok(Self::NotDefined),
+            "L" => Ok(Self::Low),
+            "M" => Ok(Self::Medium),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -113,9 +113,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "L" => Ok(MergedAvailabilityRequirements::Low),
-                "M" => Ok(MergedAvailabilityRequirements::Medium),
-                "H" => Ok(MergedAvailabilityRequirements::High),
+                "L" => Ok(Self::Low),
+                "M" => Ok(Self::Medium),
+                "H" => Ok(Self::High),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::AR,
                     value: s.to_owned(),

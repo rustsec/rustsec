@@ -95,7 +95,7 @@ impl FromStr for FunctionPath {
         }
 
         if segments.len() >= 2 {
-            Ok(FunctionPath(segments))
+            Ok(Self(segments))
         } else {
             fail!(
                 ErrorKind::Parse,
@@ -145,7 +145,7 @@ impl FromStr for Identifier {
     /// Parse an `Identifier` within a `path`
     fn from_str(identifier: &str) -> Result<Self, Error> {
         validate_identifier(identifier)?;
-        Ok(Identifier(identifier.into()))
+        Ok(Self(identifier.into()))
     }
 }
 

@@ -49,9 +49,9 @@ impl Metric for PrivilegesRequired {
 
     fn as_str(self) -> &'static str {
         match self {
-            PrivilegesRequired::None => "N",
-            PrivilegesRequired::Low => "L",
-            PrivilegesRequired::High => "H",
+            Self::None => "N",
+            Self::Low => "L",
+            Self::High => "H",
         }
     }
 }
@@ -67,9 +67,9 @@ impl FromStr for PrivilegesRequired {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "N" => Ok(PrivilegesRequired::None),
-            "L" => Ok(PrivilegesRequired::Low),
-            "H" => Ok(PrivilegesRequired::High),
+            "N" => Ok(Self::None),
+            "L" => Ok(Self::Low),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -107,9 +107,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "H" => Ok(MergedPrivilegesRequired::High),
-                "L" => Ok(MergedPrivilegesRequired::Low),
-                "N" => Ok(MergedPrivilegesRequired::None),
+                "H" => Ok(Self::High),
+                "L" => Ok(Self::Low),
+                "N" => Ok(Self::None),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::PR,
                     value: s.to_owned(),

@@ -76,11 +76,11 @@ impl Metric for ModifiedAttackVector {
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedAttackVector::NotDefined => "X",
-            ModifiedAttackVector::Network => "N",
-            ModifiedAttackVector::Adjacent => "A",
-            ModifiedAttackVector::Local => "L",
-            ModifiedAttackVector::Physical => "P",
+            Self::NotDefined => "X",
+            Self::Network => "N",
+            Self::Adjacent => "A",
+            Self::Local => "L",
+            Self::Physical => "P",
         }
     }
 }
@@ -96,11 +96,11 @@ impl FromStr for ModifiedAttackVector {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ModifiedAttackVector::NotDefined),
-            "N" => Ok(ModifiedAttackVector::Network),
-            "A" => Ok(ModifiedAttackVector::Adjacent),
-            "L" => Ok(ModifiedAttackVector::Local),
-            "P" => Ok(ModifiedAttackVector::Physical),
+            "X" => Ok(Self::NotDefined),
+            "N" => Ok(Self::Network),
+            "A" => Ok(Self::Adjacent),
+            "L" => Ok(Self::Local),
+            "P" => Ok(Self::Physical),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

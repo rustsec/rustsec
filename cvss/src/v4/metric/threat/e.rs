@@ -79,10 +79,10 @@ impl Metric for ExploitMaturity {
 
     fn as_str(self) -> &'static str {
         match self {
-            ExploitMaturity::NotDefined => "X",
-            ExploitMaturity::Attacked => "A",
-            ExploitMaturity::ProofOfConcept => "P",
-            ExploitMaturity::Unreported => "U",
+            Self::NotDefined => "X",
+            Self::Attacked => "A",
+            Self::ProofOfConcept => "P",
+            Self::Unreported => "U",
         }
     }
 }
@@ -98,10 +98,10 @@ impl FromStr for ExploitMaturity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ExploitMaturity::NotDefined),
-            "A" => Ok(ExploitMaturity::Attacked),
-            "P" => Ok(ExploitMaturity::ProofOfConcept),
-            "U" => Ok(ExploitMaturity::Unreported),
+            "X" => Ok(Self::NotDefined),
+            "A" => Ok(Self::Attacked),
+            "P" => Ok(Self::ProofOfConcept),
+            "U" => Ok(Self::Unreported),
             _ => Err(Error::InvalidMetricV4 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
@@ -133,9 +133,9 @@ pub(crate) mod merge {
 
         fn from_str(s: &str) -> Result<Self> {
             match s {
-                "A" => Ok(MergedExploitMaturity::Attacked),
-                "P" => Ok(MergedExploitMaturity::ProofOfConcept),
-                "U" => Ok(MergedExploitMaturity::Unreported),
+                "A" => Ok(Self::Attacked),
+                "P" => Ok(Self::ProofOfConcept),
+                "U" => Ok(Self::Unreported),
                 _ => Err(Error::InvalidMetricV4 {
                     metric_type: MetricType::E,
                     value: s.to_owned(),
