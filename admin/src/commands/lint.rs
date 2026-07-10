@@ -12,7 +12,7 @@ use crate::{display_err_with_source, linter::Linter, prelude::*};
 
 /// `rustsec-admin lint` subcommand
 #[derive(Command, Debug, Default, Parser)]
-pub struct LintCmd {
+pub(crate) struct LintCmd {
     /// Path to the advisory database
     #[arg(
         num_args = 1..,

@@ -1,7 +1,7 @@
 //! Provides a convenient interface atop of code-generation templates.
 //! The templates themselves are in the `templates` folder.
 
-pub const HEADERS: &[(&str, &[u8])] = &[
+pub(crate) const HEADERS: &[(&str, &[u8])] = &[
     ("target_arch", include_bytes!("../templates/arch_header.rs")),
     ("target_os", include_bytes!("../templates/os_header.rs")),
     ("target_env", include_bytes!("../templates/env_header.rs")),
@@ -15,7 +15,7 @@ pub const HEADERS: &[(&str, &[u8])] = &[
     ),
 ];
 
-pub const FOOTERS: &[(&str, &[u8])] = &[
+pub(crate) const FOOTERS: &[(&str, &[u8])] = &[
     ("target_arch", include_bytes!("../templates/arch_footer.rs")),
     ("target_os", include_bytes!("../templates/os_footer.rs")),
     ("target_env", include_bytes!("../templates/env_footer.rs")),
@@ -37,19 +37,19 @@ pub(crate) struct Templates {
 }
 
 impl Templates {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         let headers = HEADERS.iter().copied().collect();
         let footers = FOOTERS.iter().copied().collect();
         Templates { headers, footers }
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
-    pub fn header(&self, key: &str) -> Option<&'static [u8]> {
+    pub(crate) fn header(&self, key: &str) -> Option<&'static [u8]> {
         self.headers.get(key).cloned()
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
-    pub fn footer(&self, key: &str) -> Option<&'static [u8]> {
+    pub(crate) fn footer(&self, key: &str) -> Option<&'static [u8]> {
         self.footers.get(key).cloned()
     }
 }

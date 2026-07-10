@@ -10,7 +10,7 @@ use std::{
 
 /// `rustsec-admin sync` subcommand
 #[derive(Command, Debug, Default, Parser)]
-pub struct SyncCmd {
+pub(crate) struct SyncCmd {
     /// Path to the advisory database
     #[arg(
         num_args = 1..,

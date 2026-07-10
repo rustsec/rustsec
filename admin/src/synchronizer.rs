@@ -184,7 +184,7 @@ impl Synchronizer {
             // and is not aliased from RustSec. Let's consider importing it.
             if rs_aliases.is_empty() {
                 for c in affected_crates {
-                    let crate_name: KrateName = match c.as_str().try_into() {
+                    let crate_name = match KrateName::try_from(c.as_str()) {
                         Ok(k) => k,
                         Err(_e) => {
                             status_info!(

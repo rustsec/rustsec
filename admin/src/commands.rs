@@ -28,7 +28,7 @@ use std::path::PathBuf;
 
 /// `rustsec-admin` CLI subcommands
 #[derive(Command, Debug, Parser, Runnable)]
-pub enum AdminSubCmd {
+pub(crate) enum AdminSubCmd {
     /// The `lint` subcommand
     #[command(about = "lint Advisory DB and ensure is well-formed")]
     Lint(LintCmd),

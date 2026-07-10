@@ -41,7 +41,7 @@ impl Serialize for SarifLog {
 /// A run represents a single invocation of an analysis tool
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Run {
+pub(crate) struct Run {
     /// Tool information for this run
     tool: Tool,
     /// Array of results (findings) from the analysis
@@ -278,7 +278,7 @@ enum ReportingLevel {
 /// Message with optional markdown
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MultiformatMessageString {
+pub(crate) struct MultiformatMessageString {
     /// Plain text message
     text: String,
     /// Optional markdown-formatted message
@@ -289,7 +289,7 @@ pub struct MultiformatMessageString {
 /// A result (finding/alert)
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SarifResult {
+pub(crate) struct SarifResult {
     /// ID of the rule that was violated
     rule_id: String,
     /// Message describing the result

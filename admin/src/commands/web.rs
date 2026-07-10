@@ -9,7 +9,7 @@ use clap::Parser;
 
 /// `rustsec-admin web` subcommand
 #[derive(Command, Debug, Default, Parser)]
-pub struct WebCmd {
+pub(crate) struct WebCmd {
     #[arg(
         num_args = 1..,
         help = "path to output the generated website (defaults to _site/)"

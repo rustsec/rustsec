@@ -36,7 +36,7 @@ pub mod v3;
 pub mod v4;
 
 #[cfg(any(feature = "v3", feature = "v4"))]
-mod cvss;
+pub mod cvss;
 mod error;
 mod severity;
 

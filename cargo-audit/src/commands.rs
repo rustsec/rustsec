@@ -9,13 +9,13 @@
 #![allow(unknown_lints)] // don't warn/error on older rustc since non_local_definitions is a recent lint
 #![allow(non_local_definitions)]
 
-mod audit;
-
-use self::audit::AuditCommand;
 use crate::config::AuditConfig;
 use abscissa_core::{Command, Configurable, FrameworkError, Runnable, config::Override};
 use clap::Parser;
 use std::{ops::Deref, path::PathBuf};
+
+mod audit;
+pub use audit::AuditCommand;
 
 /// Name of the configuration file
 ///

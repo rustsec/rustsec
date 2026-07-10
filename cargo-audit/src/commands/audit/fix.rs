@@ -13,7 +13,7 @@ use std::{
 
 #[derive(Command, Clone, Default, Debug, Parser)]
 #[command(author, version, about)]
-pub struct FixCommand {
+pub(crate) struct FixCommand {
     /// Path to `Cargo.lock`
     #[arg(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
     file: Option<PathBuf>,
@@ -25,12 +25,12 @@ pub struct FixCommand {
 
 impl FixCommand {
     /// Initialize `Auditor`
-    pub fn auditor(&self) -> Auditor {
+    fn auditor(&self) -> Auditor {
         Auditor::new(&APP.config())
     }
 
     /// Locate `Cargo.lock`
-    pub fn cargo_lock_path(&self) -> Option<&Path> {
+    fn cargo_lock_path(&self) -> Option<&Path> {
         self.file.as_deref()
     }
 }

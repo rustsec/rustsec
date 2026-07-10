@@ -13,13 +13,13 @@ use comrak::{format_commonmark, parse_document, Arena, Options};
 /// Information about a given target triple extracted from tier documentation located at
 /// https://github.com/rust-lang/rust/blob/master/src/doc/rustc/src/platform-support.md
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct DocTargetInfo {
+pub(crate) struct DocTargetInfo {
     pub tier: u8,
     pub notes: String,
 }
 
 #[must_use]
-pub fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
+pub(crate) fn parse_file(input: &str) -> HashMap<String, DocTargetInfo> {
     let arena = Arena::new();
     let mut options = Options::default();
     options.extension.table = true;

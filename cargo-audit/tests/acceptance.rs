@@ -89,7 +89,7 @@ pub fn unaffected_newer_cmd_runner() -> CmdRunner {
 }
 
 /// Get the advisory JSON output from a `CmdRunner`
-pub fn get_advisories_json(process: &mut Process) -> serde_json::Value {
+pub fn get_advisories_json(process: &mut Process<'_>) -> serde_json::Value {
     let mut output = String::new();
     process.stdout().read_line(&mut output).unwrap();
     dbg!(&output);

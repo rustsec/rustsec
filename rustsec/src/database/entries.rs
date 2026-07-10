@@ -30,13 +30,13 @@ pub(crate) struct Entries {
 
 impl Entries {
     /// Create a new database entries collection
-    pub fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self::default()
     }
 
     /// Load an advisory from a file and insert it into the database entry table
     // TODO(tarcieri): factor more of this into `advisory.rs`?
-    pub fn load_file(&mut self, path: &Path) -> Result<Option<Slot>, Error> {
+    pub(super) fn load_file(&mut self, path: &Path) -> Result<Option<Slot>, Error> {
         let mut advisory = Advisory::load_file(path)?;
 
         // TODO(tarcieri): deprecate and remove legacy TOML-based advisory format
@@ -137,17 +137,17 @@ impl Entries {
     }
 
     /// Find an advisory by its `advisory::Id`
-    pub fn find_by_id(&self, id: &advisory::Id) -> Option<&Advisory> {
+    pub(super) fn find_by_id(&self, id: &advisory::Id) -> Option<&Advisory> {
         self.index.get(id).and_then(|slot| self.get(*slot))
     }
 
     /// Get an advisory from the database by its [`Slot`]
-    pub fn get(&self, slot: Slot) -> Option<&Advisory> {
+    pub(super) fn get(&self, slot: Slot) -> Option<&Advisory> {
         self.advisories.get(slot.0)
     }
 
     /// Iterate over all of the entries in the database
-    pub fn iter(&self) -> Iter<'_> {
+    pub(super) fn iter(&self) -> Iter<'_> {
         self.advisories.iter()
     }
 }

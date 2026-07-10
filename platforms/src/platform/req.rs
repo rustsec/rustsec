@@ -24,7 +24,7 @@ use crate::platform::Platform;
 pub struct PlatformReq(String);
 
 /// Wildcard character used for globbing
-pub const WILDCARD: char = '*';
+const WILDCARD: char = '*';
 
 impl PlatformReq {
     /// Borrow this platform requirement as a string slice

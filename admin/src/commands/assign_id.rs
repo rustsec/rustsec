@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 
 /// `rustsec-admin assign-id` subcommand
 #[derive(Command, Debug, Default, Parser)]
-pub struct AssignIdCmd {
+pub(crate) struct AssignIdCmd {
     #[arg(long = "github-actions-output")]
     github_action_output: bool,
     /// Path to the advisory database
