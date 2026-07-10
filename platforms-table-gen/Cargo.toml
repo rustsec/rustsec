@@ -7,3 +7,6 @@ edition     = "2018"
 
 [dependencies]
 platforms = { path = "../platforms" }
+
+[lints]
+workspace = true

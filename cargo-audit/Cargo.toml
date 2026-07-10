@@ -45,3 +45,6 @@ binary-scanning = [
     "dep:rustc-demangle",
     "dep:syn",
 ]
+
+[lints]
+workspace = true

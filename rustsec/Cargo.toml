@@ -75,3 +75,6 @@ allowed_external_types = [
     "time::offset_date_time::OffsetDateTime",
     "url::Url",
 ]
+
+[lints]
+workspace = true

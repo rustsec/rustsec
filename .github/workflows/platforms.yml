@@ -37,6 +37,7 @@ jobs:
           override: true
           profile: minimal
       - run: rm ../Cargo.toml # Remove from workspace to support older MSRV
+      - run: sed -i '/^\[lints\]/,$d' Cargo.toml # Drop workspace lint inheritance, unused without a workspace
       - run: cargo check --all-features
       - run: cargo test --no-default-features
       - run: cargo test

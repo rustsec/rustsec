@@ -30,3 +30,6 @@ dependency-tree = ["petgraph"]
 [package.metadata.docs.rs]
 features = ["dependency-tree"]
 rustdoc-args = ["--cfg", "docsrs"]
+
+[lints]
+workspace = true
