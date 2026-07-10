@@ -173,9 +173,9 @@ impl<'g, 's> Presenter<'g, 's> {
             } else {
                 "inexact".to_string()
             };
-            writeln!(w, "{} {} {}", &package.name, &package.version, spec)?;
+            writeln!(w, "{} {} {}", package.name, package.version, spec)?;
         } else {
-            writeln!(w, "{} {}", &package.name, &package.version)?;
+            writeln!(w, "{} {}", package.name, package.version)?;
         }
 
         if !new {

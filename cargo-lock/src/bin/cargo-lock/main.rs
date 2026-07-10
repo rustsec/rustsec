@@ -114,7 +114,7 @@ impl TranslateCmd {
         let lockfile_toml = lockfile.to_string();
 
         if output == Path::new("-") {
-            println!("{}", &lockfile_toml);
+            println!("{}", lockfile_toml);
         } else {
             fs::write(output, lockfile_toml.as_bytes()).unwrap_or_else(|e| {
                 eprintln!("*** error: {}", e);

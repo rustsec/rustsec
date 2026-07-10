@@ -339,7 +339,7 @@ fn unaffected_newer_suggests_upgrades() {
 
     let ids = HashSet::<&str>::from_iter(
         vulns
-            .into_iter()
+            .iter()
             .map(|v| v.pointer("/advisory/id").unwrap().as_str().unwrap()),
     );
 

@@ -220,14 +220,14 @@ impl ToString for EncodableLockfile {
 /// This method is adapted from the same-named method in upstream Cargo:
 /// <https://github.com/rust-lang/cargo/blob/0c70319/src/cargo/ops/lockfile.rs#L194-L221>
 fn emit_package(dep: &toml::value::Table, out: &mut String) {
-    writeln!(out, "name = {}", &dep["name"]).unwrap();
-    writeln!(out, "version = {}", &dep["version"]).unwrap();
+    writeln!(out, "name = {}", dep["name"]).unwrap();
+    writeln!(out, "version = {}", dep["version"]).unwrap();
 
     if dep.contains_key("source") {
-        writeln!(out, "source = {}", &dep["source"]).unwrap();
+        writeln!(out, "source = {}", dep["source"]).unwrap();
     }
     if dep.contains_key("checksum") {
-        writeln!(out, "checksum = {}", &dep["checksum"]).unwrap();
+        writeln!(out, "checksum = {}", dep["checksum"]).unwrap();
     }
 
     if let Some(s) = dep.get("dependencies") {
@@ -243,7 +243,7 @@ fn emit_package(dep: &toml::value::Table, out: &mut String) {
             out.push_str("]\n");
         }
     } else if dep.contains_key("replace") {
-        writeln!(out, "replace = {}", &dep["replace"]).unwrap();
+        writeln!(out, "replace = {}", dep["replace"]).unwrap();
     }
 
     out.push('\n');
@@ -476,7 +476,7 @@ impl FromStr for EncodableDependency {
 
 impl fmt::Display for EncodableDependency {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", &self.name)?;
+        write!(f, "{}", self.name)?;
 
         if let Some(version) = &self.version {
             write!(f, " {version}")?;
