@@ -21,9 +21,9 @@ use url::Url;
 use std::path::Path;
 
 /// Location of the crates.io index
-pub const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
+const CRATES_IO_INDEX: &str = "https://github.com/rust-lang/crates.io-index";
 /// Location of the crates.io sparse HTTP index
-pub const CRATES_IO_SPARSE_INDEX: &str = "sparse+https://index.crates.io/";
+const CRATES_IO_SPARSE_INDEX: &str = "sparse+https://index.crates.io/";
 
 /// Unique identifier for a source of packages.
 #[derive(Clone, Debug)]
@@ -422,7 +422,7 @@ pub enum GitReference {
 impl GitReference {
     /// Returns a `Display`able view of this git reference, or None if using
     /// the head of the default branch
-    pub fn pretty_ref(&self, url_encoded: bool) -> Option<PrettyRef<'_>> {
+    pub fn pretty_ref(&self, url_encoded: bool) -> Option<impl fmt::Display + '_> {
         match self {
             Self::DefaultBranch => None,
             _ => Some(PrettyRef {
@@ -434,7 +434,7 @@ impl GitReference {
 }
 
 /// A git reference that can be `Display`ed
-pub struct PrettyRef<'a> {
+struct PrettyRef<'a> {
     inner: &'a GitReference,
     url_encoded: bool,
 }

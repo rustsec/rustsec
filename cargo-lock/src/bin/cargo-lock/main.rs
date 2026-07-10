@@ -56,7 +56,7 @@ struct ListCmd {
 
 impl ListCmd {
     /// Display dependency summary from `Cargo.lock`
-    pub fn run(&self) {
+    fn run(&self) {
         for package in &load_lockfile(&self.file).packages {
             if let Some(name) = &self.package {
                 if &package.name != name {
@@ -101,7 +101,7 @@ struct TranslateCmd {
 
 impl TranslateCmd {
     /// Translate `Cargo.lock` to a different format version
-    pub fn run(&self) {
+    fn run(&self) {
         let output = self
             .output
             .as_ref()
@@ -192,7 +192,7 @@ fn package_matches(pkg: &Package, spec: &str) -> bool {
 
 impl TreeCmd {
     /// Display dependency trees from `Cargo.lock`
-    pub fn run(&self) {
+    fn run(&self) {
         let lockfile = load_lockfile(&self.file);
 
         let tree = lockfile.dependency_tree().unwrap_or_else(|e| {

@@ -15,7 +15,7 @@ pub(crate) enum Bound {
 
 impl Bound {
     /// Returns just the version, ignoring whether the bound is inclusive or exclusive
-    pub fn version(&self) -> Option<&Version> {
+    pub(super) fn version(&self) -> Option<&Version> {
         match &self {
             Bound::Unbounded => None,
             Bound::Exclusive(v) => Some(v),
@@ -60,7 +60,7 @@ pub(crate) struct UnaffectedRange {
 }
 
 impl UnaffectedRange {
-    pub fn new(start: Bound, end: Bound) -> Result<Self, Error> {
+    fn new(start: Bound, end: Bound) -> Result<Self, Error> {
         if start.less_or_equal(&end) {
             Ok(UnaffectedRange { start, end })
         } else {
@@ -71,15 +71,15 @@ impl UnaffectedRange {
         }
     }
 
-    pub fn start(&self) -> &Bound {
+    pub(super) fn start(&self) -> &Bound {
         &self.start
     }
 
-    pub fn end(&self) -> &Bound {
+    pub(super) fn end(&self) -> &Bound {
         &self.end
     }
 
-    pub fn overlaps(&self, other: &UnaffectedRange) -> bool {
+    pub(super) fn overlaps(&self, other: &UnaffectedRange) -> bool {
         // range check for well-formed ranges is `(Start1 <= End2) && (Start2 <= End1)`
         self.start.less_or_equal(&other.end) && other.start.less_or_equal(&self.end)
     }

@@ -15,13 +15,13 @@ pub(crate) struct Comments {
 }
 
 impl Comments {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         let data = COMMENTS.iter().copied().collect();
         Comments { data }
     }
 
     /// Accepts the raw (non-enumified) identifier as argument
-    pub fn enum_variant_comment(&self, key: &str) -> Option<&'static str> {
+    pub(crate) fn enum_variant_comment(&self, key: &str) -> Option<&'static str> {
         self.data.get(key).cloned()
     }
 }

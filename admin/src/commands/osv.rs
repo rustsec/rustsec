@@ -14,7 +14,7 @@ use clap::Parser;
 use crate::osv_export::OsvExporter;
 
 #[derive(Command, Debug, Default, Parser)]
-pub struct OsvCmd {
+pub(crate) struct OsvCmd {
     /// Path to the advisory database
     #[arg(
         long = "db",

@@ -173,7 +173,7 @@ pub struct AuditCommand {
 /// Subcommands of `cargo audit`
 #[cfg(any(feature = "fix", feature = "binary-scanning"))]
 #[derive(Subcommand, Clone, Debug, Runnable)]
-pub enum AuditSubcommand {
+pub(super) enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
     #[command(about = "automatically upgrade vulnerable dependencies")]
@@ -193,7 +193,7 @@ If not, recovers a part of the dependency list from panic messages."
 
 impl AuditCommand {
     /// Get the color configuration
-    pub fn term_colors(&self) -> ColorChoice {
+    pub(crate) fn term_colors(&self) -> ColorChoice {
         if let Some(color) = self.color {
             return color.into();
         }
@@ -308,7 +308,7 @@ impl Runnable for AuditCommand {
 
 impl AuditCommand {
     /// Initialize `Auditor`
-    pub fn auditor(&self) -> Auditor {
+    pub(crate) fn auditor(&self) -> Auditor {
         Auditor::new(&APP.config())
     }
 }

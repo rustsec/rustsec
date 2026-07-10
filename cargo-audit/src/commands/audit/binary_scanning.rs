@@ -8,7 +8,7 @@ use std::{path::PathBuf, process::exit};
 /// The `cargo audit` subcommand
 #[derive(Command, Clone, Default, Debug, Parser)]
 #[command()]
-pub struct BinCommand {
+pub(crate) struct BinCommand {
     /// Maximum binary size in bytes to read
     #[arg(
         long = "max-binary-size",
@@ -51,7 +51,7 @@ impl Runnable for BinCommand {
 
 impl BinCommand {
     /// Initialize `Auditor`
-    pub fn auditor(&self) -> Auditor {
+    pub(crate) fn auditor(&self) -> Auditor {
         Auditor::new(&APP.config())
     }
 }

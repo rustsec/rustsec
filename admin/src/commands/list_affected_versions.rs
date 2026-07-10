@@ -19,7 +19,7 @@ use crate::prelude::*;
 
 /// `rustsec-admin list-affected-versions` subcommand
 #[derive(Command, Debug, Default, Parser)]
-pub struct ListAffectedVersionsCmd {
+pub(crate) struct ListAffectedVersionsCmd {
     /// Path to the advisory database
     #[arg(
         num_args = 1..,

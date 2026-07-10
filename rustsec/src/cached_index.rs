@@ -9,7 +9,7 @@ use crate::{
     package::{self, Package},
 };
 
-pub use tame_index::external::reqwest::ClientBuilder;
+use tame_index::external::reqwest::ClientBuilder;
 use tame_index::utils::flock::{FileLock, LockOptions};
 
 enum Index {

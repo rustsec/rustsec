@@ -183,7 +183,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     );
 
     // Render the per-package pages (/packages/${package}.html).
-    let mut advisories_per_package = Vec::<AdvisoriesSubList>::new();
+    let mut advisories_per_package = Vec::<AdvisoriesSubList<'_>>::new();
     let mut packages = Vec::<(String, String, Option<usize>)>::new();
     for data in &advisories {
         let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
@@ -247,7 +247,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     );
 
     // Render the per-keyword pages (/keywords/${keyword}.html).
-    let mut advisories_per_keyword = Vec::<AdvisoriesSubList>::new();
+    let mut advisories_per_keyword = Vec::<AdvisoriesSubList<'_>>::new();
     let mut keywords = Vec::<(String, String, Option<usize>)>::new();
     for data in &advisories {
         let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
@@ -309,7 +309,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     );
 
     // Render the per-category pages (/categories/${category}.html).
-    let mut advisories_per_category = Vec::<AdvisoriesSubList>::new();
+    let mut advisories_per_category = Vec::<AdvisoriesSubList<'_>>::new();
     let mut categories = Vec::<(String, String, Option<usize>)>::new();
     for data in &advisories {
         let rendered_title = markdown_to_html(data.title(), &comrak::Options::default());
@@ -564,6 +564,7 @@ fn copy_static_assets(output_folder: &Path) {
     }
 }
 
+#[allow(unreachable_pub)] // Askama's macros get this wrong?
 mod filters {
     use std::borrow::Borrow;
 
@@ -572,7 +573,7 @@ mod filters {
     use rustsec::advisory;
 
     #[filter_fn]
-    pub fn friendly_date<T: Borrow<advisory::Date>>(
+    pub(super) fn friendly_date<T: Borrow<advisory::Date>>(
         date: T,
         _: &dyn askama::Values,
     ) -> ::askama::Result<String> {
@@ -588,7 +589,7 @@ mod filters {
     }
 
     #[filter_fn]
-    pub fn safe_keyword(s: &str, _: &dyn askama::Values) -> ::askama::Result<String> {
+    pub(super) fn safe_keyword(s: &str, _: &dyn askama::Values) -> ::askama::Result<String> {
         Ok(s.chars()
             .map(|c| {
                 if c.is_ascii_alphanumeric() || c == '-' || c == '_' {

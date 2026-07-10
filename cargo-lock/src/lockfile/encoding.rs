@@ -56,7 +56,7 @@ pub(super) struct EncodableLockfile {
 
 impl EncodableLockfile {
     /// Attempt to find a checksum for a package in a V1 lockfile
-    pub fn find_checksum(&self, package: &Package) -> Option<Checksum> {
+    fn find_checksum(&self, package: &Package) -> Option<Checksum> {
         for (key, value) in &self.metadata {
             if let Ok(dep) = key.checksum_dependency() {
                 if dep.name == package.name && dep.version == package.version {
@@ -362,7 +362,7 @@ pub(crate) struct EncodableDependency {
 impl EncodableDependency {
     /// Resolve this dependency, which in the V2 format may be abbreviated to
     /// prevent merge conflicts
-    pub fn resolve(&self, packages: &[EncodablePackage]) -> Result<Dependency> {
+    fn resolve(&self, packages: &[EncodablePackage]) -> Result<Dependency> {
         for pkg in packages {
             if pkg.name == self.name
                 && (self.version.is_none() || self.version.as_ref() == Some(&pkg.version))
@@ -389,7 +389,7 @@ impl EncodableDependency {
     }
 
     /// Prepare `ResolveVersion::V2` dependencies by removing ones which are unambiguous
-    pub fn v2(&mut self, packages: &[Package]) {
+    fn v2(&mut self, packages: &[Package]) {
         let mut matching = vec![];
 
         for package in packages {
@@ -422,7 +422,7 @@ impl EncodableDependency {
         }
     }
 
-    pub fn from_dependency(dep: &Dependency, version: ResolveVersion) -> EncodableDependency {
+    fn from_dependency(dep: &Dependency, version: ResolveVersion) -> EncodableDependency {
         EncodableDependency {
             name: dep.name.clone(),
             version: Some(dep.version.clone()),
