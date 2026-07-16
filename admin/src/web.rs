@@ -3,7 +3,7 @@
 use std::{
     collections::{HashMap, HashSet},
     fs::{self, File},
-    iter,
+    io, iter,
     ops::Deref,
     path::{Path, PathBuf},
     str::FromStr,
@@ -17,7 +17,6 @@ use atom_syndication::{
 };
 use chrono::{Duration, NaiveDate, Utc};
 use comrak::markdown_to_html;
-use rust_embed::RustEmbed;
 use rustsec::advisory::{Category, Id};
 use rustsec::osv::OsvAdvisory;
 use rustsec::repository::git::GitModificationTimes;
@@ -146,7 +145,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     }
 
     // Copy all the static assets.
-    copy_static_assets(&output_folder);
+    copy_static_assets(&output_folder).unwrap();
 
     // Render the index.html (/) page.
     let index_template = IndexTemplate;
@@ -546,22 +545,25 @@ fn render_feed(output_path: &Path, advisories: &[AdvisoryData]) {
     feed.write_to(file).unwrap();
 }
 
-#[derive(RustEmbed)]
-#[folder = "src/web/static/"]
-struct StaticAsset;
+fn copy_static_assets(output_folder: &Path) -> Result<(), io::Error> {
+    let static_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/web/static");
+    copy_dir_recursive(&static_dir, output_folder)
+}
 
-fn copy_static_assets(output_folder: &Path) {
-    for file in StaticAsset::iter() {
-        let asset_path = PathBuf::from(file.as_ref());
-
-        // If the asset is in a folder, e.g. css/. Make the directory first.
-        if let Some(containing_folder) = asset_path.parent() {
-            fs::create_dir_all(output_folder.join(containing_folder)).unwrap();
+fn copy_dir_recursive(src: &Path, dst: &Path) -> Result<(), io::Error> {
+    fs::create_dir_all(dst)?;
+    for entry in fs::read_dir(src)? {
+        let entry = entry?;
+        let path = entry.path();
+        let target = dst.join(entry.file_name());
+        if entry.file_type()?.is_dir() {
+            copy_dir_recursive(&path, &target)?;
+        } else {
+            fs::copy(&path, &target)?;
         }
-
-        let asset = StaticAsset::get(file.as_ref()).unwrap();
-        fs::write(output_folder.join(file.as_ref()), asset.data).unwrap();
     }
+
+    Ok(())
 }
 
 #[allow(unreachable_pub)] // Askama's macros get this wrong?

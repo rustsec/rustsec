@@ -23,7 +23,6 @@ display-error-chain = { workspace = true }
 fs-err = { workspace = true }
 tame-index = { workspace = true, features = ["sparse"] }
 gix = { workspace = true, optional = true }
-rust-embed = { workspace = true }
 rustsec = { workspace = true, features = ["osv-export"] }
 serde = { workspace = true, features = ["serde_derive"] }
 serde_json = { workspace = true }
