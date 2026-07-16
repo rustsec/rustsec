@@ -35,7 +35,6 @@ petgraph = "0.8.2"
 platforms = { version = "4", path = "./platforms" }
 quitters = { version = "0.1.0", path = "./quitters" }
 regex = { version = "1.10.6", default-features = false }
-rust-embed = { version = "8.5.0", features = ["deterministic-timestamps"] }
 rustc-demangle = "0.1"
 rustsec = { version = "0.34", path = "./rustsec" }
 semver = "1.0.23"
