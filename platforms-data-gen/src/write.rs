@@ -157,7 +157,7 @@ impl {enum_name} {{
         match self {{"
     )?;
     for raw_string in &raw_strings {
-        let variant = enumify_value(key, raw_string);
+        let variant = self_variant_name(raw_string);
         //                       Os::Android => "android",
         writeln!(out, "            {variant} => \"{raw_string}\",")?;
     }
@@ -180,7 +180,7 @@ impl FromStr for {enum_name} {{
         let result = match name {{"
     )?;
     for raw_string in &raw_strings {
-        let variant = enumify_value(key, raw_string);
+        let variant = self_variant_name(raw_string);
         //                            "android" => Os::Android,
         writeln!(out, "            \"{raw_string}\" => {variant},")?;
     }

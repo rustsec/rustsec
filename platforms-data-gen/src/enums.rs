@@ -8,6 +8,11 @@ pub(crate) fn distinct_values(key: &str, info: &[HashMap<String, String>]) -> BT
 }
 
 #[must_use]
+pub(crate) fn self_variant_name(value: &str) -> String {
+    format!("Self::{}", to_enum_variant_name(value))
+}
+
+#[must_use]
 pub(crate) fn enumify_value(key: &str, value: &str) -> String {
     format!("{}::{}", to_enum_name(key), to_enum_variant_name(value))
 }
