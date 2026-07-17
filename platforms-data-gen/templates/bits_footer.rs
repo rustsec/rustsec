@@ -6,9 +6,9 @@ impl TryFrom<u8> for PointerWidth {
 
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         match value {
-            64 => Ok(PointerWidth::U64),
-            32 => Ok(PointerWidth::U32),
-            16 => Ok(PointerWidth::U16),
+            64 => Ok(Self::U64),
+            32 => Ok(Self::U32),
+            16 => Ok(Self::U16),
             _ => Err("Invalid pointer width!"),
         }
     }
