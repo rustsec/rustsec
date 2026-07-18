@@ -1,9 +1,12 @@
 //! CVSS v3.1 Environmental Metric Group - Modified Attack Vector (MAV)
 
-use crate::v3::base::AttackVector;
-use crate::v3::metric::ModifiedMetric;
-use crate::{Error, Metric, MetricType};
 use core::{fmt, str::FromStr};
+
+use crate::Error;
+use crate::v3::{
+    Metric, MetricType,
+    metric::{ModifiedMetric, base::AttackVector},
+};
 
 /// Modified Attack Vector (MAV) - CVSS v3.1 Environmental Metric Group
 ///
@@ -19,25 +22,25 @@ pub enum ModifiedAttackVector {
 }
 
 impl Metric for ModifiedAttackVector {
-    const TYPE: MetricType = MetricType::MAV;
-
     fn score(self) -> f64 {
         0.0
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedAttackVector::Modified(v) => v.as_str(),
+            Self::Modified(v) => v.as_str(),
             Self::NotDefined => "X",
         }
     }
+
+    const TYPE: MetricType = MetricType::MAV;
 }
 
 impl ModifiedMetric<AttackVector> for ModifiedAttackVector {
     fn modified_score(self, base: Option<AttackVector>) -> f64 {
         match self {
-            ModifiedAttackVector::Modified(v) => v.score(),
-            ModifiedAttackVector::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
+            Self::Modified(v) => v.score(),
+            Self::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
         }
     }
 }
@@ -53,9 +56,9 @@ impl FromStr for ModifiedAttackVector {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         if s == "X" {
-            Ok(ModifiedAttackVector::NotDefined)
+            Ok(Self::NotDefined)
         } else {
-            Ok(ModifiedAttackVector::Modified(s.parse()?))
+            Ok(Self::Modified(s.parse()?))
         }
     }
 }

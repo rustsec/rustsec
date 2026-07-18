@@ -25,7 +25,7 @@ impl Score {
     ///
     /// <https://www.first.org/cvss/specification-document#t25>
     #[cfg(feature = "std")]
-    pub fn roundup(self) -> Score {
+    pub fn roundup(self) -> Self {
         // Default behavior is CVSS v3.1 rounding
         self.roundup_for_version(1)
     }
@@ -34,19 +34,19 @@ impl Score {
     /// the minor version. `minor_version == 0` corresponds to 3.0, and
     /// `minor_version == 1` corresponds to 3.1.
     #[cfg(feature = "std")]
-    pub fn roundup_for_version(self, minor_version: usize) -> Score {
+    pub fn roundup_for_version(self, minor_version: usize) -> Self {
         if minor_version == 0 {
             // CVSS v3.0: round up to nearest tenth
-            Score((self.0 * 10.0).ceil() / 10.0)
+            Self((self.0 * 10.0).ceil() / 10.0)
         } else {
             // CVSS v3.1 rounding algorithm (Appendix A)
             let score_int = (self.0 * 100_000.0) as u64;
 
             if score_int % 10000 == 0 {
-                Score((score_int as f64) / 100_000.0)
+                Self((score_int as f64) / 100_000.0)
             } else {
                 let score_floor = ((score_int as f64) / 10_000.0).floor();
-                Score((score_floor + 1.0) / 10.0)
+                Self((score_floor + 1.0) / 10.0)
             }
         }
     }

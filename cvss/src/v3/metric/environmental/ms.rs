@@ -1,14 +1,14 @@
 //! CVSS v3.1 Environmental Metric Group - Modified Scope (MS)
 
-use crate::v3::base::Scope;
-use crate::{Error, Metric, MetricType};
 use core::{fmt, str::FromStr};
+
+use crate::Error;
+use crate::v3::{Metric, MetricType, metric::base::Scope};
 
 /// Modified Scope (MS) - CVSS v3.1 Environmental Metric Group
 ///
 /// Described in CVSS v3.1 Specification: Section 4.2:
 /// <https://www.first.org/cvss/v3-1/specification-document#4-2-Modified-Base-Metrics>
-
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedScope {
     /// Not Defined (X)
@@ -19,21 +19,21 @@ pub enum ModifiedScope {
 }
 
 impl Metric for ModifiedScope {
-    const TYPE: MetricType = MetricType::MS;
-
     fn score(self) -> f64 {
         match self {
-            ModifiedScope::Modified(v) => v.score(),
-            ModifiedScope::NotDefined => 0.0,
+            Self::Modified(v) => v.score(),
+            Self::NotDefined => 0.0,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedScope::Modified(v) => v.as_str(),
-            ModifiedScope::NotDefined => "X",
+            Self::Modified(v) => v.as_str(),
+            Self::NotDefined => "X",
         }
     }
+
+    const TYPE: MetricType = MetricType::MS;
 }
 
 impl fmt::Display for ModifiedScope {
@@ -47,9 +47,9 @@ impl FromStr for ModifiedScope {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         if s == "X" {
-            Ok(ModifiedScope::NotDefined)
+            Ok(Self::NotDefined)
         } else {
-            Ok(ModifiedScope::Modified(s.parse()?))
+            Ok(Self::Modified(s.parse()?))
         }
     }
 }

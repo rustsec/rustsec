@@ -1,9 +1,12 @@
 //! CVSS v3.1 Environmental Metric Group - Modified Attack Complexity (MAC)
 
-use crate::v3::base::AttackComplexity;
-use crate::v3::metric::ModifiedMetric;
-use crate::{Error, Metric, MetricType};
 use core::{fmt, str::FromStr};
+
+use crate::Error;
+use crate::v3::{
+    Metric, MetricType,
+    metric::{ModifiedMetric, base::AttackComplexity},
+};
 
 /// Modified Attack Complexity (MAC) - CVSS v3.1 Environmental Metric Group
 ///
@@ -19,25 +22,25 @@ pub enum ModifiedAttackComplexity {
 }
 
 impl Metric for ModifiedAttackComplexity {
-    const TYPE: MetricType = MetricType::MAC;
-
     fn score(self) -> f64 {
         0.0
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedAttackComplexity::Modified(v) => v.as_str(),
+            Self::Modified(v) => v.as_str(),
             Self::NotDefined => "X",
         }
     }
+
+    const TYPE: MetricType = MetricType::MAC;
 }
 
 impl ModifiedMetric<AttackComplexity> for ModifiedAttackComplexity {
     fn modified_score(self, base: Option<AttackComplexity>) -> f64 {
         match self {
-            ModifiedAttackComplexity::Modified(v) => v.score(),
-            ModifiedAttackComplexity::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
+            Self::Modified(v) => v.score(),
+            Self::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
         }
     }
 }
@@ -53,9 +56,9 @@ impl FromStr for ModifiedAttackComplexity {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         if s == "X" {
-            Ok(ModifiedAttackComplexity::NotDefined)
+            Ok(Self::NotDefined)
         } else {
-            Ok(ModifiedAttackComplexity::Modified(s.parse()?))
+            Ok(Self::Modified(s.parse()?))
         }
     }
 }

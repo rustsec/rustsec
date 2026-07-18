@@ -1,8 +1,10 @@
 //! Remediation Level (RL)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Remediation Level (RL) - CVSS v3.1 Temporal Metric Group
 /// > The Remediation Level of a vulnerability is an important factor for
@@ -40,27 +42,27 @@ pub enum RemediationLevel {
 }
 
 impl Metric for RemediationLevel {
-    const TYPE: MetricType = MetricType::RL;
-
     fn score(self) -> f64 {
         match self {
-            RemediationLevel::NotDefined => 1.0,
-            RemediationLevel::Unavailable => 1.0,
-            RemediationLevel::Workaround => 0.97,
-            RemediationLevel::TemporaryFix => 0.96,
-            RemediationLevel::OfficialFix => 0.95,
+            Self::NotDefined => 1.0,
+            Self::Unavailable => 1.0,
+            Self::Workaround => 0.97,
+            Self::TemporaryFix => 0.96,
+            Self::OfficialFix => 0.95,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            RemediationLevel::NotDefined => "X",
-            RemediationLevel::Unavailable => "U",
-            RemediationLevel::Workaround => "W",
-            RemediationLevel::TemporaryFix => "T",
-            RemediationLevel::OfficialFix => "O",
+            Self::NotDefined => "X",
+            Self::Unavailable => "U",
+            Self::Workaround => "W",
+            Self::TemporaryFix => "T",
+            Self::OfficialFix => "O",
         }
     }
+
+    const TYPE: MetricType = MetricType::RL;
 }
 
 impl fmt::Display for RemediationLevel {
@@ -74,11 +76,11 @@ impl FromStr for RemediationLevel {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(RemediationLevel::NotDefined),
-            "U" => Ok(RemediationLevel::Unavailable),
-            "W" => Ok(RemediationLevel::Workaround),
-            "T" => Ok(RemediationLevel::TemporaryFix),
-            "O" => Ok(RemediationLevel::OfficialFix),
+            "X" => Ok(Self::NotDefined),
+            "U" => Ok(Self::Unavailable),
+            "W" => Ok(Self::Workaround),
+            "T" => Ok(Self::TemporaryFix),
+            "O" => Ok(Self::OfficialFix),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

@@ -1,9 +1,12 @@
 //! CVSS v3.1 Environmental Metric Group - Modified Availability (MA)
 
-use crate::v3::base::Availability;
-use crate::v3::metric::ModifiedMetric;
-use crate::{Error, Metric, MetricType};
 use core::{fmt, str::FromStr};
+
+use crate::Error;
+use crate::v3::{
+    Metric, MetricType,
+    metric::{ModifiedMetric, base::Availability},
+};
 
 /// Modified Availability (MA) - CVSS v3.1 Environmental Metric Group
 ///
@@ -20,25 +23,25 @@ pub enum ModifiedAvailability {
 }
 
 impl Metric for ModifiedAvailability {
-    const TYPE: MetricType = MetricType::MA;
-
     fn score(self) -> f64 {
         0.0
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedAvailability::Modified(v) => v.as_str(),
+            Self::Modified(v) => v.as_str(),
             Self::NotDefined => "X",
         }
     }
+
+    const TYPE: MetricType = MetricType::MA;
 }
 
 impl ModifiedMetric<Availability> for ModifiedAvailability {
     fn modified_score(self, base: Option<Availability>) -> f64 {
         match self {
-            ModifiedAvailability::Modified(v) => v.score(),
-            ModifiedAvailability::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
+            Self::Modified(v) => v.score(),
+            Self::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
         }
     }
 }
@@ -54,9 +57,9 @@ impl FromStr for ModifiedAvailability {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         if s == "X" {
-            Ok(ModifiedAvailability::NotDefined)
+            Ok(Self::NotDefined)
         } else {
-            Ok(ModifiedAvailability::Modified(s.parse()?))
+            Ok(Self::Modified(s.parse()?))
         }
     }
 }

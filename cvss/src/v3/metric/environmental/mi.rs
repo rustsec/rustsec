@@ -1,15 +1,17 @@
 //! CVSS v3.1 Environmental Metric Group - Modified Integrity (MI)
 
-use crate::v3::base::Integrity;
-use crate::v3::metric::ModifiedMetric;
-use crate::{Error, Metric, MetricType};
 use core::{fmt, str::FromStr};
+
+use crate::Error;
+use crate::v3::{
+    Metric, MetricType,
+    metric::{ModifiedMetric, base::Integrity},
+};
 
 /// Modified Integrity (MI) - CVSS v3.1 Environmental Metric Group
 ///
 /// Described in CVSS v3.1 Specification: Section 4.2:
 /// <https://www.first.org/cvss/v3-1/specification-document#4-2-Modified-Base-Metrics>
-
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedIntegrity {
     /// Not Defined (X)
@@ -20,25 +22,25 @@ pub enum ModifiedIntegrity {
 }
 
 impl Metric for ModifiedIntegrity {
-    const TYPE: MetricType = MetricType::MI;
-
     fn score(self) -> f64 {
         0.0
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedIntegrity::Modified(v) => v.as_str(),
+            Self::Modified(v) => v.as_str(),
             Self::NotDefined => "X",
         }
     }
+
+    const TYPE: MetricType = MetricType::MI;
 }
 
 impl ModifiedMetric<Integrity> for ModifiedIntegrity {
     fn modified_score(self, base: Option<Integrity>) -> f64 {
         match self {
-            ModifiedIntegrity::Modified(v) => v.score(),
-            ModifiedIntegrity::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
+            Self::Modified(v) => v.score(),
+            Self::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
         }
     }
 }
@@ -54,9 +56,9 @@ impl FromStr for ModifiedIntegrity {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         if s == "X" {
-            Ok(ModifiedIntegrity::NotDefined)
+            Ok(Self::NotDefined)
         } else {
-            Ok(ModifiedIntegrity::Modified(s.parse()?))
+            Ok(Self::Modified(s.parse()?))
         }
     }
 }

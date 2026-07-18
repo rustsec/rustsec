@@ -1,21 +1,34 @@
-use crate::v3::base::{
-    AttackComplexity, AttackVector, Availability, Confidentiality, Integrity, PrivilegesRequired,
-    Scope, UserInteraction,
-};
-use crate::v3::environmental::{
-    AvailabilityRequirement, ConfidentialityRequirement, IntegrityRequirement,
-    ModifiedAttackComplexity, ModifiedAttackVector, ModifiedAvailability, ModifiedConfidentiality,
-    ModifiedIntegrity, ModifiedPrivilegesRequired, ModifiedScope, ModifiedUserInteraction,
-};
-use crate::v3::temporal::{ExploitCodeMaturity, RemediationLevel, ReportConfidence};
-use crate::{Error, MetricType, PREFIX, Result};
+#[cfg(feature = "serde")]
+use alloc::string::{String, ToString};
 use alloc::{borrow::ToOwned, vec::Vec};
-use core::{fmt, str::FromStr};
+use core::fmt;
+use core::str::FromStr;
 
 #[cfg(feature = "serde")]
-use {
-    alloc::string::{String, ToString},
-    serde::{Deserialize, Serialize, de, ser},
+use serde::{Deserialize, Serialize, de, ser};
+
+#[cfg(feature = "std")]
+use crate::Severity;
+
+use crate::{
+    Error, MetricType, PREFIX, Result,
+    v3::{
+        Metric, Score,
+        metric::{
+            ModifiedMetric,
+            base::{
+                AttackComplexity, AttackVector, Availability, Confidentiality, Integrity,
+                PrivilegesRequired, Scope, UserInteraction,
+            },
+            environmental::{
+                AvailabilityRequirement, ConfidentialityRequirement, IntegrityRequirement,
+                ModifiedAttackComplexity, ModifiedAttackVector, ModifiedAvailability,
+                ModifiedConfidentiality, ModifiedIntegrity, ModifiedPrivilegesRequired,
+                ModifiedScope, ModifiedUserInteraction,
+            },
+            temporal::{ExploitCodeMaturity, RemediationLevel, ReportConfidence},
+        },
+    },
 };
 
 /// A CVSS 3.x vector, including Base, Temporal, and Environmental metrics.
@@ -89,6 +102,217 @@ pub struct Vector {
 
     /// Modified Availability (MA)
     pub ma: Option<ModifiedAvailability>,
+}
+
+impl Vector {
+    /// Alias for `base_score()`.
+    pub fn score(&self) -> Score {
+        self.base_score()
+    }
+
+    /// Calculate Base CVSS score: overall value for determining the severity
+    /// of a vulnerability, generally referred to as the "CVSS score".
+    ///
+    /// Described in CVSS v3.1 Specification: Section 2:
+    /// <https://www.first.org/cvss/specification-document#t6>
+    ///
+    /// > When the Base metrics are assigned values by an analyst, the Base
+    /// > equation computes a score ranging from 0.0 to 10.0.
+    /// >
+    /// > Specifically, the Base equation is derived from two sub equations:
+    /// > the Exploitability sub-score equation, and the Impact sub-score
+    /// > equation. The Exploitability sub-score equation is derived from the
+    /// > Base Exploitability metrics, while the Impact sub-score equation is
+    /// > derived from the Base Impact metrics.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    pub fn base_score(&self) -> Score {
+        let exploitability = self.exploitability().value();
+        let iss = self.impact().value();
+
+        let iss_scoped = if !self.is_scope_changed() {
+            6.42 * iss
+        } else {
+            (7.52 * (iss - 0.029)) - (3.25 * (iss - 0.02).powf(15.0))
+        };
+
+        let score = if iss_scoped <= 0.0 {
+            0.0
+        } else if !self.is_scope_changed() {
+            (iss_scoped + exploitability).min(10.0)
+        } else {
+            (1.08 * (iss_scoped + exploitability)).min(10.0)
+        };
+
+        Score::new(score).roundup_for_version(self.minor_version)
+    }
+
+    /// Calculate Base Exploitability score: sub-score for measuring
+    /// ease of exploitation.
+    ///
+    /// Described in CVSS v3.1 Specification: Section 2:
+    /// <https://www.first.org/cvss/specification-document#t6>
+    ///
+    /// > The Exploitability metrics reflect the ease and technical means by which
+    /// > the vulnerability can be exploited. That is, they represent characteristics
+    /// > of *the thing that is vulnerable*, which we refer to formally as the
+    /// > *vulnerable component*.
+    pub fn exploitability(&self) -> Score {
+        let av_score = self.av.map(|av| av.score()).unwrap_or(0.0);
+        let ac_score = self.ac.map(|ac| ac.score()).unwrap_or(0.0);
+        let ui_score = self.ui.map(|ui| ui.score()).unwrap_or(0.0);
+        let pr_score = self
+            .pr
+            .map(|pr| pr.scoped_score(self.is_scope_changed()))
+            .unwrap_or(0.0);
+
+        (8.22 * av_score * ac_score * pr_score * ui_score).into()
+    }
+
+    /// Calculate Base Impact Score (ISS): sub-score for measuring the
+    /// consequences of successful exploitation.
+    ///
+    /// Described in CVSS v3.1 Specification: Section 2:
+    /// <https://www.first.org/cvss/specification-document#t6>
+    ///
+    /// > The Impact metrics reflect the direct consequence
+    /// > of a successful exploit, and represent the consequence to the
+    /// > *thing that suffers the impact*, which we refer to formally as the
+    /// > *impacted component*.
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    pub fn impact(&self) -> Score {
+        let c_score = self.c.map(|c| c.score()).unwrap_or(0.0);
+        let i_score = self.i.map(|i| i.score()).unwrap_or(0.0);
+        let a_score = self.a.map(|a| a.score()).unwrap_or(0.0);
+        (1.0 - ((1.0 - c_score) * (1.0 - i_score) * (1.0 - a_score)).abs()).into()
+    }
+
+    /// Calculate Base CVSS `Severity` according to the
+    /// Qualitative Severity Rating Scale (i.e. Low / Medium / High / Critical)
+    ///
+    /// Described in CVSS v3.1 Specification: Section 5:
+    /// <https://www.first.org/cvss/specification-document#t17>
+    #[cfg(feature = "std")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
+    pub fn severity(&self) -> Severity {
+        self.base_score().severity()
+    }
+
+    /// Has the scope changed?
+    pub(crate) fn is_scope_changed(&self) -> bool {
+        self.s.map(|s| s.is_changed()).unwrap_or(false)
+    }
+
+    /// Calculate the CVSS 3.x Environmental Score for this vector.
+    ///
+    /// Described in CVSS v3.0 Specification: Section 8.2:
+    /// <https://www.first.org/cvss/v3-0/specification-document#8-3-Environmental>
+    ///
+    /// Described in CVSS v3.1 Specification: Section 7.3:
+    /// <https://www.first.org/cvss/v3-1/specification-document#7-3-Environmental-Metrics-Equations>
+    pub fn environmental_score(&self) -> Score {
+        let modified_impact = self.modified_impact();
+        let modified_exploitability = self.modified_exploitability();
+        let e_score = self.e.unwrap_or(ExploitCodeMaturity::NotDefined).score();
+        let rl_score = self.rl.unwrap_or(RemediationLevel::NotDefined).score();
+        let rc_score = self.rc.unwrap_or(ReportConfidence::NotDefined).score();
+
+        let environmental_score = if modified_impact <= 0.0 {
+            0.0
+        } else if !self.is_modified_scope_changed() {
+            Score::new((modified_impact + modified_exploitability).min(10.0))
+                .roundup_for_version(self.minor_version)
+                .value()
+                * e_score
+                * rl_score
+                * rc_score
+        } else {
+            Score::new((1.08 * (modified_impact + modified_exploitability)).min(10.0))
+                .roundup_for_version(self.minor_version)
+                .value()
+                * e_score
+                * rl_score
+                * rc_score
+        };
+        Score::new(environmental_score).roundup_for_version(self.minor_version)
+    }
+
+    /// Calculate the modified impact sub-score (MISS) for environmental score
+    /// calculations.    
+    pub(crate) fn modified_impact_sub_score(&self) -> f64 {
+        let cr_score = self
+            .cr
+            .unwrap_or(ConfidentialityRequirement::NotDefined)
+            .score();
+        let ir_score = self.ir.unwrap_or(IntegrityRequirement::NotDefined).score();
+        let ar_score = self
+            .ar
+            .unwrap_or(AvailabilityRequirement::NotDefined)
+            .score();
+        let c_score = self
+            .mc
+            .unwrap_or(ModifiedConfidentiality::NotDefined)
+            .modified_score(self.c);
+        let i_score = self
+            .mi
+            .unwrap_or(ModifiedIntegrity::NotDefined)
+            .modified_score(self.i);
+        let a_score = self
+            .ma
+            .unwrap_or(ModifiedAvailability::NotDefined)
+            .modified_score(self.a);
+
+        let miss = 1.0
+            - (1.0 - cr_score * c_score) * (1.0 - ir_score * i_score) * (1.0 - ar_score * a_score);
+        miss.min(0.915)
+    }
+
+    /// Calculate the CVSS 3.x Modified Impact sub-score (MISS) for
+    /// environmental score calculations.
+    pub(crate) fn modified_impact(&self) -> f64 {
+        let miss = self.modified_impact_sub_score();
+        if self.is_modified_scope_changed() {
+            if self.minor_version == 0 {
+                7.52 * (miss - 0.029) - 3.25 * (miss - 0.02).powf(15.0)
+            } else {
+                7.52 * (miss - 0.029) - 3.25 * (miss * 0.9731 - 0.02).powf(13.0)
+            }
+        } else {
+            6.42 * miss
+        }
+    }
+
+    pub(crate) fn modified_exploitability(&self) -> f64 {
+        let av_score = self
+            .mav
+            .unwrap_or(ModifiedAttackVector::NotDefined)
+            .modified_score(self.av);
+        let ac_score = self
+            .mac
+            .unwrap_or(ModifiedAttackComplexity::NotDefined)
+            .modified_score(self.ac);
+        let pr_score = self
+            .mpr
+            .unwrap_or(ModifiedPrivilegesRequired::NotDefined)
+            .scoped_score(self.is_modified_scope_changed(), self.pr);
+        let ui_score = self
+            .mui
+            .unwrap_or(ModifiedUserInteraction::NotDefined)
+            .modified_score(self.ui);
+
+        8.22 * av_score * ac_score * pr_score * ui_score
+    }
+
+    pub(crate) fn is_modified_scope_changed(&self) -> bool {
+        match self.ms {
+            Some(modified_scope) => match modified_scope {
+                ModifiedScope::Modified(scope) => scope == Scope::Changed,
+                ModifiedScope::NotDefined => self.is_scope_changed(),
+            },
+            None => self.is_scope_changed(),
+        }
+    }
 }
 
 // Helper macro to build the array of (MetricType, Option<&dyn fmt::Debug>)
@@ -276,9 +500,10 @@ impl Serialize for Vector {
 
 #[cfg(test)]
 mod tests {
-    use crate::v3::Vector;
     use core::str::FromStr;
     use std::string::ToString;
+
+    use crate::v3::Vector;
 
     #[test]
     fn parse_full_cvss3() {

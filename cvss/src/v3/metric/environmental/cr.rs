@@ -1,8 +1,10 @@
 //! CVSS v3.1 Environmental Metric Group - Confidentiality Requirements (CR)
 
-use crate::{Error, Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::Error;
+use crate::v3::{Metric, MetricType};
 
 /// Confidentiality Requirements (CR) - CVSS v3.1 Environmental Metric Group
 ///
@@ -37,25 +39,25 @@ pub enum ConfidentialityRequirement {
 }
 
 impl Metric for ConfidentialityRequirement {
-    const TYPE: MetricType = MetricType::CR;
-
     fn score(self) -> f64 {
         match self {
-            ConfidentialityRequirement::NotDefined => 1.0,
-            ConfidentialityRequirement::High => 1.5,
-            ConfidentialityRequirement::Medium => 1.0,
-            ConfidentialityRequirement::Low => 0.5,
+            Self::NotDefined => 1.0,
+            Self::High => 1.5,
+            Self::Medium => 1.0,
+            Self::Low => 0.5,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ConfidentialityRequirement::NotDefined => "X",
-            ConfidentialityRequirement::High => "H",
-            ConfidentialityRequirement::Medium => "M",
-            ConfidentialityRequirement::Low => "L",
+            Self::NotDefined => "X",
+            Self::High => "H",
+            Self::Medium => "M",
+            Self::Low => "L",
         }
     }
+
+    const TYPE: MetricType = MetricType::CR;
 }
 
 impl fmt::Display for ConfidentialityRequirement {
@@ -69,10 +71,10 @@ impl FromStr for ConfidentialityRequirement {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         match s {
-            "X" => Ok(ConfidentialityRequirement::NotDefined),
-            "L" => Ok(ConfidentialityRequirement::Low),
-            "M" => Ok(ConfidentialityRequirement::Medium),
-            "H" => Ok(ConfidentialityRequirement::High),
+            "X" => Ok(Self::NotDefined),
+            "L" => Ok(Self::Low),
+            "M" => Ok(Self::Medium),
+            "H" => Ok(Self::High),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

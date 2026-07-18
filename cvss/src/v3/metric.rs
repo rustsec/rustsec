@@ -1,14 +1,19 @@
 //! CVSS v3.0/v3.1 metrics.
 
-use crate::{Error, Result};
+pub mod base;
+pub mod environmental;
+pub mod temporal;
+
 use alloc::borrow::ToOwned;
 use core::{
     fmt::{self, Debug, Display},
     str::FromStr,
 };
 
+use crate::{Error, Result};
+
 /// Trait for CVSSv3 metrics.
-pub trait Metric: Copy + Clone + Debug + Display + Eq + Ord {
+pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
     /// [`MetricType`] of this metric.
     const TYPE: MetricType;
 

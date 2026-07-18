@@ -1,13 +1,15 @@
 //! CVSS v3.1 Temporal Metric Group
 
 mod e;
+pub use e::ExploitCodeMaturity;
+
 mod rc;
+pub use rc::ReportConfidence;
+
 mod rl;
+pub use rl::RemediationLevel;
 
-pub use self::{e::ExploitCodeMaturity, rc::ReportConfidence, rl::RemediationLevel};
-
-use crate::v3::Metric;
-use crate::v3::{Score, Vector};
+use crate::v3::{Metric, Score, Vector};
 
 impl Vector {
     /// Calculates Temporal CVSS score.

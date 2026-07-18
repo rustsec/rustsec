@@ -1,8 +1,10 @@
 //! Exploit Code Maturity (E)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Exploit Code Maturity (E) - CVSS v3.1 Temporal Metric Group
 /// > This metric measures the likelihood of the vulnerability being attacked,
@@ -45,27 +47,27 @@ pub enum ExploitCodeMaturity {
 }
 
 impl Metric for ExploitCodeMaturity {
-    const TYPE: MetricType = MetricType::E;
-
     fn score(self) -> f64 {
         match self {
-            ExploitCodeMaturity::NotDefined => 1.0,
-            ExploitCodeMaturity::High => 1.0,
-            ExploitCodeMaturity::Functional => 0.97,
-            ExploitCodeMaturity::ProofOfConcept => 0.94,
-            ExploitCodeMaturity::Unproven => 0.91,
+            Self::NotDefined => 1.0,
+            Self::High => 1.0,
+            Self::Functional => 0.97,
+            Self::ProofOfConcept => 0.94,
+            Self::Unproven => 0.91,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ExploitCodeMaturity::NotDefined => "X",
-            ExploitCodeMaturity::High => "H",
-            ExploitCodeMaturity::Functional => "F",
-            ExploitCodeMaturity::ProofOfConcept => "P",
-            ExploitCodeMaturity::Unproven => "U",
+            Self::NotDefined => "X",
+            Self::High => "H",
+            Self::Functional => "F",
+            Self::ProofOfConcept => "P",
+            Self::Unproven => "U",
         }
     }
+
+    const TYPE: MetricType = MetricType::E;
 }
 
 impl fmt::Display for ExploitCodeMaturity {
@@ -79,11 +81,11 @@ impl FromStr for ExploitCodeMaturity {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ExploitCodeMaturity::NotDefined),
-            "H" => Ok(ExploitCodeMaturity::High),
-            "F" => Ok(ExploitCodeMaturity::Functional),
-            "P" => Ok(ExploitCodeMaturity::ProofOfConcept),
-            "U" => Ok(ExploitCodeMaturity::Unproven),
+            "X" => Ok(Self::NotDefined),
+            "H" => Ok(Self::High),
+            "F" => Ok(Self::Functional),
+            "P" => Ok(Self::ProofOfConcept),
+            "U" => Ok(Self::Unproven),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

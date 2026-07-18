@@ -56,7 +56,6 @@ impl Cvss {
             Self::CvssV30(base) => base.score().value(),
             #[cfg(feature = "v3")]
             Self::CvssV31(base) => base.score().value(),
-            #[cfg(feature = "v3")]
             #[cfg(feature = "v4")]
             Self::CvssV40(vector) => vector.score().value(),
         }

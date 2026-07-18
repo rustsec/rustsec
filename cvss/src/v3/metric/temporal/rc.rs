@@ -1,8 +1,10 @@
 //! Report Confidence (RC)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Report Confidence (RC) - CVSS v3.1 Temporal Metric Group
 /// > This metric measures the degree of confidence in the existence of the
@@ -53,25 +55,25 @@ pub enum ReportConfidence {
 }
 
 impl Metric for ReportConfidence {
-    const TYPE: MetricType = MetricType::RC;
-
     fn score(self) -> f64 {
         match self {
-            ReportConfidence::NotDefined => 1.0,
-            ReportConfidence::Confirmed => 1.0,
-            ReportConfidence::Reasonable => 0.96,
-            ReportConfidence::Unknown => 0.92,
+            Self::NotDefined => 1.0,
+            Self::Confirmed => 1.0,
+            Self::Reasonable => 0.96,
+            Self::Unknown => 0.92,
         }
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ReportConfidence::NotDefined => "X",
-            ReportConfidence::Confirmed => "C",
-            ReportConfidence::Reasonable => "R",
-            ReportConfidence::Unknown => "U",
+            Self::NotDefined => "X",
+            Self::Confirmed => "C",
+            Self::Reasonable => "R",
+            Self::Unknown => "U",
         }
     }
+
+    const TYPE: MetricType = MetricType::RC;
 }
 
 impl fmt::Display for ReportConfidence {
@@ -85,10 +87,10 @@ impl FromStr for ReportConfidence {
 
     fn from_str(s: &str) -> Result<Self> {
         match s {
-            "X" => Ok(ReportConfidence::NotDefined),
-            "C" => Ok(ReportConfidence::Confirmed),
-            "R" => Ok(ReportConfidence::Reasonable),
-            "U" => Ok(ReportConfidence::Unknown),
+            "X" => Ok(Self::NotDefined),
+            "C" => Ok(Self::Confirmed),
+            "R" => Ok(Self::Reasonable),
+            "U" => Ok(Self::Unknown),
             _ => Err(Error::InvalidMetric {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),

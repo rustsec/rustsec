@@ -1,8 +1,10 @@
 //! Privileges Required (PR)
 
-use crate::{Metric, MetricType, error::Error};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Privileges Required (PR) - CVSS v3.1 Base Metric Group
 ///
@@ -61,8 +63,6 @@ impl PrivilegesRequired {
 }
 
 impl Metric for PrivilegesRequired {
-    const TYPE: MetricType = MetricType::PR;
-
     fn score(self) -> f64 {
         self.scoped_score(false)
     }
@@ -74,6 +74,8 @@ impl Metric for PrivilegesRequired {
             Self::None => "N",
         }
     }
+
+    const TYPE: MetricType = MetricType::PR;
 }
 
 impl fmt::Display for PrivilegesRequired {
@@ -85,7 +87,7 @@ impl fmt::Display for PrivilegesRequired {
 impl FromStr for PrivilegesRequired {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "H" => Ok(Self::High),
             "L" => Ok(Self::Low),

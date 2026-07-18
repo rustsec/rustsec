@@ -1,15 +1,17 @@
 //! CVSS v3.1 Environmental Metric Group - Modified Confidentiality (MC)
 
-use crate::v3::base::Confidentiality;
-use crate::v3::metric::ModifiedMetric;
-use crate::{Error, Metric, MetricType};
 use core::{fmt, str::FromStr};
+
+use crate::Error;
+use crate::v3::{
+    Metric, MetricType,
+    metric::{ModifiedMetric, base::Confidentiality},
+};
 
 /// Modified Confidentiality (MC) - CVSS v3.1 Environmental Metric Group
 ///
 /// Described in CVSS v3.1 Specification: Section 4.2:
 /// <https://www.first.org/cvss/v3-1/specification-document#4-2-Modified-Base-Metrics>
-
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ModifiedConfidentiality {
     /// Not Defined (X)
@@ -20,25 +22,25 @@ pub enum ModifiedConfidentiality {
 }
 
 impl Metric for ModifiedConfidentiality {
-    const TYPE: MetricType = MetricType::MC;
-
     fn score(self) -> f64 {
         0.0
     }
 
     fn as_str(self) -> &'static str {
         match self {
-            ModifiedConfidentiality::Modified(v) => v.as_str(),
+            Self::Modified(v) => v.as_str(),
             Self::NotDefined => "X",
         }
     }
+
+    const TYPE: MetricType = MetricType::MC;
 }
 
 impl ModifiedMetric<Confidentiality> for ModifiedConfidentiality {
     fn modified_score(self, base: Option<Confidentiality>) -> f64 {
         match self {
-            ModifiedConfidentiality::Modified(v) => v.score(),
-            ModifiedConfidentiality::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
+            Self::Modified(v) => v.score(),
+            Self::NotDefined => base.map(|v| v.score()).unwrap_or(0.0),
         }
     }
 }
@@ -54,9 +56,9 @@ impl FromStr for ModifiedConfidentiality {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         if s == "X" {
-            Ok(ModifiedConfidentiality::NotDefined)
+            Ok(Self::NotDefined)
         } else {
-            Ok(ModifiedConfidentiality::Modified(s.parse()?))
+            Ok(Self::Modified(s.parse()?))
         }
     }
 }
