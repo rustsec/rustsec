@@ -1,8 +1,10 @@
 //! Availability Impact (A)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Availability Impact (A) - CVSS v3.1 Base Metric Group
 ///
@@ -57,8 +59,6 @@ pub enum Availability {
 }
 
 impl Metric for Availability {
-    const TYPE: MetricType = MetricType::A;
-
     fn score(self) -> f64 {
         match self {
             Self::None => 0.0,
@@ -74,6 +74,8 @@ impl Metric for Availability {
             Self::High => "H",
         }
     }
+
+    const TYPE: MetricType = MetricType::A;
 }
 
 impl fmt::Display for Availability {

@@ -1,8 +1,10 @@
 //! Scope (S)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Scope (S) - CVSS v3.1 Base Metric Group
 ///
@@ -61,8 +63,6 @@ impl Scope {
 }
 
 impl Metric for Scope {
-    const TYPE: MetricType = MetricType::S;
-
     fn score(self) -> f64 {
         unimplemented!()
     }
@@ -73,6 +73,8 @@ impl Metric for Scope {
             Self::Changed => "C",
         }
     }
+
+    const TYPE: MetricType = MetricType::S;
 }
 
 impl fmt::Display for Scope {
