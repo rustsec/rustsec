@@ -239,9 +239,6 @@ fn sync(
         // generally one for a GHSA created from RustSec.
         // When imported, they can be considered actual aliases.
         let rustsec_ids_in_osv = osv.rustsec_refs_imported();
-        // The list of crates affected by the advisory, normally one
-        // for a GHSA created from RustSec.
-        let affected_crates = osv.crates();
 
         // The list of RustSec advisories already having this advisory id as alias
         let rustsec_ids_alias: Vec<Id> = advisory_db
@@ -264,7 +261,7 @@ fn sync(
         // This advisory does not link to RustSec (i.e., was not imported)
         // and is not aliased from RustSec. Let's consider importing it.
         if rs_aliases.is_empty() {
-            for c in affected_crates {
+            for c in osv.crates() {
                 let crate_name = match KrateName::try_from(c.as_str()) {
                     Ok(k) => k,
                     Err(_e) => {
@@ -303,6 +300,7 @@ fn sync(
                     .clone();
 
                 // ensure the crate name matches
+                let affected_crates = osv.crates();
                 if !affected_crates
                     .iter()
                     .any(|c| c == rs_advisory.metadata.package.as_str())
