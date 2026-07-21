@@ -171,7 +171,7 @@ impl Runnable for SyncCmd {
         );
 
         let mut synchronized =
-            sync(osv, &advisory_db, &repo_path, &crates_index).unwrap_or_else(|e| {
+            sync(&osv, &advisory_db, repo_path, &crates_index).unwrap_or_else(|e| {
                 status_err!(
                     "error synchronizing advisory DB {}: {}",
                     repo_path.display(),
@@ -217,12 +217,12 @@ impl Runnable for SyncCmd {
 }
 
 /// Synchronize data
-fn sync(
-    osv: Vec<OsvAdvisory>,
+fn sync<'a>(
+    osv: &'a [OsvAdvisory],
     advisory_db: &rustsec::Database,
     repo_path: &Path,
     crates_index: &RemoteSparseIndex,
-) -> Result<Synchronized, Error> {
+) -> Result<Synchronized<'a>, Error> {
     // A single OSV advisory could describe a vulnerability affecting several crates
     // (even if GitHub does not produce such advisories currently).
     // Additionally, a single RustSec advisory can cover several OSV advisories
@@ -270,7 +270,7 @@ fn sync(
                 if let Ok(Some(_)) =
                     crates_index.krate(crate_name, true, &acquire_cargo_package_lock().unwrap())
                 {
-                    out.missing_advisories.push(osv.clone());
+                    out.missing_advisories.push(osv);
                 } else {
                     status_info!(
                         "Info",
@@ -320,7 +320,7 @@ fn sync(
 fn update_advisory_from_alias(
     advisory: &Advisory,
     external: &OsvAdvisory,
-    out: &mut Synchronized,
+    out: &mut Synchronized<'_>,
     repo_path: &Path,
 ) -> Result<(), Error> {
     let mut missing_aliases = vec![];
@@ -440,7 +440,7 @@ fn load_osv_file(path: impl AsRef<Path>) -> Result<OsvAdvisory, Error> {
 }
 
 #[derive(Default)]
-struct Synchronized {
+struct Synchronized<'a> {
     pub updated_advisories: usize,
-    pub missing_advisories: Vec<OsvAdvisory>,
+    pub missing_advisories: Vec<&'a OsvAdvisory>,
 }
