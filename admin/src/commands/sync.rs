@@ -124,17 +124,38 @@ impl Runnable for SyncCmd {
             _ => unreachable!(),
         };
 
-        let synchronizer = Synchronizer::new(repo_path, &self.osv).unwrap_or_else(|e| {
+        let Ok(advisory_db) = rustsec::Database::open(repo_path) else {
             status_err!(
-                "error loading advisory DB repo from {}: {}",
-                repo_path.display(),
-                e
+                "error loading advisory DB repo from {}",
+                repo_path.display()
             );
-
             exit(1);
-        });
+        };
 
-        let advisories = synchronizer.advisory_db().iter();
+        let osv = match load_osv_export(&self.osv) {
+            Ok(osv) => osv,
+            Err(e) => {
+                status_err!(
+                    "error loading OSV export from {}: {}",
+                    self.osv.display(),
+                    e
+                );
+                exit(1);
+            }
+        };
+        status_info!(
+            "Info",
+            "Loaded {} advisories from {}",
+            osv.len(),
+            repo_path.display()
+        );
+
+        let Ok(crates_index) = crates_index() else {
+            status_err!("error loading crates.io index");
+            exit(1);
+        };
+
+        let advisories = advisory_db.iter();
 
         // Ensure we're parsing some advisories
         if advisories.len() == 0 {
@@ -149,15 +170,16 @@ impl Runnable for SyncCmd {
             repo_path.display()
         );
 
-        let mut synchronized = synchronizer.sync().unwrap_or_else(|e| {
-            status_err!(
-                "error synchronizing advisory DB {}: {}",
-                repo_path.display(),
-                e
-            );
+        let mut synchronized =
+            sync(osv, &advisory_db, &repo_path, &crates_index).unwrap_or_else(|e| {
+                status_err!(
+                    "error synchronizing advisory DB {}: {}",
+                    repo_path.display(),
+                    e
+                );
 
-            exit(1);
-        });
+                exit(1);
+            });
 
         if synchronized.missing_advisories.is_empty() {
             status_ok!("Success", "no new advisories to import");
@@ -194,156 +216,112 @@ impl Runnable for SyncCmd {
     }
 }
 
-struct Synchronizer {
-    /// Path to the advisory database
-    repo_path: PathBuf,
-
-    /// Loaded crates.io index
-    crates_index: RemoteSparseIndex,
-
-    /// Loaded Advisory DB
-    advisory_db: rustsec::Database,
-
-    /// OSV advisories to synchronize from
+/// Synchronize data
+fn sync(
     osv: Vec<OsvAdvisory>,
-}
+    advisory_db: &rustsec::Database,
+    repo_path: &Path,
+    crates_index: &RemoteSparseIndex,
+) -> Result<Synchronized, Error> {
+    // A single OSV advisory could describe a vulnerability affecting several crates
+    // (even if GitHub does not produce such advisories currently).
+    // Additionally, a single RustSec advisory can cover several OSV advisories
+    // depending on the way it was reported.
+    // Therefore, we make as few assumptions as possible here.
+    let mut out = Synchronized::default();
+    for osv in osv {
+        if osv.withdrawn() {
+            // Ignore withdrawn advisories from the start
+            continue;
+        }
 
-impl Synchronizer {
-    /// Create a new synchronizer for the database at the given path
-    fn new(repo_path: impl Into<PathBuf>, osv_path: impl Into<PathBuf>) -> Result<Self, Error> {
-        let repo_path = repo_path.into();
-        let advisory_db = rustsec::Database::open(&repo_path)?;
+        // The list of RustSec ids referenced by this OSV advisory,
+        // generally one for a GHSA created from RustSec.
+        // When imported, they can be considered actual aliases.
+        let rustsec_ids_in_osv = osv.rustsec_refs_imported();
+        // The list of crates affected by the advisory, normally one
+        // for a GHSA created from RustSec.
+        let affected_crates = osv.crates();
 
-        let osv = load_osv_export(&osv_path.into())?;
-        status_info!(
-            "Info",
-            "Loaded {} advisories from {}",
-            osv.len(),
-            repo_path.display()
-        );
+        // The list of RustSec advisories already having this advisory id as alias
+        let rustsec_ids_alias: Vec<Id> = advisory_db
+            .iter()
+            .filter_map(|a| {
+                if a.metadata.aliases.contains(osv.id()) {
+                    Some(a.id().clone())
+                } else {
+                    None
+                }
+            })
+            .collect();
 
-        Ok(Self {
-            repo_path,
-            crates_index: crates_index()?,
-            advisory_db,
-            osv,
-        })
-    }
+        // Build the full list of rs aliases
+        let mut rs_aliases = rustsec_ids_in_osv.clone();
+        rs_aliases.extend(rustsec_ids_alias.clone());
+        rs_aliases.sort();
+        rs_aliases.dedup();
 
-    /// Borrow the loaded advisory database
-    fn advisory_db(&self) -> &rustsec::Database {
-        &self.advisory_db
-    }
-
-    /// Synchronize data
-    fn sync(self) -> Result<Synchronized, Error> {
-        let Self {
-            repo_path,
-            crates_index,
-            advisory_db,
-            osv,
-        } = self;
-
-        // A single OSV advisory could describe a vulnerability affecting several crates
-        // (even if GitHub does not produce such advisories currently).
-        // Additionally, a single RustSec advisory can cover several OSV advisories
-        // depending on the way it was reported.
-        // Therefore, we make as few assumptions as possible here.
-        let mut out = Synchronized::default();
-        for osv in osv {
-            if osv.withdrawn() {
-                // Ignore withdrawn advisories from the start
-                continue;
-            }
-
-            // The list of RustSec ids referenced by this OSV advisory,
-            // generally one for a GHSA created from RustSec.
-            // When imported, they can be considered actual aliases.
-            let rustsec_ids_in_osv = osv.rustsec_refs_imported();
-            // The list of crates affected by the advisory, normally one
-            // for a GHSA created from RustSec.
-            let affected_crates = osv.crates();
-
-            // The list of RustSec advisories already having this advisory id as alias
-            let rustsec_ids_alias: Vec<Id> = advisory_db
-                .iter()
-                .filter_map(|a| {
-                    if a.metadata.aliases.contains(osv.id()) {
-                        Some(a.id().clone())
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-
-            // Build the full list of rs aliases
-            let mut rs_aliases = rustsec_ids_in_osv.clone();
-            rs_aliases.extend(rustsec_ids_alias.clone());
-            rs_aliases.sort();
-            rs_aliases.dedup();
-
-            // This advisory does not link to RustSec (i.e., was not imported)
-            // and is not aliased from RustSec. Let's consider importing it.
-            if rs_aliases.is_empty() {
-                for c in affected_crates {
-                    let crate_name = match KrateName::try_from(c.as_str()) {
-                        Ok(k) => k,
-                        Err(_e) => {
-                            status_info!(
-                                "Info",
-                                "Crate name {} in {} advisory is invalid, skipping",
-                                c,
-                                osv.id(),
-                            );
-                            continue;
-                        }
-                    };
-
-                    if let Ok(Some(_)) =
-                        crates_index.krate(crate_name, true, &acquire_cargo_package_lock().unwrap())
-                    {
-                        out.missing_advisories.push(osv.clone());
-                    } else {
+        // This advisory does not link to RustSec (i.e., was not imported)
+        // and is not aliased from RustSec. Let's consider importing it.
+        if rs_aliases.is_empty() {
+            for c in affected_crates {
+                let crate_name = match KrateName::try_from(c.as_str()) {
+                    Ok(k) => k,
+                    Err(_e) => {
                         status_info!(
                             "Info",
-                            "Unknown crate {} in {} advisory, skipping",
+                            "Crate name {} in {} advisory is invalid, skipping",
                             c,
-                            osv.id()
-                        );
-                        continue;
-                    }
-                }
-            } else {
-                // Update advisories from known links
-                for rs_id in rs_aliases {
-                    // ensure all these advisories have up-to-date aliases
-                    // missing alias to GHSA
-                    let rs_advisory = advisory_db
-                        .get(&rs_id)
-                        .expect("Referenced advisory not in rustsec")
-                        .clone();
-
-                    // ensure the crate name matches
-                    if !affected_crates
-                        .iter()
-                        .any(|c| c == rs_advisory.metadata.package.as_str())
-                    {
-                        status_info!(
-                            "Info",
-                            "Crate names {:?} in {} advisory not matching existing advisory {}, skipping",
-                            affected_crates,
                             osv.id(),
-                            rs_advisory.id()
                         );
                         continue;
                     }
+                };
 
-                    update_advisory_from_alias(&rs_advisory, &osv, &mut out, &repo_path)?;
+                if let Ok(Some(_)) =
+                    crates_index.krate(crate_name, true, &acquire_cargo_package_lock().unwrap())
+                {
+                    out.missing_advisories.push(osv.clone());
+                } else {
+                    status_info!(
+                        "Info",
+                        "Unknown crate {} in {} advisory, skipping",
+                        c,
+                        osv.id()
+                    );
+                    continue;
                 }
+            }
+        } else {
+            // Update advisories from known links
+            for rs_id in rs_aliases {
+                // ensure all these advisories have up-to-date aliases
+                // missing alias to GHSA
+                let rs_advisory = advisory_db
+                    .get(&rs_id)
+                    .expect("Referenced advisory not in rustsec")
+                    .clone();
+
+                // ensure the crate name matches
+                if !affected_crates
+                    .iter()
+                    .any(|c| c == rs_advisory.metadata.package.as_str())
+                {
+                    status_info!(
+                        "Info",
+                        "Crate names {:?} in {} advisory not matching existing advisory {}, skipping",
+                        affected_crates,
+                        osv.id(),
+                        rs_advisory.id()
+                    );
+                    continue;
+                }
+
+                update_advisory_from_alias(&rs_advisory, osv, &mut out, repo_path)?;
             }
         }
-        Ok(out)
     }
+    Ok(out)
 }
 
 /// Add missing data to advisory from an external source
