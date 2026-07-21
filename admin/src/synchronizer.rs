@@ -111,7 +111,7 @@ impl Synchronizer {
         let repo_path = repo_path.into();
         let advisory_db = rustsec::Database::open(&repo_path)?;
 
-        let osv = Self::load_osv_export(&osv_path.into())?;
+        let osv = load_osv_export(&osv_path.into())?;
         status_info!(
             "Info",
             "Loaded {} advisories from {}",
@@ -270,7 +270,7 @@ impl Synchronizer {
             }
         }
         if !missing_aliases.is_empty() || !missing_related.is_empty() {
-            Self::update_aliases(
+            update_aliases(
                 &self
                     .repo_path
                     .join(Collection::Crates.to_string())
@@ -283,100 +283,99 @@ impl Synchronizer {
         }
         Ok(())
     }
+}
 
-    /// Edit advisory file to extend aliases field
-    fn update_aliases(
-        advisory_path: &Path,
-        missing_aliases: &[Id],
-        missing_related: &[Id],
-        out: &mut Synchronized,
-    ) -> Result<(), Error> {
-        let content = read_to_string(advisory_path)?;
-        // First extract toml and markdown content
-        // We can't parse as Advisory as we want to preserve formatting
-        let parts = Parts::parse(&content)?;
-        // Parse toml
-        let mut metadata = parts
-            .front_matter
-            .parse::<DocumentMut>()
-            .expect("invalid TOML front matter");
+/// Edit advisory file to extend aliases field
+fn update_aliases(
+    advisory_path: &Path,
+    missing_aliases: &[Id],
+    missing_related: &[Id],
+    out: &mut Synchronized,
+) -> Result<(), Error> {
+    let content = read_to_string(advisory_path)?;
+    // First extract toml and markdown content
+    // We can't parse as Advisory as we want to preserve formatting
+    let parts = Parts::parse(&content)?;
+    // Parse toml
+    let mut metadata = parts
+        .front_matter
+        .parse::<DocumentMut>()
+        .expect("invalid TOML front matter");
 
-        // Aliases
-        let mut aliases: Vec<String> = metadata["advisory"]
-            .get("aliases")
-            .map(|i| {
-                i.as_array()
-                    .unwrap()
-                    .into_iter()
-                    .map(|v| v.as_str().unwrap().to_string())
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new);
-        aliases.extend(missing_aliases.iter().map(|a| a.to_string()));
-        aliases.sort();
-        aliases.dedup();
-        if !aliases.is_empty() {
-            metadata["advisory"]["aliases"] = value(toml_edit::Array::from_iter(aliases.iter()));
-        }
-
-        // Related
-        // FIXME: dedup implementation
-        let mut related: Vec<String> = metadata["advisory"]
-            .get("related")
-            .map(|i| {
-                i.as_array()
-                    .unwrap()
-                    .into_iter()
-                    .map(|v| v.as_str().unwrap().to_string())
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new);
-        related.extend(missing_related.iter().map(|a| a.to_string()));
-        related.sort();
-        related.dedup();
-        if !related.is_empty() {
-            metadata["advisory"]["related"] = value(toml_edit::Array::from_iter(related.iter()));
-        }
-
-        let updated = format!("```toml\n{}```\n\n{}", metadata, parts.markdown);
-        fs::write(advisory_path, updated)?;
-        status_info!("Info", "Written {}", advisory_path.display());
-        out.updated_advisories += 1;
-        Ok(())
+    // Aliases
+    let mut aliases: Vec<String> = metadata["advisory"]
+        .get("aliases")
+        .map(|i| {
+            i.as_array()
+                .unwrap()
+                .into_iter()
+                .map(|v| v.as_str().unwrap().to_string())
+                .collect()
+        })
+        .unwrap_or_else(Vec::new);
+    aliases.extend(missing_aliases.iter().map(|a| a.to_string()));
+    aliases.sort();
+    aliases.dedup();
+    if !aliases.is_empty() {
+        metadata["advisory"]["aliases"] = value(toml_edit::Array::from_iter(aliases.iter()));
     }
 
-    /// Load an OSV advisory from a JSON file
-    fn load_osv_file(path: impl AsRef<Path>) -> Result<OsvAdvisory, Error> {
-        let path = path.as_ref();
-
-        let advisory_data = read_to_string(path)
-            .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?;
-
-        let advisory: OsvAdvisory = serde_json::from_str(&advisory_data).map_err(|e| {
-            format_err!(ErrorKind::Parse, "error parsing {}: {}", path.display(), e)
-        })?;
-
-        Ok(advisory)
+    // Related
+    // FIXME: dedup implementation
+    let mut related: Vec<String> = metadata["advisory"]
+        .get("related")
+        .map(|i| {
+            i.as_array()
+                .unwrap()
+                .into_iter()
+                .map(|v| v.as_str().unwrap().to_string())
+                .collect()
+        })
+        .unwrap_or_else(Vec::new);
+    related.extend(missing_related.iter().map(|a| a.to_string()));
+    related.sort();
+    related.dedup();
+    if !related.is_empty() {
+        metadata["advisory"]["related"] = value(toml_edit::Array::from_iter(related.iter()));
     }
 
-    /// Load data from an OSV export
-    fn load_osv_export(path: &Path) -> Result<Vec<OsvAdvisory>, Error> {
-        let mut result = vec![];
-        for advisory_entry in fs::read_dir(path).unwrap() {
-            let advisory_path = advisory_entry.unwrap().path();
-            if advisory_path.extension() != Some("json".as_ref()) {
-                // Skip non-JSON files
-                continue;
-            }
-            if advisory_path.to_string_lossy().contains("RUSTSEC-") {
-                // Don't parse advisories already coming from RustSec
-                continue;
-            }
-            let advisory = Self::load_osv_file(advisory_path)?;
-            result.push(advisory)
+    let updated = format!("```toml\n{}```\n\n{}", metadata, parts.markdown);
+    fs::write(advisory_path, updated)?;
+    status_info!("Info", "Written {}", advisory_path.display());
+    out.updated_advisories += 1;
+    Ok(())
+}
+
+/// Load data from an OSV export
+fn load_osv_export(path: &Path) -> Result<Vec<OsvAdvisory>, Error> {
+    let mut result = vec![];
+    for advisory_entry in fs::read_dir(path).unwrap() {
+        let advisory_path = advisory_entry.unwrap().path();
+        if advisory_path.extension() != Some("json".as_ref()) {
+            // Skip non-JSON files
+            continue;
         }
-        Ok(result)
+        if advisory_path.to_string_lossy().contains("RUSTSEC-") {
+            // Don't parse advisories already coming from RustSec
+            continue;
+        }
+        let advisory = load_osv_file(advisory_path)?;
+        result.push(advisory)
     }
+    Ok(result)
+}
+
+/// Load an OSV advisory from a JSON file
+fn load_osv_file(path: impl AsRef<Path>) -> Result<OsvAdvisory, Error> {
+    let path = path.as_ref();
+
+    let advisory_data = read_to_string(path)
+        .map_err(|e| format_err!(ErrorKind::Io, "couldn't open {}: {}", path.display(), e))?;
+
+    let advisory: OsvAdvisory = serde_json::from_str(&advisory_data)
+        .map_err(|e| format_err!(ErrorKind::Parse, "error parsing {}: {}", path.display(), e))?;
+
+    Ok(advisory)
 }
 
 #[derive(Default)]
