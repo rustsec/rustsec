@@ -70,9 +70,9 @@
 //! missing.
 
 use std::{
+    collections::BTreeSet,
     fs::{self, read_to_string},
-    iter,
-    iter::FromIterator,
+    iter::{self, FromIterator},
     path::{Path, PathBuf},
     process::exit,
 };
@@ -229,7 +229,7 @@ fn sync<'a>(
     // depending on the way it was reported.
     // Therefore, we make as few assumptions as possible here.
     let mut out = Synchronized::default();
-    let mut check = Vec::new();
+    let (mut check_crates, mut check_advisories) = (BTreeSet::default(), Vec::new());
     for osv in osv {
         if osv.withdrawn() {
             // Ignore withdrawn advisories from the start
@@ -256,7 +256,10 @@ fn sync<'a>(
         if rs_aliases.is_empty() {
             for c in osv.crates() {
                 match KrateName::try_from(c) {
-                    Ok(k) => check.push((osv, k)),
+                    Ok(_) => {
+                        check_crates.insert(c.to_owned());
+                        check_advisories.push((c, osv));
+                    }
                     Err(_e) => {
                         status_info!(
                             "Info",
@@ -298,19 +301,38 @@ fn sync<'a>(
         }
     }
 
-    for (osv, crate_name) in check {
-        if let Ok(Some(_)) =
-            crates_index.krate(crate_name, true, &acquire_cargo_package_lock().unwrap())
-        {
-            out.missing_advisories.push(osv);
-        } else {
-            status_info!(
-                "Info",
-                "Unknown crate {} in {} advisory, skipping",
-                crate_name,
-                osv.id()
-            );
-            continue;
+    let lock = match acquire_cargo_package_lock() {
+        Ok(lock) => lock,
+        Err(error) => {
+            status_err!("failed to acquire crates.io package lock: {}", error);
+            status_err!("skipping crates.io lints");
+            exit(1);
+        }
+    };
+
+    let metadata = crates_index.krates(check_crates, true, &lock);
+    for (crate_name, osv) in check_advisories {
+        match metadata.get(crate_name) {
+            Some(Ok(Some(_))) => {
+                out.missing_advisories.push(osv);
+                continue;
+            }
+            Some(Ok(None)) | None => {
+                status_info!(
+                    "Info",
+                    "Unknown crate {} in {} advisory, skipping",
+                    crate_name,
+                    osv.id()
+                );
+            }
+            Some(Err(error)) => {
+                status_err!(
+                    "failed to fetch crates.io metadata for {} in {}: {error}",
+                    crate_name,
+                    osv.id()
+                );
+                continue;
+            }
         }
     }
 
