@@ -65,7 +65,7 @@ impl Runnable for SyncCmd {
             repo_path.display()
         );
 
-        let (updated, mut new) = synchronizer.sync().unwrap_or_else(|e| {
+        let mut synchronized = synchronizer.sync().unwrap_or_else(|e| {
             status_err!(
                 "error synchronizing advisory DB {}: {}",
                 repo_path.display(),
@@ -75,14 +75,20 @@ impl Runnable for SyncCmd {
             exit(1);
         });
 
-        if new.is_empty() {
+        if synchronized.missing_advisories.is_empty() {
             status_ok!("Success", "no new advisories to import");
         } else {
-            status_ok!("Success", "{} aliases are missing in RustSec", new.len());
+            status_ok!(
+                "Success",
+                "{} aliases are missing in RustSec",
+                synchronized.missing_advisories.len()
+            );
             // Only a message from now
             // TODO: automate new advisory draft
-            new.sort_by(|a, b| a.published().partial_cmp(b.published()).unwrap());
-            for a in new {
+            synchronized
+                .missing_advisories
+                .sort_by(|a, b| a.published().partial_cmp(b.published()).unwrap());
+            for a in synchronized.missing_advisories {
                 println!(
                     "{:.10}: https://github.com/advisories/{} for {:?}",
                     a.published(),
@@ -92,10 +98,14 @@ impl Runnable for SyncCmd {
             }
         }
 
-        if updated == 0 {
+        if synchronized.updated_advisories == 0 {
             status_ok!("Success", "all advisories are up to date");
         } else {
-            status_ok!("Success", "{} advisories have been updated", updated);
+            status_ok!(
+                "Success",
+                "{} advisories have been updated",
+                synchronized.updated_advisories
+            );
         }
     }
 }

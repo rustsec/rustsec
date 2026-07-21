@@ -103,12 +103,6 @@ pub struct Synchronizer {
 
     /// OSV advisories to synchronize from
     osv: Vec<OsvAdvisory>,
-
-    /// Number of updated advisories
-    updated_advisories: usize,
-
-    /// Missing advisories
-    missing_advisories: Vec<OsvAdvisory>,
 }
 
 impl Synchronizer {
@@ -130,8 +124,6 @@ impl Synchronizer {
             crates_index: crates_index()?,
             advisory_db,
             osv,
-            updated_advisories: 0,
-            missing_advisories: vec![],
         })
     }
 
@@ -141,12 +133,13 @@ impl Synchronizer {
     }
 
     /// Synchronize data
-    pub fn sync(&mut self) -> Result<(usize, Vec<OsvAdvisory>), Error> {
+    pub fn sync(&mut self) -> Result<Synchronized, Error> {
         // A single OSV advisory could describe a vulnerability affecting several crates
         // (even if GitHub does not produce such advisories currently).
         // Additionally, a single RustSec advisory can cover several OSV advisories
         // depending on the way it was reported.
         // Therefore, we make as few assumptions as possible here.
+        let mut out = Synchronized::default();
         for osv in self.osv.clone() {
             if osv.withdrawn() {
                 // Ignore withdrawn advisories from the start
@@ -202,7 +195,7 @@ impl Synchronizer {
                         true,
                         &acquire_cargo_package_lock().unwrap(),
                     ) {
-                        self.missing_advisories.push(osv.clone());
+                        out.missing_advisories.push(osv.clone());
                     } else {
                         status_info!(
                             "Info",
@@ -239,11 +232,11 @@ impl Synchronizer {
                         continue;
                     }
 
-                    self.update_advisory_from_alias(&rs_advisory, &osv)?;
+                    self.update_advisory_from_alias(&rs_advisory, &osv, &mut out)?;
                 }
             }
         }
-        Ok((self.updated_advisories, self.missing_advisories.clone()))
+        Ok(out)
     }
 
     /// Add missing data to advisory from an external source
@@ -253,6 +246,7 @@ impl Synchronizer {
         &mut self,
         advisory: &Advisory,
         external: &OsvAdvisory,
+        out: &mut Synchronized,
     ) -> Result<(), Error> {
         let mut missing_aliases = vec![];
         let missing_related = vec![];
@@ -276,7 +270,7 @@ impl Synchronizer {
             }
         }
         if !missing_aliases.is_empty() || !missing_related.is_empty() {
-            self.update_aliases(
+            Self::update_aliases(
                 &self
                     .repo_path
                     .join(Collection::Crates.to_string())
@@ -284,6 +278,7 @@ impl Synchronizer {
                     .join(format!("{}.md", advisory.id())),
                 &missing_aliases,
                 &missing_related,
+                out,
             )?;
         }
         Ok(())
@@ -291,10 +286,10 @@ impl Synchronizer {
 
     /// Edit advisory file to extend aliases field
     fn update_aliases(
-        &mut self,
         advisory_path: &Path,
         missing_aliases: &[Id],
         missing_related: &[Id],
+        out: &mut Synchronized,
     ) -> Result<(), Error> {
         let content = read_to_string(advisory_path)?;
         // First extract toml and markdown content
@@ -346,7 +341,7 @@ impl Synchronizer {
         let updated = format!("```toml\n{}```\n\n{}", metadata, parts.markdown);
         fs::write(advisory_path, updated)?;
         status_info!("Info", "Written {}", advisory_path.display());
-        self.updated_advisories += 1;
+        out.updated_advisories += 1;
         Ok(())
     }
 
@@ -382,4 +377,10 @@ impl Synchronizer {
         }
         Ok(result)
     }
+}
+
+#[derive(Default)]
+pub struct Synchronized {
+    pub updated_advisories: usize,
+    pub missing_advisories: Vec<OsvAdvisory>,
 }
