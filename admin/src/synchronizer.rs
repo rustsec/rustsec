@@ -133,14 +133,21 @@ impl Synchronizer {
     }
 
     /// Synchronize data
-    pub fn sync(&mut self) -> Result<Synchronized, Error> {
+    pub fn sync(self) -> Result<Synchronized, Error> {
+        let Self {
+            repo_path,
+            crates_index,
+            advisory_db,
+            osv,
+        } = self;
+
         // A single OSV advisory could describe a vulnerability affecting several crates
         // (even if GitHub does not produce such advisories currently).
         // Additionally, a single RustSec advisory can cover several OSV advisories
         // depending on the way it was reported.
         // Therefore, we make as few assumptions as possible here.
         let mut out = Synchronized::default();
-        for osv in self.osv.clone() {
+        for osv in osv {
             if osv.withdrawn() {
                 // Ignore withdrawn advisories from the start
                 continue;
@@ -155,8 +162,7 @@ impl Synchronizer {
             let affected_crates = osv.crates();
 
             // The list of RustSec advisories already having this advisory id as alias
-            let rustsec_ids_alias: Vec<Id> = self
-                .advisory_db
+            let rustsec_ids_alias: Vec<Id> = advisory_db
                 .iter()
                 .filter_map(|a| {
                     if a.metadata.aliases.contains(osv.id()) {
@@ -190,11 +196,9 @@ impl Synchronizer {
                         }
                     };
 
-                    if let Ok(Some(_)) = self.crates_index.krate(
-                        crate_name,
-                        true,
-                        &acquire_cargo_package_lock().unwrap(),
-                    ) {
+                    if let Ok(Some(_)) =
+                        crates_index.krate(crate_name, true, &acquire_cargo_package_lock().unwrap())
+                    {
                         out.missing_advisories.push(osv.clone());
                     } else {
                         status_info!(
@@ -211,8 +215,7 @@ impl Synchronizer {
                 for rs_id in rs_aliases {
                     // ensure all these advisories have up-to-date aliases
                     // missing alias to GHSA
-                    let rs_advisory = self
-                        .advisory_db
+                    let rs_advisory = advisory_db
                         .get(&rs_id)
                         .expect("Referenced advisory not in rustsec")
                         .clone();
@@ -232,7 +235,7 @@ impl Synchronizer {
                         continue;
                     }
 
-                    update_advisory_from_alias(&rs_advisory, &osv, &mut out, &self.repo_path)?;
+                    update_advisory_from_alias(&rs_advisory, &osv, &mut out, &repo_path)?;
                 }
             }
         }
