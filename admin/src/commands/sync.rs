@@ -79,7 +79,7 @@ use std::{
 
 use abscissa_core::{Command, Runnable};
 use clap::Parser;
-use rustsec::advisory::{Id, IdKind, Parts};
+use rustsec::advisory::{IdKind, Parts};
 use rustsec::osv::OsvAdvisory;
 use rustsec::{Advisory, Collection};
 use tame_index::{KrateName, index::RemoteSparseIndex};
@@ -238,23 +238,15 @@ fn sync(
         // The list of RustSec ids referenced by this OSV advisory,
         // generally one for a GHSA created from RustSec.
         // When imported, they can be considered actual aliases.
-        let rustsec_ids_in_osv = osv.rustsec_refs_imported();
-
+        let mut rs_aliases = osv.rustsec_refs_imported();
         // The list of RustSec advisories already having this advisory id as alias
-        let rustsec_ids_alias: Vec<Id> = advisory_db
-            .iter()
-            .filter_map(|a| {
-                if a.metadata.aliases.contains(osv.id()) {
-                    Some(a.id().clone())
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        // Build the full list of rs aliases
-        let mut rs_aliases = rustsec_ids_in_osv.clone();
-        rs_aliases.extend(rustsec_ids_alias.clone());
+        rs_aliases.extend(advisory_db.iter().filter_map(|a| {
+            if a.metadata.aliases.contains(osv.id()) {
+                Some(a.id().clone())
+            } else {
+                None
+            }
+        }));
         rs_aliases.sort();
         rs_aliases.dedup();
 
