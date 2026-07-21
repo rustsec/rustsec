@@ -232,107 +232,105 @@ impl Synchronizer {
                         continue;
                     }
 
-                    self.update_advisory_from_alias(&rs_advisory, &osv, &mut out)?;
+                    update_advisory_from_alias(&rs_advisory, &osv, &mut out, &self.repo_path)?;
                 }
             }
         }
         Ok(out)
     }
+}
 
-    /// Add missing data to advisory from an external source
-    ///
-    /// For now, only add missing aliases.
-    fn update_advisory_from_alias(
-        &mut self,
-        advisory: &Advisory,
-        external: &OsvAdvisory,
-        out: &mut Synchronized,
-    ) -> Result<(), Error> {
-        let mut missing_aliases = vec![];
-        let missing_related = vec![];
-        for external_id in external.aliases().iter().chain(iter::once(external.id())) {
-            // Heuristic based on advisory kind
-            match external_id.kind() {
-                IdKind::Cve | IdKind::Ghsa => {
-                    if external_id != advisory.id()
-                        && !advisory.metadata.aliases.contains(external_id)
-                    {
-                        missing_aliases.push(external_id.clone());
-                        status_info!(
-                            "Info",
-                            "Adding missing alias {} for {}",
-                            external_id,
-                            advisory.id()
-                        );
-                    }
+/// Add missing data to advisory from an external source
+///
+/// For now, only add missing aliases.
+fn update_advisory_from_alias(
+    advisory: &Advisory,
+    external: &OsvAdvisory,
+    out: &mut Synchronized,
+    repo_path: &Path,
+) -> Result<(), Error> {
+    let mut missing_aliases = vec![];
+    let missing_related = vec![];
+    for external_id in external.aliases().iter().chain(iter::once(external.id())) {
+        // Heuristic based on advisory kind
+        match external_id.kind() {
+            IdKind::Cve | IdKind::Ghsa => {
+                if external_id != advisory.id() && !advisory.metadata.aliases.contains(external_id)
+                {
+                    missing_aliases.push(external_id.clone());
+                    status_info!(
+                        "Info",
+                        "Adding missing alias {} for {}",
+                        external_id,
+                        advisory.id()
+                    );
                 }
-                _ => continue,
             }
+            _ => continue,
         }
-
-        if missing_aliases.is_empty() && missing_related.is_empty() {
-            return Ok(());
-        }
-
-        let advisory_path = &self
-            .repo_path
-            .join(Collection::Crates.to_string())
-            .join(advisory.metadata.package.as_str())
-            .join(format!("{}.md", advisory.id()));
-
-        let content = read_to_string(advisory_path)?;
-        // First extract toml and markdown content
-        // We can't parse as Advisory as we want to preserve formatting
-        let parts = Parts::parse(&content)?;
-        // Parse toml
-        let mut metadata = parts
-            .front_matter
-            .parse::<DocumentMut>()
-            .expect("invalid TOML front matter");
-
-        // Aliases
-        let mut aliases: Vec<String> = metadata["advisory"]
-            .get("aliases")
-            .map(|i| {
-                i.as_array()
-                    .unwrap()
-                    .into_iter()
-                    .map(|v| v.as_str().unwrap().to_string())
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new);
-        aliases.extend(missing_aliases.iter().map(|a| a.to_string()));
-        aliases.sort();
-        aliases.dedup();
-        if !aliases.is_empty() {
-            metadata["advisory"]["aliases"] = value(toml_edit::Array::from_iter(aliases.iter()));
-        }
-
-        // Related
-        // FIXME: dedup implementation
-        let mut related: Vec<String> = metadata["advisory"]
-            .get("related")
-            .map(|i| {
-                i.as_array()
-                    .unwrap()
-                    .into_iter()
-                    .map(|v| v.as_str().unwrap().to_string())
-                    .collect()
-            })
-            .unwrap_or_else(Vec::new);
-        related.extend(missing_related.into_iter());
-        related.sort();
-        related.dedup();
-        if !related.is_empty() {
-            metadata["advisory"]["related"] = value(toml_edit::Array::from_iter(related.iter()));
-        }
-
-        let updated = format!("```toml\n{}```\n\n{}", metadata, parts.markdown);
-        fs::write(advisory_path, updated)?;
-        status_info!("Info", "Written {}", advisory_path.display());
-        out.updated_advisories += 1;
-        Ok(())
     }
+
+    if missing_aliases.is_empty() && missing_related.is_empty() {
+        return Ok(());
+    }
+
+    let advisory_path = repo_path
+        .join(Collection::Crates.to_string())
+        .join(advisory.metadata.package.as_str())
+        .join(format!("{}.md", advisory.id()));
+
+    let content = read_to_string(&advisory_path)?;
+    // First extract toml and markdown content
+    // We can't parse as Advisory as we want to preserve formatting
+    let parts = Parts::parse(&content)?;
+    // Parse toml
+    let mut metadata = parts
+        .front_matter
+        .parse::<DocumentMut>()
+        .expect("invalid TOML front matter");
+
+    // Aliases
+    let mut aliases: Vec<String> = metadata["advisory"]
+        .get("aliases")
+        .map(|i| {
+            i.as_array()
+                .unwrap()
+                .into_iter()
+                .map(|v| v.as_str().unwrap().to_string())
+                .collect()
+        })
+        .unwrap_or_else(Vec::new);
+    aliases.extend(missing_aliases.iter().map(|a| a.to_string()));
+    aliases.sort();
+    aliases.dedup();
+    if !aliases.is_empty() {
+        metadata["advisory"]["aliases"] = value(toml_edit::Array::from_iter(aliases.iter()));
+    }
+
+    // Related
+    // FIXME: dedup implementation
+    let mut related: Vec<String> = metadata["advisory"]
+        .get("related")
+        .map(|i| {
+            i.as_array()
+                .unwrap()
+                .into_iter()
+                .map(|v| v.as_str().unwrap().to_string())
+                .collect()
+        })
+        .unwrap_or_else(Vec::new);
+    related.extend(missing_related.into_iter());
+    related.sort();
+    related.dedup();
+    if !related.is_empty() {
+        metadata["advisory"]["related"] = value(toml_edit::Array::from_iter(related.iter()));
+    }
+
+    let updated = format!("```toml\n{}```\n\n{}", metadata, parts.markdown);
+    fs::write(&advisory_path, updated)?;
+    status_info!("Info", "Written {}", advisory_path.display());
+    out.updated_advisories += 1;
+    Ok(())
 }
 
 /// Load data from an OSV export
