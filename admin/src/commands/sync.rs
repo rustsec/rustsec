@@ -254,7 +254,7 @@ fn sync<'a>(
         // and is not aliased from RustSec. Let's consider importing it.
         if rs_aliases.is_empty() {
             for c in osv.crates() {
-                let crate_name = match KrateName::try_from(c.as_str()) {
+                let crate_name = match KrateName::try_from(c) {
                     Ok(k) => k,
                     Err(_e) => {
                         status_info!(
@@ -295,7 +295,7 @@ fn sync<'a>(
                 let affected_crates = osv.crates();
                 if !affected_crates
                     .iter()
-                    .any(|c| c == rs_advisory.metadata.package.as_str())
+                    .any(|&c| c == rs_advisory.metadata.package.as_str())
                 {
                     status_info!(
                         "Info",

@@ -309,18 +309,18 @@ impl OsvAdvisory {
     }
 
     /// Get crates in crates.io ecosystem referenced in this advisory
-    pub fn crates(&self) -> Vec<String> {
-        let mut res: Vec<String> = self
+    pub fn crates(&self) -> Vec<&str> {
+        let mut res = self
             .affected
             .iter()
             .filter_map(|a| {
                 if a.package.ecosystem == ECOSYSTEM {
-                    Some(a.package.name.clone())
+                    Some(a.package.name.as_str())
                 } else {
                     None
                 }
             })
-            .collect();
+            .collect::<Vec<_>>();
         res.sort();
         res.dedup();
         res
