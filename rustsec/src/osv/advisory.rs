@@ -11,7 +11,7 @@ use crate::{
     repository::git::{GitModificationTimes, GitPath},
 };
 use cvss::Cvss;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use url::Url;
 
@@ -116,14 +116,12 @@ impl OsvJsonRange {
         let mut timeline = Vec::new();
         for range in ranges {
             match range.introduced {
-                Some(ver) => timeline.push(OsvTimelineEvent::Introduced(ver)),
-                None => timeline.push(OsvTimelineEvent::Introduced(
-                    semver::Version::parse("0.0.0-0").unwrap(),
-                )),
+                Some(ver) => timeline.push(OsvTimelineEvent::Introduced(ver.to_string())),
+                None => timeline.push(OsvTimelineEvent::Introduced("0.0.0-0".to_owned())),
             }
             #[allow(clippy::single_match)]
             match range.fixed {
-                Some(ver) => timeline.push(OsvTimelineEvent::Fixed(ver)),
+                Some(ver) => timeline.push(OsvTimelineEvent::Fixed(ver.to_string())),
                 None => (), // "everything after 'introduced' is affected" is implicit in OSV
             }
         }
@@ -138,27 +136,11 @@ impl OsvJsonRange {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 enum OsvTimelineEvent {
     #[serde(rename = "introduced")]
-    #[serde(deserialize_with = "deserialize_semver_compat")]
-    Introduced(semver::Version),
+    Introduced(String),
     #[serde(rename = "fixed")]
-    #[serde(deserialize_with = "deserialize_semver_compat")]
-    Fixed(semver::Version),
+    Fixed(String),
     #[serde(rename = "last_affected")]
-    #[serde(deserialize_with = "deserialize_semver_compat")]
-    LastAffected(semver::Version),
-}
-
-fn deserialize_semver_compat<'de, D>(deserializer: D) -> Result<semver::Version, D::Error>
-where
-    D: Deserializer<'de>,
-{
-    let mut ver = String::deserialize(deserializer)?;
-    match ver.matches('.').count() {
-        0 => ver.push_str(".0.0"),
-        1 => ver.push_str(".0"),
-        _ => (),
-    }
-    semver::Version::from_str(&ver).map_err(serde::de::Error::custom)
+    LastAffected(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
