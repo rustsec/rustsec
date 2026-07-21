@@ -40,7 +40,7 @@ impl Runnable for SyncCmd {
             _ => unreachable!(),
         };
 
-        let mut synchronizer = Synchronizer::new(repo_path, &self.osv).unwrap_or_else(|e| {
+        let synchronizer = Synchronizer::new(repo_path, &self.osv).unwrap_or_else(|e| {
             status_err!(
                 "error loading advisory DB repo from {}: {}",
                 repo_path.display(),
