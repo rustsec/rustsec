@@ -2,7 +2,6 @@
 
 use std::{
     collections::{HashMap, HashSet},
-    fs::{self, File},
     io, iter,
     ops::Deref,
     path::{Path, PathBuf},
@@ -17,6 +16,7 @@ use atom_syndication::{
 };
 use chrono::{Duration, NaiveDate, Utc};
 use comrak::markdown_to_html;
+use fs_err::{self as fs, File};
 use rustsec::advisory::{Category, Id};
 use rustsec::osv::OsvAdvisory;
 use rustsec::repository::git::GitModificationTimes;
