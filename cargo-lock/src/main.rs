@@ -9,7 +9,7 @@ use cargo_lock::{
     dependency::graph::EdgeDirection,
     package::{self},
 };
-use gumdrop::Options;
+use clap::Parser;
 use petgraph::graph::NodeIndex;
 use std::{
     env, fs, io,
@@ -19,38 +19,36 @@ use std::{
 };
 
 /// `cargo lock` subcommands
-#[derive(Debug, Options)]
+#[derive(Debug, Parser)]
+#[command(name = "cargo-lock")]
 enum Command {
-    /// The `cargo lock list` subcommand
-    #[options(help = "list packages in Cargo.lock")]
+    /// List packages in Cargo.lock
     List(ListCmd),
 
-    /// The `cargo lock translate` subcommand
-    #[options(help = "translate a Cargo.lock file")]
+    /// Translate a Cargo.lock file
     Translate(TranslateCmd),
 
-    /// The `cargo lock tree` subcommand
-    #[options(help = "print a dependency tree for the given dependency")]
+    /// Print a dependency tree for the given dependency
     Tree(TreeCmd),
 }
 
 /// The `cargo lock list` subcommand
-#[derive(Debug, Default, Options)]
+#[derive(Debug, Parser)]
 struct ListCmd {
-    /// Input `Cargo.lock` file
-    #[options(short = "f", help = "input Cargo.lock file")]
+    /// Input Cargo.lock file
+    #[arg(short, long)]
     file: Option<PathBuf>,
 
-    /// Get information for a specific package
-    #[options(short = "p", help = "get information for a single package")]
+    /// Get information for a single package
+    #[arg(short, long)]
     package: Option<package::Name>,
 
-    /// List dependencies as part of the output
-    #[options(short = "d", help = "show dependencies for each package")]
+    /// Show dependencies for each package
+    #[arg(short, long)]
     dependencies: bool,
 
-    /// Show package sources in list
-    #[options(short = "s", help = "show package sources in listing")]
+    /// Show package sources in listing
+    #[arg(short, long)]
     sources: bool,
 }
 
@@ -84,18 +82,18 @@ impl ListCmd {
 }
 
 /// The `cargo lock translate` subcommand
-#[derive(Debug, Options)]
+#[derive(Debug, Parser)]
 struct TranslateCmd {
-    /// Input `Cargo.lock` file
-    #[options(short = "f", help = "input Cargo.lock file to translate")]
+    /// Input Cargo.lock file to translate
+    #[arg(short, long)]
     file: Option<PathBuf>,
 
-    /// Output `Cargo.lock` file
-    #[options(short = "o", help = "output Cargo.lock file (default STDOUT)")]
+    /// Output Cargo.lock file (default STDOUT)
+    #[arg(short, long)]
     output: Option<PathBuf>,
 
-    /// Cargo.lock format version to translate to
-    #[options(short = "v", help = "Cargo.lock resolve version to output")]
+    /// Cargo.lock resolve version to output
+    #[arg(short, long)]
     version: Option<ResolveVersion>,
 }
 
@@ -125,34 +123,21 @@ impl TranslateCmd {
 }
 
 /// The `cargo lock tree` subcommand
-#[derive(Debug, Options)]
+#[derive(Debug, Parser)]
 struct TreeCmd {
-    /// Input `Cargo.lock` file
-    #[options(
-        short = "f",
-        long = "file",
-        help = "input Cargo.lock file to translate"
-    )]
+    /// Input Cargo.lock file to translate
+    #[arg(short, long)]
     file: Option<PathBuf>,
 
     /// Show exact package identities (checksums or specific source versions) when available
-    #[options(
-        short = "x",
-        long = "exact",
-        help = "show exact package identies (checksums or specific source versions) when available"
-    )]
+    #[arg(short = 'x', long)]
     exact: bool,
 
-    // Show inverse dependencies rather than forward dependencies
-    #[options(
-        short = "i",
-        long = "invert",
-        help = "show inverse dependencies _on_ a package, rather than forward dependencies _of_ a package"
-    )]
+    /// Show inverse dependencies _on_ a package, rather than forward dependencies _of_ a package
+    #[arg(short, long = "invert")]
     inverse: bool,
 
-    /// Dependencies names or hashes to draw a tree for
-    #[options(free, help = "dependency names or hashes to draw trees for")]
+    /// Dependency names or hashes to draw trees for
     dependencies: Vec<String>,
 }
 
@@ -255,37 +240,19 @@ fn load_lockfile(path: &Option<PathBuf>) -> Lockfile {
 fn main() {
     let mut args = env::args().collect::<Vec<_>>();
 
-    // Remove leading arguments (bin and potential `lock`)
-    if !args.is_empty() {
-        args.remove(0);
-
-        if args.first().map(AsRef::as_ref) == Some("lock") {
-            args.remove(0);
-        }
+    // Remove the `lock` argument inserted by `cargo` when invoked as `cargo lock`
+    if args.get(1).map(String::as_str) == Some("lock") {
+        args.remove(1);
     }
 
     // If no command is specified, implicitly assume `list`
-    if args.is_empty() || args[0].starts_with('-') {
-        ListCmd::parse_args_default(&args)
-            .unwrap_or_else(|e| {
-                eprintln!("*** error: {}", e);
-                eprintln!("USAGE:");
-                eprintln!("{}", ListCmd::usage());
-                exit(1);
-            })
-            .run();
-        exit(0);
+    if args.len() < 2 || args[1].starts_with('-') {
+        ListCmd::parse_from(&args).run();
+        return;
     }
 
     // ...otherwise parse and run the subcommand
-    let cmd = Command::parse_args_default(&args).unwrap_or_else(|e| {
-        eprintln!("*** error: {}", e);
-        eprintln!("USAGE:");
-        eprintln!("{}", Command::usage());
-        exit(1);
-    });
-
-    match cmd {
+    match Command::parse_from(&args) {
         Command::List(list) => list.run(),
         Command::Translate(translate) => translate.run(),
         Command::Tree(tree) => tree.run(),
