@@ -16,7 +16,7 @@ name = "cargo-lock"
 required-features = ["cli"]
 
 [dependencies]
-gumdrop = { workspace = true, optional = true }
+clap = { workspace = true, features = ["derive"], optional = true }
 petgraph = { workspace = true, optional = true }
 semver = { workspace = true, features = ["serde"] }
 serde = { workspace = true, features = ["serde_derive"] }
@@ -24,7 +24,7 @@ toml = { workspace = true }
 url = { workspace = true }
 
 [features]
-cli = ["gumdrop", "dependency-tree"]
+cli = ["dep:clap", "dependency-tree"]
 dependency-tree = ["petgraph"]
 
 [package.metadata.docs.rs]
