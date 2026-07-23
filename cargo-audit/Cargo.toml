@@ -21,7 +21,6 @@ cargo-lock = { workspace = true }
 clap = { workspace = true }
 home = { workspace = true }
 object = { workspace = true, optional = true }
-platforms = { workspace = true }
 rustc-demangle = { workspace = true, optional = true }
 rustsec = { workspace = true, features = ["dependency-tree"] }
 serde = { workspace = true, features = ["serde_derive"] }

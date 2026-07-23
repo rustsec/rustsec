@@ -5,7 +5,6 @@ use crate::{
     Map,
     error::{Error, ErrorKind},
 };
-use platforms::{Arch, Os};
 use semver::VersionReq;
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de::Error as DeError};
 use std::{
@@ -21,11 +20,11 @@ use std::{
 pub struct Affected {
     /// CPU architectures that this vulnerability is specific to
     #[serde(default)]
-    pub arch: Vec<Arch>,
+    pub arch: Vec<String>,
 
     /// Operating systems that this vulnerability is specific to
     #[serde(default)]
-    pub os: Vec<Os>,
+    pub os: Vec<String>,
 
     /// Paths to types and/or functions containing vulnerable code, enumerated
     /// as canonical Rust paths (i.e. starting with the crate name), sans any

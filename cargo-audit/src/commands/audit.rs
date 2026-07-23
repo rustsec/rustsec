@@ -11,7 +11,6 @@ use abscissa_core::{
     FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
 };
 use clap::{Parser, ValueEnum};
-use platforms::{Arch, Os};
 
 use crate::{
     auditor::Auditor,
@@ -136,14 +135,14 @@ pub struct AuditCommand {
         long = "target-arch",
         help = "filter vulnerabilities by CPU (default: no filter). Can be specified multiple times"
     )]
-    target_arch: Vec<Arch>,
+    target_arch: Vec<String>,
 
     /// Target OS to find vulnerabilities for
     #[arg(
         long = "target-os",
         help = "filter vulnerabilities by OS (default: no filter). Can be specified multiple times"
     )]
-    target_os: Vec<Os>,
+    target_os: Vec<String>,
 
     /// URL to the advisory database git repository
     #[arg(short = 'u', long = "url", help = "URL for advisory database git repo")]

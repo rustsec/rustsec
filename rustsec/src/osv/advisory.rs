@@ -181,8 +181,8 @@ struct OsvEcosystemSpecific {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct OsvEcosystemSpecificAffected {
-    arch: Vec<platforms::Arch>,
-    os: Vec<platforms::Os>,
+    arch: Vec<String>,
+    os: Vec<String>,
     /// We include function names only in order to allow changing
     /// the way versions are specified without an API break
     functions: Vec<FunctionPath>,
