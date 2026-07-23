@@ -7,6 +7,8 @@ use std::borrow::Cow;
 use std::str::FromStr;
 use std::{fmt, path::Path};
 
+use platforms::Arch;
+
 use super::{Advisory, Category, parts};
 use crate::advisory::Informational;
 use crate::advisory::license::License;
@@ -326,7 +328,28 @@ impl Linter {
                             }
                         }
                     }
-                    "arch" | "os" => (),
+                    "arch" => {
+                        for arch in &self.advisory.affected.as_ref().unwrap().arch {
+                            if arch.is_empty() || !Arch::from_str(arch).is_ok() {
+                                self.errors.push(Error {
+                                    kind: ErrorKind::value("arch", arch.to_string()),
+                                    section: Some("affected"),
+                                    message: Some(format!("unknown architecture {arch:?}").into()),
+                                });
+                            }
+                        }
+                    }
+                    "os" => {
+                        for os in &self.advisory.affected.as_ref().unwrap().os {
+                            if os.is_empty() {
+                                self.errors.push(Error {
+                                    kind: ErrorKind::value("os", os.to_string()),
+                                    section: Some("affected"),
+                                    message: Some("unknown OS".into()),
+                                });
+                            }
+                        }
+                    }
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("affected"),
