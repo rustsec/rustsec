@@ -5,7 +5,6 @@
 use std::path::Path;
 
 use cvss::Cvss;
-use platforms::{Arch, Os};
 use rustsec::advisory::{Category, License};
 
 /// Load example advisory from the filesystem
@@ -60,8 +59,8 @@ fn parse_metadata() {
 #[test]
 fn parse_affected() {
     let affected = load_advisory("v3").affected.unwrap();
-    assert_eq!(affected.arch[0], Arch::X86);
-    assert_eq!(affected.os[0], Os::Windows);
+    assert_eq!(affected.arch[0], "x86");
+    assert_eq!(affected.os[0], "windows");
 
     let example_function = "base::belongs::All".parse().unwrap();
     let req = &affected.functions.get(&example_function).unwrap()[0];

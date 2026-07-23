@@ -2,7 +2,6 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use platforms::{Arch, Os};
 use rustsec::{Error, ErrorKind, WarningKind, advisory, report};
 use serde::{Deserialize, Serialize};
 
@@ -288,26 +287,26 @@ pub enum FilterList<T> {
 #[serde(deny_unknown_fields)]
 pub struct TargetConfig {
     /// Target architecture to find vulnerabilities for
-    pub arch: Option<FilterList<Arch>>,
+    pub arch: Option<FilterList<String>>,
 
     /// Target OS to find vulnerabilities for
-    pub os: Option<FilterList<Os>>,
+    pub os: Option<FilterList<String>>,
 }
 
 impl TargetConfig {
     /// Returns list of configured target architectures, cloning if needed
-    pub fn arch(&self) -> Vec<Arch> {
+    pub fn arch(&self) -> Vec<String> {
         match &self.arch {
-            Some(FilterList::Single(single)) => vec![*single],
+            Some(FilterList::Single(single)) => vec![single.clone()],
             Some(FilterList::Many(many)) => many.clone(),
             None => vec![],
         }
     }
 
     /// Returns list of configured target operating systems, cloning if needed
-    pub fn os(&self) -> Vec<Os> {
+    pub fn os(&self) -> Vec<String> {
         match &self.os {
-            Some(FilterList::Single(single)) => vec![*single],
+            Some(FilterList::Single(single)) => vec![single.clone()],
             Some(FilterList::Many(many)) => many.clone(),
             None => vec![],
         }

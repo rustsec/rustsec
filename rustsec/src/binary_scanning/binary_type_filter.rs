@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeSet, HashSet};
 use std::str::FromStr;
 
 use once_cell::sync::OnceCell;
@@ -46,7 +46,12 @@ fn advisory_applicable_to_binary(
     }
 }
 
-fn at_least_one_os_runs_binary(binary_type: &BinaryFormat, os_list: &[Os]) -> bool {
+fn at_least_one_os_runs_binary(binary_type: &BinaryFormat, os_list: &[String]) -> bool {
+    let os_list = os_list
+        .iter()
+        .filter_map(|os| Os::from_str(os).ok())
+        .collect::<HashSet<_>>();
+
     use BinaryFormat::*;
     match binary_type {
         PE => os_list.contains(&Os::Windows),
