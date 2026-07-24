@@ -422,7 +422,7 @@ dependencies = [
 
 [[package]]
 name = "cargo-lock"
-version = "11.0.1"
+version = "11.1.0"
 dependencies = [
  "clap",
  "petgraph",
