@@ -20,10 +20,16 @@ impl Score {
         self.0
     }
 
-    /// Round the score up to 1 decimal (`round_to_1_decimal`)
+    /// Round the score to 1 decimal (`round_to_1_decimal`), half up
+    ///
+    /// The reference implementations compute in exact decimal arithmetic and
+    /// round half up, while `f64` products land one ULP below the tie
+    /// (`9.0 * 0.95 == 8.549999…`), so a small epsilon lifts them onto it
+    /// before rounding, the same approach the v4 reference calculator takes.
     #[cfg(feature = "std")]
     pub fn roundup(self) -> Self {
-        let rounded = (self.0 * 10.0).round() / 10.0;
+        const EPSILON: f64 = 1e-6;
+        let rounded = ((self.0 + EPSILON) * 10.0).round() / 10.0;
         Self(rounded)
     }
 
@@ -57,5 +63,20 @@ impl From<Score> for f64 {
 impl From<Score> for Severity {
     fn from(score: Score) -> Self {
         score.severity()
+    }
+}
+
+#[cfg(all(feature = "std", test))]
+mod tests {
+    use super::Score;
+
+    #[test]
+    fn roundup_epsilon_magnitude() {
+        // One ULP below a tie lifts over it, which is the epsilon's purpose.
+        assert_eq!(Score::new(9.0 * 0.95).roundup().value(), 8.6);
+        // 5e-6 below the tie, beyond the documented 1e-6 epsilon, so it stays down.
+        // No corpus vector lands in that band, so only this case notices a constant that is
+        // too large, like the 10e-6 the v4 module once had.
+        assert_eq!(Score::new(8.549_995).roundup().value(), 8.5);
     }
 }
