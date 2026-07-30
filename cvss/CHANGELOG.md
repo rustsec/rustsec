@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Fixed
 - v2 temporal and environmental ties round half up, matching the reference ([#1662])
+- v2 published scores floor at zero ([#1662])
 
 [#1662]: https://github.com/rustsec/rustsec/pull/1662
 
