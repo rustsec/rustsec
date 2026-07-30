@@ -401,6 +401,34 @@ mod tests {
         (a - b).abs() < 0.0001
     }
 
+    /// The reference implementations compute in exact decimal arithmetic and
+    /// round ties half up; `9.0 * 0.95` must round to 8.6, not stay at the
+    /// `f64` product one ULP below the tie.
+    #[test]
+    fn temporal_tie_rounds_half_up() {
+        let v = "AV:N/AC:L/Au:S/C:C/I:C/A:C/E:F/RL:U/RC:C";
+        let cvss = Vector::from_str(v).expect("parse vector");
+        assert!(approx_eq(cvss.score().value(), 9.0));
+        assert!(
+            approx_eq(cvss.temporal_score().value(), 8.6),
+            "temporal expected 8.6, got {}",
+            cvss.temporal_score().value()
+        );
+    }
+
+    /// The environmental equation hits the same ties through its collateral
+    /// damage and target distribution factors.
+    #[test]
+    fn environmental_tie_rounds_half_up() {
+        let v = "AV:N/AC:M/Au:N/C:C/I:C/A:P/RL:TF/RC:UC/CDP:MH/TD:M/IR:L/AR:H";
+        let cvss = Vector::from_str(v).expect("parse vector");
+        assert!(
+            approx_eq(cvss.environmental_score().value(), 6.2),
+            "environmental expected 6.2, got {}",
+            cvss.environmental_score().value()
+        );
+    }
+
     #[test]
     fn spec_cve_2002_0392() {
         // See https://www.first.org/cvss/v2/guide (Section 3.3.1 worked
