@@ -108,6 +108,9 @@ impl Vector {
     ///
     /// Described in CVSS v2.0 Specification: Section 3.2.1:
     /// <https://www.first.org/cvss/v2/guide#3-2-1-Base-Equation>
+    ///
+    /// Metrics absent from a hand-constructed vector count as 0.0; vectors
+    /// obtained through `FromStr` always carry all six base metrics.
     pub fn exploitability(&self) -> Score {
         let av_score = self.av.map(|av| av.score()).unwrap_or(0.0);
         let ac_score = self.ac.map(|ac| ac.score()).unwrap_or(0.0);
@@ -121,6 +124,9 @@ impl Vector {
     ///
     /// Described in CVSS v2.0 Specification: Section 3.2.1:
     /// <https://www.first.org/cvss/v2/guide#3-2-1-Base-Equation>
+    ///
+    /// Metrics absent from a hand-constructed vector count as 0.0; vectors
+    /// obtained through `FromStr` always carry all six base metrics.
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn impact(&self) -> Score {
         let c_score = self.c.map(|c| c.score()).unwrap_or(0.0);
