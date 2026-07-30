@@ -561,4 +561,45 @@ mod tests {
             environmental
         );
     }
+
+    #[test]
+    fn spec_cve_2003_0062() {
+        // See https://www.first.org/cvss/v2/guide (Section 3.3.3 worked
+        // example): the local, high-complexity case, with CDP:H/TD:H for the
+        // guide's upper environmental value.
+        let v = "AV:L/AC:H/Au:N/C:C/I:C/A:C/E:POC/RL:OF/RC:C/CDP:H/TD:H/CR:M/IR:M/AR:M";
+        let cvss = Vector::from_str(v).expect("parse vector");
+
+        let base = cvss.score().value();
+        let impact = cvss.impact().roundup().value();
+        let exploitability = cvss.exploitability().roundup().value();
+        let temporal = cvss.temporal_score().value();
+        let environmental = cvss.environmental_score().value();
+
+        assert!(
+            approx_eq(base, 6.2),
+            "base score expected 6.2, got {}",
+            base
+        );
+        assert!(
+            approx_eq(impact, 10.0),
+            "impact expected 10.0, got {}",
+            impact
+        );
+        assert!(
+            approx_eq(exploitability, 1.9),
+            "exploitability expected 1.9, got {}",
+            exploitability
+        );
+        assert!(
+            approx_eq(temporal, 4.9),
+            "temporal expected 4.9, got {}",
+            temporal
+        );
+        assert!(
+            approx_eq(environmental, 7.5),
+            "environmental expected 7.5, got {}",
+            environmental
+        );
+    }
 }
