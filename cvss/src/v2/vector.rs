@@ -82,7 +82,10 @@ impl Vector {
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn score(&self) -> Score {
-        self.base_score_internal(self.impact())
+        Score::new(f64::max(
+            self.base_score_internal(self.impact()).value(),
+            0.0,
+        ))
     }
 
     /// Internal calculation of Base CVSS that takes impact as parameter.
@@ -139,7 +142,7 @@ impl Vector {
         let score =
             (adjusted_temporal.value() + (10.0 - adjusted_temporal.value()) * cdp_score) * td_score;
 
-        Score::new(score).roundup()
+        Score::new(f64::max(Score::new(score).roundup().value(), 0.0))
     }
 
     /// Calculate Adjusted Impact: modified impact score based on
@@ -170,7 +173,10 @@ impl Vector {
     #[cfg(feature = "std")]
     #[cfg_attr(docsrs, doc(cfg(feature = "std")))]
     pub fn temporal_score(&self) -> Score {
-        self.temporal_score_internal(self.impact())
+        Score::new(f64::max(
+            self.temporal_score_internal(self.impact()).value(),
+            0.0,
+        ))
     }
 
     /// Internal calculation of Temporal CVSS that takes impact as parameter.
@@ -413,6 +419,34 @@ mod tests {
             approx_eq(cvss.temporal_score().value(), 8.6),
             "temporal expected 8.6, got {}",
             cvss.temporal_score().value()
+        );
+    }
+
+    /// The reference implementation floors the three published scores at
+    /// zero, and only those: the adjusted-temporal intermediate inside the
+    /// environmental equation stays unclamped, so a negative adjusted base
+    /// still lowers the collateral-damage term.
+    #[test]
+    fn published_scores_clamp_at_zero_but_intermediates_do_not() {
+        // Adjusted base is -0.2 here; with CDP:ND the environmental score
+        // clamps to 0.0.
+        let v = "AV:L/AC:H/Au:M/C:N/I:N/A:P/E:H/RL:ND/TD:H/CR:L/IR:H/AR:L";
+        let cvss = Vector::from_str(v).expect("parse vector");
+        assert!(
+            approx_eq(cvss.environmental_score().value(), 0.0),
+            "environmental expected 0.0, got {}",
+            cvss.environmental_score().value()
+        );
+
+        // Same negative adjusted base, but CDP:MH: the unclamped -0.2 feeds
+        // (AT + (10 - AT) * CDP) * TD = (-0.2 + 10.2 * 0.4) * 1.0 = 3.88 → 3.9.
+        // A clamped intermediate would give 4.0.
+        let v = "AV:L/AC:H/Au:M/C:N/I:P/A:N/E:F/RL:TF/RC:UR/CDP:MH/TD:ND/CR:H/IR:L/AR:L";
+        let cvss = Vector::from_str(v).expect("parse vector");
+        assert!(
+            approx_eq(cvss.environmental_score().value(), 3.9),
+            "environmental expected 3.9, got {}",
+            cvss.environmental_score().value()
         );
     }
 
