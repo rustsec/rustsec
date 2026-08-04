@@ -69,3 +69,28 @@ impl From<Score> for Severity {
         score.severity()
     }
 }
+
+#[cfg(all(feature = "std", test))]
+mod tests {
+    use super::Score;
+    use crate::severity::Severity;
+
+    #[test]
+    fn roundup_exact_tenth_unchanged() {
+        assert_eq!(Score::new(4.0).roundup().value(), 4.0);
+    }
+
+    #[test]
+    fn roundup_rounds_up() {
+        assert_eq!(Score::new(4.01).roundup().value(), 4.1);
+    }
+
+    #[test]
+    fn severity_boundaries() {
+        assert_eq!(Score::new(0.0).severity(), Severity::None);
+        assert_eq!(Score::new(0.1).severity(), Severity::Low);
+        assert_eq!(Score::new(4.0).severity(), Severity::Medium);
+        assert_eq!(Score::new(7.0).severity(), Severity::High);
+        assert_eq!(Score::new(9.0).severity(), Severity::Critical);
+    }
+}
