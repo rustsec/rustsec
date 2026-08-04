@@ -82,7 +82,7 @@ pub enum Error {
     #[cfg(feature = "v4")]
     /// Invalid nomenclature for CVSSv4.
     InvalidNomenclatureV4 {
-        /// Unknown CBSSv4 nomenclature.
+        /// Unknown CVSSv4 nomenclature.
         nomenclature: String,
     },
 
@@ -120,7 +120,7 @@ impl fmt::Display for Error {
             Self::InvalidMetric { metric_type, value } => {
                 write!(
                     f,
-                    "invalid CVSSv4 {} ({}) metric: `{}`",
+                    "invalid CVSSv3 {} ({}) metric: `{}`",
                     metric_type.name(),
                     metric_type.description(),
                     value
