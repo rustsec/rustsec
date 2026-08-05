@@ -346,7 +346,7 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     if (str.contains("://github.com/") || str.contains("://gitlab.")) && str.contains("/issues/") {
         OsvReferenceKind::REPORT
     // the check for "/advisories/" matches both RustSec and GHSA URLs
-    } else if str.contains("/advisories/") || str.contains("://cve.mitre.org/") {
+    } else if str.contains("/advisories/") || str.contains("://www.cve.org/") {
         OsvReferenceKind::ADVISORY
     } else if str.contains("://crates.io/crates/") {
         OsvReferenceKind::PACKAGE
