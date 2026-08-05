@@ -277,19 +277,31 @@ impl FromStr for Base {
             ..Default::default()
         };
 
+        fn get_value<T: FromStr<Err = Error>>(
+            metric_type: MetricType,
+            current_val: Option<T>,
+            new_val: &str,
+        ) -> Result<Option<T>> {
+            let parsed = T::from_str(new_val)?;
+            if current_val.is_some() {
+                return Err(Error::DuplicateMetricV3 { metric_type });
+            }
+            Ok(Some(parsed))
+        }
+
         for &component in components {
             let id = component.0.to_ascii_uppercase();
             let value = component.1.to_ascii_uppercase();
 
             match id.parse::<MetricType>()? {
-                MetricType::AV => metrics.av = Some(value.parse()?),
-                MetricType::AC => metrics.ac = Some(value.parse()?),
-                MetricType::PR => metrics.pr = Some(value.parse()?),
-                MetricType::UI => metrics.ui = Some(value.parse()?),
-                MetricType::S => metrics.s = Some(value.parse()?),
-                MetricType::C => metrics.c = Some(value.parse()?),
-                MetricType::I => metrics.i = Some(value.parse()?),
-                MetricType::A => metrics.a = Some(value.parse()?),
+                MetricType::AV => metrics.av = get_value(MetricType::AV, metrics.av, &value)?,
+                MetricType::AC => metrics.ac = get_value(MetricType::AC, metrics.ac, &value)?,
+                MetricType::PR => metrics.pr = get_value(MetricType::PR, metrics.pr, &value)?,
+                MetricType::UI => metrics.ui = get_value(MetricType::UI, metrics.ui, &value)?,
+                MetricType::S => metrics.s = get_value(MetricType::S, metrics.s, &value)?,
+                MetricType::C => metrics.c = get_value(MetricType::C, metrics.c, &value)?,
+                MetricType::I => metrics.i = get_value(MetricType::I, metrics.i, &value)?,
+                MetricType::A => metrics.a = get_value(MetricType::A, metrics.a, &value)?,
             }
         }
 
