@@ -48,6 +48,12 @@ pub enum Error {
         metric_type: v2::MetricType,
     },
 
+    /// Metric is duplicated for CVSSv3.
+    DuplicateMetricV3 {
+        /// Prefix which is doubled.
+        metric_type: v3::metric::MetricType,
+    },
+
     #[cfg(feature = "v2")]
     /// Missing metric for CVSS v2.0.
     MissingMandatoryMetricV2 {
@@ -141,6 +147,14 @@ impl fmt::Display for Error {
                 write!(
                     f,
                     "duplicate CVSSv2 {} ({}) metric",
+                    metric_type.name(),
+                    metric_type.description(),
+                )
+            }
+            Self::DuplicateMetricV3 { metric_type } => {
+                write!(
+                    f,
+                    "duplicate CVSSv3 {} ({}) metric",
                     metric_type.name(),
                     metric_type.description(),
                 )

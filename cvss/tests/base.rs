@@ -247,3 +247,9 @@ fn low_scope_changed() {
     assert_eq!(&base.to_string(), cvss_for_low_scope_changed);
     assert_eq!(base.score().value(), 1.8);
 }
+
+#[test]
+fn duplicate_metric_rejected() {
+    let vector_with_dup = "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N/AV:L";
+    assert!(cvss::v3::Base::from_str(vector_with_dup).is_err());
+}
