@@ -95,10 +95,7 @@ impl Id {
                     Some(format!("https://rustsec.org/advisories/{}", self.string))
                 }
             }
-            IdKind::Cve => Some(format!(
-                "https://cve.mitre.org/cgi-bin/cvename.cgi?name={}",
-                self.string
-            )),
+            IdKind::Cve => Some(format!("https://www.cve.org/CVERecord?id={}", self.string)),
             IdKind::Ghsa => Some(format!("https://github.com/advisories/{}", self.string)),
             IdKind::Talos => Some(format!(
                 "https://www.talosintelligence.com/reports/{}",
@@ -280,7 +277,7 @@ mod tests {
         assert_eq!(cve_id.year().unwrap(), 2017);
         assert_eq!(
             cve_id.url().unwrap(),
-            "https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-1000168"
+            "https://www.cve.org/CVERecord?id=CVE-2017-1000168"
         );
         assert_eq!(cve_id.numerical_part().unwrap(), 1000168);
     }
