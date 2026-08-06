@@ -1,8 +1,10 @@
 //! CVSS v3.1 Base Metric Group - Attack Vector (AV)
 
-use crate::{Error, Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Attack Vector (AV) - CVSS v3.1 Base Metric Group
 ///
@@ -70,8 +72,6 @@ pub enum AttackVector {
 }
 
 impl Metric for AttackVector {
-    const TYPE: MetricType = MetricType::AV;
-
     fn score(self) -> f64 {
         match self {
             Self::Physical => 0.20,
@@ -89,6 +89,8 @@ impl Metric for AttackVector {
             Self::Network => "N",
         }
     }
+
+    const TYPE: MetricType = MetricType::AV;
 }
 
 impl fmt::Display for AttackVector {
@@ -100,7 +102,7 @@ impl fmt::Display for AttackVector {
 impl FromStr for AttackVector {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "P" => Ok(Self::Physical),
             "L" => Ok(Self::Local),

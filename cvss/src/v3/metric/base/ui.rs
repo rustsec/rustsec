@@ -1,8 +1,10 @@
 //! User Interaction (UI)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// User Interaction (UI) - CVSS v3.1 Base Metric Group
 ///
@@ -32,8 +34,6 @@ pub enum UserInteraction {
 }
 
 impl Metric for UserInteraction {
-    const TYPE: MetricType = MetricType::UI;
-
     fn score(self) -> f64 {
         match self {
             Self::Required => 0.62,
@@ -47,6 +47,8 @@ impl Metric for UserInteraction {
             Self::None => "N",
         }
     }
+
+    const TYPE: MetricType = MetricType::UI;
 }
 
 impl fmt::Display for UserInteraction {

@@ -89,14 +89,29 @@ fn parse_cvss_vector_string() {
         panic!("expected CVSS v3.1");
     };
 
-    assert_eq!(cvss.av.unwrap(), cvss::v3::base::AttackVector::Network);
-    assert_eq!(cvss.ac.unwrap(), cvss::v3::base::AttackComplexity::Low);
-    assert_eq!(cvss.pr.unwrap(), cvss::v3::base::PrivilegesRequired::None);
-    assert_eq!(cvss.ui.unwrap(), cvss::v3::base::UserInteraction::None);
-    assert_eq!(cvss.s.unwrap(), cvss::v3::base::Scope::Changed);
-    assert_eq!(cvss.c.unwrap(), cvss::v3::base::Confidentiality::High);
-    assert_eq!(cvss.i.unwrap(), cvss::v3::base::Integrity::High);
-    assert_eq!(cvss.a.unwrap(), cvss::v3::base::Availability::High);
+    assert_eq!(
+        cvss.av.unwrap(),
+        cvss::v3::metric::base::AttackVector::Network
+    );
+    assert_eq!(
+        cvss.ac.unwrap(),
+        cvss::v3::metric::base::AttackComplexity::Low
+    );
+    assert_eq!(
+        cvss.pr.unwrap(),
+        cvss::v3::metric::base::PrivilegesRequired::None
+    );
+    assert_eq!(
+        cvss.ui.unwrap(),
+        cvss::v3::metric::base::UserInteraction::None
+    );
+    assert_eq!(cvss.s.unwrap(), cvss::v3::metric::base::Scope::Changed);
+    assert_eq!(
+        cvss.c.unwrap(),
+        cvss::v3::metric::base::Confidentiality::High
+    );
+    assert_eq!(cvss.i.unwrap(), cvss::v3::metric::base::Integrity::High);
+    assert_eq!(cvss.a.unwrap(), cvss::v3::metric::base::Availability::High);
     assert_eq!(cvss.score().value(), 10.0);
 }
 

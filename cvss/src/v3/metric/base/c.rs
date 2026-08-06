@@ -1,8 +1,10 @@
 //! Confidentiality Impact (C)
 
-use crate::{Error, Metric, MetricType};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Confidentiality Impact (C) - CVSS v3.1 Base Metric Group
 ///
@@ -43,8 +45,6 @@ pub enum Confidentiality {
 }
 
 impl Metric for Confidentiality {
-    const TYPE: MetricType = MetricType::C;
-
     fn score(self) -> f64 {
         match self {
             Self::None => 0.0,
@@ -60,6 +60,8 @@ impl Metric for Confidentiality {
             Self::High => "H",
         }
     }
+
+    const TYPE: MetricType = MetricType::C;
 }
 
 impl fmt::Display for Confidentiality {
@@ -71,7 +73,7 @@ impl fmt::Display for Confidentiality {
 impl FromStr for Confidentiality {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self> {
         match s {
             "N" => Ok(Self::None),
             "L" => Ok(Self::Low),

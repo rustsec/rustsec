@@ -1,5 +1,7 @@
 //! CVSS v3.0/v3.1 metrics.
 
+pub mod base;
+
 use crate::{Error, Result};
 use alloc::borrow::ToOwned;
 use core::{
