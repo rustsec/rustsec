@@ -70,7 +70,7 @@ impl From<&cargo_lock::Name> for OsvPackage {
 #[serde(tag = "type", content = "score")]
 enum OsvSeverity {
     CVSS_V2(cvss::v2::Vector),
-    CVSS_V3(cvss::v3::Base),
+    CVSS_V3(cvss::v3::Vector),
     CVSS_V4(cvss::v4::Vector),
 }
 

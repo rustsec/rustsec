@@ -43,7 +43,7 @@ use crate::Severity;
 /// > than the vulnerable component, was a key feature introduced with
 /// > CVSS v3.0. This property is captured by the Scope metric.
 #[derive(Clone, Debug, Default, Eq, PartialEq)]
-pub struct Base {
+pub struct Vector {
     /// Minor component of the version
     pub minor_version: usize,
 
@@ -72,7 +72,7 @@ pub struct Base {
     pub a: Option<Availability>,
 }
 
-impl Base {
+impl Vector {
     /// Calculate Base CVSS score: overall value for determining the severity
     /// of a vulnerability, generally referred to as the "CVSS score".
     ///
@@ -206,7 +206,7 @@ macro_rules! write_metrics {
     };
 }
 
-impl fmt::Display for Base {
+impl fmt::Display for Vector {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}:3.{}", PREFIX, self.minor_version)?;
         write_metrics!(
@@ -216,7 +216,7 @@ impl fmt::Display for Base {
     }
 }
 
-impl FromStr for Base {
+impl FromStr for Vector {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
@@ -301,7 +301,7 @@ impl FromStr for Base {
 
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-impl<'de> Deserialize<'de> for Base {
+impl<'de> Deserialize<'de> for Vector {
     fn deserialize<D: de::Deserializer<'de>>(
         deserializer: D,
     ) -> core::result::Result<Self, D::Error> {
@@ -313,7 +313,7 @@ impl<'de> Deserialize<'de> for Base {
 
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
-impl Serialize for Base {
+impl Serialize for Vector {
     fn serialize<S: ser::Serializer>(
         &self,
         serializer: S,
