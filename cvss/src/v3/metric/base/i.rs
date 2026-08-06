@@ -1,8 +1,10 @@
 //! Integrity Impact (I)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Integrity Impact (I) - CVSS v3.1 Base Metric Group
 ///
@@ -39,8 +41,6 @@ pub enum Integrity {
 }
 
 impl Metric for Integrity {
-    const TYPE: MetricType = MetricType::I;
-
     fn score(self) -> f64 {
         match self {
             Self::None => 0.0,
@@ -56,6 +56,8 @@ impl Metric for Integrity {
             Self::High => "H",
         }
     }
+
+    const TYPE: MetricType = MetricType::I;
 }
 
 impl fmt::Display for Integrity {

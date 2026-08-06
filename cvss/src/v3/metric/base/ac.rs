@@ -1,8 +1,10 @@
 //! Attack Complexity (AC)
 
-use crate::{Error, Metric, MetricType, Result};
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
+
+use crate::v3::{Metric, MetricType};
+use crate::{Error, Result};
 
 /// Attack Complexity (AC) - CVSS v3.1 Base Metric Group
 ///
@@ -58,8 +60,6 @@ impl Default for AttackComplexity {
 }
 
 impl Metric for AttackComplexity {
-    const TYPE: MetricType = MetricType::AC;
-
     fn score(self) -> f64 {
         match self {
             Self::High => 0.44,
@@ -73,6 +73,8 @@ impl Metric for AttackComplexity {
             Self::Low => "L",
         }
     }
+
+    const TYPE: MetricType = MetricType::AC;
 }
 
 impl fmt::Display for AttackComplexity {
