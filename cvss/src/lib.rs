@@ -14,10 +14,11 @@
 //! v2.0 — parsing, serializing, and scoring of the Base, Temporal, and
 //! Environmental groups as described in the [CVSS v2.0 Specification].
 //!
-//! The [`v3::Base`] type provides the main functionality currently implemented
-//! for CVSS v3, namely: support for parsing, serializing, and scoring
-//! `CVSS:3.0` and `CVSS:3.1` Base Metric Group vector strings as described in
-//! the [CVSS v3.1 Specification].
+//! The [`v3::Vector`] type provides the main functionality currently
+//! implemented for CVSS v3, namely: support for parsing, serializing, and
+//! scoring `CVSS:3.0` and `CVSS:3.1` Base, Temporal, and Environmental
+//! Metric Group vector strings as described in the
+//! [CVSS v3.1 Specification].
 //!
 //! The [`v4::Vector`] type provides a fully-featured implementation of CVSS
 //! v4.0, as described in the [CVSS v4.0 Specification].
