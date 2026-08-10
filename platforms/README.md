@@ -122,6 +122,8 @@ If we remove platforms, we will bump the minor version of this crate.
 | [i686-unknown-freebsd]                 | x86         | freebsd    |            |
 | [i686-unknown-linux-musl]              | x86         | linux      | musl       |
 | [i686-unknown-uefi]                    | x86         | uefi       |            |
+| [loongarch32-unknown-none]             | loongarch32 | none       |            |
+| [loongarch32-unknown-none-softfloat]   | loongarch32 | none       |            |
 | [loongarch64-unknown-linux-gnu]        | loongarch64 | linux      | gnu        |
 | [loongarch64-unknown-linux-musl]       | loongarch64 | linux      | musl       |
 | [loongarch64-unknown-none]             | loongarch64 | none       |            |
@@ -198,6 +200,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-unknown-helenos]              | aarch64     | helenos    |            |
 | [aarch64-unknown-hermit]               | aarch64     | hermit     |            |
 | [aarch64-unknown-illumos]              | aarch64     | illumos    |            |
+| [aarch64-unknown-l4re-uclibc]          | aarch64     | l4re       | uclibc     |
 | [aarch64-unknown-linux-gnu_ilp32]      | aarch64     | linux      | gnu        |
 | [aarch64-unknown-linux-pauthtest]      | aarch64     | linux      | musl       |
 | [aarch64-unknown-managarm-mlibc]       | aarch64     | managarm   | mlibc      |
@@ -251,7 +254,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [armv7a-kmc-solid_asp3-eabihf]         | arm         | solid_asp3 |            |
 | [armv7a-nuttx-eabi]                    | arm         | nuttx      |            |
 | [armv7a-nuttx-eabihf]                  | arm         | nuttx      |            |
-| [armv7a-vex-v5]                        | arm         | vexos      | v5         |
 | [armv7k-apple-watchos]                 | arm         | watchos    |            |
 | [armv7s-apple-ios]                     | arm         | ios        |            |
 | [avr-none]                             | avr         | none       |            |
@@ -278,8 +280,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [i686-win7-windows-gnu]                | x86         | windows    | gnu        |
 | [i686-win7-windows-msvc]               | x86         | windows    | msvc       |
 | [i686-wrs-vxworks]                     | x86         | vxworks    | gnu        |
-| [loongarch32-unknown-none]             | loongarch32 | none       |            |
-| [loongarch32-unknown-none-softfloat]   | loongarch32 | none       |            |
 | [loongarch64-unknown-linux-ohos]       | loongarch64 | linux      | ohos       |
 | [m68k-unknown-linux-gnu]               | m68k        | linux      | gnu        |
 | [m68k-unknown-none-elf]                | m68k        | none       |            |
@@ -362,6 +362,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv7a-nuttx-eabihf]                | arm         | nuttx      |            |
 | [thumbv7a-pc-windows-msvc]             | arm         | windows    | msvc       |
 | [thumbv7a-uwp-windows-msvc]            | arm         | windows    | msvc       |
+| [thumbv7a-vex-v5]                      | arm         | vexos      | v5         |
 | [thumbv7em-nuttx-eabi]                 | arm         | nuttx      |            |
 | [thumbv7em-nuttx-eabihf]               | arm         | nuttx      |            |
 | [thumbv7m-nuttx-eabi]                  | arm         | nuttx      |            |
@@ -426,6 +427,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-unknown-helenos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HELENOS.html
 [aarch64-unknown-hermit]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HERMIT.html
 [aarch64-unknown-illumos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_ILLUMOS.html
+[aarch64-unknown-l4re-uclibc]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_L4RE_UCLIBC.html
 [aarch64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_GNU.html
 [aarch64-unknown-linux-gnu_ilp32]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_GNU_ILP32.html
 [aarch64-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_MUSL.html
@@ -501,7 +503,6 @@ If we remove platforms, we will bump the minor version of this crate.
 [armv7a-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7A_NONE_EABIHF.html
 [armv7a-nuttx-eabi]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7A_NUTTX_EABI.html
 [armv7a-nuttx-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7A_NUTTX_EABIHF.html
-[armv7a-vex-v5]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7A_VEX_V5.html
 [armv7k-apple-watchos]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7K_APPLE_WATCHOS.html
 [armv7r-none-eabi]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7R_NONE_EABI.html
 [armv7r-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.ARMV7R_NONE_EABIHF.html
@@ -653,6 +654,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [thumbv7a-nuttx-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV7A_NUTTX_EABIHF.html
 [thumbv7a-pc-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV7A_PC_WINDOWS_MSVC.html
 [thumbv7a-uwp-windows-msvc]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV7A_UWP_WINDOWS_MSVC.html
+[thumbv7a-vex-v5]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV7A_VEX_V5.html
 [thumbv7em-none-eabi]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV7EM_NONE_EABI.html
 [thumbv7em-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV7EM_NONE_EABIHF.html
 [thumbv7em-nuttx-eabi]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV7EM_NUTTX_EABI.html

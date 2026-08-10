@@ -36,6 +36,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_HELENOS,
     AARCH64_UNKNOWN_HERMIT,
     AARCH64_UNKNOWN_ILLUMOS,
+    AARCH64_UNKNOWN_L4RE_UCLIBC,
     AARCH64_UNKNOWN_LINUX_GNU,
     AARCH64_UNKNOWN_LINUX_GNU_ILP32,
     AARCH64_UNKNOWN_LINUX_MUSL,
@@ -111,7 +112,6 @@ pub(crate) const ALL: &[Platform] = &[
     ARMV7A_NONE_EABIHF,
     ARMV7A_NUTTX_EABI,
     ARMV7A_NUTTX_EABIHF,
-    ARMV7A_VEX_V5,
     ARMV7K_APPLE_WATCHOS,
     ARMV7R_NONE_EABI,
     ARMV7R_NONE_EABIHF,
@@ -263,6 +263,7 @@ pub(crate) const ALL: &[Platform] = &[
     THUMBV7A_NUTTX_EABIHF,
     THUMBV7A_PC_WINDOWS_MSVC,
     THUMBV7A_UWP_WINDOWS_MSVC,
+    THUMBV7A_VEX_V5,
     THUMBV7EM_NONE_EABI,
     THUMBV7EM_NONE_EABIHF,
     THUMBV7EM_NUTTX_EABI,
@@ -573,6 +574,17 @@ pub(crate) const AARCH64_UNKNOWN_ILLUMOS: Platform = Platform {
     target_arch: Arch::AArch64,
     target_os: Os::IllumOS,
     target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64 L4Re with uclibc
+pub(crate) const AARCH64_UNKNOWN_L4RE_UCLIBC: Platform = Platform {
+    target_triple: "aarch64-unknown-l4re-uclibc",
+    target_arch: Arch::AArch64,
+    target_os: Os::L4re,
+    target_env: Env::UClibc,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
@@ -1400,17 +1412,6 @@ pub(crate) const ARMV7A_NUTTX_EABIHF: Platform = Platform {
     tier: Tier::Three,
 };
 
-/// Armv7-A Cortex-A9 VEX V5 Brain, VEXos
-pub(crate) const ARMV7A_VEX_V5: Platform = Platform {
-    target_triple: "armv7a-vex-v5",
-    target_arch: Arch::Arm,
-    target_os: Os::VexOS,
-    target_env: Env::V5,
-    target_endian: Endian::Little,
-    target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
-};
-
 /// Armv7-A Apple WatchOS
 pub(crate) const ARMV7K_APPLE_WATCHOS: Platform = Platform {
     target_triple: "armv7k-apple-watchos",
@@ -1845,7 +1846,7 @@ pub(crate) const LOONGARCH32_UNKNOWN_NONE: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// LoongArch32 Bare-metal (ILP32S ABI)
@@ -1856,7 +1857,7 @@ pub(crate) const LOONGARCH32_UNKNOWN_NONE_SOFTFLOAT: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// LoongArch64 Linux, LP64D ABI (kernel 5.19+, glibc 2.36), LSX required
@@ -3061,6 +3062,17 @@ pub(crate) const THUMBV7A_UWP_WINDOWS_MSVC: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// Armv7-A Cortex-A9 VEX V5 Brain, VEXos
+pub(crate) const THUMBV7A_VEX_V5: Platform = Platform {
+    target_triple: "thumbv7a-vex-v5",
+    target_arch: Arch::Arm,
+    target_os: Os::VexOS,
+    target_env: Env::V5,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// Bare Armv7E-M
 pub(crate) const THUMBV7EM_NONE_EABI: Platform = Platform {
     target_triple: "thumbv7em-none-eabi",
@@ -3644,6 +3656,7 @@ pub(crate) const X86_64_UNKNOWN_ILLUMOS: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// x86_64 L4Re with uclibc
 pub(crate) const X86_64_UNKNOWN_L4RE_UCLIBC: Platform = Platform {
     target_triple: "x86_64-unknown-l4re-uclibc",
     target_arch: Arch::X86_64,
