@@ -409,6 +409,8 @@ impl fmt::Display for Error {
     }
 }
 
+impl std::error::Error for Error {}
+
 /// Lint errors
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
