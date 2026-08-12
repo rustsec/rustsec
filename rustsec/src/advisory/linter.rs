@@ -374,18 +374,6 @@ pub struct Error {
     message: Option<Cow<'static, str>>,
 }
 
-impl Error {
-    /// Get the section of the advisory where the error occurred
-    pub fn section(&self) -> Option<&str> {
-        self.section.as_ref().map(AsRef::as_ref)
-    }
-
-    /// Get an optional message about the lint failure
-    pub fn message(&self) -> Option<&str> {
-        self.message.as_ref().map(AsRef::as_ref)
-    }
-}
-
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.kind)?;
