@@ -32,7 +32,7 @@ impl Linter {
         match path.extension().and_then(|ext| ext.to_str()) {
             Some("md") => (),
             other => fail!(
-                crate::ErrorKind::Parse,
+                crate::error::ErrorKind::Parse,
                 "invalid advisory file extension: {}",
                 other.unwrap_or("(missing)")
             ),
@@ -40,7 +40,7 @@ impl Linter {
 
         let advisory_data = fs::read_to_string(path).map_err(|e| {
             crate::Error::with_source(
-                crate::ErrorKind::Io,
+                crate::error::ErrorKind::Io,
                 format!("couldn't open {}", path.display()),
                 e,
             )
