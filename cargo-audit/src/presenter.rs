@@ -18,6 +18,7 @@ use rustsec::{
 };
 #[cfg(feature = "binary-scanning")]
 use rustsec::{advisory::affected::FunctionPath, binary_scanning::BinaryReport};
+use serde::Serialize;
 
 #[cfg(feature = "binary-scanning")]
 use crate::binary_scanning::SymbolSet;
@@ -42,6 +43,38 @@ pub struct Presenter {
     /// Binary contents for affected-function analysis
     #[cfg(feature = "binary-scanning")]
     binary_contents: Option<Vec<u8>>,
+}
+
+/// A report as it is written in JSON.
+///
+/// The report itself is flattened in, so every key an existing consumer reads
+/// stays exactly where it was; `warning_summary` is added alongside it.
+#[derive(Serialize)]
+struct JsonReport<'a> {
+    #[serde(flatten)]
+    report: &'a rustsec::Report,
+
+    /// What `--deny` made of the warnings above.
+    warning_summary: WarningSummary<'a>,
+}
+
+/// How the configured `deny` options apply to the warnings in a report.
+///
+/// The terminal output already says whether a warning was denied or allowed
+/// -- "1 denied warning found!" versus "1 allowed warning found" -- and the
+/// process exits non-zero for a denied one. This carries the same fact into
+/// the JSON, which otherwise comes out byte-identical whether `--deny` was
+/// given or not.
+#[derive(Serialize)]
+struct WarningSummary<'a> {
+    /// Number of warnings the `deny` configuration promotes to errors.
+    denied: u64,
+
+    /// Number of warnings it leaves as warnings.
+    allowed: u64,
+
+    /// The `deny` options in effect, from `--deny` or `[output] deny`.
+    deny: &'a [DenyOption],
 }
 
 impl Presenter {
@@ -119,8 +152,18 @@ impl Presenter {
     ) {
         match self.config.format {
             OutputFormat::Json => {
+                let (denied, allowed) = self.count_warnings(report);
+                let json_report = JsonReport {
+                    report,
+                    warning_summary: WarningSummary {
+                        denied,
+                        allowed,
+                        deny: &self.config.deny,
+                    },
+                };
+
                 let mut stdout = io::stdout().lock();
-                serde_json::to_writer(&mut stdout, &report).unwrap();
+                serde_json::to_writer(&mut stdout, &json_report).unwrap();
                 // End with a newline as a terminator/separator. Another json report may follow.
                 writeln!(&mut stdout).unwrap();
                 return;
