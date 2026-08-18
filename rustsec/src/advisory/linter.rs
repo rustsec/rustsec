@@ -32,7 +32,7 @@ impl Linter {
         match path.extension().and_then(|ext| ext.to_str()) {
             Some("md") => (),
             other => fail!(
-                crate::ErrorKind::Parse,
+                crate::error::ErrorKind::Parse,
                 "invalid advisory file extension: {}",
                 other.unwrap_or("(missing)")
             ),
@@ -40,7 +40,7 @@ impl Linter {
 
         let advisory_data = fs::read_to_string(path).map_err(|e| {
             crate::Error::with_source(
-                crate::ErrorKind::Io,
+                crate::error::ErrorKind::Io,
                 format!("couldn't open {}", path.display()),
                 e,
             )
@@ -374,23 +374,6 @@ pub struct Error {
     message: Option<Cow<'static, str>>,
 }
 
-impl Error {
-    /// Get the kind of error
-    pub fn kind(&self) -> &ErrorKind {
-        &self.kind
-    }
-
-    /// Get the section of the advisory where the error occurred
-    pub fn section(&self) -> Option<&str> {
-        self.section.as_ref().map(AsRef::as_ref)
-    }
-
-    /// Get an optional message about the lint failure
-    pub fn message(&self) -> Option<&str> {
-        self.message.as_ref().map(AsRef::as_ref)
-    }
-}
-
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.kind)?;
@@ -414,7 +397,7 @@ impl std::error::Error for Error {}
 /// Lint errors
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]
-pub enum ErrorKind {
+pub(crate) enum ErrorKind {
     /// Advisory is structurally malformed
     Malformed,
 
@@ -436,14 +419,14 @@ pub enum ErrorKind {
 
 impl ErrorKind {
     /// Invalid key
-    pub fn key(name: &str) -> Self {
+    fn key(name: &str) -> Self {
         Self::InvalidKey {
             name: name.to_owned(),
         }
     }
 
     /// Invalid value
-    pub fn value(name: &str, value: impl Into<String>) -> Self {
+    fn value(name: &str, value: impl Into<String>) -> Self {
         Self::InvalidValue {
             name: name.to_owned(),
             value: value.into(),
