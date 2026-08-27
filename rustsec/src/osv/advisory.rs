@@ -293,15 +293,15 @@ impl OsvAdvisory {
 
     /// Try to extract RustSec alias id from OSV advisory metadata
     pub fn rustsec_refs_imported(&self) -> Vec<Id> {
+        const PREFIX: &str = "https://rustsec.org/advisories/";
         let mut refs: Vec<Id> = self
             .references
             .iter()
-            .filter(|r| {
-                r.url
-                    .as_str()
-                    .starts_with("https://rustsec.org/advisories/")
+            .filter_map(|r| {
+                let after_prefix = r.url.as_str().strip_prefix(PREFIX)?;
+                let id_part = after_prefix.split(&['/', '.', '#', '?'][..]).next()?;
+                Id::from_str(id_part).ok()
             })
-            .map(|r| Id::from_str(&r.url.as_str()[31..48]).expect("Invalid rustsec url"))
             .collect();
         refs.sort();
         refs.dedup();
