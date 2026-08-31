@@ -293,15 +293,18 @@ impl OsvAdvisory {
 
     /// Try to extract RustSec alias id from OSV advisory metadata
     pub fn rustsec_refs_imported(&self) -> Vec<Id> {
+        const RUSTSEC_ADVISORY_URL_PREFIX: &str = "https://rustsec.org/advisories/";
+
         let mut refs: Vec<Id> = self
             .references
             .iter()
-            .filter(|r| {
-                r.url
-                    .as_str()
-                    .starts_with("https://rustsec.org/advisories/")
+            .filter_map(|r| {
+                let id = r.url.as_str().strip_prefix(RUSTSEC_ADVISORY_URL_PREFIX)?;
+                // Skip URLs that don't contain a valid RustSec advisory ID instead
+                // of panicking on malformed input (e.g. URLs shorter than the
+                // advisory ID portion or with a non-`RUSTSEC-*` suffix).
+                Id::from_str(id).ok()
             })
-            .map(|r| Id::from_str(&r.url.as_str()[31..48]).expect("Invalid rustsec url"))
             .collect();
         refs.sort();
         refs.dedup();
@@ -357,4 +360,75 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
 
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
     format!("{}-{:02}-{:02}T12:00:00Z", d.year(), d.month(), d.day())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{OsvAdvisory, osv_references};
+    use crate::advisory::Id;
+    use std::str::FromStr;
+    use url::Url;
+
+    fn advisory_with_references(urls: &[&str]) -> OsvAdvisory {
+        let references = osv_references(urls.iter().map(|u| Url::parse(u).unwrap()).collect());
+        OsvAdvisory {
+            schema_version: None,
+            id: Id::from_str("RUSTSEC-2021-0013").unwrap(),
+            modified: String::new(),
+            published: String::new(),
+            withdrawn: None,
+            aliases: Vec::new(),
+            related: Vec::new(),
+            summary: String::new(),
+            details: String::new(),
+            severity: Vec::new(),
+            affected: Vec::new(),
+            references,
+            database_specific: super::MainOsvDatabaseSpecific {
+                license: None,
+            },
+        }
+    }
+
+    #[test]
+    fn extracts_valid_rustsec_ref() {
+        let adv = advisory_with_references(&[
+            "https://rustsec.org/advisories/RUSTSEC-2021-0013",
+        ]);
+        let refs = adv.rustsec_refs_imported();
+        assert_eq!(refs.len(), 1);
+        assert!(refs[0].is_rustsec());
+        assert_eq!(refs[0].as_str(), "RUSTSEC-2021-0013");
+    }
+
+    #[test]
+    fn ignores_url_shorter_than_advisory_id() {
+        // Matches the prefix but is shorter than the advisory ID portion;
+        // previously this would panic with an out-of-bounds slice.
+        let adv = advisory_with_references(&["https://rustsec.org/advisories/RUSTSEC-"]);
+        assert!(adv.rustsec_refs_imported().is_empty());
+    }
+
+    #[test]
+    fn ignores_malformed_advisory_id() {
+        // Long enough to match the prefix but does not contain a valid
+        // `RUSTSEC-*` ID; previously this would panic via `.expect()`.
+        let adv = advisory_with_references(&[
+            "https://rustsec.org/advisories/not-a-real-advisory-id",
+        ]);
+        assert!(adv.rustsec_refs_imported().is_empty());
+    }
+
+    #[test]
+    fn skips_invalid_refs_but_keeps_valid_ones() {
+        let adv = advisory_with_references(&[
+            "https://rustsec.org/advisories/RUSTSEC-2021-0013",
+            "https://rustsec.org/advisories/short",
+            "https://rustsec.org/advisories/not-a-real-advisory-id",
+            "https://example.com/other",
+        ]);
+        let refs = adv.rustsec_refs_imported();
+        assert_eq!(refs.len(), 1);
+        assert_eq!(refs[0].as_str(), "RUSTSEC-2021-0013");
+    }
 }
