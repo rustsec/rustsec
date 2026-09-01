@@ -42,6 +42,13 @@ impl FromStr for Checksum {
             )));
         }
 
+        // Verify SHA-256 checksums are 64 ASCII hex digits (0-9, a-f, A-F)
+        if !s.chars().all(|c| c.is_ascii_hexdigit()) {
+            return Err(Error::Parse(
+                "invalid checksum: expected hex characters (0-9, a-f)".into(),
+            ));
+        }
+
         let mut digest = [0u8; 32];
 
         for (i, byte) in digest.iter_mut().enumerate() {
@@ -125,6 +132,16 @@ mod tests {
         // Missing one hex letter
         let invalid_str = "af6f3550d8dff9ef7dc34d384ac6f107e5d31c8f57d9f28e0081503f547ac8f";
         let error = invalid_str.parse::<Checksum>().err().unwrap();
+        assert!(matches!(error, Error::Parse(_)));
+    }
+
+    #[test]
+    fn checksum_rejects_multibyte_utf8_without_panic() {
+        // 25 ASCII + U+015D (2 bytes) + 37 ASCII = 64 UTF-8 bytes, not 64 hex digits.
+        let s = "fe438c63458706e0347944274\u{015d}aae6c88256498e6431708f6dfc520a26515d3";
+        assert_eq!(s.len(), 64);
+        assert_eq!(s.chars().count(), 63);
+        let error = s.parse::<Checksum>().err().unwrap();
         assert!(matches!(error, Error::Parse(_)));
     }
 }
