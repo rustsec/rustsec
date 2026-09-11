@@ -168,6 +168,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [wasm32-wasip1]                        | wasm32      | wasi       | p1         |
 | [wasm32-wasip1-threads]                | wasm32      | wasi       | p1         |
 | [wasm32-wasip2]                        | wasm32      | wasi       | p2         |
+| [wasm32-wasip3]                        | wasm32      | wasi       | p3         |
 | [wasm32v1-none]                        | wasm32      | none       |            |
 | [x86_64-apple-darwin]                  | x86_64      | macos      |            |
 | [x86_64-apple-ios]                     | x86_64      | ios        | sim        |
@@ -315,6 +316,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [powerpc-wrs-vxworks]                  | powerpc     | vxworks    | gnu        |
 | [powerpc-wrs-vxworks-spe]              | powerpc     | vxworks    | gnu        |
 | [powerpc64-ibm-aix]                    | powerpc64   | aix        |            |
+| [powerpc64-sony-ps3]                   | powerpc64   | ps3        |            |
 | [powerpc64-unknown-freebsd]            | powerpc64   | freebsd    |            |
 | [powerpc64-unknown-linux-gnuelfv2]     | powerpc64   | linux      | gnu        |
 | [powerpc64-unknown-openbsd]            | powerpc64   | openbsd    |            |
@@ -371,7 +373,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv8m.main-nuttx-eabi]             | arm         | nuttx      |            |
 | [thumbv8m.main-nuttx-eabihf]           | arm         | nuttx      |            |
 | [wasm32-wali-linux-musl]               | wasm32      | linux      | musl       |
-| [wasm32-wasip3]                        | wasm32      | wasi       | p3         |
 | [wasm64-unknown-unknown]               | wasm64      | unknown    |            |
 | [x86_64-apple-tvos]                    | x86_64      | tvos       | sim        |
 | [x86_64-apple-watchos-sim]             | x86_64      | watchos    | sim        |
@@ -585,6 +586,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [powerpc-wrs-vxworks]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC_WRS_VXWORKS.html
 [powerpc-wrs-vxworks-spe]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC_WRS_VXWORKS_SPE.html
 [powerpc64-ibm-aix]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_IBM_AIX.html
+[powerpc64-sony-ps3]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_SONY_PS3.html
 [powerpc64-unknown-freebsd]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_FREEBSD.html
 [powerpc64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_LINUX_GNU.html
 [powerpc64-unknown-linux-gnuelfv2]: https://docs.rs/platforms/latest/platforms/platform/constant.POWERPC64_UNKNOWN_LINUX_GNUELFV2.html

@@ -194,6 +194,7 @@ pub(crate) const ALL: &[Platform] = &[
     POWERPC_WRS_VXWORKS,
     POWERPC_WRS_VXWORKS_SPE,
     POWERPC64_IBM_AIX,
+    POWERPC64_SONY_PS3,
     POWERPC64_UNKNOWN_FREEBSD,
     POWERPC64_UNKNOWN_LINUX_GNU,
     POWERPC64_UNKNOWN_LINUX_GNUELFV2,
@@ -2308,6 +2309,17 @@ pub(crate) const POWERPC64_IBM_AIX: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// PowerPC64 (BE) Sony PlayStation 3 (PS3)
+pub(crate) const POWERPC64_SONY_PS3: Platform = Platform {
+    target_triple: "powerpc64-sony-ps3",
+    target_arch: Arch::PowerPc64,
+    target_os: Os::Ps3,
+    target_env: Env::None,
+    target_endian: Endian::Big,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// PPC64 FreeBSD (ELFv2)
 pub(crate) const POWERPC64_UNKNOWN_FREEBSD: Platform = Platform {
     target_triple: "powerpc64-unknown-freebsd",
@@ -3345,7 +3357,7 @@ pub(crate) const WASM32_WASIP3: Platform = Platform {
     target_env: Env::P3,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
-    tier: Tier::Three,
+    tier: Tier::Two,
 };
 
 /// WebAssembly limited to 1.0 features and no imports
