@@ -99,6 +99,9 @@ pub enum Os {
     /// `openbsd`: The OpenBSD operating system
     OpenBSD,
 
+    /// `ps3`
+    Ps3,
+
     /// `psp`
     Psp,
 
@@ -198,6 +201,7 @@ impl Os {
             Self::Nto => "nto",
             Self::Nuttx => "nuttx",
             Self::OpenBSD => "openbsd",
+            Self::Ps3 => "ps3",
             Self::Psp => "psp",
             Self::Psx => "psx",
             Self::Qnx => "qnx",
@@ -258,6 +262,7 @@ impl FromStr for Os {
             "nto" => Self::Nto,
             "nuttx" => Self::Nuttx,
             "openbsd" => Self::OpenBSD,
+            "ps3" => Self::Ps3,
             "psp" => Self::Psp,
             "psx" => Self::Psx,
             "qnx" => Self::Qnx,
