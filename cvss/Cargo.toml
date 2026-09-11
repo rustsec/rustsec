@@ -4,7 +4,6 @@ description  = "Common Vulnerability Scoring System parser/serializer"
 version      = "3.0.0"
 license      = "Apache-2.0 OR MIT"
 repository   = "https://github.com/rustsec/rustsec"
-readme       = "README.md"
 categories   = ["parser-implementations"]
 keywords     = ["cvssv2", "cvssv3", "cvssv4", "security", "advisory", "vulnerability"]
 edition      = "2024"

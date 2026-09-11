@@ -5,7 +5,6 @@ version     = "0.8.10"
 license     = "Apache-2.0 OR MIT"
 homepage    = "https://rustsec.org"
 repository  = "https://github.com/rustsec/rustsec"
-readme      = "README.md"
 edition     = "2024"
 
 [features]

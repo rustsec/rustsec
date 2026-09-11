@@ -5,7 +5,6 @@ version      = "0.22.2"
 license      = "Apache-2.0 OR MIT"
 homepage     = "https://rustsec.org"
 repository   = "https://github.com/rustsec/rustsec"
-readme       = "README.md"
 categories   = ["development-tools::cargo-plugins"]
 keywords     = ["cargo-subcommand", "security", "audit", "vulnerability"]
 edition      = "2024"
