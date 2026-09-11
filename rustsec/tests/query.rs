@@ -99,7 +99,11 @@ fn does_not_match_a_different_registry() {
     let package = package::Package {
         name: "base".parse().unwrap(),
         version: "1.2.2".parse().unwrap(),
-        source: Some("sparse+https://internal.example.com/index/".parse().unwrap()),
+        source: Some(
+            "sparse+https://internal.example.com/index/"
+                .parse()
+                .unwrap(),
+        ),
         checksum: None,
         dependencies: Default::default(),
         replace: None,
