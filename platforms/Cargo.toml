@@ -8,7 +8,6 @@ version    = "4.1.1"
 license    = "Apache-2.0 OR MIT"
 homepage   = "https://rustsec.org"
 repository = "https://github.com/rustsec/rustsec"
-readme     = "README.md"
 categories = ["development-tools", "no-std"]
 keywords   = ["architectures", "cpu", "os", "targets", "triples"]
 edition    = "2018"

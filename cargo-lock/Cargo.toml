@@ -3,7 +3,6 @@ name         = "cargo-lock"
 description  = "Self-contained Cargo.lock parser with optional dependency graph analysis"
 version      = "11.1.0"
 license      = "Apache-2.0 OR MIT"
-readme       = "README.md"
 homepage     = "https://rustsec.org"
 repository   = "https://github.com/rustsec/rustsec"
 categories   = ["parser-implementations"]
