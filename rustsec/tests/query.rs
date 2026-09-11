@@ -62,3 +62,48 @@ fn matches_target_arch() {
     let query_normal = Query::new().target_arch(vec!["mips".to_owned(), "mips64".to_owned()]);
     assert!(!query_normal.matches(&advisory));
 }
+
+/// crates.io has two spellings in a lockfile. An advisory that names no source falls back to the
+/// `registry+` one, so comparing kind and URL alone dropped every advisory for a package whose
+/// lockfile carried the `sparse+` one, even though the package had already been admitted for
+/// auditing by the same `is_default_registry` predicate.
+#[test]
+fn matches_both_crates_io_spellings() {
+    let advisory = load_advisory();
+
+    for source in [
+        "registry+https://github.com/rust-lang/crates.io-index",
+        "sparse+https://index.crates.io/",
+    ] {
+        let package = package::Package {
+            name: "base".parse().unwrap(),
+            version: "1.2.2".parse().unwrap(),
+            source: Some(source.parse().unwrap()),
+            checksum: None,
+            dependencies: Default::default(),
+            replace: None,
+        };
+
+        assert!(
+            Query::new().package(&package).matches(&advisory),
+            "advisory did not match a package from {source}"
+        );
+    }
+}
+
+/// A genuinely different registry must still not match.
+#[test]
+fn does_not_match_a_different_registry() {
+    let advisory = load_advisory();
+
+    let package = package::Package {
+        name: "base".parse().unwrap(),
+        version: "1.2.2".parse().unwrap(),
+        source: Some("sparse+https://internal.example.com/index/".parse().unwrap()),
+        checksum: None,
+        dependencies: Default::default(),
+        replace: None,
+    };
+
+    assert!(!Query::new().package(&package).matches(&advisory));
+}
