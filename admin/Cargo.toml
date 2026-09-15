@@ -14,12 +14,12 @@ default = ["gix?/max-performance-safe"]
 abscissa_core = { workspace = true }
 askama = { workspace = true }
 atom_syndication = { workspace = true }
-chrono = { workspace = true, features = ["clock"] }
 clap = { workspace = true }
 comrak = { workspace = true }
 cvss = { workspace = true }
 display-error-chain = { workspace = true }
 fs-err = { workspace = true }
+jiff = { workspace = true }
 tame-index = { workspace = true, features = ["sparse"] }
 gix = { workspace = true, optional = true }
 rustsec = { workspace = true, features = ["osv-export"] }
