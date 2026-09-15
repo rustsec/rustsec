@@ -20,7 +20,6 @@ auditable-info = "0.10"
 auditable-serde = "0.9"
 binfarce = "0.2"
 cargo-lock = { version = "11", path = "./cargo-lock" }
-chrono = { version = "0.4", default-features = false }
 clap = "4"
 comrak = { version = "0.54", default-features = false }
 cvss = { version = "3.0", path = "./cvss" }
@@ -28,6 +27,7 @@ display-error-chain = "0.2.0"
 fs-err = "3"
 gix = { version = "0.87", default-features = false, features = ["sha1"] }
 home = "0.5"
+jiff = { version = "0.2", default-features = false }
 object = { version = "0.40", default-features = false, features = ["read", "wasm"] }
 once_cell = "1.15.0"
 petgraph = "0.8.2"
@@ -45,7 +45,6 @@ tempfile = "3"
 termcolor = "1"
 thiserror = "2"
 time = { version = "0.3", default-features = false }
-jiff = { version = "0.2", default-features = false }
 toml = "1.0"
 toml_edit = "0.25"
 url = "2"

@@ -14,19 +14,15 @@ use atom_syndication::{
     CategoryBuilder, ContentBuilder, Entry, EntryBuilder, FeedBuilder, FixedDateTime, LinkBuilder,
     PersonBuilder, Text,
 };
-use chrono::{Duration, NaiveDate, Utc};
 use comrak::markdown_to_html;
 use fs_err::{self as fs, File};
+use jiff::{Span, Zoned, civil::Date, tz::TimeZone};
 use rustsec::advisory::{Category, Id};
 use rustsec::osv::OsvAdvisory;
 use rustsec::repository::git::GitModificationTimes;
 use rustsec::repository::git::GitPath;
 use rustsec::{Repository, advisory};
 use xml::escape::escape_str_attribute;
-
-// TODO(tarcieri): replace with `DateTime`
-#[allow(deprecated)]
-use chrono::Date;
 
 #[derive(Template)]
 #[template(path = "index.html")]
@@ -371,16 +367,14 @@ pub fn render_advisories(output_folder: PathBuf) {
     let feed_path = output_folder.join("feed.xml");
     let min_feed_len = 10;
 
-    // TODO(tarcieri): replace with `DateTime`
-    #[allow(deprecated)]
+    let start = Zoned::now()
+        .with_time_zone(TimeZone::UTC)
+        .checked_sub(Span::new().days(8))
+        .unwrap()
+        .date();
     let last_week_len = advisories
         .iter()
-        .take_while(|data| {
-            Date::from_utc(
-                NaiveDate::parse_from_str(data.created.as_str(), "%Y-%m-%d").unwrap(),
-                Utc,
-            ) > Utc::today() - Duration::days(8)
-        })
+        .take_while(|data| Date::from_str(data.created.as_str()).unwrap() > start)
         .count();
 
     // include max(latest week of advisories, 10 latest advisories)
@@ -564,26 +558,22 @@ fn copy_static_assets(output_folder: &Path) -> Result<(), io::Error> {
 
 #[allow(unreachable_pub)] // Askama's macros get this wrong?
 mod filters {
-    use std::borrow::Borrow;
+    use std::{borrow::Borrow, str::FromStr};
 
     use askama::filter_fn;
-    use chrono::NaiveDate;
+    use jiff::civil::Date;
     use rustsec::advisory;
 
     #[filter_fn]
-    pub(super) fn friendly_date<T: Borrow<advisory::Date>>(
-        date: T,
+    pub(super) fn friendly_date(
+        date: impl Borrow<advisory::Date>,
         _: &dyn askama::Values,
     ) -> ::askama::Result<String> {
         let date = date.borrow();
-
-        // TODO(tarcieri): fix deprecation of `NaiveDate::from_ymd`
-        #[allow(deprecated)]
-        let date = NaiveDate::from_ymd(date.year().try_into().unwrap(), date.month(), date.day())
-            .format("%B %e, %Y")
-            .to_string();
-
-        Ok(date)
+        Ok(Date::from_str(date.as_str())
+            .unwrap()
+            .strftime("%B %e, %Y")
+            .to_string())
     }
 
     #[filter_fn]
