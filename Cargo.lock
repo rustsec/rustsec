@@ -320,9 +320,9 @@ dependencies = [
 
 [[package]]
 name = "binfarce"
-version = "0.2.1"
+version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18464ccbb85e5dede30d70cc7676dc9950a0fb7dbf595a43d765be9123c616a2"
+checksum = "8c3909adc0a877afb5f851ce4344d43ea0382240cfad4f760109b7aa603685e0"
 
 [[package]]
 name = "bitflags"
