@@ -143,7 +143,6 @@ If we remove platforms, we will bump the minor version of this crate.
 | [riscv64gc-unknown-linux-gnu]          | riscv64     | linux      | gnu        |
 | [riscv64gc-unknown-linux-musl]         | riscv64     | linux      | musl       |
 | [riscv64gc-unknown-none-elf]           | riscv64     | none       |            |
-| [riscv64im-unknown-none-elf]           | riscv64     | none       |            |
 | [riscv64imac-unknown-none-elf]         | riscv64     | none       |            |
 | [s390x-unknown-linux-gnu]              | s390x       | linux      | gnu        |
 | [s390x-unknown-none-softfloat]         | s390x       | none       |            |
@@ -349,6 +348,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [riscv64gc-unknown-nuttx-elf]          | riscv64     | nuttx      |            |
 | [riscv64gc-unknown-openbsd]            | riscv64     | openbsd    |            |
 | [riscv64gc-unknown-redox]              | riscv64     | redox      | relibc     |
+| [riscv64im-unknown-none-elf]           | riscv64     | none       |            |
 | [riscv64imac-unknown-nuttx-elf]        | riscv64     | nuttx      |            |
 | [s390x-unknown-linux-musl]             | s390x       | linux      | musl       |
 | [sparc-unknown-linux-gnu]              | sparc       | linux      | gnu        |
