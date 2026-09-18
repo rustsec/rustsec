@@ -2820,7 +2820,7 @@ pub(crate) const RISCV64IM_UNKNOWN_NONE_ELF: Platform = Platform {
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
-    tier: Tier::Two,
+    tier: Tier::Three,
 };
 
 /// Bare RISC-V (RV64IMAC ISA)
