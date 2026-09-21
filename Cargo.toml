@@ -21,7 +21,7 @@ auditable-serde = "0.9"
 binfarce = "0.2"
 cargo-lock = { version = "11", path = "./cargo-lock" }
 clap = "4"
-comrak = { version = "0.54", default-features = false }
+comrak = { version = "0.55", default-features = false }
 cvss = { version = "3.0", path = "./cvss" }
 display-error-chain = "0.2.0"
 fs-err = "3"
