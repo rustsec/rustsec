@@ -48,9 +48,6 @@ pub mod cvss;
 mod error;
 mod severity;
 
-// For compatibility
-pub use crate::v3::metric::{Metric, MetricType};
-
 #[cfg(any(feature = "v2", feature = "v3", feature = "v4"))]
 pub use crate::cvss::Cvss;
 
