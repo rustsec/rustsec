@@ -82,7 +82,7 @@ impl FromStr for RemediationLevel {
             "W" => Ok(Self::Workaround),
             "T" => Ok(Self::TemporaryFix),
             "O" => Ok(Self::OfficialFix),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

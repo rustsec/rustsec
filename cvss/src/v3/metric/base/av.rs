@@ -108,7 +108,7 @@ impl FromStr for AttackVector {
             "L" => Ok(Self::Local),
             "A" => Ok(Self::Adjacent),
             "N" => Ok(Self::Network),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

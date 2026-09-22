@@ -64,7 +64,7 @@ impl FromStr for UserInteraction {
         match s {
             "R" => Ok(Self::Required),
             "N" => Ok(Self::None),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

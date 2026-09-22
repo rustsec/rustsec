@@ -50,6 +50,7 @@ use {
 #[cfg(feature = "v2")]
 pub mod v2;
 // A part of the v3 API is exposed even without the feature for compatibility.
+#[cfg(feature = "v3")]
 pub mod v3;
 #[cfg(feature = "v4")]
 pub mod v4;
@@ -85,48 +86,50 @@ impl Cvss {
     /// For CVSSv4 specifically, the dedicated type includes the nomenclature information.
     #[cfg(feature = "std")]
     pub fn score(&self) -> f64 {
-        match self {
+        match *self {
             #[cfg(feature = "v2")]
-            Self::CvssV20(base) => base.score().value(),
+            Self::CvssV20(ref base) => base.score().value(),
             #[cfg(feature = "v3")]
-            Self::CvssV30(vector) => vector.score().value(),
+            Self::CvssV30(ref vector) => vector.score().value(),
             #[cfg(feature = "v3")]
-            Self::CvssV31(vector) => vector.score().value(),
+            Self::CvssV31(ref vector) => vector.score().value(),
             #[cfg(feature = "v4")]
-            Self::CvssV40(vector) => vector.score().value(),
+            Self::CvssV40(ref vector) => vector.score().value(),
         }
     }
 
     /// Get the severity of this CVSS vector
     #[cfg(feature = "std")]
     pub fn severity(&self) -> Severity {
-        match self {
+        match *self {
             #[cfg(feature = "v2")]
-            Self::CvssV20(base) => base.score().severity(),
+            Self::CvssV20(ref base) => base.score().severity(),
             #[cfg(feature = "v3")]
-            Self::CvssV30(vector) => vector.score().severity(),
+            Self::CvssV30(ref vector) => vector.score().severity(),
             #[cfg(feature = "v3")]
-            Self::CvssV31(vector) => vector.score().severity(),
+            Self::CvssV31(ref vector) => vector.score().severity(),
             #[cfg(feature = "v4")]
-            Self::CvssV40(vector) => vector.score().severity(),
+            Self::CvssV40(ref vector) => vector.score().severity(),
         }
     }
 
     /// Get an iterator over all defined metrics
     pub fn metrics(&self) -> Box<dyn Iterator<Item = (MetricType, &dyn fmt::Debug)> + '_> {
-        match self {
+        match *self {
             #[cfg(feature = "v2")]
-            Self::CvssV20(base) => Box::new(base.metrics().map(|(m, v)| (MetricType::V2(m), v))),
+            Self::CvssV20(ref base) => {
+                Box::new(base.metrics().map(|(m, v)| (MetricType::V2(m), v)))
+            }
             #[cfg(feature = "v3")]
-            Self::CvssV30(vector) => {
+            Self::CvssV30(ref vector) => {
                 Box::new(vector.metrics().map(|(m, v)| (MetricType::V3(m), v)))
             }
             #[cfg(feature = "v3")]
-            Self::CvssV31(vector) => {
+            Self::CvssV31(ref vector) => {
                 Box::new(vector.metrics().map(|(m, v)| (MetricType::V3(m), v)))
             }
             #[cfg(feature = "v4")]
-            Self::CvssV40(vector) => {
+            Self::CvssV40(ref vector) => {
                 Box::new(vector.metrics().map(|(m, v)| (MetricType::V4(m), v)))
             }
         }
@@ -192,16 +195,16 @@ impl FromStr for Cvss {
 }
 
 impl fmt::Display for Cvss {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
+    fn fmt(&self, _f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
             #[cfg(feature = "v2")]
-            Self::CvssV20(base) => write!(f, "{}", base),
+            Self::CvssV20(ref base) => write!(_f, "{}", base),
             #[cfg(feature = "v3")]
-            Self::CvssV30(vector) => write!(f, "{}", vector),
+            Self::CvssV30(ref vector) => write!(_f, "{}", vector),
             #[cfg(feature = "v3")]
-            Self::CvssV31(vector) => write!(f, "{}", vector),
+            Self::CvssV31(ref vector) => write!(_f, "{}", vector),
             #[cfg(feature = "v4")]
-            Self::CvssV40(vector) => write!(f, "{}", vector),
+            Self::CvssV40(ref vector) => write!(_f, "{}", vector),
         }
     }
 }

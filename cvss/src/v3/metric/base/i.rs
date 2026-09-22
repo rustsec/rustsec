@@ -74,7 +74,7 @@ impl FromStr for Integrity {
             "N" => Ok(Self::None),
             "L" => Ok(Self::Low),
             "H" => Ok(Self::High),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

@@ -1,13 +1,14 @@
 //! Error types
 
-use crate::v3;
-#[cfg(feature = "v4")]
-use crate::v4;
 use alloc::string::String;
 use core::fmt;
 
 #[cfg(feature = "v2")]
 use crate::v2;
+#[cfg(feature = "v3")]
+use crate::v3;
+#[cfg(feature = "v4")]
+use crate::v4;
 
 /// Kinds of errors
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -20,7 +21,8 @@ pub enum Error {
     },
 
     /// Invalid metric for CVSSv3.
-    InvalidMetric {
+    #[cfg(feature = "v3")]
+    InvalidMetricV3 {
         /// The metric that was invalid.
         metric_type: v3::metric::MetricType,
 
@@ -46,6 +48,7 @@ pub enum Error {
     },
 
     /// Metric is duplicated for CVSSv3.
+    #[cfg(feature = "v3")]
     DuplicateMetricV3 {
         /// Prefix which is doubled.
         metric_type: v3::metric::MetricType,
@@ -120,7 +123,8 @@ impl fmt::Display for Error {
             Self::InvalidComponent { component } => {
                 write!(f, "invalid CVSS metric group component: `{component}`")
             }
-            Self::InvalidMetric { metric_type, value } => {
+            #[cfg(feature = "v3")]
+            Self::InvalidMetricV3 { metric_type, value } => {
                 write!(
                     f,
                     "invalid CVSSv3 {} ({}) metric: `{}`",
@@ -148,6 +152,7 @@ impl fmt::Display for Error {
                     metric_type.description(),
                 )
             }
+            #[cfg(feature = "v3")]
             Self::DuplicateMetricV3 { metric_type } => {
                 write!(
                     f,
