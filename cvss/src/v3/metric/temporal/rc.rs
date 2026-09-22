@@ -4,8 +4,8 @@ use alloc::borrow::ToOwned;
 
 use core::{fmt, str::FromStr};
 
+use crate::Error;
 use crate::v3::{Metric, MetricType};
-use crate::{Error, Result};
 
 /// Report Confidence (RC) - CVSS v3.1 Temporal Metric Group
 /// > This metric measures the degree of confidence in the existence of the
@@ -86,7 +86,7 @@ impl fmt::Display for ReportConfidence {
 impl FromStr for ReportConfidence {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "X" => Ok(Self::NotDefined),
             "C" => Ok(Self::Confirmed),

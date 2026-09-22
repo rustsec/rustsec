@@ -1,6 +1,6 @@
 //! CVSS v4 metrics.
 
-use crate::{Error, Result};
+use crate::Error;
 use alloc::borrow::ToOwned;
 use core::{
     fmt::{self, Debug, Display},
@@ -190,7 +190,7 @@ impl Display for MetricType {
 impl FromStr for MetricType {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "AC" => Ok(Self::AC),
             "AT" => Ok(Self::AT),

@@ -1,7 +1,7 @@
 //! Privileges Required (PR)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -65,7 +65,7 @@ impl fmt::Display for PrivilegesRequired {
 impl FromStr for PrivilegesRequired {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "N" => Ok(Self::None),
             "L" => Ok(Self::Low),
@@ -105,7 +105,7 @@ pub(crate) mod merge {
     impl FromStr for MergedPrivilegesRequired {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "H" => Ok(Self::High),
                 "L" => Ok(Self::Low),

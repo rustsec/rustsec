@@ -4,8 +4,8 @@ use alloc::borrow::ToOwned;
 
 use core::{fmt, str::FromStr};
 
+use crate::Error;
 use crate::v3::{Metric, MetricType};
-use crate::{Error, Result};
 
 /// Exploit Code Maturity (E) - CVSS v3.1 Temporal Metric Group
 /// > This metric measures the likelihood of the vulnerability being attacked,
@@ -80,7 +80,7 @@ impl fmt::Display for ExploitCodeMaturity {
 impl FromStr for ExploitCodeMaturity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "X" => Ok(Self::NotDefined),
             "H" => Ok(Self::High),

@@ -1,7 +1,7 @@
 //! Attack Vector (AV)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -92,7 +92,7 @@ impl fmt::Display for AttackVector {
 impl FromStr for AttackVector {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "N" => Ok(Self::Network),
             "A" => Ok(Self::Adjacent),
@@ -134,7 +134,7 @@ pub(crate) mod merge {
     impl FromStr for MergedAttackVector {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "P" => Ok(Self::Physical),
                 "L" => Ok(Self::Local),

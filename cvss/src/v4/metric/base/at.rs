@@ -1,7 +1,7 @@
 //! Attack Requirements (AT)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -65,7 +65,7 @@ impl fmt::Display for AttackRequirements {
 impl FromStr for AttackRequirements {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "P" => Ok(Self::Present),
             "N" => Ok(Self::None),
@@ -103,7 +103,7 @@ pub(crate) mod merge {
     impl FromStr for MergedAttackRequirements {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "P" => Ok(Self::Present),
                 "N" => Ok(Self::None),

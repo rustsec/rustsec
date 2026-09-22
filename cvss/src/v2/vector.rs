@@ -10,7 +10,7 @@ use core::str::FromStr;
 use serde::{Deserialize, Serialize, de, ser};
 
 use crate::{
-    Error, Result,
+    Error,
     v2::{
         Metric, MetricType, Score,
         metric::{
@@ -261,8 +261,8 @@ impl Vector {
     }
 
     /// Check for required base metrics presence
-    fn check_mandatory_metrics(&self) -> Result<()> {
-        fn ensure_present<T>(metric: Option<T>, metric_type: MetricType) -> Result<()> {
+    fn check_mandatory_metrics(&self) -> Result<(), Error> {
+        fn ensure_present<T>(metric: Option<T>, metric_type: MetricType) -> Result<(), Error> {
             if metric.is_none() {
                 return Err(Error::MissingMandatoryMetricV2 { metric_type });
             }
@@ -308,7 +308,7 @@ impl fmt::Display for Vector {
 impl FromStr for Vector {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         let component_vec = s
             .split('/')
             .map(|component| {
@@ -330,7 +330,7 @@ impl FromStr for Vector {
 
                 Ok((id, value))
             })
-            .collect::<Result<Vec<_>>>()?;
+            .collect::<Result<Vec<_>, Error>>()?;
 
         let components = component_vec.iter();
         let mut metrics = Self::default();
@@ -339,7 +339,7 @@ impl FromStr for Vector {
             metric_type: MetricType,
             current_val: Option<T>,
             new_val: &str,
-        ) -> Result<Option<T>> {
+        ) -> Result<Option<T>, Error> {
             let parsed = T::from_str(new_val)?;
             if current_val.is_some() {
                 return Err(Error::DuplicateMetricV2 { metric_type });
@@ -384,9 +384,7 @@ impl FromStr for Vector {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de> Deserialize<'de> for Vector {
-    fn deserialize<D: de::Deserializer<'de>>(
-        deserializer: D,
-    ) -> core::result::Result<Self, D::Error> {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         String::deserialize(deserializer)?
             .parse()
             .map_err(de::Error::custom)
@@ -396,10 +394,7 @@ impl<'de> Deserialize<'de> for Vector {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl Serialize for Vector {
-    fn serialize<S: ser::Serializer>(
-        &self,
-        serializer: S,
-    ) -> core::result::Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }

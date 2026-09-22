@@ -1,7 +1,7 @@
 //! User Interaction (UI)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -78,7 +78,7 @@ impl fmt::Display for UserInteraction {
 impl FromStr for UserInteraction {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "N" => Ok(Self::None),
             "P" => Ok(Self::Passive),
@@ -118,7 +118,7 @@ pub(crate) mod merge {
     impl FromStr for MergedUserInteraction {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "A" => Ok(Self::Active),
                 "P" => Ok(Self::Passive),

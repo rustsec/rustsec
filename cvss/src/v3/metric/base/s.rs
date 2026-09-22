@@ -3,8 +3,8 @@
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
+use crate::Error;
 use crate::v3::{Metric, MetricType};
-use crate::{Error, Result};
 
 /// Scope (S) - CVSS v3.1 Base Metric Group
 ///
@@ -86,7 +86,7 @@ impl fmt::Display for Scope {
 impl FromStr for Scope {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "U" => Ok(Self::Unchanged),
             "C" => Ok(Self::Changed),

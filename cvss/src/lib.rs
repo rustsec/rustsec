@@ -55,7 +55,7 @@ pub mod v3;
 pub mod v4;
 
 mod error;
-pub use error::{Error, Result};
+pub use error::Error;
 
 mod severity;
 pub use severity::Severity;
@@ -136,9 +136,7 @@ impl Cvss {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de> Deserialize<'de> for Cvss {
-    fn deserialize<D: de::Deserializer<'de>>(
-        deserializer: D,
-    ) -> core::result::Result<Self, D::Error> {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         String::deserialize(deserializer)?
             .parse()
             .map_err(de::Error::custom)
@@ -148,10 +146,7 @@ impl<'de> Deserialize<'de> for Cvss {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl Serialize for Cvss {
-    fn serialize<S: ser::Serializer>(
-        &self,
-        serializer: S,
-    ) -> core::result::Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.to_string().serialize(serializer)
     }
 }
@@ -159,7 +154,7 @@ impl Serialize for Cvss {
 impl FromStr for Cvss {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         // Parse the prefix and select the right vector parser
         let (id, _) = s.split_once('/').ok_or_else(|| Error::InvalidComponent {
             component: s.to_owned(),

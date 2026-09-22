@@ -1,6 +1,6 @@
 //! Qualitative Severity Rating Scale
 
-use crate::{Error, Result};
+use crate::Error;
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
@@ -56,7 +56,7 @@ impl Severity {
 impl FromStr for Severity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s.to_ascii_lowercase().as_str() {
             "none" => Ok(Self::None),
             "low" => Ok(Self::Low),
@@ -77,9 +77,7 @@ impl fmt::Display for Severity {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl<'de> Deserialize<'de> for Severity {
-    fn deserialize<D: de::Deserializer<'de>>(
-        deserializer: D,
-    ) -> core::result::Result<Self, D::Error> {
+    fn deserialize<D: de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
         String::deserialize(deserializer)?
             .parse()
             .map_err(de::Error::custom)
@@ -89,10 +87,7 @@ impl<'de> Deserialize<'de> for Severity {
 #[cfg(feature = "serde")]
 #[cfg_attr(docsrs, doc(cfg(feature = "serde")))]
 impl Serialize for Severity {
-    fn serialize<S: ser::Serializer>(
-        &self,
-        serializer: S,
-    ) -> core::result::Result<S::Ok, S::Error> {
+    fn serialize<S: ser::Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
         self.as_str().serialize(serializer)
     }
 }

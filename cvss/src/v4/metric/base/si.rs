@@ -1,7 +1,7 @@
 //! Integrity Impact to the Subsequent System (SI)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -67,7 +67,7 @@ impl fmt::Display for IntegrityImpactToTheSubsequentSystem {
 impl FromStr for IntegrityImpactToTheSubsequentSystem {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "N" => Ok(Self::None),
             "L" => Ok(Self::Low),
@@ -108,7 +108,7 @@ pub(crate) mod merge {
     impl FromStr for MergedIntegrityImpactToTheSubsequentSystem {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "S" => Ok(Self::Safety),
                 "H" => Ok(Self::High),

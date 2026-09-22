@@ -1,7 +1,7 @@
 //! Integrity Impact to the Vulnerable System (MVI)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -70,7 +70,7 @@ impl fmt::Display for ModifiedIntegrityImpactToTheVulnerableSystem {
 impl FromStr for ModifiedIntegrityImpactToTheVulnerableSystem {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "X" => Ok(Self::NotDefined),
             "N" => Ok(Self::None),

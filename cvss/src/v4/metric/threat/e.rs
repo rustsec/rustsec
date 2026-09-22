@@ -1,7 +1,7 @@
 //! Exploit Maturity (E)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -96,7 +96,7 @@ impl fmt::Display for ExploitMaturity {
 impl FromStr for ExploitMaturity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "X" => Ok(Self::NotDefined),
             "A" => Ok(Self::Attacked),
@@ -131,7 +131,7 @@ pub(crate) mod merge {
     impl FromStr for MergedExploitMaturity {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "A" => Ok(Self::Attacked),
                 "P" => Ok(Self::ProofOfConcept),

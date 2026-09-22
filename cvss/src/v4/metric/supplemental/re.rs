@@ -1,7 +1,7 @@
 //! Vulnerability Response Effort (RE)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -77,7 +77,7 @@ impl fmt::Display for VulnerabilityResponseEffort {
 impl FromStr for VulnerabilityResponseEffort {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "X" => Ok(Self::NotDefined),
             "L" => Ok(Self::Low),
