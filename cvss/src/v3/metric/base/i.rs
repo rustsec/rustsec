@@ -3,8 +3,8 @@
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
+use crate::Error;
 use crate::v3::{Metric, MetricType};
-use crate::{Error, Result};
 
 /// Integrity Impact (I) - CVSS v3.1 Base Metric Group
 ///
@@ -69,7 +69,7 @@ impl fmt::Display for Integrity {
 impl FromStr for Integrity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "N" => Ok(Self::None),
             "L" => Ok(Self::Low),

@@ -1,7 +1,7 @@
 //! Attack Complexity (AC)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -76,7 +76,7 @@ impl fmt::Display for AttackComplexity {
 impl FromStr for AttackComplexity {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "H" => Ok(Self::High),
             "L" => Ok(Self::Low),
@@ -114,7 +114,7 @@ pub(crate) mod merge {
     impl FromStr for MergedAttackComplexity {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "H" => Ok(Self::High),
                 "L" => Ok(Self::Low),

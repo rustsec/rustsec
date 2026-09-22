@@ -9,9 +9,6 @@ use core::fmt;
 #[cfg(feature = "v2")]
 use crate::v2;
 
-/// Result type with the `cvss` crate's [`Error`] type.
-pub type Result<T> = core::result::Result<T, Error>;
-
 /// Kinds of errors
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[non_exhaustive]

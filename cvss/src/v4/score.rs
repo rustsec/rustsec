@@ -59,7 +59,7 @@ impl Display for Nomenclature {
 impl FromStr for Nomenclature {
     type Err = Error;
 
-    fn from_str(s: &str) -> crate::Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "CVSS-B" => Ok(Self::CvssB),
             "CVSS-BE" => Ok(Self::CvssBE),

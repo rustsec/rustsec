@@ -3,8 +3,8 @@
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
+use crate::Error;
 use crate::v3::{Metric, MetricType};
-use crate::{Error, Result};
 
 /// User Interaction (UI) - CVSS v3.1 Base Metric Group
 ///
@@ -60,7 +60,7 @@ impl fmt::Display for UserInteraction {
 impl FromStr for UserInteraction {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "R" => Ok(Self::Required),
             "N" => Ok(Self::None),

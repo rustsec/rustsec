@@ -3,8 +3,8 @@
 use alloc::borrow::ToOwned;
 use core::{fmt, str::FromStr};
 
+use crate::Error;
 use crate::v3::{Metric, MetricType};
-use crate::{Error, Result};
 
 /// Availability Impact (A) - CVSS v3.1 Base Metric Group
 ///
@@ -87,7 +87,7 @@ impl fmt::Display for Availability {
 impl FromStr for Availability {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "N" => Ok(Self::None),
             "L" => Ok(Self::Low),

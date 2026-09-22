@@ -10,7 +10,7 @@ use core::{
     str::FromStr,
 };
 
-use crate::{Error, Result};
+use crate::Error;
 
 /// Trait for CVSSv3 metrics.
 pub trait Metric: Copy + Clone + Debug + Display + Eq + FromStr + Ord {
@@ -177,7 +177,7 @@ impl Display for MetricType {
 impl FromStr for MetricType {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             // Base metrics
             "A" => Ok(Self::A),

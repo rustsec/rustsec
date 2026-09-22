@@ -1,7 +1,7 @@
 //! Confidentiality Requirements (CR)
 
 use crate::{
-    Error, Result,
+    Error,
     v4::metric::{Metric, MetricType},
 };
 use alloc::borrow::ToOwned;
@@ -76,7 +76,7 @@ impl fmt::Display for ConfidentialityRequirements {
 impl FromStr for ConfidentialityRequirements {
     type Err = Error;
 
-    fn from_str(s: &str) -> Result<Self> {
+    fn from_str(s: &str) -> Result<Self, Error> {
         match s {
             "X" => Ok(Self::NotDefined),
             "L" => Ok(Self::Low),
@@ -111,7 +111,7 @@ pub(crate) mod merge {
     impl FromStr for MergedConfidentialityRequirements {
         type Err = Error;
 
-        fn from_str(s: &str) -> Result<Self> {
+        fn from_str(s: &str) -> Result<Self, Error> {
             match s {
                 "L" => Ok(Self::Low),
                 "M" => Ok(Self::Medium),
