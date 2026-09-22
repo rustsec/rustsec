@@ -55,12 +55,10 @@ pub mod v3;
 pub mod v4;
 
 mod error;
-mod severity;
+pub use error::{Error, Result};
 
-pub use crate::{
-    error::{Error, Result},
-    severity::Severity,
-};
+mod severity;
+pub use severity::Severity;
 
 /// A CVSS vector
 #[derive(Clone, PartialEq, Eq, Debug)]
