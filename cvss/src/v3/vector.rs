@@ -11,10 +11,11 @@ use serde::{Deserialize, Serialize, de, ser};
 use crate::Severity;
 
 use crate::{
-    Error, MetricType, PREFIX, Result,
+    Error, PREFIX, Result,
     v3::{
         Metric, Score,
         metric::{
+            MetricType,
             base::{
                 AttackComplexity, AttackVector, Availability, Confidentiality, Integrity,
                 PrivilegesRequired, Scope, UserInteraction,
