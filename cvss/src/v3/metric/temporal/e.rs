@@ -87,7 +87,7 @@ impl FromStr for ExploitCodeMaturity {
             "F" => Ok(Self::Functional),
             "P" => Ok(Self::ProofOfConcept),
             "U" => Ok(Self::Unproven),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

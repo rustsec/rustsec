@@ -90,7 +90,7 @@ impl FromStr for AttackComplexity {
         match s {
             "H" => Ok(Self::High),
             "L" => Ok(Self::Low),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

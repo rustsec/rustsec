@@ -76,7 +76,7 @@ impl FromStr for AvailabilityRequirement {
             "L" => Ok(Self::Low),
             "M" => Ok(Self::Medium),
             "H" => Ok(Self::High),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),

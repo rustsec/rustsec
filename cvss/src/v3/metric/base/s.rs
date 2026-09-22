@@ -90,7 +90,7 @@ impl FromStr for Scope {
         match s {
             "U" => Ok(Self::Unchanged),
             "C" => Ok(Self::Changed),
-            _ => Err(Error::InvalidMetric {
+            _ => Err(Error::InvalidMetricV3 {
                 metric_type: Self::TYPE,
                 value: s.to_owned(),
             }),
