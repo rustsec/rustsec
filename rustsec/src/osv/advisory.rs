@@ -3,11 +3,14 @@
 //! It implements the parts of the [OSV schema](https://ossf.github.io/osv-schema) required for
 //! RustSec.
 
+#[cfg(feature = "osv-export")]
 use super::ranges_for_advisory;
+#[cfg(feature = "osv-export")]
 use crate::advisory::Versions;
+use crate::advisory::{Affected, Category, Id, Informational, affected::FunctionPath};
+#[cfg(feature = "osv-export")]
 use crate::{
     Advisory,
-    advisory::{Affected, Category, Id, Informational, affected::FunctionPath},
     repository::git::{GitModificationTimes, GitPath},
 };
 use cvss::Cvss;
@@ -19,7 +22,6 @@ const ECOSYSTEM: &str = "crates.io";
 
 /// Security advisory in the format defined by <https://github.com/google/osv>
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct OsvAdvisory {
     #[serde(skip_serializing_if = "Option::is_none")]
     schema_version: Option<semver::Version>,
@@ -65,12 +67,16 @@ impl From<&cargo_lock::Name> for OsvPackage {
     }
 }
 
+/// A CVSS severity entry with its version-specific vector.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[allow(non_camel_case_types)]
 #[serde(tag = "type", content = "score")]
-enum OsvSeverity {
+pub enum OsvSeverity {
+    /// CVSS version 2.0.
     CVSS_V2(cvss::v2::Vector),
+    /// CVSS version 3.0 or 3.1.
     CVSS_V3(cvss::v3::Vector),
+    /// CVSS version 4.0.
     CVSS_V4(cvss::v4::Vector),
 }
 
@@ -88,9 +94,10 @@ impl TryFrom<Cvss> for OsvSeverity {
     }
 }
 
+/// A package affected by an OSV advisory, including RustSec-specific metadata.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct OsvAffected {
-    pub(crate) package: OsvPackage,
+pub struct OsvAffected {
+    package: OsvPackage,
     ecosystem_specific: Option<OsvEcosystemSpecific>,
     database_specific: OsvDatabaseSpecific,
     ranges: Option<Vec<OsvJsonRange>>,
@@ -98,8 +105,46 @@ struct OsvAffected {
     versions: Option<Vec<String>>,
 }
 
+impl OsvAffected {
+    /// Name of the affected package.
+    pub fn package_name(&self) -> &str {
+        &self.package.name
+    }
+
+    /// Ecosystem containing the affected package, such as `crates.io`.
+    pub fn ecosystem(&self) -> &str {
+        &self.package.ecosystem
+    }
+
+    /// RustSec informational classification for this package, if any.
+    pub fn informational(&self) -> Option<&Informational> {
+        self.database_specific.informational.as_ref()
+    }
+
+    /// Affected version ranges, or an empty slice when no ranges are specified.
+    pub fn ranges(&self) -> &[OsvJsonRange] {
+        self.ranges.as_deref().unwrap_or_default()
+    }
+
+    /// Whether any affected range includes a patched version.
+    pub fn has_patched_versions(&self) -> bool {
+        self.ranges.iter().flatten().any(|range| {
+            range
+                .events
+                .iter()
+                .any(|event| matches!(event, OsvTimelineEvent::Fixed(_)))
+        })
+    }
+
+    /// RustSec vulnerability categories for this package.
+    pub fn categories(&self) -> &[Category] {
+        &self.database_specific.categories
+    }
+}
+
+/// An OSV affected range with an ordered sequence of version events.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct OsvJsonRange {
+pub struct OsvJsonRange {
     // 'type' is a reserved keyword in Rust
     #[serde(rename = "type")]
     kind: String,
@@ -108,8 +153,19 @@ struct OsvJsonRange {
 }
 
 impl OsvJsonRange {
+    /// Range type, such as `SEMVER`, `ECOSYSTEM`, or `GIT`.
+    pub fn kind(&self) -> &str {
+        &self.kind
+    }
+
+    /// Version events in their original order.
+    pub fn events(&self) -> &[OsvTimelineEvent] {
+        &self.events
+    }
+
     /// Generates the timeline of the bug being introduced and fixed for the
     /// [`affected[].ranges[].events`](https://github.com/ossf/osv-schema/blob/main/schema.md#affectedrangesevents-fields) field.
+    #[cfg(feature = "osv-export")]
     fn new(versions: &Versions) -> Self {
         let ranges = ranges_for_advisory(versions);
         assert!(!ranges.is_empty()); // zero ranges means nothing is affected, so why even have an advisory?
@@ -133,12 +189,16 @@ impl OsvJsonRange {
     }
 }
 
+/// A version marking a boundary of an affected range.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-enum OsvTimelineEvent {
+pub enum OsvTimelineEvent {
+    /// First affected version; `0` denotes all earlier versions.
     #[serde(rename = "introduced")]
     Introduced(String),
+    /// First version containing a fix (excluded from the affected range).
     #[serde(rename = "fixed")]
     Fixed(String),
+    /// Last affected version (included in the affected range).
     #[serde(rename = "last_affected")]
     LastAffected(String),
 }
@@ -213,6 +273,26 @@ struct MainOsvDatabaseSpecific {
 }
 
 impl OsvAdvisory {
+    /// A short summary of the advisory.
+    pub fn summary(&self) -> &str {
+        &self.summary
+    }
+
+    /// Detailed advisory description in Markdown.
+    pub fn details(&self) -> &str {
+        &self.details
+    }
+
+    /// Affected packages and their RustSec-specific metadata.
+    pub fn affected(&self) -> &[OsvAffected] {
+        &self.affected
+    }
+
+    /// CVSS severity entries with their version-specific vectors.
+    pub fn severity(&self) -> &[OsvSeverity] {
+        &self.severity
+    }
+
     /// Advisory ID
     pub fn id(&self) -> &Id {
         &self.id
@@ -225,6 +305,8 @@ impl OsvAdvisory {
 
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
+    #[cfg(feature = "osv-export")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
     pub fn from_rustsec(
         advisory: Advisory,
         mod_times: &GitModificationTimes,
@@ -337,6 +419,7 @@ impl OsvAdvisory {
     }
 }
 
+#[cfg(feature = "osv-export")]
 fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
     references.into_iter().map(|u| u.into()).collect()
 }
@@ -355,6 +438,112 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     }
 }
 
+#[cfg(feature = "osv-export")]
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
     format!("{}-{:02}-{:02}T12:00:00Z", d.year(), d.month(), d.day())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn affected_package_accessors_preserve_individual_classifications() {
+        let advisory: OsvAdvisory = serde_json::from_value(json!({
+            "id": "RUSTSEC-2026-0299",
+            "modified": "2026-09-22T07:35:37Z",
+            "published": "2026-09-22T12:00:00Z",
+            "summary": "Example summary",
+            "details": "Example **details**",
+            "affected": [
+                {
+                    "package": {"ecosystem": "crates.io", "name": "owned-alloc"},
+                    "database_specific": {"informational": "unmaintained", "categories": []}
+                },
+                {
+                    "package": {"ecosystem": "crates.io", "name": "another-crate"},
+                    "database_specific": {"categories": ["memory-corruption"]}
+                }
+            ]
+        }))
+        .unwrap();
+
+        assert_eq!(advisory.summary(), "Example summary");
+        assert_eq!(advisory.details(), "Example **details**");
+        assert_eq!(advisory.affected().len(), 2);
+        let first = &advisory.affected()[0];
+        assert_eq!(first.package_name(), "owned-alloc");
+        assert_eq!(first.ecosystem(), "crates.io");
+        assert_eq!(first.informational(), Some(&Informational::Unmaintained));
+        assert!(first.categories().is_empty());
+        let second = &advisory.affected()[1];
+        assert_eq!(second.package_name(), "another-crate");
+        assert_eq!(second.informational(), None);
+        assert_eq!(second.categories(), &[Category::MemoryCorruption]);
+    }
+}
+
+#[cfg(test)]
+mod accessor_tests {
+    use crate::osv::{OsvAdvisory, OsvAffected, OsvSeverity, OsvTimelineEvent};
+    use serde_json::json;
+
+    #[test]
+    fn range_accessors_preserve_types_and_event_order() {
+        let affected: OsvAffected = serde_json::from_value(json!({
+            "package": { "ecosystem": "crates.io", "name": "example" },
+            "database_specific": {},
+            "ranges": [
+                { "type": "SEMVER", "events": [
+                    { "introduced": "0" }, { "fixed": "0.7.46" },
+                    { "introduced": "0.8.0" }, { "last_affected": "0.8.12" }
+                ] },
+                { "type": "ECOSYSTEM", "events": [] }
+            ]
+        }))
+        .unwrap();
+        assert_eq!(affected.ranges().len(), 2);
+        let range = &affected.ranges()[0];
+        assert_eq!(range.kind(), "SEMVER");
+        assert!(matches!(range.events(), [
+            OsvTimelineEvent::Introduced(first), OsvTimelineEvent::Fixed(fixed),
+            OsvTimelineEvent::Introduced(second), OsvTimelineEvent::LastAffected(last)
+        ] if first == "0" && fixed == "0.7.46" && second == "0.8.0" && last == "0.8.12"));
+        assert_eq!(affected.ranges()[1].kind(), "ECOSYSTEM");
+        assert!(affected.ranges()[1].events().is_empty());
+    }
+
+    #[test]
+    fn missing_ranges_are_empty() {
+        let affected: OsvAffected = serde_json::from_value(json!({
+            "package": { "ecosystem": "crates.io", "name": "example" },
+            "database_specific": {}
+        }))
+        .unwrap();
+        assert!(affected.ranges().is_empty());
+    }
+
+    #[test]
+    fn severity_exposes_versioned_vectors() {
+        let v2 = "AV:N/AC:L/Au:N/C:C/I:C/A:C";
+        let v3 = "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:C/C:H/I:H/A:H";
+        let v4 = "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H";
+        let mut source = json!({
+            "id": "RUSTSEC-2026-0299", "modified": "2026-09-22T07:35:37Z",
+            "published": "2026-09-22T12:00:00Z", "summary": "Example", "details": "Example",
+            "severity": [
+                { "type": "CVSS_V2", "score": v2 },
+                { "type": "CVSS_V3", "score": v3 },
+                { "type": "CVSS_V4", "score": v4 }
+            ]
+        });
+        let advisory: OsvAdvisory = serde_json::from_value(source.clone()).unwrap();
+        assert!(matches!(advisory.severity(), [
+            OsvSeverity::CVSS_V2(two), OsvSeverity::CVSS_V3(three), OsvSeverity::CVSS_V4(four)
+        ] if two.to_string() == v2 && three.to_string() == v3 && four.to_string() == v4));
+        source.as_object_mut().unwrap().remove("severity");
+        let advisory: OsvAdvisory = serde_json::from_value(source).unwrap();
+        assert!(advisory.severity().is_empty());
+    }
 }
