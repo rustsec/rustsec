@@ -3,7 +3,7 @@
 //! <https://www.first.org/cvss/v4.0/specification-document>
 
 pub mod metric;
-pub mod score;
+mod score;
 #[cfg(feature = "std")]
 mod scoring;
 mod vector;
