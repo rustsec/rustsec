@@ -11,7 +11,7 @@
 mod advisory;
 
 #[cfg(feature = "osv-export")]
-pub use advisory::OsvAdvisory;
+pub use advisory::{OsvAdvisory, OsvAffected, OsvJsonRange, OsvSeverity, OsvTimelineEvent};
 
 // The rest are enabled unconditionally because the OSV range format
 // is used for determining whether a given version is affected or not
