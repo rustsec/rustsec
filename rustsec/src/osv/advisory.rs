@@ -3,11 +3,14 @@
 //! It implements the parts of the [OSV schema](https://ossf.github.io/osv-schema) required for
 //! RustSec.
 
+#[cfg(feature = "osv-export")]
 use super::ranges_for_advisory;
+#[cfg(feature = "osv-export")]
 use crate::advisory::Versions;
+use crate::advisory::{Affected, Category, Id, Informational, affected::FunctionPath};
+#[cfg(feature = "osv-export")]
 use crate::{
     Advisory,
-    advisory::{Affected, Category, Id, Informational, affected::FunctionPath},
     repository::git::{GitModificationTimes, GitPath},
 };
 use cvss::Cvss;
@@ -19,7 +22,6 @@ const ECOSYSTEM: &str = "crates.io";
 
 /// Security advisory in the format defined by <https://github.com/google/osv>
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct OsvAdvisory {
     #[serde(skip_serializing_if = "Option::is_none")]
     schema_version: Option<semver::Version>,
@@ -163,6 +165,7 @@ impl OsvJsonRange {
 
     /// Generates the timeline of the bug being introduced and fixed for the
     /// [`affected[].ranges[].events`](https://github.com/ossf/osv-schema/blob/main/schema.md#affectedrangesevents-fields) field.
+    #[cfg(feature = "osv-export")]
     fn new(versions: &Versions) -> Self {
         let ranges = ranges_for_advisory(versions);
         assert!(!ranges.is_empty()); // zero ranges means nothing is affected, so why even have an advisory?
@@ -302,6 +305,8 @@ impl OsvAdvisory {
 
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
+    #[cfg(feature = "osv-export")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
     pub fn from_rustsec(
         advisory: Advisory,
         mod_times: &GitModificationTimes,
@@ -414,6 +419,7 @@ impl OsvAdvisory {
     }
 }
 
+#[cfg(feature = "osv-export")]
 fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
     references.into_iter().map(|u| u.into()).collect()
 }
@@ -432,6 +438,7 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
     }
 }
 
+#[cfg(feature = "osv-export")]
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
     format!("{}-{:02}-{:02}T12:00:00Z", d.year(), d.month(), d.day())
 }

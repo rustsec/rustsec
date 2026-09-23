@@ -7,10 +7,8 @@
 //!
 //! See <https://github.com/dtolnay/semver/issues/172>
 
-#[cfg(feature = "osv-export")]
 mod advisory;
 
-#[cfg(feature = "osv-export")]
 pub use advisory::{OsvAdvisory, OsvAffected, OsvJsonRange, OsvSeverity, OsvTimelineEvent};
 
 // The rest are enabled unconditionally because the OSV range format
