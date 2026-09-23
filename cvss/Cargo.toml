@@ -5,7 +5,7 @@ version      = "3.0.0"
 license      = "Apache-2.0 OR MIT"
 repository   = "https://github.com/rustsec/rustsec"
 categories   = ["parser-implementations"]
-keywords     = ["cvssv2", "cvssv3", "cvssv4", "security", "advisory", "vulnerability"]
+keywords     = ["cvss", "security", "advisory", "vulnerability"]
 edition      = "2024"
 rust-version = "1.85"
 
