@@ -56,6 +56,131 @@ pub struct OsvAdvisory {
     database_specific: MainOsvDatabaseSpecific,
 }
 
+impl OsvAdvisory {
+    /// Advisory ID
+    pub fn id(&self) -> &Id {
+        &self.id
+    }
+
+    /// Publication date
+    pub fn published(&self) -> &str {
+        &self.published
+    }
+
+    /// Converts a single RustSec advisory to OSV format.
+    /// `path` is the path to the advisory file. It must be relative to the git repository root.
+    pub fn from_rustsec(
+        advisory: Advisory,
+        mod_times: &GitModificationTimes,
+        path: GitPath<'_>,
+    ) -> Self {
+        let metadata = advisory.metadata;
+
+        // Assemble the URLs to put into 'references' field
+        let mut reference_urls: Vec<Url> = Vec::new();
+        // link to the package on crates.io
+        let package_url = "https://crates.io/crates/".to_owned() + metadata.package.as_str();
+        reference_urls.push(Url::parse(&package_url).unwrap());
+        // link to human-readable RustSec advisory
+        let advisory_url = format!(
+            "https://rustsec.org/advisories/{}.html",
+            metadata.id.as_str()
+        );
+        reference_urls.push(Url::parse(&advisory_url).unwrap());
+        // primary URL for the issue specified in the advisory
+        if let Some(url) = metadata.url {
+            reference_urls.push(url);
+        }
+        // other references
+        reference_urls.extend(metadata.references);
+
+        Self {
+            schema_version: None,
+            id: metadata.id,
+            modified: mod_times
+                .for_path(path)
+                .format(&time::format_description::well_known::Rfc3339)
+                .expect("well-known format to heap never fails"),
+            published: rustsec_date_to_rfc3339(&metadata.date),
+            affected: vec![OsvAffected {
+                package: (&metadata.package).into(),
+                ranges: Some(vec![OsvJsonRange::new(&advisory.versions)]),
+                versions: Some(vec![]),
+                ecosystem_specific: Some(OsvEcosystemSpecific {
+                    affects: Some(advisory.affected.unwrap_or_default().into()),
+                    affected_functions: None,
+                }),
+                database_specific: OsvDatabaseSpecific {
+                    categories: metadata.categories,
+                    cvss: metadata.cvss.clone(),
+                    informational: metadata.informational,
+                },
+            }],
+            withdrawn: metadata.withdrawn.map(|d| rustsec_date_to_rfc3339(&d)),
+            aliases: metadata.aliases,
+            related: metadata.related,
+            summary: metadata.title,
+            severity: match metadata.cvss {
+                Some(cvss) => match cvss.try_into() {
+                    Ok(sev) => vec![sev],
+                    Err(_) => vec![],
+                },
+                None => vec![],
+            },
+            details: metadata.description,
+            references: osv_references(reference_urls),
+            database_specific: MainOsvDatabaseSpecific {
+                license: Some(metadata.license.spdx().to_string()),
+            },
+        }
+    }
+
+    /// Try to extract RustSec alias id from OSV advisory metadata
+    pub fn rustsec_refs_imported(&self) -> Vec<Id> {
+        let mut refs: Vec<Id> = self
+            .references
+            .iter()
+            .filter(|r| {
+                r.url
+                    .as_str()
+                    .starts_with("https://rustsec.org/advisories/")
+            })
+            .map(|r| Id::from_str(&r.url.as_str()[31..48]).expect("Invalid rustsec url"))
+            .collect();
+        refs.sort();
+        refs.dedup();
+        refs
+    }
+
+    /// Get crates in crates.io ecosystem referenced in this advisory
+    pub fn crates(&self) -> Vec<&str> {
+        let mut res = self
+            .affected
+            .iter()
+            .filter_map(|a| {
+                if a.package.ecosystem == ECOSYSTEM {
+                    Some(a.package.name.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        res.sort();
+        res.dedup();
+        res
+    }
+
+    /// Get aliases ids
+    pub fn aliases(&self) -> &[Id] {
+        self.aliases.as_slice()
+    }
+
+    /// Is this advisory withdrawn?
+    pub fn withdrawn(&self) -> bool {
+        self.withdrawn.is_some()
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct OsvPackage {
     /// Set to a constant identifying crates.io
@@ -222,131 +347,6 @@ struct OsvDatabaseSpecific {
 struct MainOsvDatabaseSpecific {
     #[serde(default)]
     license: Option<String>,
-}
-
-impl OsvAdvisory {
-    /// Advisory ID
-    pub fn id(&self) -> &Id {
-        &self.id
-    }
-
-    /// Publication date
-    pub fn published(&self) -> &str {
-        &self.published
-    }
-
-    /// Converts a single RustSec advisory to OSV format.
-    /// `path` is the path to the advisory file. It must be relative to the git repository root.
-    pub fn from_rustsec(
-        advisory: Advisory,
-        mod_times: &GitModificationTimes,
-        path: GitPath<'_>,
-    ) -> Self {
-        let metadata = advisory.metadata;
-
-        // Assemble the URLs to put into 'references' field
-        let mut reference_urls: Vec<Url> = Vec::new();
-        // link to the package on crates.io
-        let package_url = "https://crates.io/crates/".to_owned() + metadata.package.as_str();
-        reference_urls.push(Url::parse(&package_url).unwrap());
-        // link to human-readable RustSec advisory
-        let advisory_url = format!(
-            "https://rustsec.org/advisories/{}.html",
-            metadata.id.as_str()
-        );
-        reference_urls.push(Url::parse(&advisory_url).unwrap());
-        // primary URL for the issue specified in the advisory
-        if let Some(url) = metadata.url {
-            reference_urls.push(url);
-        }
-        // other references
-        reference_urls.extend(metadata.references);
-
-        Self {
-            schema_version: None,
-            id: metadata.id,
-            modified: mod_times
-                .for_path(path)
-                .format(&time::format_description::well_known::Rfc3339)
-                .expect("well-known format to heap never fails"),
-            published: rustsec_date_to_rfc3339(&metadata.date),
-            affected: vec![OsvAffected {
-                package: (&metadata.package).into(),
-                ranges: Some(vec![OsvJsonRange::new(&advisory.versions)]),
-                versions: Some(vec![]),
-                ecosystem_specific: Some(OsvEcosystemSpecific {
-                    affects: Some(advisory.affected.unwrap_or_default().into()),
-                    affected_functions: None,
-                }),
-                database_specific: OsvDatabaseSpecific {
-                    categories: metadata.categories,
-                    cvss: metadata.cvss.clone(),
-                    informational: metadata.informational,
-                },
-            }],
-            withdrawn: metadata.withdrawn.map(|d| rustsec_date_to_rfc3339(&d)),
-            aliases: metadata.aliases,
-            related: metadata.related,
-            summary: metadata.title,
-            severity: match metadata.cvss {
-                Some(cvss) => match cvss.try_into() {
-                    Ok(sev) => vec![sev],
-                    Err(_) => vec![],
-                },
-                None => vec![],
-            },
-            details: metadata.description,
-            references: osv_references(reference_urls),
-            database_specific: MainOsvDatabaseSpecific {
-                license: Some(metadata.license.spdx().to_string()),
-            },
-        }
-    }
-
-    /// Try to extract RustSec alias id from OSV advisory metadata
-    pub fn rustsec_refs_imported(&self) -> Vec<Id> {
-        let mut refs: Vec<Id> = self
-            .references
-            .iter()
-            .filter(|r| {
-                r.url
-                    .as_str()
-                    .starts_with("https://rustsec.org/advisories/")
-            })
-            .map(|r| Id::from_str(&r.url.as_str()[31..48]).expect("Invalid rustsec url"))
-            .collect();
-        refs.sort();
-        refs.dedup();
-        refs
-    }
-
-    /// Get crates in crates.io ecosystem referenced in this advisory
-    pub fn crates(&self) -> Vec<&str> {
-        let mut res = self
-            .affected
-            .iter()
-            .filter_map(|a| {
-                if a.package.ecosystem == ECOSYSTEM {
-                    Some(a.package.name.as_str())
-                } else {
-                    None
-                }
-            })
-            .collect::<Vec<_>>();
-        res.sort();
-        res.dedup();
-        res
-    }
-
-    /// Get aliases ids
-    pub fn aliases(&self) -> &[Id] {
-        self.aliases.as_slice()
-    }
-
-    /// Is this advisory withdrawn?
-    pub fn withdrawn(&self) -> bool {
-        self.withdrawn.is_some()
-    }
 }
 
 fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
