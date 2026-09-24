@@ -294,31 +294,31 @@ impl From<Url> for OsvReference {
         let kind = if (str.contains("://github.com/") || str.contains("://gitlab."))
             && str.contains("/issues/")
         {
-            OsvReferenceKind::REPORT
+            OsvReferenceKind::Report
         // the check for "/advisories/" matches both RustSec and GHSA URLs
         } else if str.contains("/advisories/") || str.contains("://www.cve.org/") {
-            OsvReferenceKind::ADVISORY
+            OsvReferenceKind::Advisory
         } else if str.contains("://crates.io/crates/") {
-            OsvReferenceKind::PACKAGE
+            OsvReferenceKind::Package
         } else {
-            OsvReferenceKind::WEB
+            OsvReferenceKind::Web
         };
 
         Self { kind, url }
     }
 }
 
-#[allow(clippy::upper_case_acronyms)]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
 enum OsvReferenceKind {
-    ADVISORY,
+    Advisory,
     #[allow(dead_code)]
-    ARTICLE,
-    REPORT,
+    Article,
+    Report,
     #[allow(dead_code)]
-    FIX,
-    PACKAGE,
-    WEB,
+    Fix,
+    Package,
+    Web,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
