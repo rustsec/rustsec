@@ -48,12 +48,16 @@ pub struct OsvAdvisory {
     pub aliases: Vec<Id>,
     #[serde(default)]
     related: Vec<Id>,
-    summary: String,
-    details: String,
+    /// Summary of the advisory
+    pub summary: String,
+    /// Detailed advisory description in Markdown
+    pub details: String,
+    /// CVSS severity entries with their version-specific vectors
     #[serde(default)]
-    severity: Vec<OsvSeverity>,
+    pub severity: Vec<OsvSeverity>,
+    /// Affected packages and their RustSec-specific metadata
     #[serde(default)]
-    affected: Vec<OsvAffected>,
+    pub affected: Vec<OsvAffected>,
     #[serde(default)]
     references: Vec<OsvReference>,
     #[serde(default)]
@@ -166,13 +170,14 @@ impl OsvAdvisory {
     }
 }
 
+/// A package in the OSV ecosystem, typically representing a crate from crates.io
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct OsvPackage {
+pub struct OsvPackage {
     /// Set to a constant identifying crates.io
-    pub(crate) ecosystem: String,
+    pub ecosystem: String,
     /// Crate name
-    pub(crate) name: String,
-    /// https://github.com/package-url/purl-spec derived from the other two
+    pub name: String,
+    /// <https://github.com/package-url/purl-spec> derived from the other two
     #[serde(default)]
     purl: Option<String>,
 }
@@ -187,12 +192,17 @@ impl From<&cargo_lock::Name> for OsvPackage {
     }
 }
 
+/// A CVSS severity vector, for any particular version
+#[non_exhaustive]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[allow(non_camel_case_types)]
 #[serde(tag = "type", content = "score")]
-enum OsvSeverity {
+pub enum OsvSeverity {
+    /// CVSS v2 severity vector
     CVSS_V2(cvss::v2::Vector),
+    /// CVSS v3 severity vector
     CVSS_V3(cvss::v3::Vector),
+    /// CVSS v4 severity vector
     CVSS_V4(cvss::v4::Vector),
 }
 
@@ -210,23 +220,29 @@ impl TryFrom<Cvss> for OsvSeverity {
     }
 }
 
+/// A package affected by an OSV advisory, including RustSec-specific metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct OsvAffected {
-    pub(crate) package: OsvPackage,
+pub struct OsvAffected {
+    /// The affected package
+    pub package: OsvPackage,
     ecosystem_specific: Option<OsvEcosystemSpecific>,
-    database_specific: OsvDatabaseSpecific,
-    ranges: Option<Vec<OsvJsonRange>>,
+    /// RustSec-specific metadata for the affected package
+    pub database_specific: OsvDatabaseSpecific,
+    /// The version ranges affected by this advisory
+    pub ranges: Option<Vec<OsvJsonRange>>,
     // FIXME deserialize with deserialize_semver_compat
     versions: Option<Vec<String>>,
 }
 
+/// A version range affected by an OSV advisory
+#[non_exhaustive]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct OsvJsonRange {
-    // 'type' is a reserved keyword in Rust
+pub struct OsvJsonRange {
+    /// Range type, such as `SEMVER`, `ECOSYSTEM`, or `GIT`
     #[serde(rename = "type")]
-    kind: String,
-    events: Vec<OsvTimelineEvent>,
-    // 'repo' field is not used because we don't track or export git commit data
+    pub kind: String,
+    /// Version events in their original order
+    pub events: Vec<OsvTimelineEvent>,
 }
 
 impl OsvJsonRange {
@@ -256,13 +272,16 @@ impl OsvJsonRange {
     }
 }
 
+/// A timeline event for an OSV version range
+#[non_exhaustive]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-enum OsvTimelineEvent {
-    #[serde(rename = "introduced")]
+#[serde(rename_all = "snake_case")]
+pub enum OsvTimelineEvent {
+    /// First affected version; `0` denotes all earlier versions
     Introduced(String),
-    #[serde(rename = "fixed")]
+    /// First version containing a fix (excluded from the affected range)
     Fixed(String),
-    #[serde(rename = "last_affected")]
+    /// Last affected version (included in the affected range)
     LastAffected(String),
 }
 
@@ -332,12 +351,14 @@ impl From<Affected> for OsvEcosystemSpecificAffected {
     }
 }
 
+/// RustSec-specific metadata for the OSV database
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct OsvDatabaseSpecific {
+pub struct OsvDatabaseSpecific {
     #[serde(default)]
     categories: Vec<Category>,
     cvss: Option<Cvss>,
-    informational: Option<Informational>,
+    /// RustSec-specific informational status
+    pub informational: Option<Informational>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
