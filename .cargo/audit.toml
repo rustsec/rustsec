@@ -4,6 +4,9 @@ ignore = [
     "RUSTSEC-2026-0173",
 ]
 
+show = ["unmaintained", "unsound"]
+fatal = ["critical"]
+
 [output]
 quiet = false
 deny = ["warnings"]
