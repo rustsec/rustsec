@@ -1,5 +1,14 @@
 //! Commits to the advisory DB git repository
 
+use std::{
+    collections::HashSet,
+    fs,
+    path::Path,
+    time::{Duration, SystemTime},
+};
+
+use gix::bstr::BString;
+
 use crate::{
     error::{Error, ErrorKind},
     repository::{
@@ -7,7 +16,6 @@ use crate::{
         signature::Signature,
     },
 };
-use std::time::{Duration, SystemTime};
 
 /// Number of days after which the repo will be considered stale
 /// (90 days)
@@ -185,6 +193,76 @@ impl Commit {
             Error::with_source(ErrorKind::Repo, "failed to write index".to_owned(), err)
         })?;
 
+        let tracked = index
+            .entries()
+            .iter()
+            .map(|entry| entry.path(&index).to_owned())
+            .collect::<HashSet<_>>();
+        remove_untracked(workdir, workdir, &tracked)?;
+
         Ok(())
+    }
+}
+
+/// Remove files under `dir` whose paths relative to `workdir` are not in `tracked`
+fn remove_untracked(dir: &Path, workdir: &Path, tracked: &HashSet<BString>) -> Result<bool, Error> {
+    let mut empty = true;
+    for entry in fs::read_dir(dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        if entry.file_type()?.is_dir() {
+            if entry.file_name() == ".git" {
+                empty = false;
+            } else if remove_untracked(&path, workdir, tracked)? {
+                fs::remove_dir(&path)?;
+            } else {
+                empty = false;
+            }
+            continue;
+        }
+
+        let Ok(rel) = path.strip_prefix(workdir) else {
+            continue;
+        };
+
+        let keep = match gix::path::try_into_bstr(rel) {
+            Ok(rel) => tracked.contains(gix::path::to_unix_separators_on_windows(rel).as_ref()),
+            // A path that cannot be represented in the index cannot be tracked
+            Err(_) => false,
+        };
+
+        match keep {
+            true => empty = false,
+            false => fs::remove_file(&path)?,
+        }
+    }
+
+    Ok(empty)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn remove_untracked_sweeps_stale_files() {
+        let dir = tempfile::tempdir().unwrap();
+        let root = dir.path();
+        fs::create_dir_all(root.join("crates/gettext-rs")).unwrap();
+        fs::create_dir_all(root.join("crates/gettext-sys")).unwrap();
+        fs::create_dir(root.join(".git")).unwrap();
+        fs::write(root.join(".git/config"), "").unwrap();
+        fs::write(root.join("crates/gettext-rs/RUSTSEC-2026-0244.md"), "").unwrap();
+        fs::write(root.join("crates/gettext-sys/RUSTSEC-2026-0244.md"), "").unwrap();
+
+        let tracked = ["crates/gettext-rs/RUSTSEC-2026-0244.md"]
+            .into_iter()
+            .map(BString::from)
+            .collect::<HashSet<_>>();
+
+        assert!(!remove_untracked(root, root, &tracked).unwrap());
+        assert!(root.join("crates/gettext-rs/RUSTSEC-2026-0244.md").exists());
+        assert!(!root.join("crates/gettext-sys").exists());
+        assert!(root.join(".git/config").exists());
     }
 }
