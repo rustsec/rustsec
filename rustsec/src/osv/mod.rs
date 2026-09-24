@@ -35,13 +35,17 @@ mod unaffected_range;
 pub struct OsvAdvisory {
     #[serde(skip_serializing_if = "Option::is_none")]
     schema_version: Option<semver::Version>,
-    id: Id,
-    modified: String,  // maybe add an rfc3339 newtype?
-    published: String, // maybe add an rfc3339 newtype?
+    /// Advisory ID
+    pub id: Id,
+    modified: String, // maybe add an rfc3339 newtype?
+    /// Publication date
+    pub published: String, // maybe add an rfc3339 newtype?
+    /// When (whether) the advisory has been withdrawn
     #[serde(skip_serializing_if = "Option::is_none")]
-    withdrawn: Option<String>, // maybe add an rfc3339 newtype?
+    pub withdrawn: Option<String>, // maybe add an rfc3339 newtype?
+    /// Alias IDs
     #[serde(default)]
-    aliases: Vec<Id>,
+    pub aliases: Vec<Id>,
     #[serde(default)]
     related: Vec<Id>,
     summary: String,
@@ -57,16 +61,6 @@ pub struct OsvAdvisory {
 }
 
 impl OsvAdvisory {
-    /// Advisory ID
-    pub fn id(&self) -> &Id {
-        &self.id
-    }
-
-    /// Publication date
-    pub fn published(&self) -> &str {
-        &self.published
-    }
-
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
     #[cfg(feature = "osv-export")]
@@ -169,16 +163,6 @@ impl OsvAdvisory {
         res.sort();
         res.dedup();
         res
-    }
-
-    /// Get aliases ids
-    pub fn aliases(&self) -> &[Id] {
-        self.aliases.as_slice()
-    }
-
-    /// Is this advisory withdrawn?
-    pub fn withdrawn(&self) -> bool {
-        self.withdrawn.is_some()
     }
 }
 
