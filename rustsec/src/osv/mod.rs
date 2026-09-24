@@ -128,7 +128,7 @@ impl OsvAdvisory {
                 None => vec![],
             },
             details: metadata.description,
-            references: osv_references(reference_urls),
+            references: reference_urls.into_iter().map(|u| u.into()).collect(),
             database_specific: MainOsvDatabaseSpecific {
                 license: Some(metadata.license.spdx().to_string()),
             },
@@ -358,10 +358,6 @@ struct OsvDatabaseSpecific {
 struct MainOsvDatabaseSpecific {
     #[serde(default)]
     license: Option<String>,
-}
-
-fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
-    references.into_iter().map(|u| u.into()).collect()
 }
 
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
