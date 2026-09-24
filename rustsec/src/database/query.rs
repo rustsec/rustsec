@@ -185,9 +185,18 @@ impl Query {
                 .cloned()
                 .unwrap_or_default();
 
-            // TODO(tarcieri): better source comparison?
-            if advisory_source.kind() != package_source.kind()
-                || advisory_source.url() != package_source.url()
+            // crates.io has two spellings, `registry+https://github.com/rust-lang/crates.io-index`
+            // and `sparse+https://index.crates.io/`. An advisory that names no source falls back
+            // to the first, so comparing kind and URL alone drops every advisory for a package
+            // whose lockfile carries the second. Database::query_vulnerabilities already treats
+            // the two as one registry when it decides which packages to audit, so do the same
+            // here rather than admitting the package and then filtering all of its advisories out.
+            let same_registry =
+                advisory_source.is_default_registry() && package_source.is_default_registry();
+
+            if !same_registry
+                && (advisory_source.kind() != package_source.kind()
+                    || advisory_source.url() != package_source.url())
             {
                 return false;
             }
