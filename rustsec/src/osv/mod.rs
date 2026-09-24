@@ -16,10 +16,8 @@ pub use advisory::OsvAdvisory;
 // The rest are enabled unconditionally because the OSV range format
 // is used for determining whether a given version is affected or not
 
-mod range;
 mod ranges_for_advisory;
 mod unaffected_range;
 
-pub use range::OsvRange;
-pub use ranges_for_advisory::ranges_for_advisory;
 pub(crate) use ranges_for_advisory::ranges_for_unvalidated_advisory;
+pub use ranges_for_advisory::{OsvRange, ranges_for_advisory};
