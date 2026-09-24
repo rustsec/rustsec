@@ -16,10 +16,11 @@ use cvss::Cvss;
 use serde::{Deserialize, Serialize};
 use url::Url;
 
-use crate::advisory::Versions;
+use crate::advisory::{Affected, Category, Id, Informational, affected::FunctionPath};
+#[cfg(feature = "osv-export")]
 use crate::{
     Advisory,
-    advisory::{Affected, Category, Id, Informational, affected::FunctionPath},
+    advisory::Versions,
     repository::git::{GitModificationTimes, GitPath},
 };
 
@@ -31,7 +32,6 @@ mod unaffected_range;
 
 /// Security advisory in the format defined by <https://github.com/google/osv>
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[cfg_attr(docsrs, doc(cfg(feature = "osv-export")))]
 pub struct OsvAdvisory {
     #[serde(skip_serializing_if = "Option::is_none")]
     schema_version: Option<semver::Version>,
@@ -69,6 +69,7 @@ impl OsvAdvisory {
 
     /// Converts a single RustSec advisory to OSV format.
     /// `path` is the path to the advisory file. It must be relative to the git repository root.
+    #[cfg(feature = "osv-export")]
     pub fn from_rustsec(
         advisory: Advisory,
         mod_times: &GitModificationTimes,
@@ -247,6 +248,7 @@ struct OsvJsonRange {
 impl OsvJsonRange {
     /// Generates the timeline of the bug being introduced and fixed for the
     /// [`affected[].ranges[].events`](https://github.com/ossf/osv-schema/blob/main/schema.md#affectedrangesevents-fields) field.
+    #[cfg(feature = "osv-export")]
     fn new(versions: &Versions) -> Self {
         let ranges = ranges_for_advisory(versions);
         assert!(!ranges.is_empty()); // zero ranges means nothing is affected, so why even have an advisory?
@@ -360,6 +362,7 @@ struct MainOsvDatabaseSpecific {
     license: Option<String>,
 }
 
+#[cfg(feature = "osv-export")]
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
     format!("{}-{:02}-{:02}T12:00:00Z", d.year(), d.month(), d.day())
 }
