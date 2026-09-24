@@ -290,10 +290,21 @@ struct OsvReference {
 
 impl From<Url> for OsvReference {
     fn from(url: Url) -> Self {
-        Self {
-            kind: guess_url_kind(&url),
-            url,
-        }
+        let str = url.as_str();
+        let kind = if (str.contains("://github.com/") || str.contains("://gitlab."))
+            && str.contains("/issues/")
+        {
+            OsvReferenceKind::REPORT
+        // the check for "/advisories/" matches both RustSec and GHSA URLs
+        } else if str.contains("/advisories/") || str.contains("://www.cve.org/") {
+            OsvReferenceKind::ADVISORY
+        } else if str.contains("://crates.io/crates/") {
+            OsvReferenceKind::PACKAGE
+        } else {
+            OsvReferenceKind::WEB
+        };
+
+        Self { kind, url }
     }
 }
 
@@ -351,20 +362,6 @@ struct MainOsvDatabaseSpecific {
 
 fn osv_references(references: Vec<Url>) -> Vec<OsvReference> {
     references.into_iter().map(|u| u.into()).collect()
-}
-
-fn guess_url_kind(url: &Url) -> OsvReferenceKind {
-    let str = url.as_str();
-    if (str.contains("://github.com/") || str.contains("://gitlab.")) && str.contains("/issues/") {
-        OsvReferenceKind::REPORT
-    // the check for "/advisories/" matches both RustSec and GHSA URLs
-    } else if str.contains("/advisories/") || str.contains("://www.cve.org/") {
-        OsvReferenceKind::ADVISORY
-    } else if str.contains("://crates.io/crates/") {
-        OsvReferenceKind::PACKAGE
-    } else {
-        OsvReferenceKind::WEB
-    }
 }
 
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
