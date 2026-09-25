@@ -221,14 +221,29 @@ impl Linter {
                         }
                     }
                     "url" => {
-                        if let Some(url) = value.as_str()
-                            && !url.starts_with("https://")
-                        {
+                        let Some(url) = value.as_str() else {
+                            continue;
+                        };
+
+                        if !url.starts_with("https://") {
                             self.errors.push(Error {
                                 kind: ErrorKind::value("url", value.to_string()),
                                 section: Some("advisory"),
                                 message: Some("URL must start with https://".into()),
                             });
+                        }
+
+                        // The GHSA URL can be derived from the alias, so it is redundant here
+                        for alias in &self.advisory.metadata.aliases {
+                            if alias.is_ghsa() && url.contains(alias.as_str()) {
+                                self.errors.push(Error {
+                                    kind: ErrorKind::value("url", value.to_string()),
+                                    section: Some("advisory"),
+                                    message: Some(
+                                        format!("URL refers to GHSA alias {alias}; refer to an issue, PR or commit instead").into(),
+                                    ),
+                                });
+                            }
                         }
                     }
                     "date" => {
