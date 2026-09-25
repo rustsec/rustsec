@@ -154,3 +154,41 @@ fn draft_id_mismatch() {
         &[]
     );
 }
+
+/// The `url` field must not point at a GHSA that is already listed in `aliases`
+#[test]
+fn url_is_ghsa_alias() {
+    let advisory = VALID_ADVISORY_MD
+        .replace(
+            "https://www.youtube.com/watch?v=jQE66WA2s-A",
+            "https://github.com/advisories/GHSA-f8vr-r385-rh5r",
+        )
+        .replace(
+            "aliases = [\"CVE-2001-2101\"]",
+            "aliases = [\"CVE-2001-2101\", \"GHSA-f8vr-r385-rh5r\"]",
+        );
+
+    let lint = Linter::lint_string(&advisory, Some(false)).unwrap();
+    assert_eq!(
+        lint.errors()
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>(),
+        vec![
+            "invalid value `\"https://github.com/advisories/GHSA-f8vr-r385-rh5r\"` for key `url` \
+             in [advisory]: URL refers to GHSA alias GHSA-f8vr-r385-rh5r; refer to an issue, PR or commit instead"
+        ]
+    );
+
+    // A GHSA URL without a matching alias is fine
+    let no_alias = VALID_ADVISORY_MD.replace(
+        "https://www.youtube.com/watch?v=jQE66WA2s-A",
+        "https://github.com/advisories/GHSA-f8vr-r385-rh5r",
+    );
+    assert_eq!(
+        Linter::lint_string(&no_alias, Some(false))
+            .unwrap()
+            .errors(),
+        &[]
+    );
+}
