@@ -6,7 +6,10 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use rustsec::{Advisory, Collection, Database};
+use rustsec::{
+    Advisory, Collection, Database, Version,
+    advisory::{Category, Versions},
+};
 use tame_index::index::RemoteSparseIndex;
 
 use crate::{
@@ -164,6 +167,22 @@ impl Linter {
                             advisory.metadata.id
                         );
                     }
+
+                    // Withdrawn advisories may no longer apply, and crates.io
+                    // removes the offending versions of malicious crates.
+                    let exempt = advisory.metadata.withdrawn.is_some()
+                        || advisory.metadata.categories.contains(&Category::Malicious);
+                    let published = crate_.versions.iter().map(|v| v.version.as_str());
+                    if !exempt && !affects_any(&advisory.versions, published) {
+                        self.invalid_advisories += 1;
+
+                        fail!(
+                            ErrorKind::CratesIo,
+                            "no crates.io version of {} is affected by {}",
+                            advisory.metadata.package.as_str(),
+                            advisory.metadata.id
+                        );
+                    }
                 }
                 Some(Ok(None)) | None => {
                     self.invalid_advisories += 1;
@@ -197,4 +216,40 @@ fn read_dir_sorted<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<fs::DirEntry>
     let mut crate_entries = read_dir.into_iter().collect::<Result<Vec<_>, _>>()?;
     crate_entries.sort_by_key(fs::DirEntry::path);
     Ok(crate_entries)
+}
+
+/// Is any of the given published versions affected?
+fn affects_any<'a>(versions: &Versions, mut published: impl Iterator<Item = &'a str>) -> bool {
+    published.any(|version| Version::parse(version).is_ok_and(|v| versions.is_vulnerable(&v)))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::affects_any;
+
+    fn check(versions: &str, published: &[&str]) -> bool {
+        affects_any(
+            &toml::from_str(versions).unwrap(),
+            published.iter().copied(),
+        )
+    }
+
+    #[test]
+    fn affected_version_published() {
+        assert!(check(r#"patched = [">= 0.2.0"]"#, &["0.1.0", "0.2.0"]));
+    }
+
+    #[test]
+    fn no_affected_version_published() {
+        let versions = r#"
+            patched = [">= 0.2.0"]
+            unaffected = ["< 0.2.0"]
+        "#;
+        assert!(!check(versions, &["0.1.0", "0.2.0"]));
+    }
+
+    #[test]
+    fn invalid_version_ignored() {
+        assert!(!check("patched = []", &["not-a-version"]));
+    }
 }
