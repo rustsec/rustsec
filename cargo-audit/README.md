@@ -32,6 +32,12 @@ $ cargo install cargo-audit
 
 Once installed, run `cargo audit` at the toplevel of any Cargo project.
 
+Only run it on projects you trust. If `Cargo.lock` is missing, `cargo audit` runs `cargo update --workspace` to generate one, and Cargo can execute code from the project it runs in, see [Do not run any Cargo commands on untrusted projects](https://shnatsel.medium.com/do-not-run-any-cargo-commands-on-untrusted-projects-4c31c89a78d6). To audit a project you do not trust, pass its lockfile with `--file` so that `cargo audit` does not generate one, and run it from a directory outside the project, since Cargo reads configuration from the current directory:
+
+```
+$ cargo audit --file path/to/Cargo.lock
+```
+
 ### Alpine Linux
 
 ```
