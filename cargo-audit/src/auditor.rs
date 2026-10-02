@@ -61,6 +61,12 @@ impl Auditor {
             .cloned()
             .unwrap_or_else(rustsec::repository::git::Repository::default_path);
 
+        let lock_timeout = config
+            .database
+            .lock_timeout
+            .map(Duration::from_secs)
+            .unwrap_or(DEFAULT_LOCK_TIMEOUT);
+
         let database = if config.database.fetch {
             if !config.output.is_quiet() {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
@@ -80,13 +86,13 @@ impl Auditor {
                 status_warn!(
                     "directory {} is locked, waiting for up to {} seconds for it to become available",
                     advisory_db_path.display(),
-                    DEFAULT_LOCK_TIMEOUT.as_secs()
+                    lock_timeout.as_secs()
                 );
                 result = rustsec::repository::git::Repository::fetch(
                     advisory_db_url,
                     &advisory_db_path,
                     !config.database.stale,
-                    DEFAULT_LOCK_TIMEOUT,
+                    lock_timeout,
                 );
             }
 
