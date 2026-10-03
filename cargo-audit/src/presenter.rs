@@ -85,12 +85,14 @@ impl Presenter {
         use rustsec::binary_scanning::BinaryReport::*;
         if !self.config.is_quiet() {
             match report {
-                Complete(lockfile) => status_ok!(
-                    "Found",
-                    "'cargo auditable' data in {} ({} dependencies)",
-                    path.display(),
-                    lockfile.packages.len()
-                ),
+                Complete(lockfile) => {
+                    status_ok!(
+                        "Found",
+                        "'cargo auditable' data in {} ({} dependencies)",
+                        path.display(),
+                        lockfile.packages.len()
+                    );
+                }
                 Incomplete(lockfile) => {
                     status_warn!(
                         "{} was not built with 'cargo auditable', the report will be incomplete ({} dependencies recovered)",
@@ -98,10 +100,12 @@ impl Presenter {
                         lockfile.packages.len()
                     );
                 }
-                None => status_err!(
-                    "No dependency information found in {}! Is it a Rust program built with cargo?",
-                    path.display(),
-                ),
+                None => {
+                    status_err!(
+                        "No dependency information found in {}! Is it a Rust program built with cargo?",
+                        path.display(),
+                    );
+                }
             }
         }
     }
@@ -224,17 +228,25 @@ impl Presenter {
         if report.vulnerabilities.found {
             if report.vulnerabilities.count == 1 {
                 match path {
-                    Some(path) => status_err!("1 vulnerability found in {}", path.display()),
-                    None => status_err!("1 vulnerability found!"),
+                    Some(path) => {
+                        status_err!("1 vulnerability found in {}", path.display());
+                    }
+                    None => {
+                        status_err!("1 vulnerability found!");
+                    }
                 }
             } else {
                 match path {
-                    Some(path) => status_err!(
-                        "{} vulnerabilities found in {}",
-                        report.vulnerabilities.count,
-                        path.display()
-                    ),
-                    None => status_err!("{} vulnerabilities found!", report.vulnerabilities.count),
+                    Some(path) => {
+                        status_err!(
+                            "{} vulnerabilities found in {}",
+                            report.vulnerabilities.count,
+                            path.display()
+                        );
+                    }
+                    None => {
+                        status_err!("{} vulnerabilities found!", report.vulnerabilities.count);
+                    }
                 }
             }
         }
@@ -244,32 +256,40 @@ impl Presenter {
         if num_denied > 0 || num_not_denied > 0 {
             if num_denied > 0 {
                 match path {
-                    Some(path) => status_err!(
-                        "{} denied {} found in {}",
-                        num_denied,
-                        self.warning_word(num_denied),
-                        path.display(),
-                    ),
-                    None => status_err!(
-                        "{} denied {} found!",
-                        num_denied,
-                        self.warning_word(num_denied)
-                    ),
+                    Some(path) => {
+                        status_err!(
+                            "{} denied {} found in {}",
+                            num_denied,
+                            self.warning_word(num_denied),
+                            path.display(),
+                        );
+                    }
+                    None => {
+                        status_err!(
+                            "{} denied {} found!",
+                            num_denied,
+                            self.warning_word(num_denied)
+                        );
+                    }
                 }
             }
             if num_not_denied > 0 {
                 match path {
-                    Some(path) => status_warn!(
-                        "{} allowed {} found in {}",
-                        num_not_denied,
-                        self.warning_word(num_not_denied),
-                        path.display(),
-                    ),
-                    None => status_warn!(
-                        "{} allowed {} found",
-                        num_not_denied,
-                        self.warning_word(num_not_denied)
-                    ),
+                    Some(path) => {
+                        status_warn!(
+                            "{} allowed {} found in {}",
+                            num_not_denied,
+                            self.warning_word(num_not_denied),
+                            path.display(),
+                        );
+                    }
+                    None => {
+                        status_warn!(
+                            "{} allowed {} found",
+                            num_not_denied,
+                            self.warning_word(num_not_denied)
+                        );
+                    }
                 }
             }
         }
