@@ -164,11 +164,13 @@ impl Commit {
 
         let mut index = gix::index::File::from_state(index, repo.index_path());
 
-        let opts = gix::worktree::state::checkout::Options {
-            destination_is_initially_empty: false,
-            overwrite_existing: true,
-            ..Default::default()
-        };
+        let mut opts =
+            gix::worktree::state::checkout::Options::new(gix::filter::plumbing::Pipeline::new(
+                gix::command::Context::default(),
+                repo.object_hash(),
+                gix::filter::plumbing::pipeline::Options::default(),
+            ));
+        opts.overwrite_existing = true;
 
         gix::worktree::state::checkout(
             &mut index,
