@@ -7,7 +7,7 @@ use std::{
     time::Duration,
 };
 
-use gix::{bstr::ByteSlice, protocol::handshake::Ref};
+use gix::{bstr::ByteSlice, error::ResultExt, protocol::handshake::Ref};
 use tame_index::utils::flock::LockOptions;
 
 use super::{Commit, DEFAULT_URL};
@@ -169,7 +169,9 @@ impl Repository {
                     .map_err(|err| {
                         Error::with_source(ErrorKind::Repo, "invalid remote name".to_owned(), err)
                     })?
-                    .configure_remote(|remote| Ok(remote.with_refspecs([REF_SPEC], DIR)?))
+                    .configure_remote(|remote| {
+                        Ok(remote.with_refspecs([REF_SPEC], DIR).or_erased()?)
+                    })
                     .fetch_then_checkout(&mut progress, should_interrupt)
                     .map_err(|err| Error::with_source(ErrorKind::Repo, err.to_string(), err))?;
 
@@ -272,7 +274,7 @@ impl Repository {
                 Error::with_source(
                     ErrorKind::Repo,
                     "failed to set `committer.name`".to_owned(),
-                    err,
+                    err.into_error(),
                 )
             })?;
         // Note we _have_ to set the email as well, but luckily gix does not actually
@@ -283,7 +285,7 @@ impl Repository {
                 Error::with_source(
                     ErrorKind::Repo,
                     "failed to set `committer.email`".to_owned(),
-                    err,
+                    err.into_error(),
                 )
             })?;
 
