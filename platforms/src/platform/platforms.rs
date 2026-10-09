@@ -35,6 +35,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_FUCHSIA,
     AARCH64_UNKNOWN_HELENOS,
     AARCH64_UNKNOWN_HERMIT,
+    AARCH64_UNKNOWN_HYPERLIGHT,
     AARCH64_UNKNOWN_ILLUMOS,
     AARCH64_UNKNOWN_L4RE_UCLIBC,
     AARCH64_UNKNOWN_LINUX_GNU,
@@ -52,6 +53,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_NUTTX,
     AARCH64_UNKNOWN_OPENBSD,
     AARCH64_UNKNOWN_QNX,
+    AARCH64_UNKNOWN_QTEE,
     AARCH64_UNKNOWN_REDOX,
     AARCH64_UNKNOWN_TEEOS,
     AARCH64_UNKNOWN_TRUSTY,
@@ -283,6 +285,7 @@ pub(crate) const ALL: &[Platform] = &[
     THUMBV8M_MAIN_NUTTX_EABI,
     THUMBV8M_MAIN_NUTTX_EABIHF,
     THUMBV8R_NONE_EABIHF,
+    WASM32_NONE_COMPONENT,
     WASM32_UNKNOWN_EMSCRIPTEN,
     WASM32_UNKNOWN_UNKNOWN,
     WASM32_WALI_LINUX_MUSL,
@@ -317,6 +320,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_HELENOS,
     X86_64_UNKNOWN_HERMIT,
     X86_64_UNKNOWN_HURD_GNU,
+    X86_64_UNKNOWN_HYPERLIGHT,
     X86_64_UNKNOWN_ILLUMOS,
     X86_64_UNKNOWN_L4RE_UCLIBC,
     X86_64_UNKNOWN_LINUX_GNU,
@@ -569,6 +573,17 @@ pub(crate) const AARCH64_UNKNOWN_HERMIT: Platform = Platform {
     tier: Tier::Three,
 };
 
+/// ARM64 Hyperlight
+pub(crate) const AARCH64_UNKNOWN_HYPERLIGHT: Platform = Platform {
+    target_triple: "aarch64-unknown-hyperlight",
+    target_arch: Arch::AArch64,
+    target_os: Os::Hyperlight,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// ARM64 illumos
 pub(crate) const AARCH64_UNKNOWN_ILLUMOS: Platform = Platform {
     target_triple: "aarch64-unknown-illumos",
@@ -750,6 +765,17 @@ pub(crate) const AARCH64_UNKNOWN_QNX: Platform = Platform {
     target_triple: "aarch64-unknown-qnx",
     target_arch: Arch::AArch64,
     target_os: Os::Qnx,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64 QTEE
+pub(crate) const AARCH64_UNKNOWN_QTEE: Platform = Platform {
+    target_triple: "aarch64-unknown-qtee",
+    target_arch: Arch::AArch64,
+    target_os: Os::Qtee,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
@@ -3283,6 +3309,17 @@ pub(crate) const THUMBV8R_NONE_EABIHF: Platform = Platform {
     tier: Tier::Two,
 };
 
+/// WebAssembly bare components
+pub(crate) const WASM32_NONE_COMPONENT: Platform = Platform {
+    target_triple: "wasm32-none-component",
+    target_arch: Arch::Wasm32,
+    target_os: Os::None,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
 /// WebAssembly via Emscripten
 pub(crate) const WASM32_UNKNOWN_EMSCRIPTEN: Platform = Platform {
     target_triple: "wasm32-unknown-emscripten",
@@ -3652,6 +3689,17 @@ pub(crate) const X86_64_UNKNOWN_HURD_GNU: Platform = Platform {
     target_arch: Arch::X86_64,
     target_os: Os::Hurd,
     target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// x86_64 (amd64) Hyperlight
+pub(crate) const X86_64_UNKNOWN_HYPERLIGHT: Platform = Platform {
+    target_triple: "x86_64-unknown-hyperlight",
+    target_arch: Arch::X86_64,
+    target_os: Os::Hyperlight,
+    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
