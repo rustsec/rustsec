@@ -9,12 +9,43 @@ use crate::{
     package::{self, Package},
 };
 
-use tame_index::external::reqwest::ClientBuilder;
+#[cfg(feature = "gix-reqwest")]
+mod reqwest_impl;
+#[cfg(feature = "gix-reqwest")]
+pub use reqwest_impl::RemoteSparseIndex;
+
+#[cfg(feature = "gix-curl")]
+mod curl_impl;
+#[cfg(feature = "gix-curl")]
+pub use curl_impl::RemoteSparseIndex;
+
+type MultiFetchResult = Vec<(package::Name, Result<Option<tame_index::IndexKrate>, Error>)>;
+
+impl RemoteSparseIndex {
+    /// Opens the crates.io index
+    pub fn with_user(user_agent: String) -> Result<Self, Error> {
+        let index = tame_index::IndexUrl::crates_io(None, None, None)
+            .and_then(|iu| tame_index::SparseIndex::new(tame_index::IndexLocation::new(iu)))
+            .map_err(Error::from_tame)?;
+
+        Self::new(index, user_agent)
+    }
+
+    #[inline]
+    fn cached_krate(
+        &self,
+        name: tame_index::KrateName<'_>,
+        lock: &FileLock,
+    ) -> Result<Option<tame_index::IndexKrate>, tame_index::Error> {
+        self.index.cached_krate(name, lock)
+    }
+}
+
 use tame_index::utils::flock::{FileLock, LockOptions};
 
 enum Index {
     SparseCached(tame_index::index::SparseIndex),
-    SparseRemote(tame_index::index::AsyncRemoteSparseIndex),
+    SparseRemote(RemoteSparseIndex),
 }
 
 impl Index {
@@ -71,7 +102,7 @@ impl CachedIndex {
     /// If `lock_timeout` is set to `Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
     pub fn fetch_as(lock_timeout: Duration, user_agent: String) -> Result<Self, Error> {
-        Self::fetch_inner(lock_timeout, user_agent).map_err(Error::from_tame)
+        Self::fetch_inner(lock_timeout, user_agent)
     }
 
     /// Open the local crates.io index
@@ -83,26 +114,19 @@ impl CachedIndex {
             lock_timeout,
             format!("rustsec/{}", env!("CARGO_PKG_VERSION")),
         )
-        .map_err(Error::from_tame)
     }
 
-    fn fetch_inner(lock_timeout: Duration, user_agent: String) -> Result<Self, tame_index::Error> {
+    fn fetch_inner(lock_timeout: Duration, user_agent: String) -> Result<Self, Error> {
         let si = tame_index::index::SparseIndex::new(tame_index::IndexLocation::new(
-            tame_index::IndexUrl::crates_io(None, None, None)?,
-        ))?;
+            tame_index::IndexUrl::crates_io(None, None, None).map_err(Error::from_tame)?,
+        ))
+        .map_err(Error::from_tame)?;
 
-        let lock = acquire_cargo_package_lock(lock_timeout)?;
-
-        // note: this would need to change if rustsec ever adds the capability
-        // to query other indices that _might_ not support HTTP/2, but
-        // hopefully that would never need to happen
-        let client = ClientBuilder::default()
-            .user_agent(user_agent)
-            .build()
-            .map_err(tame_index::Error::from)?;
+        let lock = acquire_cargo_package_lock(lock_timeout).map_err(Error::from_tame)?;
+        let index = RemoteSparseIndex::new(si, user_agent)?;
 
         Ok(Self {
-            index: Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client)),
+            index: Index::SparseRemote(index),
             cache: Default::default(),
             lock,
         })
@@ -143,54 +167,26 @@ impl CachedIndex {
     }
 
     /// Populates the cache entries for all of the specified crates.
-    fn populate_cache(&mut self, mut packages: BTreeSet<&package::Name>) -> Result<(), Error> {
+    fn populate_cache(&mut self, mut packages: BTreeSet<package::Name>) -> Result<(), Error> {
         // only look up info on packages that aren't yet cached
         packages.retain(|pkg| !self.cache.contains_key(pkg));
         match &self.index {
             Index::SparseCached(_) => {
                 for pkg in packages {
-                    self.insert(pkg.to_owned(), self.index.krate(pkg, &self.lock));
+                    let res = self.index.krate(&pkg, &self.lock);
+                    self.insert(pkg, res);
                 }
             }
             Index::SparseRemote(rsi) => {
-                // Ensure we have a runtime
-                let rt = tame_index::external::tokio::runtime::Runtime::new().map_err(|err| {
-                    Error::with_source(
-                        ErrorKind::Registry,
-                        "unable to start a tokio runtime".to_owned(),
-                        err,
-                    )
-                })?;
-                let _rt = rt.enter();
-
                 /// This is the timeout per individual crate. If a crate fails to be
                 /// requested for a retriable reason then it will be retried until
                 /// this time limit is reached
                 const REQUEST_TIMEOUT: Option<Duration> = Some(Duration::from_secs(10));
 
-                let results = rsi
-                    .krates_blocking(
-                        packages
-                            .into_iter()
-                            .map(|p| p.as_str().to_owned())
-                            .collect(),
-                        true,
-                        REQUEST_TIMEOUT,
-                        &self.lock,
-                    )
-                    .map_err(|err| {
-                        Error::with_source(
-                            ErrorKind::Registry,
-                            "unable to acquire tokio runtime".to_owned(),
-                            err,
-                        )
-                    })?;
+                let results = rsi.multi_fetch(packages, REQUEST_TIMEOUT, &self.lock)?;
 
                 for (name, res) in results {
-                    self.insert(
-                        name.parse().expect("this was a package name before"),
-                        res.map_err(Error::from_tame),
-                    );
+                    self.insert(name, res);
                 }
             }
         }
@@ -257,8 +253,8 @@ impl CachedIndex {
         let mut yanked = Vec::new();
 
         let dedup_packages: BTreeSet<&Package> = packages.into_iter().collect();
-        let package_names: BTreeSet<&package::Name> =
-            dedup_packages.iter().map(|p| &p.name).collect();
+        let package_names: BTreeSet<package::Name> =
+            dedup_packages.iter().map(|p| p.name.clone()).collect();
         if let Err(e) = self.populate_cache(package_names) {
             yanked.push(Err(Error::with_source(
                 ErrorKind::Registry,

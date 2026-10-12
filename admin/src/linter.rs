@@ -10,7 +10,6 @@ use rustsec::{
     Advisory, Collection, Database, Version,
     advisory::{Category, Versions},
 };
-use tame_index::index::RemoteSparseIndex;
 
 use crate::{
     crates_index,
@@ -29,7 +28,7 @@ pub struct Linter {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: RemoteSparseIndex,
+    crates_index: rustsec::registry::RemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: Database,
@@ -130,29 +129,35 @@ impl Linter {
     fn crates_io_lints(&mut self, advisories: &[Advisory]) -> Result<(), Error> {
         let names = BTreeSet::from_iter(advisories.iter().filter_map(|advisory| {
             match advisory.metadata.expect_deleted {
-                false => Some(advisory.metadata.package.as_str().to_owned()),
+                false => Some(advisory.metadata.package.clone()),
                 true => None,
             }
         }));
 
-        let lock = match acquire_cargo_package_lock() {
-            Ok(lock) => lock,
-            Err(error) => {
-                status_err!("Failed to acquire cargo package lock: {}", error);
-                status_err!("Skipping crates.io lints");
-                return Ok(());
-            }
-        };
-
         // Check if crates with these names exist on crates.io
 
-        let metadata = self.crates_index.krates(names, true, &lock);
+        let mut metadata = {
+            let lock = match acquire_cargo_package_lock() {
+                Ok(lock) => lock,
+                Err(error) => {
+                    status_err!("Failed to acquire cargo package lock: {}", error);
+                    status_err!("Skipping crates.io lints");
+                    return Ok(());
+                }
+            };
+            self.crates_index.multi_fetch(names, None, &lock)?
+        };
+
         for advisory in advisories {
             if advisory.metadata.expect_deleted {
                 continue;
             }
 
-            match metadata.get(advisory.metadata.package.as_str()) {
+            match metadata
+                .iter()
+                .position(|(pn, _)| pn == &advisory.metadata.package)
+                .map(|i| metadata.swap_remove(i).1)
+            {
                 Some(Ok(Some(crate_))) => {
                     // This check verifies name normalization.
                     // A request for "serde-json" might return "serde_json",

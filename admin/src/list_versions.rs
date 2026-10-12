@@ -3,14 +3,13 @@
 use std::path::PathBuf;
 
 use rustsec::{Advisory, Database};
-use tame_index::index::RemoteSparseIndex;
 
 use crate::{crates_index, error::Error, lock::acquire_cargo_package_lock, prelude::*};
 
 /// Lists all versions for a crate and prints info on which ones are affected
 pub struct AffectedVersionLister {
     /// Loaded crates.io index
-    crates_index: RemoteSparseIndex,
+    crates_index: rustsec::registry::RemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: Database,
@@ -34,20 +33,14 @@ impl AffectedVersionLister {
     }
 
     /// List affected and unaffected crate versions for a given advisory
-    pub fn process_one_advisory(&self, advisory: &Advisory) {
+    fn process_one_advisory(&self, advisory: &Advisory, crate_info: tame_index::IndexKrate) {
         status_ok!(
             "Loaded",
             "{} for '{}'",
             advisory.id(),
             advisory.metadata.package
         );
-        let crate_name = advisory.metadata.package.as_str();
-        let lock = acquire_cargo_package_lock().unwrap();
-        let crate_info = self
-            .crates_index
-            .krate(crate_name.try_into().unwrap(), true, &lock)
-            .unwrap()
-            .unwrap_or_else(|| panic!("expected crate {crate_name} to exist"));
+
         for version in crate_info.versions {
             let parsed_version = rustsec::Version::parse(&version.version).unwrap();
             if advisory.versions.is_vulnerable(&parsed_version) {
@@ -60,12 +53,43 @@ impl AffectedVersionLister {
 
     /// List affected and unaffected crate versions for all advisories
     pub fn process_all_advisories(&self) -> Result<(), Error> {
+        let crates = self
+            .advisory_db()
+            .iter()
+            .filter_map(|adv| {
+                (adv.metadata.collection.unwrap() == rustsec::Collection::Crates)
+                    .then(|| adv.metadata.package.clone())
+            })
+            .collect();
+
+        let mut metadata = {
+            let lock = acquire_cargo_package_lock().unwrap();
+            self.crates_index.multi_fetch(crates, None, &lock)?
+        };
+
         for advisory in self.advisory_db.iter() {
             // We currently only support crate versions, not advisories against Rust versions
             if advisory.metadata.collection.unwrap() != rustsec::Collection::Crates {
                 continue;
             }
-            self.process_one_advisory(advisory);
+
+            let name = &advisory.metadata.package;
+
+            let Some(pos) = metadata.iter().position(|(pn, _)| pn == name) else {
+                panic!("failed to find result for {name}");
+            };
+
+            let ik = match metadata.swap_remove(pos).1 {
+                Ok(Some(md)) => md,
+                Ok(None) => {
+                    panic!("{name} did not exist in the crates.io index");
+                }
+                Err(err) => {
+                    panic!("failed to fetch {name}: {err}");
+                }
+            };
+
+            self.process_one_advisory(advisory, ik);
         }
         Ok(())
     }

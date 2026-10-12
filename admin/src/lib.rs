@@ -16,21 +16,12 @@ pub mod osv_export;
 pub mod prelude;
 pub mod web;
 
+use rustsec::registry::RemoteSparseIndex;
 use std::{collections::BTreeMap as Map, error::Error as StdError};
 
-use tame_index::{SparseIndex, index::RemoteSparseIndex};
-
 /// Get an async crates.io index
-pub fn crates_index() -> Result<RemoteSparseIndex, tame_index::Error> {
-    Ok(RemoteSparseIndex::new(
-        SparseIndex::new(tame_index::IndexLocation::new(
-            tame_index::IndexUrl::crates_io(None, None, None)?,
-        ))?,
-        tame_index::external::reqwest::blocking::ClientBuilder::new()
-            .user_agent(format!("rustsec-admin/{}", env!("CARGO_PKG_VERSION")))
-            .build()
-            .map_err(tame_index::Error::from)?,
-    ))
+pub fn crates_index() -> Result<RemoteSparseIndex, rustsec::Error> {
+    RemoteSparseIndex::with_user(format!("rustsec-admin/{}", env!("CARGO_PKG_VERSION")))
 }
 
 /// Displays the error and also follows the chain of the `.source` fields,

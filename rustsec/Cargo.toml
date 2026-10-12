@@ -21,6 +21,7 @@ thiserror = { workspace = true }
 toml = { workspace = true }
 url = { workspace = true, features = ["serde"] }
 jiff = { workspace = true, features = ["std"] }
+spdx = "=0.3.1"
 
 # for scanning binary files
 auditable-info = { workspace = true, features = ["wasm"], optional = true }
@@ -30,10 +31,14 @@ once_cell = { workspace = true, optional = true }
 binfarce = { workspace = true, optional = true }
 
 # optional dependencies
-tame-index = { workspace = true, features = ["sparse"], optional = true }
+crossbeam-channel = { version = "0.5.17", optional = true }
+curl = { version = "0.4.50", optional = true, features = ["http2"] }
 home = { workspace = true, optional = true }
-time = { workspace = true, features = ["formatting", "serde", "parsing"], optional = true }
 gix = { workspace = true, features = ["worktree-mutation", "revision", "max-performance-safe"], optional = true }
+reqwest = { workspace = true, optional = true, features = ["http2", "rustls-no-provider"] }
+tame-index = { workspace = true, optional = true }
+time = { workspace = true, features = ["formatting", "serde", "parsing"], optional = true }
+tokio = { version = "1.0", optional = true, features = ["rt-multi-thread"] }
 
 [dev-dependencies]
 tempfile = { workspace = true }
@@ -43,14 +48,20 @@ serde_json = { workspace = true }
 [features]
 default = ["gix-reqwest"]
 git = [
-    "dep:tame-index",
+    "dep:crossbeam-channel",
     "dep:home",
-    "dep:time",
     "dep:gix",
+    "dep:tame-index",
+    "dep:time",
 ]
 # Exactly one of 'gix-reqwest' or 'gix-curl' must be enabled when using the 'git' feature.
-gix-reqwest = ["gix/blocking-http-transport-reqwest-rust-tls", "git"]
-gix-curl = ["gix/blocking-http-transport-curl", "git"]
+gix-reqwest = [
+    "git",
+    "gix/blocking-http-transport-reqwest-rust-tls",
+    "dep:reqwest",
+    "dep:tokio",
+]
+gix-curl = ["gix/blocking-http-transport-curl", "git", "dep:curl"]
 dependency-tree = ["cargo-lock/dependency-tree"]
 osv-export = ["git"]
 binary-scanning = ["dep:auditable-info", "dep:auditable-serde", "dep:binfarce", "dep:quitters", "dep:once_cell"]

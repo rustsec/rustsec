@@ -173,7 +173,6 @@ impl Error {
     /// and we need to keep it private because `tame_index` semver
     /// will be bumped frequently and we don't want to bump `rustsec` semver
     /// every time it changes.
-    #[cfg(feature = "git")]
     pub(crate) fn from_tame(err: tame_index::Error) -> Self {
         // Separate lock timeouts into their own LockTimeout variant.
         use tame_index::utils::flock::LockError;
