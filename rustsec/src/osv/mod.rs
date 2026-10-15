@@ -1,0 +1,375 @@
+//! Provides support for exporting to the interchange format defined by
+//! <https://github.com/google/osv>
+//!
+//! We also use OSV-style ranges for version matching in RustSec crate
+//! because it allows handling pre-releases correctly,
+//! which `semver` crate does not allow doing directly.
+//!
+//! See <https://github.com/dtolnay/semver/issues/172>
+
+// The rest are enabled unconditionally because the OSV range format
+// is used for determining whether a given version is affected or not
+
+use std::str::FromStr;
+
+use cvss::Cvss;
+use serde::{Deserialize, Serialize};
+use url::Url;
+
+use crate::advisory::{Affected, Category, Id, Informational, affected::FunctionPath};
+#[cfg(feature = "osv-export")]
+use crate::{
+    Advisory,
+    advisory::Versions,
+    repository::git::{GitModificationTimes, GitPath},
+};
+
+mod ranges_for_advisory;
+pub(crate) use ranges_for_advisory::ranges_for_unvalidated_advisory;
+pub use ranges_for_advisory::{OsvRange, ranges_for_advisory};
+
+mod unaffected_range;
+
+/// Security advisory in the format defined by <https://github.com/google/osv>
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OsvAdvisory {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    schema_version: Option<semver::Version>,
+    /// Advisory ID
+    pub id: Id,
+    modified: String, // maybe add an rfc3339 newtype?
+    /// Publication date
+    pub published: String, // maybe add an rfc3339 newtype?
+    /// When (whether) the advisory has been withdrawn
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub withdrawn: Option<String>, // maybe add an rfc3339 newtype?
+    /// Alias IDs
+    #[serde(default)]
+    pub aliases: Vec<Id>,
+    #[serde(default)]
+    related: Vec<Id>,
+    /// Summary of the advisory
+    pub summary: String,
+    /// Detailed advisory description in Markdown
+    pub details: String,
+    /// CVSS severity entries with their version-specific vectors
+    #[serde(default)]
+    pub severity: Vec<OsvSeverity>,
+    /// Affected packages and their RustSec-specific metadata
+    #[serde(default)]
+    pub affected: Vec<OsvAffected>,
+    #[serde(default)]
+    references: Vec<OsvReference>,
+    #[serde(default)]
+    database_specific: MainOsvDatabaseSpecific,
+}
+
+impl OsvAdvisory {
+    /// Converts a single RustSec advisory to OSV format.
+    /// `path` is the path to the advisory file. It must be relative to the git repository root.
+    #[cfg(feature = "osv-export")]
+    pub fn from_rustsec(
+        advisory: Advisory,
+        mod_times: &GitModificationTimes,
+        path: GitPath<'_>,
+    ) -> Self {
+        let metadata = advisory.metadata;
+
+        // Assemble the URLs to put into 'references' field
+        let mut reference_urls: Vec<Url> = Vec::new();
+        // link to the package on crates.io
+        let package_url = "https://crates.io/crates/".to_owned() + metadata.package.as_str();
+        reference_urls.push(Url::parse(&package_url).unwrap());
+        // link to human-readable RustSec advisory
+        let advisory_url = format!(
+            "https://rustsec.org/advisories/{}.html",
+            metadata.id.as_str()
+        );
+        reference_urls.push(Url::parse(&advisory_url).unwrap());
+        // primary URL for the issue specified in the advisory
+        if let Some(url) = metadata.url {
+            reference_urls.push(url);
+        }
+        // other references
+        reference_urls.extend(metadata.references);
+
+        Self {
+            schema_version: None,
+            id: metadata.id,
+            modified: mod_times
+                .for_path(path)
+                .format(&time::format_description::well_known::Rfc3339)
+                .expect("well-known format to heap never fails"),
+            published: rustsec_date_to_rfc3339(&metadata.date),
+            affected: vec![OsvAffected {
+                package: (&metadata.package).into(),
+                ranges: Some(vec![OsvJsonRange::new(&advisory.versions)]),
+                versions: Some(vec![]),
+                ecosystem_specific: Some(OsvEcosystemSpecific {
+                    affects: Some(advisory.affected.unwrap_or_default().into()),
+                    affected_functions: None,
+                }),
+                database_specific: OsvDatabaseSpecific {
+                    categories: metadata.categories,
+                    cvss: metadata.cvss.clone(),
+                    informational: metadata.informational,
+                },
+            }],
+            withdrawn: metadata.withdrawn.map(|d| rustsec_date_to_rfc3339(&d)),
+            aliases: metadata.aliases,
+            related: metadata.related,
+            summary: metadata.title,
+            severity: match metadata.cvss {
+                Some(cvss) => match cvss.try_into() {
+                    Ok(sev) => vec![sev],
+                    Err(_) => vec![],
+                },
+                None => vec![],
+            },
+            details: metadata.description,
+            references: reference_urls.into_iter().map(|u| u.into()).collect(),
+            database_specific: MainOsvDatabaseSpecific {
+                license: Some(metadata.license.spdx().to_string()),
+            },
+        }
+    }
+
+    /// Try to extract RustSec alias id from OSV advisory metadata
+    pub fn rustsec_refs_imported(&self) -> Vec<Id> {
+        let mut refs: Vec<Id> = self
+            .references
+            .iter()
+            .filter(|r| {
+                r.url
+                    .as_str()
+                    .starts_with("https://rustsec.org/advisories/")
+            })
+            .map(|r| Id::from_str(&r.url.as_str()[31..48]).expect("Invalid rustsec url"))
+            .collect();
+        refs.sort();
+        refs.dedup();
+        refs
+    }
+
+    /// Get crates in crates.io ecosystem referenced in this advisory
+    pub fn crates(&self) -> Vec<&str> {
+        let mut res = self
+            .affected
+            .iter()
+            .filter_map(|a| {
+                if a.package.ecosystem == ECOSYSTEM {
+                    Some(a.package.name.as_str())
+                } else {
+                    None
+                }
+            })
+            .collect::<Vec<_>>();
+        res.sort();
+        res.dedup();
+        res
+    }
+}
+
+/// A package in the OSV ecosystem, typically representing a crate from crates.io
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OsvPackage {
+    /// Set to a constant identifying crates.io
+    pub ecosystem: String,
+    /// Crate name
+    pub name: String,
+    /// <https://github.com/package-url/purl-spec> derived from the other two
+    #[serde(default)]
+    purl: Option<String>,
+}
+
+impl From<&cargo_lock::Name> for OsvPackage {
+    fn from(package: &cargo_lock::Name) -> Self {
+        Self {
+            ecosystem: ECOSYSTEM.to_string(),
+            name: package.to_string(),
+            purl: Some("pkg:cargo/".to_string() + package.as_str()),
+        }
+    }
+}
+
+/// A CVSS severity vector, for any particular version
+#[non_exhaustive]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(non_camel_case_types)]
+#[serde(tag = "type", content = "score")]
+pub enum OsvSeverity {
+    /// CVSS v2 severity vector
+    CVSS_V2(cvss::v2::Vector),
+    /// CVSS v3 severity vector
+    CVSS_V3(cvss::v3::Vector),
+    /// CVSS v4 severity vector
+    CVSS_V4(cvss::v4::Vector),
+}
+
+impl TryFrom<Cvss> for OsvSeverity {
+    type Error = &'static str;
+
+    fn try_from(cvss: Cvss) -> Result<Self, Self::Error> {
+        match cvss {
+            Cvss::CvssV20(vector) => Ok(Self::CVSS_V2(vector)),
+            Cvss::CvssV30(base) => Ok(Self::CVSS_V3(base)),
+            Cvss::CvssV31(base) => Ok(Self::CVSS_V3(base)),
+            Cvss::CvssV40(vector) => Ok(Self::CVSS_V4(vector)),
+            _ => unreachable!(),
+        }
+    }
+}
+
+/// A package affected by an OSV advisory, including RustSec-specific metadata
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OsvAffected {
+    /// The affected package
+    pub package: OsvPackage,
+    ecosystem_specific: Option<OsvEcosystemSpecific>,
+    /// RustSec-specific metadata for the affected package
+    pub database_specific: OsvDatabaseSpecific,
+    /// The version ranges affected by this advisory
+    pub ranges: Option<Vec<OsvJsonRange>>,
+    // FIXME deserialize with deserialize_semver_compat
+    versions: Option<Vec<String>>,
+}
+
+/// A version range affected by an OSV advisory
+#[non_exhaustive]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OsvJsonRange {
+    /// Range type, such as `SEMVER`, `ECOSYSTEM`, or `GIT`
+    #[serde(rename = "type")]
+    pub kind: String,
+    /// Version events in their original order
+    pub events: Vec<OsvTimelineEvent>,
+}
+
+impl OsvJsonRange {
+    /// Generates the timeline of the bug being introduced and fixed for the
+    /// [`affected[].ranges[].events`](https://github.com/ossf/osv-schema/blob/main/schema.md#affectedrangesevents-fields) field.
+    #[cfg(feature = "osv-export")]
+    fn new(versions: &Versions) -> Self {
+        let ranges = ranges_for_advisory(versions);
+        assert!(!ranges.is_empty()); // zero ranges means nothing is affected, so why even have an advisory?
+        let mut timeline = Vec::new();
+        for range in ranges {
+            match range.introduced {
+                Some(ver) => timeline.push(OsvTimelineEvent::Introduced(ver.to_string())),
+                None => timeline.push(OsvTimelineEvent::Introduced("0.0.0-0".to_owned())),
+            }
+            #[allow(clippy::single_match)]
+            match range.fixed {
+                Some(ver) => timeline.push(OsvTimelineEvent::Fixed(ver.to_string())),
+                None => (), // "everything after 'introduced' is affected" is implicit in OSV
+            }
+        }
+
+        Self {
+            kind: "SEMVER".to_string(),
+            events: timeline,
+        }
+    }
+}
+
+/// A timeline event for an OSV version range
+#[non_exhaustive]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum OsvTimelineEvent {
+    /// First affected version; `0` denotes all earlier versions
+    Introduced(String),
+    /// First version containing a fix (excluded from the affected range)
+    Fixed(String),
+    /// Last affected version (included in the affected range)
+    LastAffected(String),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct OsvReference {
+    // 'type' is a reserved keyword in Rust
+    #[serde(rename = "type")]
+    pub kind: OsvReferenceKind,
+    pub url: Url,
+}
+
+impl From<Url> for OsvReference {
+    fn from(url: Url) -> Self {
+        let str = url.as_str();
+        let kind = if (str.contains("://github.com/") || str.contains("://gitlab."))
+            && str.contains("/issues/")
+        {
+            OsvReferenceKind::Report
+        // the check for "/advisories/" matches both RustSec and GHSA URLs
+        } else if str.contains("/advisories/") || str.contains("://www.cve.org/") {
+            OsvReferenceKind::Advisory
+        } else if str.contains("://crates.io/crates/") {
+            OsvReferenceKind::Package
+        } else {
+            OsvReferenceKind::Web
+        };
+
+        Self { kind, url }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
+enum OsvReferenceKind {
+    Advisory,
+    #[allow(dead_code)]
+    Article,
+    Report,
+    #[allow(dead_code)]
+    Fix,
+    Package,
+    Web,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct OsvEcosystemSpecific {
+    affects: Option<OsvEcosystemSpecificAffected>,
+    affected_functions: Option<Vec<FunctionPath>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct OsvEcosystemSpecificAffected {
+    arch: Vec<String>,
+    os: Vec<String>,
+    /// We include function names only in order to allow changing
+    /// the way versions are specified without an API break
+    functions: Vec<FunctionPath>,
+}
+
+impl From<Affected> for OsvEcosystemSpecificAffected {
+    fn from(a: Affected) -> Self {
+        Self {
+            arch: a.arch,
+            os: a.os,
+            functions: a.functions.into_keys().collect(),
+        }
+    }
+}
+
+/// RustSec-specific metadata for the OSV database
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct OsvDatabaseSpecific {
+    #[serde(default)]
+    categories: Vec<Category>,
+    cvss: Option<Cvss>,
+    /// RustSec-specific informational status
+    pub informational: Option<Informational>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+struct MainOsvDatabaseSpecific {
+    #[serde(default)]
+    license: Option<String>,
+}
+
+#[cfg(feature = "osv-export")]
+fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
+    format!("{}-{:02}-{:02}T12:00:00Z", d.year(), d.month(), d.day())
+}
+
+const ECOSYSTEM: &str = "crates.io";
