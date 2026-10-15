@@ -53,7 +53,7 @@ impl Commit {
             Error::with_source(
                 ErrorKind::Repo,
                 "unable to decode commit information".to_owned(),
-                err,
+                err.into_error(),
             )
         })?;
 
@@ -62,7 +62,7 @@ impl Commit {
             Error::with_source(
                 ErrorKind::Repo,
                 "unable to parse commit time".to_owned(),
-                err,
+                err.into_error(),
             )
         })?;
 
@@ -72,7 +72,7 @@ impl Commit {
                 Error::with_source(
                     ErrorKind::Repo,
                     "unable to parse commit author".to_owned(),
-                    err,
+                    err.into_error(),
                 )
             })?;
             format!("{} <{}>", sig.name, sig.email)
@@ -158,7 +158,7 @@ impl Commit {
                     Error::with_source(
                         ErrorKind::Repo,
                         format!("failed to create index from tree '{}'", root_tree),
-                        err,
+                        err.into_error(),
                     )
                 })?;
 
@@ -179,10 +179,20 @@ impl Commit {
             &gix::interrupt::IS_INTERRUPTED,
             opts,
         )
-        .map_err(|err| Error::with_source(ErrorKind::Repo, "failed to checkout".to_owned(), err))?;
+        .map_err(|err| {
+            Error::with_source(
+                ErrorKind::Repo,
+                "failed to checkout".to_owned(),
+                err.into_error(),
+            )
+        })?;
 
         index.write(Default::default()).map_err(|err| {
-            Error::with_source(ErrorKind::Repo, "failed to write index".to_owned(), err)
+            Error::with_source(
+                ErrorKind::Repo,
+                "failed to write index".to_owned(),
+                err.into_error(),
+            )
         })?;
 
         Ok(())

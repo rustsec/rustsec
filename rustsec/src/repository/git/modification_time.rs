@@ -86,7 +86,7 @@ impl GitModificationTimes {
                         Error::with_source(
                             ErrorKind::Repo,
                             format!("unable to decode commit '{}'", info.id),
-                            err,
+                            err.into_error(),
                         )
                     })?
                     .into_commit()
@@ -98,7 +98,7 @@ impl GitModificationTimes {
                         Error::with_source(
                             ErrorKind::Repo,
                             format!("unable to parse commit time for '{}'", info.id),
-                            err,
+                            err.into_error(),
                         )
                     })?,
                 )
