@@ -199,6 +199,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-oe-linux-gnu]                 | aarch64     | linux      | gnu        |
 | [aarch64-unknown-helenos]              | aarch64     | helenos    |            |
 | [aarch64-unknown-hermit]               | aarch64     | hermit     |            |
+| [aarch64-unknown-hyperlight]           | aarch64     | hyperlight |            |
 | [aarch64-unknown-illumos]              | aarch64     | illumos    |            |
 | [aarch64-unknown-l4re-uclibc]          | aarch64     | l4re       | uclibc     |
 | [aarch64-unknown-linux-gnu_ilp32]      | aarch64     | linux      | gnu        |
@@ -388,6 +389,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [x86_64-unknown-helenos]               | x86_64      | helenos    |            |
 | [x86_64-unknown-hermit]                | x86_64      | hermit     |            |
 | [x86_64-unknown-hurd-gnu]              | x86_64      | hurd       | gnu        |
+| [x86_64-unknown-hyperlight]            | x86_64      | hyperlight |            |
 | [x86_64-unknown-l4re-uclibc]           | x86_64      | l4re       | uclibc     |
 | [x86_64-unknown-linux-none]            | x86_64      | linux      |            |
 | [x86_64-unknown-managarm-mlibc]        | x86_64      | managarm   | mlibc      |
@@ -427,6 +429,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-unknown-fuchsia]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_FUCHSIA.html
 [aarch64-unknown-helenos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HELENOS.html
 [aarch64-unknown-hermit]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HERMIT.html
+[aarch64-unknown-hyperlight]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HYPERLIGHT.html
 [aarch64-unknown-illumos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_ILLUMOS.html
 [aarch64-unknown-l4re-uclibc]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_L4RE_UCLIBC.html
 [aarch64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_GNU.html
@@ -709,6 +712,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [x86_64-unknown-helenos]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HELENOS.html
 [x86_64-unknown-hermit]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HERMIT.html
 [x86_64-unknown-hurd-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HURD_GNU.html
+[x86_64-unknown-hyperlight]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HYPERLIGHT.html
 [x86_64-unknown-illumos]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_ILLUMOS.html
 [x86_64-unknown-l4re-uclibc]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_L4RE_UCLIBC.html
 [x86_64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_GNU.html

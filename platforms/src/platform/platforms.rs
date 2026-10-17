@@ -35,6 +35,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_FUCHSIA,
     AARCH64_UNKNOWN_HELENOS,
     AARCH64_UNKNOWN_HERMIT,
+    AARCH64_UNKNOWN_HYPERLIGHT,
     AARCH64_UNKNOWN_ILLUMOS,
     AARCH64_UNKNOWN_L4RE_UCLIBC,
     AARCH64_UNKNOWN_LINUX_GNU,
@@ -317,6 +318,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_HELENOS,
     X86_64_UNKNOWN_HERMIT,
     X86_64_UNKNOWN_HURD_GNU,
+    X86_64_UNKNOWN_HYPERLIGHT,
     X86_64_UNKNOWN_ILLUMOS,
     X86_64_UNKNOWN_L4RE_UCLIBC,
     X86_64_UNKNOWN_LINUX_GNU,
@@ -563,6 +565,17 @@ pub(crate) const AARCH64_UNKNOWN_HERMIT: Platform = Platform {
     target_triple: "aarch64-unknown-hermit",
     target_arch: Arch::AArch64,
     target_os: Os::Hermit,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// ARM64 Hyperlight
+pub(crate) const AARCH64_UNKNOWN_HYPERLIGHT: Platform = Platform {
+    target_triple: "aarch64-unknown-hyperlight",
+    target_arch: Arch::AArch64,
+    target_os: Os::Hyperlight,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
@@ -3652,6 +3665,17 @@ pub(crate) const X86_64_UNKNOWN_HURD_GNU: Platform = Platform {
     target_arch: Arch::X86_64,
     target_os: Os::Hurd,
     target_env: Env::Gnu,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+/// x86_64 (amd64) Hyperlight
+pub(crate) const X86_64_UNKNOWN_HYPERLIGHT: Platform = Platform {
+    target_triple: "x86_64-unknown-hyperlight",
+    target_arch: Arch::X86_64,
+    target_os: Os::Hyperlight,
+    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
