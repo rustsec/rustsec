@@ -3159,7 +3159,6 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "spdx",
  "tame-index",
  "tempfile",
  "thiserror",
@@ -3411,17 +3410,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "spdx"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9d3449a25089fd6f99b089e62c385d5d4adeaf3defedc35a67d540e7df44c5fb"
-dependencies = [
- "lazy_static",
- "regex",
- "smallvec",
-]
-
-[[package]]
 name = "stable_deref_trait"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3500,14 +3488,13 @@ dependencies = [
  "http",
  "libc",
  "memchr",
+ "memmap2",
  "rustc-stable-hash",
  "semver",
  "serde",
  "serde_json",
  "smol_str",
- "thiserror",
  "toml-span",
- "twox-hash",
 ]
 
 [[package]]
@@ -3846,12 +3833,6 @@ name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
-
-[[package]]
-name = "twox-hash"
-version = "2.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5283634e518fe9e82c7b20520bb4bc209009fd16c82077c802f8111ecbb0117a"
 
 [[package]]
 name = "typed-arena"

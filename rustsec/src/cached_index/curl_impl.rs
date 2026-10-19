@@ -2,7 +2,7 @@ use crate::{error::Error, package::Name};
 use curl::{easy, multi};
 use tame_index::{
     external::http::{self, header},
-    utils::flock::FileLock,
+    flock::FileLock,
 };
 
 macro_rules! curl_err {
@@ -194,7 +194,10 @@ impl RemoteSparseIndex {
                         send!(
                             name,
                             Err(Error::from_tame(tame_index::Error::Http(
-                                tame_index::error::HttpError::Timeout,
+                                tame_index::error::HttpError::StatusCode {
+                                    code: http::StatusCode::REQUEST_TIMEOUT,
+                                    msg: "timed out waiting for HTTP response"
+                                }
                             )))
                         );
                     }
@@ -214,16 +217,10 @@ impl RemoteSparseIndex {
                         Ok(response) => {
                             // This would have failed during request creation if it was invalid
                             let pn = name.as_str().try_into().unwrap();
-                            let (parts, body) = response.into_parts();
 
-                            self.index
-                                .parse_remote_response(
-                                    pn,
-                                    http::response::Response::from_parts(parts, &body),
-                                    true,
-                                    lock,
-                                )
-                                .map_err(Error::from_tame)
+                            super::process_entry(
+                                self.index.parse_remote_response(pn, &response, true, lock),
+                            )
                         }
                         Err(err) => Err(err),
                     };
@@ -244,23 +241,10 @@ impl RemoteSparseIndex {
         timeout: Option<std::time::Duration>,
     ) -> Result<easy::Easy2<Response>, Error> {
         let name = try_tame!(name.as_str().try_into());
-        let req = try_tame!(self.index.make_remote_request(name, None, lock));
-
-        let (
-            http::request::Parts {
-                uri,
-                headers,
-                // method, as of now always GET
-                ..
-            },
-            _, // as of now, there will never be a body
-        ) = req.into_parts();
+        let request = try_tame!(self.index.make_remote_request(name, None, lock));
 
         let mut req = easy::Easy2::new(Response::new());
-        // http Uri doesn't have a as_str() since it's stored in separate parts, so we're doing a heap allocation
-        // for the String which is then being heap allocated again to a CString...and passing that by reference
-        // presumably to be heap allocated by curl :-/
-        try_curl!(req.url(&format!("{uri}")));
+        try_curl!(req.url(&request.uri));
         try_curl!(req.get(true));
         try_curl!(req.useragent(&self.user_agent));
         try_curl!(req.http_version(easy::HttpVersion::V2));
@@ -273,15 +257,13 @@ impl RemoteSparseIndex {
         let mut buf = String::with_capacity(128);
         let mut list = easy::List::new();
 
-        let mut append = |h: (Option<header::HeaderName>, header::HeaderValue),
+        let mut append = |(hn, hv): (header::HeaderName, header::HeaderValue),
                           list: &mut easy::List| {
-            if let Some(hn) = h.0 {
-                buf.clear();
-                buf.push_str(hn.as_str());
-                buf.push_str(": ");
-            }
+            buf.clear();
+            buf.push_str(hn.as_str());
+            buf.push_str(": ");
 
-            let Ok(val) = h.1.to_str() else {
+            let Ok(val) = hv.to_str() else {
                 // the curl API only allows utf-8 strings, this is fine as all headers as of now are utf-8
                 return;
             };
@@ -294,7 +276,7 @@ impl RemoteSparseIndex {
             buf.truncate(mark);
         };
 
-        for h in headers {
+        for h in request.headers {
             append(h, &mut list);
         }
 
@@ -306,7 +288,6 @@ impl RemoteSparseIndex {
 struct Response {
     etag: Option<header::HeaderValue>,
     last_modified: Option<header::HeaderValue>,
-    gzipped: bool,
     body: Vec<u8>,
 }
 
@@ -315,7 +296,6 @@ impl Response {
         Self {
             etag: None,
             last_modified: None,
-            gzipped: false,
             body: Vec::with_capacity(1024),
         }
     }
@@ -352,8 +332,10 @@ impl easy::Handler for Response {
             header::LAST_MODIFIED => {
                 self.last_modified = header::HeaderValue::from_str(value).ok();
             }
-            header::CONTENT_ENCODING => {
-                self.gzipped = value == "gzip";
+            header::CONTENT_LENGTH => {
+                if let Ok(cl) = value.parse::<usize>() {
+                    self.body.reserve(cl);
+                }
             }
             _ => {}
         }

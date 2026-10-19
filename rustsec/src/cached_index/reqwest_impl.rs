@@ -1,5 +1,5 @@
 use crate::{error::Error, package::Name};
-use tame_index::{external::http, utils::flock::FileLock};
+use tame_index::{external::http, flock::FileLock};
 
 macro_rules! req_err {
     ($err:expr) => {
@@ -122,21 +122,14 @@ impl RemoteSparseIndex {
 
                     let create_req = |kname: &str| -> Result<reqwest::Request, Error> {
                         let name = try_tame!(kname.try_into());
-                        let req = try_tame!(self.index.make_remote_request(name, None, lock));
+                        let request = try_tame!(self.index.make_remote_request(name, None, lock));
 
-                        let (
-                            http::request::Parts {
-                                method,
-                                uri,
-                                headers,
-                                ..
-                            },
-                            _,
-                        ) = req.into_parts();
+                        let mut req = self.client.request(http::Method::GET, request.uri);
+                        req = req.version(http::Version::HTTP_2);
 
-                        let mut req = self.client.request(method, uri.to_string());
-                        //req = req.version(http::Version::HTTP_2);
-                        req = req.headers(headers);
+                        for (k, v) in request.headers {
+                            req = req.header(k, v);
+                        }
 
                         Ok(try_reqwest!(req.build()))
                     };
@@ -167,7 +160,11 @@ impl RemoteSparseIndex {
                                         {
                                             Ok(res) => res,
                                             Err(_) => Err(Error::from_tame(
-                                                tame_index::error::HttpError::Timeout.into(),
+                                                tame_index::error::HttpError::StatusCode {
+                                                    code: http::StatusCode::REQUEST_TIMEOUT,
+                                                    msg: "request timed out",
+                                                }
+                                                .into(),
                                             )),
                                         }
                                     } else {
@@ -194,15 +191,9 @@ impl RemoteSparseIndex {
                             .as_str()
                             .try_into()
                             .expect("this was already validated");
-                        let (parts, body) = res.into_parts();
-                        self.index
-                            .parse_remote_response(
-                                name,
-                                http::Response::from_parts(parts, &body),
-                                true,
-                                lock,
-                            )
-                            .map_err(Error::from_tame)
+                        super::process_entry(
+                            self.index.parse_remote_response(name, &res, true, lock),
+                        )
                     });
 
                     results.push((kname, res));

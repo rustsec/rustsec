@@ -156,13 +156,13 @@ impl Linter {
             match metadata
                 .iter()
                 .position(|(pn, _)| pn == &advisory.metadata.package)
-                .map(|i| metadata.swap_remove(i).1)
+                .map(|i| metadata.swap_remove(i))
             {
-                Some(Ok(Some(crate_))) => {
+                Some((kname, Ok(Some(versions)))) => {
                     // This check verifies name normalization.
                     // A request for "serde-json" might return "serde_json",
                     // and we want to catch use a non-canonical name and report it as an error.
-                    if crate_.name() != advisory.metadata.package.as_str() {
+                    if kname.as_str() != advisory.metadata.package.as_str() {
                         self.invalid_advisories += 1;
 
                         fail!(
@@ -181,8 +181,10 @@ impl Linter {
                         continue;
                     }
 
-                    let published = crate_.versions.iter().map(|v| v.version.as_str());
-                    if !affects_any(&advisory.versions, published) {
+                    let published: Vec<_> =
+                        versions.iter().map(|v| v.version.to_string()).collect();
+
+                    if !affects_any(&advisory.versions, published.iter().map(|v| v.as_str())) {
                         self.invalid_advisories += 1;
 
                         fail!(
@@ -193,7 +195,7 @@ impl Linter {
                         );
                     }
                 }
-                Some(Ok(None)) | None => {
+                Some((_, Ok(None))) | None => {
                     self.invalid_advisories += 1;
 
                     fail!(
@@ -203,7 +205,7 @@ impl Linter {
                         advisory.metadata.id
                     );
                 }
-                Some(Err(error)) => {
+                Some((_, Err(error))) => {
                     self.invalid_advisories += 1;
 
                     fail!(
@@ -228,6 +230,7 @@ fn read_dir_sorted<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<fs::DirEntry>
 }
 
 /// Is any of the given published versions affected?
+#[inline]
 fn affects_any<'a>(versions: &Versions, mut published: impl Iterator<Item = &'a str>) -> bool {
     published.any(|version| Version::parse(version).is_ok_and(|v| versions.is_vulnerable(&v)))
 }

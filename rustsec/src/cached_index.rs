@@ -19,7 +19,32 @@ mod curl_impl;
 #[cfg(feature = "gix-curl")]
 pub use curl_impl::RemoteSparseIndex;
 
-type MultiFetchResult = Vec<(package::Name, Result<Option<tame_index::IndexKrate>, Error>)>;
+pub struct VersionStatus {
+    pub version: semver::Version,
+    pub is_yanked: bool,
+}
+
+#[inline]
+fn process_entry(
+    entry: Result<Option<tame_index::index::IndexEntry<'_, '_>>, tame_index::Error>,
+) -> IndexResult {
+    let entry = entry.map_err(Error::from_tame)?;
+    let Some(entry) = entry else {
+        return Ok(None);
+    };
+
+    let mut versions = Vec::new();
+
+    for vs in entry.iter().map_err(Error::from_tame)? {
+        let (version, is_yanked) = vs.yanked().map_err(Error::from_tame)?;
+        versions.push(VersionStatus { version, is_yanked });
+    }
+
+    Ok(Some(versions))
+}
+
+type IndexResult = Result<Option<Vec<VersionStatus>>, Error>;
+type MultiFetchResult = Vec<(package::Name, IndexResult)>;
 
 impl RemoteSparseIndex {
     /// Opens the crates.io index
@@ -32,16 +57,16 @@ impl RemoteSparseIndex {
     }
 
     #[inline]
-    fn cached_krate(
+    fn cached_krate<'l>(
         &self,
         name: tame_index::KrateName<'_>,
-        lock: &FileLock,
-    ) -> Result<Option<tame_index::IndexKrate>, tame_index::Error> {
+        lock: &'l FileLock,
+    ) -> Result<Option<tame_index::index::IndexEntry<'_, 'l>>, tame_index::Error> {
         self.index.cached_krate(name, lock)
     }
 }
 
-use tame_index::utils::flock::{FileLock, LockOptions};
+use tame_index::flock::{FileLock, LockOptions};
 
 enum Index {
     SparseCached(tame_index::index::SparseIndex),
@@ -50,19 +75,14 @@ enum Index {
 
 impl Index {
     #[inline]
-    fn krate(
-        &self,
-        name: &package::Name,
-        lock: &FileLock,
-    ) -> Result<Option<tame_index::IndexKrate>, Error> {
+    fn krate(&self, name: &package::Name, lock: &FileLock) -> IndexResult {
         let name = name.as_str().try_into().map_err(Error::from_tame)?;
         let res = match self {
             Self::SparseCached(si) => si.cached_krate(name, lock),
             Self::SparseRemote(rsi) => rsi.cached_krate(name, lock),
-        }
-        .map_err(Error::from_tame)?;
+        };
 
-        Ok(res)
+        process_entry(res)
     }
 }
 
@@ -80,7 +100,7 @@ pub struct CachedIndex {
     /// The inner hash map is logically HashMap<Version, IsYanked>
     /// but we don't parse semver because crates.io registry contains invalid semver:
     /// <https://github.com/rustsec/rustsec/issues/759>
-    cache: HashMap<package::Name, Result<Option<HashMap<String, bool>>, Error>>,
+    cache: HashMap<package::Name, IndexResult>,
     /// The lock we hold on the Cargo cache directory
     lock: FileLock,
 }
@@ -195,19 +215,10 @@ impl CachedIndex {
     }
 
     #[inline]
-    fn insert(
-        &mut self,
-        package: package::Name,
-        krate_res: Result<Option<tame_index::IndexKrate>, Error>,
-    ) {
-        let krate_res = krate_res.map(|ik| {
-            ik.map(|ik| {
-                ik.versions
-                    .into_iter()
-                    .map(|v| (v.version.to_string(), v.is_yanked()))
-                    .collect()
-            })
-        });
+    fn insert(&mut self, package: package::Name, mut krate_res: IndexResult) {
+        if let Ok(Some(versions)) = &mut krate_res {
+            versions.sort_by(|a, b| a.version.cmp(&b.version));
+        }
 
         self.cache.insert(package, krate_res);
     }
@@ -222,9 +233,9 @@ impl CachedIndex {
         }
 
         match &self.cache[&package.name] {
-            Ok(Some(ik)) => match ik.get(&package.version.to_string()) {
-                Some(is_yanked) => Ok(*is_yanked),
-                None => Err(Error::new(
+            Ok(Some(ik)) => match ik.binary_search_by(|vs| vs.version.cmp(&package.version)) {
+                Ok(i) => Ok(ik[i].is_yanked),
+                Err(_) => Err(Error::new(
                     ErrorKind::NotFound,
                     format!(
                         "No such version in crates.io index: {} {}",

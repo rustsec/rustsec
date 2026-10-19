@@ -33,7 +33,11 @@ impl AffectedVersionLister {
     }
 
     /// List affected and unaffected crate versions for a given advisory
-    fn process_one_advisory(&self, advisory: &Advisory, crate_info: tame_index::IndexKrate) {
+    fn process_one_advisory(
+        &self,
+        advisory: &Advisory,
+        versions: Vec<rustsec::registry::VersionStatus>,
+    ) {
         status_ok!(
             "Loaded",
             "{} for '{}'",
@@ -41,12 +45,11 @@ impl AffectedVersionLister {
             advisory.metadata.package
         );
 
-        for version in crate_info.versions {
-            let parsed_version = rustsec::Version::parse(&version.version).unwrap();
-            if advisory.versions.is_vulnerable(&parsed_version) {
-                println!("{} vulnerable", version.version)
+        for version in versions.into_iter().map(|vs| vs.version) {
+            if advisory.versions.is_vulnerable(&version) {
+                println!("{version} vulnerable")
             } else {
-                println!("{} OK", version.version)
+                println!("{version} OK")
             }
         }
     }
@@ -79,7 +82,7 @@ impl AffectedVersionLister {
                 panic!("failed to find result for {name}");
             };
 
-            let ik = match metadata.swap_remove(pos).1 {
+            let vs = match metadata.swap_remove(pos).1 {
                 Ok(Some(md)) => md,
                 Ok(None) => {
                     panic!("{name} did not exist in the crates.io index");
@@ -89,7 +92,7 @@ impl AffectedVersionLister {
                 }
             };
 
-            self.process_one_advisory(advisory, ik);
+            self.process_one_advisory(advisory, vs);
         }
         Ok(())
     }
