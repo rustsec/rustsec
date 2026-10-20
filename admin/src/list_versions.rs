@@ -59,10 +59,8 @@ impl AffectedVersionLister {
         let crates = self
             .advisory_db()
             .iter()
-            .filter_map(|adv| {
-                (adv.metadata.collection.unwrap() == rustsec::Collection::Crates)
-                    .then(|| adv.metadata.package.clone())
-            })
+            .filter(|adv| adv.metadata.collection.unwrap() == rustsec::Collection::Crates)
+            .map(|adv| adv.metadata.package.clone())
             .collect();
 
         let mut metadata = {
