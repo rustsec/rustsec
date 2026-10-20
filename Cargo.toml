@@ -41,7 +41,7 @@ semver = "1.0.23"
 serde = "1"
 serde_json = "1"
 syn = { version = "3", features = ["extra-traits"] }
-tame-index = { version = "0.26", path = "../tame-index", default-features = false }
+tame-index = { version = "0.27", default-features = false }
 tempfile = "3"
 termcolor = "1"
 thiserror = "2"

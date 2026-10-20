@@ -19,8 +19,11 @@ mod curl_impl;
 #[cfg(feature = "gix-curl")]
 pub use curl_impl::RemoteSparseIndex;
 
+/// The yank status of a published version
 pub struct VersionStatus {
+    /// The semver of the published crate
     pub version: semver::Version,
+    /// `yanked` status of this version
     pub is_yanked: bool,
 }
 
