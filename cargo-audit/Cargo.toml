@@ -21,7 +21,7 @@ clap = { workspace = true }
 home = { workspace = true }
 object = { workspace = true, optional = true }
 rustc-demangle = { workspace = true, optional = true }
-rustsec = { workspace = true, default-features = false, features = ["dependency-tree"] }
+rustsec = { workspace = true, features = ["dependency-tree"] }
 serde = { workspace = true, features = ["serde_derive"] }
 serde_json = { workspace = true }
 syn = { workspace = true, optional = true }
@@ -35,8 +35,7 @@ tempfile = { workspace = true }
 toml = { workspace = true }
 
 [features]
-default = ["binary-scanning", "rustsec/gix-reqwest"]
-curl = ["rustsec/gix-curl"]
+default = ["binary-scanning"]
 fix = []
 binary-scanning = [
     "rustsec/binary-scanning",
