@@ -87,6 +87,17 @@ fn auditable_binary_without_vulnerabilities_passes() {
 }
 
 #[test]
+fn zero_binary_size_limit_means_unlimited() {
+    let mut binary_path = binaries_dir();
+    binary_path.push("binary-with-audit-info");
+
+    let mut runner = cmd_runner();
+    runner.arg(binary_path).arg("--max-binary-size").arg("0");
+
+    assert_eq!(runner.status().code(), 0);
+}
+
+#[test]
 fn auditable_binary_with_vulnerabilities_fails() {
     let mut binary_path = binaries_dir();
     binary_path.push("binary-with-vuln");
