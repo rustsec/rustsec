@@ -130,6 +130,14 @@ pub struct AuditCommand {
     #[arg(long = "stale", help = "allow stale database")]
     stale: bool,
 
+    /// Seconds to wait for the advisory database directory lock before giving up
+    #[arg(
+        long = "db-lock-timeout",
+        value_name = "SECONDS",
+        help = "seconds to wait for the advisory DB directory lock (default: 300)"
+    )]
+    db_lock_timeout: Option<u64>,
+
     /// Target CPU architecture to find vulnerabilities for
     #[arg(
         long = "target-arch",
@@ -226,6 +234,10 @@ impl Override<AuditConfig> for AuditCommand {
 
         config.database.fetch &= !self.no_fetch;
         config.database.stale |= self.stale;
+
+        if let Some(lock_timeout) = self.db_lock_timeout {
+            config.database.lock_timeout = Some(lock_timeout);
+        }
 
         if !self.target_arch.is_empty() {
             config.target.arch = Some(FilterList::Many(self.target_arch.clone()));
@@ -340,5 +352,26 @@ mod tests {
         audit_command.no_fetch = true;
         let overridden_config = audit_command.override_config(config.clone()).unwrap();
         assert!(!overridden_config.database.fetch);
+    }
+
+    /// Ensure the lock timeout from the config file is preserved when the CLI
+    /// flag is absent, and is overridden by `--db-lock-timeout` when present.
+    #[test]
+    fn override_lock_timeout_option() {
+        // Unset by default
+        let mut config: AuditConfig = AuditConfig::default();
+        assert_eq!(config.database.lock_timeout, None);
+
+        let mut audit_command = AuditCommand::default();
+
+        // With no CLI flag the config file value is left untouched
+        config.database.lock_timeout = Some(30);
+        let overridden_config = audit_command.override_config(config.clone()).unwrap();
+        assert_eq!(overridden_config.database.lock_timeout, Some(30));
+
+        // The CLI flag takes precedence over the config file value
+        audit_command.db_lock_timeout = Some(10);
+        let overridden_config = audit_command.override_config(config.clone()).unwrap();
+        assert_eq!(overridden_config.database.lock_timeout, Some(10));
     }
 }
