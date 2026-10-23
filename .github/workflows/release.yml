@@ -37,7 +37,8 @@ jobs:
           - name: linux-x86-64-gnu
             os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            cross: false
+            # cross builds against an older glibc, so the binary runs on older distros
+            cross: true
 
           - name: linux-x86-64-musl
             os: ubuntu-latest
@@ -102,6 +103,8 @@ jobs:
           use-cross: ${{ matrix.cross }}
           command: build
           args: --release --locked --features "${{ join(matrix.features, ',') }}" --target ${{ matrix.target }}
+      # Asset names in this step and the two Archive steps must match
+      # [package.metadata.binstall] in cargo-audit/Cargo.toml
       - name: Package
         shell: bash
         run: |
