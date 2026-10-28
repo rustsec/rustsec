@@ -342,6 +342,7 @@ impl Auditor {
                 .append(&mut yanked);
         }
 
+        self.presenter.mark_denied_warnings(&mut report);
         self.presenter.print_report(&report, lockfile, path);
 
         Ok(report)
