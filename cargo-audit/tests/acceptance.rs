@@ -262,6 +262,32 @@ fn unmaintained_advisories_found_json() {
 }
 
 #[test]
+fn denied_warnings_json() {
+    for (deny, denied) in [
+        (None, false),
+        (Some("unmaintained"), true),
+        (Some("unsound"), false),
+    ] {
+        let mut runner = unmaintained_cmd_runner();
+        runner.arg("--json").arg("--no-yanked");
+        if let Some(deny) = deny {
+            runner.arg(format!("--deny={deny}"));
+        }
+        let mut process = runner.run();
+        let json = get_advisories_json(&mut process);
+        let warnings = json["warnings"]["unmaintained"].as_array().unwrap();
+        assert!(!warnings.is_empty());
+        for warning in warnings {
+            assert_eq!(
+                warning.get("denied").and_then(|value| value.as_bool()),
+                denied.then_some(true)
+            );
+        }
+        process.wait().unwrap().expect_code(i32::from(denied));
+    }
+}
+
+#[test]
 fn unsound_advisories_found_json() {
     let mut runner = unsound_cmd_runner();
     runner.arg("--json");
