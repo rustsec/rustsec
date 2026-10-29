@@ -8,7 +8,7 @@ repository   = "https://github.com/rustsec/rustsec"
 categories   = ["development-tools::cargo-plugins"]
 keywords     = ["cargo-subcommand", "security", "audit", "vulnerability"]
 edition      = "2024"
-rust-version = "1.88"
+rust-version = "1.89"
 exclude      = ["tests/"]
 
 [badges]
