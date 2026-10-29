@@ -11,6 +11,15 @@ edition      = "2024"
 rust-version = "1.88"
 exclude      = ["tests/"]
 
+# Prebuilt binaries for cargo-binstall; must match the asset names in .github/workflows/release.yml
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/cargo-audit/v{ version }/{ name }-{ target }-v{ version }{ archive-suffix }"
+bin-dir = "{ name }-{ target }-v{ version }/{ bin }{ binary-ext }"
+pkg-fmt = "tgz"
+
+[package.metadata.binstall.overrides.x86_64-pc-windows-msvc]
+pkg-fmt = "zip"
+
 [badges]
 maintenance = { status = "actively-developed" }
 
