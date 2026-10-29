@@ -199,6 +199,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-oe-linux-gnu]                 | aarch64     | linux      | gnu        |
 | [aarch64-unknown-helenos]              | aarch64     | helenos    |            |
 | [aarch64-unknown-hermit]               | aarch64     | hermit     |            |
+| [aarch64-unknown-hyperlight]           | aarch64     | hyperlight |            |
 | [aarch64-unknown-illumos]              | aarch64     | illumos    |            |
 | [aarch64-unknown-l4re-uclibc]          | aarch64     | l4re       | uclibc     |
 | [aarch64-unknown-linux-gnu_ilp32]      | aarch64     | linux      | gnu        |
@@ -211,6 +212,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-unknown-nuttx]                | aarch64     | nuttx      |            |
 | [aarch64-unknown-openbsd]              | aarch64     | openbsd    |            |
 | [aarch64-unknown-qnx]                  | aarch64     | qnx        |            |
+| [aarch64-unknown-qtee]                 | aarch64     | qtee       |            |
 | [aarch64-unknown-redox]                | aarch64     | redox      | relibc     |
 | [aarch64-unknown-teeos]                | aarch64     | teeos      |            |
 | [aarch64-unknown-trusty]               | aarch64     | trusty     |            |
@@ -372,6 +374,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv8m.base-nuttx-eabi]             | arm         | nuttx      |            |
 | [thumbv8m.main-nuttx-eabi]             | arm         | nuttx      |            |
 | [thumbv8m.main-nuttx-eabihf]           | arm         | nuttx      |            |
+| [wasm32-none-component]                | wasm32      | none       |            |
 | [wasm32-wali-linux-musl]               | wasm32      | linux      | musl       |
 | [wasm64-unknown-unknown]               | wasm64      | unknown    |            |
 | [x86_64-apple-tvos]                    | x86_64      | tvos       | sim        |
@@ -388,6 +391,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [x86_64-unknown-helenos]               | x86_64      | helenos    |            |
 | [x86_64-unknown-hermit]                | x86_64      | hermit     |            |
 | [x86_64-unknown-hurd-gnu]              | x86_64      | hurd       | gnu        |
+| [x86_64-unknown-hyperlight]            | x86_64      | hyperlight |            |
 | [x86_64-unknown-l4re-uclibc]           | x86_64      | l4re       | uclibc     |
 | [x86_64-unknown-linux-none]            | x86_64      | linux      |            |
 | [x86_64-unknown-managarm-mlibc]        | x86_64      | managarm   | mlibc      |
@@ -427,6 +431,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-unknown-fuchsia]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_FUCHSIA.html
 [aarch64-unknown-helenos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HELENOS.html
 [aarch64-unknown-hermit]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HERMIT.html
+[aarch64-unknown-hyperlight]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_HYPERLIGHT.html
 [aarch64-unknown-illumos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_ILLUMOS.html
 [aarch64-unknown-l4re-uclibc]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_L4RE_UCLIBC.html
 [aarch64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_LINUX_GNU.html
@@ -444,6 +449,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-unknown-nuttx]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_NUTTX.html
 [aarch64-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_OPENBSD.html
 [aarch64-unknown-qnx]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_QNX.html
+[aarch64-unknown-qtee]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_QTEE.html
 [aarch64-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_REDOX.html
 [aarch64-unknown-teeos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_TEEOS.html
 [aarch64-unknown-trusty]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_TRUSTY.html
@@ -675,6 +681,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [thumbv8m.main-nuttx-eabi]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV8M.MAIN_NUTTX_EABI.html
 [thumbv8m.main-nuttx-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV8M.MAIN_NUTTX_EABIHF.html
 [thumbv8r-none-eabihf]: https://docs.rs/platforms/latest/platforms/platform/constant.THUMBV8R_NONE_EABIHF.html
+[wasm32-none-component]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_NONE_COMPONENT.html
 [wasm32-unknown-emscripten]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_UNKNOWN_EMSCRIPTEN.html
 [wasm32-unknown-unknown]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_UNKNOWN_UNKNOWN.html
 [wasm32-wali-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WALI_LINUX_MUSL.html
@@ -709,6 +716,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [x86_64-unknown-helenos]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HELENOS.html
 [x86_64-unknown-hermit]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HERMIT.html
 [x86_64-unknown-hurd-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HURD_GNU.html
+[x86_64-unknown-hyperlight]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_HYPERLIGHT.html
 [x86_64-unknown-illumos]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_ILLUMOS.html
 [x86_64-unknown-l4re-uclibc]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_L4RE_UCLIBC.html
 [x86_64-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_LINUX_GNU.html
