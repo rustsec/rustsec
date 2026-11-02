@@ -126,6 +126,11 @@ pub struct DatabaseConfig {
 
     /// Allow a stale advisory database? (i.e. one which hasn't been updated in 90 days)
     pub stale: bool,
+
+    /// Seconds to wait for the advisory database directory lock before giving up.
+    ///
+    /// Falls back to the built-in default (5 minutes) when unset.
+    pub lock_timeout: Option<u64>,
 }
 
 impl Default for DatabaseConfig {
@@ -135,6 +140,7 @@ impl Default for DatabaseConfig {
             url: None,
             fetch: true,
             stale: false,
+            lock_timeout: None,
         }
     }
 }
