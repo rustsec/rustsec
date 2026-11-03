@@ -261,7 +261,7 @@ impl Auditor {
     #[cfg(feature = "binary-scanning")]
     /// Configure binary-scanning limits for this `Auditor`.
     ///
-    /// `max_binary_size` is in bytes. If unset, defaults to 100MB.
+    /// `max_binary_size` is in bytes. If unset, defaults to 100MB. A value of `Some(0)` disables the input size limit.
     ///
     /// `audit_data_size_limit` is the maximum size (in bytes) of embedded auditable payload data
     /// to parse. If unset, the default from `rustsec` applies (currently 8MB).
@@ -270,7 +270,11 @@ impl Auditor {
         max_binary_size: Option<u64>,
         audit_data_size_limit: Option<usize>,
     ) {
-        self.binary_size_limit = Some(max_binary_size.unwrap_or(DEFAULT_MAX_BINARY_SIZE));
+        self.binary_size_limit = match max_binary_size {
+            Some(0) => None,
+            Some(limit) => Some(limit),
+            None => Some(DEFAULT_MAX_BINARY_SIZE),
+        };
         self.audit_data_size_limit = audit_data_size_limit.or(Some(8 * 1024 * 1024));
     }
 
@@ -298,20 +302,23 @@ impl Auditor {
 
     #[cfg(feature = "binary-scanning")]
     fn read_binary_with_limit(&self, binary_path: &Path) -> rustsec::Result<Vec<u8>> {
-        let file = std::fs::File::open(binary_path)?;
-        let limit = self.binary_size_limit.unwrap_or(DEFAULT_MAX_BINARY_SIZE);
-        let mut limited = file.take(limit.saturating_add(1));
+        let mut file = std::fs::File::open(binary_path)?;
         let mut buffer = Vec::new();
-        limited.read_to_end(&mut buffer)?;
-        if buffer.len() as u64 > limit {
-            return Err(Error::new(
-                ErrorKind::BadParam,
-                format!(
-                    "binary {} exceeds max size limit of {} bytes",
-                    binary_path.display(),
-                    limit
-                ),
-            ));
+        if let Some(limit) = self.binary_size_limit {
+            let mut limited = file.take(limit.saturating_add(1));
+            limited.read_to_end(&mut buffer)?;
+            if buffer.len() as u64 > limit {
+                return Err(Error::new(
+                    ErrorKind::BadParam,
+                    format!(
+                        "binary {} exceeds max size limit of {} bytes",
+                        binary_path.display(),
+                        limit
+                    ),
+                ));
+            }
+        } else {
+            file.read_to_end(&mut buffer)?;
         }
         Ok(buffer)
     }
