@@ -47,21 +47,9 @@ pub struct Auditor {
 impl Auditor {
     /// Initialize the auditor
     pub fn new(config: &AuditConfig) -> Self {
-        let advisory_db_url = config
-            .database
-            .url
-            .as_ref()
-            .map(AsRef::as_ref)
-            .unwrap_or(rustsec::repository::git::DEFAULT_URL);
-
-        let advisory_db_path = config
-            .database
-            .path
-            .as_ref()
-            .cloned()
-            .unwrap_or_else(rustsec::repository::git::Repository::default_path);
-
+        let advisory_db_path = config.database.path();
         let database = if config.database.fetch {
+            let advisory_db_url = config.database.url();
             if !config.output.is_quiet() {
                 status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
             }
