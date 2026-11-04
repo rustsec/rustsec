@@ -4,10 +4,6 @@ use std::fmt;
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
-use abscissa_core::terminal::{
-    self,
-    Color::{self, Red, Yellow},
-};
 use rustsec::{
     Version, VersionReq, Vulnerability, Warning, WarningKind,
     advisory::License,
@@ -24,6 +20,10 @@ use crate::binary_scanning::SymbolSet;
 use crate::{
     config::{DenyOption, OutputConfig, OutputFormat},
     prelude::*,
+    terminal::{
+        self,
+        Color::{self, Red, Yellow},
+    },
 };
 
 /// Vulnerability information presenter
@@ -454,7 +454,7 @@ impl Presenter {
 
     /// Display an attribute of a particular vulnerability
     fn print_attr(&self, color: Color, attr: &str, content: impl AsRef<str>) {
-        terminal::status::Status::new()
+        terminal::Status::new()
             .bold()
             .color(color)
             .status(attr)
@@ -489,7 +489,7 @@ impl Presenter {
             return;
         }
 
-        terminal::status::Status::new()
+        terminal::Status::new()
             .bold()
             .color(color)
             .status("Dependency tree:\n")
@@ -542,12 +542,11 @@ fn join_reqs(reqs: &[impl fmt::Display]) -> String {
 
 #[cfg(test)]
 mod tests {
-    use abscissa_core::testing::{CmdRunner, process::Process};
     use once_cell::sync::Lazy;
     use std::{
         collections::{BTreeMap, BTreeSet},
-        io::Read,
         path::Path,
+        process::Command,
         str::from_utf8,
     };
     use tempfile::TempDir;
@@ -557,13 +556,11 @@ mod tests {
         let binary_path = Path::new("tests/support/binaries/binary-with-affected-functions");
 
         // Run `cargo audit bin...` on the binary and read its stdout.
-        let mut cmd = RUNNER.clone();
-        let mut process = cmd.arg(binary_path).capture_stdout().capture_stderr().run();
-        let reports = read_process_stdout(&mut process);
+        let output = runner().arg(binary_path).output().unwrap();
+        let reports = read_stdout(&output.stdout);
 
         // Ensure `cargo audit bin...` exits with 1.
-        let status = process.wait().unwrap();
-        assert_eq!(1, status.code());
+        assert_eq!(Some(1), output.status.code());
 
         // Verify that all of the expected affected functions were reported.
         for (id, function_paths) in EXPECTED_FUNCTION_PATHS {
@@ -590,11 +587,8 @@ mod tests {
         }
     }
 
-    fn read_process_stdout(process: &mut Process<'_>) -> BTreeSet<BTreeMap<String, String>> {
-        let stdout = process.stdout();
-        let mut buf = Vec::new();
-        stdout.read_to_end(&mut buf).unwrap();
-        let s = from_utf8(&buf).unwrap();
+    fn read_stdout(stdout: &[u8]) -> BTreeSet<BTreeMap<String, String>> {
+        let s = from_utf8(stdout).unwrap();
 
         let mut reports = BTreeSet::new();
         let mut report = BTreeMap::new();
@@ -642,16 +636,19 @@ mod tests {
         ("RUSTSEC-2026-0097", &["rand::rng"]),
     ];
 
-    static RUNNER: Lazy<CmdRunner> = Lazy::new(|| {
-        let mut runner = CmdRunner::default();
+    /// Executes `cargo audit bin` via `cargo run`.
+    fn runner() -> Command {
+        let mut runner = Command::new("cargo");
         runner
+            .arg("run")
+            .arg("--")
             .arg("audit")
             .arg("--color=never")
             .arg("--db")
             .arg(ADVISORY_DB_DIR.path())
             .arg("bin");
         runner
-    });
+    }
 
     static ADVISORY_DB_DIR: Lazy<TempDir> = Lazy::new(|| TempDir::new().unwrap());
 

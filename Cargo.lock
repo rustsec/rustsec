@@ -385,7 +385,6 @@ checksum = "e6e9e01327e6c86e92ec72b1c798d4a94810f147209bbe3ffab6a86954937a6f"
 name = "cargo-audit"
 version = "0.22.2"
 dependencies = [
- "abscissa_core",
  "cargo-lock",
  "clap",
  "display-error-chain",
@@ -398,8 +397,10 @@ dependencies = [
  "serde_json",
  "syn 3.0.6",
  "tempfile",
+ "termcolor",
  "thiserror",
  "toml 1.1.6+spec-1.1.0",
+ "tracing-subscriber",
 ]
 
 [[package]]

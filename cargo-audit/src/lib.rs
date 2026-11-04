@@ -30,6 +30,7 @@ mod prelude;
 pub mod presenter;
 mod sarif;
 pub use sarif::SarifLog;
+mod terminal;
 
 #[cfg(feature = "binary-scanning")]
 mod binary_scanning;
