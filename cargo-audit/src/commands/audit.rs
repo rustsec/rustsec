@@ -10,6 +10,7 @@ use std::{
 use abscissa_core::{
     FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
 };
+use clap::Subcommand;
 use clap::{Parser, ValueEnum};
 
 use crate::{
@@ -22,16 +23,16 @@ use crate::{
 
 #[cfg(feature = "fix")]
 mod fix;
+#[cfg(feature = "fix")]
+use fix::FixCommand;
 
 #[cfg(feature = "binary-scanning")]
 mod binary_scanning;
-
 #[cfg(feature = "binary-scanning")]
-use self::binary_scanning::BinCommand;
-#[cfg(feature = "fix")]
-use self::fix::FixCommand;
-#[cfg(any(feature = "fix", feature = "binary-scanning"))]
-use clap::Subcommand;
+use binary_scanning::BinCommand;
+
+mod update_db;
+use update_db::UpdateDbCommand;
 
 #[derive(Debug, Clone, Copy, Default, ValueEnum)]
 #[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
@@ -70,7 +71,6 @@ impl fmt::Display for Color {
 #[command(version)]
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
-    #[cfg(any(feature = "fix", feature = "binary-scanning"))]
     #[command(subcommand)]
     subcommand: Option<AuditSubcommand>,
 
@@ -170,13 +170,16 @@ pub struct AuditCommand {
 }
 
 /// Subcommands of `cargo audit`
-#[cfg(any(feature = "fix", feature = "binary-scanning"))]
 #[derive(Subcommand, Clone, Debug, Runnable)]
 pub(super) enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
     #[command(about = "automatically upgrade vulnerable dependencies")]
     Fix(FixCommand),
+
+    /// `cargo audit update-db` subcommand
+    #[command(about = "update the advisory database")]
+    UpdateDb(UpdateDbCommand),
 
     /// `cargo audit bin` subcommand
     #[cfg(feature = "binary-scanning")]
@@ -269,16 +272,22 @@ impl Override<AuditConfig> for AuditCommand {
 
 impl Runnable for AuditCommand {
     fn run(&self) {
-        #[cfg(feature = "fix")]
-        if let Some(AuditSubcommand::Fix(fix)) = &self.subcommand {
-            fix.run();
-            exit(0)
-        }
-
-        #[cfg(feature = "binary-scanning")]
-        if let Some(AuditSubcommand::Bin(bin)) = &self.subcommand {
-            bin.run();
-            exit(0)
+        match &self.subcommand {
+            #[cfg(feature = "binary-scanning")]
+            Some(AuditSubcommand::Bin(bin)) => {
+                bin.run();
+                exit(0);
+            }
+            #[cfg(feature = "fix")]
+            Some(AuditSubcommand::Fix(fix)) => {
+                fix.run();
+                exit(0);
+            }
+            Some(AuditSubcommand::UpdateDb(update_db)) => {
+                update_db.run();
+                exit(0);
+            }
+            None => {}
         }
 
         let maybe_path = self.file.as_deref();

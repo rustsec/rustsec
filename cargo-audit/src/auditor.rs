@@ -374,7 +374,7 @@ impl Auditor {
     }
 }
 
-fn update_db(path: &Path, config: &DatabaseConfig, quiet: bool) -> rustsec::Database {
+pub(crate) fn update_db(path: &Path, config: &DatabaseConfig, quiet: bool) -> rustsec::Database {
     let url = config.url();
     if !quiet {
         status_ok!("Fetching", "advisory database from `{}`", url);
