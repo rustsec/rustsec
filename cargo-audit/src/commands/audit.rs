@@ -275,7 +275,7 @@ impl AuditCommand {
             }
             #[cfg(feature = "fix")]
             Some(AuditSubcommand::Fix(fix)) => {
-                fix.run();
+                fix.run(config);
                 exit(0);
             }
             Some(AuditSubcommand::UpdateDb(update_db)) => {
