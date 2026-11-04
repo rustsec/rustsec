@@ -402,10 +402,8 @@ fn unaffected_newer_suggests_upgrades() {
     }
 }
 
-// Causes tests to time out when run from tests, but works when invoked normally
-// TODO: re-enable
-// #[test]
-// fn branch_regression() {
-//     // Verifies that we don't crash on this Cargo.lock
-//     new_cmd_runner("branch-regression").status().expect_code(1);
-// }
+#[test]
+fn branch_regression() {
+    // Verifies that we don't crash on this Cargo.lock
+    new_cmd_runner("branch-regression").status().expect_code(1);
+}
