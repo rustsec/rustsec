@@ -128,6 +128,22 @@ pub struct DatabaseConfig {
     pub stale: bool,
 }
 
+impl DatabaseConfig {
+    pub(crate) fn url(&self) -> &str {
+        self.url
+            .as_ref()
+            .map(AsRef::as_ref)
+            .unwrap_or(rustsec::repository::git::DEFAULT_URL)
+    }
+
+    pub(crate) fn path(&self) -> PathBuf {
+        self.path
+            .as_ref()
+            .cloned()
+            .unwrap_or_else(rustsec::repository::git::Repository::default_path)
+    }
+}
+
 impl Default for DatabaseConfig {
     fn default() -> Self {
         Self {
