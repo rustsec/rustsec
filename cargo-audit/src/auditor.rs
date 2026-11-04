@@ -1,5 +1,6 @@
 //! Core auditing functionality
 
+use crate::config::DatabaseConfig;
 use crate::{
     config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
 };
@@ -49,50 +50,11 @@ impl Auditor {
     pub fn new(config: &AuditConfig) -> Self {
         let advisory_db_path = config.database.path();
         let database = if config.database.fetch {
-            let advisory_db_url = config.database.url();
-            if !config.output.is_quiet() {
-                status_ok!("Fetching", "advisory database from `{}`", advisory_db_url);
-            }
-
-            let mut result = rustsec::repository::git::Repository::fetch(
-                advisory_db_url,
+            update_db(
                 &advisory_db_path,
-                !config.database.stale,
-                Duration::from_secs(0),
-            );
-            // If the directory is locked, print a message and wait for it to become unlocked.
-            // If we don't print the message, `cargo audit` would just hang with no explanation.
-            if let Err(e) = &result
-                && e.kind() == ErrorKind::LockTimeout
-            {
-                status_warn!(
-                    "directory {} is locked, waiting for up to {} seconds for it to become available",
-                    advisory_db_path.display(),
-                    DEFAULT_LOCK_TIMEOUT.as_secs()
-                );
-                result = rustsec::repository::git::Repository::fetch(
-                    advisory_db_url,
-                    &advisory_db_path,
-                    !config.database.stale,
-                    DEFAULT_LOCK_TIMEOUT,
-                );
-            }
-
-            let advisory_db_repo = result.unwrap_or_else(|e| {
-                status_err!(
-                    "couldn't fetch advisory database: {}",
-                    display_err_with_source(&e)
-                );
-                exit(1);
-            });
-
-            rustsec::Database::load_from_repo(&advisory_db_repo).unwrap_or_else(|e| {
-                status_err!(
-                    "error loading advisory database: {}",
-                    display_err_with_source(&e)
-                );
-                exit(1);
-            })
+                &config.database,
+                config.output.is_quiet(),
+            )
         } else {
             rustsec::Database::open(&advisory_db_path).unwrap_or_else(|e| {
                 status_err!(
@@ -410,6 +372,53 @@ impl Auditor {
                 .presenter
                 .should_exit_with_failure_due_to_self(&self.self_advisories())
     }
+}
+
+fn update_db(path: &Path, config: &DatabaseConfig, quiet: bool) -> rustsec::Database {
+    let url = config.url();
+    if !quiet {
+        status_ok!("Fetching", "advisory database from `{}`", url);
+    }
+
+    let mut result = rustsec::repository::git::Repository::fetch(
+        url,
+        path,
+        !config.stale,
+        Duration::from_secs(0),
+    );
+    // If the directory is locked, print a message and wait for it to become unlocked.
+    // If we don't print the message, `cargo audit` would just hang with no explanation.
+    if let Err(e) = &result
+        && e.kind() == ErrorKind::LockTimeout
+    {
+        status_warn!(
+            "directory {} is locked, waiting for up to {} seconds for it to become available",
+            path.display(),
+            DEFAULT_LOCK_TIMEOUT.as_secs()
+        );
+        result = rustsec::repository::git::Repository::fetch(
+            url,
+            path,
+            !config.stale,
+            DEFAULT_LOCK_TIMEOUT,
+        );
+    }
+
+    let advisory_db_repo = result.unwrap_or_else(|e| {
+        status_err!(
+            "couldn't fetch advisory database: {}",
+            display_err_with_source(&e)
+        );
+        exit(1);
+    });
+
+    rustsec::Database::load_from_repo(&advisory_db_repo).unwrap_or_else(|e| {
+        status_err!(
+            "error loading advisory database: {}",
+            display_err_with_source(&e)
+        );
+        exit(1);
+    })
 }
 
 /// Summary of the report over multiple scanned files
