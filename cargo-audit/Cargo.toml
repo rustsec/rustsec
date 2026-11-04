@@ -24,9 +24,8 @@ pkg-fmt = "zip"
 maintenance = { status = "actively-developed" }
 
 [dependencies]
-abscissa_core = { workspace = true }
 cargo-lock = { workspace = true }
-clap = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
 home = { workspace = true }
 object = { workspace = true, optional = true }
 rustc-demangle = { workspace = true, optional = true }
@@ -34,14 +33,15 @@ rustsec = { workspace = true, features = ["dependency-tree"] }
 serde = { workspace = true, features = ["serde_derive"] }
 serde_json = { workspace = true }
 syn = { workspace = true, optional = true }
+termcolor = { workspace = true }
 thiserror = { workspace = true }
+toml = { workspace = true }
+tracing-subscriber = { workspace = true, features = ["ansi", "env-filter", "fmt", "tracing-log"] }
 display-error-chain = { workspace = true }
 
 [dev-dependencies]
-abscissa_core = { workspace = true, features = ["testing"] }
 once_cell = { workspace = true }
 tempfile = { workspace = true }
-toml = { workspace = true }
 
 [features]
 default = ["binary-scanning"]

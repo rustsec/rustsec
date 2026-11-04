@@ -7,18 +7,15 @@ use std::{
     process::exit,
 };
 
-use abscissa_core::{
-    FrameworkError, FrameworkErrorKind, config::Override, error::Context, terminal::ColorChoice,
-};
-use clap::Subcommand;
-use clap::{Parser, ValueEnum};
+use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::{
     auditor::Auditor,
     config::{AuditConfig, DenyOption, FilterList, OutputFormat},
-    error::display_err_with_source,
+    error::{Error, ErrorKind, display_err_with_source},
     lockfile,
     prelude::*,
+    terminal::ColorChoice,
 };
 
 #[cfg(feature = "fix")]
@@ -67,7 +64,7 @@ impl fmt::Display for Color {
 }
 
 /// The `cargo audit` subcommand
-#[derive(Command, Clone, Default, Debug, Parser)]
+#[derive(Clone, Default, Debug, Parser)]
 #[command(version)]
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
@@ -170,7 +167,7 @@ pub struct AuditCommand {
 }
 
 /// Subcommands of `cargo audit`
-#[derive(Subcommand, Clone, Debug, Runnable)]
+#[derive(Subcommand, Clone, Debug)]
 pub(super) enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
@@ -210,10 +207,9 @@ impl AuditCommand {
             },
         }
     }
-}
 
-impl Override<AuditConfig> for AuditCommand {
-    fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, FrameworkError> {
+    /// Override loaded config with explicit command-line arguments
+    pub fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, Error> {
         let mut config = config;
         if let Some(db) = &self.db {
             config.database.path = Some(db.into());
@@ -223,7 +219,7 @@ impl Override<AuditConfig> for AuditCommand {
             config.advisories.ignore.push(
                 advisory_id
                     .parse()
-                    .map_err(|e| Context::new(FrameworkErrorKind::ParseError, Some(Box::new(e))))?,
+                    .map_err(|e| ErrorKind::Parse.context(e))?,
             );
         }
 
@@ -268,14 +264,13 @@ impl Override<AuditConfig> for AuditCommand {
 
         Ok(config)
     }
-}
 
-impl Runnable for AuditCommand {
-    fn run(&self) {
+    /// Run the `cargo audit` subcommand with the given configuration
+    pub fn run(&self, config: &AuditConfig) {
         match &self.subcommand {
             #[cfg(feature = "binary-scanning")]
             Some(AuditSubcommand::Bin(bin)) => {
-                bin.run();
+                bin.run(config);
                 exit(0);
             }
             #[cfg(feature = "fix")]
@@ -284,7 +279,7 @@ impl Runnable for AuditCommand {
                 exit(0);
             }
             Some(AuditSubcommand::UpdateDb(update_db)) => {
-                update_db.run();
+                update_db.run(config);
                 exit(0);
             }
             None => {}
@@ -297,7 +292,7 @@ impl Runnable for AuditCommand {
             status_err!("{}", display_err_with_source(&e));
             exit(2);
         });
-        let mut auditor = self.auditor();
+        let mut auditor = Auditor::new(config);
         let report = auditor.audit_lockfile(&path);
         match report {
             Ok(report) => {
@@ -311,13 +306,6 @@ impl Runnable for AuditCommand {
                 exit(2);
             }
         };
-    }
-}
-
-impl AuditCommand {
-    /// Initialize `Auditor`
-    pub(crate) fn auditor(&self) -> Auditor {
-        Auditor::new(&APP.config())
     }
 }
 

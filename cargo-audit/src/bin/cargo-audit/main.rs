@@ -2,8 +2,6 @@
 
 #![forbid(unsafe_code)]
 
-use cargo_audit::application::APP;
-
 fn main() {
-    abscissa_core::boot(&APP);
+    cargo_audit::application::boot();
 }

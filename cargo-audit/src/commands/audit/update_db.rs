@@ -1,11 +1,10 @@
 use std::path::PathBuf;
 
-use abscissa_core::{Application, Command, Runnable};
 use clap::Parser;
 
-use crate::{application::APP, auditor::update_db};
+use crate::{auditor::update_db, config::AuditConfig};
 
-#[derive(Command, Clone, Default, Debug, Parser)]
+#[derive(Clone, Default, Debug, Parser)]
 #[command(author, version, about)]
 pub(crate) struct UpdateDbCommand {
     /// Filesystem path to the advisory database git repository
@@ -20,9 +19,9 @@ pub(crate) struct UpdateDbCommand {
     url: Option<String>,
 }
 
-impl Runnable for UpdateDbCommand {
-    fn run(&self) {
-        let mut config = (*APP.config()).clone();
+impl UpdateDbCommand {
+    pub(crate) fn run(&self, config: &AuditConfig) {
+        let mut config = config.clone();
         if let Some(db) = &self.db {
             config.database.path = Some(db.clone());
         }
