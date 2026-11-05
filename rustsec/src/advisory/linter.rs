@@ -246,6 +246,31 @@ impl Linter {
                             }
                         }
                     }
+                    "references" => {
+                        let Some(references) = value.as_array() else {
+                            continue;
+                        };
+
+                        // GHSA URLs can be derived from the alias, so they are redundant here
+                        for reference in references {
+                            let Some(url) = reference.as_str() else {
+                                continue;
+                            };
+
+                            for alias in &self.advisory.metadata.aliases {
+                                if alias.is_ghsa() && url.contains(alias.as_str()) {
+                                    self.errors.push(Error {
+                                        kind: ErrorKind::value("references", reference.to_string()),
+                                        section: Some("advisory"),
+                                        message: Some(
+                                            format!("reference to GHSA alias {alias} is redundant")
+                                                .into(),
+                                        ),
+                                    });
+                                }
+                            }
+                        }
+                    }
                     "date" => {
                         let y1 = self.advisory.metadata.date.year();
 
@@ -287,8 +312,8 @@ impl Linter {
                             }
                         }
                     }
-                    "aliases" | "cvss" | "keywords" | "package" | "references" | "related"
-                    | "title" | "withdrawn" | "description" | "expect-deleted" => (),
+                    "aliases" | "cvss" | "keywords" | "package" | "related" | "title"
+                    | "withdrawn" | "description" | "expect-deleted" => (),
                     _ => self.errors.push(Error {
                         kind: ErrorKind::key(key),
                         section: Some("advisory"),

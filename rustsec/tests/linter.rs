@@ -192,3 +192,39 @@ fn url_is_ghsa_alias() {
         &[]
     );
 }
+
+/// The `references` field must not contain a GHSA that is already listed in `aliases`
+#[test]
+fn references_include_ghsa_alias() {
+    let advisory = VALID_ADVISORY_MD
+        .replace(
+            "aliases = [\"CVE-2001-2101\"]",
+            "aliases = [\"CVE-2001-2101\", \"GHSA-f8vr-r385-rh5r\"]\n\
+             references = [\"https://example.com/\", \"https://github.com/advisories/GHSA-f8vr-r385-rh5r\"]",
+        );
+
+    let lint = Linter::lint_string(&advisory, Some(false)).unwrap();
+    assert_eq!(
+        lint.errors()
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<_>>(),
+        vec![
+            "invalid value `\"https://github.com/advisories/GHSA-f8vr-r385-rh5r\"` for key `references` \
+             in [advisory]: reference to GHSA alias GHSA-f8vr-r385-rh5r is redundant"
+        ]
+    );
+
+    // A GHSA reference without a matching alias is fine
+    let no_alias = VALID_ADVISORY_MD.replace(
+        "aliases = [\"CVE-2001-2101\"]",
+        "aliases = [\"CVE-2001-2101\"]\n\
+         references = [\"https://github.com/advisories/GHSA-f8vr-r385-rh5r\"]",
+    );
+    assert_eq!(
+        Linter::lint_string(&no_alias, Some(false))
+            .unwrap()
+            .errors(),
+        &[]
+    );
+}
