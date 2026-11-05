@@ -59,6 +59,9 @@ pub enum Os {
     /// `hurd`
     Hurd,
 
+    /// `hyperlight`
+    Hyperlight,
+
     /// `illumos`: illumos is a partly free and open-source Unix operating system based on OpenSolaris
     IllumOS,
 
@@ -110,6 +113,9 @@ pub enum Os {
 
     /// `qnx`
     Qnx,
+
+    /// `qtee`
+    Qtee,
 
     /// `qurt`
     Qurt,
@@ -188,6 +194,7 @@ impl Os {
             Self::Hermit => "hermit",
             Self::Horizon => "horizon",
             Self::Hurd => "hurd",
+            Self::Hyperlight => "hyperlight",
             Self::IllumOS => "illumos",
             Self::iOS => "ios",
             Self::L4re => "l4re",
@@ -205,6 +212,7 @@ impl Os {
             Self::Psp => "psp",
             Self::Psx => "psx",
             Self::Qnx => "qnx",
+            Self::Qtee => "qtee",
             Self::Qurt => "qurt",
             Self::Redox => "redox",
             Self::Rtems => "rtems",
@@ -249,6 +257,7 @@ impl FromStr for Os {
             "hermit" => Self::Hermit,
             "horizon" => Self::Horizon,
             "hurd" => Self::Hurd,
+            "hyperlight" => Self::Hyperlight,
             "illumos" => Self::IllumOS,
             "ios" => Self::iOS,
             "l4re" => Self::L4re,
@@ -266,6 +275,7 @@ impl FromStr for Os {
             "psp" => Self::Psp,
             "psx" => Self::Psx,
             "qnx" => Self::Qnx,
+            "qtee" => Self::Qtee,
             "qurt" => Self::Qurt,
             "redox" => Self::Redox,
             "rtems" => Self::Rtems,
