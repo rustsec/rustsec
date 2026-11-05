@@ -121,6 +121,34 @@ $ cargo audit --ignore RUSTSEC-2017-0001
 
 This option can also be configured via the [`audit.toml`](./audit.toml.example) file.
 
+## Filtering by target platform
+
+Use `--target-arch` and `--target-os` to filter advisories by CPU architecture
+and operating system. These use Rust's `target_arch` and `target_os` values,
+not full target triples. For the available names, see the `platforms` crate's
+[`Arch` documentation](https://docs.rs/platforms/latest/platforms/enum.Arch.html)
+and [`Os` documentation](https://docs.rs/platforms/latest/platforms/enum.Os.html).
+Use the strings shown in the variant descriptions (for example, `aarch64` and
+`macos`), rather than the Rust enum variant names (`AArch64` and `MacOS`).
+The registry evolves as Rust adds or removes targets.
+
+Each flag can be repeated to include multiple values:
+
+```sh
+cargo audit --target-arch x86_64 --target-os linux --target-os windows
+```
+
+The equivalent settings in [`audit.toml`](./audit.toml.example) are:
+
+```toml
+[target]
+arch = ["x86_64"]
+os = ["linux", "windows"]
+```
+
+Advisories that do not restrict the selected architecture or operating system
+are still included. By default, neither filter is applied.
+
 ## Using `cargo audit` on Travis CI
 
 To automatically run `cargo audit` on every build in Travis CI, you can add the following to your `.travis.yml`:
