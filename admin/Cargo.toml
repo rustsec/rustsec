@@ -7,9 +7,6 @@ homepage    = "https://rustsec.org"
 repository  = "https://github.com/rustsec/rustsec"
 edition     = "2024"
 
-[features]
-default = ["gix?/max-performance-safe"]
-
 [dependencies]
 abscissa_core = { workspace = true }
 askama = { workspace = true }
