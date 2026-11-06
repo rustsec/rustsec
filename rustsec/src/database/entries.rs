@@ -51,6 +51,20 @@ impl Entries {
 
         // Ensure advisory has the correct filename
         if path.file_name().unwrap() != expected_filename && !Advisory::is_draft(path) {
+            if advisory.metadata.id.is_placeholder() {
+                fail!(
+                    ErrorKind::Repo,
+                    "expected {} to be named {:?} or RUSTSEC-0000-0000.<name>.md; \
+                     for multiple new advisories in the same crate directory, use unique names \
+                     such as RUSTSEC-0000-0000.decompression.md and RUSTSEC-0000-0000.brotli.md \
+                     (use a dot, not a hyphen, before the name). \
+                     Keep the advisory id = \"RUSTSEC-0000-0000\" in each file. \
+                     Submit the advisories in one PR with one commit per advisory",
+                    path.display(),
+                    expected_filename
+                );
+            }
+
             fail!(
                 ErrorKind::Repo,
                 "expected {} to be named {:?}",
