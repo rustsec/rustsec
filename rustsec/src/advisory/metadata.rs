@@ -16,8 +16,13 @@ pub struct Metadata {
     /// Security advisory ID (e.g. RUSTSEC-YYYY-NNNN)
     pub id: Id,
 
-    /// Name of affected crate
+    /// Name of affected crates.io package
     pub package: package::Name,
+
+    /// Name of affected crate within the package.
+    /// Defaults to normalized package name.
+    #[serde(default)]
+    pub crate_name: String,
 
     /// One-liner description of a vulnerability
     #[serde(default)]
