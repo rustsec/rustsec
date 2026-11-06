@@ -9,29 +9,83 @@ use crate::{
     package::{self, Package},
 };
 
-use tame_index::external::reqwest::ClientBuilder;
-use tame_index::utils::flock::{FileLock, LockOptions};
+#[cfg(feature = "gix-reqwest")]
+mod reqwest_impl;
+#[cfg(feature = "gix-reqwest")]
+pub use reqwest_impl::RemoteSparseIndex;
+
+#[cfg(feature = "gix-curl")]
+mod curl_impl;
+#[cfg(feature = "gix-curl")]
+pub use curl_impl::RemoteSparseIndex;
+
+/// The yank status of a published version
+pub struct VersionStatus {
+    /// The semver of the published crate
+    pub version: semver::Version,
+    /// `yanked` status of this version
+    pub is_yanked: bool,
+}
+
+#[inline]
+fn process_entry(
+    entry: Result<Option<tame_index::index::IndexEntry<'_, '_>>, tame_index::Error>,
+) -> IndexResult {
+    let entry = entry.map_err(Error::from_tame)?;
+    let Some(entry) = entry else {
+        return Ok(None);
+    };
+
+    let mut versions = Vec::new();
+
+    for vs in entry.iter().map_err(Error::from_tame)? {
+        let (version, is_yanked) = vs.yanked().map_err(Error::from_tame)?;
+        versions.push(VersionStatus { version, is_yanked });
+    }
+
+    Ok(Some(versions))
+}
+
+type IndexResult = Result<Option<Vec<VersionStatus>>, Error>;
+type MultiFetchResult = Vec<(package::Name, IndexResult)>;
+
+impl RemoteSparseIndex {
+    /// Opens the crates.io index
+    pub fn with_user(user_agent: String) -> Result<Self, Error> {
+        let index = tame_index::IndexUrl::crates_io(None, None, None)
+            .and_then(|iu| tame_index::SparseIndex::new(tame_index::IndexLocation::new(iu)))
+            .map_err(Error::from_tame)?;
+
+        Self::new(index, user_agent)
+    }
+
+    #[inline]
+    fn cached_krate<'l>(
+        &self,
+        name: tame_index::KrateName<'_>,
+        lock: &'l FileLock,
+    ) -> Result<Option<tame_index::index::IndexEntry<'_, 'l>>, tame_index::Error> {
+        self.index.cached_krate(name, lock)
+    }
+}
+
+use tame_index::flock::{FileLock, LockOptions};
 
 enum Index {
     SparseCached(tame_index::index::SparseIndex),
-    SparseRemote(tame_index::index::AsyncRemoteSparseIndex),
+    SparseRemote(RemoteSparseIndex),
 }
 
 impl Index {
     #[inline]
-    fn krate(
-        &self,
-        name: &package::Name,
-        lock: &FileLock,
-    ) -> Result<Option<tame_index::IndexKrate>, Error> {
+    fn krate(&self, name: &package::Name, lock: &FileLock) -> IndexResult {
         let name = name.as_str().try_into().map_err(Error::from_tame)?;
         let res = match self {
             Self::SparseCached(si) => si.cached_krate(name, lock),
             Self::SparseRemote(rsi) => rsi.cached_krate(name, lock),
-        }
-        .map_err(Error::from_tame)?;
+        };
 
-        Ok(res)
+        process_entry(res)
     }
 }
 
@@ -49,7 +103,7 @@ pub struct CachedIndex {
     /// The inner hash map is logically HashMap<Version, IsYanked>
     /// but we don't parse semver because crates.io registry contains invalid semver:
     /// <https://github.com/rustsec/rustsec/issues/759>
-    cache: HashMap<package::Name, Result<Option<HashMap<String, bool>>, Error>>,
+    cache: HashMap<package::Name, IndexResult>,
     /// The lock we hold on the Cargo cache directory
     lock: FileLock,
 }
@@ -71,7 +125,7 @@ impl CachedIndex {
     /// If `lock_timeout` is set to `Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
     pub fn fetch_as(lock_timeout: Duration, user_agent: String) -> Result<Self, Error> {
-        Self::fetch_inner(lock_timeout, user_agent).map_err(Error::from_tame)
+        Self::fetch_inner(lock_timeout, user_agent)
     }
 
     /// Open the local crates.io index
@@ -83,26 +137,19 @@ impl CachedIndex {
             lock_timeout,
             format!("rustsec/{}", env!("CARGO_PKG_VERSION")),
         )
-        .map_err(Error::from_tame)
     }
 
-    fn fetch_inner(lock_timeout: Duration, user_agent: String) -> Result<Self, tame_index::Error> {
+    fn fetch_inner(lock_timeout: Duration, user_agent: String) -> Result<Self, Error> {
         let si = tame_index::index::SparseIndex::new(tame_index::IndexLocation::new(
-            tame_index::IndexUrl::crates_io(None, None, None)?,
-        ))?;
+            tame_index::IndexUrl::crates_io(None, None, None).map_err(Error::from_tame)?,
+        ))
+        .map_err(Error::from_tame)?;
 
-        let lock = acquire_cargo_package_lock(lock_timeout)?;
-
-        // note: this would need to change if rustsec ever adds the capability
-        // to query other indices that _might_ not support HTTP/2, but
-        // hopefully that would never need to happen
-        let client = ClientBuilder::default()
-            .user_agent(user_agent)
-            .build()
-            .map_err(tame_index::Error::from)?;
+        let lock = acquire_cargo_package_lock(lock_timeout).map_err(Error::from_tame)?;
+        let index = RemoteSparseIndex::new(si, user_agent)?;
 
         Ok(Self {
-            index: Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client)),
+            index: Index::SparseRemote(index),
             cache: Default::default(),
             lock,
         })
@@ -143,54 +190,26 @@ impl CachedIndex {
     }
 
     /// Populates the cache entries for all of the specified crates.
-    fn populate_cache(&mut self, mut packages: BTreeSet<&package::Name>) -> Result<(), Error> {
+    fn populate_cache(&mut self, mut packages: BTreeSet<package::Name>) -> Result<(), Error> {
         // only look up info on packages that aren't yet cached
         packages.retain(|pkg| !self.cache.contains_key(pkg));
         match &self.index {
             Index::SparseCached(_) => {
                 for pkg in packages {
-                    self.insert(pkg.to_owned(), self.index.krate(pkg, &self.lock));
+                    let res = self.index.krate(&pkg, &self.lock);
+                    self.insert(pkg, res);
                 }
             }
             Index::SparseRemote(rsi) => {
-                // Ensure we have a runtime
-                let rt = tame_index::external::tokio::runtime::Runtime::new().map_err(|err| {
-                    Error::with_source(
-                        ErrorKind::Registry,
-                        "unable to start a tokio runtime".to_owned(),
-                        err,
-                    )
-                })?;
-                let _rt = rt.enter();
-
                 /// This is the timeout per individual crate. If a crate fails to be
                 /// requested for a retriable reason then it will be retried until
                 /// this time limit is reached
                 const REQUEST_TIMEOUT: Option<Duration> = Some(Duration::from_secs(10));
 
-                let results = rsi
-                    .krates_blocking(
-                        packages
-                            .into_iter()
-                            .map(|p| p.as_str().to_owned())
-                            .collect(),
-                        true,
-                        REQUEST_TIMEOUT,
-                        &self.lock,
-                    )
-                    .map_err(|err| {
-                        Error::with_source(
-                            ErrorKind::Registry,
-                            "unable to acquire tokio runtime".to_owned(),
-                            err,
-                        )
-                    })?;
+                let results = rsi.multi_fetch(packages, REQUEST_TIMEOUT, &self.lock)?;
 
                 for (name, res) in results {
-                    self.insert(
-                        name.parse().expect("this was a package name before"),
-                        res.map_err(Error::from_tame),
-                    );
+                    self.insert(name, res);
                 }
             }
         }
@@ -199,19 +218,10 @@ impl CachedIndex {
     }
 
     #[inline]
-    fn insert(
-        &mut self,
-        package: package::Name,
-        krate_res: Result<Option<tame_index::IndexKrate>, Error>,
-    ) {
-        let krate_res = krate_res.map(|ik| {
-            ik.map(|ik| {
-                ik.versions
-                    .into_iter()
-                    .map(|v| (v.version.to_string(), v.is_yanked()))
-                    .collect()
-            })
-        });
+    fn insert(&mut self, package: package::Name, mut krate_res: IndexResult) {
+        if let Ok(Some(versions)) = &mut krate_res {
+            versions.sort_by(|a, b| a.version.cmp(&b.version));
+        }
 
         self.cache.insert(package, krate_res);
     }
@@ -226,9 +236,9 @@ impl CachedIndex {
         }
 
         match &self.cache[&package.name] {
-            Ok(Some(ik)) => match ik.get(&package.version.to_string()) {
-                Some(is_yanked) => Ok(*is_yanked),
-                None => Err(Error::new(
+            Ok(Some(ik)) => match ik.binary_search_by(|vs| vs.version.cmp(&package.version)) {
+                Ok(i) => Ok(ik[i].is_yanked),
+                Err(_) => Err(Error::new(
                     ErrorKind::NotFound,
                     format!(
                         "No such version in crates.io index: {} {}",
@@ -257,8 +267,8 @@ impl CachedIndex {
         let mut yanked = Vec::new();
 
         let dedup_packages: BTreeSet<&Package> = packages.into_iter().collect();
-        let package_names: BTreeSet<&package::Name> =
-            dedup_packages.iter().map(|p| &p.name).collect();
+        let package_names: BTreeSet<package::Name> =
+            dedup_packages.iter().map(|p| p.name.clone()).collect();
         if let Err(e) = self.populate_cache(package_names) {
             yanked.push(Err(Error::with_source(
                 ErrorKind::Registry,

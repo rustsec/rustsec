@@ -82,7 +82,7 @@ use clap::Parser;
 use rustsec::advisory::{IdKind, Parts};
 use rustsec::osv::OsvAdvisory;
 use rustsec::{Advisory, Collection};
-use tame_index::{KrateName, index::RemoteSparseIndex};
+use tame_index::KrateName;
 use toml_edit::{DocumentMut, value};
 
 use crate::{
@@ -221,7 +221,7 @@ fn sync<'a>(
     osv: &'a [OsvAdvisory],
     advisory_db: &rustsec::Database,
     repo_path: &Path,
-    crates_index: &RemoteSparseIndex,
+    crates_index: &rustsec::registry::RemoteSparseIndex,
 ) -> Result<Synchronized<'a>, Error> {
     // A single OSV advisory could describe a vulnerability affecting several crates
     // (even if GitHub does not produce such advisories currently).
@@ -257,7 +257,7 @@ fn sync<'a>(
             for c in osv.crates() {
                 match KrateName::try_from(c) {
                     Ok(_) => {
-                        check_crates.insert(c.to_owned());
+                        check_crates.insert(c.parse().expect("Name now validates, and failed even though we could convert to tame-index::KrateName"));
                         check_advisories.push((c, osv));
                     }
                     Err(_e) => {
@@ -310,14 +310,36 @@ fn sync<'a>(
         }
     };
 
-    let metadata = crates_index.krates(check_crates, true, &lock);
+    let mut metadata = match crates_index.multi_fetch(check_crates, None, &lock) {
+        Ok(res) => res,
+        Err(error) => {
+            status_err!(
+                "failed to fetch crates.io metadata for {} crates: {error}",
+                check_advisories.len(),
+            );
+            exit(1);
+        }
+    };
+
     for (crate_name, osv) in check_advisories {
-        match metadata.get(crate_name) {
-            Some(Ok(Some(_))) => {
+        let Some(pos) = metadata
+            .iter()
+            .position(|(pn, _)| pn.as_str() == crate_name)
+        else {
+            status_info!(
+                "Info",
+                "Unknown crate {} in {} advisory, skipping",
+                crate_name,
+                osv.id()
+            );
+            continue;
+        };
+
+        match metadata.swap_remove(pos).1 {
+            Ok(Some(_)) => {
                 out.missing_advisories.push(osv);
-                continue;
             }
-            Some(Ok(None)) | None => {
+            Ok(None) => {
                 status_info!(
                     "Info",
                     "Unknown crate {} in {} advisory, skipping",
@@ -325,13 +347,12 @@ fn sync<'a>(
                     osv.id()
                 );
             }
-            Some(Err(error)) => {
+            Err(error) => {
                 status_err!(
                     "failed to fetch crates.io metadata for {} in {}: {error}",
                     crate_name,
                     osv.id()
                 );
-                continue;
             }
         }
     }

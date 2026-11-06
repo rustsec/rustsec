@@ -68,7 +68,7 @@ jobs:
           persist-credentials: false
       - uses: actions-rs/toolchain@16499b5e05bf2e26879000db0c1d13f7e13fa3af # v1.0.7
         with:
-          toolchain: 1.88.0
+          toolchain: 1.89.0
           override: true
           profile: minimal
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3

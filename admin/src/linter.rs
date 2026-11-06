@@ -10,7 +10,6 @@ use rustsec::{
     Advisory, Collection, Database, Version,
     advisory::{Category, Versions},
 };
-use tame_index::index::RemoteSparseIndex;
 
 use crate::{
     crates_index,
@@ -29,7 +28,7 @@ pub struct Linter {
     repo_path: PathBuf,
 
     /// Loaded crates.io index
-    crates_index: RemoteSparseIndex,
+    crates_index: rustsec::registry::RemoteSparseIndex,
 
     /// Loaded Advisory DB
     advisory_db: Database,
@@ -130,34 +129,40 @@ impl Linter {
     fn crates_io_lints(&mut self, advisories: &[Advisory]) -> Result<(), Error> {
         let names = BTreeSet::from_iter(advisories.iter().filter_map(|advisory| {
             match advisory.metadata.expect_deleted {
-                false => Some(advisory.metadata.package.as_str().to_owned()),
+                false => Some(advisory.metadata.package.clone()),
                 true => None,
             }
         }));
 
-        let lock = match acquire_cargo_package_lock() {
-            Ok(lock) => lock,
-            Err(error) => {
-                status_err!("Failed to acquire cargo package lock: {}", error);
-                status_err!("Skipping crates.io lints");
-                return Ok(());
-            }
-        };
-
         // Check if crates with these names exist on crates.io
 
-        let metadata = self.crates_index.krates(names, true, &lock);
+        let mut metadata = {
+            let lock = match acquire_cargo_package_lock() {
+                Ok(lock) => lock,
+                Err(error) => {
+                    status_err!("Failed to acquire cargo package lock: {}", error);
+                    status_err!("Skipping crates.io lints");
+                    return Ok(());
+                }
+            };
+            self.crates_index.multi_fetch(names, None, &lock)?
+        };
+
         for advisory in advisories {
             if advisory.metadata.expect_deleted {
                 continue;
             }
 
-            match metadata.get(advisory.metadata.package.as_str()) {
-                Some(Ok(Some(crate_))) => {
+            match metadata
+                .iter()
+                .position(|(pn, _)| pn == &advisory.metadata.package)
+                .map(|i| metadata.swap_remove(i))
+            {
+                Some((kname, Ok(Some(versions)))) => {
                     // This check verifies name normalization.
                     // A request for "serde-json" might return "serde_json",
                     // and we want to catch use a non-canonical name and report it as an error.
-                    if crate_.name() != advisory.metadata.package.as_str() {
+                    if kname.as_str() != advisory.metadata.package.as_str() {
                         self.invalid_advisories += 1;
 
                         fail!(
@@ -176,8 +181,10 @@ impl Linter {
                         continue;
                     }
 
-                    let published = crate_.versions.iter().map(|v| v.version.as_str());
-                    if !affects_any(&advisory.versions, published) {
+                    let published: Vec<_> =
+                        versions.iter().map(|v| v.version.to_string()).collect();
+
+                    if !affects_any(&advisory.versions, published.iter().map(|v| v.as_str())) {
                         self.invalid_advisories += 1;
 
                         fail!(
@@ -188,7 +195,7 @@ impl Linter {
                         );
                     }
                 }
-                Some(Ok(None)) | None => {
+                Some((_, Ok(None))) | None => {
                     self.invalid_advisories += 1;
 
                     fail!(
@@ -198,7 +205,7 @@ impl Linter {
                         advisory.metadata.id
                     );
                 }
-                Some(Err(error)) => {
+                Some((_, Err(error))) => {
                     self.invalid_advisories += 1;
 
                     fail!(
@@ -223,6 +230,7 @@ fn read_dir_sorted<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<fs::DirEntry>
 }
 
 /// Is any of the given published versions affected?
+#[inline]
 fn affects_any<'a>(versions: &Versions, mut published: impl Iterator<Item = &'a str>) -> bool {
     published.any(|version| Version::parse(version).is_ok_and(|v| versions.is_vulnerable(&v)))
 }
