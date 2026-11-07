@@ -10,7 +10,7 @@ mod error;
 pub mod advisory;
 mod collection;
 pub mod database;
-mod fixer;
+pub mod fixer;
 pub mod osv;
 pub mod report;
 pub mod repository;
