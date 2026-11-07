@@ -108,7 +108,7 @@ impl Repository {
                     "Path to the advisory DB directory is not valid UTF-8!",
                 )
             })?
-            .with_extension(".lock");
+            .with_extension("lock");
         let lock_opts = LockOptions::new(&lock_path).exclusive(false);
         let _lock = if lock_timeout == Duration::from_secs(0) {
             lock_opts.try_lock()
