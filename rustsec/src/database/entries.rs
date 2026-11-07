@@ -51,6 +51,33 @@ impl Entries {
 
         // Ensure advisory has the correct filename
         if path.file_name().unwrap() != expected_filename && !Advisory::is_draft(path) {
+            if advisory.metadata.id.is_placeholder() {
+                let mut placeholders = 0;
+
+                if let Some(parent) = path.parent() {
+                    for entry in std::fs::read_dir(parent)? {
+                        let entry = entry?;
+
+                        if entry
+                            .file_name()
+                            .to_string_lossy()
+                            .starts_with("RUSTSEC-0000-0000")
+                            && entry.file_type()?.is_file()
+                        {
+                            placeholders += 1;
+
+                            if placeholders > 1 {
+                                fail!(
+                                    ErrorKind::Repo,
+                                    "multiple new advisories in the same directory must use the filename format \
+                                     RUSTSEC-0000-0000.<name>.md (use a dot before the name)"
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+
             fail!(
                 ErrorKind::Repo,
                 "expected {} to be named {:?}",
@@ -159,5 +186,49 @@ impl IntoIterator for Entries {
 
     fn into_iter(self) -> Self::IntoIter {
         self.advisories.into_iter()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Entries;
+    use std::fs;
+
+    #[test]
+    fn placeholder_filename_error_explains_multiple_advisories() {
+        let dir = tempfile::tempdir().unwrap();
+        let package_dir = dir.path().join("crates/base");
+        fs::create_dir_all(&package_dir).unwrap();
+
+        let advisory = include_str!("../../tests/support/example_advisory_v3.md")
+            .replace("RUSTSEC-2001-2101", "RUSTSEC-0000-0000");
+        let path = package_dir.join("RUSTSEC-0000-0000-decompression.md");
+        fs::write(&path, &advisory).unwrap();
+
+        let mut entries = Entries::new();
+        let error = entries.load_file(&path).unwrap_err().to_string();
+        assert_eq!(
+            error,
+            format!(
+                "git operation failed: expected {} to be named \"RUSTSEC-0000-0000.md\"",
+                path.display()
+            )
+        );
+
+        let second_path = package_dir.join("RUSTSEC-0000-0000.brotli.md");
+        fs::write(&second_path, &advisory).unwrap();
+
+        let error = entries.load_file(&path).unwrap_err().to_string();
+        assert_eq!(
+            error,
+            "git operation failed: multiple new advisories in the same directory must use the filename format \
+             RUSTSEC-0000-0000.<name>.md (use a dot before the name)"
+        );
+
+        let renamed_path = package_dir.join("RUSTSEC-0000-0000.decompression.md");
+        fs::rename(&path, &renamed_path).unwrap();
+
+        entries.load_file(&renamed_path).unwrap();
+        entries.load_file(&second_path).unwrap();
     }
 }
