@@ -386,6 +386,10 @@ impl Presenter {
         if let Some(metadata) = &warning.advisory {
             self.print_metadata(metadata, color)
         }
+
+        if let Some(versions) = &warning.versions {
+            self.print_solution(&warning.package.version, versions);
+        }
     }
 
     fn print_solution(&self, current: &Version, versions: &Versions) {
