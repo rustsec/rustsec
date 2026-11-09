@@ -1,7 +1,8 @@
 //! Tests for fixing a vulnerability by updating a dependent of the vulnerable crate.
 //!
-//! The lockfiles and registry index used here are synthetic; they mirror the
-//! `zip` <- `libduckdb-sys` <- `duckdb` chain from rustsec/rustsec#1730.
+//! Most lockfiles and the registry index used here are synthetic; they mirror
+//! the `zip` <- `libduckdb-sys` <- `duckdb` chain from rustsec/rustsec#1730.
+//! The `crates_io` module checks the same chain against the live crates.io index.
 
 use rustsec::{
     Advisory, Error, ErrorKind, Fixer, Lockfile, Vulnerability,
@@ -44,11 +45,10 @@ impl FakeIndex {
 
 impl ReleaseIndex for FakeIndex {
     fn releases(&mut self, name: &Name) -> Result<Vec<Release>, Error> {
-        Ok(self
-            .releases
+        self.releases
             .get(name.as_str())
             .cloned()
-            .unwrap_or_default())
+            .ok_or_else(|| Error::new(ErrorKind::NotFound, format!("unpublished: {name}")))
     }
 }
 
@@ -559,4 +559,53 @@ fn propagates_index_errors() {
         .plan_fix_via_dependents(&vulnerability, &mut UnavailableIndex)
         .unwrap_err();
     assert_eq!(error.kind(), ErrorKind::Io);
+}
+
+/// Tests against the live crates.io index (online dependency, like `tests/integration.rs`)
+#[cfg(feature = "git")]
+mod crates_io {
+    use super::*;
+    use rustsec::registry::CachedIndex;
+    use std::time::Duration;
+
+    fn crates_io_index() -> CachedIndex {
+        CachedIndex::fetch_as(Duration::from_secs(60), "rustsec-tests".to_owned()).unwrap()
+    }
+
+    /// The real chain from rustsec/rustsec#1730: libduckdb-sys first requires
+    /// zip ^9 (as a build dependency) in 1.10506.1, and duckdb pins it exactly.
+    #[test]
+    fn plans_the_duckdb_update_for_zip_pinned_by_libduckdb_sys() {
+        let lockfile = lockfile(&[
+            ("app", "0.1.0", &["duckdb"]),
+            ("duckdb", "1.10506.0", &["libduckdb-sys"]),
+            ("libduckdb-sys", "1.10506.0", &["zip"]),
+            ("zip", "6.0.0", &[]),
+        ]);
+        let vulnerability = vulnerability(&lockfile, "zip", ">= 9.0.0");
+        let fixer = Fixer::new(lockfile, None, None);
+        let fix = fixer
+            .plan_fix_via_dependents(&vulnerability, &mut crates_io_index())
+            .unwrap();
+        assert_update(&fix, "duckdb", "1.10506.1");
+    }
+
+    #[test]
+    fn fails_for_a_crate_missing_from_the_index() {
+        let name: Name = "rustsec-no-such-crate-for-tests".parse().unwrap();
+        let error = crates_io_index().releases(&name).unwrap_err();
+        assert_eq!(error.kind(), ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn still_finds_yanked_packages() {
+        let lockfile = lockfile(&[("time", "0.2.3", &[]), ("serde", "1.0.200", &[])]);
+        let mut index = crates_io_index();
+        let yanked: Vec<String> = index
+            .find_yanked(&lockfile.packages)
+            .into_iter()
+            .map(|result| result.unwrap().version.to_string())
+            .collect();
+        assert_eq!(yanked, ["0.2.3"]);
+    }
 }

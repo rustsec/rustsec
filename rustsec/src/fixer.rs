@@ -29,7 +29,11 @@ pub struct Release {
 /// lockfile graph, so implementations backed by the network or disk should
 /// cache their results.
 pub trait ReleaseIndex {
-    /// All published releases of the crate `name`, or an empty list if it is unknown
+    /// All published releases of the crate `name`.
+    ///
+    /// A crate missing from the index is an error, not an empty list: the
+    /// planner only asks about crates in the lockfile, so a missing one means
+    /// the index is incomplete or stale.
     fn releases(&mut self, name: &Name) -> Result<Vec<Release>, Error>;
 }
 
