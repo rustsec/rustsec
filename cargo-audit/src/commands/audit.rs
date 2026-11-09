@@ -31,38 +31,6 @@ use binary_scanning::BinCommand;
 mod update_db;
 use update_db::UpdateDbCommand;
 
-#[derive(Debug, Clone, Copy, Default, ValueEnum)]
-#[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
-enum Color {
-    Always,
-    // TODO: Should this be also supported?
-    // AlwaysAnsi,
-    #[default]
-    Auto,
-    Never,
-}
-
-impl From<Color> for ColorChoice {
-    fn from(value: Color) -> Self {
-        match value {
-            Color::Always => Self::Always,
-            Color::Auto => Self::Auto,
-            Color::Never => Self::Never,
-        }
-    }
-}
-
-impl fmt::Display for Color {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // NOTE: This must be in sync with values genereted in ValueEnum implementation.
-        match self {
-            Self::Always => f.write_str("always"),
-            Self::Auto => f.write_str("auto"),
-            Self::Never => f.write_str("never"),
-        }
-    }
-}
-
 /// The `cargo audit` subcommand
 #[derive(Clone, Default, Debug, Parser)]
 #[command(version)]
@@ -164,30 +132,6 @@ pub struct AuditCommand {
     /// Output reports as JSON
     #[arg(long = "json", help = "Output report in JSON format")]
     output_json: bool,
-}
-
-/// Subcommands of `cargo audit`
-#[derive(Subcommand, Clone, Debug)]
-pub(super) enum AuditSubcommand {
-    /// `cargo audit fix` subcommand
-    #[cfg(feature = "fix")]
-    #[command(about = "automatically upgrade vulnerable dependencies")]
-    Fix(FixCommand),
-
-    /// `cargo audit update-db` subcommand
-    #[command(about = "update the advisory database")]
-    UpdateDb(UpdateDbCommand),
-
-    /// `cargo audit bin` subcommand
-    #[cfg(feature = "binary-scanning")]
-    #[command(
-        about = "scan compiled binaries",
-        long_about = "Scan compiled binaries for known vulnerabilities.
-
-Performs a complete scan if the binary is built with 'cargo auditable'.
-If not, recovers a part of the dependency list from panic messages."
-    )]
-    Bin(BinCommand),
 }
 
 impl AuditCommand {
@@ -306,6 +250,62 @@ impl AuditCommand {
                 exit(2);
             }
         };
+    }
+}
+
+/// Subcommands of `cargo audit`
+#[derive(Subcommand, Clone, Debug)]
+pub(super) enum AuditSubcommand {
+    /// `cargo audit fix` subcommand
+    #[cfg(feature = "fix")]
+    #[command(about = "automatically upgrade vulnerable dependencies")]
+    Fix(FixCommand),
+
+    /// `cargo audit update-db` subcommand
+    #[command(about = "update the advisory database")]
+    UpdateDb(UpdateDbCommand),
+
+    /// `cargo audit bin` subcommand
+    #[cfg(feature = "binary-scanning")]
+    #[command(
+        about = "scan compiled binaries",
+        long_about = "Scan compiled binaries for known vulnerabilities.
+
+Performs a complete scan if the binary is built with 'cargo auditable'.
+If not, recovers a part of the dependency list from panic messages."
+    )]
+    Bin(BinCommand),
+}
+
+#[derive(Debug, Clone, Copy, Default, ValueEnum)]
+#[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
+enum Color {
+    Always,
+    // TODO: Should this be also supported?
+    // AlwaysAnsi,
+    #[default]
+    Auto,
+    Never,
+}
+
+impl From<Color> for ColorChoice {
+    fn from(value: Color) -> Self {
+        match value {
+            Color::Always => Self::Always,
+            Color::Auto => Self::Auto,
+            Color::Never => Self::Never,
+        }
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // NOTE: This must be in sync with values genereted in ValueEnum implementation.
+        match self {
+            Self::Always => f.write_str("always"),
+            Self::Auto => f.write_str("auto"),
+            Self::Never => f.write_str("never"),
+        }
     }
 }
 
