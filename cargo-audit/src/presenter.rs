@@ -644,10 +644,18 @@ mod tests {
     ];
 
     /// Executes `cargo audit bin` via `cargo run`.
+    ///
+    /// `cargo run` rebuilds `target/debug/cargo-audit` with the features it is
+    /// given, so pass the non-default ones this test was built with. Otherwise
+    /// it overwrites the binary that the acceptance tests run, and those that
+    /// need a feature such as `fix` fail under `cargo test --all-features`.
     fn runner() -> Command {
         let mut runner = Command::new("cargo");
+        runner.arg("run");
+        if cfg!(feature = "fix") {
+            runner.arg("--features").arg("fix");
+        }
         runner
-            .arg("run")
             .arg("--")
             .arg("audit")
             .arg("--color=never")
