@@ -1,8 +1,8 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, process::ExitCode};
 
 use clap::Parser;
 
-use crate::{auditor::update_db, config::AuditConfig};
+use crate::{auditor::update_db, config::AuditConfig, error::Error};
 
 #[derive(Clone, Default, Debug, Parser)]
 #[command(author, version, about)]
@@ -20,7 +20,7 @@ pub(crate) struct UpdateDbCommand {
 }
 
 impl UpdateDbCommand {
-    pub(crate) fn run(&self, config: &AuditConfig) {
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         let mut config = config.clone();
         if let Some(db) = &self.db {
             config.database.path = Some(db.clone());
@@ -31,6 +31,7 @@ impl UpdateDbCommand {
         }
 
         let path = config.database.path();
-        update_db(&path, &config.database, config.output.is_quiet());
+        update_db(&path, &config.database, config.output.is_quiet())?;
+        Ok(ExitCode::SUCCESS)
     }
 }

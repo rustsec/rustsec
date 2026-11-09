@@ -4,7 +4,7 @@ use std::{
     fmt,
     io::{self, IsTerminal},
     path::PathBuf,
-    process::exit,
+    process::ExitCode,
 };
 
 use clap::{Parser, Subcommand, ValueEnum};
@@ -225,21 +225,18 @@ impl AuditCommand {
     }
 
     /// Run the `cargo audit` subcommand with the given configuration
-    pub fn run(&self, config: &AuditConfig) {
+    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         match &self.subcommand {
             #[cfg(feature = "binary-scanning")]
             Some(AuditSubcommand::Bin(bin)) => {
-                bin.run(config);
-                exit(0);
+                return bin.run(config);
             }
             #[cfg(feature = "fix")]
             Some(AuditSubcommand::Fix(fix)) => {
-                fix.run(config);
-                exit(0);
+                return fix.run(config);
             }
             Some(AuditSubcommand::UpdateDb(update_db)) => {
-                update_db.run(config);
-                exit(0);
+                return update_db.run(config);
             }
             None => {}
         }
@@ -247,24 +244,20 @@ impl AuditCommand {
         let maybe_path = self.file.as_deref();
         // It is important to generate the lockfile before initializing the auditor,
         // otherwise we might deadlock because both need the Cargo package lock
-        let path = lockfile::locate_or_generate(maybe_path).unwrap_or_else(|e| {
-            status_err!("{}", display_err_with_source(&e));
-            exit(2);
-        });
-        let mut auditor = Auditor::new(config);
+        let path =
+            lockfile::locate_or_generate(maybe_path).map_err(|e| ErrorKind::Parse.context(e))?;
+        let mut auditor = Auditor::new(config)?;
         let report = auditor.audit_lockfile(&path);
-        match report {
-            Ok(report) => {
-                if auditor.should_exit_with_failure(&report) {
-                    exit(1);
-                }
-                exit(0);
-            }
+        Ok(match report {
+            Ok(report) => match auditor.should_exit_with_failure(&report) {
+                true => ExitCode::FAILURE,
+                false => ExitCode::SUCCESS,
+            },
             Err(e) => {
                 status_err!("{}", display_err_with_source(&e));
-                exit(2);
+                ExitCode::from(2)
             }
-        };
+        })
     }
 }
 
