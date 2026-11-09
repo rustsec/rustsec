@@ -2,6 +2,10 @@
 
 #![forbid(unsafe_code)]
 
-fn main() {
-    cargo_audit::application::boot();
+use std::process::ExitCode;
+
+use cargo_audit::error::Error;
+
+fn main() -> Result<ExitCode, Error> {
+    cargo_audit::application::boot()
 }

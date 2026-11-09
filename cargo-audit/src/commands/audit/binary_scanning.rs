@@ -1,8 +1,13 @@
 //! The `cargo audit bin` subcommand
 
-use crate::{auditor::Auditor, config::AuditConfig};
+use std::{
+    path::PathBuf,
+    process::{ExitCode, exit},
+};
+
 use clap::Parser;
-use std::{path::PathBuf, process::exit};
+
+use crate::{auditor::Auditor, config::AuditConfig, error::Error};
 
 #[cfg(feature = "binary-scanning")]
 /// The `cargo audit` subcommand
@@ -36,8 +41,8 @@ pub(crate) struct BinCommand {
 
 impl BinCommand {
     /// Run the `cargo audit bin` subcommand with the given configuration
-    pub(crate) fn run(&self, config: &AuditConfig) {
-        let mut auditor = Auditor::new(config);
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+        let mut auditor = Auditor::new(config)?;
         auditor.set_binary_scan_limits(self.max_binary_size, self.audit_data_size_limit);
         let report = auditor.audit_binaries(&self.binary_paths);
         if report.vulnerabilities_found {

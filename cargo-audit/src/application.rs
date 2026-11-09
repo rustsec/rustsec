@@ -1,6 +1,6 @@
 //! Application entrypoint for `cargo audit`
 
-use std::{env, fs, process::exit};
+use std::{env, fs, process::ExitCode};
 
 use clap::Parser;
 
@@ -8,13 +8,12 @@ use crate::{
     commands::CargoAuditCommand,
     config::AuditConfig,
     error::{Error, ErrorKind},
-    prelude::*,
     terminal::{self, ColorChoice},
 };
 
 /// Boot the application, parsing subcommand and options from command-line
 /// arguments, and terminating when complete.
-pub fn boot() -> ! {
+pub fn boot() -> Result<ExitCode, Error> {
     // Parse command line options
     let command = CargoAuditCommand::parse();
 
@@ -24,14 +23,10 @@ pub fn boot() -> ! {
     init_tracing(&command, color_choice);
 
     // Load configuration
-    let config = load_config(&command).unwrap_or_else(|e| {
-        status_err!("cargo-audit fatal error: {}", e);
-        exit(1)
-    });
+    let config = load_config(&command)?;
 
     // Run the command
-    command.run(&config);
-    exit(0)
+    command.run(&config)
 }
 
 /// Load `audit.toml` (if it exists), overriding it with command-line arguments

@@ -1,14 +1,16 @@
 //! The `cargo audit fix` subcommand
 
-use crate::{auditor::Auditor, config::AuditConfig, lockfile, prelude::*};
-use cargo_lock::Lockfile;
-use clap::Parser;
-use rustsec::{Fixer, advisory::Id};
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
-    process::exit,
+    process::ExitCode,
 };
+
+use cargo_lock::Lockfile;
+use clap::Parser;
+use rustsec::{Fixer, advisory::Id};
+
+use crate::{auditor::Auditor, config::AuditConfig, error::Error, lockfile, prelude::*};
 
 #[derive(Clone, Default, Debug, Parser)]
 #[command(author, version, about)]
@@ -29,24 +31,27 @@ impl FixCommand {
     }
 
     /// Run the `cargo audit fix` subcommand with the given configuration
-    pub(crate) fn run(&self, config: &AuditConfig) {
-        let path = lockfile::locate_or_generate(self.cargo_lock_path()).unwrap_or_else(|e| {
-            status_err!("{}", e);
-            exit(2);
-        });
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+        let path = match lockfile::locate_or_generate(self.cargo_lock_path()) {
+            Ok(path) => path,
+            Err(e) => {
+                status_err!("{}", e);
+                return Ok(ExitCode::from(2));
+            }
+        };
 
-        let report = Auditor::new(config).audit_lockfile(&path);
+        let report = Auditor::new(config)?.audit_lockfile(&path);
         let report = match report {
             Ok(report) => {
                 // TODO: also handle warnings
                 if report.vulnerabilities.list.is_empty() {
-                    exit(0);
+                    return Ok(ExitCode::SUCCESS);
                 }
                 report
             }
             Err(e) => {
                 status_err!("{}", e);
-                exit(2);
+                return Ok(ExitCode::from(2));
             }
         };
 
@@ -99,15 +104,15 @@ impl FixCommand {
         }
 
         if failed_patches != 0 {
-            exit(2);
+            return Ok(ExitCode::from(2));
         }
         if dry_run {
             // When performing a dry run, the exit status is determined by whether we had any issues along the way
-            if !unpatchable_vulns.is_empty() {
-                exit(1);
+            Ok(if !unpatchable_vulns.is_empty() {
+                ExitCode::FAILURE
             } else {
-                exit(0)
-            }
+                ExitCode::SUCCESS
+            })
         } else {
             // It is possible that some vulns we tried to fix actually weren't fixed,
             // either because there is no semver-compatible fix or because Cargo.toml version specification
@@ -118,9 +123,9 @@ impl FixCommand {
             );
             let mut config = config.clone();
             config.output.quiet = true;
-            let mut auditor = Auditor::new(&config);
+            let mut auditor = Auditor::new(&config)?;
 
-            let report_after_fix = auditor.audit_lockfile(&path).unwrap();
+            let report_after_fix = auditor.audit_lockfile(&path)?;
             let vulns_after_fix = &report_after_fix.vulnerabilities.list;
             let fixable_but_unfixed: Vec<String> = vulns_after_fix
                 .iter()
@@ -154,6 +159,11 @@ impl FixCommand {
                     );
                 }
             }
+
+            Ok(match remaining_vulns_count {
+                0 => ExitCode::SUCCESS,
+                _ => ExitCode::FAILURE,
+            })
         }
     }
 }
