@@ -53,9 +53,11 @@ impl ReleaseIndex for FakeIndex {
 }
 
 const REGISTRY: &str = "registry+https://github.com/rust-lang/crates.io-index";
+const ALTERNATE_REGISTRY: &str = "sparse+https://registry.example.com/index/";
 
 /// Build a lockfile whose packages are given as `(name, version, dependencies)`.
-/// The package named `app` is a workspace member; all others come from crates.io.
+/// The package named `app` is a workspace member, packages named `alt-*` come
+/// from an alternate registry, and all others come from crates.io.
 fn lockfile(packages: &[(&str, &str, &[&str])]) -> Lockfile {
     let body: String = packages.iter().map(lockfile_package_entry).collect();
     Lockfile::from_str(&format!("version = 4\n{body}")).unwrap()
@@ -64,6 +66,9 @@ fn lockfile(packages: &[(&str, &str, &[&str])]) -> Lockfile {
 fn lockfile_package_entry((name, version, dependencies): &(&str, &str, &[&str])) -> String {
     let source = match *name {
         "app" => String::new(),
+        alternate if alternate.starts_with("alt-") => {
+            format!("source = \"{ALTERNATE_REGISTRY}\"\n")
+        }
         _ => format!("source = \"{REGISTRY}\"\n"),
     };
     let dependencies: Vec<String> = dependencies.iter().map(|d| format!("\"{d}\"")).collect();
@@ -559,6 +564,25 @@ fn propagates_index_errors() {
         .plan_fix_via_dependents(&vulnerability, &mut UnavailableIndex)
         .unwrap_err();
     assert_eq!(error.kind(), ErrorKind::Io);
+}
+
+#[test]
+fn never_reads_crates_io_data_for_a_dependent_from_another_registry() {
+    let lockfile = lockfile(&[
+        ("app", "0.1.0", &["alt-sys"]),
+        ("alt-sys", "1.0.0", &["zip"]),
+        ("zip", "6.0.0", &[]),
+    ]);
+    let mut index = zip_releases(FakeIndex::default())
+        .publish("alt-sys", "1.0.0", &[("zip", "^9")])
+        .publish("alt-sys", "1.1.0", &[("zip", "^9")]);
+    let fix = plan(lockfile, "zip", ">= 9.0.0", &mut index);
+    match fix {
+        DependentFix::ManifestChangeRequired(blocker) => {
+            assert_eq!(blocker.name.as_str(), "alt-sys")
+        }
+        other => panic!("expected ManifestChangeRequired, got {other:?}"),
+    }
 }
 
 /// Tests against the live crates.io index (online dependency, like `tests/integration.rs`)

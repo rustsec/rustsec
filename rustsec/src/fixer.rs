@@ -49,7 +49,7 @@ pub enum DependentFix {
     },
     /// No dependent has published a semver-compatible release that admits a patched version
     NoReleasedFix,
-    /// A workspace member, path or git package would have to change its own
+    /// A workspace member, path, git or alternate-registry package would have to change its own
     /// `Cargo.toml` requirement; a lockfile-only fix is not possible
     ManifestChangeRequired(Box<Package>),
     /// More than one dependent would have to move; this is not attempted
@@ -120,8 +120,8 @@ impl Fixer {
     /// the currently locked version. The lowest qualifying version is chosen to
     /// keep lockfile churn small.
     ///
-    /// Requirements of workspace members, path and git packages are not in the
-    /// index; for those the default caret requirement on the locked version is
+    /// Requirements of workspace members, path, git and alternate-registry
+    /// packages are not in the index; for those the default caret requirement on the locked version is
     /// assumed, and `cargo update --precise` enforces the real one.
     ///
     /// Known limitations: only one dependent per level may need to move, and a
@@ -168,7 +168,7 @@ impl Fixer {
             self.narrow_candidates_by_dependents(package, candidates, index)?;
         match blockers.as_slice() {
             [] => Ok(update_to_lowest(package, &candidates)),
-            [blocker] if is_registry_package(blocker) => {
+            [blocker] if is_crates_io_package(blocker) => {
                 let blocker_candidates =
                     releases_requiring_move(blocker, package, &candidates, index)?;
                 self.plan_move(blocker, blocker_candidates, index)
@@ -252,7 +252,7 @@ fn admitted_by_dependent(
     candidates: &[Version],
     index: &mut dyn ReleaseIndex,
 ) -> Result<Vec<Version>, Error> {
-    let requirements = if is_registry_package(dependent) {
+    let requirements = if is_crates_io_package(dependent) {
         let locked = locked_release(dependent, index)?;
         requirements_on(&locked, &package.name)
     } else {
@@ -339,11 +339,13 @@ fn is_installable(release: &Release) -> bool {
     !release.yanked && release.version.pre.is_empty()
 }
 
-fn is_registry_package(package: &Package) -> bool {
+/// Only crates.io packages can be looked up in the [`ReleaseIndex`];
+/// alternate registries are treated like path and git packages
+fn is_crates_io_package(package: &Package) -> bool {
     package
         .source
         .as_ref()
-        .is_some_and(|source| source.is_registry())
+        .is_some_and(|source| source.is_default_registry())
 }
 
 /// The requirement Cargo writes for `version` by default, i.e. `^version`
