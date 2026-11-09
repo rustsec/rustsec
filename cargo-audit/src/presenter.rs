@@ -4,6 +4,7 @@ use std::fmt;
 use std::{collections::BTreeSet as Set, io, path::Path};
 use std::{io::Write as _, string::ToString as _};
 
+use rustsec::advisory::Versions;
 use rustsec::{
     Version, VersionReq, Vulnerability, Warning, WarningKind,
     advisory::License,
@@ -373,8 +374,21 @@ impl Presenter {
         self.print_attr(Red, "Crate:    ", &vulnerability.package.name);
         self.print_attr(Red, "Version:  ", vulnerability.package.version.to_string());
         self.print_metadata(&vulnerability.advisory, Red);
+        self.print_solution(&vulnerability.package.version, &vulnerability.versions);
+    }
 
-        let versions = &vulnerability.versions;
+    /// Print information about a given warning
+    fn print_warning(&self, warning: &Warning, color: Color) {
+        self.print_attr(color, "Crate:    ", &warning.package.name);
+        self.print_attr(color, "Version:  ", warning.package.version.to_string());
+        self.print_attr(color, "Warning:  ", warning.kind.as_str());
+
+        if let Some(metadata) = &warning.advisory {
+            self.print_metadata(metadata, color)
+        }
+    }
+
+    fn print_solution(&self, current: &Version, versions: &Versions) {
         if !versions.patched().is_empty() {
             self.print_attr(
                 Red,
@@ -387,7 +401,7 @@ impl Presenter {
         let newer_unaffected = versions
             .unaffected()
             .iter()
-            .filter(|req| permits_newer(req, &vulnerability.package.version))
+            .filter(|req| permits_newer(req, current))
             .collect::<Vec<_>>();
 
         if newer_unaffected.is_empty() {
@@ -402,17 +416,6 @@ impl Presenter {
             "Solution: ",
             format!("Upgrade to {} (unaffected)", join_reqs(&newer_unaffected)),
         );
-    }
-
-    /// Print information about a given warning
-    fn print_warning(&self, warning: &Warning, color: Color) {
-        self.print_attr(color, "Crate:    ", &warning.package.name);
-        self.print_attr(color, "Version:  ", warning.package.version.to_string());
-        self.print_attr(color, "Warning:  ", warning.kind.as_str());
-
-        if let Some(metadata) = &warning.advisory {
-            self.print_metadata(metadata, color)
-        }
     }
 
     /// Get the color to use when displaying warnings
