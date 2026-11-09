@@ -6,7 +6,7 @@ use std::{
     fmt,
     io::{self, IsTerminal},
     path::PathBuf,
-    process::exit,
+    process::ExitCode,
 };
 
 #[cfg(feature = "fix")]
@@ -203,21 +203,18 @@ impl AuditCommand {
     }
 
     /// Run the `cargo audit` subcommand with the given configuration
-    pub fn run(&self, config: &AuditConfig) {
+    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         match &self.subcommand {
             #[cfg(feature = "binary-scanning")]
             Some(AuditSubcommand::Bin(bin)) => {
-                bin.run(config);
-                exit(0);
+                return bin.run(config);
             }
             #[cfg(feature = "fix")]
             Some(AuditSubcommand::Fix(fix)) => {
-                fix.run(config);
-                exit(0);
+                return fix.run(config);
             }
             Some(AuditSubcommand::UpdateDb(update_db)) => {
-                update_db.run(config);
-                exit(0);
+                return update_db.run(config);
             }
             None => {}
         }
@@ -225,24 +222,20 @@ impl AuditCommand {
         let maybe_path = self.file.as_deref();
         // It is important to generate the lockfile before initializing the auditor,
         // otherwise we might deadlock because both need the Cargo package lock
-        let path = lockfile::locate_or_generate(maybe_path).unwrap_or_else(|e| {
-            status_err!("{}", display_err_with_source(&e));
-            exit(2);
-        });
-        let mut auditor = Auditor::new(config);
+        let path =
+            lockfile::locate_or_generate(maybe_path).map_err(|e| ErrorKind::Parse.context(e))?;
+        let mut auditor = Auditor::new(config)?;
         let report = auditor.audit_lockfile(&path);
-        match report {
-            Ok(report) => {
-                if auditor.should_exit_with_failure(&report) {
-                    exit(1);
-                }
-                exit(0);
-            }
+        Ok(match report {
+            Ok(report) => match auditor.should_exit_with_failure(&report) {
+                true => ExitCode::FAILURE,
+                false => ExitCode::SUCCESS,
+            },
             Err(e) => {
                 status_err!("{}", display_err_with_source(&e));
-                exit(2);
+                ExitCode::from(2)
             }
-        };
+        })
     }
 }
 
@@ -291,24 +284,27 @@ impl FixCommand {
     }
 
     /// Run the `cargo audit fix` subcommand with the given configuration
-    pub(crate) fn run(&self, config: &AuditConfig) {
-        let path = lockfile::locate_or_generate(self.cargo_lock_path()).unwrap_or_else(|e| {
-            status_err!("{}", e);
-            exit(2);
-        });
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+        let path = match lockfile::locate_or_generate(self.cargo_lock_path()) {
+            Ok(path) => path,
+            Err(e) => {
+                status_err!("{}", e);
+                return Ok(ExitCode::from(2));
+            }
+        };
 
-        let report = Auditor::new(config).audit_lockfile(&path);
+        let report = Auditor::new(config)?.audit_lockfile(&path);
         let report = match report {
             Ok(report) => {
                 // TODO: also handle warnings
                 if report.vulnerabilities.list.is_empty() {
-                    exit(0);
+                    return Ok(ExitCode::SUCCESS);
                 }
                 report
             }
             Err(e) => {
                 status_err!("{}", e);
-                exit(2);
+                return Ok(ExitCode::from(2));
             }
         };
 
@@ -361,15 +357,15 @@ impl FixCommand {
         }
 
         if failed_patches != 0 {
-            exit(2);
+            return Ok(ExitCode::from(2));
         }
         if dry_run {
             // When performing a dry run, the exit status is determined by whether we had any issues along the way
-            if !unpatchable_vulns.is_empty() {
-                exit(1);
+            Ok(if !unpatchable_vulns.is_empty() {
+                ExitCode::FAILURE
             } else {
-                exit(0)
-            }
+                ExitCode::SUCCESS
+            })
         } else {
             // It is possible that some vulns we tried to fix actually weren't fixed,
             // either because there is no semver-compatible fix or because Cargo.toml version specification
@@ -380,9 +376,9 @@ impl FixCommand {
             );
             let mut config = config.clone();
             config.output.quiet = true;
-            let mut auditor = Auditor::new(&config);
+            let mut auditor = Auditor::new(&config)?;
 
-            let report_after_fix = auditor.audit_lockfile(&path).unwrap();
+            let report_after_fix = auditor.audit_lockfile(&path)?;
             let vulns_after_fix = &report_after_fix.vulnerabilities.list;
             let fixable_but_unfixed: Vec<String> = vulns_after_fix
                 .iter()
@@ -416,6 +412,11 @@ impl FixCommand {
                     );
                 }
             }
+
+            Ok(match remaining_vulns_count {
+                0 => ExitCode::SUCCESS,
+                _ => ExitCode::FAILURE,
+            })
         }
     }
 }
@@ -453,17 +454,17 @@ pub(crate) struct BinCommand {
 #[cfg(feature = "binary-scanning")]
 impl BinCommand {
     /// Run the `cargo audit bin` subcommand with the given configuration
-    pub(crate) fn run(&self, config: &AuditConfig) {
-        let mut auditor = Auditor::new(config);
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+        let mut auditor = Auditor::new(config)?;
         auditor.set_binary_scan_limits(self.max_binary_size, self.audit_data_size_limit);
         let report = auditor.audit_binaries(&self.binary_paths);
-        if report.vulnerabilities_found {
-            exit(1)
+        Ok(if report.vulnerabilities_found {
+            ExitCode::from(1)
         } else if report.errors_encountered {
-            exit(2)
+            ExitCode::from(2)
         } else {
-            exit(0)
-        }
+            ExitCode::from(0)
+        })
     }
 }
 
@@ -483,7 +484,7 @@ pub(crate) struct UpdateDbCommand {
 }
 
 impl UpdateDbCommand {
-    pub(crate) fn run(&self, config: &AuditConfig) {
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         let mut config = config.clone();
         if let Some(db) = &self.db {
             config.database.path = Some(db.clone());
@@ -494,7 +495,8 @@ impl UpdateDbCommand {
         }
 
         let path = config.database.path();
-        update_db(&path, &config.database, config.output.is_quiet());
+        let _ = update_db(&path, &config.database, config.output.is_quiet())?;
+        Ok(ExitCode::SUCCESS)
     }
 }
 

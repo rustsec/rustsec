@@ -1,19 +1,18 @@
 //! Core auditing functionality
 
-use crate::config::DatabaseConfig;
-use crate::{
-    config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
-};
-use rustsec::registry::CachedIndex;
-use rustsec::{Error, ErrorKind, Lockfile, Warning, WarningKind, report};
-
-use rustsec::binary_scanning::BinaryFormat;
-
 use std::{
     io::{self, Read},
     path::Path,
-    process::exit,
     time::Duration,
+};
+
+use rustsec::binary_scanning::BinaryFormat;
+use rustsec::registry::CachedIndex;
+use rustsec::{Error, ErrorKind, Lockfile, Warning, WarningKind, report};
+
+use crate::config::DatabaseConfig;
+use crate::{
+    config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
 };
 
 // TODO: make configurable
@@ -47,22 +46,22 @@ pub struct Auditor {
 
 impl Auditor {
     /// Initialize the auditor
-    pub fn new(config: &AuditConfig) -> Self {
+    pub fn new(config: &AuditConfig) -> Result<Self, Error> {
         let advisory_db_path = config.database.path();
         let database = if config.database.fetch {
             update_db(
                 &advisory_db_path,
                 &config.database,
                 config.output.is_quiet(),
-            )
+            )?
         } else {
-            rustsec::Database::open(&advisory_db_path).unwrap_or_else(|e| {
-                status_err!(
-                    "error loading advisory database: {}",
-                    display_err_with_source(&e)
-                );
-                exit(1);
-            })
+            rustsec::Database::open(&advisory_db_path).map_err(|e| {
+                Error::with_source(
+                    ErrorKind::Repo,
+                    format!("error loading advisory db: {}", advisory_db_path.display()),
+                    e,
+                )
+            })?
         };
 
         if !config.output.is_quiet() {
@@ -137,7 +136,7 @@ impl Auditor {
             None
         };
 
-        Self {
+        Ok(Self {
             database,
             registry_index,
             presenter: Presenter::new(&config.output),
@@ -146,7 +145,7 @@ impl Auditor {
             binary_size_limit: Some(DEFAULT_MAX_BINARY_SIZE),
             #[cfg(feature = "binary-scanning")]
             audit_data_size_limit: None,
-        }
+        })
     }
 
     /// Perform an audit of a textual `Cargo.lock` file
@@ -374,7 +373,11 @@ impl Auditor {
     }
 }
 
-pub(crate) fn update_db(path: &Path, config: &DatabaseConfig, quiet: bool) -> rustsec::Database {
+pub(crate) fn update_db(
+    path: &Path,
+    config: &DatabaseConfig,
+    quiet: bool,
+) -> Result<rustsec::Database, Error> {
     let url = config.url();
     if !quiet {
         status_ok!("Fetching", "advisory database from `{}`", url);
@@ -404,20 +407,20 @@ pub(crate) fn update_db(path: &Path, config: &DatabaseConfig, quiet: bool) -> ru
         );
     }
 
-    let advisory_db_repo = result.unwrap_or_else(|e| {
-        status_err!(
-            "couldn't fetch advisory database: {}",
-            display_err_with_source(&e)
-        );
-        exit(1);
-    });
+    let advisory_db_repo = result.map_err(|e| {
+        Error::with_source(
+            ErrorKind::Repo,
+            "couldn't fetch advisory database".to_owned(),
+            e,
+        )
+    })?;
 
-    rustsec::Database::load_from_repo(&advisory_db_repo).unwrap_or_else(|e| {
-        status_err!(
-            "error loading advisory database: {}",
-            display_err_with_source(&e)
-        );
-        exit(1);
+    rustsec::Database::load_from_repo(&advisory_db_repo).map_err(|e| {
+        Error::with_source(
+            ErrorKind::Repo,
+            "error loading advisory database".to_owned(),
+            e,
+        )
     })
 }
 

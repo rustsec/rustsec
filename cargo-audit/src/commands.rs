@@ -2,7 +2,7 @@
 
 use crate::{config::AuditConfig, error::Error};
 use clap::Parser;
-use std::{ops::Deref, path::PathBuf};
+use std::{ops::Deref, path::PathBuf, process::ExitCode};
 
 mod audit;
 pub use audit::AuditCommand;
@@ -23,7 +23,7 @@ pub enum CargoAuditSubCommand {
 
 impl CargoAuditSubCommand {
     /// Run the subcommand with the given configuration
-    pub fn run(&self, config: &AuditConfig) {
+    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         match self {
             Self::Audit(cmd) => cmd.run(config),
         }
@@ -44,7 +44,7 @@ pub struct CargoAuditCommand {
 
 impl CargoAuditCommand {
     /// Run the command with the given configuration
-    pub fn run(&self, config: &AuditConfig) {
+    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         self.cmd.run(config)
     }
 
