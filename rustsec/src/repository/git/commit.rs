@@ -88,27 +88,18 @@ impl Commit {
         }
         let commit_id = CommitHash::from_gix(commit_id);
 
-        let (signature, signed_data) = if let Some(sig) = cref.extra_headers().pgp_signature() {
-            // Note this is inefficient as gix doesn't yet support signature extraction natively.
-            // TODO: convert this to native methods once https://github.com/Byron/gitoxide/pull/973 ships in a stable release.
-            let signed_data = {
-                let mut commit_without_signature = cref.clone();
-                let pos = commit_without_signature
-                    .extra_headers
-                    .iter()
-                    .position(|eh| eh.0 == "gpgsig")
-                    .unwrap();
-                commit_without_signature.extra_headers.remove(pos);
-
-                let mut signed_data = Vec::new();
-                use gix::objs::WriteTo;
-                commit_without_signature.write_to(&mut signed_data)?;
-                signed_data
-            };
-
-            (Some(Signature::from_bytes(sig)?), Some(signed_data))
-        } else {
-            (None, None)
+        let (signature, signed_data) = match commit.signature().map_err(|err| {
+            Error::with_source(
+                ErrorKind::Repo,
+                "unable to extract commit signature".to_owned(),
+                err,
+            )
+        })? {
+            Some((signature, signed_data)) => (
+                Some(Signature::from_bytes(signature.as_ref())?),
+                Some(signed_data.to_bstring().into()),
+            ),
+            None => (None, None),
         };
 
         Ok(Self {
