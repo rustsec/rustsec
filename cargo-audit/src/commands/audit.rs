@@ -23,11 +23,6 @@ mod fix;
 #[cfg(feature = "fix")]
 use fix::FixCommand;
 
-#[cfg(feature = "binary-scanning")]
-mod binary_scanning;
-#[cfg(feature = "binary-scanning")]
-use binary_scanning::BinCommand;
-
 mod update_db;
 use update_db::UpdateDbCommand;
 
@@ -275,6 +270,53 @@ Performs a complete scan if the binary is built with 'cargo auditable'.
 If not, recovers a part of the dependency list from panic messages."
     )]
     Bin(BinCommand),
+}
+
+#[cfg(feature = "binary-scanning")]
+/// The `cargo audit` subcommand
+#[derive(Clone, Default, Debug, Parser)]
+#[command()]
+pub(crate) struct BinCommand {
+    /// Maximum binary size in bytes to read
+    #[arg(
+        long = "max-binary-size",
+        value_name = "BYTES",
+        help = "Maximum binary size in bytes to read (default: 100MB; use 0 for unlimited)"
+    )]
+    max_binary_size: Option<u64>,
+
+    /// Maximum audit data size in bytes to parse
+    #[arg(
+        long = "audit-data-size-limit",
+        value_name = "BYTES",
+        help = "Maximum audit data size in bytes to parse (default: 8MB)"
+    )]
+    audit_data_size_limit: Option<usize>,
+
+    /// Paths to the binaries to be scanned
+    #[arg(
+        value_parser,
+        required = true,
+        help = "Paths to the binaries to be scanned"
+    )]
+    binary_paths: Vec<PathBuf>,
+}
+
+#[cfg(feature = "binary-scanning")]
+impl BinCommand {
+    /// Run the `cargo audit bin` subcommand with the given configuration
+    pub(crate) fn run(&self, config: &AuditConfig) {
+        let mut auditor = Auditor::new(config);
+        auditor.set_binary_scan_limits(self.max_binary_size, self.audit_data_size_limit);
+        let report = auditor.audit_binaries(&self.binary_paths);
+        if report.vulnerabilities_found {
+            exit(1)
+        } else if report.errors_encountered {
+            exit(2)
+        } else {
+            exit(0)
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Default, ValueEnum)]
