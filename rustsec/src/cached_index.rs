@@ -71,7 +71,7 @@ impl CachedIndex {
     /// If `lock_timeout` is set to `Duration::from_secs(0)`, it will not wait at all,
     /// and instead return an error immediately if it fails to aquire the lock.
     pub fn fetch_as(lock_timeout: Duration, user_agent: String) -> Result<Self, Error> {
-        Self::fetch_inner(lock_timeout, user_agent).map_err(Error::from_tame)
+        Self::fetch_inner(lock_timeout, user_agent)
     }
 
     /// Open the local crates.io index
@@ -83,23 +83,38 @@ impl CachedIndex {
             lock_timeout,
             format!("rustsec/{}", env!("CARGO_PKG_VERSION")),
         )
-        .map_err(Error::from_tame)
     }
 
-    fn fetch_inner(lock_timeout: Duration, user_agent: String) -> Result<Self, tame_index::Error> {
+    fn fetch_inner(lock_timeout: Duration, user_agent: String) -> Result<Self, Error> {
         let si = tame_index::index::SparseIndex::new(tame_index::IndexLocation::new(
-            tame_index::IndexUrl::crates_io(None, None, None)?,
-        ))?;
+            tame_index::IndexUrl::crates_io(None, None, None).map_err(Error::from_tame)?,
+        ))
+        .map_err(Error::from_tame)?;
 
-        let lock = acquire_cargo_package_lock(lock_timeout)?;
+        let lock = acquire_cargo_package_lock(lock_timeout).map_err(Error::from_tame)?;
 
         // note: this would need to change if rustsec ever adds the capability
         // to query other indices that _might_ not support HTTP/2, but
         // hopefully that would never need to happen
-        let client = ClientBuilder::default()
-            .user_agent(user_agent)
-            .build()
-            .map_err(tame_index::Error::from)?;
+        let mut builder = ClientBuilder::default().user_agent(user_agent);
+        if let Some(proxy) = crate::http_proxy::cargo_proxy()? {
+            builder = if proxy.is_empty() {
+                builder.no_proxy()
+            } else {
+                builder.proxy(
+                    reqwest::Proxy::all(proxy)
+                        .map_err(|_| Error::new(ErrorKind::Registry, "invalid Cargo HTTP proxy"))?
+                        .no_proxy(reqwest::NoProxy::from_env()),
+                )
+            };
+        }
+        let client = builder.build().map_err(|err| {
+            Error::with_source(
+                ErrorKind::Registry,
+                "failed to build registry client".to_owned(),
+                err,
+            )
+        })?;
 
         Ok(Self {
             index: Index::SparseRemote(tame_index::index::AsyncRemoteSparseIndex::new(si, client)),
