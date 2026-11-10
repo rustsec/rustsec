@@ -165,6 +165,7 @@ impl Repository {
                             err,
                         )
                     })?
+                    .configure_connection(crate::http_proxy::configure_git_connection)
                     .with_remote_name("origin")
                     .map_err(|err| {
                         Error::with_source(ErrorKind::Repo, "invalid remote name".to_owned(), err)
@@ -306,15 +307,25 @@ impl Repository {
             .expect("valid statically known refspec");
 
         // Perform the actual fetch
-        let outcome = remote
-            .connect(DIR)
-            .map_err(|err| {
+        let connection = remote.connect(DIR).map_err(|err| {
+            Error::with_source(
+                ErrorKind::Repo,
+                "failed to connect to remote".to_owned(),
+                err,
+            )
+        })?;
+        let connection = {
+            let mut connection = connection;
+            crate::http_proxy::configure_git_connection(&mut connection).map_err(|err| {
                 Error::with_source(
                     ErrorKind::Repo,
-                    "failed to connect to remote".to_owned(),
+                    "failed to configure HTTP transport".to_owned(),
                     err,
                 )
-            })?
+            })?;
+            connection
+        };
+        let outcome = connection
             .prepare_fetch(&mut gix::progress::Discard, Default::default())
             .map_err(|err| {
                 Error::with_source(ErrorKind::Repo, "failed to prepare fetch".to_owned(), err)
