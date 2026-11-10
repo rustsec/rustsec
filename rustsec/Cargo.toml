@@ -30,6 +30,8 @@ once_cell = { workspace = true, optional = true }
 binfarce = { workspace = true, optional = true }
 
 # optional dependencies
+cargo-config2 = { workspace = true, optional = true }
+reqwest = { workspace = true, optional = true }
 tame-index = { workspace = true, features = ["sparse"], optional = true }
 home = { workspace = true, optional = true }
 time = { workspace = true, features = ["formatting", "serde", "parsing"], optional = true }
@@ -43,6 +45,8 @@ serde_json = { workspace = true }
 [features]
 default = ["gix-reqwest"]
 git = [
+    "dep:cargo-config2",
+    "dep:reqwest",
     "dep:tame-index",
     "dep:home",
     "dep:time",
