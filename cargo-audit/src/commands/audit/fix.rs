@@ -3,7 +3,11 @@
 use crate::{auditor::Auditor, config::AuditConfig, lockfile, prelude::*};
 use cargo_lock::Lockfile;
 use clap::Parser;
-use rustsec::{Fixer, advisory::Id};
+use rustsec::{
+    Fixer, Report,
+    advisory::{Id, Metadata, Versions},
+    package::Package,
+};
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
@@ -37,18 +41,17 @@ impl FixCommand {
 
         let report = Auditor::new(config).audit_lockfile(&path);
         let report = match report {
-            Ok(report) => {
-                // TODO: also handle warnings
-                if report.vulnerabilities.list.is_empty() {
-                    exit(0);
-                }
-                report
-            }
+            Ok(report) => report,
             Err(e) => {
                 status_err!("{}", e);
                 exit(2);
             }
         };
+
+        let advisories = AdvisoryMetadata::extract(&report).collect::<Vec<_>>();
+        if advisories.is_empty() {
+            exit(0);
+        }
 
         // This should always succeed because the auditor loaded it successfully already
         let lockfile = Lockfile::load(&path).expect("Failed to load Cargo.lock");
@@ -65,7 +68,7 @@ impl FixCommand {
         let mut unpatchable_advisories: BTreeSet<Id> = BTreeSet::new();
         let mut failed_patches = 0;
 
-        for advisory in &report.vulnerabilities.list {
+        for advisory in &advisories {
             if advisory.versions.patched().is_empty() {
                 unpatchable_advisories.insert(advisory.advisory.id.clone());
                 status_warn!(
@@ -74,7 +77,8 @@ impl FixCommand {
                     advisory.package.name
                 );
             } else {
-                let mut command = fixer.fix_command(advisory, dry_run);
+                let mut command =
+                    fixer.fix_command_for(advisory.package, advisory.versions, dry_run);
                 // If the path to Cargo.lock has been specified explicitly,
                 // run the `cargo update` command in that directory
                 if let Some(path) = self.cargo_lock_path() {
@@ -121,7 +125,8 @@ impl FixCommand {
             let mut auditor = Auditor::new(&config);
 
             let report_after_fix = auditor.audit_lockfile(&path).unwrap();
-            let advisories_after_fix = &report_after_fix.vulnerabilities.list;
+            let advisories_after_fix =
+                AdvisoryMetadata::extract(&report_after_fix).collect::<Vec<_>>();
             let fixable_but_unfixed: Vec<String> = advisories_after_fix
                 .iter()
                 .filter(|advisory| !unpatchable_advisories.contains(&advisory.advisory.id))
@@ -137,12 +142,9 @@ impl FixCommand {
                 );
             }
 
-            let remaining_advisories_count = report_after_fix.vulnerabilities.list.len();
-            let fixed_advisories_count = report
-                .vulnerabilities
-                .list
-                .len()
-                .saturating_sub(remaining_advisories_count);
+            let remaining_advisories_count = advisories_after_fix.len();
+            let fixed_advisories_count =
+                advisories.len().saturating_sub(remaining_advisories_count);
             if fixed_advisories_count != 0 {
                 if remaining_advisories_count == 0 {
                     status_ok!("Fixed", "{} advisories", fixed_advisories_count);
@@ -155,5 +157,69 @@ impl FixCommand {
                 }
             }
         }
+    }
+}
+
+/// Advisory data that `cargo audit fix` acts on, borrowed from a [`Report`].
+struct AdvisoryMetadata<'a> {
+    advisory: &'a Metadata,
+    versions: &'a Versions,
+    package: &'a Package,
+}
+
+impl<'a> AdvisoryMetadata<'a> {
+    /// Extract the advisories to fix: all vulnerabilities, plus warnings that
+    /// carry advisory and affected-version information.
+    ///
+    /// Yanked packages do not have this data and need a different fix strategy.
+    /// The initial report and the re-audit after the update both use this, so
+    /// the fixed and remaining counts compare the same kind of items.
+    fn extract(report: &'a Report) -> impl Iterator<Item = AdvisoryMetadata<'a>> {
+        report
+            .vulnerabilities
+            .list
+            .iter()
+            .map(|vulnerability| Self {
+                advisory: &vulnerability.advisory,
+                versions: &vulnerability.versions,
+                package: &vulnerability.package,
+            })
+            .chain(report.warnings.values().flatten().filter_map(|warning| {
+                Some(Self {
+                    advisory: warning.advisory.as_ref()?,
+                    versions: warning.versions.as_ref()?,
+                    package: &warning.package,
+                })
+            }))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rustsec::{Database, Lockfile, Warning, WarningKind, report::Settings};
+
+    #[test]
+    fn warnings_without_advisory_or_versions_are_not_fix_targets() {
+        let lockfile: Lockfile =
+            "version = 3\n[[package]]\nname = \"example\"\nversion = \"0.1.0\"\n"
+                .parse()
+                .unwrap();
+        let dir = tempfile::TempDir::new().unwrap();
+        std::fs::create_dir(dir.path().join("crates")).unwrap();
+        let database = Database::open(dir.path()).unwrap();
+        let mut report = Report::generate(&database, &lockfile, &Settings::default());
+        report
+            .warnings
+            .entry(WarningKind::Yanked)
+            .or_default()
+            .push(Warning::new(
+                WarningKind::Yanked,
+                &lockfile.packages[0],
+                None,
+                None,
+                None,
+            ));
+        assert!(AdvisoryMetadata::extract(&report).next().is_none());
     }
 }
