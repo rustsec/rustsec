@@ -155,18 +155,6 @@ fn draft_id_mismatch() {
     );
 }
 
-fn advisory_with_versions(patched: &[&str], unaffected: &[&str]) -> String {
-    VALID_ADVISORY_MD
-        .replace(
-            "patched = [\">= 1.2.3\"]",
-            &format!("patched = {patched:?}"),
-        )
-        .replace(
-            "unaffected = [\"0.1.2\"]",
-            &format!("unaffected = {unaffected:?}"),
-        )
-}
-
 #[test]
 fn patched_versions_must_not_leave_future_versions_affected() {
     for patched in [
@@ -239,6 +227,18 @@ fn future_version_error_alongside_other_lint_errors() {
             .any(|error| error.contains("patched ranges have an upper bound")),
         "{errors:?}"
     );
+}
+
+fn advisory_with_versions(patched: &[&str], unaffected: &[&str]) -> String {
+    VALID_ADVISORY_MD
+        .replace(
+            "patched = [\">= 1.2.3\"]",
+            &format!("patched = {patched:?}"),
+        )
+        .replace(
+            "unaffected = [\"0.1.2\"]",
+            &format!("unaffected = {unaffected:?}"),
+        )
 }
 
 /// The `url` field must not point at a GHSA that is already listed in `aliases`

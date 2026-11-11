@@ -308,10 +308,6 @@ impl Linter {
 
     /// Lint the `[versions]` section of an advisory
     fn lint_versions(&mut self, versions: &toml::Value) {
-        // A bounded final patched range makes later releases vulnerable again,
-        // often because a Cargo-style caret requirement was used for a fix.
-        // Reuse the validated range conversion so unaffected releases and
-        // multiple maintenance branches are considered together.
         if !self.advisory.versions.patched().is_empty()
             && ranges_for_advisory(&self.advisory.versions)
                 .last()
