@@ -5,7 +5,9 @@ use crate::{
     config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
 };
 use rustsec::registry::CachedIndex;
-use rustsec::{Error, ErrorKind, Lockfile, Warning, WarningKind, report};
+use rustsec::{
+    Collection, Error, ErrorKind, Lockfile, Warning, WarningKind, database::Query, report,
+};
 
 use rustsec::binary_scanning::BinaryFormat;
 
@@ -35,6 +37,9 @@ pub struct Auditor {
 
     /// Audit report settings
     report_settings: report::Settings,
+
+    /// Warn about ignore entries no longer needed by the audited lockfile
+    warn_unused_ignores: bool,
 
     /// Binary scanning configuration (max input size)
     #[cfg(feature = "binary-scanning")]
@@ -142,6 +147,7 @@ impl Auditor {
             registry_index,
             presenter: Presenter::new(&config.output),
             report_settings: config.report_settings(),
+            warn_unused_ignores: config.advisories.warn_unused_ignores,
             #[cfg(feature = "binary-scanning")]
             binary_size_limit: Some(DEFAULT_MAX_BINARY_SIZE),
             #[cfg(feature = "binary-scanning")]
@@ -166,11 +172,33 @@ impl Auditor {
 
         let report = self.audit(&lockfile, None, None);
 
+        if self.warn_unused_ignores {
+            self.warn_unused_ignores(&lockfile);
+        }
+
         let self_advisories = self.self_advisories();
 
         self.presenter.print_self_report(self_advisories.as_slice());
 
         report
+    }
+
+    fn warn_unused_ignores(&self, lockfile: &Lockfile) {
+        if self.report_settings.ignore.is_empty() {
+            return;
+        }
+
+        // Query with only the collection and withdrawn filters. The severity,
+        // target and informational-warning filters from `crate_scope()` are
+        // left out on purpose: they only hide advisories from the report, so
+        // an ignore they hide would still be wrongly called unused.
+        let query = Query::new().collection(Collection::Crates).withdrawn(false);
+        let affected = self.database.query_vulnerabilities(lockfile, &query);
+        for id in &self.report_settings.ignore {
+            if !affected.iter().any(|vuln| &vuln.advisory.id == id) {
+                status_warn!("ignored advisory {} is not needed for this lockfile", id);
+            }
+        }
     }
 
     #[cfg(feature = "binary-scanning")]
@@ -350,7 +378,7 @@ impl Auditor {
             ("cargo-audit", crate::VERSION),
             ("rustsec", rustsec::VERSION),
         ] {
-            let query = rustsec::database::Query::crate_scope()
+            let query = Query::crate_scope()
                 .package_name(package_name.parse().unwrap())
                 .package_version(package_version.parse().unwrap());
 

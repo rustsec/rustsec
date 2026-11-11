@@ -90,12 +90,17 @@ impl AuditConfig {
 }
 
 /// Advisory-related configuration.
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct AdvisoryConfig {
     /// Ignore advisories for the given IDs
     #[serde(default)]
     pub ignore: Vec<advisory::Id>,
+
+    /// Warn when ignored advisories no longer affect the audited lockfile
+    /// (default: true)
+    #[serde(default = "default_true")]
+    pub warn_unused_ignores: bool,
 
     /// Warn for the given types of informational advisories
     pub informational_warnings: Option<Vec<advisory::Informational>>,
@@ -105,6 +110,17 @@ pub struct AdvisoryConfig {
     /// Vulnerabilities with explicit CVSS info which have a severity below
     /// this threshold will be ignored.
     pub severity_threshold: Option<advisory::Severity>,
+}
+
+impl Default for AdvisoryConfig {
+    fn default() -> Self {
+        Self {
+            ignore: Vec::new(),
+            warn_unused_ignores: true,
+            informational_warnings: None,
+            severity_threshold: None,
+        }
+    }
 }
 
 /// Advisory Database configuration.

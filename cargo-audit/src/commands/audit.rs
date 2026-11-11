@@ -111,6 +111,17 @@ pub struct AuditCommand {
     )]
     ignore: Vec<String>,
 
+    /// Warn about ignored advisories that no longer affect the lockfile
+    #[arg(
+        long,
+        value_name = "BOOL",
+        num_args = 0..=1,
+        require_equals = true,
+        default_missing_value = "true",
+        help = "warn about unused ignore entries when auditing a lockfile (default: true)"
+    )]
+    warn_unused_ignores: Option<bool>,
+
     /// Skip checking for yanked crates
     #[arg(long = "no-yanked", help = "do not check for yanked crates")]
     no_yanked: bool,
@@ -221,6 +232,10 @@ impl AuditCommand {
                     .parse()
                     .map_err(|e| ErrorKind::Parse.context(e))?,
             );
+        }
+
+        if let Some(warn) = self.warn_unused_ignores {
+            config.advisories.warn_unused_ignores = warn;
         }
 
         config.database.fetch &= !self.no_fetch;
