@@ -7,6 +7,7 @@
 # permanently specified in this file.
 
 [advisories]
+warn_unused_ignores = true # warn when an ignored advisory no longer affects the lockfile
 ignore = [] # advisory IDs to ignore e.g. ["RUSTSEC-2019-0001", ...]
 informational_warnings = ["unmaintained"] # warn for categories of informational advisories
 severity_threshold = "low" # CVSS severity ("none", "low", "medium", "high", "critical")
