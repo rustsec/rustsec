@@ -62,19 +62,19 @@ impl FixCommand {
             status_warn!("Performing a dry run, the fixes will not be applied");
         }
 
-        let mut unpatchable_vulns: BTreeSet<Id> = BTreeSet::new();
+        let mut unpatchable_advisories: BTreeSet<Id> = BTreeSet::new();
         let mut failed_patches = 0;
 
-        for vulnerability in &report.vulnerabilities.list {
-            if vulnerability.versions.patched().is_empty() {
-                unpatchable_vulns.insert(vulnerability.advisory.id.clone());
+        for advisory in &report.vulnerabilities.list {
+            if advisory.versions.patched().is_empty() {
+                unpatchable_advisories.insert(advisory.advisory.id.clone());
                 status_warn!(
                     "No patched versions available for {} in crate {}",
-                    vulnerability.advisory.id,
-                    vulnerability.package.name
+                    advisory.advisory.id,
+                    advisory.package.name
                 );
             } else {
-                let mut command = fixer.get_fix_command(vulnerability, dry_run);
+                let mut command = fixer.get_fix_command(advisory, dry_run);
                 // If the path to Cargo.lock has been specified explicitly,
                 // run the `cargo update` command in that directory
                 if let Some(path) = self.cargo_lock_path() {
@@ -91,7 +91,7 @@ impl FixCommand {
                     failed_patches += 1;
                     status_warn!(
                         "Failed to run `cargo update` for package {}: {}",
-                        vulnerability.package.name,
+                        advisory.package.name,
                         e
                     );
                 }
@@ -103,7 +103,7 @@ impl FixCommand {
         }
         if dry_run {
             // When performing a dry run, the exit status is determined by whether we had any issues along the way
-            if !unpatchable_vulns.is_empty() {
+            if !unpatchable_advisories.is_empty() {
                 exit(1);
             } else {
                 exit(0)
@@ -114,18 +114,18 @@ impl FixCommand {
             // is too restrictive (uses e.g. `=` or `=<` operators).
             status_ok!(
                 "Verifying",
-                "that the vulnerabilities are fixed after updating dependencies"
+                "that the advisories are fixed after updating dependencies"
             );
             let mut config = config.clone();
             config.output.quiet = true;
             let mut auditor = Auditor::new(&config);
 
             let report_after_fix = auditor.audit_lockfile(&path).unwrap();
-            let vulns_after_fix = &report_after_fix.vulnerabilities.list;
-            let fixable_but_unfixed: Vec<String> = vulns_after_fix
+            let advisories_after_fix = &report_after_fix.vulnerabilities.list;
+            let fixable_but_unfixed: Vec<String> = advisories_after_fix
                 .iter()
-                .filter(|vuln| !unpatchable_vulns.contains(&vuln.advisory.id))
-                .map(|vuln| vuln.advisory.id.to_string())
+                .filter(|advisory| !unpatchable_advisories.contains(&advisory.advisory.id))
+                .map(|advisory| advisory.advisory.id.to_string())
                 .collect();
             if !fixable_but_unfixed.is_empty() {
                 status_warn!(
@@ -137,20 +137,20 @@ impl FixCommand {
                 );
             }
 
-            let remaining_vulns_count = report_after_fix.vulnerabilities.list.len();
-            let fixed_vulns_count = report
+            let remaining_advisories_count = report_after_fix.vulnerabilities.list.len();
+            let fixed_advisories_count = report
                 .vulnerabilities
                 .list
                 .len()
-                .saturating_sub(remaining_vulns_count);
-            if fixed_vulns_count != 0 {
-                if remaining_vulns_count == 0 {
-                    status_ok!("Fixed", "{} vulnerabilities", fixed_vulns_count);
+                .saturating_sub(remaining_advisories_count);
+            if fixed_advisories_count != 0 {
+                if remaining_advisories_count == 0 {
+                    status_ok!("Fixed", "{} advisories", fixed_advisories_count);
                 } else {
                     status_warn!(
-                        "Fixed {} vulnerabilities but {} remain",
-                        fixed_vulns_count,
-                        remaining_vulns_count
+                        "Fixed {} advisories but {} remain",
+                        fixed_advisories_count,
+                        remaining_advisories_count
                     );
                 }
             }
