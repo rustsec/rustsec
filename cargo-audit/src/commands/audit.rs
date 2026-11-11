@@ -1,67 +1,28 @@
 //! The `cargo audit` subcommand
 
+#[cfg(feature = "fix")]
+use std::{collections::BTreeSet, path::Path};
 use std::{
     fmt,
     io::{self, IsTerminal},
     path::PathBuf,
-    process::exit,
+    process::ExitCode,
 };
 
+#[cfg(feature = "fix")]
+use cargo_lock::Lockfile;
 use clap::{Parser, Subcommand, ValueEnum};
+#[cfg(feature = "fix")]
+use rustsec::{Fixer, advisory::Id};
 
 use crate::{
-    auditor::Auditor,
+    auditor::{Auditor, update_db},
     config::{AuditConfig, DenyOption, FilterList, OutputFormat},
     error::{Error, ErrorKind, display_err_with_source},
     lockfile,
     prelude::*,
     terminal::ColorChoice,
 };
-
-#[cfg(feature = "fix")]
-mod fix;
-#[cfg(feature = "fix")]
-use fix::FixCommand;
-
-#[cfg(feature = "binary-scanning")]
-mod binary_scanning;
-#[cfg(feature = "binary-scanning")]
-use binary_scanning::BinCommand;
-
-mod update_db;
-use update_db::UpdateDbCommand;
-
-#[derive(Debug, Clone, Copy, Default, ValueEnum)]
-#[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
-enum Color {
-    Always,
-    // TODO: Should this be also supported?
-    // AlwaysAnsi,
-    #[default]
-    Auto,
-    Never,
-}
-
-impl From<Color> for ColorChoice {
-    fn from(value: Color) -> Self {
-        match value {
-            Color::Always => Self::Always,
-            Color::Auto => Self::Auto,
-            Color::Never => Self::Never,
-        }
-    }
-}
-
-impl fmt::Display for Color {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // NOTE: This must be in sync with values genereted in ValueEnum implementation.
-        match self {
-            Self::Always => f.write_str("always"),
-            Self::Auto => f.write_str("auto"),
-            Self::Never => f.write_str("never"),
-        }
-    }
-}
 
 /// The `cargo audit` subcommand
 #[derive(Clone, Default, Debug, Parser)]
@@ -166,30 +127,6 @@ pub struct AuditCommand {
     output_json: bool,
 }
 
-/// Subcommands of `cargo audit`
-#[derive(Subcommand, Clone, Debug)]
-pub(super) enum AuditSubcommand {
-    /// `cargo audit fix` subcommand
-    #[cfg(feature = "fix")]
-    #[command(about = "automatically upgrade vulnerable dependencies")]
-    Fix(FixCommand),
-
-    /// `cargo audit update-db` subcommand
-    #[command(about = "update the advisory database")]
-    UpdateDb(UpdateDbCommand),
-
-    /// `cargo audit bin` subcommand
-    #[cfg(feature = "binary-scanning")]
-    #[command(
-        about = "scan compiled binaries",
-        long_about = "Scan compiled binaries for known vulnerabilities.
-
-Performs a complete scan if the binary is built with 'cargo auditable'.
-If not, recovers a part of the dependency list from panic messages."
-    )]
-    Bin(BinCommand),
-}
-
 impl AuditCommand {
     /// Get the color configuration
     pub(crate) fn term_colors(&self) -> ColorChoice {
@@ -266,21 +203,18 @@ impl AuditCommand {
     }
 
     /// Run the `cargo audit` subcommand with the given configuration
-    pub fn run(&self, config: &AuditConfig) {
+    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         match &self.subcommand {
             #[cfg(feature = "binary-scanning")]
             Some(AuditSubcommand::Bin(bin)) => {
-                bin.run(config);
-                exit(0);
+                return bin.run(config);
             }
             #[cfg(feature = "fix")]
             Some(AuditSubcommand::Fix(fix)) => {
-                fix.run(config);
-                exit(0);
+                return fix.run(config);
             }
             Some(AuditSubcommand::UpdateDb(update_db)) => {
-                update_db.run(config);
-                exit(0);
+                return update_db.run(config);
             }
             None => {}
         }
@@ -288,24 +222,313 @@ impl AuditCommand {
         let maybe_path = self.file.as_deref();
         // It is important to generate the lockfile before initializing the auditor,
         // otherwise we might deadlock because both need the Cargo package lock
-        let path = lockfile::locate_or_generate(maybe_path).unwrap_or_else(|e| {
-            status_err!("{}", display_err_with_source(&e));
-            exit(2);
-        });
-        let mut auditor = Auditor::new(config);
+        let path =
+            lockfile::locate_or_generate(maybe_path).map_err(|e| ErrorKind::Parse.context(e))?;
+        let mut auditor = Auditor::new(config)?;
         let report = auditor.audit_lockfile(&path);
-        match report {
-            Ok(report) => {
-                if auditor.should_exit_with_failure(&report) {
-                    exit(1);
-                }
-                exit(0);
-            }
+        Ok(match report {
+            Ok(report) => match auditor.should_exit_with_failure(&report) {
+                true => ExitCode::FAILURE,
+                false => ExitCode::SUCCESS,
+            },
             Err(e) => {
                 status_err!("{}", display_err_with_source(&e));
-                exit(2);
+                ExitCode::from(2)
+            }
+        })
+    }
+}
+
+/// Subcommands of `cargo audit`
+#[derive(Subcommand, Clone, Debug)]
+pub(super) enum AuditSubcommand {
+    /// `cargo audit fix` subcommand
+    #[cfg(feature = "fix")]
+    #[command(about = "automatically upgrade vulnerable dependencies")]
+    Fix(FixCommand),
+
+    /// `cargo audit update-db` subcommand
+    #[command(about = "update the advisory database")]
+    UpdateDb(UpdateDbCommand),
+
+    /// `cargo audit bin` subcommand
+    #[cfg(feature = "binary-scanning")]
+    #[command(
+        about = "scan compiled binaries",
+        long_about = "Scan compiled binaries for known vulnerabilities.
+
+Performs a complete scan if the binary is built with 'cargo auditable'.
+If not, recovers a part of the dependency list from panic messages."
+    )]
+    Bin(BinCommand),
+}
+
+#[cfg(feature = "fix")]
+#[derive(Clone, Default, Debug, Parser)]
+#[command(author, version, about)]
+pub(crate) struct FixCommand {
+    /// Path to `Cargo.lock`
+    #[arg(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
+    file: Option<PathBuf>,
+
+    /// Perform a dry run
+    #[arg(long = "dry-run", help = "perform a dry run for the fix")]
+    dry_run: bool,
+}
+
+#[cfg(feature = "fix")]
+impl FixCommand {
+    /// Locate `Cargo.lock`
+    fn cargo_lock_path(&self) -> Option<&Path> {
+        self.file.as_deref()
+    }
+
+    /// Run the `cargo audit fix` subcommand with the given configuration
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+        let path = match lockfile::locate_or_generate(self.cargo_lock_path()) {
+            Ok(path) => path,
+            Err(e) => {
+                status_err!("{}", e);
+                return Ok(ExitCode::from(2));
             }
         };
+
+        let report = Auditor::new(config)?.audit_lockfile(&path);
+        let report = match report {
+            Ok(report) => {
+                // TODO: also handle warnings
+                if report.vulnerabilities.list.is_empty() {
+                    return Ok(ExitCode::SUCCESS);
+                }
+                report
+            }
+            Err(e) => {
+                status_err!("{}", e);
+                return Ok(ExitCode::from(2));
+            }
+        };
+
+        // This should always succeed because the auditor loaded it successfully already
+        let lockfile = Lockfile::load(&path).expect("Failed to load Cargo.lock");
+
+        // TODO: allow specifying manifest path
+        let path_to_cargo: Option<PathBuf> = std::env::var_os("CARGO").map(|path| path.into());
+        let fixer = Fixer::new(lockfile, None, path_to_cargo);
+
+        let dry_run = self.dry_run;
+        if dry_run {
+            status_warn!("Performing a dry run, the fixes will not be applied");
+        }
+
+        let mut unpatchable_vulns: BTreeSet<Id> = BTreeSet::new();
+        let mut failed_patches = 0;
+
+        for vulnerability in &report.vulnerabilities.list {
+            if vulnerability.versions.patched().is_empty() {
+                unpatchable_vulns.insert(vulnerability.advisory.id.clone());
+                status_warn!(
+                    "No patched versions available for {} in crate {}",
+                    vulnerability.advisory.id,
+                    vulnerability.package.name
+                );
+            } else {
+                let mut command = fixer.get_fix_command(vulnerability, dry_run);
+                // If the path to Cargo.lock has been specified explicitly,
+                // run the `cargo update` command in that directory
+                if let Some(path) = self.cargo_lock_path() {
+                    // documentation on .current_dir() recommends canonicalizing the path
+                    let canonical_path = path.canonicalize().unwrap();
+                    let dir = canonical_path.parent().unwrap();
+                    command.current_dir(dir);
+                }
+                // When calling `.status()` the stdout and stderr are inherited from the parent,
+                // so any status or error messages from `cargo update` will automatically be forwarded
+                // to the user of `cargo audit fix`.
+                let status = command.status();
+                if let Err(e) = status {
+                    failed_patches += 1;
+                    status_warn!(
+                        "Failed to run `cargo update` for package {}: {}",
+                        vulnerability.package.name,
+                        e
+                    );
+                }
+            }
+        }
+
+        if failed_patches != 0 {
+            return Ok(ExitCode::from(2));
+        }
+        if dry_run {
+            // When performing a dry run, the exit status is determined by whether we had any issues along the way
+            Ok(if !unpatchable_vulns.is_empty() {
+                ExitCode::FAILURE
+            } else {
+                ExitCode::SUCCESS
+            })
+        } else {
+            // It is possible that some vulns we tried to fix actually weren't fixed,
+            // either because there is no semver-compatible fix or because Cargo.toml version specification
+            // is too restrictive (uses e.g. `=` or `=<` operators).
+            status_ok!(
+                "Verifying",
+                "that the vulnerabilities are fixed after updating dependencies"
+            );
+            let mut config = config.clone();
+            config.output.quiet = true;
+            let mut auditor = Auditor::new(&config)?;
+
+            let report_after_fix = auditor.audit_lockfile(&path)?;
+            let vulns_after_fix = &report_after_fix.vulnerabilities.list;
+            let fixable_but_unfixed: Vec<String> = vulns_after_fix
+                .iter()
+                .filter(|vuln| !unpatchable_vulns.contains(&vuln.advisory.id))
+                .map(|vuln| vuln.advisory.id.to_string())
+                .collect();
+            if !fixable_but_unfixed.is_empty() {
+                status_warn!(
+                    "The following advisories have patched versions but could not be fixed:\n    {}\n\
+                    This usually occurs when the fixed version is not semver-compatible,\n\
+                    or the version range specified in your `Cargo.toml` is too restrictive\n\
+                    (e.g. uses `=` or `=<` operators) so the fixed version would not match it.",
+                    fixable_but_unfixed.join(", ")
+                );
+            }
+
+            let remaining_vulns_count = report_after_fix.vulnerabilities.list.len();
+            let fixed_vulns_count = report
+                .vulnerabilities
+                .list
+                .len()
+                .saturating_sub(remaining_vulns_count);
+            if fixed_vulns_count != 0 {
+                if remaining_vulns_count == 0 {
+                    status_ok!("Fixed", "{} vulnerabilities", fixed_vulns_count);
+                } else {
+                    status_warn!(
+                        "Fixed {} vulnerabilities but {} remain",
+                        fixed_vulns_count,
+                        remaining_vulns_count
+                    );
+                }
+            }
+
+            Ok(match remaining_vulns_count {
+                0 => ExitCode::SUCCESS,
+                _ => ExitCode::FAILURE,
+            })
+        }
+    }
+}
+
+#[cfg(feature = "binary-scanning")]
+/// The `cargo audit` subcommand
+#[derive(Clone, Default, Debug, Parser)]
+#[command()]
+pub(crate) struct BinCommand {
+    /// Maximum binary size in bytes to read
+    #[arg(
+        long = "max-binary-size",
+        value_name = "BYTES",
+        help = "Maximum binary size in bytes to read (default: 100MB; use 0 for unlimited)"
+    )]
+    max_binary_size: Option<u64>,
+
+    /// Maximum audit data size in bytes to parse
+    #[arg(
+        long = "audit-data-size-limit",
+        value_name = "BYTES",
+        help = "Maximum audit data size in bytes to parse (default: 8MB)"
+    )]
+    audit_data_size_limit: Option<usize>,
+
+    /// Paths to the binaries to be scanned
+    #[arg(
+        value_parser,
+        required = true,
+        help = "Paths to the binaries to be scanned"
+    )]
+    binary_paths: Vec<PathBuf>,
+}
+
+#[cfg(feature = "binary-scanning")]
+impl BinCommand {
+    /// Run the `cargo audit bin` subcommand with the given configuration
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+        let mut auditor = Auditor::new(config)?;
+        auditor.set_binary_scan_limits(self.max_binary_size, self.audit_data_size_limit);
+        let report = auditor.audit_binaries(&self.binary_paths);
+        Ok(if report.vulnerabilities_found {
+            ExitCode::from(1)
+        } else if report.errors_encountered {
+            ExitCode::from(2)
+        } else {
+            ExitCode::from(0)
+        })
+    }
+}
+
+#[derive(Clone, Default, Debug, Parser)]
+#[command(author, version, about)]
+pub(crate) struct UpdateDbCommand {
+    /// Filesystem path to the advisory database git repository
+    #[arg(
+        short,
+        long = "db",
+        help = "advisory database git repo path (default: ~/.cargo/advisory-db)"
+    )]
+    db: Option<PathBuf>,
+    /// URL to the advisory database git repository
+    #[arg(short = 'u', long = "url", help = "URL for advisory database git repo")]
+    url: Option<String>,
+}
+
+impl UpdateDbCommand {
+    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+        let mut config = config.clone();
+        if let Some(db) = &self.db {
+            config.database.path = Some(db.clone());
+        }
+
+        if let Some(url) = &self.url {
+            config.database.url = Some(url.clone());
+        }
+
+        let path = config.database.path();
+        let _ = update_db(&path, &config.database, config.output.is_quiet())?;
+        Ok(ExitCode::SUCCESS)
+    }
+}
+
+#[derive(Debug, Clone, Copy, Default, ValueEnum)]
+#[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
+enum Color {
+    Always,
+    // TODO: Should this be also supported?
+    // AlwaysAnsi,
+    #[default]
+    Auto,
+    Never,
+}
+
+impl From<Color> for ColorChoice {
+    fn from(value: Color) -> Self {
+        match value {
+            Color::Always => Self::Always,
+            Color::Auto => Self::Auto,
+            Color::Never => Self::Never,
+        }
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // NOTE: This must be in sync with values genereted in ValueEnum implementation.
+        match self {
+            Self::Always => f.write_str("always"),
+            Self::Auto => f.write_str("auto"),
+            Self::Never => f.write_str("never"),
+        }
     }
 }
 
