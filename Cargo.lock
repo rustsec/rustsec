@@ -395,6 +395,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "cargo-config2"
+version = "0.1.45"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "855d1b74d8faf6c56e02ddbb8a60f6eae479bba5ee6ee29cddee73fe9484f261"
+dependencies = [
+ "serde",
+ "serde_derive",
+ "toml 1.1.8+spec-1.1.0",
+]
+
+[[package]]
 name = "cargo-lock"
 version = "11.1.0"
 dependencies = [
@@ -3221,6 +3232,7 @@ dependencies = [
  "auditable-info",
  "auditable-serde",
  "binfarce",
+ "cargo-config2",
  "cargo-lock",
  "cvss",
  "fs-err",
@@ -3230,6 +3242,7 @@ dependencies = [
  "once_cell",
  "platforms",
  "quitters",
+ "reqwest",
  "semver",
  "serde",
  "serde_json",

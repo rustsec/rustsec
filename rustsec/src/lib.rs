@@ -24,6 +24,9 @@ pub mod binary_scanning;
 mod cached_index;
 
 #[cfg(feature = "git")]
+mod http_proxy;
+
+#[cfg(feature = "git")]
 #[cfg_attr(docsrs, doc(cfg(feature = "git")))]
 pub mod registry {
     //! Support for interacting with the local crates.io registry index
