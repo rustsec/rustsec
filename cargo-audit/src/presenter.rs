@@ -646,8 +646,13 @@ mod tests {
     /// Executes `cargo audit bin` via `cargo run`.
     fn runner() -> Command {
         let mut runner = Command::new("cargo");
+        // Keep the tested binary's optional subcommands when this nested build
+        // overwrites it before the integration tests run.
+        #[cfg(feature = "fix")]
+        runner.args(["run", "--features", "fix"]);
+        #[cfg(not(feature = "fix"))]
+        runner.arg("run");
         runner
-            .arg("run")
             .arg("--")
             .arg("audit")
             .arg("--color=never")
