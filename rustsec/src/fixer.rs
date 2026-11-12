@@ -41,6 +41,17 @@ impl Fixer {
     /// Note that the success of the command does not mean
     /// the vulnerability was actually fixed!
     /// It may remain if no semver-compatible fix was available.
+    #[deprecated(note = "renamed to `Fixer::fix_command()`")]
+    pub fn get_fix_command(&self, vulnerability: &Vulnerability, dry_run: bool) -> Command {
+        self.fix_command(vulnerability, dry_run)
+    }
+
+    /// Returns a command that calls `cargo update` with the right arguments
+    /// to attempt to fix this vulnerability.
+    ///
+    /// Note that the success of the command does not mean
+    /// the vulnerability was actually fixed!
+    /// It may remain if no semver-compatible fix was available.
     pub fn fix_command(&self, vulnerability: &Vulnerability, dry_run: bool) -> Command {
         self.fix_command_for(&vulnerability.package, &vulnerability.versions, dry_run)
     }
@@ -161,5 +172,54 @@ Test.
                 "--config=/tmp/attacker-config@1.0.0",
             ]
         );
+    }
+
+    #[test]
+    #[allow(deprecated)]
+    fn get_fix_command_deprecated_alias_matches_fix_command() {
+        // The deprecated legacy name must behave exactly like the canonical one.
+        let lockfile: Lockfile = r#"version = 3
+
+[[package]]
+name = "example"
+version = "1.0.0"
+"#
+        .parse()
+        .expect("parse lock file");
+
+        let advisory: Advisory = r#"```toml
+[advisory]
+id = "RUSTSEC-2026-0001"
+package = "example"
+date = "2026-11-10"
+
+[versions]
+patched = [">=2.0.0"]
+```
+
+# Test advisory
+
+Test.
+"#
+        .parse()
+        .expect("parse advisory");
+
+        let vulnerability = Vulnerability::new(&advisory, &lockfile.packages[0]);
+        let fixer = Fixer::new(lockfile, Some("Cargo.toml".into()), None);
+
+        let legacy = fixer.get_fix_command(&vulnerability, true);
+        let canonical = fixer.fix_command(&vulnerability, true);
+
+        let legacy_args: Vec<_> = legacy
+            .get_args()
+            .map(|arg| arg.to_str().expect("arg is valid str").to_owned())
+            .collect();
+        let canonical_args: Vec<_> = canonical
+            .get_args()
+            .map(|arg| arg.to_str().expect("arg is valid str").to_owned())
+            .collect();
+
+        assert_eq!(legacy.get_program(), canonical.get_program());
+        assert_eq!(legacy_args, canonical_args);
     }
 }
