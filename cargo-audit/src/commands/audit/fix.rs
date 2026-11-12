@@ -74,7 +74,7 @@ impl FixCommand {
                     advisory.package.name
                 );
             } else {
-                let mut command = fixer.get_fix_command(advisory, dry_run);
+                let mut command = fixer.fix_command(advisory, dry_run);
                 // If the path to Cargo.lock has been specified explicitly,
                 // run the `cargo update` command in that directory
                 if let Some(path) = self.cargo_lock_path() {
