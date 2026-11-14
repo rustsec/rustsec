@@ -305,7 +305,14 @@ fn precise_update_command_targets_the_planned_package_and_version() {
     let expected_pkgid = format!("{REGISTRY}#libduckdb-sys@1.0.0");
     assert_eq!(
         args,
-        ["update", "--dry-run", &expected_pkgid, "--precise", "1.1.0"]
+        [
+            "update",
+            "--dry-run",
+            "--precise",
+            "1.1.0",
+            "--",
+            &expected_pkgid
+        ]
     );
 }
 
@@ -444,9 +451,39 @@ fn precise_update_command_honors_manifest_path_and_cargo_path() {
             "update",
             "--manifest-path",
             "ws/Cargo.toml",
-            &format!("{REGISTRY}#libduckdb-sys@1.0.0"),
             "--precise",
             "1.1.0",
+            "--",
+            &format!("{REGISTRY}#libduckdb-sys@1.0.0"),
+        ]
+    );
+}
+
+/// Same guard as the plain fix command: a lockfile entry whose name looks
+/// like a flag must reach cargo as a package, never as an option
+#[test]
+fn precise_update_command_passes_a_flag_like_package_name_after_the_separator() {
+    let lockfile: Lockfile = "version = 3\n[[package]]\n\
+                              name = \"--config=/tmp/attacker-config\"\n\
+                              version = \"1.0.0\"\n"
+        .parse()
+        .unwrap();
+    let fix = DependentFix::Update {
+        package: Box::new(lockfile.packages[0].clone()),
+        version: "1.1.0".parse().unwrap(),
+    };
+    let command = Fixer::new(lockfile, None, None)
+        .get_fix_via_dependents_command(&fix, false)
+        .unwrap();
+    assert_eq!(
+        command_line(&command),
+        [
+            "cargo",
+            "update",
+            "--precise",
+            "1.1.0",
+            "--",
+            "--config=/tmp/attacker-config@1.0.0",
         ]
     );
 }

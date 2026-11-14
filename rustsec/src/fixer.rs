@@ -147,10 +147,13 @@ impl Fixer {
             return None;
         };
         let mut command = self.base_update_command(dry_run);
+        // As in `get_fix_command`, `--` keeps a lockfile entry starting with
+        // `--` from being read as a flag, so every option goes before it
         command
-            .arg(pkgid(package))
             .arg("--precise")
-            .arg(version.to_string());
+            .arg(version.to_string())
+            .arg("--")
+            .arg(pkgid(package));
         Some(command)
     }
 
