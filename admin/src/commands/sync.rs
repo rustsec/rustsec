@@ -193,12 +193,12 @@ impl Runnable for SyncCmd {
             // TODO: automate new advisory draft
             synchronized
                 .missing_advisories
-                .sort_by(|a, b| a.published().partial_cmp(b.published()).unwrap());
+                .sort_by(|a, b| a.published.partial_cmp(&b.published).unwrap());
             for a in synchronized.missing_advisories {
                 println!(
                     "{:.10}: https://github.com/advisories/{} for {:?}",
-                    a.published(),
-                    a.id(),
+                    a.published,
+                    a.id,
                     a.crates()
                 );
             }
@@ -231,7 +231,7 @@ fn sync<'a>(
     let mut out = Synchronized::default();
     let (mut check_crates, mut check_advisories) = (BTreeSet::default(), Vec::new());
     for osv in osv {
-        if osv.withdrawn() {
+        if osv.withdrawn.is_some() {
             // Ignore withdrawn advisories from the start
             continue;
         }
@@ -242,7 +242,7 @@ fn sync<'a>(
         let mut rs_aliases = osv.rustsec_refs_imported();
         // The list of RustSec advisories already having this advisory id as alias
         rs_aliases.extend(advisory_db.iter().filter_map(|a| {
-            if a.metadata.aliases.contains(osv.id()) {
+            if a.metadata.aliases.contains(&osv.id) {
                 Some(a.id().clone())
             } else {
                 None
@@ -265,7 +265,7 @@ fn sync<'a>(
                             "Info",
                             "Crate name {} in {} advisory is invalid, skipping",
                             c,
-                            osv.id(),
+                            osv.id,
                         );
                     }
                 }
@@ -290,7 +290,7 @@ fn sync<'a>(
                         "Info",
                         "Crate names {:?} in {} advisory not matching existing advisory {}, skipping",
                         affected_crates,
-                        osv.id(),
+                        osv.id,
                         rs_advisory.id()
                     );
                     continue;
@@ -322,14 +322,14 @@ fn sync<'a>(
                     "Info",
                     "Unknown crate {} in {} advisory, skipping",
                     crate_name,
-                    osv.id()
+                    osv.id
                 );
             }
             Some(Err(error)) => {
                 status_err!(
                     "failed to fetch crates.io metadata for {} in {}: {error}",
                     crate_name,
-                    osv.id()
+                    osv.id
                 );
                 continue;
             }
@@ -350,7 +350,7 @@ fn update_advisory_from_alias(
 ) -> Result<(), Error> {
     let mut missing_aliases = vec![];
     let missing_related = vec![];
-    for external_id in external.aliases().iter().chain(iter::once(external.id())) {
+    for external_id in external.aliases.iter().chain(iter::once(&external.id)) {
         // Heuristic based on advisory kind
         match external_id.kind() {
             IdKind::Cve | IdKind::Ghsa => {
