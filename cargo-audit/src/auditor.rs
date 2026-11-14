@@ -75,64 +75,7 @@ impl Auditor {
         }
 
         let registry_index = if config.yanked.enabled {
-            if config.yanked.update_index && config.database.fetch {
-                if !config.output.is_quiet() {
-                    status_ok!("Updating", "crates.io index");
-                }
-
-                let user_agent = format!("cargo-audit/{}", crate::VERSION);
-                let mut result = CachedIndex::fetch_as(Duration::from_secs(0), user_agent.clone());
-
-                // If the directory is locked, print a message and wait for it to become unlocked.
-                // If we don't print the message, `cargo audit` would just hang with no explanation.
-                if let Err(e) = &result
-                    && e.kind() == ErrorKind::LockTimeout
-                {
-                    status_warn!(
-                        "directory {} is locked, waiting for up to {} seconds for it to become available",
-                        advisory_db_path.display(),
-                        DEFAULT_LOCK_TIMEOUT.as_secs()
-                    );
-                    result = CachedIndex::fetch_as(DEFAULT_LOCK_TIMEOUT, user_agent);
-                }
-
-                match result {
-                    Ok(index) => Some(index),
-                    Err(err) => {
-                        if !config.output.is_quiet() {
-                            status_warn!("couldn't update crates.io index: {}", err);
-                        }
-
-                        None
-                    }
-                }
-            } else {
-                let mut result = CachedIndex::open(Duration::from_secs(0));
-
-                // If the directory is locked, print a message and wait for it to become unlocked.
-                // If we don't print the message, `cargo audit` would just hang with no explanation.
-                if let Err(e) = &result
-                    && e.kind() == ErrorKind::LockTimeout
-                {
-                    status_warn!(
-                        "directory {} is locked, waiting for up to {} seconds for it to become available",
-                        advisory_db_path.display(),
-                        DEFAULT_LOCK_TIMEOUT.as_secs()
-                    );
-                    result = CachedIndex::open(DEFAULT_LOCK_TIMEOUT)
-                }
-
-                match result {
-                    Ok(index) => Some(index),
-                    Err(err) => {
-                        if !config.output.is_quiet() {
-                            status_warn!("couldn't open crates.io index: {}", err);
-                        }
-
-                        None
-                    }
-                }
-            }
+            open_crates_io_index(config)
         } else {
             None
         };
@@ -371,6 +314,65 @@ impl Auditor {
             || self
                 .presenter
                 .should_exit_with_failure_due_to_self(&self.self_advisories())
+    }
+}
+
+/// Open the crates.io index the way `config` asks: fetched when index updates
+/// and database fetching are enabled, otherwise read from the local cache.
+///
+/// The returned index holds the Cargo package lock until it is dropped.
+pub(crate) fn open_crates_io_index(config: &AuditConfig) -> Option<CachedIndex> {
+    if config.yanked.update_index && config.database.fetch {
+        if !config.output.is_quiet() {
+            status_ok!("Updating", "crates.io index");
+        }
+        let user_agent = format!("cargo-audit/{}", crate::VERSION);
+        let result = wait_for_package_lock_if_held(|timeout| {
+            CachedIndex::fetch_as(timeout, user_agent.clone())
+        });
+        index_or_warning(config, result, "update")
+    } else {
+        index_or_warning(
+            config,
+            wait_for_package_lock_if_held(CachedIndex::open),
+            "open",
+        )
+    }
+}
+
+/// Call `open` without waiting for the Cargo package lock; if another process
+/// holds it, say so and wait for up to [`DEFAULT_LOCK_TIMEOUT`].
+/// Without the message, `cargo audit` would just hang with no explanation.
+fn wait_for_package_lock_if_held(
+    open: impl Fn(Duration) -> rustsec::Result<CachedIndex>,
+) -> rustsec::Result<CachedIndex> {
+    let result = open(Duration::from_secs(0));
+    if let Err(e) = &result
+        && e.kind() == ErrorKind::LockTimeout
+    {
+        status_warn!(
+            "the Cargo package cache is locked by another process, waiting for up to {} seconds for it to become available",
+            DEFAULT_LOCK_TIMEOUT.as_secs()
+        );
+        return open(DEFAULT_LOCK_TIMEOUT);
+    }
+    result
+}
+
+/// The opened index, or `None` after warning (unless quiet) that it could not be `action`ed
+fn index_or_warning(
+    config: &AuditConfig,
+    result: rustsec::Result<CachedIndex>,
+    action: &str,
+) -> Option<CachedIndex> {
+    match result {
+        Ok(index) => Some(index),
+        Err(err) => {
+            if !config.output.is_quiet() {
+                status_warn!("couldn't {} crates.io index: {}", action, err);
+            }
+            None
+        }
     }
 }
 
