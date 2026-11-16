@@ -2,7 +2,30 @@
 
 use std::{fs, path::Path};
 
-use cargo_audit::config::AuditConfig;
+use cargo_audit::config::{AuditConfig, OutputFormat};
+
+#[test]
+fn default_output_config() {
+    let output = AuditConfig::default().output;
+    assert!(output.show_tree);
+    assert!(output.deny.is_empty());
+    assert_eq!(output.format, OutputFormat::Terminal);
+    assert!(!output.quiet);
+}
+
+#[test]
+fn configured_dependency_trees() {
+    for (input, show_tree) in [
+        ("", true),
+        ("[target]\narch = 'x86_64'", true),
+        ("[output]\nquiet = false", true),
+        ("[output]\nquiet = false\nshow_tree = true", true),
+        ("[output]\nquiet = false\nshow_tree = false", false),
+    ] {
+        let config: AuditConfig = toml::from_str(input).unwrap();
+        assert_eq!(config.output.show_tree, show_tree, "{input}");
+    }
+}
 
 /// Ensure `audit.toml.example` parses as a valid config file
 #[test]
