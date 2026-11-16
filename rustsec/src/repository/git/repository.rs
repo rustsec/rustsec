@@ -127,6 +127,10 @@ impl Repository {
                         git_binary: true,
                         ..Default::default()
                     },
+                    env: gix::open::permissions::Environment {
+                        git_prefix: gix::sec::Permission::Deny,
+                        ..gix::open::permissions::Environment::all()
+                    },
                     ..Default::default()
                 });
 
