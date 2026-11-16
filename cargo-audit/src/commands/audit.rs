@@ -328,6 +328,26 @@ impl AuditCommand {
 mod tests {
     use super::*;
 
+    #[test]
+    fn override_dependency_trees() {
+        for show_tree in [true, false] {
+            let mut config = AuditConfig::default();
+            config.output.show_tree = show_tree;
+
+            let command = AuditCommand::default();
+            let overridden = command.override_config(config.clone()).unwrap();
+            assert_eq!(overridden.output.show_tree, show_tree);
+
+            let command = AuditCommand {
+                quiet: true,
+                ..Default::default()
+            };
+            let overridden = command.override_config(config).unwrap();
+            assert!(!overridden.output.show_tree);
+            assert!(overridden.output.quiet);
+        }
+    }
+
     /// Ensure that when the database fetch option is false in the config file
     /// that it takes precedence when the CLI --no-fetch flag is _not_ set.
     #[test]

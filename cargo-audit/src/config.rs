@@ -172,7 +172,7 @@ impl Default for DatabaseConfig {
 }
 
 /// Output configuration
-#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct OutputConfig {
     /// Disallow advisories which trigger warnings
@@ -195,6 +195,17 @@ impl OutputConfig {
     /// Is quiet mode enabled?
     pub fn is_quiet(&self) -> bool {
         self.quiet || self.format == OutputFormat::Json || self.format == OutputFormat::Sarif
+    }
+}
+
+impl Default for OutputConfig {
+    fn default() -> Self {
+        Self {
+            deny: Vec::new(),
+            format: OutputFormat::default(),
+            quiet: false,
+            show_tree: default_show_tree(),
+        }
     }
 }
 
