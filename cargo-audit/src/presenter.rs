@@ -337,10 +337,7 @@ impl Presenter {
             return true;
         }
         let (denied, _allowed) = self.count_warnings(report);
-        if denied != 0 {
-            return true;
-        }
-        false
+        denied != 0
     }
 
     /// Determines whether the process should exit with failure based on configuration
