@@ -10,12 +10,12 @@ edition     = "2024"
 [dependencies]
 abscissa_core = { workspace = true }
 askama = { workspace = true }
-atom_syndication = { workspace = true }
 clap = { workspace = true }
 comrak = { workspace = true }
 cvss = { workspace = true }
 display-error-chain = { workspace = true }
 fs-err = { workspace = true }
+instant-feeds = { workspace = true }
 jiff = { workspace = true }
 tame-index = { workspace = true, features = ["sparse"] }
 gix = { workspace = true, optional = true }
@@ -26,7 +26,6 @@ termcolor = { workspace = true }
 thiserror = { workspace = true }
 toml = { workspace = true }
 toml_edit = { workspace = true }
-xml = { workspace = true }
 
 [dev-dependencies]
 abscissa_core = { workspace = true, features = ["testing"] }
