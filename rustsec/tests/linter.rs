@@ -155,6 +155,92 @@ fn draft_id_mismatch() {
     );
 }
 
+#[test]
+fn patched_versions_must_not_leave_future_versions_affected() {
+    for patched in [
+        vec!["^1.2.3"],
+        vec!["1.2.3"],
+        vec!["~1.2.3"],
+        vec!["=1.2.3"],
+        vec![">=1.2.3, <2.0.0"],
+        vec![">=1.2.3, <=2.0.0"],
+        vec!["^0.1.2"],
+        vec!["^0.0.1"],
+        vec![">=0.1.2, <0.2.0", ">=1.2.3, <2.0.0"],
+        vec![">=1.2.3-alpha.1, <2.0.0"],
+    ] {
+        let advisory = advisory_with_versions(&patched, &[]);
+        let lint = Linter::lint_string(&advisory, None).unwrap();
+        assert_eq!(lint.errors().len(), 1, "{patched:?}");
+        assert_eq!(
+            lint.errors()[0].to_string(),
+            "malformed content in [versions]: patched ranges have an upper bound, leaving future versions affected; use an open-ended range for the latest fix",
+            "{patched:?}"
+        );
+    }
+}
+
+#[test]
+fn future_version_lint_accepts_open_ended_and_unpatched_advisories() {
+    for (patched, unaffected) in [
+        (vec![], vec![]),
+        (vec![], vec!["<1.2.3"]),
+        (vec![">=1.2.3"], vec![]),
+        (vec![">1.2.3"], vec![]),
+        (vec![">=1.2.3-alpha.1"], vec![]),
+        (vec![">=0.1.2, <0.2.0", ">=1.2.3"], vec![]),
+        (vec![">=1.2.3", ">=0.1.2, <0.2.0"], vec![]),
+        (vec!["^1.2.3"], vec![">=2.0.0"]),
+    ] {
+        let advisory = advisory_with_versions(&patched, &unaffected);
+        let lint = Linter::lint_string(&advisory, None).unwrap();
+        assert!(
+            lint.errors().is_empty(),
+            "{patched:?}, {unaffected:?}: errors={:?}",
+            lint.errors()
+        );
+    }
+}
+
+#[test]
+fn future_version_lint_does_not_reject_loading_old_advisories() {
+    let advisory = advisory_with_versions(&["^1.2.3"], &[]);
+    assert!(advisory.parse::<rustsec::Advisory>().is_ok());
+}
+
+#[test]
+fn future_version_error_alongside_other_lint_errors() {
+    let advisory = advisory_with_versions(&["^1.2.3"], &[])
+        .replace("https://www.youtube.com", "http://www.youtube.com");
+    let lint = Linter::lint_string(&advisory, None).unwrap();
+    let errors: Vec<String> = lint.errors().iter().map(ToString::to_string).collect();
+    assert_eq!(errors.len(), 2, "{errors:?}");
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.contains("URL must start with https://")),
+        "{errors:?}"
+    );
+    assert!(
+        errors
+            .iter()
+            .any(|error| error.contains("patched ranges have an upper bound")),
+        "{errors:?}"
+    );
+}
+
+fn advisory_with_versions(patched: &[&str], unaffected: &[&str]) -> String {
+    VALID_ADVISORY_MD
+        .replace(
+            "patched = [\">= 1.2.3\"]",
+            &format!("patched = {patched:?}"),
+        )
+        .replace(
+            "unaffected = [\"0.1.2\"]",
+            &format!("unaffected = {unaffected:?}"),
+        )
+}
+
 /// The `url` field must not point at a GHSA that is already listed in `aliases`
 #[test]
 fn url_is_ghsa_alias() {

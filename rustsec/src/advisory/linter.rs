@@ -13,6 +13,7 @@ use super::{Advisory, Category, parts};
 use crate::advisory::Informational;
 use crate::advisory::license::License;
 use crate::fs;
+use crate::osv::ranges_for_advisory;
 
 /// Lint information about a particular advisory
 #[derive(Debug)]
@@ -332,6 +333,20 @@ impl Linter {
 
     /// Lint the `[versions]` section of an advisory
     fn lint_versions(&mut self, versions: &toml::Value) {
+        if !self.advisory.versions.patched().is_empty()
+            && ranges_for_advisory(&self.advisory.versions)
+                .last()
+                .is_some_and(|range| range.fixed.is_none())
+        {
+            self.errors.push(Error {
+                kind: ErrorKind::Malformed,
+                section: Some("versions"),
+                message: Some(
+                    "patched ranges have an upper bound, leaving future versions affected; use an open-ended range for the latest fix".into(),
+                ),
+            });
+        }
+
         if let Some(table) = versions.as_table() {
             for (key, _) in table {
                 match key.as_str() {
