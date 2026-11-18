@@ -16,7 +16,7 @@ use atom_syndication::{
 };
 use comrak::markdown_to_html;
 use fs_err::{self as fs, File};
-use jiff::{Span, Zoned, civil::Date, tz::TimeZone};
+use jiff::{Span, ZonedDateTime, civil::Date, tz::TimeZone};
 use rustsec::advisory::{Category, Id};
 use rustsec::osv::OsvAdvisory;
 use rustsec::repository::git::GitModificationTimes;
@@ -367,7 +367,7 @@ pub fn render_advisories(output_folder: PathBuf) {
     let feed_path = output_folder.join("feed.xml");
     let min_feed_len = 10;
 
-    let start = Zoned::now()
+    let start = ZonedDateTime::now()
         .with_time_zone(TimeZone::UTC)
         .checked_sub(Span::new().days(8))
         .unwrap()
