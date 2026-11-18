@@ -1,0 +1,13 @@
+[package]
+name = "duckdb_pinned_zip"
+version = "0.1.0"
+publish = false
+
+[lib]
+path = "dummy.rs"
+
+# duckdb pins libduckdb-sys exactly, and libduckdb-sys 1.10506.0 requires
+# zip ^6, which is vulnerable (RUSTSEC-2026-0367 and others). Only moving
+# duckdb to 1.10506.1 lets zip reach a patched 9.x release.
+[dependencies]
+duckdb = "1.10506.0"

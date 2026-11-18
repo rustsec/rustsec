@@ -1,13 +1,15 @@
 //! The `cargo audit fix` subcommand
 
+mod via_dependents;
+
 use crate::{auditor::Auditor, config::AuditConfig, lockfile, prelude::*};
 use cargo_lock::Lockfile;
 use clap::Parser;
-use rustsec::{Fixer, advisory::Id};
+use rustsec::{Fixer, Report, Vulnerability, advisory::Id};
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
-    process::exit,
+    process::{Command, ExitStatus, exit},
 };
 
 #[derive(Clone, Default, Debug, Parser)]
@@ -20,6 +22,13 @@ pub(crate) struct FixCommand {
     /// Perform a dry run
     #[arg(long = "dry-run", help = "perform a dry run for the fix")]
     dry_run: bool,
+
+    /// Also update dependents that pin a vulnerable crate below its fix
+    #[arg(
+        long = "via-dependents",
+        help = "when a dependent pins a vulnerable crate below its fix, update that dependent"
+    )]
+    via_dependents: bool,
 }
 
 impl FixCommand {
@@ -50,12 +59,7 @@ impl FixCommand {
             }
         };
 
-        // This should always succeed because the auditor loaded it successfully already
-        let lockfile = Lockfile::load(&path).expect("Failed to load Cargo.lock");
-
-        // TODO: allow specifying manifest path
-        let path_to_cargo: Option<PathBuf> = std::env::var_os("CARGO").map(|path| path.into());
-        let fixer = Fixer::new(lockfile, None, path_to_cargo);
+        let fixer = fixer_for(&path);
 
         let dry_run = self.dry_run;
         if dry_run {
@@ -74,30 +78,20 @@ impl FixCommand {
                     vulnerability.package.name
                 );
             } else {
-                let mut command = fixer.get_fix_command(vulnerability, dry_run);
-                // If the path to Cargo.lock has been specified explicitly,
-                // run the `cargo update` command in that directory
-                if let Some(path) = self.cargo_lock_path() {
-                    // documentation on .current_dir() recommends canonicalizing the path
-                    let canonical_path = path.canonicalize().unwrap();
-                    let dir = canonical_path.parent().unwrap();
-                    command.current_dir(dir);
-                }
-                // When calling `.status()` the stdout and stderr are inherited from the parent,
-                // so any status or error messages from `cargo update` will automatically be forwarded
-                // to the user of `cargo audit fix`.
-                let status = command.status();
-                if let Err(e) = status {
+                let command = fixer.get_fix_command(vulnerability, dry_run);
+                if self
+                    .run_cargo_update(command, vulnerability.package.name.as_str())
+                    .is_none()
+                {
                     failed_patches += 1;
-                    status_warn!(
-                        "Failed to run `cargo update` for package {}: {}",
-                        vulnerability.package.name,
-                        e
-                    );
                 }
             }
         }
 
+        if dry_run && self.via_dependents {
+            failed_patches +=
+                self.update_pinning_dependents(config, &path, &report.vulnerabilities.list, true);
+        }
         if failed_patches != 0 {
             exit(2);
         }
@@ -118,9 +112,7 @@ impl FixCommand {
             );
             let mut config = config.clone();
             config.output.quiet = true;
-            let mut auditor = Auditor::new(&config);
-
-            let report_after_fix = auditor.audit_lockfile(&path).unwrap();
+            let report_after_fix = self.audit_after_fix(&config, &path);
             let vulns_after_fix = &report_after_fix.vulnerabilities.list;
             let fixable_but_unfixed: Vec<String> = vulns_after_fix
                 .iter()
@@ -156,4 +148,87 @@ impl FixCommand {
             }
         }
     }
+
+    /// Run a `cargo update` command for `package`, in the lockfile's directory
+    /// when `--file` was given. Returns `None` if the command could not be started.
+    fn run_cargo_update(&self, mut command: Command, package: &str) -> Option<ExitStatus> {
+        // If the path to Cargo.lock has been specified explicitly,
+        // run the `cargo update` command in that directory
+        if let Some(path) = self.cargo_lock_path() {
+            // documentation on .current_dir() recommends canonicalizing the path
+            let canonical_path = path.canonicalize().unwrap();
+            let dir = canonical_path.parent().unwrap();
+            command.current_dir(dir);
+        }
+        // When calling `.status()` the stdout and stderr are inherited from the parent,
+        // so any status or error messages from `cargo update` will automatically be forwarded
+        // to the user of `cargo audit fix`.
+        command
+            .status()
+            .inspect_err(|e| {
+                status_warn!(
+                    "Failed to run `cargo update` for package {}: {}",
+                    package,
+                    e
+                );
+            })
+            .ok()
+    }
+
+    /// Run a planned `cargo update --precise` for `package`. Unlike the plain
+    /// update, cargo rejecting it counts as a failure: the plan may rest on a
+    /// guessed `Cargo.toml` requirement that only cargo can check.
+    fn run_precise_update(&self, command: Command, package: &str) -> bool {
+        let Some(status) = self.run_cargo_update(command, package) else {
+            return false;
+        };
+        if !status.success() {
+            status_warn!("`cargo update` rejected the planned update of {}", package);
+        }
+        status.success()
+    }
+
+    /// Re-audit the lockfile after the plain updates, first updating pinning
+    /// dependents when `--via-dependents` was given.
+    ///
+    /// Each [`Auditor`] is dropped right after its audit because it holds the
+    /// Cargo package lock, which the `cargo update` commands need.
+    fn audit_after_fix(&self, config: &AuditConfig, path: &Path) -> Report {
+        let report = Auditor::new(config).audit_lockfile(path).unwrap();
+        if !self.via_dependents {
+            return report;
+        }
+        if self.update_pinning_dependents(config, path, &report.vulnerabilities.list, false) != 0 {
+            exit(2);
+        }
+        Auditor::new(config).audit_lockfile(path).unwrap()
+    }
+
+    /// Plan and run `cargo update --precise` for dependents that pin any of
+    /// `vulnerabilities` below its fix. Returns the number of commands that
+    /// could not be started or that cargo rejected.
+    fn update_pinning_dependents(
+        &self,
+        config: &AuditConfig,
+        path: &Path,
+        vulnerabilities: &[Vulnerability],
+        dry_run: bool,
+    ) -> usize {
+        let fixer = fixer_for(path);
+        via_dependents::plan_dependent_updates(config, &fixer, vulnerabilities, dry_run)
+            .into_iter()
+            .map(|(package, command)| self.run_precise_update(command, &package))
+            .filter(|succeeded| !succeeded)
+            .count()
+    }
+}
+
+/// A [`Fixer`] for the lockfile at `path`, run with the `cargo` that invoked us if known
+fn fixer_for(path: &Path) -> Fixer {
+    // This should always succeed because the auditor loaded it successfully already
+    let lockfile = Lockfile::load(path).expect("Failed to load Cargo.lock");
+
+    // TODO: allow specifying manifest path
+    let path_to_cargo: Option<PathBuf> = std::env::var_os("CARGO").map(|path| path.into());
+    Fixer::new(lockfile, None, path_to_cargo)
 }

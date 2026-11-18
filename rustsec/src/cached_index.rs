@@ -1,4 +1,5 @@
-//! An efficient way to check whether a given package has been yanked
+//! An efficient way to check whether a given package has been yanked,
+//! and to look up the release history the fixer plans with
 use std::{
     collections::{BTreeSet, HashMap},
     time::Duration,
@@ -6,6 +7,7 @@ use std::{
 
 use crate::{
     error::{Error, ErrorKind},
+    fixer::{Release, ReleaseIndex},
     package::{self, Package},
 };
 
@@ -37,19 +39,23 @@ impl Index {
 
 /// Provides an efficient way to check if the given package has been yanked.
 ///
+/// It is also the crates.io-backed [`ReleaseIndex`] for
+/// [`Fixer::plan_fix_via_dependents`](crate::Fixer::plan_fix_via_dependents).
+///
 /// Operations on crates.io index are rather slow.
 /// Instead of peforming an index lookup for every version of every crate,
 /// this implementation looks up each crate only once and caches the result in memory.
 ///
 /// Please note that this struct will hold a global Cargo package lock while it exists.
 /// Cargo operations that download crates (e.g. `cargo update` or even `cargo build`)
-/// will not be possible while this lock is held.
+/// will not be possible while this lock is held, so drop it before running
+/// the commands a [`Fixer`](crate::Fixer) returns.
 pub struct CachedIndex {
     index: Index,
-    /// The inner hash map is logically HashMap<Version, IsYanked>
-    /// but we don't parse semver because crates.io registry contains invalid semver:
+    /// Index entry of each crate looked up so far, or `None` for a crate missing from the index.
+    /// Versions stay unparsed strings because crates.io contains invalid semver:
     /// <https://github.com/rustsec/rustsec/issues/759>
-    cache: HashMap<package::Name, Result<Option<HashMap<String, bool>>, Error>>,
+    cache: HashMap<package::Name, Result<Option<tame_index::IndexKrate>, Error>>,
     /// The lock we hold on the Cargo cache directory
     lock: FileLock,
 }
@@ -204,16 +210,23 @@ impl CachedIndex {
         package: package::Name,
         krate_res: Result<Option<tame_index::IndexKrate>, Error>,
     ) {
-        let krate_res = krate_res.map(|ik| {
-            ik.map(|ik| {
-                ik.versions
-                    .into_iter()
-                    .map(|v| (v.version.to_string(), v.is_yanked()))
-                    .collect()
-            })
-        });
-
         self.cache.insert(package, krate_res);
+    }
+
+    /// The cached index entry for `name`; looking it up must already have been attempted
+    fn cached_krate(&self, name: &package::Name) -> Result<&tame_index::IndexKrate, Error> {
+        match self.cache.get(name) {
+            Some(Ok(Some(krate))) => Ok(krate),
+            Some(Ok(None)) => Err(Error::new(
+                ErrorKind::NotFound,
+                format!("No such crate in crates.io index: {name}"),
+            )),
+            Some(Err(err)) => Err(err.clone()),
+            None => Err(Error::new(
+                ErrorKind::Registry,
+                format!("crates.io index lookup was never attempted for {name}"),
+            )),
+        }
     }
 
     /// Is the given package yanked?
@@ -225,23 +238,21 @@ impl CachedIndex {
             );
         }
 
-        match &self.cache[&package.name] {
-            Ok(Some(ik)) => match ik.get(&package.version.to_string()) {
-                Some(is_yanked) => Ok(*is_yanked),
-                None => Err(Error::new(
+        let version = package.version.to_string();
+        self.cached_krate(&package.name)?
+            .versions
+            .iter()
+            .find(|index_version| index_version.version == version)
+            .map(|index_version| index_version.is_yanked())
+            .ok_or_else(|| {
+                Error::new(
                     ErrorKind::NotFound,
                     format!(
                         "No such version in crates.io index: {} {}",
                         package.name, package.version
                     ),
-                )),
-            },
-            Ok(None) => Err(Error::new(
-                ErrorKind::NotFound,
-                format!("No such crate in crates.io index: {}", package.name),
-            )),
-            Err(err) => Err(err.clone()),
-        }
+                )
+            })
     }
 
     /// Iterate over the provided packages, returning a vector of the
@@ -281,6 +292,50 @@ impl CachedIndex {
     }
 }
 
+/// Each crate is downloaded once, on first request. The fixer only visits the
+/// vulnerable crate and the chain of its dependents, so these lookups are not batched.
+impl ReleaseIndex for CachedIndex {
+    fn releases(&mut self, name: &package::Name) -> Result<Vec<Release>, Error> {
+        self.populate_cache(BTreeSet::from([name]))?;
+        Ok(releases_from_index_krate(self.cached_krate(name)?))
+    }
+}
+
+/// Releases recorded in a crates.io index entry, in the form the fixer plans with
+fn releases_from_index_krate(krate: &tame_index::IndexKrate) -> Vec<Release> {
+    krate
+        .versions
+        .iter()
+        .filter_map(release_from_index_version)
+        .collect()
+}
+
+/// `None` for versions that are not valid semver, which crates.io still contains:
+/// <https://github.com/rustsec/rustsec/issues/759>
+fn release_from_index_version(version: &tame_index::IndexVersion) -> Option<Release> {
+    Some(Release {
+        version: version.version.parse().ok()?,
+        yanked: version.is_yanked(),
+        dependencies: version
+            .deps
+            .iter()
+            .filter(|dep| dep.kind() != tame_index::krate::DependencyKind::Dev)
+            .filter_map(requirement_on_real_crate)
+            .collect(),
+    })
+}
+
+/// `(real crate name, requirement)` of `dep`, or `None` if either does not parse.
+///
+/// Dropping an unparseable requirement is conservative: the fixer then treats
+/// the release as not admitting the dependency, so it can miss a fix but never
+/// plans a wrong one.
+fn requirement_on_real_crate(
+    dep: &tame_index::IndexDependency,
+) -> Option<(package::Name, semver::VersionReq)> {
+    Some((dep.crate_name().parse().ok()?, dep.req.parse().ok()?))
+}
+
 // We cannot expose these publicly because that would leak the `tame_index` SemVer into the public API
 fn acquire_cargo_package_lock(lock_timeout: Duration) -> Result<FileLock, tame_index::Error> {
     let lock_opts = LockOptions::cargo_package_lock(None)?.exclusive(false);
@@ -295,5 +350,120 @@ fn acquire_lock(
         lock_opts.try_lock()
     } else {
         lock_opts.lock(|_| Some(lock_timeout))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// One line of a crates.io index file for the crate `demo`
+    fn index_line(version: &str, yanked: bool, dependencies: &[String]) -> String {
+        format!(
+            r#"{{"name":"demo","vers":"{version}","deps":[{}],"cksum":"{}","features":{{}},"yanked":{yanked}}}"#,
+            dependencies.join(","),
+            "0".repeat(64)
+        )
+    }
+
+    /// One dependency of an index line; `kind` is `normal`, `build` or `dev`
+    fn index_dependency(name: &str, req: &str, kind: &str, extra: &str) -> String {
+        format!(
+            r#"{{"name":"{name}","req":"{req}","features":[],"optional":false,"default_features":true,"kind":"{kind}"{extra}}}"#
+        )
+    }
+
+    fn releases_from_lines(lines: &[String]) -> Vec<Release> {
+        let krate = tame_index::IndexKrate::from_slice(lines.join("\n").as_bytes()).unwrap();
+        releases_from_index_krate(&krate)
+    }
+
+    /// `(name, requirement)` pairs of `release`, as strings
+    fn dependency_pairs(release: &Release) -> Vec<(String, String)> {
+        release
+            .dependencies
+            .iter()
+            .map(|(name, req)| (name.to_string(), req.to_string()))
+            .collect()
+    }
+
+    fn pair(name: &str, req: &str) -> (String, String) {
+        (name.to_owned(), req.to_owned())
+    }
+
+    #[test]
+    fn index_versions_become_releases_with_their_yanked_flags() {
+        let releases = releases_from_lines(&[
+            index_line("1.0.0", false, &[]),
+            index_line("1.1.0", true, &[]),
+        ]);
+        let summary: Vec<(String, bool)> = releases
+            .iter()
+            .map(|release| (release.version.to_string(), release.yanked))
+            .collect();
+        assert_eq!(
+            summary,
+            [("1.0.0".to_owned(), false), ("1.1.0".to_owned(), true)]
+        );
+    }
+
+    #[test]
+    fn keeps_normal_build_and_target_specific_dependencies_but_not_dev() {
+        let releases = releases_from_lines(&[index_line(
+            "1.0.0",
+            false,
+            &[
+                index_dependency("serde", "^1", "normal", ""),
+                index_dependency("zip", "^9", "build", ""),
+                index_dependency("winapi", "^0.3", "normal", r#","target":"cfg(windows)""#),
+                index_dependency("criterion", "^0.5", "dev", ""),
+            ],
+        )]);
+        assert_eq!(
+            dependency_pairs(&releases[0]),
+            [
+                pair("serde", "^1"),
+                pair("zip", "^9"),
+                pair("winapi", "^0.3")
+            ]
+        );
+    }
+
+    #[test]
+    fn records_renamed_dependency_under_its_real_crate_name() {
+        let releases = releases_from_lines(&[index_line(
+            "1.0.0",
+            false,
+            &[index_dependency(
+                "zip_alias",
+                "^9",
+                "normal",
+                r#","package":"zip""#,
+            )],
+        )]);
+        assert_eq!(dependency_pairs(&releases[0]), [pair("zip", "^9")]);
+    }
+
+    #[test]
+    fn skips_index_versions_that_are_not_valid_semver() {
+        let releases = releases_from_lines(&[
+            index_line("0.1", false, &[]),
+            index_line("0.2.0", false, &[]),
+        ]);
+        let versions: Vec<String> = releases.iter().map(|r| r.version.to_string()).collect();
+        assert_eq!(versions, ["0.2.0"]);
+    }
+
+    #[test]
+    fn skips_dependencies_whose_requirement_does_not_parse() {
+        let releases = releases_from_lines(&[index_line(
+            "1.0.0",
+            false,
+            &[
+                index_dependency("broken", "not a requirement", "normal", ""),
+                index_dependency("zip", "^9", "normal", ""),
+            ],
+        )]);
+        assert_eq!(dependency_pairs(&releases[0]), [pair("zip", "^9")]);
     }
 }

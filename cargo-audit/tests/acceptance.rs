@@ -35,18 +35,21 @@ pub fn run(cmd: &mut Command) -> Output {
     cmd.output().unwrap()
 }
 
+/// Directory holding the example projects used by these tests
+fn support_dir() -> PathBuf {
+    [env!("CARGO_MANIFEST_DIR"), "tests", "support"]
+        .iter()
+        .collect()
+}
+
 /// Get a `Command` configured to point at a project with or without vulns
 fn new_cmd_runner(project: &str) -> Command {
     let mut runner = cmd_runner();
 
-    let tests_data_dir: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "support"]
-        .iter()
-        .collect();
-
     // Point at the integration test example project's Cargo.lock file.
     runner
         .arg("--file")
-        .arg(tests_data_dir.join(project).join("Cargo.lock"));
+        .arg(support_dir().join(project).join("Cargo.lock"));
 
     runner
 }
@@ -404,4 +407,94 @@ fn branch_regression() {
         run(&mut new_cmd_runner("branch-regression")).status.code(),
         Some(1)
     );
+}
+
+/// `cargo audit fix` on a scratch copy of the `duckdb_pinned_zip` project,
+/// whose lockfile it rewrites (online dependency on crates.io)
+#[cfg(feature = "fix")]
+mod fix_via_dependents {
+    use super::*;
+    use rustsec::Lockfile;
+    use std::fs;
+
+    const PROJECT_FILES: [&str; 3] = ["Cargo.toml", "Cargo.lock", "dummy.rs"];
+
+    fn copy_of_pinned_zip_project() -> TempDir {
+        let source = support_dir().join("duckdb_pinned_zip");
+        let project = TempDir::new().unwrap();
+        for file in PROJECT_FILES {
+            fs::copy(source.join(file), project.path().join(file)).unwrap();
+        }
+        project
+    }
+
+    fn run_fix(project: &TempDir, extra_args: &[&str]) -> Output {
+        let mut command = cmd_runner();
+        command
+            .arg("fix")
+            .arg("--file")
+            .arg(project.path().join("Cargo.lock"))
+            .args(extra_args);
+        run(&mut command)
+    }
+
+    /// The version of `name` locked in the project's `Cargo.lock`
+    fn locked_version(project: &TempDir, name: &str) -> String {
+        let lockfile = Lockfile::load(project.path().join("Cargo.lock")).unwrap();
+        let package = lockfile
+            .packages
+            .iter()
+            .find(|package| package.name.as_str() == name)
+            .unwrap();
+        package.version.to_string()
+    }
+
+    fn stderr_of(output: &Output) -> String {
+        String::from_utf8_lossy(&output.stderr).into_owned()
+    }
+
+    #[test]
+    fn without_the_flag_zip_pinned_by_a_dependent_stays_vulnerable() {
+        let project = copy_of_pinned_zip_project();
+        let output = run_fix(&project, &[]);
+        assert_eq!(output.status.code(), Some(0), "{}", stderr_of(&output));
+        assert_eq!(locked_version(&project, "zip"), "6.0.0");
+        assert!(stderr_of(&output).contains("could not be fixed"));
+    }
+
+    #[test]
+    fn via_dependents_moves_duckdb_so_zip_reaches_a_patched_release() {
+        let project = copy_of_pinned_zip_project();
+        let output = run_fix(&project, &["--via-dependents"]);
+        assert_eq!(output.status.code(), Some(0), "{}", stderr_of(&output));
+        assert_eq!(locked_version(&project, "duckdb"), "1.10506.1");
+        assert!(locked_version(&project, "zip").starts_with("9."));
+        assert!(!stderr_of(&output).contains("could not be fixed"));
+    }
+
+    /// The planner assumes the default caret requirement for workspace members;
+    /// here the member pins duckdb exactly, so cargo must reject the planned move
+    #[test]
+    fn via_dependents_fails_when_cargo_rejects_the_planned_move() {
+        let project = copy_of_pinned_zip_project();
+        let manifest = project.path().join("Cargo.toml");
+        let pinned = fs::read_to_string(&manifest)
+            .unwrap()
+            .replace(r#"duckdb = "1.10506.0""#, r#"duckdb = "=1.10506.0""#);
+        fs::write(&manifest, pinned).unwrap();
+        let output = run_fix(&project, &["--via-dependents", "--dry-run"]);
+        assert_eq!(output.status.code(), Some(2), "{}", stderr_of(&output));
+        assert!(stderr_of(&output).contains("rejected the planned update of duckdb"));
+        assert_eq!(locked_version(&project, "duckdb"), "1.10506.0");
+    }
+
+    #[test]
+    fn via_dependents_dry_run_shows_the_move_without_writing_the_lockfile() {
+        let project = copy_of_pinned_zip_project();
+        let output = run_fix(&project, &["--via-dependents", "--dry-run"]);
+        assert_eq!(output.status.code(), Some(0), "{}", stderr_of(&output));
+        assert_eq!(locked_version(&project, "duckdb"), "1.10506.0");
+        assert_eq!(locked_version(&project, "zip"), "6.0.0");
+        assert!(stderr_of(&output).contains("duckdb v1.10506.0 -> v1.10506.1"));
+    }
 }

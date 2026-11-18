@@ -86,6 +86,16 @@ This will modify `Cargo.toml` in place. To perform a dry run instead, which
 shows a preview of what dependencies would be upgraded, run
 `cargo audit fix --dry-run`.
 
+Sometimes the vulnerable crate cannot be updated because a crate that depends
+on it requires an older version. For example, `libduckdb-sys` 1.10506.0
+requires `zip` 6, and `duckdb` pins `libduckdb-sys` exactly, so a patched
+`zip` 9 is out of reach. With `cargo audit fix --via-dependents`, such
+dependents are updated as well: the fix looks up the crates.io index for a
+newer, semver-compatible release of the dependent (here `duckdb` 1.10506.1)
+that requires a patched version, and runs `cargo update --precise` for it.
+It only changes `Cargo.lock`; when your own `Cargo.toml` requirement is what
+holds the crate back, it reports this instead.
+
 ## `cargo audit bin` subcommand
 
 Run `cargo audit bin` followed by the paths to your binaries to audit them:
