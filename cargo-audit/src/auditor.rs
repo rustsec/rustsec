@@ -170,7 +170,7 @@ impl Auditor {
 
         self.presenter.before_report(lockfile_path, &lockfile);
 
-        let report = self.audit(&lockfile, None, None);
+        let report = self.audit(&lockfile, None, None)?;
 
         if self.warn_unused_ignores {
             self.warn_unused_ignores(&lockfile);
@@ -180,7 +180,7 @@ impl Auditor {
 
         self.presenter.print_self_report(self_advisories.as_slice());
 
-        report
+        Ok(report)
     }
 
     fn warn_unused_ignores(&self, lockfile: &Lockfile) {
@@ -321,7 +321,7 @@ impl Auditor {
         }
 
         self.presenter.mark_denied_warnings(&mut report);
-        self.presenter.print_report(&report, lockfile, path);
+        self.presenter.print_report(&report, lockfile, path)?;
 
         Ok(report)
     }
