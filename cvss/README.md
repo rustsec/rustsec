@@ -14,7 +14,7 @@ Rust implementation of the [Common Vulnerability Scoring System (Version 3.1 and
 
 ## Minimum Supported Rust Version
 
-Rust **1.60** or higher.
+Rust **1.85** or higher.
 
 Minimum supported Rust version can be changed in the future, but it will be
 done with a minor version bump.
@@ -44,7 +44,7 @@ additional terms or conditions.
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/cvss.yml
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[rustc-image]: https://img.shields.io/badge/rustc-1.60+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.85+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
 [zulip-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
