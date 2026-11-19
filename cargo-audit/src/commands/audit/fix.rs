@@ -120,7 +120,10 @@ impl FixCommand {
             config.output.quiet = true;
             let mut auditor = Auditor::new(&config);
 
-            let report_after_fix = auditor.audit_lockfile(&path).unwrap();
+            let report_after_fix = auditor.audit_lockfile(&path).unwrap_or_else(|e| {
+                status_err!("{}", e);
+                exit(2);
+            });
             let vulns_after_fix = &report_after_fix.vulnerabilities.list;
             let fixable_but_unfixed: Vec<String> = vulns_after_fix
                 .iter()

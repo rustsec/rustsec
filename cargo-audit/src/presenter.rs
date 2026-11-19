@@ -130,14 +130,14 @@ impl Presenter {
         report: &rustsec::Report,
         lockfile: &Lockfile,
         path: Option<&Path>,
-    ) {
+    ) -> rustsec::Result<()> {
         match self.config.format {
             OutputFormat::Json => {
                 let mut stdout = io::stdout().lock();
                 serde_json::to_writer(&mut stdout, &report).unwrap();
                 // End with a newline as a terminator/separator. Another json report may follow.
                 writeln!(&mut stdout).unwrap();
-                return;
+                return Ok(());
             }
             OutputFormat::Sarif => {
                 let cargo_lock_path = path
@@ -148,16 +148,14 @@ impl Presenter {
                 serde_json::to_writer(&mut stdout, &sarif_log).unwrap();
                 // End with a newline as a terminator/separator. Another sarif report may follow.
                 writeln!(&mut stdout).unwrap();
-                return;
+                return Ok(());
             }
             OutputFormat::Terminal => {
                 // Continue with terminal output below
             }
         }
 
-        let tree = lockfile
-            .dependency_tree()
-            .expect("invalid Cargo.lock dependency tree");
+        let tree = lockfile.dependency_tree()?;
 
         #[cfg(feature = "binary-scanning")]
         let symbols = match &self.binary_contents {
@@ -303,6 +301,7 @@ impl Presenter {
                 }
             }
         }
+        Ok(())
     }
 
     /// Print the vulnerability report for cargo-audit

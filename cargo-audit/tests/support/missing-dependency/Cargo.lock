@@ -1,0 +1,6 @@
+version = 4
+
+[[package]]
+name = "audit-panic-repro"
+version = "0.1.0"
+dependencies = ["missing 1.0.0"]
