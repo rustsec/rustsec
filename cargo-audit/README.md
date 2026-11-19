@@ -18,7 +18,7 @@ companion to `cargo audit`.
 
 ## Requirements
 
-`cargo audit` requires Rust **1.74** or later.
+`cargo audit` requires Rust **1.88** or later.
 
 ## Installation
 
@@ -198,7 +198,7 @@ additional terms or conditions.
 [build-image]: https://github.com/RustSec/rustsec/actions/workflows/cargo-audit.yml/badge.svg
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/cargo-audit.yml
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.74+-blue.svg
+[rustc-image]: https://img.shields.io/badge/rustc-1.88+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [chat-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
