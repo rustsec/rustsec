@@ -1,5 +1,7 @@
 //! `cargo audit` subcommands
 
+#[cfg(feature = "binary-scanning")]
+use crate::commands::audit::AuditSubcommand;
 use crate::{config::AuditConfig, error::Error};
 use clap::Parser;
 use std::{ops::Deref, process::ExitCode};
@@ -18,9 +20,15 @@ pub enum CargoAuditSubCommand {
 
 impl CargoAuditSubCommand {
     /// Run the subcommand with the given configuration
-    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
-        match self {
-            Self::Audit(cmd) => cmd.run(config),
+    pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
+        let Self::Audit(cmd) = self;
+        match cmd.subcommand {
+            #[cfg(feature = "binary-scanning")]
+            Some(AuditSubcommand::Bin(bin)) => bin.run(config),
+            #[cfg(feature = "fix")]
+            Some(AuditSubcommand::Fix(fix)) => fix.run(config),
+            Some(AuditSubcommand::UpdateDb(update_db)) => update_db.run(config),
+            None => cmd.run(config),
         }
     }
 }
@@ -39,7 +47,7 @@ pub struct CargoAuditCommand {
 
 impl CargoAuditCommand {
     /// Run the command with the given configuration
-    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+    pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         self.cmd.run(config)
     }
 }

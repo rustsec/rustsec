@@ -31,7 +31,7 @@ impl FixCommand {
     }
 
     /// Run the `cargo audit fix` subcommand with the given configuration
-    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+    pub(crate) fn run(self, mut config: AuditConfig) -> Result<ExitCode, Error> {
         let path = match lockfile::locate_or_generate(self.cargo_lock_path()) {
             Ok(path) => path,
             Err(e) => {
@@ -40,7 +40,7 @@ impl FixCommand {
             }
         };
 
-        let report = Auditor::new(config)?.audit_lockfile(&path);
+        let report = Auditor::new(&config)?.audit_lockfile(&path);
         let report = match report {
             Ok(report) => {
                 // TODO: also handle warnings
@@ -121,7 +121,6 @@ impl FixCommand {
                 "Verifying",
                 "that the vulnerabilities are fixed after updating dependencies"
             );
-            let mut config = config.clone();
             config.output.quiet = true;
             let mut auditor = Auditor::new(&config)?;
 

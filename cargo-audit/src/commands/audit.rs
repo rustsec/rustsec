@@ -37,7 +37,7 @@ use update_db::UpdateDbCommand;
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
     #[command(subcommand)]
-    subcommand: Option<AuditSubcommand>,
+    pub(super) subcommand: Option<AuditSubcommand>,
 
     /// Colored output configuration
     #[arg(
@@ -164,28 +164,13 @@ impl AuditCommand {
     }
 
     /// Run the `cargo audit` subcommand with the given configuration
-    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
-        match &self.subcommand {
-            #[cfg(feature = "binary-scanning")]
-            Some(AuditSubcommand::Bin(bin)) => {
-                return bin.run(config);
-            }
-            #[cfg(feature = "fix")]
-            Some(AuditSubcommand::Fix(fix)) => {
-                return fix.run(config);
-            }
-            Some(AuditSubcommand::UpdateDb(update_db)) => {
-                return update_db.run(config);
-            }
-            None => {}
-        }
-
+    pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         let maybe_path = self.file.as_deref();
         // It is important to generate the lockfile before initializing the auditor,
         // otherwise we might deadlock because both need the Cargo package lock
         let path =
             lockfile::locate_or_generate(maybe_path).map_err(|e| ErrorKind::Parse.context(e))?;
-        let mut auditor = Auditor::new(config)?;
+        let mut auditor = Auditor::new(&config)?;
         let report = auditor.audit_lockfile(&path);
         Ok(match report {
             Ok(report) => match auditor.should_exit_with_failure(&report) {
