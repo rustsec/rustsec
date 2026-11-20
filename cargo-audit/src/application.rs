@@ -39,7 +39,16 @@ pub fn boot() -> Result<ExitCode, Error> {
     };
 
     terminal::init(color_choice);
-    init_tracing(&command, color_choice);
+    let filter = match command.verbose {
+        true => "debug".to_owned(),
+        false => env::var("RUST_LOG").unwrap_or_else(|_| "info".to_owned()),
+    };
+
+    tracing_subscriber::fmt()
+        .with_ansi(color_choice != ColorChoice::Never)
+        .with_env_filter(filter)
+        .try_init()
+        .expect("tracing subsystem failed to initialize");
 
     // Load configuration
     let config = AuditConfig::load(&command)?;
@@ -86,18 +95,4 @@ impl Deref for CargoAuditCommand {
             CargoAuditSubCommand::Audit(cmd) => cmd,
         }
     }
-}
-
-/// Initialize the `tracing` subsystem from command-line options
-fn init_tracing(command: &CargoAuditCommand, color_choice: ColorChoice) {
-    let filter = match command.verbose {
-        true => "debug".to_owned(),
-        false => env::var("RUST_LOG").unwrap_or_else(|_| "info".to_owned()),
-    };
-
-    tracing_subscriber::fmt()
-        .with_ansi(color_choice != ColorChoice::Never)
-        .with_env_filter(filter)
-        .try_init()
-        .expect("tracing subsystem failed to initialize");
 }
