@@ -32,7 +32,7 @@ pub use update_db::UpdateDbCommand;
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
     #[command(subcommand)]
-    pub(crate) subcommand: Option<AuditSubcommand>,
+    pub subcommand: Option<AuditSubcommand>,
 
     /// Colored output configuration
     #[arg(
