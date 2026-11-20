@@ -1,11 +1,14 @@
 //! The configuration file
 
-use std::{path::PathBuf, str::FromStr};
+use std::{fs, path::PathBuf, str::FromStr};
 
 use rustsec::{WarningKind, advisory, report};
 use serde::{Deserialize, Serialize};
 
-use crate::error::{Error, ErrorKind};
+use crate::{
+    commands::AuditCommand,
+    error::{Error, ErrorKind},
+};
 
 /// `cargo audit` configuration:
 ///
@@ -36,6 +39,40 @@ pub struct AuditConfig {
 }
 
 impl AuditConfig {
+    /// Load `audit.toml` (if it exists), overriding it with command-line arguments
+    pub fn load(cli: &AuditCommand) -> Result<Self, Error> {
+        // Check if the config file exists, and if it does not, ignore it.
+        //
+        // The order of precedence for which config file to use is:
+        // 1. The current project's `.cargo` configuration directory.
+        // 2. The current user's home directory configuration.
+
+        let mut base = None;
+        if let Ok(home) = home::cargo_home() {
+            let home_config = home.join(CONFIG_FILE);
+            if home_config.exists() {
+                base = Some(home.join(CONFIG_FILE));
+            }
+        };
+
+        let project_config_filename = PathBuf::from("./.cargo").join(CONFIG_FILE);
+        if project_config_filename.exists() {
+            base = Some(project_config_filename);
+        }
+
+        let config = match base {
+            Some(path) => {
+                let toml_string = fs::read_to_string(&path).map_err(|e| {
+                    ErrorKind::Config.context(format!("couldn't read {}: {e}", path.display()))
+                })?;
+                toml::from_str(&toml_string).map_err(|e| ErrorKind::Parse.context(e))?
+            }
+            None => Self::default(),
+        };
+
+        cli.override_config(config)
+    }
+
     /// Get audit report settings from the configuration
     pub fn report_settings(&self) -> report::Settings {
         let mut settings = report::Settings {
@@ -378,3 +415,8 @@ impl Default for YankedConfig {
 fn default_true() -> bool {
     true
 }
+
+/// Name of the configuration file
+///
+/// This file allows setting some default auditing options.
+const CONFIG_FILE: &str = "audit.toml";

@@ -7,11 +7,6 @@ use std::{ops::Deref, process::ExitCode};
 mod audit;
 pub use audit::AuditCommand;
 
-/// Name of the configuration file
-///
-/// This file allows setting some default auditing options.
-pub const CONFIG_FILE: &str = "audit.toml";
-
 /// `cargo audit` subcommands (presently only `audit`)
 #[derive(Debug, Parser)]
 #[command(bin_name = "cargo")]
