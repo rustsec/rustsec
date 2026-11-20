@@ -1,4 +1,4 @@
-//! The `cargo audit` subcommand
+//! `cargo audit` subcommands
 
 use std::{fmt, path::PathBuf, process::ExitCode};
 
