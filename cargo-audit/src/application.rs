@@ -1,6 +1,11 @@
 //! Application entrypoint for `cargo audit`
 
-use std::{env, ops::Deref, process::ExitCode};
+use std::{
+    env,
+    io::{self, IsTerminal},
+    ops::Deref,
+    process::ExitCode,
+};
 
 use clap::Parser;
 
@@ -20,7 +25,19 @@ pub fn boot() -> Result<ExitCode, Error> {
     let command = CargoAuditCommand::parse();
 
     // Initialize the terminal and tracing subsystems
-    let color_choice = command.term_colors();
+    let color_choice = match command.color {
+        Some(color) => color.into(),
+        None => match env::var("CARGO_TERM_COLOR") {
+            Ok(e) if e == "always" => ColorChoice::Always,
+            Ok(e) if e == "never" => ColorChoice::Never,
+            Ok(e) if e == "auto" => ColorChoice::Auto,
+            _ => match io::stdout().is_terminal() {
+                true => ColorChoice::Auto,
+                false => ColorChoice::Never,
+            },
+        },
+    };
+
     terminal::init(color_choice);
     init_tracing(&command, color_choice);
 

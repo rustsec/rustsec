@@ -3,4 +3,4 @@
 mod audit;
 #[cfg(feature = "fix")]
 pub use audit::FixCommand;
-pub use audit::{AuditCommand, AuditSubcommand, BinCommand, UpdateDbCommand};
+pub use audit::{AuditCommand, AuditSubcommand, BinCommand, Color, UpdateDbCommand};
