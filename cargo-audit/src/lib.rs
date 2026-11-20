@@ -20,7 +20,6 @@
 #![forbid(unsafe_code)]
 #![warn(missing_docs, rust_2018_idioms, trivial_casts, unused_qualifications)]
 
-pub mod application;
 pub mod auditor;
 pub mod commands;
 pub mod config;
@@ -30,7 +29,7 @@ mod prelude;
 pub mod presenter;
 mod sarif;
 pub use sarif::SarifLog;
-mod terminal;
+pub mod terminal;
 
 #[cfg(feature = "binary-scanning")]
 mod binary_scanning;
