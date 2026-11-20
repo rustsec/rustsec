@@ -25,7 +25,6 @@ pub mod commands;
 pub mod config;
 pub mod error;
 pub mod lockfile;
-mod prelude;
 pub mod presenter;
 mod sarif;
 pub use sarif::SarifLog;

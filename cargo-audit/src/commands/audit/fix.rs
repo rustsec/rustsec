@@ -10,7 +10,13 @@ use cargo_lock::Lockfile;
 use clap::Parser;
 use rustsec::{Fixer, advisory::Id};
 
-use crate::{auditor::Auditor, config::AuditConfig, error::Error, lockfile, prelude::*};
+use crate::{
+    auditor::Auditor,
+    config::AuditConfig,
+    error::Error,
+    lockfile,
+    terminal::{status_err, status_ok, status_warn},
+};
 
 /// The `cargo audit fix` subcommand
 #[derive(Clone, Default, Debug, Parser)]
