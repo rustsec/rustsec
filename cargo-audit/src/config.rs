@@ -2,8 +2,10 @@
 
 use std::{path::PathBuf, str::FromStr};
 
-use rustsec::{Error, ErrorKind, WarningKind, advisory, report};
+use rustsec::{WarningKind, advisory, report};
 use serde::{Deserialize, Serialize};
+
+use crate::error::{Error, ErrorKind};
 
 /// `cargo audit` configuration:
 ///
@@ -267,10 +269,7 @@ impl FromStr for DenyOption {
             "unmaintained" => Ok(Self::Unmaintained),
             "unsound" => Ok(Self::Unsound),
             "yanked" => Ok(Self::Yanked),
-            other => Err(Error::new(
-                ErrorKind::Parse,
-                format!("invalid deny option: {other}"),
-            )),
+            other => Err(ErrorKind::Parse.context(format!("invalid deny option: {other}"))),
         }
     }
 }
@@ -300,10 +299,7 @@ impl FromStr for OutputFormat {
             "json" => Ok(Self::Json),
             "sarif" => Ok(Self::Sarif),
             "terminal" => Ok(Self::Terminal),
-            other => Err(Error::new(
-                ErrorKind::Parse,
-                format!("invalid output format: {other}"),
-            )),
+            other => Err(ErrorKind::Parse.context(format!("invalid output format: {other}"))),
         }
     }
 }
