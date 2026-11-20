@@ -214,6 +214,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [aarch64-unknown-qnx]                  | aarch64     | qnx        |            |
 | [aarch64-unknown-qtee]                 | aarch64     | qtee       |            |
 | [aarch64-unknown-redox]                | aarch64     | redox      | relibc     |
+| [aarch64-unknown-serenity]             | aarch64     | serenity   |            |
 | [aarch64-unknown-teeos]                | aarch64     | teeos      |            |
 | [aarch64-unknown-trusty]               | aarch64     | trusty     |            |
 | [aarch64-uwp-windows-msvc]             | aarch64     | windows    | msvc       |
@@ -276,6 +277,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [i686-unknown-helenos]                 | x86         | helenos    |            |
 | [i686-unknown-hurd-gnu]                | x86         | hurd       | gnu        |
 | [i686-unknown-netbsd]                  | x86         | netbsd     |            |
+| [i686-unknown-none]                    | x86         | none       |            |
 | [i686-unknown-openbsd]                 | x86         | openbsd    |            |
 | [i686-uwp-windows-gnu]                 | x86         | windows    | gnu        |
 | [i686-uwp-windows-msvc]                | x86         | windows    | msvc       |
@@ -376,6 +378,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [thumbv8m.main-nuttx-eabihf]           | arm         | nuttx      |            |
 | [wasm32-none-component]                | wasm32      | none       |            |
 | [wasm32-wali-linux-musl]               | wasm32      | linux      | musl       |
+| [wasm64-unknown-emscripten]            | wasm64      | emscripten |            |
 | [wasm64-unknown-unknown]               | wasm64      | unknown    |            |
 | [x86_64-apple-tvos]                    | x86_64      | tvos       | sim        |
 | [x86_64-apple-watchos-sim]             | x86_64      | watchos    | sim        |
@@ -397,6 +400,7 @@ If we remove platforms, we will bump the minor version of this crate.
 | [x86_64-unknown-managarm-mlibc]        | x86_64      | managarm   | mlibc      |
 | [x86_64-unknown-motor]                 | x86_64      | motor      |            |
 | [x86_64-unknown-openbsd]               | x86_64      | openbsd    |            |
+| [x86_64-unknown-serenity]              | x86_64      | serenity   |            |
 | [x86_64-unknown-trusty]                | x86_64      | trusty     |            |
 | [x86_64-uwp-windows-gnu]               | x86_64      | windows    | gnu        |
 | [x86_64-uwp-windows-msvc]              | x86_64      | windows    | msvc       |
@@ -451,6 +455,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [aarch64-unknown-qnx]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_QNX.html
 [aarch64-unknown-qtee]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_QTEE.html
 [aarch64-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_REDOX.html
+[aarch64-unknown-serenity]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_SERENITY.html
 [aarch64-unknown-teeos]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_TEEOS.html
 [aarch64-unknown-trusty]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_TRUSTY.html
 [aarch64-unknown-uefi]: https://docs.rs/platforms/latest/platforms/platform/constant.AARCH64_UNKNOWN_UEFI.html
@@ -542,6 +547,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [i686-unknown-linux-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_LINUX_GNU.html
 [i686-unknown-linux-musl]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_LINUX_MUSL.html
 [i686-unknown-netbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_NETBSD.html
+[i686-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_NONE.html
 [i686-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_OPENBSD.html
 [i686-unknown-uefi]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UNKNOWN_UEFI.html
 [i686-uwp-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.I686_UWP_WINDOWS_GNU.html
@@ -690,6 +696,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [wasm32-wasip2]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WASIP2.html
 [wasm32-wasip3]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32_WASIP3.html
 [wasm32v1-none]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM32V1_NONE.html
+[wasm64-unknown-emscripten]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM64_UNKNOWN_EMSCRIPTEN.html
 [wasm64-unknown-unknown]: https://docs.rs/platforms/latest/platforms/platform/constant.WASM64_UNKNOWN_UNKNOWN.html
 [x86_64-apple-darwin]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_APPLE_DARWIN.html
 [x86_64-apple-ios]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_APPLE_IOS.html
@@ -733,6 +740,7 @@ If we remove platforms, we will bump the minor version of this crate.
 [x86_64-unknown-none]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_NONE.html
 [x86_64-unknown-openbsd]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_OPENBSD.html
 [x86_64-unknown-redox]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_REDOX.html
+[x86_64-unknown-serenity]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_SERENITY.html
 [x86_64-unknown-trusty]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_TRUSTY.html
 [x86_64-unknown-uefi]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UNKNOWN_UEFI.html
 [x86_64-uwp-windows-gnu]: https://docs.rs/platforms/latest/platforms/platform/constant.X86_64_UWP_WINDOWS_GNU.html

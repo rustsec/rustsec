@@ -126,6 +126,9 @@ pub enum Os {
     /// `rtems`
     Rtems,
 
+    /// `serenity`
+    Serenity,
+
     /// `solaris`: Oracle's (formerly Sun) Solaris operating system
     Solaris,
 
@@ -216,6 +219,7 @@ impl Os {
             Self::Qurt => "qurt",
             Self::Redox => "redox",
             Self::Rtems => "rtems",
+            Self::Serenity => "serenity",
             Self::Solaris => "solaris",
             Self::SolidAsp3 => "solid_asp3",
             Self::TeeOS => "teeos",
@@ -279,6 +283,7 @@ impl FromStr for Os {
             "qurt" => Self::Qurt,
             "redox" => Self::Redox,
             "rtems" => Self::Rtems,
+            "serenity" => Self::Serenity,
             "solaris" => Self::Solaris,
             "solid_asp3" => Self::SolidAsp3,
             "teeos" => Self::TeeOS,

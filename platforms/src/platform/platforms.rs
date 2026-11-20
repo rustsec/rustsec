@@ -55,6 +55,7 @@ pub(crate) const ALL: &[Platform] = &[
     AARCH64_UNKNOWN_QNX,
     AARCH64_UNKNOWN_QTEE,
     AARCH64_UNKNOWN_REDOX,
+    AARCH64_UNKNOWN_SERENITY,
     AARCH64_UNKNOWN_TEEOS,
     AARCH64_UNKNOWN_TRUSTY,
     AARCH64_UNKNOWN_UEFI,
@@ -146,6 +147,7 @@ pub(crate) const ALL: &[Platform] = &[
     I686_UNKNOWN_LINUX_GNU,
     I686_UNKNOWN_LINUX_MUSL,
     I686_UNKNOWN_NETBSD,
+    I686_UNKNOWN_NONE,
     I686_UNKNOWN_OPENBSD,
     I686_UNKNOWN_UEFI,
     I686_UWP_WINDOWS_GNU,
@@ -294,6 +296,7 @@ pub(crate) const ALL: &[Platform] = &[
     WASM32_WASIP2,
     WASM32_WASIP3,
     WASM32V1_NONE,
+    WASM64_UNKNOWN_EMSCRIPTEN,
     WASM64_UNKNOWN_UNKNOWN,
     X86_64_APPLE_DARWIN,
     X86_64_APPLE_IOS,
@@ -337,6 +340,7 @@ pub(crate) const ALL: &[Platform] = &[
     X86_64_UNKNOWN_NONE,
     X86_64_UNKNOWN_OPENBSD,
     X86_64_UNKNOWN_REDOX,
+    X86_64_UNKNOWN_SERENITY,
     X86_64_UNKNOWN_TRUSTY,
     X86_64_UNKNOWN_UEFI,
     X86_64_UWP_WINDOWS_GNU,
@@ -788,6 +792,16 @@ pub(crate) const AARCH64_UNKNOWN_REDOX: Platform = Platform {
     target_arch: Arch::AArch64,
     target_os: Os::Redox,
     target_env: Env::Relibc,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
+pub(crate) const AARCH64_UNKNOWN_SERENITY: Platform = Platform {
+    target_triple: "aarch64-unknown-serenity",
+    target_arch: Arch::AArch64,
+    target_os: Os::Serenity,
+    target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Three,
@@ -1785,6 +1799,17 @@ pub(crate) const I686_UNKNOWN_NETBSD: Platform = Platform {
     target_triple: "i686-unknown-netbsd",
     target_arch: Arch::X86,
     target_os: Os::NetBSD,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U32,
+    tier: Tier::Three,
+};
+
+/// 32-bit Freestanding/bare-metal, softfloat \[^x86_32-floats-return-ABI\]
+pub(crate) const I686_UNKNOWN_NONE: Platform = Platform {
+    target_triple: "i686-unknown-none",
+    target_arch: Arch::X86,
+    target_os: Os::None,
     target_env: Env::None,
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U32,
@@ -3408,6 +3433,16 @@ pub(crate) const WASM32V1_NONE: Platform = Platform {
     tier: Tier::Two,
 };
 
+pub(crate) const WASM64_UNKNOWN_EMSCRIPTEN: Platform = Platform {
+    target_triple: "wasm64-unknown-emscripten",
+    target_arch: Arch::Wasm64,
+    target_os: Os::Emscripten,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
+};
+
 /// WebAssembly
 pub(crate) const WASM64_UNKNOWN_UNKNOWN: Platform = Platform {
     target_triple: "wasm64-unknown-unknown",
@@ -3879,6 +3914,16 @@ pub(crate) const X86_64_UNKNOWN_REDOX: Platform = Platform {
     target_endian: Endian::Little,
     target_pointer_width: PointerWidth::U64,
     tier: Tier::Two,
+};
+
+pub(crate) const X86_64_UNKNOWN_SERENITY: Platform = Platform {
+    target_triple: "x86_64-unknown-serenity",
+    target_arch: Arch::X86_64,
+    target_os: Os::Serenity,
+    target_env: Env::None,
+    target_endian: Endian::Little,
+    target_pointer_width: PointerWidth::U64,
+    tier: Tier::Three,
 };
 
 pub(crate) const X86_64_UNKNOWN_TRUSTY: Platform = Platform {
