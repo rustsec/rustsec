@@ -1,11 +1,6 @@
 //! The `cargo audit` subcommand
 
-use std::{
-    fmt,
-    io::{self, IsTerminal},
-    path::PathBuf,
-    process::ExitCode,
-};
+use std::{fmt, path::PathBuf, process::ExitCode};
 
 use clap::{Parser, Subcommand, ValueEnum};
 
@@ -45,7 +40,7 @@ pub struct AuditCommand {
         long = "color",
         help = "color configuration (default: auto)"
     )]
-    color: Option<Color>,
+    pub color: Option<Color>,
 
     /// Filesystem path to the advisory database git repository
     #[arg(
@@ -146,23 +141,6 @@ pub struct AuditCommand {
 }
 
 impl AuditCommand {
-    /// Get the color configuration
-    pub(crate) fn term_colors(&self) -> ColorChoice {
-        if let Some(color) = self.color {
-            return color.into();
-        }
-
-        match std::env::var("CARGO_TERM_COLOR") {
-            Ok(e) if e == "always" => ColorChoice::Always,
-            Ok(e) if e == "never" => ColorChoice::Never,
-            Ok(e) if e == "auto" => ColorChoice::Auto,
-            _ => match io::stdout().is_terminal() {
-                true => ColorChoice::Auto,
-                false => ColorChoice::Never,
-            },
-        }
-    }
-
     /// Run the `cargo audit` subcommand with the given configuration
     pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         let maybe_path = self.file.as_deref();
@@ -209,14 +187,18 @@ If not, recovers a part of the dependency list from panic messages."
     Bin(BinCommand),
 }
 
+/// Terminal color choices for output
 #[derive(Debug, Clone, Copy, Default, ValueEnum)]
 #[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
-enum Color {
+pub enum Color {
+    /// Always use colored output
     Always,
     // TODO: Should this be also supported?
     // AlwaysAnsi,
+    /// Automatically detect whether to use colored output
     #[default]
     Auto,
+    /// Never use colored output
     Never,
 }
 
