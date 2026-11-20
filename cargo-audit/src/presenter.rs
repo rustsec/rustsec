@@ -20,10 +20,10 @@ use rustsec::{advisory::affected::FunctionPath, binary_scanning::BinaryReport};
 use crate::binary_scanning::SymbolSet;
 use crate::{
     config::{DenyOption, OutputConfig, OutputFormat},
-    prelude::*,
     terminal::{
         self,
         Color::{self, Red, Yellow},
+        status_err, status_ok, status_warn,
     },
 };
 

@@ -9,8 +9,7 @@ use crate::{
     config::{AuditConfig, DenyOption, OutputFormat},
     error::{Error, ErrorKind, display_err_with_source},
     lockfile,
-    prelude::*,
-    terminal::ColorChoice,
+    terminal::{ColorChoice, status_err},
 };
 
 #[cfg(feature = "fix")]
