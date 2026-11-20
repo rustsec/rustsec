@@ -2,7 +2,7 @@
 
 use crate::{config::AuditConfig, error::Error};
 use clap::Parser;
-use std::{ops::Deref, path::PathBuf, process::ExitCode};
+use std::{ops::Deref, process::ExitCode};
 
 mod audit;
 pub use audit::AuditCommand;
@@ -46,30 +46,6 @@ impl CargoAuditCommand {
     /// Run the command with the given configuration
     pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         self.cmd.run(config)
-    }
-
-    /// Location of `audit.toml` (if it exists)
-    pub fn config_path(&self) -> Option<PathBuf> {
-        // Check if the config file exists, and if it does not, ignore it.
-        //
-        // The order of precedence for which config file to use is:
-        // 1. The current project's `.cargo` configuration directory.
-        // 2. The current user's home directory configuration.
-
-        let project_config_filename = PathBuf::from("./.cargo").join(CONFIG_FILE);
-        if project_config_filename.exists() {
-            return Some(project_config_filename);
-        }
-
-        let home_config_filename = home::cargo_home()
-            .ok()
-            .map(|cargo_home| cargo_home.join(CONFIG_FILE))?;
-
-        if home_config_filename.exists() {
-            Some(home_config_filename)
-        } else {
-            None
-        }
     }
 
     /// Override loaded config with explicit command-line arguments

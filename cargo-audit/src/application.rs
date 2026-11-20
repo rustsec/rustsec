@@ -1,11 +1,11 @@
 //! Application entrypoint for `cargo audit`
 
-use std::{env, fs, process::ExitCode};
+use std::{env, fs, path::PathBuf, process::ExitCode};
 
 use clap::Parser;
 
 use crate::{
-    commands::CargoAuditCommand,
+    commands::{CONFIG_FILE, CargoAuditCommand},
     config::AuditConfig,
     error::{Error, ErrorKind},
     terminal::{self, ColorChoice},
@@ -31,7 +31,26 @@ pub fn boot() -> Result<ExitCode, Error> {
 
 /// Load `audit.toml` (if it exists), overriding it with command-line arguments
 fn load_config(command: &CargoAuditCommand) -> Result<AuditConfig, Error> {
-    let config = match command.config_path() {
+    // Check if the config file exists, and if it does not, ignore it.
+    //
+    // The order of precedence for which config file to use is:
+    // 1. The current project's `.cargo` configuration directory.
+    // 2. The current user's home directory configuration.
+
+    let mut base = None;
+    if let Ok(home) = home::cargo_home() {
+        let home_config = home.join(CONFIG_FILE);
+        if home_config.exists() {
+            base = Some(home.join(CONFIG_FILE));
+        }
+    };
+
+    let project_config_filename = PathBuf::from("./.cargo").join(CONFIG_FILE);
+    if project_config_filename.exists() {
+        base = Some(project_config_filename);
+    }
+
+    let config = match base {
         Some(path) => {
             let toml_string = fs::read_to_string(&path).map_err(|e| {
                 ErrorKind::Config.context(format!("couldn't read {}: {e}", path.display()))
