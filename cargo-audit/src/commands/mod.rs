@@ -1,35 +1,29 @@
-//! The `cargo audit` subcommand
+//! `cargo audit` subcommands
 
-use std::{
-    fmt,
-    io::{self, IsTerminal},
-    path::PathBuf,
-    process::ExitCode,
-};
+use std::{fmt, path::PathBuf, process::ExitCode};
 
 use clap::{Parser, Subcommand, ValueEnum};
 
 use crate::{
     auditor::Auditor,
-    config::{AuditConfig, DenyOption, FilterList, OutputFormat},
+    config::{AuditConfig, DenyOption, OutputFormat},
     error::{Error, ErrorKind, display_err_with_source},
     lockfile,
-    prelude::*,
-    terminal::ColorChoice,
+    terminal::{ColorChoice, status_err},
 };
 
 #[cfg(feature = "fix")]
 mod fix;
 #[cfg(feature = "fix")]
-use fix::FixCommand;
+pub use fix::FixCommand;
 
 #[cfg(feature = "binary-scanning")]
 mod binary_scanning;
 #[cfg(feature = "binary-scanning")]
-use binary_scanning::BinCommand;
+pub use binary_scanning::BinCommand;
 
 mod update_db;
-use update_db::UpdateDbCommand;
+pub use update_db::UpdateDbCommand;
 
 /// The `cargo audit` subcommand
 #[derive(Clone, Default, Debug, Parser)]
@@ -37,7 +31,7 @@ use update_db::UpdateDbCommand;
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
     #[command(subcommand)]
-    subcommand: Option<AuditSubcommand>,
+    pub subcommand: Option<AuditSubcommand>,
 
     /// Colored output configuration
     #[arg(
@@ -45,7 +39,7 @@ pub struct AuditCommand {
         long = "color",
         help = "color configuration (default: auto)"
     )]
-    color: Option<Color>,
+    pub color: Option<Color>,
 
     /// Filesystem path to the advisory database git repository
     #[arg(
@@ -53,7 +47,7 @@ pub struct AuditCommand {
         long = "db",
         help = "advisory database git repo path (default: ~/.cargo/advisory-db)"
     )]
-    db: Option<PathBuf>,
+    pub(crate) db: Option<PathBuf>,
 
     /// Deny flag
     #[arg(
@@ -61,7 +55,7 @@ pub struct AuditCommand {
         long = "deny",
         help = "exit with an error on: warnings (any), unmaintained, unsound, yanked"
     )]
-    deny: Vec<DenyOption>,
+    pub(crate) deny: Vec<DenyOption>,
 
     /// Path to `Cargo.lock`
     #[arg(
@@ -77,7 +71,7 @@ pub struct AuditCommand {
         value_name = "ADVISORY_ID",
         help = "Advisory id to ignore (can be specified multiple times)"
     )]
-    ignore: Vec<String>,
+    pub(crate) ignore: Vec<String>,
 
     /// Warn about ignored advisories that no longer affect the lockfile
     #[arg(
@@ -88,11 +82,11 @@ pub struct AuditCommand {
         default_missing_value = "true",
         help = "warn about unused ignore entries when auditing a lockfile (default: true)"
     )]
-    warn_unused_ignores: Option<bool>,
+    pub(crate) warn_unused_ignores: Option<bool>,
 
     /// Skip checking for yanked crates
     #[arg(long = "no-yanked", help = "do not check for yanked crates")]
-    no_yanked: bool,
+    pub(crate) no_yanked: bool,
 
     /// Skip fetching the advisory database git repository
     #[arg(
@@ -100,29 +94,29 @@ pub struct AuditCommand {
         long = "no-fetch",
         help = "do not perform a git fetch on the advisory DB"
     )]
-    no_fetch: bool,
+    pub(crate) no_fetch: bool,
 
     /// Allow stale advisory databases that haven't been recently updated
     #[arg(long = "stale", help = "allow stale database")]
-    stale: bool,
+    pub(crate) stale: bool,
 
     /// Target CPU architecture to find vulnerabilities for
     #[arg(
         long = "target-arch",
         help = "filter vulnerabilities by CPU (default: no filter). Can be specified multiple times"
     )]
-    target_arch: Vec<String>,
+    pub(crate) target_arch: Vec<String>,
 
     /// Target OS to find vulnerabilities for
     #[arg(
         long = "target-os",
         help = "filter vulnerabilities by OS (default: no filter). Can be specified multiple times"
     )]
-    target_os: Vec<String>,
+    pub(crate) target_os: Vec<String>,
 
     /// URL to the advisory database git repository
     #[arg(short = 'u', long = "url", help = "URL for advisory database git repo")]
-    url: Option<String>,
+    pub(crate) url: Option<String>,
 
     /// Quiet mode - avoids printing extraneous information
     #[arg(
@@ -130,7 +124,7 @@ pub struct AuditCommand {
         long = "quiet",
         help = "Avoid printing unnecessary information"
     )]
-    quiet: bool,
+    pub(crate) quiet: bool,
 
     /// Output format
     #[arg(
@@ -138,115 +132,22 @@ pub struct AuditCommand {
         value_name = "FORMAT",
         help = "Output format: terminal, json, or sarif"
     )]
-    output_format: Option<OutputFormat>,
+    pub(crate) output_format: Option<OutputFormat>,
 
     /// Output reports as JSON
     #[arg(long = "json", help = "Output report in JSON format")]
-    output_json: bool,
+    pub(crate) output_json: bool,
 }
 
 impl AuditCommand {
-    /// Get the color configuration
-    pub(crate) fn term_colors(&self) -> ColorChoice {
-        if let Some(color) = self.color {
-            return color.into();
-        }
-
-        match std::env::var("CARGO_TERM_COLOR") {
-            Ok(e) if e == "always" => ColorChoice::Always,
-            Ok(e) if e == "never" => ColorChoice::Never,
-            Ok(e) if e == "auto" => ColorChoice::Auto,
-            _ => match io::stdout().is_terminal() {
-                true => ColorChoice::Auto,
-                false => ColorChoice::Never,
-            },
-        }
-    }
-
-    /// Override loaded config with explicit command-line arguments
-    pub fn override_config(&self, config: AuditConfig) -> Result<AuditConfig, Error> {
-        let mut config = config;
-        if let Some(db) = &self.db {
-            config.database.path = Some(db.into());
-        }
-
-        for advisory_id in &self.ignore {
-            config.advisories.ignore.push(
-                advisory_id
-                    .parse()
-                    .map_err(|e| ErrorKind::Parse.context(e))?,
-            );
-        }
-
-        if let Some(warn) = self.warn_unused_ignores {
-            config.advisories.warn_unused_ignores = warn;
-        }
-
-        config.database.fetch &= !self.no_fetch;
-        config.database.stale |= self.stale;
-
-        if !self.target_arch.is_empty() {
-            config.target.arch = Some(FilterList::Many(self.target_arch.clone()));
-        }
-
-        if !self.target_os.is_empty() {
-            config.target.os = Some(FilterList::Many(self.target_os.clone()));
-        }
-
-        if let Some(url) = &self.url {
-            config.database.url = Some(url.clone())
-        }
-
-        for kind in &self.deny {
-            if *kind == DenyOption::Warnings {
-                config.output.deny = DenyOption::all();
-            } else {
-                config.output.deny.push(*kind);
-            }
-        }
-
-        config.output.quiet |= self.quiet;
-        if self.quiet {
-            config.output.show_tree = false;
-        }
-
-        // Handle output format (--json flag takes precedence for backward compatibility)
-        if self.output_json {
-            config.output.format = OutputFormat::Json;
-        } else if let Some(format) = self.output_format {
-            config.output.format = format;
-        }
-
-        if self.no_yanked {
-            config.yanked.enabled = false;
-        }
-
-        Ok(config)
-    }
-
     /// Run the `cargo audit` subcommand with the given configuration
-    pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
-        match &self.subcommand {
-            #[cfg(feature = "binary-scanning")]
-            Some(AuditSubcommand::Bin(bin)) => {
-                return bin.run(config);
-            }
-            #[cfg(feature = "fix")]
-            Some(AuditSubcommand::Fix(fix)) => {
-                return fix.run(config);
-            }
-            Some(AuditSubcommand::UpdateDb(update_db)) => {
-                return update_db.run(config);
-            }
-            None => {}
-        }
-
+    pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         let maybe_path = self.file.as_deref();
         // It is important to generate the lockfile before initializing the auditor,
         // otherwise we might deadlock because both need the Cargo package lock
         let path =
             lockfile::locate_or_generate(maybe_path).map_err(|e| ErrorKind::Parse.context(e))?;
-        let mut auditor = Auditor::new(config)?;
+        let mut auditor = Auditor::new(&config)?;
         let report = auditor.audit_lockfile(&path);
         Ok(match report {
             Ok(report) => match auditor.should_exit_with_failure(&report) {
@@ -263,7 +164,7 @@ impl AuditCommand {
 
 /// Subcommands of `cargo audit`
 #[derive(Subcommand, Clone, Debug)]
-pub(super) enum AuditSubcommand {
+pub enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
     #[command(about = "automatically upgrade vulnerable dependencies")]
@@ -285,14 +186,18 @@ If not, recovers a part of the dependency list from panic messages."
     Bin(BinCommand),
 }
 
+/// Terminal color choices for output
 #[derive(Debug, Clone, Copy, Default, ValueEnum)]
 #[value(rename_all = "kebab-case")] // If you change this, remember to update `fmt::Display` impl.
-enum Color {
+pub enum Color {
+    /// Always use colored output
     Always,
     // TODO: Should this be also supported?
     // AlwaysAnsi,
+    /// Automatically detect whether to use colored output
     #[default]
     Auto,
+    /// Never use colored output
     Never,
 }
 
@@ -328,14 +233,17 @@ mod tests {
             config.output.show_tree = show_tree;
 
             let command = AuditCommand::default();
-            let overridden = command.override_config(config.clone()).unwrap();
+            let mut overridden = config.clone();
+            overridden.apply(&command).unwrap();
             assert_eq!(overridden.output.show_tree, show_tree);
 
             let command = AuditCommand {
                 quiet: true,
                 ..Default::default()
             };
-            let overridden = command.override_config(config).unwrap();
+
+            let mut overridden = config.clone();
+            overridden.apply(&command).unwrap();
             assert!(!overridden.output.show_tree);
             assert!(overridden.output.quiet);
         }
@@ -346,24 +254,26 @@ mod tests {
     #[test]
     fn override_default_fetch_option() {
         // Assert the default value for the fetch option is true
-        let mut config: AuditConfig = AuditConfig::default();
+        let mut config = AuditConfig::default();
         assert!(config.database.fetch);
 
         let mut audit_command = AuditCommand::default();
-
-        let overridden_config = audit_command.override_config(config.clone()).unwrap();
+        let mut overridden_config = config.clone();
+        overridden_config.apply(&audit_command).unwrap();
         assert!(overridden_config.database.fetch);
 
         // as the CLI flag --no-fetch is false when not provided
         // override_config should not change the fetch option
         // when it is set to false in the config file
         config.database.fetch = false;
-        let overridden_config = audit_command.override_config(config.clone()).unwrap();
+        let mut overridden_config = config.clone();
+        overridden_config.apply(&audit_command).unwrap();
         assert!(!overridden_config.database.fetch);
 
         config.database.fetch = true;
         audit_command.no_fetch = true;
-        let overridden_config = audit_command.override_config(config.clone()).unwrap();
+        let mut overridden_config = config.clone();
+        overridden_config.apply(&audit_command).unwrap();
         assert!(!overridden_config.database.fetch);
     }
 }

@@ -10,11 +10,18 @@ use cargo_lock::Lockfile;
 use clap::Parser;
 use rustsec::{Fixer, advisory::Id};
 
-use crate::{auditor::Auditor, config::AuditConfig, error::Error, lockfile, prelude::*};
+use crate::{
+    auditor::Auditor,
+    config::AuditConfig,
+    error::Error,
+    lockfile,
+    terminal::{status_err, status_ok, status_warn},
+};
 
+/// The `cargo audit fix` subcommand
 #[derive(Clone, Default, Debug, Parser)]
 #[command(author, version, about)]
-pub(crate) struct FixCommand {
+pub struct FixCommand {
     /// Path to `Cargo.lock`
     #[arg(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
     file: Option<PathBuf>,
@@ -31,7 +38,7 @@ impl FixCommand {
     }
 
     /// Run the `cargo audit fix` subcommand with the given configuration
-    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+    pub fn run(self, mut config: AuditConfig) -> Result<ExitCode, Error> {
         let path = match lockfile::locate_or_generate(self.cargo_lock_path()) {
             Ok(path) => path,
             Err(e) => {
@@ -40,7 +47,7 @@ impl FixCommand {
             }
         };
 
-        let report = Auditor::new(config)?.audit_lockfile(&path);
+        let report = Auditor::new(&config)?.audit_lockfile(&path);
         let report = match report {
             Ok(report) => {
                 // TODO: also handle warnings
@@ -121,7 +128,6 @@ impl FixCommand {
                 "Verifying",
                 "that the vulnerabilities are fixed after updating dependencies"
             );
-            let mut config = config.clone();
             config.output.quiet = true;
             let mut auditor = Auditor::new(&config)?;
 

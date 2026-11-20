@@ -7,14 +7,14 @@ use std::{
     sync::OnceLock,
 };
 
-pub(crate) use termcolor::{Color, ColorChoice};
+pub use termcolor::{Color, ColorChoice};
 use termcolor::{ColorSpec, StandardStream, WriteColor};
 
 /// Terminal streams
 static STREAMS: OnceLock<Streams> = OnceLock::new();
 
-/// Initialize the terminal subsystem, registering the [`Streams`] static
-pub(crate) fn init(color_choice: ColorChoice) {
+/// Initialize the terminal subsystem
+pub fn init(color_choice: ColorChoice) {
     STREAMS
         .set(Streams {
             stdout: StandardStream::stdout(color_choice),

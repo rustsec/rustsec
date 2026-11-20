@@ -12,7 +12,10 @@ use rustsec::{Error, ErrorKind, Lockfile, Warning, WarningKind, report};
 
 use crate::config::DatabaseConfig;
 use crate::{
-    config::AuditConfig, error::display_err_with_source, prelude::*, presenter::Presenter,
+    config::AuditConfig,
+    error::display_err_with_source,
+    presenter::Presenter,
+    terminal::{status_err, status_ok, status_warn},
 };
 
 // TODO: make configurable

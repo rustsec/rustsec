@@ -1,9 +1,14 @@
 //! The configuration file
 
-use std::{path::PathBuf, str::FromStr};
+use std::{fs, path::PathBuf, str::FromStr};
 
-use rustsec::{Error, ErrorKind, WarningKind, advisory, report};
+use rustsec::{WarningKind, advisory, report};
 use serde::{Deserialize, Serialize};
+
+use crate::{
+    commands::AuditCommand,
+    error::{Error, ErrorKind},
+};
 
 /// `cargo audit` configuration:
 ///
@@ -34,6 +39,101 @@ pub struct AuditConfig {
 }
 
 impl AuditConfig {
+    /// Load `audit.toml` (if it exists), overriding it with command-line arguments
+    pub fn load(cli: &AuditCommand) -> Result<Self, Error> {
+        // Check if the config file exists, and if it does not, ignore it.
+        //
+        // The order of precedence for which config file to use is:
+        // 1. The current project's `.cargo` configuration directory.
+        // 2. The current user's home directory configuration.
+
+        let mut base = None;
+        if let Ok(home) = home::cargo_home() {
+            let home_config = home.join(CONFIG_FILE);
+            if home_config.exists() {
+                base = Some(home.join(CONFIG_FILE));
+            }
+        };
+
+        let project_config_filename = PathBuf::from("./.cargo").join(CONFIG_FILE);
+        if project_config_filename.exists() {
+            base = Some(project_config_filename);
+        }
+
+        let mut config = match base {
+            Some(path) => {
+                let toml_string = fs::read_to_string(&path).map_err(|e| {
+                    ErrorKind::Config.context(format!("couldn't read {}: {e}", path.display()))
+                })?;
+                toml::from_str(&toml_string).map_err(|e| ErrorKind::Parse.context(e))?
+            }
+            None => Self::default(),
+        };
+
+        config.apply(cli)?;
+        Ok(config)
+    }
+
+    /// Apply overrides from CLI options
+    pub fn apply(&mut self, cli: &AuditCommand) -> Result<(), Error> {
+        if let Some(db) = &cli.db {
+            self.database.path = Some(db.into());
+        }
+
+        for advisory_id in &cli.ignore {
+            self.advisories.ignore.push(
+                advisory_id
+                    .parse()
+                    .map_err(|e| ErrorKind::Parse.context(e))?,
+            );
+        }
+
+        if let Some(warn) = cli.warn_unused_ignores {
+            self.advisories.warn_unused_ignores = warn;
+        }
+
+        self.database.fetch &= !cli.no_fetch;
+        self.database.stale |= cli.stale;
+
+        if !cli.target_arch.is_empty() {
+            self.target.arch = Some(FilterList::Many(cli.target_arch.clone()));
+        }
+
+        if !cli.target_os.is_empty() {
+            self.target.os = Some(FilterList::Many(cli.target_os.clone()));
+        }
+
+        if let Some(url) = &cli.url {
+            self.database.url = Some(url.clone())
+        }
+
+        for kind in &cli.deny {
+            if *kind == DenyOption::Warnings {
+                self.output.deny = DenyOption::all();
+            } else {
+                self.output.deny.push(*kind);
+            }
+        }
+
+        self.output.quiet |= cli.quiet;
+        if cli.quiet {
+            self.output.show_tree = false;
+        }
+
+        // Handle output format (--json flag takes precedence for backward compatibility)
+        if cli.output_json {
+            self.output.format = OutputFormat::Json;
+        } else if let Some(format) = cli.output_format {
+            self.output.format = format;
+        }
+
+        if cli.no_yanked {
+            self.yanked.enabled = false;
+        }
+
+        Ok(())
+    }
+
     /// Get audit report settings from the configuration
     pub fn report_settings(&self) -> report::Settings {
         let mut settings = report::Settings {
@@ -267,10 +367,7 @@ impl FromStr for DenyOption {
             "unmaintained" => Ok(Self::Unmaintained),
             "unsound" => Ok(Self::Unsound),
             "yanked" => Ok(Self::Yanked),
-            other => Err(Error::new(
-                ErrorKind::Parse,
-                format!("invalid deny option: {other}"),
-            )),
+            other => Err(ErrorKind::Parse.context(format!("invalid deny option: {other}"))),
         }
     }
 }
@@ -300,10 +397,7 @@ impl FromStr for OutputFormat {
             "json" => Ok(Self::Json),
             "sarif" => Ok(Self::Sarif),
             "terminal" => Ok(Self::Terminal),
-            other => Err(Error::new(
-                ErrorKind::Parse,
-                format!("invalid output format: {other}"),
-            )),
+            other => Err(ErrorKind::Parse.context(format!("invalid output format: {other}"))),
         }
     }
 }
@@ -382,3 +476,8 @@ impl Default for YankedConfig {
 fn default_true() -> bool {
     true
 }
+
+/// Name of the configuration file
+///
+/// This file allows setting some default auditing options.
+const CONFIG_FILE: &str = "audit.toml";
