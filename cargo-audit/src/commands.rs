@@ -47,13 +47,6 @@ impl CargoAuditCommand {
     pub fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
         self.cmd.run(config)
     }
-
-    /// Override loaded config with explicit command-line arguments
-    pub fn process_config(&self, config: AuditConfig) -> Result<AuditConfig, Error> {
-        match &self.cmd {
-            CargoAuditSubCommand::Audit(cmd) => cmd.override_config(config),
-        }
-    }
 }
 
 impl Deref for CargoAuditCommand {

@@ -60,7 +60,7 @@ fn load_config(command: &CargoAuditCommand) -> Result<AuditConfig, Error> {
         None => AuditConfig::default(),
     };
 
-    command.process_config(config)
+    command.override_config(config)
 }
 
 /// Initialize the `tracing` subsystem from command-line options
