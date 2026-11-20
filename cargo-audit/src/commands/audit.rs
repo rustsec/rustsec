@@ -21,15 +21,15 @@ use crate::{
 #[cfg(feature = "fix")]
 mod fix;
 #[cfg(feature = "fix")]
-use fix::FixCommand;
+pub use fix::FixCommand;
 
 #[cfg(feature = "binary-scanning")]
 mod binary_scanning;
 #[cfg(feature = "binary-scanning")]
-use binary_scanning::BinCommand;
+pub use binary_scanning::BinCommand;
 
 mod update_db;
-use update_db::UpdateDbCommand;
+pub use update_db::UpdateDbCommand;
 
 /// The `cargo audit` subcommand
 #[derive(Clone, Default, Debug, Parser)]
@@ -37,7 +37,7 @@ use update_db::UpdateDbCommand;
 pub struct AuditCommand {
     /// Optional subcommand (used for `cargo audit fix` and `cargo audit bin`)
     #[command(subcommand)]
-    pub(super) subcommand: Option<AuditSubcommand>,
+    pub(crate) subcommand: Option<AuditSubcommand>,
 
     /// Colored output configuration
     #[arg(
@@ -187,7 +187,7 @@ impl AuditCommand {
 
 /// Subcommands of `cargo audit`
 #[derive(Subcommand, Clone, Debug)]
-pub(super) enum AuditSubcommand {
+pub enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
     #[command(about = "automatically upgrade vulnerable dependencies")]

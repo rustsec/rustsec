@@ -12,9 +12,10 @@ use rustsec::{Fixer, advisory::Id};
 
 use crate::{auditor::Auditor, config::AuditConfig, error::Error, lockfile, prelude::*};
 
+/// The `cargo audit fix` subcommand
 #[derive(Clone, Default, Debug, Parser)]
 #[command(author, version, about)]
-pub(crate) struct FixCommand {
+pub struct FixCommand {
     /// Path to `Cargo.lock`
     #[arg(short = 'f', long = "file", help = "Cargo lockfile to inspect")]
     file: Option<PathBuf>,
@@ -31,7 +32,7 @@ impl FixCommand {
     }
 
     /// Run the `cargo audit fix` subcommand with the given configuration
-    pub(crate) fn run(self, mut config: AuditConfig) -> Result<ExitCode, Error> {
+    pub fn run(self, mut config: AuditConfig) -> Result<ExitCode, Error> {
         let path = match lockfile::locate_or_generate(self.cargo_lock_path()) {
             Ok(path) => path,
             Err(e) => {

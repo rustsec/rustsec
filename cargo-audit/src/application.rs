@@ -1,11 +1,13 @@
 //! Application entrypoint for `cargo audit`
 
-use std::{env, process::ExitCode};
+use std::{env, ops::Deref, process::ExitCode};
 
 use clap::Parser;
 
+#[cfg(feature = "binary-scanning")]
+use crate::commands::AuditSubcommand;
 use crate::{
-    commands::CargoAuditCommand,
+    commands::AuditCommand,
     config::AuditConfig,
     error::Error,
     terminal::{self, ColorChoice},
@@ -26,7 +28,47 @@ pub fn boot() -> Result<ExitCode, Error> {
     let config = AuditConfig::load(&command)?;
 
     // Run the command
-    command.run(config)
+    let CargoAuditSubCommand::Audit(cmd) = command.cmd;
+    match cmd.subcommand {
+        #[cfg(feature = "binary-scanning")]
+        Some(AuditSubcommand::Bin(bin)) => bin.run(config),
+        #[cfg(feature = "fix")]
+        Some(AuditSubcommand::Fix(fix)) => fix.run(config),
+        Some(AuditSubcommand::UpdateDb(update_db)) => update_db.run(config),
+        None => cmd.run(config),
+    }
+}
+
+/// `cargo audit` subcommands (presently only `audit`)
+#[derive(Debug, Parser)]
+#[command(bin_name = "cargo")]
+pub enum CargoAuditSubCommand {
+    /// The `cargo audit` subcommand
+    #[command(about = "Audit Cargo.lock files for vulnerable crates")]
+    Audit(AuditCommand),
+}
+
+/// `cargo audit` entrypoint
+#[derive(Debug, Parser)]
+#[command(author, version, about)]
+pub struct CargoAuditCommand {
+    /// Subcommand to execute (only `audit` is currently supported)
+    #[command(subcommand)]
+    pub cmd: CargoAuditSubCommand,
+
+    /// Increase verbosity setting
+    #[arg(short = 'v', long, help = "Increase verbosity")]
+    pub verbose: bool,
+}
+
+impl Deref for CargoAuditCommand {
+    type Target = AuditCommand;
+
+    fn deref(&self) -> &AuditCommand {
+        match &self.cmd {
+            CargoAuditSubCommand::Audit(cmd) => cmd,
+        }
+    }
 }
 
 /// Initialize the `tracing` subsystem from command-line options
