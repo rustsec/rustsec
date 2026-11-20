@@ -13,7 +13,7 @@ use crate::{auditor::Auditor, config::AuditConfig, error::Error};
 /// The `cargo audit` subcommand
 #[derive(Clone, Default, Debug, Parser)]
 #[command()]
-pub(crate) struct BinCommand {
+pub struct BinCommand {
     /// Maximum binary size in bytes to read
     #[arg(
         long = "max-binary-size",
@@ -41,7 +41,7 @@ pub(crate) struct BinCommand {
 
 impl BinCommand {
     /// Run the `cargo audit bin` subcommand with the given configuration
-    pub(crate) fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
+    pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         let mut auditor = Auditor::new(&config)?;
         auditor.set_binary_scan_limits(self.max_binary_size, self.audit_data_size_limit);
         let report = auditor.audit_binaries(&self.binary_paths);

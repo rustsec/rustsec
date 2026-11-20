@@ -4,9 +4,10 @@ use clap::Parser;
 
 use crate::{auditor::update_db, config::AuditConfig, error::Error};
 
+/// The `cargo audit update-db` subcommand
 #[derive(Clone, Default, Debug, Parser)]
 #[command(author, version, about)]
-pub(crate) struct UpdateDbCommand {
+pub struct UpdateDbCommand {
     /// Filesystem path to the advisory database git repository
     #[arg(
         short,
@@ -20,7 +21,8 @@ pub(crate) struct UpdateDbCommand {
 }
 
 impl UpdateDbCommand {
-    pub(crate) fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
+    /// Run the `cargo audit update-db` subcommand with the given configuration
+    pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         let mut config = config.clone();
         if let Some(db) = &self.db {
             config.database.path = Some(db.clone());
