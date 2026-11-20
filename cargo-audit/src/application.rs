@@ -26,7 +26,7 @@ pub fn boot() -> Result<ExitCode, Error> {
     let config = AuditConfig::load(&command)?;
 
     // Run the command
-    command.run(&config)
+    command.run(config)
 }
 
 /// Initialize the `tracing` subsystem from command-line options

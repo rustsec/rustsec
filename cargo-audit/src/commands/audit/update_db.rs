@@ -20,7 +20,7 @@ pub(crate) struct UpdateDbCommand {
 }
 
 impl UpdateDbCommand {
-    pub(crate) fn run(&self, config: &AuditConfig) -> Result<ExitCode, Error> {
+    pub(crate) fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         let mut config = config.clone();
         if let Some(db) = &self.db {
             config.database.path = Some(db.clone());
