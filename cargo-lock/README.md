@@ -4,7 +4,6 @@
 [![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
 [![Safety Dance][safety-image]][safety-link]
-![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Project Chat][zulip-image]][zulip-link]
 
@@ -19,16 +18,9 @@ the [`cargo-tree`] crate.
 
 [Documentation][docs-link]
 
-## Minimum Supported Rust Version
-
-Rust **1.85** or higher.
-
-Minimum supported Rust version can be changed in the future, but it will be
-accompanied by a minor version bump.
-
 ## SemVer Policy
 
-- MSRV is considered exempt from SemVer as noted above
+- MSRV is considered exempt from SemVer
 - The `cargo lock` CLI interface is not considered to have a stable interface
   and is also exempted from SemVer. We reserve the right to make substantial
   changes to it at any time (for now)
@@ -76,7 +68,6 @@ additional terms or conditions.
 [build-image]: https://github.com/RustSec/rustsec/actions/workflows/cargo-lock.yml/badge.svg
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/cargo-lock.yml
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
-[rustc-image]: https://img.shields.io/badge/rustc-1.85+-blue.svg
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
 [zulip-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg

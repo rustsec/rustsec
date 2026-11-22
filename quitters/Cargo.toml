@@ -2,6 +2,7 @@
 name = "quitters"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 description = "List dependencies of a Rust binary by parsing panic messages"
 repository = "https://github.com/rustsec/rustsec"
