@@ -4,7 +4,6 @@
 [![Docs][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
 [![Safety Dance][safety-image]][safety-link]
-![MSRV][rustc-image]
 ![Apache 2.0 OR MIT licensed][license-image]
 [![Project Chat][chat-image]][chat-link]
 
@@ -21,13 +20,6 @@ for the purposes of identifying vulnerable crates in Cargo.lock files.
 
 However, it may be useful if you would like to consume the RustSec advisory
 database in other capacities.
-
-## Minimum Supported Rust Version
-
-Rust **1.85** or higher.
-
-Minimum supported Rust version can be changed in the future, but it will be
-done with a minor version bump.
 
 ## License
 
@@ -54,7 +46,6 @@ additional terms or conditions.
 [build-link]: https://github.com/RustSec/rustsec/actions/workflows/rustsec.yml
 [safety-image]: https://img.shields.io/badge/unsafe-forbidden-success.svg
 [safety-link]: https://github.com/rust-secure-code/safety-dance/
-[rustc-image]: https://img.shields.io/badge/rustc-1.73+-blue.svg
 [license-image]: https://img.shields.io/badge/license-Apache2.0%2FMIT-blue.svg
 [chat-image]: https://img.shields.io/badge/zulip-join_chat-blue.svg
 [chat-link]: https://rust-lang.zulipchat.com/#narrow/stream/146229-wg-secure-code/
