@@ -1,8 +1,5 @@
 [advisories]
-ignore = [
-    # proc-macro-error2 is unmaintained (via defmt)
-    "RUSTSEC-2026-0173",
-]
+ignore = []
 
 [output]
 quiet = false
