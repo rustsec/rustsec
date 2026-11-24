@@ -195,7 +195,24 @@ impl Auditor {
         let query = Query::new().collection(Collection::Crates).withdrawn(false);
         let affected = self.database.query_vulnerabilities(lockfile, &query);
         for id in &self.report_settings.ignore {
-            if !affected.iter().any(|vuln| &vuln.advisory.id == id) {
+            if affected.iter().any(|vuln| &vuln.advisory.id == id) {
+                continue;
+            }
+
+            // The query above skips withdrawn advisories, so check for one
+            // here: its ignore entry can go from every config, not just this one
+            let withdrawn = self
+                .database
+                .get(id)
+                .and_then(|advisory| advisory.metadata.withdrawn.as_ref());
+
+            if let Some(date) = withdrawn {
+                status_warn!(
+                    "ignored advisory {} was withdrawn on {}; the ignore entry can be removed",
+                    id,
+                    date
+                );
+            } else {
                 status_warn!("ignored advisory {} is not needed for this lockfile", id);
             }
         }
