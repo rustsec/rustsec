@@ -9,6 +9,7 @@ use tempfile::TempDir;
 const ID: &str = "RUSTSEC-2024-0001";
 const UNKNOWN: &str = "RUSTSEC-2024-9999";
 const WARNING: &str = "is not needed for this lockfile";
+const WITHDRAWN: &str = "was withdrawn on 2024-02-01; the ignore entry can be removed";
 
 struct Fixture(TempDir);
 
@@ -160,9 +161,38 @@ fn config_and_cli_ignores_are_both_checked() {
 }
 
 #[test]
-fn withdrawn_and_different_source_ignores_are_unused() {
+fn withdrawn_ignores_say_the_advisory_was_withdrawn() {
+    // A withdrawn advisory matches no version, affected or not
+    for version in ["0.1.0", "0.2.0"] {
+        let fixture = Fixture::registry(version, "withdrawn = \"2024-02-01\"");
+
+        let output = fixture.run(&["--ignore", ID]);
+        assert_eq!(output.status.code(), Some(0), "{}", stderr(&output));
+        assert!(
+            stderr(&output).contains(&format!("{ID} {WITHDRAWN}")),
+            "{}",
+            stderr(&output)
+        );
+        assert!(!stderr(&output).contains(WARNING), "{}", stderr(&output));
+
+        fixture.config(&format!(
+            "[advisories]
+ignore = [\"{ID}\"]
+"
+        ));
+        let output = fixture.run(&[]);
+        assert_eq!(output.status.code(), Some(0), "{}", stderr(&output));
+        assert_eq!(stderr(&output).matches(WITHDRAWN).count(), 1);
+
+        let output = fixture.run(&["--warn-unused-ignores=false"]);
+        assert_eq!(output.status.code(), Some(0), "{}", stderr(&output));
+        assert!(!stderr(&output).contains(WITHDRAWN), "{}", stderr(&output));
+    }
+}
+
+#[test]
+fn different_source_ignores_are_unused() {
     for fixture in [
-        Fixture::registry("0.1.0", "withdrawn = \"2024-02-01\""),
         Fixture::new("0.1.0", None, ""),
         Fixture::new(
             "0.1.0",
