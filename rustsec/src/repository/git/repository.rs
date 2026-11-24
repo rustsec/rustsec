@@ -118,8 +118,7 @@ impl Repository {
         .map_err(Error::from_tame)?;
 
         let open_or_clone_repo = || -> Result<_, Error> {
-            let mut mapping = gix::sec::trust::Mapping::default();
-            let open_with_complete_config =
+            let open_with_complete_config = || {
                 gix::open::Options::default().permissions(gix::open::Permissions {
                     config: gix::open::permissions::Config {
                         // Be sure to get all configuration, some of which is only known by the git binary.
@@ -132,17 +131,15 @@ impl Repository {
                         ..gix::open::permissions::Environment::all()
                     },
                     ..Default::default()
-                });
-
-            mapping.reduced = open_with_complete_config.clone();
-            mapping.full = open_with_complete_config.clone();
+                })
+            };
 
             // Attempt to open the repository, if it fails for any reason,
             // attempt to perform a fresh clone instead
             let repo = gix::ThreadSafeRepository::discover_opts(
                 &path,
                 gix::discover::upwards::Options::default().apply_environment(),
-                mapping,
+                |_, _| open_with_complete_config(),
             )
             .ok()
             .map(|repo| repo.to_thread_local())
@@ -153,7 +150,7 @@ impl Repository {
                         .is_some_and(|remote_url| remote_url.to_bstring() == url)
                 })
             })
-            .or_else(|| gix::open_opts(&path, open_with_complete_config).ok());
+            .or_else(|| gix::open_opts(&path, open_with_complete_config()).ok());
 
             let res = if let Some(repo) = repo {
                 (repo, None)
@@ -336,15 +333,15 @@ impl Repository {
         // refs/heads/<branch> which is a peeled commit id, if that's the case
         // we update it to the new commit id, otherwise we just set HEAD
         // directly
-        use gix::head::Kind;
+        use gix::HeadOwned;
         let edit = match repo
             .head()
             .map_err(|err| {
                 Error::with_source(ErrorKind::Repo, "unable to locate HEAD".to_owned(), err)
             })?
-            .kind
+            .detach_repo()
         {
-            Kind::Symbolic(sref) => {
+            HeadOwned::Symbolic(sref) => {
                 // Update our local HEAD to the remote HEAD
                 if let Target::Symbolic(name) = sref.target {
                     Some(tx::RefEdit {
@@ -364,7 +361,7 @@ impl Repository {
                     None
                 }
             }
-            Kind::Unborn(_) | Kind::Detached { .. } => None,
+            HeadOwned::Unborn(_) | HeadOwned::Detached { .. } => None,
         };
 
         let edit = edit.unwrap_or_else(|| tx::RefEdit {

@@ -174,9 +174,11 @@ impl Commit {
         )
         .map_err(|err| Error::with_source(ErrorKind::Repo, "failed to checkout".to_owned(), err))?;
 
-        index.write(Default::default()).map_err(|err| {
-            Error::with_source(ErrorKind::Repo, "failed to write index".to_owned(), err)
-        })?;
+        index
+            .write(Default::default(), repo.refs.shared_repository_permissions)
+            .map_err(|err| {
+                Error::with_source(ErrorKind::Repo, "failed to write index".to_owned(), err)
+            })?;
 
         Ok(())
     }
