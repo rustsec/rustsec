@@ -24,7 +24,7 @@ comrak = { version = "1", default-features = false }
 cvss = { version = "3.0", path = "./cvss" }
 display-error-chain = "0.2.0"
 fs-err = "3"
-gix = { version = "0.90", default-features = false, features = ["max-performance", "revision", "sha1", "worktree-mutation"] }
+gix = { version = "0.91", default-features = false, features = ["max-performance", "revision", "sha1", "worktree-mutation"] }
 home = "0.5"
 instant-feeds = "0.1"
 jiff = { version = "1", default-features = false }
