@@ -249,6 +249,20 @@ fn source_disambiguation(test_file_suffix: &str) {
     assert_eq!(original, re_encoded);
 }
 
+/// Test that `Dependency::matches` tells apart packages that only differ by source
+#[test]
+fn dependency_matches_source() {
+    let lockfile = Lockfile::load(
+        "tests/examples/source_disambiguation/Cargo.lock.single_version_different_source_types",
+    )
+    .unwrap();
+
+    // `example` depends on the `bytes` package from git, not the one from crates.io
+    let dependency = &lockfile.packages[3].dependencies[0];
+    assert!(!dependency.matches(&lockfile.packages[0]));
+    assert!(dependency.matches(&lockfile.packages[1]));
+}
+
 /// Test that a lockfile with git sources are correctly encoded
 #[test]
 fn encoding_registry_and_git() {

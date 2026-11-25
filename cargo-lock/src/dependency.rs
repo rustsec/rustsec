@@ -29,7 +29,9 @@ pub struct Dependency {
 impl Dependency {
     /// Does the given [`Package`] exactly match this `Dependency`?
     pub fn matches(&self, package: &Package) -> bool {
-        self.name == package.name && self.version == package.version
+        self.name == package.name
+            && self.version == package.version
+            && self.source == package.source
     }
 }
 
