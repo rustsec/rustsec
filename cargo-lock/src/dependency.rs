@@ -31,7 +31,10 @@ impl Dependency {
     pub fn matches(&self, package: &Package) -> bool {
         self.name == package.name
             && self.version == package.version
-            && self.source == package.source
+            && match (&self.source, &package.source) {
+                (Some(source), Some(other)) => source.matches(other),
+                (source, other) => source == other,
+            }
     }
 }
 
