@@ -293,15 +293,22 @@ impl OsvAdvisory {
 
     /// Try to extract RustSec alias id from OSV advisory metadata
     pub fn rustsec_refs_imported(&self) -> Vec<Id> {
+        const PREFIX: &str = "https://rustsec.org/advisories/";
         let mut refs: Vec<Id> = self
             .references
             .iter()
-            .filter(|r| {
-                r.url
-                    .as_str()
-                    .starts_with("https://rustsec.org/advisories/")
+            .filter_map(|r| {
+                // Strip the known prefix and the human-readable ".html"
+                // suffix that the exporter appends, then parse the remaining
+                // advisory id. A URL that merely starts with the prefix but is
+                // truncated or malformed simply yields no id, rather than
+                // panicking on an out-of-bounds byte slice or an `expect` on an
+                // unparseable value. Only genuine RustSec ids are kept, since
+                // that is what this function is documented to return.
+                let rest = r.url.as_str().strip_prefix(PREFIX)?;
+                let id_str = rest.strip_suffix(".html").unwrap_or(rest);
+                Id::from_str(id_str).ok().filter(Id::is_rustsec)
             })
-            .map(|r| Id::from_str(&r.url.as_str()[31..48]).expect("Invalid rustsec url"))
             .collect();
         refs.sort();
         refs.dedup();
@@ -357,4 +364,56 @@ fn guess_url_kind(url: &Url) -> OsvReferenceKind {
 
 fn rustsec_date_to_rfc3339(d: &crate::advisory::Date) -> String {
     format!("{}-{:02}-{:02}T12:00:00Z", d.year(), d.month(), d.day())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn advisory_with_reference_urls(urls: &[&str]) -> OsvAdvisory {
+        let refs: String = urls
+            .iter()
+            .map(|u| format!("{{\"type\":\"ADVISORY\",\"url\":\"{}\"}}", u))
+            .collect::<Vec<_>>()
+            .join(",");
+        let json = format!(
+            r#"{{
+                "id": "RUSTSEC-2021-0001",
+                "modified": "2021-01-01T00:00:00Z",
+                "published": "2021-01-01T00:00:00Z",
+                "summary": "s",
+                "details": "d",
+                "references": [{refs}]
+            }}"#,
+            refs = refs
+        );
+        serde_json::from_str(&json).expect("valid OSV advisory json")
+    }
+
+    #[test]
+    fn extracts_ids_from_well_formed_rustsec_urls() {
+        let advisory = advisory_with_reference_urls(&[
+            "https://rustsec.org/advisories/RUSTSEC-2018-0001.html",
+            "https://crates.io/crates/foo",
+        ]);
+        let ids = advisory.rustsec_refs_imported();
+        assert_eq!(ids.len(), 1);
+        assert_eq!(ids[0].as_str(), "RUSTSEC-2018-0001");
+    }
+
+    #[test]
+    fn short_or_malformed_rustsec_urls_do_not_panic() {
+        // Regression test for #1681: a URL that starts with the advisories
+        // prefix but is truncated (shorter than the old hardcoded [31..48]
+        // slice) or otherwise unparseable must be skipped, not panic.
+        let advisory = advisory_with_reference_urls(&[
+            "https://rustsec.org/advisories/",
+            "https://rustsec.org/advisories/RUSTSEC",
+            "https://rustsec.org/advisories/not-an-id.html",
+            "https://rustsec.org/advisories/RUSTSEC-2018-0002.html",
+        ]);
+        let ids = advisory.rustsec_refs_imported();
+        assert_eq!(ids.len(), 1);
+        assert_eq!(ids[0].as_str(), "RUSTSEC-2018-0002");
+    }
 }
