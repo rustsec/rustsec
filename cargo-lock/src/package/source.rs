@@ -219,6 +219,25 @@ impl SourceId {
                 && self.url.as_str() == &CRATES_IO_SPARSE_INDEX[7..]
     }
 
+    /// Does this source, as referenced from `package.dependencies`, refer to the given
+    /// `package.source`?
+    ///
+    /// Unlike `==`, this also accepts a `rev` that is abbreviated in the `package.source`.
+    pub(crate) fn matches(&self, source: &Self) -> bool {
+        if self == source {
+            return true;
+        }
+
+        match (&self.kind, &source.kind, &source.precise) {
+            (
+                SourceKind::Git(GitReference::Rev(rev)),
+                SourceKind::Git(GitReference::Rev(_)),
+                Some(precise),
+            ) => self.url == source.url && precise.starts_with(rev.as_str()),
+            _ => false,
+        }
+    }
+
     /// A view of the [`SourceId`] that can be `Display`ed as a URL.
     pub(crate) fn as_url(&self, encoded: bool) -> SourceIdAsUrl<'_> {
         SourceIdAsUrl { id: self, encoded }
@@ -235,7 +254,8 @@ impl SourceId {
 /// fragment), but the `package.dependencies` entry does not include the full commit hash.
 ///
 /// Additionally, when the `rev` is specified for a dependency using a longer hash, the `rev`
-/// used in the `package.source` may be an abbreviated hash.
+/// used in the `package.source` may be an abbreviated hash. That is not an equivalence, so
+/// it is handled by `SourceId::matches` instead.
 impl Ord for SourceId {
     fn cmp(&self, other: &Self) -> Ordering {
         match self.url.cmp(&other.url) {
@@ -250,16 +270,10 @@ impl Ord for SourceId {
 
         // Some special handling for git sources follows...
         match (&self.kind, &other.kind) {
-            (SourceKind::Git(s), SourceKind::Git(o)) => (s, o),
-            (a, b) => return a.cmp(b),
-        };
-
-        if let (Some(s), Some(o)) = (&self.precise, &other.precise) {
-            // If the git hash is the same, we consider the sources equal
-            return s.cmp(o);
+            // The full commit hash is not compared: dependency references do not include it
+            (SourceKind::Git(s), SourceKind::Git(o)) => s.cmp(o),
+            (a, b) => a.cmp(b),
         }
-
-        Ordering::Equal
     }
 }
 
@@ -273,7 +287,6 @@ impl Hash for SourceId {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.url.hash(state);
         self.kind.hash(state);
-        self.precise.hash(state);
         self.name.hash(state);
     }
 }
@@ -489,6 +502,7 @@ impl IntoUrl for &Path {
 #[cfg(test)]
 mod tests {
     use super::SourceId;
+    use std::hash::{DefaultHasher, Hash, Hasher};
 
     #[test]
     fn identifies_crates_io() {
@@ -498,5 +512,39 @@ mod tests {
                 .expect("failed to parse sparse URL")
                 .is_default_registry()
         );
+    }
+
+    #[test]
+    fn git_eq_and_hash_ignore_precise() {
+        let hash = |id: &SourceId| {
+            let mut hasher = DefaultHasher::new();
+            id.hash(&mut hasher);
+            hasher.finish()
+        };
+
+        let url = "git+https://github.com/rustsec/rustsec";
+        let commit = "b8e3025aa30ea65144372bd68d26090c0f31bea2";
+        let branch = SourceId::from_url(&format!("{url}?branch=main")).unwrap();
+        let locked = SourceId::from_url(&format!("{url}?branch=main#{commit}")).unwrap();
+        let tag = SourceId::from_url(&format!("{url}?tag=v0.34.1#{commit}")).unwrap();
+
+        assert_eq!(branch, locked);
+        assert_eq!(hash(&branch), hash(&locked));
+        assert_ne!(branch, tag);
+        assert_ne!(locked, tag);
+    }
+
+    #[test]
+    fn matches_abbreviated_rev() {
+        let url = "git+https://github.com/rustsec/rustsec";
+        let commit = "b8e3025aa30ea65144372bd68d26090c0f31bea2";
+        let package = SourceId::from_url(&format!("{url}?rev=b8e3025#{commit}")).unwrap();
+
+        let dependency = SourceId::from_url(&format!("{url}?rev={commit}")).unwrap();
+        assert_ne!(dependency, package);
+        assert!(dependency.matches(&package));
+
+        let dependency = SourceId::from_url(&format!("{url}?rev=c460e54")).unwrap();
+        assert!(!dependency.matches(&package));
     }
 }

@@ -39,8 +39,15 @@ impl Tree {
             let parent_index = nodes[&Dependency::from(package)];
 
             for dependency in &package.dependencies {
-                if let Some(node_index) = nodes.get(dependency) {
-                    graph.add_edge(parent_index, *node_index, dependency.clone());
+                // Dependencies may refer to a git `rev` that is abbreviated in the package source
+                let node_index = nodes.get(dependency).copied().or_else(|| {
+                    graph
+                        .node_indices()
+                        .find(|&node_index| dependency.matches(&graph[node_index]))
+                });
+
+                if let Some(node_index) = node_index {
+                    graph.add_edge(parent_index, node_index, dependency.clone());
                 } else {
                     return Err(Error::Resolution(format!(
                         "failed to find dependency: {dependency}"
@@ -233,6 +240,15 @@ mod tests {
     #[test]
     fn load_same_git() {
         let lockfile = Lockfile::load("tests/examples/Cargo.lock.same-git").unwrap();
-        Tree::new(&lockfile).unwrap();
+        let tree = Tree::new(&lockfile).unwrap();
+        assert_eq!(tree.nodes().len(), lockfile.packages.len());
+
+        // Packages from a git source only depend on packages from the same `rev`
+        for package in &lockfile.packages[1..] {
+            let node_index = tree.nodes()[&Dependency::from(package)];
+            for dependency in tree.graph().neighbors(node_index) {
+                assert_eq!(tree.graph()[dependency].source, package.source);
+            }
+        }
     }
 }
