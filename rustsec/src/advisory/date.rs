@@ -65,6 +65,24 @@ impl FromStr for Date {
 
     /// Create a `Date` from the given RFC 3339 date string
     fn from_str(rfc3339_date: &str) -> Result<Self, Error> {
+        // Advisory dates must be plain `YYYY-MM-DD` dates. `jiff` also
+        // accepts compact dates (e.g. `20240102`) and timestamps (e.g.
+        // `2024-01-02T00:00:00`), but `Date` stores the raw string and
+        // `month()`/`day()` split it on `-`, so those inputs would parse
+        // successfully here and panic later. Reject anything that is not
+        // exactly `YYYY-MM-DD` up front.
+        let is_yyyy_mm_dd = rfc3339_date.len() == 10
+            && rfc3339_date.as_bytes()[4] == b'-'
+            && rfc3339_date.as_bytes()[7] == b'-'
+            && rfc3339_date
+                .bytes()
+                .enumerate()
+                .all(|(i, b)| i == 4 || i == 7 || b.is_ascii_digit());
+
+        if !is_yyyy_mm_dd {
+            fail!(ErrorKind::Parse, "invalid date: {}", rfc3339_date);
+        }
+
         let date = CivilDate::from_str(rfc3339_date)
             .map_err(|_| Error::new(ErrorKind::Parse, format!("invalid date: {rfc3339_date}")))?;
 
@@ -116,6 +134,15 @@ mod tests {
         assert!(Date::from_str("2017-02-29").is_err());
         assert!(Date::from_str("2017-04-31").is_err());
         assert!(Date::from_str("2017-02-30").is_err());
+
+        // Not plain `YYYY-MM-DD` dates: jiff accepts these, but `Date`
+        // stores the raw string and `month()`/`day()` split it on `-`,
+        // so accepting them would panic later (see #1778).
+        assert!(Date::from_str("20240102").is_err());
+        assert!(Date::from_str("2024-01-02T00:00:00").is_err());
+        assert!(Date::from_str("2024-01-02T00:00:00Z").is_err());
+        assert!(Date::from_str("2024-1-02").is_err());
+        assert!(Date::from_str("2024-01-2").is_err());
 
         // Leap year February 29th
         assert!(Date::from_str("2000-02-29").is_ok());
