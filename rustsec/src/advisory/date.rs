@@ -65,25 +65,20 @@ impl FromStr for Date {
 
     /// Create a `Date` from the given RFC 3339 date string
     fn from_str(rfc3339_date: &str) -> Result<Self, Error> {
-        // Advisory dates must be plain `YYYY-MM-DD` dates. `jiff` also
-        // accepts compact dates (e.g. `20240102`) and timestamps (e.g.
-        // `2024-01-02T00:00:00`), but `Date` stores the raw string and
-        // `month()`/`day()` split it on `-`, so those inputs would parse
-        // successfully here and panic later. Reject anything that is not
-        // exactly `YYYY-MM-DD` up front.
-        let is_yyyy_mm_dd = rfc3339_date.len() == 10
-            && rfc3339_date.as_bytes()[4] == b'-'
-            && rfc3339_date.as_bytes()[7] == b'-'
-            && rfc3339_date
-                .bytes()
-                .enumerate()
-                .all(|(i, b)| i == 4 || i == 7 || b.is_ascii_digit());
-
-        if !is_yyyy_mm_dd {
+        // Advisory dates must be plain `YYYY-MM-DD` dates. Parse with
+        // an explicit format so `jiff` rejects anything else: compact
+        // dates (e.g. `20240102`) and timestamps (e.g.
+        // `2024-01-02T00:00:00`) would otherwise parse fine, but `Date`
+        // stores the raw string and `month()`/`day()` split it on `-`,
+        // so those inputs would parse successfully here and panic later.
+        // `strptime` accepts unpadded month/day values (e.g.
+        // `2024-1-02`), so also require the exact 10-byte length to
+        // keep the zero-padded `YYYY-MM-DD` shape advisories use.
+        if rfc3339_date.len() != 10 {
             fail!(ErrorKind::Parse, "invalid date: {}", rfc3339_date);
         }
 
-        let date = CivilDate::from_str(rfc3339_date)
+        let date = CivilDate::strptime("%Y-%m-%d", rfc3339_date)
             .map_err(|_| Error::new(ErrorKind::Parse, format!("invalid date: {rfc3339_date}")))?;
 
         if !(YEAR_MIN..=YEAR_MAX).contains(&(date.year() as u32)) {
