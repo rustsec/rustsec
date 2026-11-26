@@ -73,13 +73,15 @@ fn unaffected_to_osv_ranges(
     let mut unaffected = unaffected.to_vec();
     use std::cmp::Ordering;
     unaffected.sort_unstable_by(|a, b| {
-        match (a.start().version(), b.start().version()) {
-            (None, _) => Ordering::Less,
-            (_, None) => Ordering::Greater,
-            (Some(v1), Some(v2)) => {
-                assert!(v1 != v2); // should be already ruled out by overlap checks, but verify just in case
-                v1.cmp(v2)
-            }
+        match (a.start(), b.start()) {
+            (Bound::Unbounded, _) => Ordering::Less,
+            (_, Bound::Unbounded) => Ordering::Greater,
+            // The only non-overlapping ranges that start at the same version are
+            // an exact version and an exclusive lower bound, e.g. `= 1.0.0` and `> 1.0.0`
+            (Bound::Inclusive(v1), Bound::Exclusive(v2)) => v1.cmp(v2).then(Ordering::Less),
+            (Bound::Exclusive(v1), Bound::Inclusive(v2)) => v1.cmp(v2).then(Ordering::Greater),
+            (Bound::Inclusive(v1), Bound::Inclusive(v2))
+            | (Bound::Exclusive(v1), Bound::Exclusive(v2)) => v1.cmp(v2),
         }
     });
 
@@ -164,8 +166,22 @@ fn increment(v: &Version) -> Version {
 
 #[cfg(test)]
 mod tests {
-    use super::increment;
-    use semver::Version;
+    use super::{increment, unaffected_to_osv_ranges};
+    use semver::{Version, VersionReq};
+
+    #[test]
+    fn exact_and_greater_than_same_version() {
+        let unaffected = [VersionReq::parse("= 0.22.0").unwrap()];
+        let patched = [VersionReq::parse("> 0.22.0").unwrap()];
+        let ranges = unaffected_to_osv_ranges(&unaffected, &patched).unwrap();
+        let affects = |v: &str| {
+            let version = Version::parse(v).unwrap();
+            ranges.iter().any(|range| range.affects(&version))
+        };
+        assert!(affects("0.21.0"));
+        assert!(!affects("0.22.0"));
+        assert!(!affects("0.22.1"));
+    }
 
     #[test]
     fn increment_simple() {
