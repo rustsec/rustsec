@@ -142,6 +142,10 @@ impl FromStr for Id {
         // Ensure known advisory types are well-formed
         let year = match kind {
             IdKind::RustSec | IdKind::Cve | IdKind::Talos => Some(parse_year(advisory_id)?),
+            IdKind::Ghsa => {
+                validate_ghsa(advisory_id)?;
+                None
+            }
             _ => None,
         };
 
@@ -238,6 +242,28 @@ fn parse_year(advisory_id: &str) -> Result<u32, Error> {
     Ok(year)
 }
 
+/// Check that a GHSA identifier has the form `GHSA-xxxx-xxxx-xxxx`
+fn validate_ghsa(advisory_id: &str) -> Result<(), Error> {
+    let (mut seen_groups, mut malformed) = (0, false);
+    for part in advisory_id.split('-').skip(1) {
+        match (
+            part.len(),
+            part.bytes().all(|b| b"23456789cfghjmpqrvwx".contains(&b)),
+        ) {
+            (4, true) => seen_groups += 1,
+            _ => {
+                malformed = true;
+                break;
+            }
+        }
+    }
+
+    match (seen_groups, malformed) {
+        (3, false) => Ok(()),
+        _ => fail!(ErrorKind::Parse, "malformed advisory ID: {}", advisory_id),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::{Id, IdKind};
@@ -292,6 +318,21 @@ mod tests {
             "https://github.com/advisories/GHSA-4mmc-49vf-jmcp"
         );
         assert!(ghsa_id.numerical_part().is_none());
+    }
+
+    #[test]
+    fn malformed_ghsa_id_test() {
+        for id in [
+            "GHSA-",
+            "GHSA-1234",
+            "GHSA-4mmc-49vf",
+            "GHSA-4mmc-49vf-jmcp-jmcp",
+            "GHSA-4mmc-49vf-jmc",
+            "GHSA-0000-0000-0000",
+            "GHSA-4MMC-49VF-JMCP",
+        ] {
+            assert!(id.parse::<Id>().is_err(), "{id}");
+        }
     }
 
     #[test]
