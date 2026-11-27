@@ -6,7 +6,7 @@ use std::str::FromStr;
 // TODO(tarcieri): add more example `Cargo.lock` files which cover more scenarios
 
 use cargo_lock::{
-    Lockfile, MetadataKey, ResolveVersion, Version,
+    Lockfile, MetadataKey, ResolveVersion, SourceId, Version,
     package::{GitReference, SourceKind},
 };
 
@@ -321,4 +321,20 @@ source = "git+https://github.com/nope/child?rev=bbbb#bbbbbbbbbbbbbbbbbbbbbbbbbbb
     // This will fail to resolve if child source URLs aren't normalized when deriving
     // dependencies from packges.
     let _tree = cargo_lock::dependency::tree::Tree::new(&lockfile).unwrap();
+}
+
+#[test]
+fn public_source_id_keeps_url_decoding() {
+    for (value, expected) in [
+        ("release+prod", "release prod"),
+        ("release%2Bprod", "release+prod"),
+        ("literal%252B", "literal%2B"),
+    ] {
+        let source =
+            SourceId::from_url(&format!("git+https://example.com/source?branch={value}")).unwrap();
+        assert_eq!(
+            source.git_reference(),
+            Some(&GitReference::Branch(expected.into()))
+        );
+    }
 }

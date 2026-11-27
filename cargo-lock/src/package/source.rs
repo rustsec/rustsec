@@ -63,6 +63,10 @@ impl SourceId {
     ///                     656c58fb7c5ef5f12bc747f");
     /// ```
     pub fn from_url(string: &str) -> Result<Self> {
+        Self::from_url_with_encoding(string, true)
+    }
+
+    pub(crate) fn from_url_with_encoding(string: &str, url_encoded: bool) -> Result<Self> {
         let mut parts = string.splitn(2, '+');
         let kind = parts.next().unwrap();
         let url = parts
@@ -71,16 +75,30 @@ impl SourceId {
 
         match kind {
             "git" => {
-                let mut url = url.into_url()?;
+                let raw_url = url;
+                let mut url = raw_url.into_url()?;
                 let mut reference = GitReference::DefaultBranch;
-                for (k, v) in url.query_pairs() {
-                    match &k[..] {
+                let mut set_reference = |k: &str, v: &str| {
+                    match k {
                         // Map older 'ref' to branch.
-                        "branch" | "ref" => reference = GitReference::Branch(v.into_owned()),
+                        "branch" | "ref" => reference = GitReference::Branch(v.to_owned()),
 
-                        "rev" => reference = GitReference::Rev(v.into_owned()),
-                        "tag" => reference = GitReference::Tag(v.into_owned()),
+                        "rev" => reference = GitReference::Rev(v.to_owned()),
+                        "tag" => reference = GitReference::Tag(v.to_owned()),
                         _ => {}
+                    }
+                };
+                if url_encoded {
+                    for (k, v) in url.query_pairs() {
+                        set_reference(&k, &v);
+                    }
+                } else if let Some((_, query)) = raw_url.split('#').next().unwrap().split_once('?')
+                {
+                    // Before V4, Git references in the query are literal strings.
+                    for pair in query.split('&') {
+                        if let Some((k, v)) = pair.split_once('=') {
+                            set_reference(k, v);
+                        }
                     }
                 }
                 let precise = url.fragment().map(|s| s.to_owned());
