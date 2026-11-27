@@ -248,3 +248,67 @@ impl<'a> FixTarget<'a> {
             }))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::fs;
+
+    use rustsec::{Warning, WarningKind};
+
+    use super::*;
+    use crate::terminal::{self, ColorChoice};
+
+    #[test]
+    fn fixes_only_reported_advisory_warnings_with_patches() {
+        terminal::init(ColorChoice::Never);
+        let db = tempfile::tempdir().unwrap();
+        let advisories = db.path().join("crates/example");
+        fs::create_dir_all(&advisories).unwrap();
+        let id = |n| format!("RUSTSEC-2024-{n:04}");
+        let patched = r#"[">=2.0.0"]"#;
+        for (n, informational, versions) in [
+            (1, "", "[]"),
+            (2, "informational = \"unmaintained\"", patched),
+            (3, "informational = \"unsound\"", patched),
+            (4, "informational = \"notice\"", patched),
+            (5, "informational = \"notice\"", "[]"),
+            (6, "informational = \"notice\"", patched),
+        ] {
+            let id = id(n);
+            fs::write(advisories.join(format!("{id}.md")), format!(
+                "```toml\n[advisory]\nid = {id:?}\npackage = \"example\"\ndate = \"2024-01-01\"\n{informational}\n[versions]\npatched = {versions}\n```\n\n# Test advisory\n\nFixture.\n"
+            )).unwrap();
+        }
+        let file = db.path().join("Cargo.lock");
+        fs::write(&file, "version = 3\n[[package]]\nname = \"example\"\nversion = \"1.0.0\"\nsource = \"registry+https://github.com/rust-lang/crates.io-index\"\n").unwrap();
+        let mut config = AuditConfig::default();
+        config.database.path = Some(db.path().into());
+        config.database.fetch = false;
+        config.yanked.enabled = false;
+        config.output.quiet = true;
+        config.advisories.ignore.push(id(6).parse().unwrap());
+        let mut auditor = Auditor::new(&config).unwrap();
+        let mut report = auditor.audit_lockfile(&file).unwrap();
+        let package = &report.vulnerabilities.list[0].package;
+        let yanked = Warning::new(WarningKind::Yanked, package, None, None, None);
+        report.warnings.insert(WarningKind::Yanked, vec![yanked]);
+        let mut targets = FixTarget::from_report(&report)
+            .map(|FixTarget(id, ..)| id.numerical_part().unwrap())
+            .collect::<Vec<_>>();
+        targets.sort_unstable();
+        assert_eq!(targets, [1, 2, 3, 4]);
+
+        let dry_run = FixCommand {
+            file: Some(file),
+            dry_run: true,
+        };
+        config
+            .advisories
+            .ignore
+            .extend((2..=4).map(|n| id(n).parse::<Id>().unwrap()));
+        let exit = dry_run.clone().run(config.clone()).unwrap();
+        assert_eq!(exit, ExitCode::FAILURE);
+        config.advisories.ignore.push(id(1).parse().unwrap());
+        assert_eq!(dry_run.run(config).unwrap(), ExitCode::SUCCESS);
+    }
+}
