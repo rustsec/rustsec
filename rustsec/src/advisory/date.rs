@@ -65,19 +65,14 @@ impl FromStr for Date {
 
     /// Create a `Date` from the given RFC 3339 date string
     fn from_str(rfc3339_date: &str) -> Result<Self, Error> {
-        // Advisory dates must be plain `YYYY-MM-DD` dates. Parse with
-        // an explicit format so `jiff` rejects anything else: compact
-        // dates (e.g. `20240102`) and timestamps (e.g.
-        // `2024-01-02T00:00:00`) would otherwise parse fine, but `Date`
-        // stores the raw string and `month()`/`day()` split it on `-`,
-        // so those inputs would parse successfully here and panic later.
-        // `strptime` accepts unpadded month/day values (e.g.
-        // `2024-1-02`), so also require the exact 10-byte length to
-        // keep the zero-padded `YYYY-MM-DD` shape advisories use.
-        if rfc3339_date.len() != 10 {
-            fail!(ErrorKind::Parse, "invalid date: {}", rfc3339_date);
-        }
-
+        // Advisory dates must be plain dates. Parse with an explicit
+        // format so `jiff` rejects anything else: compact dates (e.g.
+        // `20240102`) and timestamps (e.g. `2024-01-02T00:00:00`)
+        // would otherwise parse fine, but `Date` stores the raw string
+        // and `month()`/`day()` split it on `-`, so those inputs would
+        // parse successfully here and panic later. Unpadded month/day
+        // values (e.g. `2024-1-02`) are fine: they still split cleanly
+        // on `-`, so `strptime` accepting them is not a problem.
         let date = CivilDate::strptime("%Y-%m-%d", rfc3339_date)
             .map_err(|_| Error::new(ErrorKind::Parse, format!("invalid date: {rfc3339_date}")))?;
 
@@ -116,6 +111,12 @@ mod tests {
         assert!(Date::from_str("2017-01-01").is_ok());
         assert!(Date::from_str("2099-12-31").is_ok());
 
+        // Unpadded month/day values are fine: they still split cleanly
+        // on `-`, so `month()`/`day()` parse them without panicking.
+        assert!(Date::from_str("2024-1-02").is_ok());
+        assert!(Date::from_str("2024-01-2").is_ok());
+        assert!(Date::from_str("2024-1-2").is_ok());
+
         // Invalid dates
         assert!(Date::from_str("derp").is_err());
         assert!(Date::from_str("1999-12-31").is_err());
@@ -136,8 +137,6 @@ mod tests {
         assert!(Date::from_str("20240102").is_err());
         assert!(Date::from_str("2024-01-02T00:00:00").is_err());
         assert!(Date::from_str("2024-01-02T00:00:00Z").is_err());
-        assert!(Date::from_str("2024-1-02").is_err());
-        assert!(Date::from_str("2024-01-2").is_err());
 
         // Leap year February 29th
         assert!(Date::from_str("2000-02-29").is_ok());
@@ -149,6 +148,12 @@ mod tests {
     fn date_components_test() {
         let date = Date::from_str("2000-01-02").unwrap();
         assert_eq!(date.year(), 2000);
+        assert_eq!(date.month(), 1);
+        assert_eq!(date.day(), 2);
+
+        // Unpadded month/day values still split and parse cleanly.
+        let date = Date::from_str("2024-1-2").unwrap();
+        assert_eq!(date.year(), 2024);
         assert_eq!(date.month(), 1);
         assert_eq!(date.day(), 2);
     }
