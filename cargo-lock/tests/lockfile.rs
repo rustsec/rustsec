@@ -324,6 +324,35 @@ source = "git+https://github.com/nope/child?rev=bbbb#bbbbbbbbbbbbbbbbbbbbbbbbbbb
 }
 
 #[test]
+fn translate_v3_git_ref_to_v4() {
+    let original = include_str!("examples/Cargo.lock.git-ref-v3");
+    let mut lockfile = Lockfile::from_str(original).unwrap();
+    let expected = GitReference::Branch("release+prod".into());
+    assert_eq!(
+        lockfile.packages[1]
+            .source
+            .as_ref()
+            .unwrap()
+            .git_reference(),
+        Some(&expected)
+    );
+    assert_eq!(lockfile.to_string(), original);
+
+    lockfile.version = ResolveVersion::V4;
+    let translated = lockfile.to_string();
+    assert!(translated.contains("?branch=release%2Bprod#"));
+    let reparsed = Lockfile::from_str(&translated).unwrap();
+    assert_eq!(
+        reparsed.packages[1]
+            .source
+            .as_ref()
+            .unwrap()
+            .git_reference(),
+        Some(&expected)
+    );
+}
+
+#[test]
 fn public_source_id_keeps_url_decoding() {
     for (value, expected) in [
         ("release+prod", "release prod"),
@@ -336,5 +365,30 @@ fn public_source_id_keeps_url_decoding() {
             source.git_reference(),
             Some(&GitReference::Branch(expected.into()))
         );
+    }
+}
+
+#[test]
+fn invalid_git_ref_sources_are_rejected() {
+    for version in 1..=4 {
+        for source in [
+            "git+not-a-url",
+            "unknown+https://example.com/source",
+            "missing-protocol",
+        ] {
+            for fields in [
+                format!("source = \"{source}\""),
+                format!("dependencies = [\"demo 1.0.0 ({source})\"]"),
+                format!("replace = \"demo 1.0.0 ({source})\""),
+                format!(
+                    "[[patch.unused]]\nname = \"unused\"\nversion = \"1.0.0\"\nsource = \"{source}\""
+                ),
+            ] {
+                let input = format!(
+                    "version = {version}\n[[package]]\nname = \"root\"\nversion = \"1.0.0\"\n{fields}"
+                );
+                assert!(Lockfile::from_str(&input).is_err(), "{input}");
+            }
+        }
     }
 }
