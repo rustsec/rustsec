@@ -27,6 +27,20 @@ fn configured_dependency_trees() {
     }
 }
 
+/// `database.stale` and `output.quiet` default to `false`, so a section that
+/// sets only other keys must still parse.
+#[test]
+fn omitted_stale_and_quiet_default_to_false() {
+    let config: AuditConfig = toml::from_str("[database]\nfetch = false").unwrap();
+    assert!(!config.database.fetch);
+    assert!(!config.database.stale);
+
+    let config: AuditConfig = toml::from_str("[output]\nformat = 'json'").unwrap();
+    assert_eq!(config.output.format, OutputFormat::Json);
+    assert!(!config.output.quiet);
+    assert!(config.output.show_tree);
+}
+
 /// Ensure `audit.toml.example` parses as a valid config file
 #[test]
 fn parse_audit_toml_example() {
