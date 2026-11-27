@@ -50,8 +50,21 @@ pub(super) struct EncodableLockfile {
     pub(super) metadata: Metadata,
 
     /// Patch section
-    #[serde(default, skip_serializing_if = "Patch::is_empty")]
-    pub(super) patch: Patch,
+    #[serde(default, skip_serializing_if = "EncodablePatch::is_empty")]
+    pub(super) patch: EncodablePatch,
+}
+
+/// Unused patches need the same version-aware source decoding as packages.
+#[derive(Debug, Default, Deserialize, Serialize)]
+pub(super) struct EncodablePatch {
+    #[serde(default)]
+    unused: Vec<EncodablePackage>,
+}
+
+impl EncodablePatch {
+    fn is_empty(&self) -> bool {
+        self.unused.is_empty()
+    }
 }
 
 impl EncodableLockfile {
@@ -103,7 +116,18 @@ impl TryFrom<EncodableLockfile> for Lockfile {
                 .map(|root| root.resolve(&[], version))
                 .transpose()?,
             metadata: raw_lockfile.metadata,
-            patch: raw_lockfile.patch,
+            patch: Patch {
+                unused: raw_lockfile
+                    .patch
+                    .unused
+                    .iter()
+                    .map(|package| {
+                        package
+                            .resolve(&[], version)
+                            .map(|pkg| Dependency::from(&pkg))
+                    })
+                    .collect::<Result<_>>()?,
+            },
         })
     }
 }
@@ -152,7 +176,24 @@ impl From<&Lockfile> for EncodableLockfile {
                 .as_ref()
                 .map(|root| EncodablePackage::from_package(root, lockfile.version)),
             metadata,
-            patch: lockfile.patch.clone(),
+            patch: EncodablePatch {
+                unused: lockfile
+                    .patch
+                    .unused
+                    .iter()
+                    .map(|dep| EncodablePackage {
+                        name: dep.name.clone(),
+                        version: dep.version.clone(),
+                        source: dep
+                            .source
+                            .clone()
+                            .and_then(|id| encodable_source_id(id, lockfile.version)),
+                        checksum: None,
+                        dependencies: vec![],
+                        replace: None,
+                    })
+                    .collect(),
+            },
         }
     }
 }
