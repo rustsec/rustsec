@@ -1,9 +1,8 @@
 //! Offline CLI tests for identifying ignore entries no longer needed by a lockfile.
 
-use std::{
-    fs,
-    process::{Command, Output},
-};
+mod support;
+
+use std::{fs, process::Output};
 use tempfile::TempDir;
 
 const ID: &str = "RUSTSEC-2024-0001";
@@ -45,7 +44,7 @@ impl Fixture {
     }
 
     fn run(&self, args: &[&str]) -> Output {
-        Command::new(env!("CARGO_BIN_EXE_cargo-audit"))
+        support::cargo_audit()
             .current_dir(self.0.path())
             .args([
                 "audit",
@@ -138,7 +137,8 @@ fn fix_updates_a_patchable_warning_unless_ignored() {
         "[workspace]\nmembers = [\"member\"]\nresolver = \"3\"\n",
     );
     let member = root.join("member");
-    fs::create_dir(&member).unwrap();
+    fs::create_dir_all(member.join(".cargo")).unwrap();
+    write("member/.cargo/audit.toml", "");
     write(
         "member/Cargo.toml",
         "[package]\nname = \"member\"\nversion = \"0.1.0\"\n[lib]\npath = \"lib.rs\"\n[dependencies]\nexample = \"0\"\n",
@@ -176,7 +176,7 @@ fn fix_updates_a_patchable_warning_unless_ignored() {
         assert_unchanged(fixture.run(&args), 2);
     }
     let run_in_member = |args: &[&str]| {
-        Command::new(env!("CARGO_BIN_EXE_cargo-audit"))
+        support::cargo_audit()
             .current_dir(&member)
             .args(["audit", "--db", "../db", "--no-fetch", "--no-yanked"])
             .args(args)
