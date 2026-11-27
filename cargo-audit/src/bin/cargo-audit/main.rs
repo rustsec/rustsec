@@ -54,8 +54,8 @@ pub fn main() -> Result<ExitCode, Error> {
     let config = AuditConfig::load(&command)?;
 
     // Run the command
-    let CargoAuditSubCommand::Audit(cmd) = command.cmd;
-    match cmd.subcommand {
+    let CargoAuditSubCommand::Audit(mut cmd) = command.cmd;
+    match cmd.take_subcommand() {
         #[cfg(feature = "binary-scanning")]
         Some(AuditSubcommand::Bin(bin)) => bin.run(config),
         #[cfg(feature = "fix")]

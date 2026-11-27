@@ -140,6 +140,17 @@ pub struct AuditCommand {
 }
 
 impl AuditCommand {
+    /// Take the subcommand, passing the audit lockfile path through to `fix`.
+    pub fn take_subcommand(&mut self) -> Option<AuditSubcommand> {
+        #[cfg(feature = "fix")]
+        if let Some(AuditSubcommand::Fix(fix)) = &mut self.subcommand
+            && fix.file.is_none()
+        {
+            fix.file = self.file.take();
+        }
+        self.subcommand.take()
+    }
+
     /// Run the `cargo audit` subcommand with the given configuration
     pub fn run(self, config: AuditConfig) -> Result<ExitCode, Error> {
         let maybe_path = self.file.as_deref();
@@ -167,7 +178,7 @@ impl AuditCommand {
 pub enum AuditSubcommand {
     /// `cargo audit fix` subcommand
     #[cfg(feature = "fix")]
-    #[command(about = "automatically upgrade vulnerable dependencies")]
+    #[command(about = "automatically upgrade dependencies with patchable advisories")]
     Fix(FixCommand),
 
     /// `cargo audit update-db` subcommand

@@ -63,23 +63,20 @@ $ brew install cargo-audit
 
 ## `cargo audit fix` subcommand
 
-This tool supports an experimental feature to automatically update `Cargo.toml`
-to fix vulnerable dependency requirements.
+The experimental `cargo audit fix` command updates `Cargo.lock` to fix
+vulnerabilities and patchable `unmaintained`, `unsound`, and `notice` warnings.
 
-To enable it, install `cargo audit` with the `fix` feature enabled:
+Install `cargo-audit` with the `fix` feature enabled.
 
 ```
 $ cargo install cargo-audit --features=fix
 ```
 
-Once installed, run `cargo audit fix` to automatically fix vulnerable
-dependency requirements in your `Cargo.toml`:
+Run `cargo audit fix` from your workspace root.
 
 <img src="https://raw.githubusercontent.com/RustSec/cargo-audit/c857beb/img/screenshot-fix.png" alt="Screenshot" style="max-width:100%;">
 
-This will modify `Cargo.toml` in place. To perform a dry run instead, which
-shows a preview of what dependencies would be upgraded, run
-`cargo audit fix --dry-run`.
+To preview updates to an existing lockfile, run `cargo audit fix --dry-run`.
 
 ## `cargo audit bin` subcommand
 
