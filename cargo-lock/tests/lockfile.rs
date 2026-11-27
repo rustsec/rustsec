@@ -353,6 +353,131 @@ fn translate_v3_git_ref_to_v4() {
 }
 
 #[test]
+fn git_refs_follow_lockfile_version() {
+    for (literal, encoded) in [
+        ("release+prod", "release%2Bprod"),
+        ("literal%2B", "literal%252B"),
+        ("café+%2B", "caf%C3%A9%2B%252B"),
+    ] {
+        for key in ["branch", "tag", "rev", "ref"] {
+            let expected = match key {
+                "tag" => GitReference::Tag(literal.into()),
+                "rev" => GitReference::Rev(literal.into()),
+                _ => GitReference::Branch(literal.into()),
+            };
+            for version in 1..=4 {
+                let value = if version >= 4 { encoded } else { literal };
+                let source = format!("git+https://example.com/source?{key}={value}");
+                let abbreviated = if version == 1 {
+                    format!("abbreviated 1.0.0 ({source})")
+                } else {
+                    "abbreviated".to_owned()
+                };
+                let checksum = "0".repeat(64);
+                let package_checksum = if version == 1 {
+                    String::new()
+                } else {
+                    format!("checksum = \"{checksum}\"")
+                };
+                let metadata = if version == 1 {
+                    format!(
+                        "[metadata]\n\"checksum replaced 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)\" = \"{checksum}\""
+                    )
+                } else {
+                    String::new()
+                };
+                let input = format!(
+                    r#"version = {version}
+[[package]]
+name = "root"
+version = "1.0.0"
+dependencies = ["demo 1.0.0 ({source})", "{abbreviated}"]
+
+[[package]]
+name = "demo"
+version = "1.0.0"
+source = "{source}#0123456789abcdef"
+
+[[package]]
+name = "abbreviated"
+version = "1.0.0"
+source = "{source}#0123456789abcdef"
+
+[[package]]
+name = "replaced"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+{package_checksum}
+replace = "demo 1.0.0 ({source})"
+
+[[patch.unused]]
+name = "unused"
+version = "1.0.0"
+source = "{source}#0123456789abcdef"
+
+{metadata}
+"#
+                );
+                let lockfile = Lockfile::from_str(&input).unwrap();
+                let check = |lockfile: &Lockfile| {
+                    for source in [
+                        lockfile.packages[1].source.as_ref(),
+                        lockfile.packages[0].dependencies[0].source.as_ref(),
+                        lockfile.packages[0].dependencies[1].source.as_ref(),
+                        lockfile.packages[3]
+                            .replace
+                            .as_ref()
+                            .unwrap()
+                            .source
+                            .as_ref(),
+                        lockfile.patch.unused[0].source.as_ref(),
+                    ] {
+                        assert_eq!(source.unwrap().git_reference(), Some(&expected));
+                    }
+                };
+                check(&lockfile);
+                for target in 1..=4 {
+                    let mut translated = lockfile.clone();
+                    translated.version = ResolveVersion::try_from(target).unwrap();
+                    check(&Lockfile::from_str(&translated.to_string()).unwrap());
+                }
+
+                let legacy_root = format!(
+                    "version = {version}\n[root]\nname = \"root\"\nversion = \"1.0.0\"\nsource = \"{source}#0123456789abcdef\"\ndependencies = [\"demo 1.0.0 ({source})\"]"
+                );
+                let legacy_root = Lockfile::from_str(&legacy_root).unwrap().root.unwrap();
+                assert_eq!(
+                    legacy_root.source.as_ref().unwrap().git_reference(),
+                    Some(&expected)
+                );
+                assert_eq!(
+                    legacy_root.dependencies[0]
+                        .source
+                        .as_ref()
+                        .unwrap()
+                        .git_reference(),
+                    Some(&expected)
+                );
+            }
+
+            let metadata: MetadataKey =
+                format!("checksum demo 1.0.0 (git+https://example.com/source?{key}={literal})")
+                    .parse()
+                    .unwrap();
+            assert_eq!(
+                metadata
+                    .checksum_dependency()
+                    .unwrap()
+                    .source
+                    .unwrap()
+                    .git_reference(),
+                Some(&expected)
+            );
+        }
+    }
+}
+
+#[test]
 fn public_source_id_keeps_url_decoding() {
     for (value, expected) in [
         ("release+prod", "release prod"),
