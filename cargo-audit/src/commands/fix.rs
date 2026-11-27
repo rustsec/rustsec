@@ -3,7 +3,7 @@
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
-    process::ExitCode,
+    process::{Command, ExitCode, ExitStatus},
 };
 
 use cargo_lock::Lockfile;
@@ -81,26 +81,12 @@ impl FixCommand {
                     vulnerability.package.name
                 );
             } else {
-                let mut command = fixer.get_fix_command(vulnerability, dry_run);
-                // If the path to Cargo.lock has been specified explicitly,
-                // run the `cargo update` command in that directory
-                if let Some(path) = self.cargo_lock_path() {
-                    // documentation on .current_dir() recommends canonicalizing the path
-                    let canonical_path = path.canonicalize().unwrap();
-                    let dir = canonical_path.parent().unwrap();
-                    command.current_dir(dir);
-                }
-                // When calling `.status()` the stdout and stderr are inherited from the parent,
-                // so any status or error messages from `cargo update` will automatically be forwarded
-                // to the user of `cargo audit fix`.
-                let status = command.status();
-                if let Err(e) = status {
+                let command = fixer.get_fix_command(vulnerability, dry_run);
+                if self
+                    .run_cargo_update(command, vulnerability.package.name.as_str())
+                    .is_none()
+                {
                     failed_patches += 1;
-                    status_warn!(
-                        "Failed to run `cargo update` for package {}: {}",
-                        vulnerability.package.name,
-                        e
-                    );
                 }
             }
         }
@@ -166,6 +152,33 @@ impl FixCommand {
                 _ => ExitCode::FAILURE,
             })
         }
+    }
+
+    /// Run a `cargo update` command for `package`, in the lockfile's directory
+    /// when `--file` was given. Returns `None` after warning if the command
+    /// could not be started.
+    fn run_cargo_update(&self, mut command: Command, package: &str) -> Option<ExitStatus> {
+        // If the path to Cargo.lock has been specified explicitly,
+        // run the `cargo update` command in that directory
+        if let Some(path) = self.cargo_lock_path() {
+            // documentation on .current_dir() recommends canonicalizing the path
+            let canonical_path = path.canonicalize().unwrap();
+            let dir = canonical_path.parent().unwrap();
+            command.current_dir(dir);
+        }
+        // When calling `.status()` the stdout and stderr are inherited from the parent,
+        // so any status or error messages from `cargo update` will automatically be forwarded
+        // to the user of `cargo audit fix`.
+        command
+            .status()
+            .inspect_err(|e| {
+                status_warn!(
+                    "Failed to run `cargo update` for package {}: {}",
+                    package,
+                    e
+                );
+            })
+            .ok()
     }
 }
 
