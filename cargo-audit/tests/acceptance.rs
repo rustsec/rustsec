@@ -3,6 +3,8 @@
 
 #![forbid(unsafe_code)]
 
+mod support;
+
 use once_cell::sync::Lazy;
 use std::{
     collections::HashSet,
@@ -24,7 +26,7 @@ static LOCK: Mutex<()> = Mutex::new(());
 
 /// Get a `Command` which executes the target binary
 pub fn cmd_runner() -> Command {
-    let mut runner = Command::new(env!("CARGO_BIN_EXE_cargo-audit"));
+    let mut runner = support::cargo_audit();
     runner.arg("audit").arg("--db").arg(ADVISORY_DB_DIR.path());
     runner
 }
