@@ -241,6 +241,7 @@ pub struct DatabaseConfig {
     pub fetch: bool,
 
     /// Allow a stale advisory database? (i.e. one which hasn't been updated in 90 days)
+    #[serde(default)]
     pub stale: bool,
 }
 
@@ -284,6 +285,7 @@ pub struct OutputConfig {
     pub format: OutputFormat,
 
     /// Enable quiet mode
+    #[serde(default)]
     pub quiet: bool,
 
     /// Show inverse dependency trees along with advisories (default: true)
