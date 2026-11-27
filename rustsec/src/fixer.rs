@@ -42,20 +42,8 @@ impl Fixer {
     /// the vulnerability was actually fixed!
     /// It may remain if no semver-compatible fix was available.
     pub fn get_fix_command(&self, vulnerability: &Vulnerability, dry_run: bool) -> Command {
-        let cargo_path = self
-            .path_to_cargo
-            .as_deref()
-            .unwrap_or_else(|| Path::new("cargo"));
-
         let pkg_name = &vulnerability.package.name;
-        let mut command = Command::new(cargo_path);
-        command.arg("update");
-        if let Some(path) = self.manifest_path.as_ref() {
-            command.arg("--manifest-path").arg(path);
-        }
-        if dry_run {
-            command.arg("--dry-run");
-        }
+        let mut command = self.base_update_command(dry_run);
         // There can be more than one version of a given package in the
         // lockfile, so we need to iterate over all of them.
         //
@@ -69,6 +57,25 @@ impl Fixer {
             command.arg(&pkgid);
         }
 
+        command
+    }
+
+    /// Returns a `cargo update` command with the manifest path and the
+    /// `--dry-run` flag applied, but no packages selected yet.
+    fn base_update_command(&self, dry_run: bool) -> Command {
+        let cargo_path = self
+            .path_to_cargo
+            .as_deref()
+            .unwrap_or_else(|| Path::new("cargo"));
+
+        let mut command = Command::new(cargo_path);
+        command.arg("update");
+        if let Some(path) = self.manifest_path.as_ref() {
+            command.arg("--manifest-path").arg(path);
+        }
+        if dry_run {
+            command.arg("--dry-run");
+        }
         command
     }
 }
