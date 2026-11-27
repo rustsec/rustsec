@@ -123,6 +123,82 @@ fn affected_ignores_still_suppress_vulnerabilities() {
     assert_eq!(fixture.run(&[]).status.code(), Some(1));
 }
 
+#[cfg(feature = "fix")]
+#[test]
+fn fix_updates_a_patchable_warning_unless_ignored() {
+    let fixture = Fixture::registry("0.1.0", "informational = \"notice\"");
+    let root = fixture.0.path();
+    let write = |path, contents| fs::write(root.join(path), contents).unwrap();
+    write(
+        ".cargo/config.toml",
+        "[net]\noffline = true\n[source.crates-io]\nreplace-with = \"vendor\"\n[source.vendor]\ndirectory = \"vendor\"\n",
+    );
+    write(
+        "Cargo.toml",
+        "[workspace]\nmembers = [\"member\"]\nresolver = \"3\"\n",
+    );
+    let member = root.join("member");
+    fs::create_dir(&member).unwrap();
+    write(
+        "member/Cargo.toml",
+        "[package]\nname = \"member\"\nversion = \"0.1.0\"\n[lib]\npath = \"lib.rs\"\n[dependencies]\nexample = \"0\"\n",
+    );
+    write("member/lib.rs", "");
+    let checksum = r#"{"files":{},"package":null}"#;
+    for version in ["0.1.0", "0.2.0"] {
+        let package = root.join(format!("vendor/example-{version}"));
+        fs::create_dir_all(&package).unwrap();
+        fs::write(package.join("lib.rs"), "").unwrap();
+        let manifest = format!(
+            "[package]\nname = \"example\"\nversion = \"{version}\"\n[lib]\npath = \"lib.rs\"\n"
+        );
+        fs::write(package.join("Cargo.toml"), manifest).unwrap();
+        fs::write(package.join(".cargo-checksum.json"), checksum).unwrap();
+    }
+
+    let lockfile = root.join("Cargo.lock");
+    let before = fs::read(&lockfile).unwrap();
+    fs::rename(&lockfile, root.join("audit.lock")).unwrap();
+    let dry_run = fixture.run(&["fix", "--dry-run"]);
+    assert_eq!(dry_run.status.code(), Some(2), "{}", stderr(&dry_run));
+    assert!(!lockfile.exists());
+    fs::write(&lockfile, &before).unwrap();
+
+    let assert_unchanged = |output: Output, code| {
+        assert_eq!(output.status.code(), Some(code), "{}", stderr(&output));
+        assert_eq!(fs::read(&lockfile).unwrap(), before, "{}", stderr(&output));
+    };
+    fs::write(member.join("Cargo.lock"), &before).unwrap();
+    for args in [
+        ["fix", "--file", "audit.lock"],
+        ["--file", "member/Cargo.lock", "fix"],
+    ] {
+        assert_unchanged(fixture.run(&args), 2);
+    }
+    let run_in_member = |args: &[&str]| {
+        Command::new(env!("CARGO_BIN_EXE_cargo-audit"))
+            .current_dir(&member)
+            .args(["audit", "--db", "../db", "--no-fetch", "--no-yanked"])
+            .args(args)
+            .output()
+            .unwrap()
+    };
+    assert_unchanged(run_in_member(&["fix"]), 2);
+
+    fs::remove_file(member.join("Cargo.lock")).unwrap();
+    assert_unchanged(run_in_member(&["--ignore", ID, "fix"]), 0);
+
+    let fixed = fixture.run(&["fix", "--file", "Cargo.lock"]);
+    assert_eq!(fixed.status.code(), Some(0), "{}", stderr(&fixed));
+    let lockfile = cargo_lock::Lockfile::load(&lockfile).unwrap();
+    let dependency = lockfile
+        .packages
+        .iter()
+        .find(|pkg| pkg.name.as_str() == "example")
+        .unwrap();
+    assert_eq!(dependency.version.to_string(), "0.2.0");
+}
+
 #[test]
 fn informational_and_filtered_advisories_still_need_ignores() {
     for metadata in [
