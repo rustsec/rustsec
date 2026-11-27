@@ -3,7 +3,7 @@
 use std::{
     collections::BTreeSet,
     path::{Path, PathBuf},
-    process::ExitCode,
+    process::{Command, ExitCode},
 };
 
 use cargo_lock::Lockfile;
@@ -98,8 +98,7 @@ impl FixCommand {
                 // When calling `.status()` the stdout and stderr are inherited from the parent,
                 // so any status or error messages from `cargo update` will automatically be forwarded
                 // to the user of `cargo audit fix`.
-                let status = command.status();
-                if let Err(e) = status {
+                if let Err(e) = run_update(&mut command, dry_run) {
                     failed_patches += 1;
                     status_warn!(
                         "Failed to run `cargo update` for package {}: {}",
@@ -171,5 +170,37 @@ impl FixCommand {
                 _ => ExitCode::FAILURE,
             })
         }
+    }
+}
+
+fn run_update(command: &mut Command, dry_run: bool) -> std::io::Result<()> {
+    let status = command.status()?;
+    if dry_run && !status.success() {
+        return Err(std::io::Error::other(format!(
+            "update preview exited with {status}"
+        )));
+    }
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::run_update;
+    use std::process::{Command, Stdio};
+
+    #[test]
+    fn handles_update_exit_status() {
+        // Ask rustc for a success and an ordinary argument error without touching a project.
+        let rustc = std::env::var_os("RUSTC").unwrap_or_else(|| "rustc".into());
+        let mut update = Command::new(&rustc);
+        update.arg("--version").stdout(Stdio::null());
+        assert!(run_update(&mut update, true).is_ok());
+
+        let mut rejected = Command::new(rustc);
+        rejected
+            .arg("--unknown-audit-test-option")
+            .stderr(Stdio::null());
+        assert!(run_update(&mut rejected, true).is_err());
+        assert!(run_update(&mut rejected, false).is_ok());
     }
 }
